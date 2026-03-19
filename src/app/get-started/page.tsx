@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
 
 export const metadata: Metadata = {
   title: 'Get Started',
@@ -7,14 +9,19 @@ export const metadata: Metadata = {
 
 export default function GetStartedPage() {
   return (
-    <section style={{ maxWidth: 700, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)' }}>
-      <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)' }}>
+    <section style={{ maxWidth: 600, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)' }}>
+      <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', margin: 0 }}>
         Get Started
       </h1>
       <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-lg)', color: 'var(--text-secondary)', marginTop: 'var(--gap-md)' }}>
-        Tell us about your business and what you&apos;re looking for. We&apos;ll be in touch within 1 business day.
+        Tell us about your business and what you&apos;re looking for.
+        We&apos;ll be in touch within 1 business day.
       </p>
-      {/* TODO: LeadCaptureForm component → POST /api/leads */}
+      <div style={{ marginTop: 'var(--gap-xl)' }}>
+        <Suspense>
+          <LeadCaptureForm source="get_started" />
+        </Suspense>
+      </div>
     </section>
   );
 }
