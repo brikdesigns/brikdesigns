@@ -32,9 +32,17 @@ interface SupportPlan {
   description: string;
 }
 
+interface IndustryItem {
+  name: string;
+  slug: string;
+  tagline: string;
+  imageUrl: string | null;
+}
+
 export interface MegaNavProps {
   serviceLines: ServiceLine[];
   supportPlans: SupportPlan[];
+  industries: IndustryItem[];
 }
 
 type DropdownId = 'services' | 'customers' | 'about' | 'plans' | null;
@@ -43,7 +51,7 @@ type DropdownId = 'services' | 'customers' | 'about' | 'plans' | null;
    Component
    ──────────────────────────────────────────────────────────────── */
 
-export function MegaNav({ serviceLines, supportPlans }: MegaNavProps) {
+export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps) {
   const [open, setOpen] = useState<DropdownId>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
@@ -206,19 +214,53 @@ export function MegaNav({ serviceLines, supportPlans }: MegaNavProps) {
               {open === 'customers' && (
                 <div className="mega-nav__panel mega-nav__panel--customers">
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
+                    {/* Webflow: .inner-wrapper.narrow — left intro */}
                     <div className="mega-nav__panel-intro">
                       <h3 className="mega-nav__panel-heading">Who We Support</h3>
                       <p className="mega-nav__panel-desc">
-                        Brik gives you access to senior-level design, marketing, and back-office
-                        support — without the cost of full-time hires.
+                        Brik gives you access to senior-level design and strategic
+                        support—without the full-time overhead.
                       </p>
                       <Link href="/customers" className="mega-nav__panel-btn" onClick={() => setOpen(null)}>
                         Learn More
                       </Link>
                     </div>
-                    <div className="mega-nav__customers-grid">
-                      <NavCard href="/industries" title="Industries" desc="Dental, real estate, SaaS, and more" onClick={() => setOpen(null)} />
-                      <NavCard href="/customer-stories" title="Customer Stories" desc="Real stories, real results" onClick={() => setOpen(null)} />
+
+                    {/* Webflow: .inner-wrapper — right: industry cards + stories promo */}
+                    <div className="mega-nav__customers-content">
+                      {/* Webflow: .cms-nav-layout — industry type cards */}
+                      <div className="mega-nav__customers-grid">
+                        {industries.map((ind) => (
+                          <Link
+                            key={ind.slug}
+                            href={`/industries/${ind.slug}`}
+                            className="mega-nav__industry-card"
+                            onClick={() => setOpen(null)}
+                          >
+                            <div className="mega-nav__industry-img">
+                              {ind.imageUrl ? (
+                                <Image src={ind.imageUrl} alt={ind.name} width={200} height={200} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-accent)' }} />
+                              )}
+                            </div>
+                            <span className="mega-nav__industry-name">{ind.name}</span>
+                            <span className="mega-nav__industry-tagline">{ind.tagline}</span>
+                            <span className="mega-nav__industry-cta">View Details &rarr;</span>
+                          </Link>
+                        ))}
+                      </div>
+
+                      {/* Webflow: .mega-nav-item-story.accent — Customer Stories promo */}
+                      <Link
+                        href="/customer-stories"
+                        className="mega-nav__stories-promo"
+                        onClick={() => setOpen(null)}
+                      >
+                        <span className="mega-nav__stories-promo-title">Customer Stories</span>
+                        <span className="mega-nav__stories-promo-desc">Real stories, real results. See what we&apos;ve built together.</span>
+                        <span className="mega-nav__stories-promo-cta">View Stories</span>
+                      </Link>
                     </div>
                   </div>
                 </div>

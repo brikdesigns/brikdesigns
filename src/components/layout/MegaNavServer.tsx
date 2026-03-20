@@ -1,4 +1,4 @@
-import { getServiceCategories, getServices, getSupportPlans, mapCategorySlug } from '@/lib/supabase/queries';
+import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapCategorySlug } from '@/lib/supabase/queries';
 import { MegaNav } from './MegaNav';
 
 /**
@@ -6,10 +6,11 @@ import { MegaNav } from './MegaNav';
  * and passes it to the MegaNav client component.
  */
 export async function MegaNavServer() {
-  const [categories, services, plans] = await Promise.all([
+  const [categories, services, plans, industries] = await Promise.all([
     getServiceCategories(),
     getServices(),
     getSupportPlans(),
+    getIndustryPages(),
   ]);
 
   const serviceLines = categories.map((cat) => ({
@@ -30,5 +31,12 @@ export async function MegaNavServer() {
     description: plan.home_description || plan.description || '',
   }));
 
-  return <MegaNav serviceLines={serviceLines} supportPlans={supportPlans} />;
+  const industryItems = (industries || []).map((ind) => ({
+    name: ind.name,
+    slug: ind.slug,
+    tagline: ind.tagline || '',
+    imageUrl: ind.card_image_url || ind.hero_image_url || null,
+  }));
+
+  return <MegaNav serviceLines={serviceLines} supportPlans={supportPlans} industries={industryItems} />;
 }
