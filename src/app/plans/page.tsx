@@ -19,7 +19,7 @@ export default async function PlansPage() {
     slug: plan.slug,
     price: plan.monthly_price_display || 'Contact',
     description: plan.description || '',
-    imageUrl: plan.card_image_url || null,
+    imageUrl: plan.image_url || null,
   }));
 
   return (

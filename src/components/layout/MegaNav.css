@@ -20,8 +20,8 @@
   justify-content: flex-end;
   align-items: center;
   gap: var(--gap-lg);
-  padding-top: var(--padding-xs);
-  padding-bottom: var(--padding-xs);
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .mega-nav__utility-link {
@@ -53,8 +53,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: var(--padding-sm);
-  padding-bottom: var(--padding-sm);
+  padding-top: var(--padding-xs);
+  padding-bottom: var(--padding-xs);
 }
 
 .mega-nav__logo {

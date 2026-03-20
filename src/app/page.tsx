@@ -31,7 +31,7 @@ export default async function HomePage() {
     slug: plan.slug,
     price: plan.monthly_price_display || 'Contact',
     description: plan.home_description || plan.description || '',
-    image_url: plan.card_image_url || null,
+    image_url: plan.image_url || null,
   }));
 
   const featuredStory = stories[0];
