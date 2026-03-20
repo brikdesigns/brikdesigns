@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getServiceBySlug, mapCategorySlug } from '@/lib/supabase/queries';
-import { HeroButtons } from '@/components/marketing/HeroButtons';
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
+import '../../../shared-sections.css';
 
 type Props = { params: Promise<{ categorySlug: string; serviceSlug: string }> };
 
@@ -37,55 +37,40 @@ export default async function ServiceDetailPage({ params }: Props) {
 
   return (
     <>
-      <section style={{ maxWidth: 800, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)' }}>
-        <p style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-sm)', color: 'var(--text-secondary)', margin: 0 }}>
-          <Link href="/services" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Services</Link>
-          {' / '}
-          <Link href={`/services/${categorySlug}`} style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>
-            {category?.name || categorySlug}
-          </Link>
-        </p>
-        <div style={{ marginTop: 'var(--gap-md)' }}>
+      {/* Hero */}
+      <section className="page-hero">
+        <div className="page-hero__container">
+          <p className="page-hero__breadcrumb">
+            <Link href="/services">Services</Link>
+            {' / '}
+            <Link href={`/services/${categorySlug}`}>{category?.name || categorySlug}</Link>
+          </p>
           <ServiceBadgeLabel
             category={mapCategorySlug(category?.slug || categorySlug)}
             serviceName={service.name}
           />
+          <h1 className="page-hero__title" style={{ marginTop: 'var(--gap-sm)' }}>
+            {service.name}
+          </h1>
+          {service.tagline && (
+            <p className="page-hero__tagline">{service.tagline}</p>
+          )}
+          {service.marketing_description && (
+            <p className="page-hero__description">{service.marketing_description}</p>
+          )}
         </div>
-        <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', marginTop: 'var(--gap-sm)' }}>
-          {service.name}
-        </h1>
-        {service.tagline && (
-          <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-xl)', color: 'var(--text-brand-primary)', marginTop: 'var(--gap-sm)' }}>
-            {service.tagline}
-          </p>
-        )}
-        {service.marketing_description && (
-          <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-lg)', color: 'var(--text-secondary)', marginTop: 'var(--gap-md)', lineHeight: 1.7 }}>
-            {service.marketing_description}
-          </p>
-        )}
       </section>
 
-      {/* Offerings */}
+      {/* Offerings / Pricing */}
       {offerings.length > 0 && (
-        <section style={{ backgroundColor: 'var(--surface-secondary)', padding: 'var(--padding-xl) var(--padding-lg)' }}>
-          <div style={{ maxWidth: 800, margin: '0 auto' }}>
-            <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-md)', color: 'var(--text-primary)', margin: 0 }}>
-              Pricing
-            </h2>
+        <section className="content-section--secondary" style={{ padding: 'var(--padding-huge) 0' }}>
+          <div className="content-section__container" style={{ maxWidth: 800 }}>
+            <h2 className="content-section__heading" style={{ textAlign: 'left' }}>Pricing</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-md)', marginTop: 'var(--gap-lg)' }}>
               {offerings
                 .sort((a: { tier_rank: number }, b: { tier_rank: number }) => (a.tier_rank || 0) - (b.tier_rank || 0))
                 .map((off: { slug: string; name: string; price_display: string; description: string; what_you_get: string }) => (
-                  <div
-                    key={off.slug}
-                    style={{
-                      padding: 'var(--padding-lg)',
-                      backgroundColor: 'var(--surface-primary)',
-                      border: '1px solid var(--border-secondary)',
-                      borderRadius: 'var(--border-radius-md)',
-                    }}
-                  >
+                  <div key={off.slug} className="card-bordered" style={{ border: '2px solid var(--border-secondary)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 'var(--gap-sm)' }}>
                       <h3 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-sm)', color: 'var(--text-primary)', margin: 0 }}>
                         {off.name}
@@ -114,14 +99,15 @@ export default async function ServiceDetailPage({ params }: Props) {
       )}
 
       {/* CTA */}
-      <section style={{ maxWidth: 800, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-md)', color: 'var(--text-primary)', margin: 0 }}>
-          Interested in {service.name}?
-        </h2>
-        <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', marginTop: 'var(--gap-sm)' }}>
-          Let&apos;s talk about what you need.
-        </p>
-        <HeroButtons />
+      <section className="content-section" style={{ padding: 'var(--padding-huge) 0', textAlign: 'center' }}>
+        <div className="content-section__container">
+          <h2 className="content-section__heading">Interested in {service.name}?</h2>
+          <p className="content-section__subtext">Let&apos;s talk about what you need.</p>
+          <div style={{ display: 'flex', gap: 'var(--gap-md)', justifyContent: 'center', marginTop: 'var(--gap-xl)' }}>
+            <Link href="/get-started" className="btn-primary">Get Started</Link>
+            <Link href="/contact" className="btn-outline">Let&apos;s Talk</Link>
+          </div>
+        </div>
       </section>
     </>
   );
