@@ -9,14 +9,13 @@
 
 /* ─── Utility bar ─────────────────────────────────────────────── */
 
-/* Webflow: .utility-navigation — fixed 40px height */
+/* Webflow: .utility-navigation — fixed 40px height, right-aligned content */
 .mega-nav__utility {
   border-bottom: 1px solid var(--border-secondary);
   font-family: var(--font-family-label);
   font-size: var(--body-xs);
   height: 40px;
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
@@ -67,15 +66,16 @@
 }
 
 /* ─── Menu ────────────────────────────────────────────────────── */
-/* Webflow: .nav_menu-wrapper fills space between logo and CTA,
-   .nav_menu-list centers the dropdown toggles within */
+/* Webflow: .nav_menu-list — items sit next to each other, NOT centered in viewport.
+   The wrapper uses justify-content: flex-start with gap between items.
+   Logo, menu, and CTA are all inside space-between parent. */
 
 .mega-nav__menu {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--gap-md);
-  flex: 1;
+  margin-left: var(--gap-xl);
 }
 
 .mega-nav__dropdown {
