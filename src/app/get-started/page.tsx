@@ -3,8 +3,8 @@ import { Suspense } from 'react';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
 
 export const metadata: Metadata = {
-  title: 'Get Started',
-  description: 'Start your project with Brik Designs. Tell us about your business and what you need.',
+  title: 'Get Started | Tell Us About Your Project',
+  description: 'Start your project with Brik Designs. Tell us about your business, your goals, and what you need — and we\'ll take it from there.',
 };
 
 export default function GetStartedPage() {

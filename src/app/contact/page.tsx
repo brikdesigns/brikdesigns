@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { ContactForm } from '@/components/marketing/ContactForm';
 
 export const metadata: Metadata = {
-  title: 'Contact',
-  description: 'Get in touch with Brik Designs. We\'d love to hear about your project.',
+  title: 'Contact Brik Designs | Start Your Project or Ask a Question',
+  description: 'Let\'s build something together. Reach out to Brik Designs for a quote, consultation, or to learn how we can support your business — brik by brik.',
 };
 
 export default function ContactPage() {

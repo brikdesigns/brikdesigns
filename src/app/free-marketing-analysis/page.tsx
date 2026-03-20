@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Free Marketing Analysis',
-  description: 'Not sure what you need? Start with a free marketing assessment from Brik Designs.',
+  title: 'Free Marketing Analysis | Brik Designs',
+  description: 'Get a free marketing analysis from Brik Designs. We\'ll review your brand, website, and marketing presence and give you actionable next steps.',
 };
 
 export default function FreeMarketingAnalysisPage() {

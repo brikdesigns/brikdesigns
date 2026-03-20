@@ -3,8 +3,8 @@ import Link from 'next/link';
 import { HeroButtons } from '@/components/marketing/HeroButtons';
 
 export const metadata: Metadata = {
-  title: 'About',
-  description: 'Brik Designs helps small businesses show up better, work smarter, and grow faster.',
+  title: 'About Brik Designs | Your Marketing & Design Partner',
+  description: 'Meet the team behind Brik Designs. We help businesses thrive through practical design, streamlined systems, and strategic creative support — brik by brik.',
 };
 
 export default function AboutPage() {

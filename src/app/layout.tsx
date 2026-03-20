@@ -6,15 +6,22 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Brik Designs | Marketing That Works. Design That Builds.',
+    default: 'Brik Designs | Strategic Branding & Marketing Design Services',
     template: '%s | Brik Designs',
   },
   description:
-    'We help small businesses show up better, work smarter, and grow faster — brik by brik. Branding, marketing, websites, and back-office design.',
+    'Build a better business — brik by brik. Brik Designs helps small businesses grow with smart branding, marketing, product, and service design. One-time or subscription-based.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://brikdesigns.com'),
   openGraph: {
     type: 'website',
     siteName: 'Brik Designs',
+    title: 'Brik Designs | Strategic Branding & Marketing Design Services',
+    description: 'Build a better business — brik by brik. Brik Designs helps small businesses grow with smart branding, marketing, product, and service design.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Brik Designs | Strategic Branding & Marketing Design Services',
+    description: 'Build a better business — brik by brik.',
   },
   icons: {
     icon: '/favicon.svg',

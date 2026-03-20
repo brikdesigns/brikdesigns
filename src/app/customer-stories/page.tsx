@@ -3,8 +3,8 @@ import { createClient } from '@/lib/supabase/server';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
 
 export const metadata: Metadata = {
-  title: 'Customer Stories',
-  description: 'See how Brik Designs has helped small businesses build stronger brands and grow faster.',
+  title: 'Customer Stories | Brik Design Portfolio & Client Projects',
+  description: 'Explore Brik\'s portfolio of brand, marketing, service, and product design. From startups to enterprise — see how we build impactful design for our customers, brik by brik.',
 };
 
 export const revalidate = 3600; // ISR: revalidate every hour
