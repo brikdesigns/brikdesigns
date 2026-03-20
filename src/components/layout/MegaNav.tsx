@@ -47,15 +47,10 @@ export function MegaNav({ serviceLines, supportPlans }: MegaNavProps) {
   const [open, setOpen] = useState<DropdownId>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  const close = useCallback(() => {
-    timeoutRef.current = setTimeout(() => setOpen(null), 200);
-  }, []);
-
-  const enter = useCallback((id: DropdownId) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setOpen(id);
+  // Click-only toggle (matches Webflow data-hover="false")
+  const toggle = useCallback((id: DropdownId) => {
+    setOpen((prev) => (prev === id ? null : id));
   }, []);
 
   // Close on outside click
@@ -117,12 +112,10 @@ export function MegaNav({ serviceLines, supportPlans }: MegaNavProps) {
             {/* Design Services */}
             <div
               className="mega-nav__dropdown"
-              onMouseEnter={() => enter('services')}
-              onMouseLeave={close}
             >
               <button
                 className={`mega-nav__toggle ${open === 'services' ? 'mega-nav__toggle--active' : ''}`}
-                onClick={() => setOpen(open === 'services' ? null : 'services')}
+                onClick={() => toggle('services')}
                 aria-expanded={open === 'services'}
               >
                 Design Services
@@ -200,12 +193,10 @@ export function MegaNav({ serviceLines, supportPlans }: MegaNavProps) {
             {/* Customers */}
             <div
               className="mega-nav__dropdown"
-              onMouseEnter={() => enter('customers')}
-              onMouseLeave={close}
             >
               <button
                 className={`mega-nav__toggle ${open === 'customers' ? 'mega-nav__toggle--active' : ''}`}
-                onClick={() => setOpen(open === 'customers' ? null : 'customers')}
+                onClick={() => toggle('customers')}
                 aria-expanded={open === 'customers'}
               >
                 Customers
@@ -237,12 +228,10 @@ export function MegaNav({ serviceLines, supportPlans }: MegaNavProps) {
             {/* About */}
             <div
               className="mega-nav__dropdown"
-              onMouseEnter={() => enter('about')}
-              onMouseLeave={close}
             >
               <button
                 className={`mega-nav__toggle ${open === 'about' ? 'mega-nav__toggle--active' : ''}`}
-                onClick={() => setOpen(open === 'about' ? null : 'about')}
+                onClick={() => toggle('about')}
                 aria-expanded={open === 'about'}
               >
                 About
@@ -264,12 +253,10 @@ export function MegaNav({ serviceLines, supportPlans }: MegaNavProps) {
             {/* Support Plans */}
             <div
               className="mega-nav__dropdown"
-              onMouseEnter={() => enter('plans')}
-              onMouseLeave={close}
             >
               <button
                 className={`mega-nav__toggle ${open === 'plans' ? 'mega-nav__toggle--active' : ''}`}
-                onClick={() => setOpen(open === 'plans' ? null : 'plans')}
+                onClick={() => toggle('plans')}
                 aria-expanded={open === 'plans'}
               >
                 Support Plans
