@@ -1,0 +1,268 @@
+/* ─── Shared section patterns ─────────────────────────────────
+   Reusable CSS classes for inner pages, derived from Webflow patterns.
+   Import this in any page that needs standard section layouts.
+   ──────────────────────────────────────────────────────────── */
+
+/* ─── Interior page hero ─────────────────────────────────── */
+/* Webflow: .section_hero (interior variant — no brand bg) */
+.page-hero {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.page-hero--brand {
+  background-color: var(--surface-brand-primary);
+}
+
+.page-hero--accent {
+  background-color: var(--surface-accent);
+}
+
+.page-hero--secondary {
+  background-color: var(--surface-secondary);
+}
+
+.page-hero__container {
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 0 var(--padding-lg);
+}
+
+.page-hero__breadcrumb {
+  font-family: var(--font-family-label);
+  font-size: var(--label-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--gap-sm);
+}
+
+.page-hero__breadcrumb a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.page-hero__breadcrumb a:hover {
+  color: var(--text-primary);
+}
+
+.page-hero__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.page-hero--brand .page-hero__title {
+  color: var(--text-on-color-dark);
+}
+
+.page-hero__tagline {
+  font-family: var(--font-family-body);
+  font-size: var(--body-xl);
+  color: var(--text-brand-primary);
+  margin: var(--gap-sm) 0 0;
+}
+
+.page-hero--brand .page-hero__tagline {
+  color: var(--text-on-color-dark);
+  opacity: 0.9;
+}
+
+.page-hero__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  color: var(--text-secondary);
+  margin: var(--gap-md) 0 0;
+  max-width: 700px;
+  line-height: 1.7;
+}
+
+.page-hero--brand .page-hero__description {
+  color: var(--text-on-color-dark);
+  opacity: 0.8;
+}
+
+/* ─── Standard content section ───────────────────────────── */
+.content-section {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+}
+
+.content-section--secondary {
+  background-color: var(--surface-secondary);
+}
+
+.content-section--accent {
+  background-color: var(--surface-accent);
+}
+
+.content-section__container {
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 0 var(--padding-lg);
+}
+
+.content-section__header {
+  text-align: center;
+  margin-bottom: var(--gap-xl);
+}
+
+.content-section__heading {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.content-section__subtext {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  margin: var(--gap-md) auto 0;
+  max-width: 600px;
+}
+
+/* ─── Grid layouts ───────────────────────────────────────── */
+/* Webflow: .cms-layout-3-col */
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--gap-md);
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+}
+
+/* ─── Standard card ──────────────────────────────────────── */
+/* Webflow: .cms-item.stacked.border */
+.card-bordered {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--padding-lg);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-primary);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.card-bordered:hover {
+  border-color: var(--border-brand-primary);
+}
+
+/* Webflow: .cms-item.stacked (no border) */
+.card-plain {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--padding-lg);
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+}
+
+/* ─── Image frame ────────────────────────────────────────── */
+/* Webflow: .img-frame-service */
+.img-frame {
+  aspect-ratio: 1;
+  border-radius: 24px;
+  background-color: var(--surface-accent);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  margin-bottom: var(--gap-md);
+}
+
+.img-frame--landscape {
+  aspect-ratio: 4/3;
+}
+
+.img-frame--wide {
+  aspect-ratio: 16/9;
+}
+
+.img-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ─── Primary CTA button ─────────────────────────────────── */
+/* Webflow: .button-primary-md */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-family-label);
+  font-size: var(--label-md);
+  font-weight: 600;
+  color: var(--text-on-color-dark);
+  background-color: var(--background-brand-primary);
+  padding: var(--padding-md) var(--padding-lg);
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+  border: none;
+  transition: opacity 0.15s;
+  cursor: pointer;
+}
+
+.btn-primary:hover { opacity: 0.9; }
+
+/* Webflow: .button-primary-md.inverse */
+.btn-primary--inverse {
+  color: var(--text-primary);
+  background-color: var(--surface-primary);
+}
+
+/* Webflow: .button-tertiary-md */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  font-family: var(--font-family-label);
+  font-size: var(--label-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  background: transparent;
+  padding: var(--padding-md) var(--padding-lg);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+  transition: background-color 0.15s;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background-color: var(--surface-secondary);
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 991px) {
+  .grid-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .grid-3,
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .page-hero__title {
+    font-size: var(--heading-lg);
+  }
+
+  .page-hero,
+  .content-section {
+    padding: var(--padding-xl) 0;
+  }
+}

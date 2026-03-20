@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { getServiceCategories, getServices, mapCategorySlug } from '@/lib/supabase/queries';
-import { ServiceLineGrid } from '@/components/marketing/ServiceLineGrid';
-import { ServiceCard } from '@/components/marketing/ServiceCard';
+import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
+import '../shared-sections.css';
 
 export const metadata: Metadata = {
-  title: 'Services',
-  description: 'Branding, marketing, web design, and back-office services for small businesses.',
+  title: 'Design Services | Branding, Marketing, Web & Back-Office',
+  description: 'Brik Designs offers branding, marketing, information, product, and back-office design services for small businesses — one-time or subscription-based.',
 };
 
 export const revalidate = 3600;
@@ -16,62 +16,69 @@ export default async function ServicesPage() {
     getServices(),
   ]);
 
-  const serviceLines = categories.map((cat) => ({
-    name: cat.name,
-    slug: cat.slug,
-    category: mapCategorySlug(cat.slug),
-    tagline: cat.tagline || cat.name,
-  }));
-
-  // Group services by category
   const servicesByCategory = categories.map((cat) => ({
     ...cat,
+    category: mapCategorySlug(cat.slug),
     services: services
       .filter((s: { category_id: string }) => s.category_id === cat.id)
-      .map((s: { name: string; slug: string }) => ({ name: s.name, slug: s.slug })),
+      .map((s: { name: string; slug: string; tagline: string }) => ({
+        name: s.name,
+        slug: s.slug,
+        tagline: s.tagline,
+      })),
   }));
 
   return (
     <>
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)' }}>
-        <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', margin: 0 }}>
-          Our Services
-        </h1>
-        <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-lg)', color: 'var(--text-secondary)', marginTop: 'var(--gap-md)', maxWidth: 700 }}>
-          We offer design services at every stage of your business growth — from establishment to maturity.
-        </p>
-      </section>
-
-      <section style={{ backgroundColor: 'var(--surface-secondary)', padding: 'var(--padding-xl) var(--padding-lg)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <ServiceLineGrid items={serviceLines} />
+      {/* Hero */}
+      <section className="page-hero">
+        <div className="page-hero__container">
+          <h1 className="page-hero__title">Our Services</h1>
+          <p className="page-hero__description">
+            We offer design services at every stage of your business growth — from establishment to maturity.
+          </p>
         </div>
       </section>
 
-      {servicesByCategory.map((cat) => (
-        <section key={cat.slug} id={cat.slug} style={{ padding: 'var(--padding-xl) var(--padding-lg)' }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-            <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-lg)', color: 'var(--text-primary)', margin: 0 }}>
-              {cat.name}
-            </h2>
-            <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', marginTop: 'var(--gap-sm)', maxWidth: 600 }}>
+      {/* Service line cards */}
+      <section className="content-section--secondary">
+        <div className="content-section__container" style={{ padding: 'var(--padding-huge) var(--padding-lg)' }}>
+          <div className="grid-3">
+            {servicesByCategory.map((cat) => (
+              <HomeServiceCard
+                key={cat.slug}
+                name={cat.name}
+                slug={cat.slug}
+                category={cat.category}
+                tagline={cat.tagline || cat.description || ''}
+                imageUrl={cat.card_image_url}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Per-category service lists */}
+      {servicesByCategory.map((cat, i) => (
+        <section
+          key={cat.slug}
+          id={cat.slug}
+          className={i % 2 === 0 ? 'content-section' : 'content-section--secondary'}
+          style={{ padding: 'var(--padding-huge) 0' }}
+        >
+          <div className="content-section__container">
+            <h2 className="content-section__heading" style={{ textAlign: 'left' }}>{cat.name}</h2>
+            <p className="content-section__subtext" style={{ textAlign: 'left', margin: 'var(--gap-sm) 0 var(--gap-xl)' }}>
               {cat.description || cat.tagline || ''}
             </p>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-                gap: 'var(--gap-md)',
-                marginTop: 'var(--gap-lg)',
-              }}
-            >
-              {cat.services.map((svc: { slug: string; name: string }) => (
-                <ServiceCard
+            <div className="grid-3">
+              {cat.services.map((svc: { slug: string; name: string; tagline: string }) => (
+                <HomeServiceCard
                   key={svc.slug}
                   name={svc.name}
-                  slug={svc.slug}
-                  categorySlug={cat.slug}
-                  category={mapCategorySlug(cat.slug)}
+                  slug={`${cat.slug}/${svc.slug}`}
+                  category={cat.category}
+                  tagline={svc.tagline || ''}
                 />
               ))}
             </div>
