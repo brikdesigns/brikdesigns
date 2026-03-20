@@ -157,7 +157,7 @@
   font-family: var(--font-family-label);
   font-size: var(--label-sm);
   font-weight: 600;
-  color: var(--text-inverse);
+  color: var(--text-on-color-dark);
   background-color: var(--background-brand-primary);
   padding: var(--padding-xs) var(--padding-md);
   border-radius: var(--border-radius-md);
@@ -386,7 +386,7 @@
   font-family: var(--font-family-label);
   font-size: var(--label-sm);
   font-weight: 600;
-  color: var(--text-inverse);
+  color: var(--text-on-color-dark);
   background-color: var(--background-brand-primary);
   padding: var(--padding-xs) var(--padding-md);
   border-radius: var(--border-radius-md);

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCategoryBySlug, getServicesByCategory, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
+import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 
 type Props = { params: Promise<{ categorySlug: string }> };
 
@@ -37,7 +38,10 @@ export default async function ServiceCategoryPage({ params }: Props) {
           <Link href="/services" style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}>Services</Link>
           {' / '}
         </p>
-        <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', marginTop: 'var(--gap-xs)' }}>
+        <div style={{ marginTop: 'var(--gap-md)' }}>
+          <ServiceBadgeLabel category={mapCategorySlug(category.slug)} />
+        </div>
+        <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', marginTop: 'var(--gap-sm)' }}>
           {category.name}
         </h1>
         {category.tagline && (

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Image from 'next/image';
 import { HeroButtons } from '@/components/marketing/HeroButtons';
 
 export const metadata: Metadata = {
@@ -24,6 +24,39 @@ export default function AboutPage() {
           From branding to websites to the behind-the-scenes systems that keep you running,
           we help you build a business that looks good and works better — brik by brik.
         </p>
+      </section>
+
+      {/* Team */}
+      <section style={{ backgroundColor: 'var(--surface-secondary)', padding: 'var(--padding-xl) var(--padding-lg)' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto' }}>
+          <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-lg)', color: 'var(--text-primary)', margin: 0, textAlign: 'center' }}>
+            Meet the Team
+          </h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 'var(--gap-xl)', marginTop: 'var(--gap-xl)' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ width: 200, height: 200, borderRadius: '50%', overflow: 'hidden', margin: '0 auto' }}>
+                <Image src="/images/Nick-Headshot.png" alt="Nick Stanerson" width={200} height={200} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-sm)', color: 'var(--text-primary)', marginTop: 'var(--gap-md)', margin: 'var(--gap-md) 0 0' }}>
+                Nick Stanerson
+              </h3>
+              <p style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-sm)', color: 'var(--text-brand-primary)', margin: 'var(--gap-xs) 0 0' }}>
+                Co-Founder / Design & Technology
+              </p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ width: 200, height: 200, borderRadius: '50%', overflow: 'hidden', margin: '0 auto' }}>
+                <Image src="/images/Abbey-Headshot.png" alt="Abbey Stanerson" width={200} height={200} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-sm)', color: 'var(--text-primary)', marginTop: 'var(--gap-md)', margin: 'var(--gap-md) 0 0' }}>
+                Abbey Stanerson
+              </h3>
+              <p style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-sm)', color: 'var(--text-brand-primary)', margin: 'var(--gap-xs) 0 0' }}>
+                Co-Founder / Marketing & Strategy
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Approach */}

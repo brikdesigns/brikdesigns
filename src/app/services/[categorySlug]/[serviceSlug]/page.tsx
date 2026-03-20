@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getServiceBySlug } from '@/lib/supabase/queries';
+import { getServiceBySlug, mapCategorySlug } from '@/lib/supabase/queries';
 import { HeroButtons } from '@/components/marketing/HeroButtons';
+import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 
 type Props = { params: Promise<{ categorySlug: string; serviceSlug: string }> };
 
@@ -44,7 +45,13 @@ export default async function ServiceDetailPage({ params }: Props) {
             {category?.name || categorySlug}
           </Link>
         </p>
-        <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', marginTop: 'var(--gap-xs)' }}>
+        <div style={{ marginTop: 'var(--gap-md)' }}>
+          <ServiceBadgeLabel
+            category={mapCategorySlug(category?.slug || categorySlug)}
+            serviceName={service.name}
+          />
+        </div>
+        <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', marginTop: 'var(--gap-sm)' }}>
           {service.name}
         </h1>
         {service.tagline && (

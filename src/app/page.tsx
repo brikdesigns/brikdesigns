@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { getServiceCategories, getSupportPlans, getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceLineGrid } from '@/components/marketing/ServiceLineGrid';
 import { SupportPlanGrid } from '@/components/marketing/SupportPlanGrid';
@@ -46,6 +47,16 @@ export default async function HomePage() {
           We help small businesses show up better, work smarter, and grow faster — brik by brik.
         </p>
         <HeroButtons />
+        <div style={{ marginTop: 'var(--gap-xl)', position: 'relative', maxWidth: 900, margin: 'var(--gap-xl) auto 0', borderRadius: 'var(--border-radius-lg)', overflow: 'hidden' }}>
+          <Image
+            src="/images/brik_designs_4x.webp"
+            alt="Brik Designs — branding, marketing, and design services"
+            width={900}
+            height={506}
+            style={{ width: '100%', height: 'auto' }}
+            priority
+          />
+        </div>
       </section>
 
       {/* Services */}
@@ -107,10 +118,10 @@ export default async function HomePage() {
 
       {/* Bottom CTA */}
       <section style={{ backgroundColor: 'var(--surface-brand-primary)', padding: 'var(--padding-xl) var(--padding-lg)', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-lg)', color: 'var(--text-inverse)', margin: 0 }}>
+        <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-lg)', color: 'var(--text-on-color-dark)', margin: 0 }}>
           Get in Touch
         </h2>
-        <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-inverse)', opacity: 0.9, margin: 'var(--gap-md) auto 0' }}>
+        <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-on-color-dark)', opacity: 0.9, margin: 'var(--gap-md) auto 0' }}>
           Starting a new project or want to collaborate with us?
         </p>
         <BottomCta />

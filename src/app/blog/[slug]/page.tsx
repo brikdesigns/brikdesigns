@@ -87,11 +87,11 @@ export default async function BlogPostPage({ params }: Props) {
       {/* CTA */}
       {meta.ctaTitle && (
         <section style={{ backgroundColor: 'var(--surface-brand-primary)', padding: 'var(--padding-xl) var(--padding-lg)', textAlign: 'center' }}>
-          <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-lg)', color: 'var(--text-inverse)', margin: 0 }}>
+          <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-lg)', color: 'var(--text-on-color-dark)', margin: 0 }}>
             {meta.ctaTitle}
           </h2>
           {meta.ctaDescription && (
-            <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-inverse)', opacity: 0.9, marginTop: 'var(--gap-md)' }}>
+            <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-on-color-dark)', opacity: 0.9, marginTop: 'var(--gap-md)' }}>
               {meta.ctaDescription}
             </p>
           )}

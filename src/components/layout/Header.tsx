@@ -66,7 +66,7 @@ export function Header() {
               fontFamily: 'var(--font-family-label)',
               fontSize: 'var(--label-md)',
               backgroundColor: 'var(--background-brand-primary)',
-              color: 'var(--text-inverse)',
+              color: 'var(--text-on-color-dark)',
               padding: 'var(--padding-xs) var(--padding-md)',
               borderRadius: 'var(--border-radius-md)',
               textDecoration: 'none',
