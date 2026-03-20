@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { Header } from '@/components/layout/Header';
+import { MegaNavServer } from '@/components/layout/MegaNavServer';
 import { Footer } from '@/components/layout/Footer';
 import './globals.css';
 
@@ -15,6 +15,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'Brik Designs',
+  },
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/webclip.png',
   },
 };
 
@@ -45,7 +49,7 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeProvider>
-          <Header />
+          <MegaNavServer />
           <main>{children}</main>
           <Footer />
         </ThemeProvider>

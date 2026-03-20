@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getCategoryBySlug, getServicesByCategory, mapCategorySlug } from '@/lib/supabase/queries';
-import { ServiceLineGrid } from '@/components/marketing/ServiceLineGrid';
+import { ServiceCard } from '@/components/marketing/ServiceCard';
 
 type Props = { params: Promise<{ categorySlug: string }> };
 
@@ -63,27 +63,14 @@ export default async function ServiceCategoryPage({ params }: Props) {
           }}
         >
           {services.map((svc) => (
-            <Link
+            <ServiceCard
               key={svc.slug}
-              href={`/services/${categorySlug}/${svc.slug}`}
-              style={{
-                display: 'block',
-                padding: 'var(--padding-lg)',
-                backgroundColor: 'var(--surface-primary)',
-                border: '1px solid var(--border-secondary)',
-                borderRadius: 'var(--border-radius-md)',
-                textDecoration: 'none',
-              }}
-            >
-              <h3 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-sm)', color: 'var(--text-primary)', margin: 0 }}>
-                {svc.name}
-              </h3>
-              {svc.tagline && (
-                <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-sm)', color: 'var(--text-secondary)', marginTop: 'var(--gap-xs)' }}>
-                  {svc.tagline}
-                </p>
-              )}
-            </Link>
+              name={svc.name}
+              slug={svc.slug}
+              categorySlug={categorySlug}
+              category={mapCategorySlug(category.slug)}
+              tagline={svc.tagline}
+            />
           ))}
         </div>
       </section>

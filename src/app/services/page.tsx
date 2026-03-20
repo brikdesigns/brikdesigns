@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getServiceCategories, getServices, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceLineGrid } from '@/components/marketing/ServiceLineGrid';
+import { ServiceCard } from '@/components/marketing/ServiceCard';
 
 export const metadata: Metadata = {
   title: 'Services',
@@ -65,22 +66,13 @@ export default async function ServicesPage() {
               }}
             >
               {cat.services.map((svc: { slug: string; name: string }) => (
-                <a
+                <ServiceCard
                   key={svc.slug}
-                  href={`/services/${cat.slug}/${svc.slug}`}
-                  style={{
-                    display: 'block',
-                    padding: 'var(--padding-md)',
-                    backgroundColor: 'var(--surface-primary)',
-                    border: '1px solid var(--border-secondary)',
-                    borderRadius: 'var(--border-radius-md)',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <span style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-md)', color: 'var(--text-primary)' }}>
-                    {svc.name}
-                  </span>
-                </a>
+                  name={svc.name}
+                  slug={svc.slug}
+                  categorySlug={cat.slug}
+                  category={mapCategorySlug(cat.slug)}
+                />
               ))}
             </div>
           </div>

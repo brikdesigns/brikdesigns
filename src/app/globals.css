@@ -1,6 +1,8 @@
 /* BDS Design System — fonts + auto-generated tokens (Style Dictionary from Figma) */
 @import '../../brik-bds/tokens/fonts.css';
 @import '../../brik-bds/tokens/figma-tokens.css';
+@import '../../brik-bds/tokens/overrides.css';
+@import '../../brik-bds/tokens/bridge.css';
 
 /* Tailwind layers */
 @import "tailwindcss";
@@ -70,17 +72,17 @@ html {
   --text-on-color-dark: var(--grayscale--white);
   --text-on-color-light: var(--grayscale--black);
   --text-brand-primary: var(--brand--primary);
-  --text-negative: #eb5757;
-  --text-warning: #634716;
-  --text-success: #2a5542;
+  --text-negative: var(--color-system-red);
+  --text-warning: var(--services--yellow-dark);
+  --text-success: var(--services--green-dark);
 
   /* Surface */
   --surface-primary: var(--grayscale--white);
   --surface-secondary: var(--grayscale--lightest);
   --surface-tertiary: var(--grayscale--lighter);
   --surface-negative: #fdeaea;
-  --surface-warning: #fffee1;
-  --surface-success: #f0faf0;
+  --surface-warning: var(--services--yellow-light);
+  --surface-success: var(--services--green-light);
   --surface-brand-primary: var(--brand--primary);
   --surface-brand-secondary: var(--grayscale--white);
 
@@ -97,7 +99,7 @@ html {
   --border-secondary: var(--grayscale--lighter);
   --border-muted: var(--grayscale--lighter);
   --border-brand-primary: var(--brand--primary);
-  --border-negative: #eb5757;
+  --border-negative: var(--color-system-red);
   --border-input: var(--grayscale--light);
   --border-inverse: var(--grayscale--white);
 
@@ -115,10 +117,20 @@ html {
   --color-system-blue: #2f80ed;
   --color-system-orange: #f2994a;
 
+  /* Webflow-parity tokens (used by BDS components + mega nav) */
+  --surface-accent: var(--tan--lightest);
+  --surface-nav: var(--surface-primary);
+  --surface-footer: var(--grayscale--darkest);
+  --text-on-footer: var(--grayscale--white);
+  --text-on-color-dark: var(--grayscale--white);
+  --text-on-color-light: var(--grayscale--black);
+  --background-image: var(--grayscale--lightest);
+  --background-image-brand: var(--brand--primary);
+  --background-brand-secondary: var(--grayscale--white);
+
   /* BDS component CSS compatibility aliases */
   --system--red: var(--color-system-red);
   --background-tertiary: var(--surface-tertiary);
-  --surface-nav: var(--surface-primary);
 
   /* ---- Typography (Poppins — Brik brand font) ---- */
   --font-family-body: Poppins, sans-serif;
@@ -258,10 +270,18 @@ html {
   /* System */
   --color-system-link: #6b8aff;
 
+  /* Webflow-parity tokens — dark mode */
+  --surface-accent: var(--grayscale--darkest);
+  --surface-nav: var(--surface-primary);
+  --surface-footer: var(--grayscale--black);
+  --text-on-footer: var(--grayscale--lightest);
+  --background-image: var(--grayscale--darker);
+  --background-image-brand: var(--brand--primary);
+  --background-brand-secondary: var(--grayscale--darkest);
+
   /* BDS compatibility aliases — dark mode */
   --system--red: var(--color-system-red);
   --background-tertiary: var(--surface-tertiary);
-  --surface-nav: var(--surface-primary);
 
   /* Service category colors — dark mode (muted for dark backgrounds) */
   --services--yellow: #d4b54a;
