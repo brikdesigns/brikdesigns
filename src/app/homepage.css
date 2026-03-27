@@ -4,45 +4,53 @@
    ──────────────────────────────────────────────────────────── */
 
 /* ─── Hero ─────────────────────────────────────────────────── */
-/* Webflow: .section_hero.brand */
+/* Webflow: .section_hero.brand — row flex centers the container */
 .section-hero {
   background-color: var(--surface-brand-primary);
   display: flex;
-  flex-direction: column;
+  flex-flow: row;
   justify-content: center;
+  align-items: center;
   min-height: 100vh;
-  padding: var(--padding-huge) 0;
   position: relative;
   z-index: 0;
 }
 
-/* Webflow: .container-hero — centered in hero */
+/* Webflow: .container-hero — column flex, left-aligned, capped width */
 .hero-container {
-  max-width: 90%;
-  margin: 0 auto;
-  padding: 0 var(--padding-lg);
+  z-index: 100;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-flow: column;
+  justify-content: flex-start;
   align-items: flex-start;
-  min-height: 100%;
+  width: 100%;
+  max-width: 90%;
+  padding-left: var(--padding-lg);
+  padding-right: var(--padding-lg);
 }
 
-/* Webflow: .content-wrapper.narrow — 80% width for text */
-.hero-container > * {
-  max-width: 80%;
+/* Webflow: .layout-wrapper-hero.comfortable — gap-xl between text block and buttons */
+.hero-layout {
+  display: flex;
+  flex-flow: column;
+  gap: var(--gap-xl);
+  width: 100%;
 }
 
-.hero-container > .hero-buttons {
-  max-width: none;
+/* Webflow: .content-wrapper.narrow — 80% width, tiny gap between h1 and body */
+.hero-text {
+  display: flex;
+  flex-flow: column;
+  gap: var(--gap-tiny);
+  width: 80%;
 }
 
 /* Webflow: .text_display-sm.on-color-dark */
 .hero-heading {
-  font-family: var(--font-family-heading);
+  font-family: var(--font-family-display);
   font-size: var(--heading-huge);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 110%;
   color: var(--text-on-color-dark);
   margin: 0;
 }
@@ -52,115 +60,112 @@
   font-family: var(--font-family-body);
   font-size: var(--body-xl);
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 150%;
   color: var(--text-on-color-dark);
-  max-width: 700px;
-  margin: var(--gap-lg) 0 0;
+  margin: 0;
 }
 
-/* Webflow: .button-wrapper.stretch */
-.hero-buttons {
-  display: flex;
-  gap: var(--gap-md);
-  margin-top: var(--gap-xl);
-  flex-wrap: wrap;
+
+
+
+/* Webflow: .button-tertiary-md on dark hero — override BDS outline colors for dark bg */
+.hero-btn-on-dark.bds-button--outline {
+  color: var(--text-on-color-dark);
+  border-color: var(--border-inverse);
 }
 
-/* Webflow: .button-primary-md.inverse */
-.hero-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-family-label);
-  font-size: var(--label-lg);
-  font-weight: 600;
-  color: var(--text-primary);
+.hero-btn-on-dark.bds-button--outline:hover:not(:disabled) {
   background-color: var(--surface-primary);
-  padding: var(--padding-md) var(--padding-lg);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  border: none;
-  transition: opacity 0.15s;
+  color: var(--text-primary);
+  filter: none;
 }
 
-.hero-btn-primary:hover { opacity: 0.9; }
-
-/* Webflow: .button-tertiary-md */
-.hero-btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--gap-sm);
-  font-family: var(--font-family-label);
-  font-size: var(--label-lg);
-  font-weight: 600;
-  color: var(--text-on-color-dark);
-  background: transparent;
-  padding: var(--padding-md) var(--padding-lg);
-  border: 2px solid var(--text-on-color-dark);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  transition: background-color 0.15s;
-}
-
-.hero-btn-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+/* Webflow: .icon_1x1-md — Font Awesome arrow icon in button */
+.icon-arrow {
+  font-family: 'Font Awesome 6 Pro', 'Font Awesome 6 Free', sans-serif;
+  font-size: var(--icon-md);
+  font-weight: 400;
 }
 
 /* ─── Services ("What We Do") ──────────────────────────────── */
-/* Webflow: .section_services */
+/* Webflow: .section_services — full-width, centered, 100svh min */
 .section-services {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  width: 100%;
+  min-height: 100svh;
 }
 
+/* Webflow: .container-lg.center — column flex, centered items, 90% max */
 .section-container {
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-start;
+  align-items: center;
   max-width: 90%;
   width: 100%;
   margin: 0 auto;
-  padding: 0 var(--padding-lg);
+  padding-left: var(--padding-lg);
+  padding-right: var(--padding-lg);
+  gap: 12px; /* Webflow gap--md = space-300 = 12px */
 }
 
+/* Webflow: .content-wrapper.center.narrow — centered text block, 70% width */
 .section-header {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
   text-align: center;
-  margin-bottom: var(--gap-xl);
+  gap: 12px; /* Webflow: gap--md */
+  width: 70%; /* Webflow: .content-wrapper.center.narrow */
 }
 
+/* Webflow: .text_heading-lg.center */
 .section-heading {
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
+  line-height: 110%;
   color: var(--text-primary);
   margin: 0;
 }
 
+/* Webflow: .text_body-md.center */
 .section-subtext {
   font-family: var(--font-family-body);
   font-size: var(--body-md);
   color: var(--text-secondary);
-  margin: var(--gap-md) auto 0;
+  margin: 0;
   max-width: 600px;
 }
 
-/* Webflow: .cms-layout-3-col.comfortable */
+/* Webflow: .cms-layout-3-col — 12px gap, stretch items, 100% height */
 .grid-3-col {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--gap-md);
+  gap: 12px;
+  height: 100%;
+  place-items: stretch stretch;
+  width: 100%;
 }
 
-/* Webflow: .cms-item.stacked.border */
+/* Webflow: .cms-item.stacked.border — padding space-lg, border solid, md radius */
 .service-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
+  gap: 12px; /* Webflow gap--md */
   padding: var(--padding-lg);
   border: 2px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
+  border-radius: 8px; /* Webflow border-radius--md */
   background-color: var(--surface-primary);
   text-decoration: none;
+  height: 100%;
   transition: border-color 0.15s;
 }
 
@@ -168,201 +173,291 @@
   border-color: var(--border-brand-primary);
 }
 
-/* Webflow: .img-frame-service.accent */
+/* Webflow: .img-frame-service.accent — 1:1, md radius (8px), accent bg */
 .service-card__image-frame {
   aspect-ratio: 1;
-  border-radius: 24px;
+  border-radius: 8px; /* Webflow border-radius--md */
   background-color: var(--surface-accent);
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  position: relative;
   overflow: hidden;
-  margin-bottom: var(--gap-md);
 }
 
 .service-card__image-frame img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Webflow: .badge-wrapper + .content-wrapper — stacked with internal gap */
+.service-card__header {
+  display: flex;
+  flex-flow: column;
+  gap: 12px;
+  width: 100%;
 }
 
 .service-card__badge {
-  margin-bottom: var(--gap-sm);
+  /* no extra margin — gap from parent handles it */
 }
 
+/* Webflow: .text_heading-sm */
 .service-card__title {
   font-family: var(--font-family-heading);
   font-size: var(--heading-sm);
   font-weight: 700;
+  line-height: 125%;
   color: var(--text-primary);
   margin: 0;
 }
 
+/* Webflow: .text_body-lg */
 .service-card__description {
   font-family: var(--font-family-body);
   font-size: var(--body-lg);
   color: var(--text-secondary);
-  margin: var(--gap-xs) 0 0;
-  line-height: 1.5;
+  line-height: 150%;
+  margin: 0;
 }
 
-.service-card__cta {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-family-label);
-  font-size: var(--label-md);
-  font-weight: 600;
-  color: var(--text-on-color-dark);
-  background-color: var(--background-brand-primary);
-  padding: var(--padding-md) var(--padding-lg);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  border: none;
-  margin-top: var(--gap-lg);
-  transition: opacity 0.15s;
-}
-
-.service-card__cta:hover { opacity: 0.9; }
 
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
-/* Webflow: .section_service (secondary bg) */
+/* Webflow: .section_service — secondary bg, full-width, centered */
 .section-plans {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-secondary);
   display: flex;
-  flex-direction: column;
+  flex-flow: column;
   justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
 }
 
+/* Webflow: .cms-item.stacked — no border, gap-md, space-between */
 .plan-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--padding-lg);
+  align-items: center;
+  gap: 12px;
+  padding: var(--padding-md);
   background-color: var(--surface-primary);
-  border-radius: var(--border-radius-md);
+  border-radius: 8px;
   text-decoration: none;
+  height: 100%;
 }
 
+/* Webflow: .img-frame-service — 1:1, md radius (8px), accent bg */
 .plan-card__image-frame {
   aspect-ratio: 1;
-  border-radius: 24px;
+  border-radius: 8px;
   background-color: var(--surface-accent);
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  position: relative;
   overflow: hidden;
-  margin-bottom: var(--gap-md);
 }
 
 .plan-card__image-frame img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
+/* Webflow: .text_heading-lg — price display */
 .plan-card__price {
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
+  line-height: 110%;
   color: var(--text-primary);
   margin: 0;
 }
 
+/* Webflow: .text_heading-sm — plan name */
 .plan-card__name {
   font-family: var(--font-family-heading);
   font-size: var(--heading-sm);
   font-weight: 700;
+  line-height: 125%;
   color: var(--text-primary);
-  margin: var(--gap-xs) 0 0;
+  margin: 0;
 }
 
+/* Webflow: .text_body-sm — plan description */
 .plan-card__description {
   font-family: var(--font-family-body);
   font-size: var(--body-sm);
   color: var(--text-secondary);
-  margin: var(--gap-sm) 0 0;
-  line-height: 1.5;
+  line-height: 150%;
+  margin: 0;
 }
 
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
-/* Webflow: .section_marketing-audit */
+/* Webflow: .section_marketing-audit — full-width, centered, 100vh min */
 .section-audit {
-  padding: var(--padding-huge) 0;
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Webflow: .cms-item-audit — row, stretch, surface-primary bg, no gap at base */
 .audit-layout {
   display: flex;
-  gap: var(--gap-xl);
-  align-items: center;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0;
   max-width: 90%;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 var(--padding-lg);
+  background-color: var(--surface-primary);
+  border-radius: 8px; /* Webflow: border-radius-md */
 }
 
+/* Webflow: .inner-wrapper.center.comfortable.stacked — left column, 70% max, vertically centered */
 .audit-content {
-  flex: 1;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 70%;
+  padding: var(--padding-xl);
+  gap: var(--gap-lg);
 }
 
+/* Webflow: .content-wrapper.center — centered text block, gap--md = 12px */
+.audit-text {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+/* Webflow: .text_heading-lg */
 .audit-heading {
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
+  line-height: 110%;
   color: var(--text-primary);
   margin: 0;
-  line-height: 1.3;
 }
 
+/* Webflow: .text_body-md.center */
 .audit-subtext {
   font-family: var(--font-family-body);
   font-size: var(--body-md);
   color: var(--text-secondary);
-  margin: var(--gap-md) 0 0;
-  line-height: 1.6;
+  text-align: center;
+  margin: 0;
+  line-height: 150%;
 }
 
+/* Webflow: .inner-wrapper — right column with image */
 .audit-image {
-  flex: 0 0 40%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.audit-image .service-card__image-frame {
+/* Webflow: .img-frame-service — square, accent bg, border-radius-md = 8px */
+.audit-image-frame {
   aspect-ratio: 1;
-  max-width: 320px;
+  width: 100%;
+  background-color: var(--surface-accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 1280px) {
+  .audit-layout {
+    max-width: 1280px;
+    gap: var(--gap-xl);
+    border-radius: var(--border-radius-huge);
+    overflow: hidden;
+  }
+
+  .story-container {
+    max-width: 1280px;
+  }
 }
 
 /* ─── Customer Story ──────────────────────────────────────── */
-/* Webflow: .section_customer-story — dark accent bg */
+/* Webflow: .section_customer-story — accent bg, full-width, 100vh min */
 .section-story {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-accent);
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.story-layout {
-  display: flex;
-  gap: var(--gap-xl);
   align-items: center;
-  max-width: 90%;
-  margin: 0 auto;
-  padding: 0 var(--padding-lg);
-}
-
-.story-image-wrapper {
-  flex: 0 0 45%;
+  width: 100%;
+  min-height: 100vh;
   position: relative;
 }
 
+/* Webflow: .container-lg.comfortable — gap-xl (36px) */
+.story-container {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  gap: 36px;
+  max-width: 90%;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Webflow: .cms-item-story — row, space-between, gap-lg (24px), white bg, sm radius */
+.story-card {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: var(--padding-xl);
+  background-color: var(--surface-primary);
+  border-radius: 4px;
+  width: 100%;
+}
+
+/* Webflow: .inner-wrapper — left image column */
+.story-image-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+/* Webflow: .img-frame-landscape — aspect 3/2, md radius (8px) */
 .story-image-frame {
-  border-radius: var(--border-radius-lg);
+  border-radius: 8px;
   overflow: hidden;
-  aspect-ratio: 4/3;
+  aspect-ratio: 3 / 2;
+  width: 100%;
+  height: 100%;
   position: relative;
 }
 
@@ -370,126 +465,231 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
+/* Webflow: .badge-wrapper.floating — absolute, bottom-left */
 .story-badge {
   position: absolute;
-  top: var(--padding-md);
-  left: var(--padding-md);
+  bottom: 8px;
+  left: 8px;
   display: flex;
   align-items: center;
-  gap: var(--gap-xs);
+  gap: 2px; /* gap-tiny */
   background-color: var(--surface-primary);
-  padding: var(--padding-xs) var(--padding-sm);
-  border-radius: var(--border-radius-md);
+  padding-right: var(--padding-sm);
+  border-radius: 4px;
+  z-index: 1;
 }
 
+/* Webflow: .inner-wrapper.v-center.stacked — right text column, gap space-md = 8px */
 .story-content {
   flex: 1;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
 }
 
+/* Webflow: .text_heading-md */
 .story-title {
   font-family: var(--font-family-heading);
   font-size: var(--heading-md);
   font-weight: 700;
+  line-height: 125%;
   color: var(--text-primary);
   margin: 0;
 }
 
+/* Webflow: .text_body-md */
 .story-description {
   font-family: var(--font-family-body);
   font-size: var(--body-md);
   color: var(--text-secondary);
-  margin: var(--gap-md) 0 0;
-  line-height: 1.6;
+  line-height: 150%;
+  margin: 0;
 }
 
 /* ─── CTA ("Get in Touch") ────────────────────────────────── */
-/* Webflow: .section_cta (white outer) → .container-cta (brand inner with border-radius) */
+/* Webflow: .section_cta — white outer, centered, full-width */
 .section-cta {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-primary);
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
-/* Webflow: .container-cta — brand bg, rounded */
+/* Webflow: .container-cta — brand bg, lg radius, 1080px max, centered, gap-huge (48px) */
 .cta-card {
-  max-width: 90%;
+  z-index: 100;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  gap: 48px; /* Webflow: gap-huge */
+  max-width: 1080px; /* Webflow: .container-cta base */
   width: 100%;
-  margin: 0 auto;
-  padding: var(--padding-huge) var(--padding-lg);
+  height: 100%;
   background-color: var(--surface-brand-primary);
-  border-radius: 24px;
+  border-radius: 12px; /* Webflow: border-radius-lg */
+  padding: var(--padding-huge);
+}
+
+/* Webflow: .inner-wrapper._90.center.stacked → .content-wrapper.center — 90% width, gap-md = 12px */
+.cta-inner {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 90%;
   text-align: center;
 }
 
+/* Webflow: .text_heading-lg.center.on-color-dark */
 .cta-heading {
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
+  line-height: 110%;
   color: var(--text-on-color-dark);
   margin: 0;
 }
 
+/* Webflow: .text_body-lg.center.on-color-dark */
 .cta-subtext {
   font-family: var(--font-family-body);
   font-size: var(--body-lg);
+  line-height: 150%;
   color: var(--text-on-color-dark);
-  opacity: 0.9;
-  margin: var(--gap-md) 0 0;
+  margin: 0;
 }
 
-/* Webflow: .button-primary-md.inverse */
-.cta-button {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-family-label);
-  font-size: var(--label-md);
-  font-weight: 600;
-  color: var(--text-primary);
-  background-color: var(--surface-primary);
-  padding: var(--padding-md) var(--padding-lg);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  border: none;
-  margin-top: var(--gap-xl);
-  transition: opacity 0.15s;
-}
-
-.cta-button:hover { opacity: 0.9; }
 
 /* ─── Responsive ──────────────────────────────────────────── */
 
-@media (max-width: 991px) {
-  .grid-3-col {
-    grid-template-columns: 1fr 1fr;
+/* Cap homepage containers at 1280px (matches shared-sections.css) */
+@media (min-width: 1280px) {
+  .hero-container,
+  .section-container {
+    max-width: 1280px;
   }
+}
 
-  .audit-layout,
-  .story-layout {
-    flex-direction: column;
-  }
-
-  .audit-image,
-  .story-image-wrapper {
-    flex: none;
+/* Webflow: .section-header width 100% on mobile */
+@media (max-width: 767px) {
+  .section-header {
     width: 100%;
   }
 }
 
-@media (max-width: 767px) {
+/* Webflow: tablet — 991px */
+@media (max-width: 991px) {
+  /* Hero */
+  .hero-container {
+    max-width: 90%;
+  }
+
+  .hero-text {
+    width: 100%;
+    gap: 12px; /* gap-md at tablet */
+  }
+
+  /* Grids */
   .grid-3-col {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Audit — stack vertically */
+  .audit-layout {
+    flex-direction: column;
+    max-width: 704px;
+  }
+
+  .audit-content {
+    max-width: 100%;
+  }
+
+  /* Story — stack vertically */
+  .story-card {
+    flex-direction: column;
+  }
+
+  .story-image-wrapper {
+    width: 100%;
+  }
+}
+
+/* Webflow: mobile landscape — 767px */
+@media (max-width: 767px) {
+  /* Hero */
+  .section-hero {
+    padding: var(--padding-huge) 0;
+    min-height: 100vh;
+  }
+
+  .hero-container {
+    max-width: 90%;
+    padding: 0;
   }
 
   .hero-heading {
     font-size: var(--heading-xl);
+    width: auto;
   }
 
-  .section-hero,
-  .section-services {
+  /* Grids — single column */
+  .grid-3-col {
+    grid-template-columns: 1fr;
+  }
+
+  /* Sections — remove min-height */
+  .section-services,
+  .section-audit,
+  .section-story {
     min-height: auto;
-    padding: var(--padding-xl) 0;
+  }
+
+  /* Audit */
+  .audit-layout {
+    max-width: 504px;
+  }
+}
+
+/* Webflow: mobile portrait — 479px */
+@media (max-width: 479px) {
+  .hero-heading {
+    font-size: var(--heading-lg);
+    line-height: 120%;
+    width: 288px;
+  }
+
+  .hero-container {
+    padding: 0;
+    align-items: flex-start;
+  }
+
+  .hero-layout {
+    gap: 36px; /* gap-xl at mobile */
+  }
+
+  .hero-btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .audit-layout {
+    flex-direction: column;
+    width: 100%;
+    max-width: none;
+  }
+
+  .story-card {
+    padding: var(--padding-md);
   }
 }

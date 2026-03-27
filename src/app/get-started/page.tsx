@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
+import '../shared-sections.css';
 
 export const metadata: Metadata = {
   title: 'Get Started | Tell Us About Your Project',
@@ -9,19 +10,24 @@ export const metadata: Metadata = {
 
 export default function GetStartedPage() {
   return (
-    <section style={{ maxWidth: 600, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)' }}>
-      <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', margin: 0 }}>
-        Get Started
-      </h1>
-      <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-lg)', color: 'var(--text-secondary)', marginTop: 'var(--gap-md)' }}>
-        Tell us about your business and what you&apos;re looking for.
-        We&apos;ll be in touch within 1 business day.
-      </p>
-      <div style={{ marginTop: 'var(--gap-xl)' }}>
-        <Suspense>
-          <LeadCaptureForm source="get_started" />
-        </Suspense>
-      </div>
-    </section>
+    <>
+      <section className="page-hero">
+        <div className="page-hero__container">
+          <h1 className="page-hero__title">Get Started</h1>
+          <p className="page-hero__description">
+            Tell us about your business and what you&apos;re looking for.
+            We&apos;ll be in touch within 1 business day.
+          </p>
+        </div>
+      </section>
+
+      <section className="content-section">
+        <div className="container-lg" style={{ maxWidth: 600, alignItems: 'flex-start' }}>
+          <Suspense>
+            <LeadCaptureForm source="get_started" />
+          </Suspense>
+        </div>
+      </section>
+    </>
   );
 }

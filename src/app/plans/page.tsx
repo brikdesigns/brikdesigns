@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { getSupportPlans } from '@/lib/supabase/queries';
-import { HomePlanCard } from '@/components/homepage/HomePlanCard';
+import { PlanCardGrid } from './PlanCardGrid';
 import '../shared-sections.css';
+import './plans.css';
 
 export const metadata: Metadata = {
   title: 'Support Plans | Monthly Marketing & Design Subscriptions',
@@ -17,9 +17,11 @@ export default async function PlansPage() {
   const plans = rawPlans.map((plan) => ({
     name: plan.name,
     slug: plan.slug,
-    price: plan.monthly_price_display || 'Contact',
+    monthlyPrice: plan.monthly_price_display || 'Contact',
+    annualPrice: plan.annual_price_display || null,
     description: plan.description || '',
     imageUrl: plan.image_url || null,
+    features: plan.features || [],
   }));
 
   return (
@@ -29,39 +31,16 @@ export default async function PlansPage() {
         <div className="page-hero__container">
           <h1 className="page-hero__title">Support Plans</h1>
           <p className="page-hero__description">
-            Get an experienced, done-for-you team to manage your marketing, back-office systems, or product design — without the cost of full-time hires.
+            Get an experienced, done-for-you team to manage your marketing, back-office
+            systems, or product design — without the cost of full-time hires.
           </p>
         </div>
       </section>
 
       {/* Plan cards */}
-      <section className="content-section--secondary" style={{ padding: 'var(--padding-huge) 0' }}>
-        <div className="content-section__container">
-          <div className="grid-3">
-            {plans.map((plan) => (
-              <HomePlanCard
-                key={plan.slug}
-                name={plan.name}
-                slug={plan.slug}
-                price={plan.price}
-                description={plan.description}
-                imageUrl={plan.imageUrl}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="content-section" style={{ padding: 'var(--padding-huge) 0' }}>
-        <div className="content-section__container" style={{ textAlign: 'center' }}>
-          <h2 className="content-section__heading">Not sure which plan is right?</h2>
-          <p className="content-section__subtext">
-            Let&apos;s talk through your needs and find the right fit.
-          </p>
-          <Link href="/contact" className="btn-primary" style={{ marginTop: 'var(--gap-xl)' }}>
-            Let&apos;s Talk
-          </Link>
+      <section className="content-section--secondary plans-section">
+        <div className="container-lg container-lg--comfortable">
+          <PlanCardGrid plans={plans} />
         </div>
       </section>
     </>

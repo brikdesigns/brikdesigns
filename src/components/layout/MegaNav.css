@@ -7,40 +7,120 @@
   background-color: var(--surface-primary);
 }
 
+/* Override BDS button hover effects inside nav — filter/transform cause visual jitter */
+.mega-nav .bds-button:hover:not(:disabled) {
+  filter: none;
+  opacity: 0.85;
+}
+
+.mega-nav .bds-button:active:not(:disabled) {
+  transform: none;
+  filter: none;
+  opacity: 0.75;
+}
+
 /* ─── Utility bar ─────────────────────────────────────────────── */
 
-/* Webflow: .utility-navigation — fixed 40px height, right-aligned content */
+/* Webflow: .utility-navigation — 40px height, border-bottom, centered */
 .mega-nav__utility {
   border-bottom: 1px solid var(--border-secondary);
   font-family: var(--font-family-label);
   font-size: var(--body-xs);
   height: 40px;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
-/* Webflow: .layout-utility-nav.right — flush right, no gaps */
+/* Webflow: .layout-utility-nav.right — right-aligned, no gaps */
 .mega-nav__utility-inner {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: var(--gap-lg);
+  gap: 0;
   height: 100%;
 }
 
+/* Webflow: .customer-login-wrapper / .label-wrapper — groups in utility bar */
+.mega-nav__utility-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 var(--padding-sm);
+}
+
+/* Separator between utility groups */
+.mega-nav__utility-group + .mega-nav__utility-group {
+  border-left: 1px solid var(--border-secondary);
+}
+
+/* Webflow: .icon-xs — FA 6 Pro Solid 900 phone icon in utility bar.
+   Now rendered as inline SVG since FA webfont isn't loaded in Next.js. */
+.mega-nav__utility-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--text-brand-primary);
+  flex-shrink: 0;
+}
+
+/* Webflow: .text-label-xs — "Talk to sales:" label */
+.mega-nav__utility-label {
+  font-family: var(--font-family-label);
+  font-size: var(--body-xs);
+  font-weight: 600;
+  color: var(--text-brand-primary);
+}
+
 .mega-nav__utility-link {
-  color: var(--text-secondary);
+  font-family: var(--font-family-body);
+  font-size: var(--body-xs);
+  color: var(--text-primary);
   text-decoration: none;
   transition: color 0.15s;
 }
 
 .mega-nav__utility-link:hover {
+  color: var(--text-brand-primary);
+}
+
+/* Webflow: .text_body-xs — "Already a customer?" text */
+.mega-nav__utility-text {
+  font-family: var(--font-family-body);
+  font-size: var(--body-xs);
   color: var(--text-primary);
+}
+
+/* Webflow: .text-label-xs — "Sign in" link */
+.mega-nav__utility-signin {
+  font-family: var(--font-family-label);
+  font-size: var(--body-xs);
+  font-weight: 600;
+  color: var(--text-brand-primary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.mega-nav__utility-signin:hover {
+  text-decoration: underline;
+}
+
+/* Webflow: .toggle-wrapper.right — border-left separator */
+.mega-nav__utility-toggle {
+  display: flex;
+  align-items: center;
+  border-left: 1px solid var(--border-secondary);
+  padding-left: var(--padding-sm);
+  margin-left: var(--padding-sm);
 }
 
 /* ─── Container ───────────────────────────────────────────────── */
 
+/* Webflow: .container-nav / .container-sub-nav.right
+   – base: max-width 90% (same as Webflow)
+   – 1280px+: max-width 1280px
+   – 1920px+: max-width none, asymmetric padding */
 .mega-nav__container {
+  width: 100%;
   max-width: 90%;
   margin: 0 auto;
   padding-left: var(--padding-lg);
@@ -48,53 +128,94 @@
 }
 
 /* ─── Main nav ────────────────────────────────────────────────── */
+/* Webflow: .top-navigation — centered flex wrapper */
 
 .mega-nav__main {
-  border-bottom: 1px solid var(--border-secondary);
+  font-family: var(--font-family-body);
+  color: var(--text-primary);
+  font-size: var(--body-md);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
+/* Webflow: .nav-wrapper — space-between pushes [logo + menu] left, [button] right */
 .mega-nav__main-inner {
   display: flex;
+  flex-flow: row;
   align-items: center;
   justify-content: space-between;
-  padding-top: var(--padding-md);
-  padding-bottom: var(--padding-md);
+  width: 100%;
+  max-width: 100%;
+  padding-top: 8px;  /* Webflow space-md */
+  padding-bottom: 8px;
 }
 
+/* Webflow: .logo-wrapper — block display, auto width */
 .mega-nav__logo {
   flex-shrink: 0;
+  display: block;
+  color: var(--text-primary);
 }
 
-/* ─── Menu ────────────────────────────────────────────────────── */
-/* Webflow: .nav_menu-list — items sit next to each other, NOT centered in viewport.
-   The wrapper uses justify-content: flex-start with gap between items.
-   Logo, menu, and CTA are all inside space-between parent. */
+/* Webflow: .nav_img-logo — exactly 124px wide */
+.mega-nav__logo img {
+  width: 124px;
+  max-width: 100%;
+  display: block;
+  overflow: visible;
+}
 
+/* ─── Menu wrapper ────────────────────────────────────────────── */
+/* Webflow: .nav_menu-wrapper — row, flex-start, no gap. Groups menu list next to logo.
+   This is what keeps nav items LEFT-aligned, not centered. */
+
+.mega-nav__menu-wrapper {
+  display: flex;
+  flex-flow: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0;
+}
+
+/* Webflow: .nav_menu-list — row, flex-start, gap space-md (8px), margin-right space-lg (16px)
+   At 1440px: justify-content center, margin-right space-md
+   The visible spacing between items comes from BOTH the gap AND the padding on .nav-menu-dropdown-link */
 .mega-nav__menu {
   display: flex;
+  flex-flow: row;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--gap-md);
-  margin-left: var(--gap-xl);
+  gap: 0;
+  margin-right: var(--padding-lg);
 }
 
 .mega-nav__dropdown {
   position: static;
 }
 
+/* Webflow: .nav-dropdown-toggle wraps .nav-menu-dropdown-link
+   .nav-dropdown-toggle: padding 0, font system 1rem, semi-bold 600, flex row
+   .nav-menu-dropdown-link: padding space-md space-xxl space-md space-md,
+     font-family label, font-size-75 (14px), semi-bold, line-height snug
+   At 1920px+: padding 0, font-size-100 (16px)
+   The padding on the link text creates the visible spacing between nav items. */
 .mega-nav__toggle {
   display: flex;
   align-items: center;
-  gap: var(--gap-xs);
-  padding: var(--padding-xs) var(--padding-sm);
+  gap: 0;
+  /* Webflow: 8px top/bottom/left, 32px right (but 20px of that is the abs-positioned chevron).
+     Since our chevron is a flex child, we just need 8px all around + the chevron adds naturally. */
+  padding: 8px 12px 8px 8px;
   font-family: var(--font-family-label);
-  font-size: var(--label-md);
+  font-size: var(--label-sm); /* 14px = Webflow font-size-75 */
   font-weight: 600;
+  line-height: 125%;
   color: var(--text-primary);
   background: none;
   border: none;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: all 0.3s;
   white-space: nowrap;
 }
 
@@ -103,8 +224,23 @@
   color: var(--text-brand-primary);
 }
 
+/* Webflow: .dropdown-icon — 16x16, margin-right 4px, flex center
+   Sits BEFORE the text in Webflow DOM, but AFTER in our component.
+   Webflow SVG is 20x20 viewBox but container is 16x16. */
 .mega-nav__chevron {
+  color: var(--text-primary);
+  justify-content: center;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 4px;
+  display: flex;
   transition: transform 0.2s;
+}
+
+.mega-nav__chevron svg {
+  width: 100%;
+  height: 100%;
 }
 
 .mega-nav__toggle--active .mega-nav__chevron {
@@ -136,6 +272,7 @@
 
 .mega-nav__panel-inner {
   max-width: 90%;
+  width: 100%;
   margin: 0 auto;
   padding: 0 var(--padding-lg);
 }
@@ -165,22 +302,7 @@
   line-height: 1.6;
 }
 
-.mega-nav__panel-btn {
-  display: inline-block;
-  font-family: var(--font-family-label);
-  font-size: var(--label-sm);
-  font-weight: 600;
-  color: var(--text-on-color-dark);
-  background-color: var(--background-brand-primary);
-  padding: var(--padding-xs) var(--padding-md);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  transition: opacity 0.15s;
-}
-
-.mega-nav__panel-btn:hover {
-  opacity: 0.9;
-}
+/* Panel buttons now use BDS <LinkButton variant="primary" size="sm"> */
 
 /* ─── Services layout (grid + product promo side by side) ────── */
 /* Webflow: .layout-submenu = flex row */
@@ -239,18 +361,19 @@
   gap: var(--gap-sm);
 }
 
-.mega-nav__service-header {
-  display: flex;
-  align-items: center;
-  gap: var(--gap-sm);
-  text-decoration: none;
-}
-
+/* Webflow: .text_label-md.link — category name, no badge, standalone link */
 .mega-nav__service-title {
   font-family: var(--font-family-label);
   font-size: var(--label-md);
   font-weight: 600;
+  line-height: 125%;
   color: var(--text-primary);
+  text-decoration: none;
+  display: block;
+}
+
+.mega-nav__service-title:hover {
+  color: var(--text-brand-primary);
 }
 
 .mega-nav__service-tagline {
@@ -266,7 +389,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--gap-sm);
+  gap: 0;
 }
 
 .mega-nav__service-link {
@@ -384,25 +507,14 @@
   line-height: 1.4;
 }
 
-/* Webflow: .button-secondary-sm */
-.mega-nav__industry-cta {
-  font-family: var(--font-family-label);
-  font-size: var(--label-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  padding: var(--padding-xs) var(--padding-sm);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--gap-xs);
+/* Industry card CTAs now use BDS .bds-button--secondary.bds-button--sm */
+.mega-nav__industry-card .bds-button--secondary {
   margin-top: auto;
   align-self: flex-start;
-  transition: border-color 0.15s;
 }
 
-.mega-nav__industry-card:hover .mega-nav__industry-cta {
-  border-color: var(--border-brand-primary);
+.mega-nav__industry-card:hover .bds-button--secondary {
+  border-color: transparent;
 }
 
 /* Webflow: .mega-nav-item-story.accent — stories promo */
@@ -436,16 +548,7 @@
   flex: 1;
 }
 
-.mega-nav__stories-promo-cta {
-  font-family: var(--font-family-label);
-  font-size: var(--label-sm);
-  font-weight: 600;
-  color: var(--text-on-color-dark);
-  background-color: var(--background-brand-primary);
-  padding: var(--padding-xs) var(--padding-md);
-  border-radius: var(--border-radius-md);
-  white-space: nowrap;
-}
+/* Stories promo CTA now uses BDS .bds-button--primary.bds-button--sm */
 
 /* ─── About grid (4-col with image cards) ────────────────────── */
 /* Webflow: .layout-nav-4-col-about */
@@ -499,26 +602,14 @@
   line-height: 1.4;
 }
 
-/* Webflow: .button-secondary-sm */
-.mega-nav__about-card-cta {
-  font-family: var(--font-family-label);
-  font-size: var(--label-sm);
-  font-weight: 600;
-  color: var(--text-primary);
-  border: 1px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  padding: var(--padding-xs) var(--padding-sm);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--gap-xs);
+/* About card CTAs now use BDS .bds-button--secondary.bds-button--sm */
+.mega-nav__about-card .bds-button--secondary {
   margin-top: auto;
   align-self: flex-start;
-  transition: border-color 0.15s;
 }
 
-.mega-nav__about-card:hover .mega-nav__about-card-cta {
-  border-color: var(--border-brand-primary);
-  color: var(--text-brand-primary);
+.mega-nav__about-card:hover .bds-button--secondary {
+  border-color: transparent;
 }
 
 /* ─── Nav card (reusable) ─────────────────────────────────────── */
@@ -554,27 +645,24 @@
 
 /* ─── CTA + actions ───────────────────────────────────────────── */
 
+/* Webflow: .nav-button-wrapper — row, gap bds-md (12px) */
 .mega-nav__actions {
   display: flex;
+  flex-flow: row;
   align-items: center;
-  gap: var(--gap-md);
+  gap: 12px;
 }
 
-.mega-nav__cta {
-  font-family: var(--font-family-label);
-  font-size: var(--label-sm);
-  font-weight: 600;
-  color: var(--text-on-color-dark);
-  background-color: var(--background-brand-primary);
-  padding: var(--padding-xs) var(--padding-md);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  transition: opacity 0.15s;
-  white-space: nowrap;
-}
+/* Main nav CTA now uses BDS <LinkButton variant="primary" size="sm"> */
 
-.mega-nav__cta:hover {
-  opacity: 0.9;
+/* ─── Arrow icon (inline SVG replacement for FA icon_1x1-sm.brand) ── */
+/* Webflow: .icon_1x1-sm — 16x16, FA 6 Pro Solid 900, flex center */
+
+.mega-nav__arrow-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--text-brand-primary);
 }
 
 /* ─── Mobile toggle ───────────────────────────────────────────── */
@@ -659,10 +747,21 @@
   margin-top: var(--gap-sm);
 }
 
-/* ─── Responsive ──────────────────────────────────────────────── */
+/* ─── Responsive — large desktop ─────────────────────────────── */
 
-@media (max-width: 1024px) {
-  .mega-nav__menu {
+/* Cap nav containers at 1280px — nav items stay left-aligned next to logo */
+@media (min-width: 1280px) {
+  .mega-nav__container,
+  .mega-nav__panel-inner {
+    max-width: 1280px;
+  }
+}
+
+/* ─── Responsive — mobile ────────────────────────────────────── */
+
+/* Webflow: data-collapse="medium" = 991px */
+@media (max-width: 991px) {
+  .mega-nav__menu-wrapper {
     display: none;
   }
 

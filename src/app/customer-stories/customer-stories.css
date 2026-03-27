@@ -1,0 +1,38 @@
+/* ─── Customer stories — layout only ────────────────────── */
+
+.stories-section {
+  padding: var(--padding-huge) 0;
+}
+
+.story-list-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid var(--border-secondary);
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-primary);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.story-list-card:hover {
+  border-color: var(--border-brand-primary);
+}
+
+.story-list-card__image {
+  aspect-ratio: 16/9;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+.story-list-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.story-list-card__cta {
+  align-self: flex-start;
+  margin-top: auto;
+}

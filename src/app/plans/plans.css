@@ -1,0 +1,52 @@
+/* ─── Plans page — layout only ──────────────────────────── */
+
+.plans-section {
+  padding: var(--padding-huge) 0;
+}
+
+/* Billing toggle — Monthly / Annually */
+.plans-toggle {
+  display: flex;
+  gap: 0;
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 4px;
+  width: fit-content;
+  margin: 0 auto var(--gap-xl);
+}
+
+.plans-toggle__btn {
+  font-family: var(--font-family-label);
+  font-size: var(--label-sm);
+  font-weight: 600;
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.plans-toggle__btn--active {
+  background-color: var(--surface-brand-primary);
+  color: var(--text-on-color-dark);
+}
+
+.plans-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.plans-card-image {
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+  background-color: var(--surface-accent);
+  overflow: hidden;
+}
+
+.plans-card-wrapper .bds-pricing-card {
+  flex: 1;
+}

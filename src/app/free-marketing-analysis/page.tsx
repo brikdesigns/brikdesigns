@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Suspense } from 'react';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
 import '../shared-sections.css';
+import './free-marketing-analysis.css';
 
 export const metadata: Metadata = {
   title: 'Free Marketing Analysis | Brik Designs',
@@ -12,28 +13,27 @@ export const metadata: Metadata = {
 export default function FreeMarketingAnalysisPage() {
   return (
     <>
-      {/* Hero — 2 column: form + illustration */}
       <section className="page-hero">
         <div className="page-hero__container">
-          <div style={{ display: 'flex', gap: 'var(--gap-xl)', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 400px' }}>
+          <div className="fma-hero-layout">
+            <div className="fma-hero-content">
               <h1 className="page-hero__title">
                 Not sure what you need yet?
               </h1>
-              <p className="page-hero__tagline" style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: 'var(--heading-lg)' }}>
+              <p className="text-heading-md">
                 Start with a <em>free</em> marketing assessment.
               </p>
               <p className="page-hero__description">
-                We&apos;ll review your current marketing, systems, and tools — and send you
+                We&apos;ll review your current marketing, systems, and tools &mdash; and send you
                 a 3-part plan to fix what&apos;s holding you back.
               </p>
-              <div style={{ marginTop: 'var(--gap-xl)' }}>
+              <div className="fma-form-wrapper">
                 <Suspense fallback={<div>Loading form...</div>}>
                   <LeadCaptureForm source="marketing_analysis" />
                 </Suspense>
               </div>
             </div>
-            <div style={{ flex: '0 0 320px' }}>
+            <div className="fma-hero-image">
               <div className="img-frame">
                 <Image
                   src="/images/3d-form-robot.png"

@@ -1,0 +1,19 @@
+/* ─── Contact page — layout only ────────────────────────── */
+
+.contact-hero-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--gap-lg);
+}
+
+.contact-form-section {
+  padding: var(--padding-huge) 0;
+}
+
+.contact-form-container {
+  max-width: 800px;
+  align-items: flex-start;
+  gap: var(--gap-xs);
+}

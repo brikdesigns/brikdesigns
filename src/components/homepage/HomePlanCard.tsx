@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
+import { LinkButton } from '@bds/components/ui/Button/LinkButton';
 
 interface HomePlanCardProps {
   name: string;
@@ -12,13 +12,12 @@ interface HomePlanCardProps {
 }
 
 /**
- * Homepage support plan card — matches Webflow .cms-item.stacked
+ * Homepage support plan card — Webflow: .cms-item.stacked
  * structure: image frame → price → name → description → CTA
  */
 export function HomePlanCard({ name, slug, price, description, imageUrl }: HomePlanCardProps) {
   return (
-    <Link href={`/plans#${slug}`} className="plan-card">
-      {/* Webflow: .img-frame-service — 1:1 aspect, rounded */}
+    <div className="plan-card">
       <div className="plan-card__image-frame">
         {imageUrl ? (
           <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -27,13 +26,15 @@ export function HomePlanCard({ name, slug, price, description, imageUrl }: HomeP
         )}
       </div>
 
-      <div>
+      <div className="plan-card__content">
         <p className="plan-card__price">{price}</p>
         <h3 className="plan-card__name">{name}</h3>
         <p className="plan-card__description">{description}</p>
       </div>
 
-      <span className="service-card__cta" style={{ alignSelf: 'flex-start' }}>Learn More</span>
-    </Link>
+      <LinkButton href={`/plans#${slug}`} variant="primary" size="md">
+        Learn More
+      </LinkButton>
+    </div>
   );
 }

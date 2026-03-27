@@ -1,0 +1,422 @@
+/* ─── Services page — layout only ───────────────────────── */
+/* Typography, buttons, and colors come from BDS components. */
+
+/* Service line card (used in 3-col grid) */
+.services-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-primary);
+  text-decoration: none;
+  height: 100%;
+  transition: border-color 0.15s;
+}
+
+.services-card:hover {
+  border-color: var(--border-brand-primary);
+}
+
+.services-card__image {
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-accent);
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.services-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  width: 100%;
+}
+
+/* Callout section (image + text side by side) */
+.services-callout {
+  display: flex;
+  flex-flow: row;
+  gap: var(--gap-xl);
+  align-items: center;
+  width: 100%;
+}
+
+.services-callout__image {
+  flex: 0 0 45%;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-accent);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.services-callout__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Accent section background */
+.content-section--accent {
+  background-color: var(--surface-accent);
+}
+
+/* Individual service card (badge + name + tagline) */
+.svc-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.svc-card:hover {
+  border-color: var(--border-brand-primary);
+}
+
+.svc-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+/* Rich variant — vertical card with image */
+.svc-card--rich {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.svc-card__image {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  background-color: var(--surface-accent);
+}
+
+.svc-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.svc-card--rich .svc-card__content {
+  gap: var(--gap-sm);
+}
+
+/* Secondary section background */
+.content-section--secondary {
+  background-color: var(--surface-secondary);
+}
+
+/* ─── Service detail page ─────────────────────────────────── */
+
+/* Hero section — brand-colored background, dynamic per category */
+.svc-detail-hero-section {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-accent);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Hero — split layout: content left, image + price right */
+.svc-detail-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: center;
+  width: 100%;
+  margin-top: var(--gap-lg);
+}
+
+.svc-detail-hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.svc-detail-hero__aside {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-md);
+}
+
+.svc-detail-hero__image {
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background-color: var(--surface-accent);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 360px;
+  width: 100%;
+}
+
+.svc-detail-hero__image img {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  display: block;
+}
+
+.svc-detail-hero__price-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-xs);
+  padding: var(--padding-lg);
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-md);
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Offerings — default vertical, grid for 3+ */
+.svc-detail-offerings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+.svc-detail-offerings--grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-lg);
+}
+
+.svc-detail-offering-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  padding: var(--padding-lg);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-primary);
+  justify-content: space-between;
+}
+
+.svc-detail-offering-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.svc-detail-offering-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.svc-detail-offering-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding-top: var(--gap-sm);
+  border-top: 1px solid var(--border-secondary);
+}
+
+.svc-detail-offering-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--gap-md);
+}
+
+.svc-detail-offering-includes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  padding-top: var(--gap-sm);
+  border-top: 1px solid var(--border-secondary);
+}
+
+/* Related customer story card */
+.svc-detail-story-card {
+  display: flex;
+  padding: var(--padding-lg);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-lg);
+  text-decoration: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.svc-detail-story-card--with-image {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: var(--gap-lg);
+  align-items: center;
+}
+
+.svc-detail-story-card:hover {
+  border-color: var(--border-brand-primary);
+}
+
+.svc-detail-story-card__image {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+}
+
+.svc-detail-story-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.svc-detail-story-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Recommended add-on card */
+.svc-detail-addon-card {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--gap-xl);
+  align-items: center;
+  padding: var(--padding-xl);
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-lg);
+  width: 100%;
+}
+
+.svc-detail-addon-card__image {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  aspect-ratio: 1;
+}
+
+.svc-detail-addon-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.svc-detail-addon-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+/* Monthly support CTA */
+.svc-detail-support-cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  padding: var(--padding-xl);
+  background-color: var(--surface-accent);
+  border-radius: var(--border-radius-lg);
+  width: 100%;
+}
+
+/* Category page — monthly support section */
+.svc-category-support {
+  display: flex;
+  gap: var(--gap-xl);
+  align-items: center;
+  width: 100%;
+}
+
+.svc-category-support__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+/* Category page — other service lines */
+.svc-category-others {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+.svc-category-other-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding: var(--padding-lg);
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.svc-category-other-card:hover {
+  border-color: var(--border-brand-primary);
+}
+
+.svc-category-other-card__image {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  background-color: var(--surface-accent);
+}
+
+.svc-category-other-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ─── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 991px) {
+  .services-callout {
+    flex-flow: column;
+  }
+
+  .services-callout__image {
+    flex: none;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .svc-detail-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .svc-detail-offerings--grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .svc-detail-story-card--with-image {
+    grid-template-columns: 1fr;
+  }
+
+  .svc-detail-addon-card {
+    grid-template-columns: 1fr;
+  }
+
+  .svc-detail-offerings--grid {
+    grid-template-columns: 1fr;
+  }
+}

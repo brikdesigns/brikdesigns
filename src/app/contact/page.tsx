@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import { LinkButton } from '@bds/components/ui/Button/LinkButton';
 import { ContactForm } from '@/components/marketing/ContactForm';
 import '../shared-sections.css';
+import './contact.css';
 
 export const metadata: Metadata = {
   title: 'Contact Brik Designs | Start Your Project or Ask a Question',
@@ -10,42 +12,31 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <>
-      {/* Header + Quick CTAs — Webflow: .section_contact .inner-container-contact */}
+      {/* Header + Quick CTAs */}
       <section className="page-hero">
         <div className="page-hero__container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--gap-lg)' }}>
+          <div className="contact-hero-row">
             <h1 className="page-hero__title">Get in touch</h1>
-            {/* Webflow: 3 icon CTA buttons (Book a Call, Email, Phone) */}
-            <div style={{ display: 'flex', gap: 'var(--gap-sm)', flexWrap: 'wrap' }}>
-              <a
-                href="https://calendly.com/brikdesigns"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-                style={{ gap: 'var(--gap-sm)' }}
-              >
-                <span>📅</span> Book a Call
-              </a>
-              <a href="mailto:hello@brikdesigns.com" className="btn-primary" style={{ gap: 'var(--gap-sm)' }}>
-                <span>✉️</span> Send Email
-              </a>
-              <a href="tel:+15614908714" className="btn-primary" style={{ gap: 'var(--gap-sm)' }}>
-                <span>📞</span> Click to Call
-              </a>
+            <div className="button-wrapper">
+              <LinkButton href="https://calendly.com/brikdesigns" variant="primary" size="md" target="_blank" rel="noopener noreferrer">
+                Book a Call
+              </LinkButton>
+              <LinkButton href="mailto:hello@brikdesigns.com" variant="primary" size="md">
+                Send Email
+              </LinkButton>
+              <LinkButton href="tel:+15614908714" variant="primary" size="md">
+                Click to Call
+              </LinkButton>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Form — Webflow: .form-contact.bottom */}
-      <section className="content-section" style={{ padding: 'var(--padding-huge) 0' }}>
-        <div className="content-section__container" style={{ maxWidth: 800 }}>
-          <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-md)', color: 'var(--text-primary)', margin: '0 0 var(--gap-xs)' }}>
-            Send us a message
-          </h2>
-          <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-sm)', color: 'var(--text-secondary)', margin: '0 0 var(--gap-xl)' }}>
-            Let us know what you&apos;re interested in
-          </p>
+      {/* Contact Form */}
+      <section className="content-section contact-form-section">
+        <div className="container-lg contact-form-container">
+          <h2 className="text-heading-md">Send us a message</h2>
+          <p className="text-body-sm text--secondary">Let us know what you&apos;re interested in</p>
           <ContactForm />
         </div>
       </section>

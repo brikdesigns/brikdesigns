@@ -19,11 +19,11 @@ const customerLinks = [
 ];
 
 const serviceLines = [
-  { label: 'Brand Design', href: '/services/brand', category: 'brand' as const },
-  { label: 'Information Design', href: '/services/information', category: 'information' as const },
-  { label: 'Marketing Design', href: '/services/marketing', category: 'marketing' as const },
-  { label: 'Product Design', href: '/services/product', category: 'product' as const },
-  { label: 'Back Office Design', href: '/services/service', category: 'service' as const },
+  { label: 'Brand Design', href: '/services/brand-design', category: 'brand' as const },
+  { label: 'Information Design', href: '/services/information-design', category: 'information' as const },
+  { label: 'Marketing Design', href: '/services/marketing-design', category: 'marketing' as const },
+  { label: 'Product Design', href: '/services/product-design', category: 'product' as const },
+  { label: 'Back Office Design', href: '/services/back-office-design', category: 'service' as const },
 ];
 
 /**

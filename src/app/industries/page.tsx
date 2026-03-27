@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getIndustryPages } from '@/lib/supabase/queries';
+import '../shared-sections.css';
+import './industries.css';
 
 export const metadata: Metadata = {
-  title: 'Industries',
-  description: 'Brik Designs serves dental practices, real estate, SaaS companies, and small businesses.',
+  title: 'Industries | Who We Support',
+  description: 'Brik Designs serves dental practices, real estate, SaaS companies, and small businesses with senior-level design and strategic support.',
 };
 
 export const revalidate = 86400;
@@ -13,47 +15,33 @@ export default async function IndustriesPage() {
   const industries = await getIndustryPages();
 
   return (
-    <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)' }}>
-      <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', margin: 0 }}>
-        Who We Support
-      </h1>
-      <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-lg)', color: 'var(--text-secondary)', marginTop: 'var(--gap-md)' }}>
-        We specialize in industries where trust, credibility, and clear communication matter most.
-      </p>
+    <>
+      <section className="page-hero">
+        <div className="page-hero__container">
+          <h1 className="page-hero__title">Who We Support</h1>
+          <p className="page-hero__description">
+            We specialize in industries where trust, credibility, and clear communication matter most.
+          </p>
+        </div>
+      </section>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: 'var(--gap-lg)',
-          marginTop: 'var(--gap-xl)',
-        }}
-      >
-        {industries.map((ind) => (
-          <Link
-            key={ind.slug}
-            href={`/industries/${ind.slug}`}
-            style={{
-              display: 'block',
-              padding: 'var(--padding-lg)',
-              backgroundColor: 'var(--surface-primary)',
-              border: '1px solid var(--border-secondary)',
-              borderRadius: 'var(--border-radius-lg)',
-              textDecoration: 'none',
-              transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-            }}
-          >
-            <h3 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-md)', color: 'var(--text-primary)', margin: 0 }}>
-              {ind.name}
-            </h3>
-            {ind.tagline && (
-              <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', marginTop: 'var(--gap-sm)' }}>
-                {ind.tagline}
-              </p>
-            )}
-          </Link>
-        ))}
-      </div>
-    </section>
+      <section className="content-section industries-section">
+        <div className="container-lg container-lg--comfortable">
+          <div className="industries-grid">
+            {industries.map((ind) => (
+              <Link key={ind.slug} href={`/industries/${ind.slug}`} className="industries-card">
+                <h3 className="text-heading-md">{ind.name}</h3>
+                {ind.tagline && (
+                  <p className="text-body-md text--secondary">{ind.tagline}</p>
+                )}
+                <span className="bds-button bds-button--secondary bds-button--sm" style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
+                  Learn More
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

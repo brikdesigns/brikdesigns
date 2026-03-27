@@ -2,7 +2,10 @@
 @import '../../brik-bds/tokens/fonts.css';
 @import '../../brik-bds/tokens/figma-tokens.css';
 @import '../../brik-bds/tokens/overrides.css';
-@import '../../brik-bds/tokens/bridge.css';
+/* bridge.css removed — it maps Webflow internal token names (--_color---*)
+   to clean BDS names, but this site uses BDS tokens directly. The bridge
+   introduced circular references (e.g., --border-radius-md: var(--border-radius-md))
+   that broke token resolution. */
 
 /* Tailwind layers */
 @import "tailwindcss";
@@ -91,7 +94,7 @@ html {
   --background-primary: var(--grayscale--white);
   --background-secondary: var(--grayscale--lightest);
   --background-elevated: var(--grayscale--white);
-  --background-inverse: var(--grayscale--darkest);
+  --background-inverse: var(--grayscale--white);
   --background-input: var(--grayscale--white);
 
   /* Border */
@@ -225,47 +228,47 @@ html {
      3. Anti-FOUC script in layout.tsx prevents flash on load
    ================================================================ */
 :root[data-theme="dark"] {
-  /* Text */
-  --text-primary: var(--grayscale--lightest);
-  --text-secondary: var(--grayscale--light);
-  --text-muted: var(--grayscale--dark);
-  --text-brand-primary: var(--brand--primary);
-  --text-inverse: var(--grayscale--darkest);
+  /* Text — Figma color/dark mode values */
+  --text-primary: var(--grayscale--lightest);        /* Figma: grayscale.lightest ✓ */
+  --text-secondary: var(--grayscale--light);          /* Figma: grayscale.light ✓ */
+  --text-muted: var(--grayscale--dark);               /* Figma: grayscale.dark ✓ */
+  --text-brand-primary: var(--brand--primary);        /* Brik override (Figma: theme.blue) */
+  --text-inverse: var(--grayscale--black);            /* Figma: grayscale.black — FIX from --darkest */
   --text-negative: #ff6b6b;
   --text-warning: #f4d364;
   --text-success: #9ada6c;
 
-  /* Surface */
-  --surface-primary: var(--grayscale--black);
-  --surface-secondary: var(--grayscale--darkest);
-  --surface-tertiary: var(--grayscale--darker);
+  /* Surface — Figma color/dark mode values */
+  --surface-primary: var(--grayscale--black);         /* Figma: grayscale.black ✓ */
+  --surface-secondary: var(--grayscale--darker);      /* Figma: grayscale.darker — FIX from --darkest */
+  --surface-tertiary: var(--grayscale--dark);         /* Adjusted to maintain hierarchy */
   --surface-negative: #3d1a1a;
   --surface-warning: #2a2110;
   --surface-success: #1a2a14;
-  --surface-brand-primary: var(--brand--primary);
+  --surface-brand-primary: var(--brand--primary);     /* Brik override (Figma: theme.blue) */
   --surface-brand-secondary: var(--grayscale--darkest);
 
-  /* Page */
-  --page-primary: var(--grayscale--black);
-  --page-secondary: var(--grayscale--darker);
+  /* Page — Figma color/dark mode values */
+  --page-primary: var(--grayscale--black);            /* Figma: grayscale.black ✓ */
+  --page-secondary: var(--grayscale--darker);         /* Figma: grayscale.darker ✓ */
   --page-accent: var(--grayscale--darkest);
 
-  /* Background */
-  --background-brand-primary: var(--brand--primary);
-  --background-primary: var(--grayscale--darker);
-  --background-secondary: var(--grayscale--darkest);
+  /* Background — Figma color/dark mode values */
+  --background-brand-primary: var(--brand--primary);  /* Brik override (Figma: theme.blue) */
+  --background-primary: var(--grayscale--black);      /* Figma: grayscale.black — FIX from --darker */
+  --background-secondary: var(--grayscale--light);    /* Figma: grayscale.light — FIX from --darkest */
   --background-elevated: var(--grayscale--darker);
-  --background-inverse: var(--brand--primary);
-  --background-input: var(--grayscale--black);
+  --background-inverse: var(--grayscale--black);      /* Figma: grayscale.black — FIX from --white */
+  --background-input: var(--grayscale--black);        /* Figma: grayscale.black ✓ */
 
-  /* Border */
-  --border-primary: var(--grayscale--darkest);
-  --border-secondary: var(--grayscale--darker);
-  --border-muted: var(--grayscale--darker);
-  --border-brand-primary: var(--brand--primary);
+  /* Border — Figma color/dark mode values */
+  --border-primary: var(--grayscale--darker);         /* Figma: grayscale.darker — FIX from --darkest */
+  --border-secondary: var(--grayscale--light);        /* Figma: grayscale.light — FIX from --darker */
+  --border-muted: var(--grayscale--dark);             /* Figma: grayscale.dark — FIX from --darker */
+  --border-brand-primary: var(--brand--primary);      /* Brik override (Figma: theme.blue) */
   --border-negative: #ff6b6b;
-  --border-input: var(--grayscale--dark);
-  --border-inverse: var(--grayscale--black);
+  --border-input: var(--grayscale--dark);             /* Figma: grayscale.dark ✓ */
+  --border-inverse: var(--grayscale--black);          /* Figma: grayscale.black ✓ */
 
   /* System */
   --color-system-link: #6b8aff;

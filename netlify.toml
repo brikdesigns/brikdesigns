@@ -52,6 +52,63 @@
   to = "/templates/:splat"
   status = 301
 
+# Legacy short-slug category URLs → canonical long slugs
+[[redirects]]
+  from = "/services/brand"
+  to = "/services/brand-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/brand/*"
+  to = "/services/brand-design/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/services/marketing"
+  to = "/services/marketing-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/marketing/*"
+  to = "/services/marketing-design/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/services/information"
+  to = "/services/information-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/information/*"
+  to = "/services/information-design/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/services/service"
+  to = "/services/back-office-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/service/*"
+  to = "/services/back-office-design/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/services/product"
+  to = "/services/product-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/product/*"
+  to = "/services/product-design/:splat"
+  status = 301
+
+# Webflow service-lines URL structure → new structure
+[[redirects]]
+  from = "/service-lines/*"
+  to = "/services/:splat"
+  status = 301
+
 # Security headers (supplement Next.js headers)
 [[headers]]
   for = "/*"

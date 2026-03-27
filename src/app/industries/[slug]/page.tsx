@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getIndustryPageBySlug } from '@/lib/supabase/queries';
-import { HeroButtons } from '@/components/marketing/HeroButtons';
+import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import '../../shared-sections.css';
+import '../industries.css';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -12,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const page = await getIndustryPageBySlug(slug);
     return {
-      title: page.name,
+      title: `${page.name} | Brik Designs`,
       description: page.tagline || `Brik Designs for ${page.name}`,
     };
   } catch {
@@ -30,59 +32,74 @@ export default async function IndustryDetailPage({ params }: Props) {
     notFound();
   }
 
+  const topics = page.industry_page_topics
+    ?.sort((a: { topic_number: number }, b: { topic_number: number }) => a.topic_number - b.topic_number) || [];
+
   return (
     <>
-      <section style={{ maxWidth: 800, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)' }}>
-        <h1 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', margin: 0 }}>
-          {page.name}
-        </h1>
-        {page.tagline && (
-          <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-xl)', color: 'var(--text-brand-primary)', marginTop: 'var(--gap-sm)' }}>
-            {page.tagline}
-          </p>
-        )}
-        {page.intro_title && (
-          <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-md)', color: 'var(--text-primary)', marginTop: 'var(--gap-xl)' }}>
-            {page.intro_title}
-          </h2>
-        )}
-        {page.intro_description && (
-          <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-lg)', color: 'var(--text-secondary)', marginTop: 'var(--gap-md)', lineHeight: 1.7 }}>
-            {page.intro_description}
-          </p>
-        )}
+      {/* Hero */}
+      <section className="page-hero page-hero--brand">
+        <div className="page-hero__container">
+          <h1 className="page-hero__title">{page.name}</h1>
+          {page.tagline && (
+            <p className="page-hero__tagline">{page.tagline}</p>
+          )}
+        </div>
       </section>
 
-      {/* Topic sections */}
-      {page.industry_page_topics
-        ?.sort((a: { topic_number: number }, b: { topic_number: number }) => a.topic_number - b.topic_number)
-        .map((topic: { topic_number: number; title: string; description: string }) => (
-          <section
-            key={topic.topic_number}
-            style={{
-              padding: 'var(--padding-lg) var(--padding-lg)',
-              backgroundColor: topic.topic_number % 2 === 0 ? 'var(--surface-secondary)' : 'transparent',
-            }}
-          >
-            <div style={{ maxWidth: 800, margin: '0 auto' }}>
-              <h3 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-sm)', color: 'var(--text-primary)', margin: 0 }}>
-                {topic.title}
-              </h3>
-              {topic.description && (
-                <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', marginTop: 'var(--gap-sm)', lineHeight: 1.6 }}>
-                  {topic.description}
+      {/* Intro */}
+      {(page.intro_title || page.intro_description) && (
+        <section className="content-section">
+          <div className="container-lg">
+            <div className="industry-intro">
+              {page.intro_title && (
+                <h2 className="text-heading-md">{page.intro_title}</h2>
+              )}
+              {page.intro_description && (
+                <p className="text-body-lg text--secondary" style={{ marginTop: 'var(--gap-md)', lineHeight: 1.7 }}>
+                  {page.intro_description}
                 </p>
               )}
             </div>
-          </section>
-        ))}
+          </div>
+        </section>
+      )}
+
+      {/* Topic sections */}
+      {topics.length > 0 && (
+        <section className="content-section content-section--secondary">
+          <div className="container-lg">
+            {topics.map((topic: { topic_number: number; title: string; description: string }) => (
+              <div key={topic.topic_number} className="industry-topic">
+                <div className="industry-topic__container">
+                  <span className="text-label-sm text--brand">
+                    {String(topic.topic_number).padStart(2, '0')}
+                  </span>
+                  <h3 className="text-heading-sm">{topic.title}</h3>
+                  {topic.description && (
+                    <p className="text-body-md text--secondary">{topic.description}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
-      <section style={{ maxWidth: 800, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)', textAlign: 'center' }}>
-        <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-lg)', color: 'var(--text-primary)', margin: 0 }}>
-          Ready to get started?
-        </h2>
-        <HeroButtons />
+      <section className="content-section">
+        <div className="container-lg">
+          <div className="content-wrapper content-wrapper--center">
+            <h2 className="text-heading-lg text--center">Ready to get started?</h2>
+            <p className="text-body-md text--secondary text--center">
+              Let&apos;s talk about how we can help your {page.name.toLowerCase()} business.
+            </p>
+            <div className="button-wrapper button-wrapper--center">
+              <LinkButton href="/contact" variant="primary" size="lg">Let&apos;s Talk</LinkButton>
+              <LinkButton href="/get-started" variant="outline" size="lg">Get Started</LinkButton>
+            </div>
+          </div>
+        </div>
       </section>
     </>
   );

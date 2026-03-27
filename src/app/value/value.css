@@ -1,0 +1,98 @@
+/* ─── Value of Design page — layout only ─────────────────── */
+
+.value-hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Step navigation links in hero */
+.value-step-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin-top: var(--gap-xl);
+  width: 100%;
+  max-width: 500px;
+}
+
+.value-step-nav__link {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--padding-sm) var(--padding-md);
+  border-radius: var(--border-radius-sm);
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+.value-step-nav__link:hover {
+  background-color: var(--surface-secondary);
+}
+
+/* Step header with large number */
+.value-step-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-md);
+}
+
+.value-step-number {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-huge);
+  font-weight: 700;
+  color: var(--text-brand-primary);
+  line-height: 1;
+}
+
+/* Stats grid */
+.value-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-lg);
+  width: 100%;
+  margin-top: var(--gap-xl);
+}
+
+.value-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding: var(--padding-lg);
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-secondary);
+}
+
+.value-stat-value {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-xl);
+  font-weight: 700;
+  color: var(--text-brand-primary);
+  line-height: 1;
+}
+
+/* ─── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 991px) {
+  .value-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .value-hero {
+    min-height: auto;
+  }
+
+  .value-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .value-step-header {
+    flex-direction: column;
+    gap: var(--gap-xs);
+  }
+}

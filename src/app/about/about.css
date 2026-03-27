@@ -1,0 +1,246 @@
+/* ─── About page — layout only ──────────────────────────────
+   Derived from live brikdesigns.com/about (audited 2026-03-24).
+   All values use BDS tokens. No hardcoded colors/fonts.
+   ──────────────────────────────────────────────────────────── */
+
+/* ─── Hero ─────────────────────────────────────────────────── */
+/* Webflow: white bg (not brand), h1 "About", intro paragraphs, scroll indicator */
+
+.about-hero {
+  background-color: var(--surface-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.about-hero__intro {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: 150%;
+  margin: var(--gap-md) 0 0;
+  max-width: 700px;
+}
+
+.about-hero__scroll {
+  margin-top: var(--gap-xl);
+  text-align: center;
+  width: 100%;
+}
+
+/* ─── Team ─────────────────────────────────────────────────── */
+/* Webflow: 2-col grid, bordered cards, large circle headshots centered,
+   social links below name, full-length bios */
+
+.about-team-section {
+  padding: var(--padding-huge) 0;
+}
+
+.about-team-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+.about-team-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--gap-sm);
+  padding: var(--padding-xl);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--surface-primary);
+}
+
+.about-team-avatar {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.about-team-name {
+  margin-top: var(--gap-sm);
+}
+
+.about-team-social {
+  display: flex;
+  gap: var(--gap-sm);
+  margin: var(--gap-xs) 0;
+}
+
+.about-social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--surface-secondary);
+  color: var(--text-secondary);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.about-social-link:hover {
+  background-color: var(--surface-brand-primary);
+  color: var(--text-on-color-dark);
+}
+
+.about-team-bio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  text-align: left;
+}
+
+/* ─── Value of Design CTA ──────────────────────────────────── */
+/* Webflow: bordered card, 2-col: text+button left, 3D illustration right */
+
+.about-value-section {
+  padding: var(--padding-huge) 0;
+}
+
+.about-value-card {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xl);
+  padding: var(--padding-xl);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-lg);
+  width: 100%;
+}
+
+.about-value-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.about-value-image {
+  flex: 0 0 300px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Pillars (Approach / Mission / Vision) ────────────────── */
+/* Webflow: tan/accent bg, stacked rows: number+title left column, body text right column */
+
+.about-pillars-section {
+  padding: var(--padding-huge) 0;
+}
+
+.about-pillar-row {
+  display: flex;
+  gap: var(--gap-xl);
+  padding: var(--padding-lg) 0;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.about-pillar-row:last-child {
+  border-bottom: none;
+}
+
+.about-pillar-label {
+  flex: 0 0 200px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.about-pillar-body {
+  flex: 1;
+}
+
+/* ─── Our Services ─────────────────────────────────────────── */
+/* Webflow: 3-col grid of image cards with 3D illustrations, title, desc, "Learn more" button */
+
+.about-services-section {
+  padding: var(--padding-huge) 0;
+}
+
+.about-services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+.about-service-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding: var(--padding-lg);
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-secondary);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.about-service-card:hover {
+  border-color: var(--border-brand-primary);
+}
+
+.about-service-image {
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-accent);
+  overflow: hidden;
+}
+
+.about-service-cta {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+/* ─── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 991px) {
+  .about-team-grid {
+    grid-template-columns: 1fr;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .about-value-card {
+    flex-direction: column;
+  }
+
+  .about-value-image {
+    flex: none;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .about-pillar-row {
+    flex-direction: column;
+    gap: var(--gap-md);
+  }
+
+  .about-pillar-label {
+    flex: none;
+  }
+
+  .about-services-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .about-hero {
+    min-height: auto;
+    padding: var(--padding-xl) 0;
+  }
+
+  .about-services-grid {
+    grid-template-columns: 1fr;
+  }
+}

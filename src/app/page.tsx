@@ -1,9 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
+import { LinkButton } from '@bds/components/ui/Button/LinkButton';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import './homepage.css';
+import './shared-sections.css';
 
 export const revalidate = 3600;
 
@@ -39,23 +41,26 @@ export default async function HomePage() {
   return (
     <>
       {/* ═══ Hero ═══ */}
-      {/* Webflow: .section_hero.brand */}
+      {/* Webflow: .section_hero.brand → .container-hero → .layout-wrapper-hero.comfortable → .content-wrapper.narrow + .button-wrapper.stretch */}
       <section className="section-hero">
         <div className="hero-container">
-          <h1 className="hero-heading">
-            Marketing That Works.<br />
-            Design That Builds.
-          </h1>
-          <p className="hero-subtext">
-            We help small businesses show up better, work smarter, and grow faster—brik by brik.
-          </p>
-          <div className="hero-buttons">
-            <Link href="/services" className="hero-btn-primary">
-              Explore Design Services
-            </Link>
-            <Link href="/contact" className="hero-btn-secondary">
-              Let&apos;s Talk &rarr;
-            </Link>
+          <div className="hero-layout">
+            <div className="hero-text">
+              <h1 className="hero-heading">
+                Marketing That Works. Design That Builds.
+              </h1>
+              <p className="hero-subtext">
+                We help small businesses show up better, work smarter, and grow faster—brik by brik.
+              </p>
+            </div>
+            <div className="button-wrapper">
+              <LinkButton href="/services" variant="inverse" size="lg">
+                Explore Design Services
+              </LinkButton>
+              <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
+                Let&apos;s Talk
+              </LinkButton>
+            </div>
           </div>
         </div>
       </section>
@@ -111,29 +116,33 @@ export default async function HomePage() {
       </section>
 
       {/* ═══ Free Marketing Analysis CTA ═══ */}
-      {/* Webflow: .section_marketing-audit — 2-column: text + illustration */}
+      {/* Webflow: .section_marketing-audit → .cms-item-audit (row: text left + image right) */}
       <section className="section-audit">
         <div className="audit-layout">
           <div className="audit-content">
-            <h3 className="audit-heading">
-              Not sure what you need yet?<br />
-              Start with a <em>free</em> marketing assessment.
-            </h3>
-            <p className="audit-subtext">
-              We&apos;ll review your current marketing, systems, and tools — and send you a 3-part plan to fix what&apos;s holding you back.
-            </p>
-            <Link href="/free-marketing-analysis" className="service-card__cta" style={{ marginTop: 'var(--gap-xl)' }}>
-              Get Started
-            </Link>
+            <div className="audit-text">
+              <h3 className="audit-heading">Not sure what you need yet?</h3>
+              <h3 className="audit-heading">Start with a <strong><em>free</em></strong> marketing assessment.</h3>
+              <p className="audit-subtext">
+                We&apos;ll review your current marketing, systems, and tools — and send you a 3-part plan to fix what&apos;s holding you back.
+              </p>
+            </div>
+            <div className="button-wrapper button-wrapper--center">
+              <LinkButton href="/free-marketing-analysis" variant="primary" size="lg" target="_blank">
+                Get Started
+              </LinkButton>
+            </div>
           </div>
           <div className="audit-image">
-            <div className="service-card__image-frame">
+            <div className="audit-image-frame">
               <Image
                 src="/images/3d-form-robot.png"
                 alt="3D clay form illustration"
-                width={504}
-                height={504}
-                style={{ width: '100%', height: 'auto' }}
+                width={1008}
+                height={1008}
+                quality={90}
+                sizes="(max-width: 991px) 100vw, 50vw"
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
               />
             </div>
           </div>
@@ -141,14 +150,14 @@ export default async function HomePage() {
       </section>
 
       {/* ═══ Customer Story ═══ */}
-      {/* Webflow: .section_customer-story — dark accent bg, 2-column image + text */}
+      {/* Webflow: .section_customer-story → .container-lg.comfortable → .cms-item-story (row card) */}
       {featuredStory && (
         <section className="section-story">
-          <div className="section-container">
+          <div className="story-container">
             <div className="section-header">
               <h2 className="section-heading">Latest Customer Story</h2>
             </div>
-            <div className="story-layout">
+            <div className="story-card">
               <div className="story-image-wrapper">
                 <div className="story-image-frame">
                   {featuredStory.hero_image_url ? (
@@ -156,32 +165,34 @@ export default async function HomePage() {
                       src={featuredStory.hero_image_url}
                       alt={featuredStory.client_name || 'Customer story'}
                       width={600}
-                      height={450}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      height={400}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
                     />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-secondary)' }} />
+                    <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-secondary)', position: 'absolute', top: 0, left: 0 }} />
                   )}
                   {featuredStory.award_label && (
                     <div className="story-badge">
-                      <Image src="/images/choice.svg" alt="" width={20} height={20} />
-                      <span style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--body-xs)', fontWeight: 600 }}>
-                        {featuredStory.award_label}
-                      </span>
+                      <Image src="/images/choice.svg" alt="" width={16} height={16} className="icon-md" />
+                      <span className="text-label-tiny">{featuredStory.award_label}</span>
                     </div>
                   )}
                 </div>
               </div>
               <div className="story-content">
-                <h3 className="story-title">
-                  {featuredStory.name || featuredStory.client_name}
-                </h3>
-                <p className="story-description">
-                  {featuredStory.short_description || featuredStory.quote || ''}
-                </p>
-                <Link href={`/customer-stories/${featuredStory.slug}`} className="service-card__cta">
-                  Read Story
-                </Link>
+                <div>
+                  <h3 className="story-title">
+                    {featuredStory.name || featuredStory.client_name}
+                  </h3>
+                  <p className="story-description">
+                    {featuredStory.short_description || featuredStory.quote || ''}
+                  </p>
+                </div>
+                <div>
+                  <LinkButton href={`/customer-stories/${featuredStory.slug}`} variant="primary" size="md">
+                    Read Story
+                  </LinkButton>
+                </div>
               </div>
             </div>
           </div>
@@ -189,16 +200,20 @@ export default async function HomePage() {
       )}
 
       {/* ═══ CTA ("Get in Touch") ═══ */}
-      {/* Webflow: .section_cta (white outer) → .container-cta (brand inner, border-radius: 24px) */}
+      {/* Webflow: .section_cta → .container-cta → .inner-wrapper._90.center.stacked */}
       <section className="section-cta">
         <div className="cta-card">
-          <h2 className="cta-heading">Get in Touch</h2>
-          <p className="cta-subtext">
-            Starting a new project or want to collaborate with us?
-          </p>
-          <Link href="/contact" className="cta-button">
-            Let&apos;s Talk
-          </Link>
+          <div className="cta-inner">
+            <h2 className="cta-heading">Get in Touch</h2>
+            <p className="cta-subtext">
+              Starting a new project or want to collaborate with us?
+            </p>
+          </div>
+          <div className="button-wrapper button-wrapper--center">
+            <LinkButton href="/contact" variant="inverse" size="lg">
+              Let&apos;s Talk
+            </LinkButton>
+          </div>
         </div>
       </section>
     </>
