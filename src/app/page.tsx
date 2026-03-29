@@ -54,7 +54,7 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="button-wrapper">
-              <LinkButton href="/services" variant="inverse" size="lg">
+              <LinkButton href="/services" variant="outline" size="lg" className="hero-btn-on-dark">
                 Explore Design Services
               </LinkButton>
               <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
@@ -210,7 +210,7 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="button-wrapper button-wrapper--center">
-            <LinkButton href="/contact" variant="inverse" size="lg">
+            <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
               Let&apos;s Talk
             </LinkButton>
           </div>

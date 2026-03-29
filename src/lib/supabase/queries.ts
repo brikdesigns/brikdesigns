@@ -7,6 +7,9 @@ import { createClient } from './server';
  * Tables are shared with brik-client-portal (same Supabase project).
  * Marketing fields (image_url, badges, tagline, rank, is_public) were added
  * in migration 00044_marketing_cms_schema.sql.
+ *
+ * Taxonomy (4-tier hierarchy):
+ *   service_lines → services → offerings → engagements
  */
 
 // Map category slugs to BDS ServiceBadge category names.
@@ -31,13 +34,13 @@ export function mapCategorySlug(slug: string) {
 }
 
 // ============================================================
-// Service Categories (service lines)
+// Service Lines (was: Service Categories)
 // ============================================================
 
 export async function getServiceCategories() {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('service_categories')
+    .from('service_lines')
     .select('*')
     .eq('is_public', true)
     .order('rank', { ascending: true });
@@ -49,7 +52,7 @@ export async function getServiceCategories() {
 export async function getCategoryBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('service_categories')
+    .from('service_lines')
     .select('*')
     .eq('slug', slug)
     .eq('is_public', true)
@@ -60,14 +63,14 @@ export async function getCategoryBySlug(slug: string) {
 }
 
 // ============================================================
-// Services
+// Services (discipline-level groupings, was: queried as 'services' view)
 // ============================================================
 
 export async function getServices() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('services')
-    .select('*, service_categories(id, slug, name)')
+    .select('*, service_lines(id, slug, name)')
     .eq('is_public', true)
     .order('rank', { ascending: true });
 
@@ -80,7 +83,7 @@ export async function getServicesByCategory(categoryId: string) {
   const { data, error } = await supabase
     .from('services')
     .select('*')
-    .eq('category_id', categoryId)
+    .eq('service_line_id', categoryId)
     .eq('is_public', true)
     .order('rank', { ascending: true });
 
@@ -92,7 +95,7 @@ export async function getServiceBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('services')
-    .select('*, service_categories(id, slug, name, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
+    .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();
@@ -106,7 +109,7 @@ export async function getRelatedService(slug: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from('services')
-    .select('name, slug, tagline, marketing_description, image_url, primary_badge_url, service_categories(slug)')
+    .select('name, slug, tagline, marketing_description, image_url, primary_badge_url, service_lines(slug)')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();
@@ -115,14 +118,15 @@ export async function getRelatedService(slug: string) {
 }
 
 // ============================================================
-// Support Plans
+// Support Plans (was: queried as 'support_plans' view)
 // ============================================================
 
 export async function getSupportPlans() {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('support_plans')
+    .from('plans')
     .select('*')
+    .eq('plan_type', 'support')
     .eq('is_public', true)
     .order('rank', { ascending: true });
 
@@ -133,8 +137,9 @@ export async function getSupportPlans() {
 export async function getSupportPlanBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('support_plans')
+    .from('plans')
     .select('*')
+    .eq('plan_type', 'support')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();

@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Service categories
   const { data: categories } = await supabase
-    .from('service_categories')
+    .from('service_lines')
     .select('slug')
     .eq('is_public', true);
 
@@ -48,11 +48,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Individual services
   const { data: services } = await supabase
     .from('services')
-    .select('slug, service_categories(slug)')
+    .select('slug, service_lines(slug)')
     .eq('is_public', true);
 
   const servicePages: MetadataRoute.Sitemap = (services || []).map((svc) => {
-    const cats = svc.service_categories as unknown as { slug: string }[] | { slug: string } | null;
+    const cats = svc.service_lines as unknown as { slug: string }[] | { slug: string } | null;
     const catSlug = Array.isArray(cats) ? cats[0]?.slug : cats?.slug || '';
     return {
       url: `${BASE_URL}/services/${catSlug}/${svc.slug}`,

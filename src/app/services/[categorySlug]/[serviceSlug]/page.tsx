@@ -43,7 +43,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     notFound();
   }
 
-  const category = service.service_categories;
+  const category = service.service_lines;
   const offerings = service.offerings?.filter((o: { is_public: boolean }) => o.is_public) || [];
   const sortedOfferings = [...offerings].sort(
     (a: { tier_rank: number }, b: { tier_rank: number }) => (a.tier_rank || 0) - (b.tier_rank || 0)
@@ -68,8 +68,8 @@ export default async function ServiceDetailPage({ params }: Props) {
 
   // Resolve related service's category slug for URLs
   const relatedCatSlug = (() => {
-    if (!relatedService?.service_categories) return categorySlug;
-    const catData = relatedService.service_categories;
+    if (!relatedService?.service_lines) return categorySlug;
+    const catData = relatedService.service_lines;
     if (Array.isArray(catData)) return catData[0]?.slug || categorySlug;
     return (catData as { slug: string }).slug || categorySlug;
   })();
