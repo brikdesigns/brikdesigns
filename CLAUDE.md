@@ -29,7 +29,7 @@ npm run lint         # ESLint
 
 ## BDS Usage
 
-Token layer: `src/lib/tokens.ts` + `src/lib/styles.ts`. Path aliases: `@bds/components` → `./brik-bds/components`.
+Token layer: `src/app/globals.css` imports BDS tokens via `@layer` cascade. Path aliases: `@bds/components` → `./brik-bds/components`, `@bds/tokens` → `./brik-bds/tokens`.
 
 **Read `COMPONENT-MAP.md` before building any section.** Every visual element must come from BDS.
 

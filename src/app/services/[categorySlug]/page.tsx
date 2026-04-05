@@ -114,9 +114,9 @@ export default async function ServiceCategoryPage({ params }: Props) {
                 slug={svc.slug}
                 categorySlug={categorySlug}
                 category={mapCategorySlug(category.slug)}
-                tagline={svc.tagline}
-                description={svc.marketing_description}
-                imageUrl={svc.image_url}
+                tagline={svc.description}
+                description={svc.description}
+                imageUrl={undefined}
                 showCta
               />
             ))}

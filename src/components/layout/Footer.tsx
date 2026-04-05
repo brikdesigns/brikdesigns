@@ -62,6 +62,7 @@ export function Footer() {
                 width={100}
                 height={40}
                 className="site-logo"
+                style={{ height: 'auto' }}
               />
               <p className="footer-text">We&apos;re a digital marketing and design agency.</p>
             </div>

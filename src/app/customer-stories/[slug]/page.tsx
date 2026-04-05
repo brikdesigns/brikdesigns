@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { FeaturedTestimonial } from '@/components/marketing/FeaturedTestimonial';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -9,7 +9,7 @@ export const revalidate = 86400; // ISR: 24 hours
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: story } = await supabase
     .from('customer_stories')
     .select('name, short_description, client_name')
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CustomerStoryDetailPage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: story } = await supabase
     .from('customer_stories')
     .select('*')

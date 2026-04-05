@@ -117,6 +117,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               width={124}
               height={50}
               className="site-logo"
+              style={{ height: 'auto' }}
               priority
             />
           </Link>

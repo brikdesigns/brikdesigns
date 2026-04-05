@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const service = await getServiceBySlug(serviceSlug);
     return {
       title: `${service.name} | Design Services`,
-      description: service.tagline || service.marketing_description || undefined,
+      description: service.description || undefined,
     };
   } catch {
     return { title: 'Service Not Found' };
@@ -44,11 +44,13 @@ export default async function ServiceDetailPage({ params }: Props) {
   }
 
   const category = service.service_lines;
-  const offerings = service.offerings?.filter((o: { is_public: boolean }) => o.is_public) || [];
+  const offerings = service.offerings?.filter((o: { active: boolean }) => o.active) || [];
   const sortedOfferings = [...offerings].sort(
-    (a: { tier_rank: number }, b: { tier_rank: number }) => (a.tier_rank || 0) - (b.tier_rank || 0)
+    (a: { sort_order: number }, b: { sort_order: number }) => (a.sort_order || 0) - (b.sort_order || 0)
   );
-  const startingPrice = sortedOfferings.length > 0 ? sortedOfferings[0]?.price_display : null;
+  const startingPrice = sortedOfferings.length > 0
+    ? `$${(sortedOfferings[0]?.base_price_cents / 100).toLocaleString()}`
+    : null;
 
   // Related services in same category (exclude current)
   const siblingServices = category?.id
@@ -84,6 +86,9 @@ export default async function ServiceDetailPage({ params }: Props) {
     }
   }
 
+  // Prefer per-service image, fall back to category-level hero
+  const heroImageUrl = service.image_url || category?.hero_image_url || null;
+
   // Brand colors for dynamic hero background
   const brandColorLight = category?.brand_color_light || null;
   const brandColorBase = category?.brand_color_base || null;
@@ -112,8 +117,8 @@ export default async function ServiceDetailPage({ params }: Props) {
                 serviceName={service.name}
               />
               <h1 className="page-hero__title">{service.name}</h1>
-              {service.tagline && (
-                <p className="page-hero__description">{service.tagline}</p>
+              {service.description && (
+                <p className="page-hero__description">{service.description}</p>
               )}
               <div className="button-wrapper">
                 {sortedOfferings.length > 0 && (
@@ -123,14 +128,14 @@ export default async function ServiceDetailPage({ params }: Props) {
               </div>
             </div>
 
-            {service.image_url && (
+            {heroImageUrl && (
               <div className="svc-detail-hero__aside">
                 <div
                   className="svc-detail-hero__image"
                   style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
                 >
                   <Image
-                    src={service.image_url}
+                    src={heroImageUrl}
                     alt={service.name}
                     width={560}
                     height={560}
@@ -266,9 +271,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                   serviceName={relatedService.name}
                 />
                 <h3 className="text-heading-sm">{relatedService.name}</h3>
-                {(relatedService.marketing_description || relatedService.tagline) && (
+                {relatedService.description && (
                   <p className="text-body-sm text--secondary">
-                    {relatedService.marketing_description || relatedService.tagline}
+                    {relatedService.description}
                   </p>
                 )}
                 <LinkButton
@@ -299,8 +304,8 @@ export default async function ServiceDetailPage({ params }: Props) {
                   slug={svc.slug}
                   categorySlug={categorySlug}
                   category={mapCategorySlug(category?.slug || categorySlug)}
-                  tagline={svc.tagline}
-                  description={svc.marketing_description}
+                  tagline={svc.tagline || svc.description}
+                  description={svc.description}
                   imageUrl={svc.image_url}
                   showCta
                 />

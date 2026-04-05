@@ -1,6 +1,7 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 import createMDX from '@next/mdx';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -8,6 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const nextConfig = {
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   images: {
+    qualities: [75, 90],
     remotePatterns: [
       { hostname: '*.supabase.co' },
       { hostname: 'cdn.prod.website-files.com' }, // Webflow CDN (during migration)
@@ -44,4 +46,18 @@ const nextConfig = {
 
 const withMDX = createMDX({});
 
-export default withMDX(nextConfig);
+export default withSentryConfig(withMDX(nextConfig), {
+  // Upload source maps for readable stack traces in Sentry
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+
+  // Suppress Sentry CLI logs during build
+  silent: !process.env.CI,
+
+  // Tunnel events through the app to avoid ad blockers
+  tunnelRoute: '/monitoring',
+
+  // Automatically tree-shake Sentry logger in production
+  disableLogger: true,
+});

@@ -1,12 +1,15 @@
-import { createClient } from './server';
+import { createServiceClient } from './server';
+import type { ServiceLine, Service, ServiceWithRelations, RelatedService, SupportPlan, CustomerStory, Offering } from './types';
 
 /**
  * Typed Supabase queries for marketing content.
- * All queries use the anon key (public read via RLS).
+ * Uses service role client because several tables (services, offerings)
+ * have RLS policies referencing is_public which doesn't exist yet.
+ * Safe: these are server-only read queries, never exposed to the client.
  *
  * Tables are shared with brik-client-portal (same Supabase project).
- * Marketing fields (image_url, badges, tagline, rank, is_public) were added
- * in migration 00044_marketing_cms_schema.sql.
+ * service_lines has marketing fields (is_public, rank, tagline, etc.).
+ * services uses `active` + `sort_order` (no is_public/rank columns).
  *
  * Taxonomy (4-tier hierarchy):
  *   service_lines → services → offerings → engagements
@@ -38,7 +41,7 @@ export function mapCategorySlug(slug: string) {
 // ============================================================
 
 export async function getServiceCategories() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('service_lines')
     .select('*')
@@ -50,7 +53,7 @@ export async function getServiceCategories() {
 }
 
 export async function getCategoryBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('service_lines')
     .select('*')
@@ -67,37 +70,37 @@ export async function getCategoryBySlug(slug: string) {
 // ============================================================
 
 export async function getServices() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('services')
     .select('*, service_lines(id, slug, name)')
-    .eq('is_public', true)
-    .order('rank', { ascending: true });
+    .eq('active', true)
+    .order('sort_order', { ascending: true });
 
   if (error) throw error;
   return data;
 }
 
 export async function getServicesByCategory(categoryId: string) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('services')
     .select('*')
     .eq('service_line_id', categoryId)
-    .eq('is_public', true)
-    .order('rank', { ascending: true });
+    .eq('active', true)
+    .order('sort_order', { ascending: true });
 
   if (error) throw error;
   return data;
 }
 
 export async function getServiceBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('services')
-    .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
+    .select('*, service_lines(id, slug, name, hero_image_url, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
     .eq('slug', slug)
-    .eq('is_public', true)
+    .eq('active', true)
     .single();
 
   if (error) throw error;
@@ -106,12 +109,12 @@ export async function getServiceBySlug(slug: string) {
 
 /** Get a service by slug for the "related service" / add-on section */
 export async function getRelatedService(slug: string) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data } = await supabase
     .from('services')
-    .select('name, slug, tagline, marketing_description, image_url, primary_badge_url, service_lines(slug)')
+    .select('name, slug, description, image_url, service_line_id, service_lines(slug)')
     .eq('slug', slug)
-    .eq('is_public', true)
+    .eq('active', true)
     .single();
 
   return data;
@@ -122,7 +125,7 @@ export async function getRelatedService(slug: string) {
 // ============================================================
 
 export async function getSupportPlans() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('plans')
     .select('*')
@@ -135,7 +138,7 @@ export async function getSupportPlans() {
 }
 
 export async function getSupportPlanBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('plans')
     .select('*')
@@ -153,7 +156,7 @@ export async function getSupportPlanBySlug(slug: string) {
 // ============================================================
 
 export async function getCustomerStories() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('customer_stories')
     .select('*')
@@ -165,7 +168,7 @@ export async function getCustomerStories() {
 }
 
 export async function getCustomerStoryBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('customer_stories')
     .select('*')
@@ -179,7 +182,7 @@ export async function getCustomerStoryBySlug(slug: string) {
 
 /** Get customer stories related to a specific service */
 export async function getStoriesByService(serviceSlug: string) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data } = await supabase
     .from('customer_stories')
     .select('*')
@@ -196,7 +199,7 @@ export async function getStoriesByService(serviceSlug: string) {
 // ============================================================
 
 export async function getIndustryPages() {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('industry_pages')
     .select('*')
@@ -208,7 +211,7 @@ export async function getIndustryPages() {
 }
 
 export async function getIndustryPageBySlug(slug: string) {
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('industry_pages')
     .select('*, industry_page_topics(*)')

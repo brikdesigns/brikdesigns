@@ -15,35 +15,35 @@ import { MegaNav } from './MegaNav';
  * can be managed in the portal instead of hardcoded.
  */
 const NAV_COLUMNS: Record<string, { tagline: string; slugs: string[] }> = {
-  'brand-design': {
+  brand: {
     tagline: 'Shape your identity',
     slugs: [
-      'logo-design', 'brand-guidelines', 'stationary',
-      'business-card', 'email-signature', 'business-listings',
+      'logo-design', 'brand-guidelines', 'business-stationery',
+      'brand-identity', 'online-business-listings', 'print-materials',
     ],
   },
-  'marketing-design': {
+  marketing: {
     tagline: 'Connect and convert',
     slugs: [
       'website-experience-mapping', 'patient-experience-mapping',
-      'web-design', 'email-marketing',
-      'landing-page', 'social', 'swag', 'marketing-consulting',
-      'software-automation-setup',
+      'web-design-development', 'email-marketing',
+      'landing-pages', 'social-media-graphics', 'swag-merchandise-design',
+      'marketing-consulting', 'software-automation-setup',
     ],
   },
-  'information-design': {
+  information: {
     tagline: 'Simplify the complex',
     slugs: [
       'layout-design', 'sales-resources', 'welcome-onboarding-kit',
-      'infographic', 'presentation-design', 'signage-design', 'intake-forms',
+      'infographics', 'presentation-design', 'signage-design', 'intake-forms',
     ],
   },
-  'back-office-design': {
+  service: {
     tagline: 'Make work flow',
     slugs: [
-      'automated-workflow-and-ai-integration', 'digital-file-organization',
-      'sop-creation', 'training-setup-organization',
-      'crm-setup-and-data-cleanup', 'journey-map', 'software-subscription-audit',
+      'ai-workflow-integration', 'digital-file-organization',
+      'sop-creation', 'training-setup',
+      'crm-setup', 'customer-journey-mapping', 'software-subscription-audit',
     ],
   },
 };

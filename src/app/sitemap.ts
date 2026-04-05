@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getAllPosts } from '@/lib/blog';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 
 const BASE_URL = 'https://www.brikdesigns.com';
 
@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Supabase dynamic content
-  const supabase = await createClient();
+  const supabase = createServiceClient();
 
   // Service categories
   const { data: categories } = await supabase
@@ -49,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: services } = await supabase
     .from('services')
     .select('slug, service_lines(slug)')
-    .eq('is_public', true);
+    .eq('active', true);
 
   const servicePages: MetadataRoute.Sitemap = (services || []).map((svc) => {
     const cats = svc.service_lines as unknown as { slug: string }[] | { slug: string } | null;

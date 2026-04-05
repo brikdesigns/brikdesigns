@@ -10,8 +10,12 @@
    introduced circular references (e.g., --border-radius-md: var(--border-radius-md))
    that broke token resolution. */
 
-/* Tailwind layers */
-@import "tailwindcss";
+/* Tailwind v4 — utilities only, no preflight.
+   BDS handles base resets and component styles via @layer bds-components.
+   Tailwind preflight conflicts with BDS (button color:inherit overrides
+   bds-button--primary color) because Turbopack reorders @layer declarations. */
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
 
 /* Match overscroll background to page color */
 html {
