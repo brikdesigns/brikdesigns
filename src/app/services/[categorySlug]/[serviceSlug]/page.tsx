@@ -10,8 +10,7 @@ import {
   getSupportPlanBySlug,
   mapCategorySlug,
 } from '@/lib/supabase/queries';
-import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
-import { ServiceCard } from '@/components/marketing/ServiceCard';
+import { ServiceBadge } from '@/components/marketing/ServiceBadgeClient';
 import { LinkButton } from '@bds/components/ui/Button/LinkButton';
 import '../../../shared-sections.css';
 import '../../services.css';
@@ -44,6 +43,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   }
 
   const category = service.service_lines;
+  const bdsCat = mapCategorySlug(category?.slug || categorySlug);
   const offerings = service.offerings?.filter((o: { active: boolean }) => o.active) || [];
   const sortedOfferings = [...offerings].sort(
     (a: { sort_order: number }, b: { sort_order: number }) => (a.sort_order || 0) - (b.sort_order || 0)
@@ -52,23 +52,19 @@ export default async function ServiceDetailPage({ params }: Props) {
     ? `$${(sortedOfferings[0]?.base_price_cents / 100).toLocaleString()}`
     : null;
 
-  // Related services in same category (exclude current)
   const siblingServices = category?.id
     ? (await getServicesByCategory(category.id)).filter((s) => s.slug !== serviceSlug).slice(0, 3)
     : [];
 
-  // Customer story — scoped to this service
   const relatedStories = service.has_customer_story
     ? await getStoriesByService(serviceSlug)
     : [];
   const relatedStory = relatedStories[0] || null;
 
-  // Recommended add-on — from related_service_slug
   const relatedService = service.related_service_slug
     ? await getRelatedService(service.related_service_slug)
     : null;
 
-  // Resolve related service's category slug for URLs
   const relatedCatSlug = (() => {
     if (!relatedService?.service_lines) return categorySlug;
     const catData = relatedService.service_lines;
@@ -76,7 +72,6 @@ export default async function ServiceDetailPage({ params }: Props) {
     return (catData as { slug: string }).slug || categorySlug;
   })();
 
-  // Support plan — scoped to this service's plan
   let supportPlan = null;
   if (service.support_plan_slug) {
     try {
@@ -86,64 +81,94 @@ export default async function ServiceDetailPage({ params }: Props) {
     }
   }
 
-  // Prefer per-service image, fall back to category-level hero
   const heroImageUrl = service.image_url || category?.hero_image_url || null;
 
-  // Brand colors for dynamic hero background
-  const brandColorLight = category?.brand_color_light || null;
-  const brandColorBase = category?.brand_color_base || null;
-  const brandColorDark = category?.brand_color_dark || null;
+  // Brand color triplet — drives all section theming
+  const colorLight = category?.brand_color_light || '#f1f0ec';
+  const colorBase = category?.brand_color_base || '#828282';
+  const colorDark = category?.brand_color_dark || '#1b1b1b';
+
+  // CSS custom properties for brand theming
+  const brandVars = {
+    '--svc-light': colorLight,
+    '--svc-base': colorBase,
+    '--svc-dark': colorDark,
+  } as React.CSSProperties;
 
   return (
-    <>
-      {/* ═══ Hero ═══ */}
-      <section
-        className="svc-detail-hero-section"
-        style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
-      >
-        <div className="page-hero__container">
-          <p className="page-hero__breadcrumb">
-            <Link href="/services">All Services</Link>
-            {' / '}
-            <Link href={`/services/${categorySlug}`}>{category?.name || categorySlug}</Link>
-            {' / '}
-            {service.name}
-          </p>
+    <div style={brandVars}>
+      {/* ═══ 1. Hero ═══ */}
+      <section className="svc-hero" style={{ backgroundColor: colorLight }}>
+        <div className="container-lg">
+          {/* Breadcrumb */}
+          <div className="svc-hero__breadcrumb">
+            <Link href="/services" className="text-body-lg" style={{ color: colorDark }}>
+              All Services
+            </Link>
+            <span className="text-body-lg" style={{ color: colorDark }}>/</span>
+            <Link href={`/services/${categorySlug}`} className="text-body-lg" style={{ color: colorDark }}>
+              {category?.name || categorySlug}
+            </Link>
+            <span className="text-body-lg" style={{ color: colorBase }}>/</span>
+            <span className="text-body-lg" style={{ color: colorBase }}>{service.name}</span>
+          </div>
 
-          <div className="svc-detail-hero">
-            <div className="svc-detail-hero__content">
-              <ServiceBadgeLabel
-                category={mapCategorySlug(category?.slug || categorySlug)}
-                serviceName={service.name}
-              />
-              <h1 className="page-hero__title">{service.name}</h1>
+          {/* Hero 2-col grid */}
+          <div className="svc-hero__grid">
+            {/* Left: content */}
+            <div className="svc-hero__content">
+              {/* Badge — large, secondary SVG */}
+              <div className="svc-hero__badge">
+                {service.secondary_badge_url ? (
+                  <Image src={service.secondary_badge_url} alt="" width={64} height={64} />
+                ) : (
+                  <ServiceBadge category={bdsCat} serviceName={service.name} size="lg" />
+                )}
+              </div>
+
+              <h1 className="text-display-sm" style={{ color: colorDark }}>{service.name}</h1>
+
               {service.description && (
-                <p className="page-hero__description">{service.description}</p>
+                <p className="text-body-huge" style={{ color: colorDark }}>{service.description}</p>
               )}
+
               <div className="button-wrapper">
                 {sortedOfferings.length > 0 && (
-                  <LinkButton href="#pricing" variant="primary" size="md">View Details</LinkButton>
+                  <LinkButton
+                    href="#pricing"
+                    variant="primary"
+                    size="md"
+                    style={{ backgroundColor: colorDark, color: colorLight }}
+                  >
+                    View Details
+                  </LinkButton>
                 )}
-                <LinkButton href="/contact" variant="outline" size="md">Let&apos;s Talk</LinkButton>
+                <LinkButton
+                  href="/contact"
+                  variant="primary"
+                  size="md"
+                  style={{ backgroundColor: colorDark, color: colorLight }}
+                >
+                  Let&apos;s Talk
+                </LinkButton>
               </div>
             </div>
 
+            {/* Right: image + price card */}
             {heroImageUrl && (
-              <div className="svc-detail-hero__aside">
-                <div
-                  className="svc-detail-hero__image"
-                  style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
-                >
+              <div className="svc-hero__aside">
+                <div className="svc-hero__image-frame">
                   <Image
                     src={heroImageUrl}
                     alt={service.name}
                     width={560}
                     height={560}
                     priority
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
                 {startingPrice && (
-                  <div className="svc-detail-hero__price-card">
+                  <div className="svc-hero__price-card">
                     <span className="text-label-sm text--secondary">Starting at</span>
                     <span className="text-heading-lg text--brand">{startingPrice}</span>
                     <LinkButton href="/contact" variant="primary" size="sm">Let&apos;s Talk</LinkButton>
@@ -155,53 +180,66 @@ export default async function ServiceDetailPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ═══ Pricing / Offerings ═══ */}
+      {/* ═══ 2. Pricing / Offerings ═══ */}
       {sortedOfferings.length > 0 && (
-        <section id="pricing" className="content-section content-section--secondary">
+        <section id="pricing" className="svc-section" style={{ backgroundColor: colorLight }}>
           <div className="container-lg">
-            <h2 className="text-heading-lg text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
+            <h2 className="text-heading-lg text--center" style={{ color: colorDark }}>
               Pricing Options
             </h2>
-            <div className={`svc-detail-offerings ${sortedOfferings.length >= 3 ? 'svc-detail-offerings--grid' : ''}`}>
-              {sortedOfferings.map((off: { slug: string; name: string; price_display: string; description: string; what_you_get: string; price_model?: string; icon_url?: string }) => (
-                <div key={off.slug} className="svc-detail-offering-card">
-                  <div className="svc-detail-offering-top">
-                    {off.icon_url ? (
-                      <Image src={off.icon_url} alt="" width={40} height={40} className="svc-detail-offering-icon" />
+            <div className="svc-offerings-grid">
+              {sortedOfferings.map((off: { slug: string; name: string; price_display: string; description: string; what_you_get: string; price_model?: string; icon_url?: string; service_line_id?: string }) => (
+                <div key={off.slug} className="svc-offering-card">
+                  {/* Badge icon */}
+                  <div className="svc-offering-card__header">
+                    {service.primary_badge_url ? (
+                      <Image src={service.primary_badge_url} alt="" width={40} height={40} className="svc-offering-card__icon" />
                     ) : (
-                      <ServiceBadgeLabel
-                        category={mapCategorySlug(category?.slug || categorySlug)}
-                        serviceName={off.name}
-                      />
+                      <ServiceBadge category={bdsCat} serviceName={service.name} size="lg" />
                     )}
-                    <h3 className="text-heading-sm">{off.name}</h3>
                   </div>
-                  {off.description && (
-                    <p className="text-body-sm text--secondary">{off.description}</p>
-                  )}
-                  <div className="svc-detail-offering-meta">
-                    <div className="svc-detail-offering-price-row">
-                      <span className="text-label-sm text--secondary">Price</span>
-                      {off.price_display && (
-                        <span className="text-heading-sm text--brand">{off.price_display}</span>
-                      )}
-                    </div>
-                    {off.price_model && (
-                      <div className="svc-detail-offering-price-row">
-                        <span className="text-label-sm text--secondary">Type</span>
-                        <span className="text-label-sm">{off.price_model}</span>
+
+                  {/* Title + description */}
+                  <div className="svc-offering-card__content">
+                    <h3 className="text-heading-sm">{off.name}</h3>
+                    {off.description && (
+                      <p className="text-body-md text--secondary">{off.description}</p>
+                    )}
+                  </div>
+
+                  {/* Metadata rows */}
+                  <div className="svc-offering-card__meta">
+                    <div className="svc-divider" />
+                    {off.price_display && (
+                      <div className="svc-meta-row">
+                        <span className="text-label-md">Price</span>
+                        <span className="text-body-sm text--secondary">{off.price_display}</span>
                       </div>
                     )}
-                  </div>
-                  {off.what_you_get && (
-                    <div className="svc-detail-offering-includes">
-                      <span className="text-label-sm">What you get:</span>
-                      <p className="text-body-sm text--secondary">{off.what_you_get}</p>
+                    {off.price_model && (
+                      <div className="svc-meta-row">
+                        <span className="text-label-md">Type</span>
+                        <span className="text-body-sm text--secondary">{off.price_model}</span>
+                      </div>
+                    )}
+                    {off.what_you_get && (
+                      <div className="svc-meta-row">
+                        <span className="text-label-md">What You Get</span>
+                        <span className="text-body-sm text--secondary">{off.what_you_get}</span>
+                      </div>
+                    )}
+                    <div className="svc-meta-row">
+                      <span className="text-label-md">Service Line</span>
+                      <span className="text-body-sm text--secondary">{category?.name || 'Design'}</span>
                     </div>
-                  )}
-                  <LinkButton href="/contact" variant="primary" size="sm">
-                    Let&apos;s Talk
-                  </LinkButton>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="button-wrapper">
+                    <LinkButton href="/contact" variant="primary" size="md">
+                      Let&apos;s Talk
+                    </LinkButton>
+                  </div>
                 </div>
               ))}
             </div>
@@ -209,34 +247,31 @@ export default async function ServiceDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ═══ Related Customer Story ═══ */}
+      {/* ═══ 3. Related Customer Story ═══ */}
       {relatedStory && (
-        <section className="content-section">
-          <div className="container-lg">
-            <h2 className="text-heading-md text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
-              Related Customer Story
-            </h2>
-            <Link
-              href={`/customer-stories/${relatedStory.slug}`}
-              className={`svc-detail-story-card${relatedStory.hero_image_url ? ' svc-detail-story-card--with-image' : ''}`}
-            >
+        <section className="svc-section">
+          <div className="container-lg text--center">
+            <h2 className="text-heading-lg text--center">Related Customer Story</h2>
+            <p className="text-body-md text--secondary text--center">
+              We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.
+            </p>
+
+            <Link href={`/customer-stories/${relatedStory.slug}`} className="svc-story-card">
               {relatedStory.hero_image_url && (
-                <div className="svc-detail-story-card__image">
+                <div className="svc-story-card__image">
                   <Image
                     src={relatedStory.hero_image_url}
                     alt={relatedStory.name || relatedStory.client_name}
-                    width={400}
-                    height={267}
+                    width={960}
+                    height={540}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
               )}
-              <div className="svc-detail-story-content">
-                <p className="text-label-sm text--brand">
-                  We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.
-                </p>
+              <div className="svc-story-card__content">
                 <h3 className="text-heading-sm">{relatedStory.name || relatedStory.client_name}</h3>
                 {relatedStory.short_description && (
-                  <p className="text-body-sm text--secondary">{relatedStory.short_description}</p>
+                  <p className="text-body-md text--secondary">{relatedStory.short_description}</p>
                 )}
                 <span className="bds-button bds-button--primary bds-button--sm" style={{ alignSelf: 'flex-start' }}>
                   Read Story
@@ -247,39 +282,44 @@ export default async function ServiceDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ═══ Recommended Add-On ═══ */}
+      {/* ═══ 4. Recommended Add-On ═══ */}
       {relatedService && (
-        <section className="content-section content-section--accent">
+        <section id="add-on" className="svc-section" style={{ backgroundColor: colorLight }}>
           <div className="container-lg">
-            <h2 className="text-heading-md text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
-              Recommended Add-On Service
-            </h2>
-            <div className="svc-detail-addon-card">
+            <div className="svc-addon__header">
+              <h2 className="text-heading-lg text--center" style={{ color: colorDark }}>
+                Recommended Add-On Service
+              </h2>
+              {relatedService.description && (
+                <p className="text-body-md text--center" style={{ color: colorDark }}>
+                  {relatedService.description}
+                </p>
+              )}
+            </div>
+
+            <div className="svc-addon-card">
               {relatedService.image_url && (
-                <div className="svc-detail-addon-card__image">
+                <div className="svc-addon-card__image">
                   <Image
                     src={relatedService.image_url}
                     alt={relatedService.name}
-                    width={400}
+                    width={600}
                     height={400}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
               )}
-              <div className="svc-detail-addon-card__content">
-                <ServiceBadgeLabel
-                  category={mapCategorySlug(relatedCatSlug)}
-                  serviceName={relatedService.name}
-                />
-                <h3 className="text-heading-sm">{relatedService.name}</h3>
+              <div className="svc-addon-card__body">
+                <ServiceBadge category={mapCategorySlug(relatedCatSlug)} serviceName={relatedService.name} size="sm" />
+                <h3 className="text-heading-md">{relatedService.name}</h3>
                 {relatedService.description && (
-                  <p className="text-body-sm text--secondary">
-                    {relatedService.description}
-                  </p>
+                  <p className="text-body-md text--secondary">{relatedService.description}</p>
                 )}
                 <LinkButton
                   href={`/services/${relatedCatSlug}/${relatedService.slug}`}
                   variant="primary"
-                  size="sm"
+                  size="md"
+                  style={{ backgroundColor: colorDark, color: colorLight, alignSelf: 'flex-start' }}
                 >
                   Learn More
                 </LinkButton>
@@ -289,41 +329,107 @@ export default async function ServiceDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ═══ Related Services ═══ */}
+      {/* ═══ 5. Other Services ═══ */}
       {siblingServices.length > 0 && (
-        <section className="content-section content-section--secondary">
+        <section className="svc-section" style={{ backgroundColor: colorLight }}>
           <div className="container-lg container-lg--comfortable">
-            <h2 className="text-heading-md text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
-              Other {category?.name || ''} Services
-            </h2>
+            <div className="svc-section__heading-row">
+              <h2 className="text-heading-lg">Other</h2>
+              <h2 className="text-heading-lg" style={{ color: colorDark }}>{category?.name || ''}</h2>
+              <h2 className="text-heading-lg">Services</h2>
+            </div>
+
             <div className="grid-3">
               {siblingServices.map((svc) => (
-                <ServiceCard
-                  key={svc.slug}
-                  name={svc.name}
-                  slug={svc.slug}
-                  categorySlug={categorySlug}
-                  category={mapCategorySlug(category?.slug || categorySlug)}
-                  tagline={svc.tagline || svc.description}
-                  description={svc.description}
-                  imageUrl={svc.image_url}
-                  showCta
-                />
+                <Link key={svc.slug} href={`/services/${categorySlug}/${svc.slug}`} className="svc-sibling-card">
+                  {/* Service image */}
+                  <div className="svc-sibling-card__image">
+                    {svc.image_url && (
+                      <Image
+                        src={svc.image_url}
+                        alt={svc.name}
+                        width={400}
+                        height={400}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    )}
+                  </div>
+                  {/* Badge icon */}
+                  {svc.primary_badge_url && (
+                    <Image src={svc.primary_badge_url} alt="" width={32} height={32} className="svc-sibling-card__badge" />
+                  )}
+                  {/* Content */}
+                  <div className="svc-sibling-card__content">
+                    <h4 className="text-heading-sm">{svc.name}</h4>
+                    <p className="text-body-md text--secondary">{svc.tagline || svc.description}</p>
+                  </div>
+                  {/* CTA */}
+                  <div className="button-wrapper">
+                    <span
+                      className="bds-button bds-button--primary bds-button--md"
+                      style={{ backgroundColor: colorDark, color: colorLight }}
+                    >
+                      Learn More
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* ═══ Monthly Support CTA ═══ */}
+      {/* ═══ 6. Support CTA ═══ */}
       {supportPlan && (
-        <section className="content-section">
-          <div className="container-lg">
-            <div className="svc-detail-support-cta">
-              <p className="text-label-sm text--brand">Want a partner to avoid the full-time hassle?</p>
-              <h2 className="text-heading-md">{supportPlan.name}</h2>
-              <p className="text-body-sm text--secondary">{supportPlan.description}</p>
-              <LinkButton href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn More</LinkButton>
+        <section className="svc-section svc-support-section">
+          <div className="container-lg container-lg--comfortable">
+            <h2 className="text-heading-lg text--center text--on-color-dark">
+              Want a partner to avoid the full-time hassle?
+            </h2>
+            <p className="text-body-md text--center text--on-color-dark" style={{ opacity: 0.8 }}>
+              We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.
+            </p>
+
+            <div className="svc-support__layout">
+              {/* Left: large illustration */}
+              {category?.hero_image_url && (
+                <div className="svc-support__illustration">
+                  <Image
+                    src={category.hero_image_url}
+                    alt={category.name || ''}
+                    width={500}
+                    height={500}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                </div>
+              )}
+
+              {/* Right: support plan card */}
+              <div className="svc-support-card" style={{ backgroundColor: colorDark }}>
+                {supportPlan.image_url && (
+                  <div className="svc-support-card__image">
+                    <Image
+                      src={supportPlan.image_url}
+                      alt={supportPlan.name}
+                      width={120}
+                      height={120}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </div>
+                )}
+                <h3 className="text-heading-md text--on-color-dark">{supportPlan.name}</h3>
+                <p className="text-body-md text--on-color-dark" style={{ opacity: 0.8 }}>
+                  {supportPlan.description}
+                </p>
+                <LinkButton
+                  href={`/plans#${supportPlan.slug}`}
+                  variant="primary"
+                  size="md"
+                  style={{ alignSelf: 'flex-start' }}
+                >
+                  Learn More
+                </LinkButton>
+              </div>
             </div>
           </div>
         </section>
@@ -342,6 +448,6 @@ export default async function ServiceDetailPage({ params }: Props) {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

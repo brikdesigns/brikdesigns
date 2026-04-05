@@ -50,4 +50,4 @@ Blog posts and marketing copy sourced from Notion. Use `/blog-rewrite` skill for
 - Follow global CLAUDE.md (parent directory)
 - Never push to main without user confirmation
 - Always build locally before pushing
-- BDS development in `GitHub/brik/brik-bds/`, not in the submodule
+- BDS submodule discipline: see Global CLAUDE.md > BDS Ecosystem Rules
