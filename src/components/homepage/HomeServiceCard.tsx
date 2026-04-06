@@ -20,10 +20,9 @@ interface HomeServiceCardProps {
 export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: HomeServiceCardProps) {
   return (
     <div className="service-card">
-      {/* Webflow: .img-frame-service.accent */}
       <div className="service-card__image-frame">
         {imageUrl ? (
-          <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <Image src={imageUrl} alt={name} fill sizes="(max-width: 767px) 100vw, (max-width: 991px) 50vw, 33vw" style={{ objectFit: 'cover' }} />
         ) : (
           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ServiceBadge category={category} size="lg" />
@@ -32,7 +31,7 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: Hom
       </div>
 
       <div className="service-card__header">
-        <ServiceBadge category={category} size="md" />
+        <ServiceBadge category={category} size="lg" />
         <div className="service-card__content">
           <h3 className="service-card__title">{name}</h3>
           <p className="service-card__description">{tagline}</p>

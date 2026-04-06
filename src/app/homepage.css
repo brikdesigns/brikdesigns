@@ -24,7 +24,7 @@
   justify-content: flex-start;
   align-items: flex-start;
   width: 100%;
-  max-width: 90%;
+  max-width: min(90%, 1280px);
   padding-left: var(--padding-lg);
   padding-right: var(--padding-lg);
 }
@@ -88,16 +88,14 @@
 }
 
 /* ─── Services ("What We Do") ──────────────────────────────── */
-/* Webflow: .section_services — full-width, centered, 100svh min */
+/* Webflow: .section_services — full-width, generous vertical padding */
 .section-services {
-  padding: var(--padding-huge) 0;
+  padding: calc(var(--padding-huge) * 2) 0;
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   width: 100%;
-  min-height: 100svh;
 }
 
 /* Webflow: .container-lg.center — column flex, centered items, 90% max */
@@ -106,12 +104,12 @@
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
-  max-width: 90%;
+  max-width: min(90%, 1280px);
   width: 100%;
   margin: 0 auto;
   padding-left: var(--padding-lg);
   padding-right: var(--padding-lg);
-  gap: 12px; /* Webflow gap--md = space-300 = 12px */
+  gap: var(--padding-xl);
 }
 
 /* Webflow: .content-wrapper.center.narrow — centered text block, 70% width */
@@ -120,7 +118,7 @@
   flex-flow: column;
   align-items: center;
   text-align: center;
-  gap: 12px; /* Webflow: gap--md */
+  gap: var(--padding-sm); /* Webflow: gap--md */
   width: 70%; /* Webflow: .content-wrapper.center.narrow */
 }
 
@@ -143,13 +141,11 @@
   max-width: 600px;
 }
 
-/* Webflow: .cms-layout-3-col — 12px gap, stretch items, 100% height */
+/* Webflow: .cms-layout-3-col — stretch items */
 .grid-3-col {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  height: 100%;
-  place-items: stretch stretch;
+  gap: var(--padding-lg);
   width: 100%;
 }
 
@@ -157,15 +153,13 @@
 .service-card {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px; /* Webflow gap--md */
+  gap: var(--padding-md);
   padding: var(--padding-lg);
   border: 2px solid var(--border-primary);
-  border-radius: 8px; /* Webflow border-radius--md */
+  border-radius: var(--border-radius-md);
   background-color: var(--surface-primary);
   text-decoration: none;
-  height: 100%;
   transition: border-color 0.15s;
 }
 
@@ -173,10 +167,10 @@
   border-color: var(--border-brand-primary);
 }
 
-/* Webflow: .img-frame-service.accent — 1:1, md radius (8px), accent bg */
+/* Webflow: .img-frame-service.accent — 4:3 landscape, md radius (8px), accent bg */
 .service-card__image-frame {
-  aspect-ratio: 1;
-  border-radius: 8px; /* Webflow border-radius--md */
+  aspect-ratio: 4 / 3;
+  border-radius: var(--border-radius-md);
   background-color: var(--surface-accent);
   display: flex;
   justify-content: center;
@@ -186,25 +180,14 @@
   overflow: hidden;
 }
 
-.service-card__image-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
+/* img styles handled by next/image fill prop (inline position:absolute) */
 
 /* Webflow: .badge-wrapper + .content-wrapper — stacked with internal gap */
 .service-card__header {
   display: flex;
   flex-flow: column;
-  gap: 12px;
+  gap: var(--padding-sm);
   width: 100%;
-}
-
-.service-card__badge {
-  /* no extra margin — gap from parent handles it */
 }
 
 /* Webflow: .text_heading-sm */
@@ -230,7 +213,7 @@
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
 /* Webflow: .section_service — secondary bg, full-width, centered */
 .section-plans {
-  padding: var(--padding-huge) 0;
+  padding: calc(var(--padding-huge) * 2) 0;
   background-color: var(--surface-secondary);
   display: flex;
   flex-flow: column;
@@ -240,24 +223,22 @@
   position: relative;
 }
 
-/* Webflow: .cms-item.stacked — no border, gap-md, space-between */
+/* Webflow: .cms-item.stacked — no border, gap-md */
 .plan-card {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: var(--padding-md);
   padding: var(--padding-md);
   background-color: var(--surface-primary);
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   text-decoration: none;
-  height: 100%;
 }
 
-/* Webflow: .img-frame-service — 1:1, md radius (8px), accent bg */
+/* Webflow: .img-frame-service — 4:3 landscape, md radius (8px), accent bg */
 .plan-card__image-frame {
-  aspect-ratio: 1;
-  border-radius: 8px;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--border-radius-md);
   background-color: var(--surface-accent);
   display: flex;
   justify-content: center;
@@ -267,14 +248,7 @@
   overflow: hidden;
 }
 
-.plan-card__image-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
+/* img styles handled by next/image fill prop (inline position:absolute) */
 
 /* Webflow: .text_heading-lg — price display */
 .plan-card__price {
@@ -326,20 +300,20 @@
   justify-content: space-between;
   align-items: stretch;
   gap: 0;
-  max-width: 90%;
+  max-width: min(90%, 1280px);
   width: 100%;
   margin: 0 auto;
   background-color: var(--surface-primary);
-  border-radius: 8px; /* Webflow: border-radius-md */
+  border-radius: var(--border-radius-md); /* Webflow: border-radius-md */
 }
 
-/* Webflow: .inner-wrapper.center.comfortable.stacked — left column, 70% max, vertically centered */
+/* Webflow: .inner-wrapper.center.comfortable.stacked — left column, vertically centered */
 .audit-content {
   display: flex;
+  flex: 1;
   flex-flow: column;
   justify-content: center;
   align-items: center;
-  max-width: 70%;
   padding: var(--padding-xl);
   gap: var(--gap-lg);
 }
@@ -350,7 +324,7 @@
   flex-flow: column;
   align-items: center;
   text-align: center;
-  gap: 12px;
+  gap: var(--padding-sm);
 }
 
 /* Webflow: .text_heading-lg */
@@ -377,16 +351,16 @@
 .audit-image {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
 }
 
-/* Webflow: .img-frame-service — square, accent bg, border-radius-md = 8px */
+/* Webflow: .img-frame-service — accent bg, border-radius-md = 8px */
 .audit-image-frame {
-  aspect-ratio: 1;
   width: 100%;
+  height: 100%;
   background-color: var(--surface-accent);
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -396,14 +370,9 @@
 
 @media (min-width: 1280px) {
   .audit-layout {
-    max-width: 1280px;
     gap: var(--gap-xl);
     border-radius: var(--border-radius-huge);
     overflow: hidden;
-  }
-
-  .story-container {
-    max-width: 1280px;
   }
 }
 
@@ -426,8 +395,8 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  gap: 36px;
-  max-width: 90%;
+  gap: var(--padding-xl);
+  max-width: min(90%, 1280px);
   width: 100%;
   margin: 0 auto;
 }
@@ -438,7 +407,7 @@
   flex-flow: row;
   justify-content: space-between;
   align-items: center;
-  gap: 24px;
+  gap: var(--gap-xl);
   padding: var(--padding-xl);
   background-color: var(--surface-primary);
   border-radius: 4px;
@@ -453,7 +422,7 @@
 
 /* Webflow: .img-frame-landscape — aspect 3/2, md radius (8px) */
 .story-image-frame {
-  border-radius: 8px;
+  border-radius: var(--border-radius-md);
   overflow: hidden;
   aspect-ratio: 3 / 2;
   width: 100%;
@@ -473,11 +442,11 @@
 /* Webflow: .badge-wrapper.floating — absolute, bottom-left */
 .story-badge {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
+  bottom: var(--gap-md);
+  left: var(--gap-md);
   display: flex;
   align-items: center;
-  gap: 2px; /* gap-tiny */
+  gap: var(--gap-tiny); /* gap-tiny */
   background-color: var(--surface-primary);
   padding-right: var(--padding-sm);
   border-radius: 4px;
@@ -490,7 +459,7 @@
   display: flex;
   flex-flow: column;
   justify-content: center;
-  gap: 8px;
+  gap: var(--gap-md);
   height: 100%;
 }
 
@@ -532,12 +501,12 @@
   flex-flow: column;
   justify-content: center;
   align-items: center;
-  gap: 48px; /* Webflow: gap-huge */
+  gap: var(--padding-huge); /* Webflow: gap-huge */
   max-width: 1080px; /* Webflow: .container-cta base */
   width: 100%;
   height: 100%;
   background-color: var(--surface-brand-primary);
-  border-radius: 12px; /* Webflow: border-radius-lg */
+  border-radius: var(--border-radius-lg); /* Webflow: border-radius-lg */
   padding: var(--padding-huge);
 }
 
@@ -546,7 +515,7 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  gap: 12px;
+  gap: var(--padding-sm);
   max-width: 90%;
   text-align: center;
 }
@@ -573,13 +542,7 @@
 
 /* ─── Responsive ──────────────────────────────────────────── */
 
-/* Cap homepage containers at 1280px (matches shared-sections.css) */
-@media (min-width: 1280px) {
-  .hero-container,
-  .section-container {
-    max-width: 1280px;
-  }
-}
+/* 1280px cap now handled via min(90%, 1280px) on each container */
 
 /* Webflow: .section-header width 100% on mobile */
 @media (max-width: 767px) {
@@ -597,7 +560,7 @@
 
   .hero-text {
     width: 100%;
-    gap: 12px; /* gap-md at tablet */
+    gap: var(--padding-sm); /* gap-md at tablet */
   }
 
   /* Grids */
@@ -675,7 +638,7 @@
   }
 
   .hero-layout {
-    gap: 36px; /* gap-xl at mobile */
+    gap: var(--padding-xl); /* gap-xl at mobile */
   }
 
   .hero-btn-secondary {

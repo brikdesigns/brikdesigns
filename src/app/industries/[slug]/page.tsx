@@ -96,7 +96,7 @@ export default async function IndustryDetailPage({ params }: Props) {
             </p>
             <div className="button-wrapper button-wrapper--center">
               <LinkButton href="/contact" variant="primary" size="lg">Let&apos;s Talk</LinkButton>
-              <LinkButton href="/get-started" variant="outline" size="lg">Get Started</LinkButton>
+              <LinkButton href="/get-started" variant="inverse" size="lg">Get Started</LinkButton>
             </div>
           </div>
         </div>

@@ -1,0 +1,86 @@
+/* ─── MDX / Blog post typography ──────────────────────────── */
+
+.mdx h1 {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-xl);
+  color: var(--text-primary);
+  margin-top: var(--gap-xl);
+  margin-bottom: var(--gap-md);
+}
+
+.mdx h2 {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-lg);
+  color: var(--text-primary);
+  margin-top: var(--gap-xl);
+  margin-bottom: var(--gap-md);
+}
+
+.mdx h3 {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-md);
+  color: var(--text-primary);
+  margin-top: var(--gap-lg);
+  margin-bottom: var(--gap-sm);
+}
+
+.mdx h4 {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-sm);
+  color: var(--text-primary);
+  margin-top: var(--gap-lg);
+  margin-bottom: var(--gap-sm);
+}
+
+.mdx p {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: var(--gap-md);
+}
+
+.mdx ul,
+.mdx ol {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  padding-left: var(--padding-lg);
+  margin-bottom: var(--gap-md);
+}
+
+.mdx li {
+  margin-bottom: var(--gap-xs);
+}
+
+.mdx a {
+  color: var(--text-brand-primary);
+  text-decoration: underline;
+}
+
+.mdx blockquote {
+  border-left: 3px solid var(--border-brand-primary);
+  padding-left: var(--padding-md);
+  margin: var(--gap-lg) 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.mdx hr {
+  border: none;
+  border-top: 1px solid var(--border-secondary);
+  margin: var(--gap-xl) 0;
+}
+
+.mdx img {
+  border-radius: var(--border-radius-md);
+  width: 100%;
+  height: auto;
+  margin-bottom: var(--gap-md);
+}
+
+.mdx strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}

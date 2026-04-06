@@ -34,7 +34,7 @@
 
 .page-hero__container {
   width: 100%;
-  max-width: 90%;
+  max-width: min(90%, 1280px);
   margin: 0 auto;
   padding-left: var(--padding-lg);
   padding-right: var(--padding-lg);
@@ -109,7 +109,7 @@
 }
 
 .content-section__container {
-  max-width: 90%;
+  max-width: min(90%, 1280px);
   margin: 0 auto;
   padding: 0 var(--padding-lg);
 }
@@ -182,7 +182,7 @@
 /* Webflow: .img-frame-service */
 .img-frame {
   aspect-ratio: 1;
-  border-radius: 8px; /* Webflow: border-radius--md */
+  border-radius: var(--border-radius-md); /* Webflow: border-radius--md */
   background-color: var(--surface-accent);
   display: flex;
   justify-content: center;
@@ -215,8 +215,8 @@
   font-weight: 600;
   color: var(--text-on-color-dark);
   background-color: var(--background-brand-primary);
-  padding: 16px 20px; /* Webflow: space-lg × space-xl */
-  border-radius: 4px; /* Webflow: border-radius-sm */
+  padding: var(--padding-md) var(--padding-lg); /* Webflow: space-lg × space-xl */
+  border-radius: var(--border-radius-sm); /* Webflow: border-radius-sm */
   text-decoration: none;
   border: none;
   transition: opacity 0.15s;
@@ -243,9 +243,9 @@
   font-weight: 600;
   color: var(--text-primary);
   background: transparent;
-  padding: 16px 20px; /* Webflow: space-lg × space-xl */
+  padding: var(--padding-md) var(--padding-lg); /* Webflow: space-lg × space-xl */
   border: 2px solid var(--border-primary);
-  border-radius: 4px; /* Webflow: border-radius-sm */
+  border-radius: var(--border-radius-sm); /* Webflow: border-radius-sm */
   text-decoration: none;
   text-align: center;
   transition: background-color 0.2s, color 0.2s;
@@ -271,15 +271,15 @@
 .btn-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--padding-sm);
   font-family: var(--font-family-label);
   font-size: var(--body-sm);
   font-weight: 600;
   line-height: 150%;
   color: var(--text-primary);
   background-color: var(--background-secondary);
-  padding: 8px 16px;
-  border-radius: 4px;
+  padding: var(--padding-tiny) var(--padding-md);
+  border-radius: var(--border-radius-sm);
   border: none;
   text-decoration: none;
   white-space: nowrap;
@@ -321,7 +321,7 @@
 
 .content-wrapper {
   display: flex;
-  gap: 12px; /* Webflow: gap--md */
+  gap: var(--padding-sm); /* Webflow: gap--md */
   width: 100%;
 }
 
@@ -341,11 +341,11 @@
 }
 
 .content-wrapper--tight {
-  gap: 2px; /* Webflow: gap--tiny */
+  gap: var(--gap-tiny); /* Webflow: gap--tiny */
 }
 
 .content-wrapper--comfortable {
-  gap: 36px; /* Webflow: gap--xl */
+  gap: var(--padding-xl); /* Webflow: gap--xl */
 }
 
 /* ─── Text utilities ─────────────────────────────────────── */
@@ -379,25 +379,19 @@
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
-  max-width: 90%;
+  max-width: min(90%, 1280px);
   width: 100%;
   margin: 0 auto;
   padding-left: var(--padding-lg);
   padding-right: var(--padding-lg);
 }
 
-.container-lg--tight      { gap: 12px; }
-.container-lg--comfortable { gap: 36px; }
+.container-lg--tight      { gap: var(--padding-sm); }
+.container-lg--comfortable { gap: var(--padding-xl); }
 
 /* ─── Responsive ─────────────────────────────────────────── */
 
-/* Cap all content containers at 1280px on large viewports */
-@media (min-width: 1280px) {
-  .page-hero__container,
-  .container-lg {
-    max-width: 1280px;
-  }
-}
+/* 1280px cap now handled via min(90%, 1280px) on each container */
 
 @media (max-width: 991px) {
   .grid-3 {

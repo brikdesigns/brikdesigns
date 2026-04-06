@@ -11,7 +11,7 @@
   background-color: var(--surface-primary);
   border: 1px solid var(--border-secondary);
   border-radius: var(--border-radius-md);
-  padding: 4px;
+  padding: var(--gap-xs);
   width: fit-content;
   margin: 0 auto var(--gap-xl);
 }
@@ -20,7 +20,7 @@
   font-family: var(--font-family-label);
   font-size: var(--label-sm);
   font-weight: 600;
-  padding: 8px 20px;
+  padding: var(--padding-tiny) var(--space-500);
   border: none;
   border-radius: var(--border-radius-sm);
   background: transparent;

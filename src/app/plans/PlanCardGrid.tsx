@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { PricingCard } from '@bds/components/ui/PricingCard/PricingCard';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import Link from 'next/link';
+import { SegmentedControl } from '@bds/components/ui/SegmentedControl/SegmentedControl';
 
 interface Plan {
   name: string;
@@ -12,58 +12,95 @@ interface Plan {
   annualPrice: string | null;
   description: string;
   imageUrl: string | null;
-  features: string[];
+  brandColorBase: string;
 }
 
 export function PlanCardGrid({ plans }: { plans: Plan[] }) {
-  const [billing, setBilling] = useState<'monthly' | 'annually'>('monthly');
+  const [billing, setBilling] = useState('monthly');
 
   return (
     <>
-      {/* Billing toggle */}
-      <div className="plans-toggle">
-        <button
-          className={`plans-toggle__btn ${billing === 'monthly' ? 'plans-toggle__btn--active' : ''}`}
-          onClick={() => setBilling('monthly')}
-        >
-          Monthly
-        </button>
-        <button
-          className={`plans-toggle__btn ${billing === 'annually' ? 'plans-toggle__btn--active' : ''}`}
-          onClick={() => setBilling('annually')}
-        >
-          Annually
-        </button>
-      </div>
+      {/* BDS SegmentedControl for Monthly / Annually toggle */}
+      <SegmentedControl
+        items={[
+          { label: 'Monthly', value: 'monthly' },
+          { label: 'Annually', value: 'annually' },
+        ]}
+        value={billing}
+        onChange={setBilling}
+        size="lg"
+      />
 
-      <div className="grid-3">
+      {/* 3-col grid of plan cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--gap-lg)', width: '100%' }}>
         {plans.map((plan) => {
           const price = billing === 'annually' && plan.annualPrice
             ? plan.annualPrice
             : plan.monthlyPrice;
           const period = billing === 'annually' && plan.annualPrice
-            ? '/year'
-            : '/month';
+            ? 'Per year'
+            : 'Per month';
 
           return (
-            <div key={plan.slug} className="plans-card-wrapper">
+            <div
+              key={plan.slug}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                background: 'var(--surface-primary)',
+                borderRadius: 'var(--border-radius-lg)',
+                padding: 'var(--padding-md)',
+                gap: 'var(--gap-lg)',
+                border: '1px solid var(--border-secondary)',
+              }}
+            >
+              {/* Image frame (1:1) */}
               {plan.imageUrl && (
-                <div className="plans-card-image">
-                  <Image src={plan.imageUrl} alt={plan.name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ aspectRatio: '1', borderRadius: 'var(--border-radius-md)', overflow: 'hidden', background: 'var(--surface-secondary)' }}>
+                  <Image
+                    src={plan.imageUrl}
+                    alt={plan.name}
+                    width={400}
+                    height={400}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
                 </div>
               )}
-              <PricingCard
-                title={plan.name}
-                price={price}
-                period={period}
-                description={plan.description}
-                features={plan.features.length > 0 ? plan.features : undefined}
-                action={
-                  <LinkButton href={`/get-started?plan=${plan.slug}`} variant="primary" size="md" style={{ width: '100%' }}>
-                    Learn More
-                  </LinkButton>
-                }
-              />
+
+              {/* Price + plan name + description */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--padding-sm)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-tiny)' }}>
+                  <span className="text-heading-lg">{price}</span>
+                  <span className="text-body-md text--secondary">{period}</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <span className="text-heading-sm">{plan.name}</span>
+                  <span className="text-body-md">{plan.description}</span>
+                </div>
+              </div>
+
+              {/* Button — brand BASE color per plan */}
+              <div style={{ display: 'flex' }}>
+                <Link
+                  href={`/category/${plan.slug}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 'var(--padding-sm) var(--padding-lg)',
+                    borderRadius: 'var(--border-radius-md)',
+                    backgroundColor: plan.brandColorBase,
+                    color: 'var(--text-on-color-dark)',
+                    fontFamily: 'var(--font-family-label)',
+                    fontSize: 'var(--label-md)',
+                    fontWeight: 'var(--font-weight--semi-bold)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  Learn More
+                </Link>
+              </div>
             </div>
           );
         })}

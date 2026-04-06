@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getAllPosts, getPostBySlug } from '@/lib/blog';
 import { MDXRemote } from '@/components/blog/MDXRemote';
+import { ArticleJsonLd } from '@/components/seo/JsonLd';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -19,6 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: post.meta.title,
     description: post.meta.summary,
+    alternates: { canonical: `/blog/${slug}` },
     openGraph: {
       title: post.meta.title,
       description: post.meta.summary,
@@ -30,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title: post.meta.title,
       description: post.meta.summary,
+      images: post.meta.image ? [post.meta.image] : undefined,
     },
   };
 }
@@ -41,8 +44,18 @@ export default async function BlogPostPage({ params }: Props) {
 
   const { meta, content } = post;
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://brikdesigns.com';
+
   return (
     <>
+      <ArticleJsonLd
+        title={meta.title}
+        description={meta.summary}
+        url={`${siteUrl}/blog/${slug}`}
+        image={meta.image}
+        datePublished={meta.date}
+        category={meta.category}
+      />
       <article style={{ maxWidth: 720, margin: '0 auto', padding: 'var(--padding-xl) var(--padding-lg)' }}>
         {/* Header */}
         <h1 style={{ fontFamily: 'var(--font-family-display)', fontSize: 'var(--heading-xl)', color: 'var(--text-primary)', margin: 0, lineHeight: 1.15 }}>

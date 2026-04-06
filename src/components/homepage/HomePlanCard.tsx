@@ -20,7 +20,7 @@ export function HomePlanCard({ name, slug, price, description, imageUrl }: HomeP
     <div className="plan-card">
       <div className="plan-card__image-frame">
         {imageUrl ? (
-          <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <Image src={imageUrl} alt={name} fill sizes="(max-width: 767px) 100vw, (max-width: 991px) 50vw, 33vw" style={{ objectFit: 'cover' }} />
         ) : (
           <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-accent)' }} />
         )}

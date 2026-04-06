@@ -20,7 +20,7 @@ export function HeroButtons() {
         </Button>
       </Link>
       <Link href="/contact">
-        <Button variant="outline" size="lg">
+        <Button variant="inverse" size="lg">
           Let&apos;s Talk
         </Button>
       </Link>

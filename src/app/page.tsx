@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
@@ -6,6 +7,13 @@ import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import './homepage.css';
 import './shared-sections.css';
+
+export const metadata: Metadata = {
+  title: 'Brik Designs | Strategic Branding & Marketing Design Services',
+  description:
+    'Marketing that works. Design that builds. Brik Designs helps small businesses show up better, work smarter, and grow faster with branding, marketing, product, and service design.',
+  alternates: { canonical: '/' },
+};
 
 export const revalidate = 3600;
 
@@ -28,12 +36,18 @@ export default async function HomePage() {
     card_image_url: cat.card_image_url || null,
   }));
 
+  const planImages: Record<string, string> = {
+    'marketing-support': '/images/marketing_social_media_2x.webp',
+    'back-office-support': '/images/service_automated_workflow_2x.webp',
+    'product-support': '/images/product_mobile_app_2x.webp',
+  };
+
   const supportPlans = plans.map((plan) => ({
     name: plan.name,
     slug: plan.slug,
     price: plan.monthly_price_display || 'Contact',
     description: plan.home_description || plan.description || '',
-    image_url: plan.image_url || null,
+    image_url: planImages[plan.slug] || plan.image_url || null,
   }));
 
   const featuredStory = stories[0];
@@ -54,10 +68,10 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="button-wrapper">
-              <LinkButton href="/services" variant="outline" size="lg" className="hero-btn-on-dark">
+              <LinkButton href="/services" variant="inverse" size="lg" className="hero-btn-on-dark">
                 Explore Design Services
               </LinkButton>
-              <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
+              <LinkButton href="/contact" variant="inverse" size="lg" className="hero-btn-on-dark">
                 Let&apos;s Talk
               </LinkButton>
             </div>
@@ -164,12 +178,12 @@ export default async function HomePage() {
                     <Image
                       src={featuredStory.hero_image_url}
                       alt={featuredStory.client_name || 'Customer story'}
-                      width={600}
-                      height={400}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+                      fill
+                      sizes="(max-width: 767px) 100vw, 50vw"
+                      style={{ objectFit: 'cover' }}
                     />
                   ) : (
-                    <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-secondary)', position: 'absolute', top: 0, left: 0 }} />
+                    <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-secondary)' }} />
                   )}
                   {featuredStory.award_label && (
                     <div className="story-badge">
@@ -210,7 +224,7 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="button-wrapper button-wrapper--center">
-            <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
+            <LinkButton href="/contact" variant="inverse" size="lg" className="hero-btn-on-dark">
               Let&apos;s Talk
             </LinkButton>
           </div>

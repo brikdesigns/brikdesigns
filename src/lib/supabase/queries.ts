@@ -98,7 +98,7 @@ export async function getServiceBySlug(slug: string) {
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('services')
-    .select('*, service_lines(id, slug, name, hero_image_url, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
+    .select('*, service_lines(id, slug, name, hero_image_url, card_image_url, support_plan_image_url, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
     .eq('slug', slug)
     .eq('active', true)
     .single();
@@ -149,6 +149,29 @@ export async function getSupportPlanBySlug(slug: string) {
 
   if (error) throw error;
   return data;
+}
+
+/** Get service lines that reference a given support plan, with their services */
+export async function getServiceLinesForPlan(planSlug: string) {
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from('service_lines')
+    .select('*')
+    .eq('support_plan_slug', planSlug)
+    .eq('is_public', true)
+    .order('rank', { ascending: true });
+
+  if (error) throw error;
+
+  // For each service line, fetch its services
+  const withServices = await Promise.all(
+    (data || []).map(async (sl) => {
+      const services = await getServicesByCategory(sl.id);
+      return { ...sl, services };
+    })
+  );
+
+  return withServices;
 }
 
 // ============================================================

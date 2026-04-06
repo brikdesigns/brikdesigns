@@ -1,11 +1,11 @@
 'use client';
 
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { Icon } from '@iconify/react';
 
 /**
- * Theme toggle — matches Webflow: .theme-toggle.icon-light / .theme-toggle.icon-dark
- * Pill-shaped toggle with a sliding dot. Light mode: white bg + dark dot.
- * Dark mode: dark bg + white dot aligned right.
+ * Theme toggle — pill-shaped toggle with a sliding dot containing sun/moon icon.
+ * Light mode: white bg + dark dot. Dark mode: dark bg + white dot aligned right.
  */
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
@@ -17,7 +17,6 @@ export function ThemeToggle() {
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       className="theme-toggle"
       style={{
-        /* Webflow: .theme-toggle.icon-light / .theme-toggle.icon-dark */
         display: 'flex',
         alignItems: 'center',
         justifyContent: isDark ? 'flex-end' : 'flex-start',
@@ -30,7 +29,6 @@ export function ThemeToggle() {
         transition: 'background-color 0.2s, border-color 0.2s',
       }}
     >
-      {/* Webflow: .toggle_dot / .toggle_dot.inverse */}
       <span
         style={{
           width: 'var(--padding-md)',
@@ -41,18 +39,15 @@ export function ThemeToggle() {
           justifyContent: 'center',
           alignItems: 'center',
           transition: 'background-color 0.2s',
-          fontSize: '8px',
         }}
       >
-        {/* Webflow: .icon_tiny — sun/moon icon inside dot */}
-        <span style={{
-          fontFamily: "'Font Awesome 6 Pro', 'Font Awesome 6 Free', sans-serif",
-          color: isDark ? 'var(--grayscale--darkest)' : 'var(--grayscale--white)',
-          fontSize: '8px',
-          lineHeight: 1,
-        }}>
-          {isDark ? '\uf185' : '\uf186'}
-        </span>
+        <Icon
+          icon={isDark ? 'ph:sun-fill' : 'ph:moon-fill'}
+          style={{
+            color: isDark ? 'var(--grayscale--darkest)' : 'var(--grayscale--white)',
+            fontSize: '10px',
+          }}
+        />
       </span>
     </button>
   );

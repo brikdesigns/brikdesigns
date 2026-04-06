@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Icon } from '@iconify/react';
 import { LinkButton } from '@bds/components/ui/Button/LinkButton';
 import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import '../shared-sections.css';
@@ -116,14 +117,14 @@ export default async function AboutPage() {
                 <p className="text-label-sm text--secondary">{member.role}</p>
                 <div className="about-team-social">
                   <a href={member.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="about-social-link">
-                    <svg width="16" height="16" viewBox="0 0 448 512" fill="currentColor"><path d="M100.3 448H7.4V148.9h92.9zM53.8 108.1C24.1 108.1 0 83.5 0 53.8a53.8 53.8 0 0 1 107.6 0c0 29.7-24.1 54.3-53.8 54.3zM447.9 448h-92.7V302.4c0-34.7-.7-79.2-48.3-79.2-48.3 0-55.7 37.7-55.7 76.7V448h-92.8V148.9h89.1v40.8h1.3c12.4-23.5 42.7-48.3 87.9-48.3 94 0 111.3 61.9 111.3 142.3V448z" /></svg>
+                    <Icon icon="ph:linkedin-logo-fill" width={16} height={16} />
                   </a>
                   <a href={`mailto:${member.email}`} aria-label="Email" className="about-social-link">
-                    <svg width="16" height="16" viewBox="0 0 512 512" fill="currentColor"><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z" /></svg>
+                    <Icon icon="ph:envelope-simple-fill" width={16} height={16} />
                   </a>
                   {member.website && (
                     <a href={member.website} target="_blank" rel="noopener noreferrer" aria-label="Website" className="about-social-link">
-                      <svg width="16" height="16" viewBox="0 0 512 512" fill="currentColor"><path d="M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64H348.7c2.2 20.4 3.3 41.8 3.3 64zm28.8-64H503.9c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 172.9 151.6zm-420.7 0c30.9-74.1 94.6-130.9 172.9-151.6c-25.5 34.2-45.2 87.7-55.3 151.6H72.7zM256 32c-32 0-67.1 60.4-82 160h164c-14.9-99.6-50-160-82-160zM8.1 192H131.2c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64H8.1C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zM194.7 446.6c-25.5-34.2-45.2-87.7-55.3-151.6H72.7c30.9 74.1 94.6 130.9 172.9 151.6zm122.6 0c78.3-20.7 142-77.5 172.9-151.6H376.7c-10 63.9-29.8 117.4-55.3 151.6zM256 480c32 0 67.1-60.4 82-160H174c14.9 99.6 50 160 82 160z" /></svg>
+                      <Icon icon="ph:globe-fill" width={16} height={16} />
                     </a>
                   )}
                 </div>

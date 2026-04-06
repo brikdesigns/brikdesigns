@@ -1,73 +1,104 @@
-/* ─── Customers page — layout only ──────────────────────── */
+/* ─── Customers page ──────────────────────────────────────── */
 
-.customers-section {
-  padding: var(--padding-huge) 0;
+/* ─── Hero ────────────────────────────────────────────────── */
+.customers-hero {
+  padding: var(--padding-huge) 0 var(--padding-xl);
 }
 
+.customers-hero__container {
+  max-width: 800px;
+}
+
+.customers-hero__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  margin-top: var(--padding-lg);
+}
+
+.customers-hero__scroll {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--padding-lg);
+}
+
+.customers-hero__scroll-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-family: var(--font-family-label);
+  font-weight: var(--font-weight--semi-bold);
+  font-size: var(--label-md);
+}
+
+/* ─── Industries We Know grid ─────────────────────────────── */
 .customers-industry-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-lg);
   width: 100%;
+  max-width: 700px;
 }
 
-/* Webflow: white card, centered icon + title, no description */
 .customers-industry-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--gap-md);
-  padding: var(--padding-xl);
-  background-color: var(--surface-primary);
-  border-radius: var(--border-radius-md);
-  text-align: center;
+  gap: var(--gap-xs);
+  padding: var(--padding-lg);
 }
 
-/* Font Awesome icon — monochrome, medium size */
-.customers-industry-icon {
-  font-family: 'Font Awesome 6 Pro Solid 900', 'Font Awesome 6 Free', sans-serif;
-  font-size: 32px;
-  line-height: 1;
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ─── Segment cards (Small Biz / Mid / Enterprise) ────────── */
+.customers-segment-list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
 }
 
 .customers-segment-card {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 24px;
-  background-color: var(--surface-primary);
-  border-radius: var(--border-radius-md);
   border: 1px solid var(--border-secondary);
-  height: 100%;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+.customers-segment-card__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  padding: var(--padding-xl);
+  width: 100%;
+}
+
+.customers-segment-card__left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+.customers-segment-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-tiny);
+}
+
+.customers-segment-card__right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
 }
 
 .customers-segment-fits {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-  margin-top: var(--gap-sm);
-}
-
-.customers-segment-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
   gap: var(--gap-xs);
 }
 
-.customers-segment-list li::before {
-  content: '✓ ';
-  color: var(--text-brand-primary);
-  font-weight: 600;
+.customers-segment-fit {
+  display: flex;
+  gap: var(--gap-xs);
 }
 
+/* ─── Industry detail cards (CMS) ─────────────────────────── */
 .customers-detail-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -78,15 +109,22 @@
 .customers-detail-card {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-sm);
-  padding: 24px;
-  background-color: var(--surface-accent);
-  border-radius: var(--border-radius-md);
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--padding-lg);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-lg);
   text-decoration: none;
+  color: inherit;
   transition: background-color 0.15s;
 }
 
 .customers-detail-card:hover {
+  background-color: var(--surface-secondary);
+}
+
+/* ─── Common Challenges ───────────────────────────────────── */
+.customers-challenges-section {
   background-color: var(--surface-secondary);
 }
 
@@ -95,13 +133,44 @@
   grid-template-columns: repeat(2, 1fr);
   gap: var(--gap-lg);
   width: 100%;
+  max-width: 900px;
 }
 
 .customers-challenge {
-  padding: 24px;
-  background-color: var(--surface-primary);
-  border-radius: var(--border-radius-md);
-  border-left: 4px solid var(--border-brand-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  padding: var(--padding-xl);
+  border-radius: var(--border-radius-xl);
+}
+
+.customers-challenge__quote {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-xl);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--grayscale--darkest);
+}
+
+.customers-challenge__text {
+  font-family: var(--font-family-heading);
+  font-size: var(--body-xl);
+  font-weight: 700;
+  line-height: 140%;
+  color: var(--grayscale--darkest);
+}
+
+/* ─── CTA card ────────────────────────────────────────────── */
+.customers-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-lg);
+  padding: var(--padding-huge) var(--padding-xl);
+  background-color: var(--background-brand-primary);
+  border-radius: var(--border-radius-xl);
+  width: 100%;
+  max-width: 900px;
 }
 
 /* ─── Responsive ──────────────────────────────────────────── */
@@ -109,6 +178,10 @@
 @media (max-width: 991px) {
   .customers-industry-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .customers-segment-card__inner {
+    grid-template-columns: 1fr;
   }
 
   .customers-detail-grid {

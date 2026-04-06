@@ -5,6 +5,10 @@
 @import '../../brik-bds/tokens/fonts.css'        layer(bds-tokens);
 @import '../../brik-bds/tokens/figma-tokens.css'  layer(bds-tokens);
 @import '../../brik-bds/tokens/gap-fills.css'     layer(bds-tokens);
+/* Dark mode tokens — imported WITHOUT @layer so they can override the
+   unlayered :root light-mode block below via higher specificity
+   (:root[data-theme="dark"] beats :root). */
+@import '../../brik-bds/tokens/figma-tokens-dark.css';
 /* bridge.css removed — it maps Webflow internal token names (--_color---*)
    to clean BDS names, but this site uses BDS tokens directly. The bridge
    introduced circular references (e.g., --border-radius-md: var(--border-radius-md))
@@ -17,7 +21,20 @@
 @import "tailwindcss/theme";
 @import "tailwindcss/utilities";
 
-/* Match overscroll background to page color */
+/* Match overscroll background to page color + reset default margins */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Prevent text widows/orphans globally — balances headings, pretty-wraps body text */
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+p, li, blockquote {
+  text-wrap: pretty;
+}
 html {
   background-color: var(--page-primary);
   overflow-x: hidden;
@@ -57,12 +74,12 @@ html {
   --tan--darker: #69665c;
   --tan--darkest: #47453c;
 
-  /* Grayscale */
+  /* Grayscale — synced from Figma 2026-04-06 */
   --grayscale--white: white;
   --grayscale--lightest: #f2f2f2;
   --grayscale--lighter: #e0e0e0;
-  --grayscale--light: #bdbdbd;
-  --grayscale--dark: #828282;
+  --grayscale--light: #828282;
+  --grayscale--dark: #5a5a5a;
   --grayscale--darker: #333;
   --grayscale--darkest: #1b1b1b;
   --grayscale--black: #000;
@@ -142,11 +159,11 @@ html {
   --system--red: var(--color-system-red);
   --background-tertiary: var(--surface-tertiary);
 
-  /* ---- Typography (Poppins — Brik brand font) ---- */
-  --font-family-body: Poppins, sans-serif;
-  --font-family-label: Poppins, sans-serif;
-  --font-family-heading: Poppins, sans-serif;
-  --font-family-display: Poppins, sans-serif;
+  /* ---- Typography (Poppins — Brik brand font, loaded via next/font) ---- */
+  --font-family-body: var(--font-poppins), Poppins, sans-serif;
+  --font-family-label: var(--font-poppins), Poppins, sans-serif;
+  --font-family-heading: var(--font-poppins), Poppins, sans-serif;
+  --font-family-display: var(--font-poppins), Poppins, sans-serif;
 
   --font-weight--bold: var(--font-weight-bold);
   --font-weight--semi-bold: 500;
@@ -227,7 +244,11 @@ html {
 }
 
 /* ================================================================
-   Dark mode overrides
+   Dark mode — Brik-specific overrides only
+
+   Standard dark mode tokens (text, surface, border, background, page)
+   are now handled by figma-tokens-dark.css imported above.
+   This block only contains tokens NOT in the pipeline.
 
    Activated by data-theme="dark" on <html>, set via:
      1. localStorage('theme') — user's explicit choice
@@ -235,49 +256,18 @@ html {
      3. Anti-FOUC script in layout.tsx prevents flash on load
    ================================================================ */
 :root[data-theme="dark"] {
-  /* Text — Figma color/dark mode values */
-  --text-primary: var(--grayscale--lightest);        /* Figma: grayscale.lightest ✓ */
-  --text-secondary: var(--grayscale--light);          /* Figma: grayscale.light ✓ */
-  --text-muted: var(--grayscale--dark);               /* Figma: grayscale.dark ✓ */
-  --text-brand-primary: var(--brand--primary);        /* Brik override (Figma: theme.blue) */
-  --text-inverse: var(--grayscale--black);            /* Figma: grayscale.black — FIX from --darkest */
+  /* Status colors — not in Figma pipeline */
   --text-negative: #ff6b6b;
   --text-warning: #f4d364;
   --text-success: #9ada6c;
-
-  /* Surface — Figma color/dark mode values */
-  --surface-primary: var(--grayscale--black);         /* Figma: grayscale.black ✓ */
-  --surface-secondary: var(--grayscale--darker);      /* Figma: grayscale.darker — FIX from --darkest */
-  --surface-tertiary: var(--grayscale--dark);         /* Adjusted to maintain hierarchy */
+  --surface-tertiary: var(--grayscale--dark);
   --surface-negative: #3d1a1a;
   --surface-warning: #2a2110;
   --surface-success: #1a2a14;
-  --surface-brand-primary: var(--brand--primary);     /* Brik override (Figma: theme.blue) */
   --surface-brand-secondary: var(--grayscale--darkest);
-
-  /* Page — Figma color/dark mode values */
-  --page-primary: var(--grayscale--black);            /* Figma: grayscale.black ✓ */
-  --page-secondary: var(--grayscale--darker);         /* Figma: grayscale.darker ✓ */
   --page-accent: var(--grayscale--darkest);
-
-  /* Background — Figma color/dark mode values */
-  --background-brand-primary: var(--brand--primary);  /* Brik override (Figma: theme.blue) */
-  --background-primary: var(--grayscale--black);      /* Figma: grayscale.black — FIX from --darker */
-  --background-secondary: var(--grayscale--light);    /* Figma: grayscale.light — FIX from --darkest */
   --background-elevated: var(--grayscale--darker);
-  --background-inverse: var(--grayscale--black);      /* Figma: grayscale.black — FIX from --white */
-  --background-input: var(--grayscale--black);        /* Figma: grayscale.black ✓ */
-
-  /* Border — Figma color/dark mode values */
-  --border-primary: var(--grayscale--darker);         /* Figma: grayscale.darker — FIX from --darkest */
-  --border-secondary: var(--grayscale--light);        /* Figma: grayscale.light — FIX from --darker */
-  --border-muted: var(--grayscale--dark);             /* Figma: grayscale.dark — FIX from --darker */
-  --border-brand-primary: var(--brand--primary);      /* Brik override (Figma: theme.blue) */
   --border-negative: #ff6b6b;
-  --border-input: var(--grayscale--dark);             /* Figma: grayscale.dark ✓ */
-  --border-inverse: var(--grayscale--black);          /* Figma: grayscale.black ✓ */
-
-  /* System */
   --color-system-link: #6b8aff;
 
   /* Webflow-parity tokens — dark mode */
@@ -293,20 +283,17 @@ html {
   --system--red: var(--color-system-red);
   --background-tertiary: var(--surface-tertiary);
 
-  /* Service category colors — dark mode (muted for dark backgrounds) */
-  --services--yellow: #d4b54a;
+  /* Service category colors — dark mode
+     Base colors (yellow, green, blue, purple, orange) inherit from light mode.
+     Only the semantic -dark/-light tokens flip for dark backgrounds. */
   --services--yellow-dark: #f4d364;
   --services--yellow-light: #2a2110;
-  --services--green: #7aba52;
   --services--green-dark: #9ada6c;
   --services--green-light: #1a2a14;
-  --services--blue: #6e9bac;
   --services--blue-dark: #8ebbcc;
   --services--blue-light: #141f24;
-  --services--purple: #a490cb;
   --services--purple-dark: #c4b0eb;
   --services--purple-light: #1e1828;
-  --services--orange: #c74e24;
   --services--orange-dark: #e76134;
   --services--orange-light: #241008;
 

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Icon } from '@iconify/react';
 import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
 import type { ServiceCategory } from '@bds/components/ui/ServiceBadge/ServiceBadge';
 import { ThemeToggle } from './ThemeToggle';
@@ -84,6 +85,19 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
+  }, []);
+
+  // Measure header height and set CSS variable for panel positioning
+  useEffect(() => {
+    function updateHeight() {
+      if (navRef.current) {
+        const height = navRef.current.getBoundingClientRect().height;
+        document.documentElement.style.setProperty('--mega-nav-height', `${height}px`);
+      }
+    }
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
   return (
@@ -201,7 +215,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                           well-crafted, intuitive, and aligned with your business goals.
                         </p>
                         <Link
-                          href="/services/product-design"
+                          href="/services/product"
                           className="bds-button bds-button--primary bds-button--sm"
                           onClick={() => setOpen(null)}
                         >
@@ -267,16 +281,6 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         ))}
                       </div>
 
-                      {/* Webflow: .mega-nav-item-story.accent — Customer Stories promo */}
-                      <Link
-                        href="/customer-stories"
-                        className="mega-nav__stories-promo"
-                        onClick={() => setOpen(null)}
-                      >
-                        <span className="mega-nav__stories-promo-title">Customer Stories</span>
-                        <span className="mega-nav__stories-promo-desc">Real stories, real results. See what we&apos;ve built together.</span>
-                        <span className="bds-button bds-button--primary bds-button--sm">View Stories</span>
-                      </Link>
                     </div>
                   </div>
                 </div>
@@ -449,41 +453,22 @@ function AboutNavCard({ href, image, title, desc, cta, onClick }: {
   );
 }
 
-/* Webflow: .dropdown-icon — exact SVG from source: 20x20 viewBox, strokeWidth 2.5 */
 function ChevronDown() {
   return (
     <div className="mega-nav__chevron">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
+      <Icon icon="ph:caret-down" width={16} height={16} />
     </div>
   );
 }
 
-/* Webflow: .icon-xs with text "user" — FA 6 Pro Solid user icon */
 function UserIcon() {
-  return (
-    <svg className="mega-nav__utility-icon" width="12" height="12" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true">
-      <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
-    </svg>
-  );
+  return <Icon icon="ph:user-fill" className="mega-nav__utility-icon" width={12} height={12} aria-hidden="true" />;
 }
 
-/* Webflow: .icon-xs with text "phone" — FA 6 Pro Solid phone icon */
 function PhoneIcon() {
-  return (
-    <svg className="mega-nav__utility-icon" width="12" height="12" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
-      <path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z" />
-    </svg>
-  );
+  return <Icon icon="ph:phone-fill" className="mega-nav__utility-icon" width={12} height={12} aria-hidden="true" />;
 }
 
-/* Webflow: .icon_1x1-sm.brand with text "arrow-right" — FA 6 Pro Solid arrow.
-   Used in .button-secondary-sm throughout nav dropdown cards. */
 function ArrowRight() {
-  return (
-    <svg className="mega-nav__arrow-icon" width="12" height="12" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true">
-      <path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z" />
-    </svg>
-  );
+  return <Icon icon="ph:arrow-right-bold" className="mega-nav__arrow-icon" width={12} height={12} aria-hidden="true" />;
 }

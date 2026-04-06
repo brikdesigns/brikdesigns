@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
+import './Header.css';
 
 const navLinks = [
   { label: 'Services', href: '/services' },
@@ -11,67 +12,25 @@ const navLinks = [
 
 export function Header() {
   return (
-    <header
-      style={{
-        backgroundColor: 'var(--surface-primary)',
-        borderBottom: '1px solid var(--border-secondary)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-      }}
-    >
-      <nav
-        style={{
-          maxWidth: 1200,
-          margin: '0 auto',
-          padding: 'var(--padding-md) var(--padding-lg)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Link href="/" style={{ textDecoration: 'none' }}>
+    <header className="site-header">
+      <nav className="site-header__nav">
+        <Link href="/" className="site-header__logo">
           {/* TODO: Replace with actual Brik logo image */}
-          <span
-            style={{
-              fontFamily: 'var(--font-family-heading)',
-              fontSize: 'var(--heading-md)',
-              fontWeight: 'bold',
-              color: 'var(--text-brand-primary)',
-            }}
-          >
-            brik
-          </span>
+          <span className="site-header__logo-text">brik</span>
         </Link>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--gap-lg)' }}>
+        <div className="site-header__links">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              style={{
-                fontFamily: 'var(--font-family-label)',
-                fontSize: 'var(--label-md)',
-                color: 'var(--text-primary)',
-                textDecoration: 'none',
-              }}
+              className="site-header__link"
             >
               {link.label}
             </Link>
           ))}
           <ThemeToggle />
-          <Link
-            href="/get-started"
-            style={{
-              fontFamily: 'var(--font-family-label)',
-              fontSize: 'var(--label-md)',
-              backgroundColor: 'var(--background-brand-primary)',
-              color: 'var(--text-on-color-dark)',
-              padding: 'var(--padding-xs) var(--padding-md)',
-              borderRadius: 'var(--border-radius-md)',
-              textDecoration: 'none',
-            }}
-          >
+          <Link href="/get-started" className="site-header__cta">
             Get Started
           </Link>
         </div>

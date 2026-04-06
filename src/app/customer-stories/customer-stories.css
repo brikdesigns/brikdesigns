@@ -7,8 +7,8 @@
 .story-list-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
+  gap: var(--padding-sm);
+  padding: var(--padding-md);
   border: 2px solid var(--border-secondary);
   border-radius: var(--border-radius-md);
   background-color: var(--surface-primary);
