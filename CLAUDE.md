@@ -33,6 +33,14 @@ Token layer: `src/lib/tokens.ts` + `src/lib/styles.ts`. Path aliases: `@bds/comp
 
 **Read `COMPONENT-MAP.md` before building any section.** Every visual element must come from BDS.
 
+### Storybook MCP
+
+BDS Storybook runs on `http://localhost:6006` and exposes the `storybook-mcp` server for component lookup (`list-all-documentation`, `get-documentation`, `get-storybook-story-instructions`, `preview-stories`).
+
+- **Autostart:** `scripts/session-guard.sh` launches Storybook automatically on the first `.tsx`/`.css`/`.stories.*` edit. No manual step needed.
+- **Manual start:** `cd ~/Documents/GitHub/brik/brik-bds && npm run storybook &`
+- **MCP unreachable?** Read the cached fallback at [`brik-bds/docs/STORYBOOK-WRITING-GUIDE.md`](brik-bds/docs/STORYBOOK-WRITING-GUIDE.md).
+
 ## Brand
 
 This site represents **Brik Designs company brand** — not any numbered BDS template theme.
