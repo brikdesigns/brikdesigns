@@ -3,12 +3,10 @@
 #
 # Two checks, each fires at most once per parent shell:
 #   1. Warns Claude when the working tree has uncommitted changes from a
-#      prior session.
-#   2. If the current edit targets a UI file (.tsx / .css / .stories.*)
-#      and the BDS Storybook isn't already running on port 6006, starts
-#      it in the background so the storybook-mcp server becomes
-#      reachable. Silent on success — agents shouldn't need to think
-#      about whether Storybook is up.
+#      prior session (incl. BDS submodule pointer drift).
+#   2. Delegates Storybook autostart to the shared BDS helper
+#      (brik-bds/scripts/ensure-storybook.sh) so the behavior stays in
+#      one place across all BDS consumers.
 #
 # Hook input: JSON on stdin with tool_name and tool_input fields.
 # Exit 0 = allow, non-zero = block (we always allow but warn via stdout).
@@ -30,47 +28,13 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 # Once-per-session keying
 PARENT_PID=$(ps -o ppid= -p $$ 2>/dev/null | tr -d ' ')
 DIRTY_MARKER="/tmp/.brikdesigns-session-guard-${PARENT_PID:-unknown}"
-STORYBOOK_MARKER="/tmp/.brik-storybook-autostart-${PARENT_PID:-unknown}"
 
-# ── Storybook autostart (fires once per session on first UI edit) ──
-maybe_start_storybook() {
-  [[ -f "$STORYBOOK_MARKER" ]] && return 0
-
-  # Extract target file path from tool_input
-  local file_path
-  file_path=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.notebook_path // empty')
-  [[ -z "$file_path" ]] && return 0
-
-  # Only act on UI-relevant extensions
-  case "$file_path" in
-    *.tsx|*.jsx|*.css|*.scss|*.stories.ts|*.stories.tsx|*.stories.js|*.stories.jsx) ;;
-    *) return 0 ;;
-  esac
-
-  touch "$STORYBOOK_MARKER"
-
-  # Already running? nothing to do.
-  if curl -s -o /dev/null --max-time 1 http://localhost:6006/ 2>/dev/null; then
-    return 0
-  fi
-
-  # Locate BDS repo. Fall back silently if not on this machine.
-  local bds_dir="$HOME/Documents/GitHub/brik/brik-bds"
-  [[ -d "$bds_dir" && -f "$bds_dir/package.json" ]] || return 0
-
-  echo ""
-  echo "🔧  Storybook not running on :6006 — starting in background for the BDS MCP."
-  echo "    Logs: /tmp/brik-storybook.log"
-  echo ""
-
-  (
-    cd "$bds_dir"
-    nohup npm run storybook > /tmp/brik-storybook.log 2>&1 &
-    disown
-  ) >/dev/null 2>&1 || true
-}
-
-maybe_start_storybook
+# ── Storybook autostart (delegated to shared helper) ──────────────────
+ENSURE_STORYBOOK="$HOME/Documents/GitHub/brik/brik-bds/scripts/ensure-storybook.sh"
+if [[ -x "$ENSURE_STORYBOOK" ]]; then
+  export SESSION_GUARD_PARENT_PID="${PARENT_PID:-unknown}"
+  echo "$INPUT" | "$ENSURE_STORYBOOK" || true
+fi
 
 # ── Dirty-tree warning ────────────────────────────────────────────────
 if [[ ! -f "$DIRTY_MARKER" ]]; then
