@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { MegaNavServer } from '@/components/layout/MegaNavServer';
 import { Footer } from '@/components/layout/Footer';
+import { poppins } from '@/lib/fonts';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -50,11 +51,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={poppins.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body>
+      <body className={poppins.className}>
         <ThemeProvider>
           <MegaNavServer />
           <main>{children}</main>
