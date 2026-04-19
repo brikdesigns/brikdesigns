@@ -1,10 +1,7 @@
-/* BDS Design System — fonts + auto-generated tokens (Style Dictionary from Figma) */
-@import '../../brik-bds/tokens/fonts.css';
+/* BDS Design System — auto-generated tokens (Style Dictionary from Figma).
+   Poppins loaded via next/font/google in src/lib/fonts.ts. */
 @import '../../brik-bds/tokens/figma-tokens.css';
 @import '../../brik-bds/tokens/gap-fills.css';
-/* overrides.css replaced — it was a deprecated shim that imported gap-fills.css
-   + website-themes.css. brikdesigns uses the Brik brand identity, not template
-   themes, so only gap-fills.css is needed. */
 
 /* Tailwind layers */
 @import "tailwindcss";
