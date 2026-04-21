@@ -54,18 +54,21 @@ if [ "$PROJECT_ROOT" != "$PRIMARY_PATH" ]; then
 fi
 
 PRIMARY_BRANCH="$(git -C "$PRIMARY_PATH" branch --show-current || echo '(detached)')"
-if [ "$PRIMARY_BRANCH" != "main" ]; then
-  echo -e "${RED}Error: primary worktree is on '${PRIMARY_BRANCH}', not 'main'.${NC}"
-  echo ""
-  echo "  The primary worktree at $PRIMARY_PATH must stay on main."
-  echo "  Task work lives in ../brikdesigns-worktrees/{slug} — never in the primary."
-  echo ""
-  echo "  To fix:"
-  echo "    cd $PRIMARY_PATH"
-  echo "    git status             # inspect any uncommitted work"
-  echo "    git switch main        # return to main"
-  exit 1
-fi
+case "$PRIMARY_BRANCH" in
+  main|staging) ;;
+  *)
+    echo -e "${RED}Error: primary worktree is on '${PRIMARY_BRANCH}', not a base branch.${NC}"
+    echo ""
+    echo "  The primary worktree at $PRIMARY_PATH must stay on ${BASE_BRANCH} (or staging)."
+    echo "  Task work lives in ../brikdesigns-worktrees/{slug} — never in the primary."
+    echo ""
+    echo "  To fix:"
+    echo "    cd $PRIMARY_PATH"
+    echo "    git status                  # inspect any uncommitted work"
+    echo "    git switch ${BASE_BRANCH}   # return to the base branch"
+    exit 1
+    ;;
+esac
 
 # ── Parse flags ──
 while [[ $# -gt 0 ]]; do

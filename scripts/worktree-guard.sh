@@ -62,9 +62,23 @@ if [ "$CURRENT_PATH" = "$PRIMARY_PATH" ]; then
   IN_PRIMARY=1
 fi
 
-VIOLATION=0
-if [ "$PRIMARY_BRANCH" != "main" ]; then
-  VIOLATION=1
+# Canonical rule (same across all four Brik repos): primary sits on a
+# base branch. The accepted set is {main, staging}. Any other value —
+# task/*, chore/*, feat/*, fix/*, a release branch, etc. — is flagged.
+# Repos without a staging branch (brik-bds, brikdesigns) still pass
+# because the primary will never land there; the accepted set is a
+# superset, not a claim that both branches exist.
+VIOLATION=1
+case "$PRIMARY_BRANCH" in
+  main|staging) VIOLATION=0 ;;
+esac
+
+# The recovery branch suggested in the warning — prefer main, fall back
+# to staging if the repo doesn't have main locally (edge case).
+SUGGEST_BRANCH="main"
+if ! git -C "$PRIMARY_PATH" show-ref --verify --quiet refs/heads/main \
+   && git -C "$PRIMARY_PATH" show-ref --verify --quiet refs/heads/staging; then
+  SUGGEST_BRANCH="staging"
 fi
 
 if [ "$JSON" = "1" ]; then
@@ -75,9 +89,9 @@ else
     RED='\033[0;31m'
     YELLOW='\033[1;33m'
     NC='\033[0m'
-    printf '%b\n' "${RED}⚠  Primary worktree is on '${PRIMARY_BRANCH}', not 'main'.${NC}" >&2
+    printf '%b\n' "${RED}⚠  Primary worktree is on '${PRIMARY_BRANCH}', not a base branch.${NC}" >&2
     printf '%b\n' "${YELLOW}   Path: ${PRIMARY_PATH}${NC}" >&2
-    printf '%b\n' "${YELLOW}   Fix:  cd ${PRIMARY_PATH} && git switch main${NC}" >&2
+    printf '%b\n' "${YELLOW}   Fix:  cd ${PRIMARY_PATH} && git switch ${SUGGEST_BRANCH}${NC}" >&2
     printf '%b\n' "${YELLOW}   For the task work, use: ./scripts/new-task.sh {scope}-{name}${NC}" >&2
   fi
 fi
