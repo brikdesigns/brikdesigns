@@ -1,5 +1,12 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/worktree-check.sh" }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Edit|Write|NotebookEdit",
@@ -8,7 +15,8 @@
             "type": "command",
             "command": "./scripts/session-guard.sh",
             "timeout": 5
-          }
+          },
+          { "type": "command", "command": ".claude/hooks/worktree-check.sh" }
         ]
       }
     ]
