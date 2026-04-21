@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
-# pr-task.sh — Push the current BDS task branch and create a PR.
+# pr-task.sh — Push current task branch and create a PR.
 #
-# Targets origin/main. Generates a summary from the commit log automatically.
+# Automates the push→PR step so branches don't go stale.
+# Generates a summary from the commit log automatically.
+# Targets BASE_BRANCH (default: staging). Use --base to override.
 #
 # Usage:
 #   ./scripts/pr-task.sh              # auto-generate title + body from commits
 #   ./scripts/pr-task.sh "Custom PR title"   # override title
+#   ./scripts/pr-task.sh --base main         # target main instead of staging
 #
 # Requirements:
-#   - Must be on a task/* branch (not main).
-#   - Branch must have commits ahead of main.
+#   - Must be on a task/* branch (not main or staging).
+#   - Branch must have commits ahead of base branch.
 #   - gh CLI must be authenticated.
+#
+# brikdesigns has a single base branch: main. --base override available
+# if a release/rc branch workflow is introduced later.
 
 set -euo pipefail
 
@@ -19,14 +25,20 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# ── Base branch config ──
+# Change this to "main" when a prod branch is carved out.
 BASE_BRANCH="main"
 
 # ── Parse flags ──
 POSITIONAL_ARGS=()
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --skip-story-check)
-      SKIP_STORY_CHECK=1
+    --base)
+      BASE_BRANCH="$2"
+      shift 2
+      ;;
+    --skip-ui-check)
+      SKIP_UI_CHECK=1
       shift
       ;;
     -*)
@@ -43,8 +55,8 @@ set -- "${POSITIONAL_ARGS[@]+"${POSITIONAL_ARGS[@]}"}"
 
 # ── Validate branch ──
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [[ "$BRANCH" == "main" ]]; then
-  echo -e "${RED}Error: Cannot create PR from 'main'. Switch to a task/* branch.${NC}"
+if [[ "$BRANCH" == "main" || "$BRANCH" == "staging" ]]; then
+  echo -e "${RED}Error: Cannot create PR from '$BRANCH'. Switch to a task/* branch.${NC}"
   exit 1
 fi
 
@@ -67,31 +79,41 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
-# ── Story-verification gate ──
-# If the diff touches a React component (.tsx) or its CSS, confirm the
-# agent verified the change in Storybook. BDS components without a
-# corresponding story update are suspect — Storybook IS the test harness.
-# Override with --skip-story-check for type-only or internal-lib changes.
-if [[ "${SKIP_STORY_CHECK:-}" != "1" ]]; then
+# ── UI-verification gate ──
+# If the diff touches a user-facing .tsx / .css / .scss file, confirm the
+# agent actually exercised the change in a browser. Override with
+# --skip-ui-check when the change is truly non-visual (string-only copy
+# tweak, prop type rename, etc).
+#
+# Exclusions — these files are real code but don't render into the running
+# app, so they don't need a browser click-through:
+#   - *.test.tsx / *.spec.tsx / __tests__/**   (unit tests)
+#   - *.stories.tsx / stories/**               (Storybook stories; verify in Storybook separately)
+#   - *.d.ts                                   (type-only)
+# False positives train agents to answer "y" reflexively — keep exclusions
+# conservative.
+if [[ "${SKIP_UI_CHECK:-}" != "1" ]]; then
+  # Compare against origin/BASE so a stale local branch doesn't produce false positives.
   git fetch origin "${BASE_BRANCH}" --quiet 2>/dev/null || true
-  COMPONENT_TOUCHED=$(
+  # `|| true` — grep exits 1 with no matches; set -o pipefail would kill the script.
+  UI_TOUCHED=$(
     { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
-      | grep -E '^components/.*\.(tsx|css)$' \
-      | grep -vE '\.stories\.|\.test\.|\.spec\.|\.d\.ts$' \
+      | grep -E '\.(tsx|jsx|css|scss)$' \
+      | grep -vE '(\.test\.|\.spec\.|\.stories\.|/__tests__/|^stories/|\.d\.ts$)' \
       | head -5 || true
   )
-  if [ -n "$COMPONENT_TOUCHED" ]; then
+  if [ -n "$UI_TOUCHED" ]; then
     echo ""
-    echo -e "${YELLOW}⚠  This branch touches BDS component files:${NC}"
-    echo "$COMPONENT_TOUCHED" | sed 's/^/    /'
+    echo -e "${YELLOW}⚠  This branch touches UI files:${NC}"
+    echo "$UI_TOUCHED" | sed 's/^/    /'
     echo ""
-    echo -e "${YELLOW}   Project rule: component changes must be verified in Storybook (npm run storybook)${NC}"
+    echo -e "${YELLOW}   Project rule: UI changes must be exercised in a browser (dev-restart.sh + click through)${NC}"
     echo -e "${YELLOW}   before opening a PR. Typecheck alone is not sufficient.${NC}"
     echo ""
-    echo -n "   Verified in Storybook? [y/N] (or set SKIP_STORY_CHECK=1 for non-visual diffs): "
-    read -r STORY_CONFIRM
-    if [[ ! "$STORY_CONFIRM" =~ ^[Yy]$ ]]; then
-      echo -e "${RED}✗ PR creation blocked. Verify the change in Storybook, then re-run.${NC}"
+    echo -n "   Verified in a browser? [y/N] (or set SKIP_UI_CHECK=1 for non-visual-only diffs): "
+    read -r UI_CONFIRM
+    if [[ ! "$UI_CONFIRM" =~ ^[Yy]$ ]]; then
+      echo -e "${RED}✗ PR creation blocked. Verify the change in a browser, then re-run.${NC}"
       exit 1
     fi
   fi
@@ -106,6 +128,10 @@ if [ -n "$EXISTING_PR" ]; then
 fi
 
 # ── Sync with base (catches semantic conflicts from parallel work) ──
+# When another agent's PR has merged to base while this branch was in flight,
+# `git push` would succeed but CI would fail on a semantic conflict (e.g. new
+# code using an API this branch removes). Merge base in locally first, then
+# re-typecheck against the merged tree to catch it before the push.
 echo -e "${YELLOW}~ Fetching origin/${BASE_BRANCH}...${NC}"
 git fetch origin "${BASE_BRANCH}" --quiet
 
@@ -117,22 +143,26 @@ if [ "$BEHIND" -gt 0 ]; then
     echo -e "${RED}✗ Merge conflict with ${BASE_BRANCH}. Resolve manually, commit, re-run.${NC}"
     exit 1
   fi
-  echo -e "${YELLOW}~ Re-running test suite against merged tree...${NC}"
-  if ! npm test -- --run 2>&1 | tail -5 | grep -qE "passed|no tests"; then
+  echo -e "${YELLOW}~ Re-running typecheck against merged tree...${NC}"
+  if ! npm run typecheck; then
     echo ""
-    echo -e "${RED}✗ Tests failed after merging ${BASE_BRANCH}.${NC}"
-    echo -e "${RED}  A parallel PR introduced an incompatible change. Fix locally, commit, re-run.${NC}"
+    echo -e "${RED}✗ Typecheck failed after merging ${BASE_BRANCH}.${NC}"
+    echo -e "${RED}  A parallel PR introduced an incompatible usage. Fix locally, commit, re-run.${NC}"
     exit 1
   fi
 fi
 
 # ── Push if needed ──
+# Worktrees created via new-task.sh inherit upstream from origin/<base>, so
+# the upstream branch name doesn't match the local branch. Detect that case
+# and re-set upstream to origin/<branch> so plain `git push` works thereafter.
 UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")
 EXPECTED_UPSTREAM="origin/${BRANCH}"
 if [ -z "$UPSTREAM" ] || [ "$UPSTREAM" != "$EXPECTED_UPSTREAM" ]; then
   echo -e "${YELLOW}~ Pushing branch to origin (setting upstream)...${NC}"
   git push -u origin "$BRANCH"
 else
+  # Check if local is ahead of remote
   LOCAL=$(git rev-parse HEAD)
   REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "")
   if [ "$LOCAL" != "$REMOTE" ]; then
@@ -145,7 +175,7 @@ fi
 if [ $# -ge 1 ]; then
   PR_TITLE="$1"
 else
-  # Auto-generate: task/bds-button-variants → bds: button variants
+  # Auto-generate from branch name: task/bds-theme-interaction-tokens → bds: theme interaction tokens
   SCOPE=$(echo "$BRANCH" | sed 's|task/||' | cut -d'-' -f1)
   DESC=$(echo "$BRANCH" | sed 's|task/[a-z]*-||' | tr '-' ' ')
   PR_TITLE="${SCOPE}: ${DESC}"
@@ -159,15 +189,9 @@ PR_BODY=$(cat <<EOF
 ## Summary
 ${COMMIT_BULLETS}
 
-## Consumer sync plan
-- [ ] Portal: \`npm update @brikdesigns/bds\` after merge + version publish
-- [ ] renew-pms: submodule bump (until npm migration lands)
-- [ ] brikdesigns: \`./scripts/bds-sync.sh\`
-
 ## Test plan
-- [ ] Storybook: visual verification on affected stories
-- [ ] \`npm test -- --run\` passes
-- [ ] \`npm run lint-tokens\` passes
+- [ ] Build passes (\`npm run build\`)
+- [ ] Visual verification in browser
 - [ ] Dark mode checked (if applicable)
 
 Generated with [Claude Code](https://claude.ai/code)
