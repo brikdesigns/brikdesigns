@@ -4,6 +4,35 @@ Next.js 16 marketing site for Brik Designs. Deployed on Netlify.
 
 ---
 
+## STOP — Worktree Rules (Non-Negotiable)
+
+**The primary worktree at `/Documents/GitHub/brik/brikdesigns` stays on `main`.** Task work always lives in `../brikdesigns-worktrees/{slug}`. Never `git switch` the primary worktree to a `task/*` branch — it cross-contaminates work between concurrent agents. See the 2026-04-21 BDS Phase B incident for the class of bug this prevents.
+
+**How to start a task:**
+
+```bash
+# From the primary worktree (on main), create an isolated worktree:
+./scripts/new-task.sh {scope}-{name}
+# e.g. ./scripts/new-task.sh marketing-hero-rework
+```
+
+The `new-task.sh` script refuses to run from anywhere but the primary on `main`, so this rule is enforced automatically. When the work is ready:
+
+```bash
+./scripts/pr-task.sh   # sync base, push, open PR — all in one step
+```
+
+**If you discover the primary is on a task branch:**
+
+1. `cd /Users/nickstanerson/Documents/GitHub/brik/brikdesigns`
+2. `git status` — inspect any uncommitted work
+3. If the work belongs to a real task, move it: `git worktree add ../brikdesigns-worktrees/<slug> -b <existing-branch>` and stash/apply
+4. `git switch main`
+
+A SessionStart + PreToolUse hook (`.claude/hooks/worktree-check.sh`) warns on every session and edit when this rule is violated. Set `BDS_WORKTREE_GUARD=strict` in your environment to make it blocking.
+
+---
+
 @../brik-bds/CLAUDE.md
 
 ---
