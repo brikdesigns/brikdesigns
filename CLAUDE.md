@@ -82,6 +82,10 @@ This site represents **Brik Designs company brand** — not any numbered BDS tem
 
 Blog posts and marketing copy sourced from Notion. Use `/blog-rewrite` skill for StoryBrand + Sandler + SEO optimization. Brik Voice guide: `brik-llm/foundations/BRIK-VOICE.md`.
 
+## LLM stack
+
+If you add any Claude-powered feature here (blog rewrites, SEO content generation, any workflow that calls Anthropic), route through `@brikdesigns/claude-client` — not the raw `@anthropic-ai/sdk`. Every call is Helicone-traced that way, tagged with a `workflow_type` so outputs land in the same dashboard as the rest of Brik's Claude traffic. See `~/Documents/GitHub/CLAUDE.md` (cross-repo rules) + [ADR-001](../brik-llm/software/docs/adr/ADR-001-llm-enrichment-architecture.md) for the reasoning.
+
 ## Rules
 
 - Follow global CLAUDE.md (parent directory)
