@@ -62,13 +62,24 @@ Token layer: `src/lib/tokens.ts` + `src/lib/styles.ts`. Path aliases: `@bds/comp
 
 **Read `COMPONENT-MAP.md` before building any section.** Every visual element must come from BDS.
 
-### Storybook MCP
+### Storybook MCP — query before writing UI
 
-BDS Storybook runs on `http://localhost:6006` and exposes the `storybook-mcp` server for component lookup (`list-all-documentation`, `get-documentation`, `get-storybook-story-instructions`, `preview-stories`).
+The BDS component library is exposed as a Storybook MCP server. **Always query it for component props, examples, and guidance before writing any JSX in this site.** Don't read source files in `brik-bds/components/ui/` to guess.
 
-- **Autostart:** `scripts/session-guard.sh` launches Storybook automatically on the first `.tsx`/`.css`/`.stories.*` edit. No manual step needed.
-- **Manual start:** `cd ~/Documents/GitHub/brik/brik-bds && npm run storybook &`
-- **MCP unreachable?** Read the cached fallback at [`brik-bds/docs/STORYBOOK-WRITING-GUIDE.md`](brik-bds/docs/STORYBOOK-WRITING-GUIDE.md).
+**Two endpoints, in priority order:**
+
+1. **Local (preferred when available):** `http://localhost:6006/mcp` — reflects in-flight BDS changes. Autostarted by `scripts/session-guard.sh` on the first `.tsx`/`.css`/`.stories.*` edit; no manual step needed.
+2. **Stable hosted (fallback):** `https://main--69b8918cac3056b39424d5d3.chromatic.com/mcp` — tracks the latest build on BDS `main`, never goes stale. Use when local Storybook isn't running.
+
+⚠ Never use a per-build Chromatic URL (`<appid>-<random>.chromatic.com`) — those freeze on the build that produced them.
+
+**Tools:** `list-all-documentation`, `get-documentation`, `get-documentation-for-story`, `preview-stories`, `get-storybook-story-instructions`.
+
+**Filter by surface.** Every BDS story carries one of `surface-web`, `surface-shared`, or `surface-product`. brikdesigns.com is a marketing site, so when listing components filter to `surface-web` + `surface-shared`. **Do not use `surface-product` components** (`AddableEntryList`, `Board`, `BrikDevBar`, `CatalogPicker`, `DataSection`, `FieldGrid`, `FilterBar`, `NotificationList`, `PageHeader`, `Sheet*`, `SidebarNavigation`, `Stepper`, `TaskConsole`, etc.) — those belong in product apps and will misfit a marketing surface.
+
+**Manual start:** `cd ~/Documents/GitHub/brik/brik-bds && npm run storybook &`
+
+**MCP unreachable?** Read the cached fallback at [`brik-bds/docs/STORYBOOK-WRITING-GUIDE.md`](brik-bds/docs/STORYBOOK-WRITING-GUIDE.md).
 
 ## Brand
 
