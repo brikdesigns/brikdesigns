@@ -1,4 +1,4 @@
-# brik-marketing Component Map
+# brikdesigns Component Map
 
 **Rule: NEVER write custom CSS for something BDS already provides.**
 Check this file BEFORE building any section.
