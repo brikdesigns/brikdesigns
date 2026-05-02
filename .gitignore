@@ -42,3 +42,9 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# Local working data (Webflow CMS exports — re-download from Webflow as needed)
+/content/csv/
+
+# Supabase CLI internal state
+/supabase/.temp/
