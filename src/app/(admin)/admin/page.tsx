@@ -52,9 +52,10 @@ export default function AdminHomePage() {
           status="coming-soon"
         />
         <SectionCard
+          href="/admin/blog"
           title="Blog posts"
-          description="Currently authored as MDX files. Migration to DB pending."
-          status="coming-soon"
+          description="Articles shown on /blog. Markdown body, draft / published / archived status."
+          status="live"
         />
       </section>
     </div>

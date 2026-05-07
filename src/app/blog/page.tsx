@@ -10,8 +10,10 @@ export const metadata: Metadata = {
   description: 'Practical tips on branding, marketing, design systems, and running a small business — from the Brik Designs team.',
 };
 
-export default function BlogPage() {
-  const posts = getAllPosts();
+export const revalidate = 600;
+
+export default async function BlogPage() {
+  const posts = await getAllPosts();
 
   return (
     <>
