@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { CardFeature } from '@bds/components/ui/CardFeature/CardFeature';
+import { Card } from '@bds/components/ui/Card/Card';
 import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
 import { Button } from '@bds/components/ui/Button/Button';
 
@@ -24,21 +24,53 @@ export function ServiceLineGrid({ items }: { items: ServiceLine[] }) {
       }}
     >
       {items.map((line) => (
-        <CardFeature
-          key={line.slug}
-          icon={
+        <Card key={line.slug} variant="outlined" padding="lg">
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 'var(--gap-lg)',
+              height: '100%',
+              alignItems: 'flex-start',
+              textAlign: 'left',
+            }}
+          >
             <ServiceBadge category={line.category} mode="badge" size="lg" />
-          }
-          title={line.name}
-          description={line.tagline}
-          action={
-            <Link href={`/services/${line.slug}`}>
-              <Button variant="ghost" size="sm">
-                Learn more
-              </Button>
-            </Link>
-          }
-        />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-md)' }}>
+              <h3
+                style={{
+                  fontFamily: 'var(--font-family-heading)',
+                  fontSize: 'var(--heading-sm)',
+                  fontWeight: 'var(--font-weight-bold)',
+                  lineHeight: 'var(--font-line-height-snug)',
+                  color: 'var(--text-primary)',
+                  margin: 0,
+                }}
+              >
+                {line.name}
+              </h3>
+              <p
+                style={{
+                  fontFamily: 'var(--font-family-body)',
+                  fontSize: 'var(--body-sm)',
+                  fontWeight: 'var(--font-weight-regular)',
+                  lineHeight: 'var(--font-line-height-normal)',
+                  color: 'var(--text-secondary)',
+                  margin: 0,
+                }}
+              >
+                {line.tagline}
+              </p>
+            </div>
+            <div style={{ marginTop: 'auto', paddingTop: 'var(--gap-md)' }}>
+              <Link href={`/services/${line.slug}`}>
+                <Button variant="ghost" size="sm">
+                  Learn more
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
       ))}
     </div>
   );
