@@ -1,9 +1,17 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { MegaNavServer } from '@/components/layout/MegaNavServer';
 import { Footer } from '@/components/layout/Footer';
 import { poppins } from '@/lib/fonts';
 import './globals.css';
+
+const CHROMELESS_PREFIXES = ['/admin', '/login'];
+
+function isChromelessPath(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return CHROMELESS_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
 
 export const metadata: Metadata = {
   title: {
@@ -45,11 +53,14 @@ const themeScript = `
 })();
 `;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = (await headers()).get('x-pathname');
+  const chromeless = isChromelessPath(pathname);
+
   return (
     <html lang="en" className={poppins.variable} suppressHydrationWarning>
       <head>
@@ -57,9 +68,9 @@ export default function RootLayout({
       </head>
       <body className={poppins.className}>
         <ThemeProvider>
-          <MegaNavServer />
+          {!chromeless && <MegaNavServer />}
           <main>{children}</main>
-          <Footer />
+          {!chromeless && <Footer />}
         </ThemeProvider>
       </body>
     </html>
