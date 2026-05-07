@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@bds/components/ui/Button/Button';
-import { Badge } from '@bds/components/ui/Badge/Badge';
+import { Button } from '@brikdesigns/bds';
+import { Badge } from '@brikdesigns/bds';
 
 export function AnalysisCta() {
   return (

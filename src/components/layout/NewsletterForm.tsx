@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@bds/components/ui/Button/Button';
+import { Button } from '@brikdesigns/bds';
 
 /**
  * Newsletter signup form using Kit.com (Klaviyo).

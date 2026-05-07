@@ -1,6 +1,6 @@
 'use client';
 
-import { Select, type SelectOptionGroup } from '@bds/components/ui/Select/Select';
+import { Select, type SelectOptionGroup } from '@brikdesigns/bds';
 import type { BdsColorToken } from '@/lib/bds-color-tokens';
 
 export interface BdsColorPickerProps {

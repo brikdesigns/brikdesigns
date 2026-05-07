@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@bds/components/ui/Button/Button';
+import { Button } from '@brikdesigns/bds';
 
 export function HeroButtons() {
   return (

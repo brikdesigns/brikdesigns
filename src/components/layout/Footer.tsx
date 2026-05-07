@@ -1,7 +1,6 @@
-import Link from 'next/link';
 import Image from 'next/image';
+import { Footer as BdsFooter } from '@brikdesigns/bds';
 import { NewsletterForm } from './NewsletterForm';
-import './Footer.css';
 
 const aboutLinks = [
   { label: 'Who We Are', href: '/about' },
@@ -18,134 +17,164 @@ const customerLinks = [
   { label: 'Small Business', href: '/industries/small-business' },
 ];
 
-const serviceLines = [
-  { label: 'Brand Design', href: '/services/brand-design', category: 'brand' as const },
-  { label: 'Information Design', href: '/services/information-design', category: 'information' as const },
-  { label: 'Marketing Design', href: '/services/marketing-design', category: 'marketing' as const },
-  { label: 'Product Design', href: '/services/product-design', category: 'product' as const },
-  { label: 'Back Office Design', href: '/services/back-office-design', category: 'service' as const },
+const serviceLines: { label: string; href: string; category: 'brand' | 'information' | 'marketing' | 'product' | 'service' }[] = [
+  { label: 'Brand Design', href: '/services/brand-design', category: 'brand' },
+  { label: 'Information Design', href: '/services/information-design', category: 'information' },
+  { label: 'Marketing Design', href: '/services/marketing-design', category: 'marketing' },
+  { label: 'Product Design', href: '/services/product-design', category: 'product' },
+  { label: 'Back Office Design', href: '/services/back-office-design', category: 'service' },
 ];
 
+const socialLinks = [
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/designsbybrik/' },
+  { label: 'Facebook', href: 'https://www.facebook.com/designsbybrik' },
+  { label: 'Instagram', href: 'https://www.instagram.com/designsbybrik/' },
+];
+
+const SERVICE_DOT_VAR: Record<typeof serviceLines[number]['category'], string> = {
+  brand: 'var(--services--yellow)',
+  marketing: 'var(--services--green)',
+  information: 'var(--services--blue)',
+  product: 'var(--services--purple)',
+  service: 'var(--services--orange)',
+};
+
+function ServiceDot({ color }: { color: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        display: 'inline-block',
+        width: 10,
+        height: 10,
+        borderRadius: '50%',
+        backgroundColor: color,
+        flexShrink: 0,
+      }}
+    />
+  );
+}
+
+function ContactItem({ icon, children, href }: { icon: string; children: React.ReactNode; href?: string }) {
+  const inner = (
+    <>
+      <span aria-hidden="true" style={{ opacity: 0.6 }}>{icon}</span>
+      <span>{children}</span>
+    </>
+  );
+  const baseStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 'var(--gap-sm)',
+    fontFamily: 'var(--font-family-body)',
+    fontSize: 'var(--body-sm)',
+    color: 'inherit',
+    textDecoration: 'none',
+  };
+  if (href) {
+    return <a href={href} style={baseStyle}>{inner}</a>;
+  }
+  return <div style={baseStyle}>{inner}</div>;
+}
+
 /**
- * Footer — matches Webflow .footer structure:
- * 1. Newsletter section (border-bottom separated)
- * 2. Multi-column nav (logo + contact, social, about, customers, services with badges)
- * 3. Copyright bar
+ * Footer — renders the BDS marketing-site Footer for brikdesigns.com.
+ *
+ * Slot mapping:
+ *   aboveTop     → newsletter signup section
+ *   logo         → Brik logo
+ *   tagline      → agency line
+ *   brandExtra   → contact block (phone / email / contact link)
+ *   columns      → Follow Us / About / Customers / Services (with category dots)
+ *   copyright    → © year Brik Designs
+ *   bottomLinks  → Terms / Privacy policy
+ *   socialLinks  → "Made with ❤️ in Palm Beach, FL" (right-aligned bottom-bar slot)
+ *   variant      → 'inverse' (dark surface, AA-passing per brik-bds#463)
+ *
+ * Two known minor regressions vs the prior bespoke footer, tracked in BDS:
+ *   1. Social column links lose target=_blank — brik-bds#461
+ *   2. Internal links lose Next.js client-side navigation + prefetching — brik-bds#462
  */
 export function Footer() {
   return (
-    <footer className="site-footer">
-      {/* Newsletter section — Webflow: .container-newsletter */}
-      <div className="footer-newsletter">
-        <div className="footer-newsletter__inner">
-          <div className="footer-newsletter__content">
-            <h3 className="footer-newsletter__heading">Join Brik by Brik Newsletter</h3>
-            <p className="footer-newsletter__text">
-              Enter your name, email, and subscribe for free right now.
-            </p>
-          </div>
-          <div className="footer-newsletter__form">
+    <BdsFooter
+      aboveTop={
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 'var(--gap-md)',
+            textAlign: 'center',
+            padding: 'var(--padding-md) 0',
+          }}
+        >
+          <h3
+            style={{
+              fontFamily: 'var(--font-family-heading)',
+              fontSize: 'var(--heading-md)',
+              fontWeight: 'var(--font-weight-bold)' as unknown as number,
+              margin: 0,
+            }}
+          >
+            Join Brik by Brik Newsletter
+          </h3>
+          <p
+            style={{
+              fontFamily: 'var(--font-family-body)',
+              fontSize: 'var(--body-sm)',
+              margin: 0,
+              opacity: 0.8,
+            }}
+          >
+            Enter your name, email, and subscribe for free right now.
+          </p>
+          <div style={{ width: '100%', maxWidth: 400 }}>
             <NewsletterForm />
           </div>
         </div>
-      </div>
-
-      {/* Main footer content — Webflow: .container-footer */}
-      <div className="footer-main">
-        <div className="footer-main__content">
-          {/* Brand column */}
-          <div className="footer-brand">
-            <div className="footer-brand__logo">
-              <Image
-                src="/images/Brik-logo.svg"
-                alt="Brik Designs logo"
-                width={100}
-                height={40}
-                className="site-logo"
-              />
-              <p className="footer-text">We&apos;re a digital marketing and design agency.</p>
-            </div>
-            <div className="footer-brand__contact">
-              <div className="footer-contact-item">
-                <span className="footer-icon">phone</span>
-                <span className="footer-text">Office: (561) 490-8714</span>
-              </div>
-              <a href="mailto:hello@brikdesigns.com" className="footer-contact-item">
-                <span className="footer-icon">envelope</span>
-                <span className="footer-text">hello@brikdesigns.com</span>
-              </a>
-              <Link href="/contact" className="footer-contact-item">
-                <span className="footer-icon">message</span>
-                <span className="footer-text">Send us a message</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Nav columns */}
-          <div className="footer-nav">
-            {/* Social */}
-            <div className="footer-col">
-              <h4 className="footer-col__heading">Follow Us Online</h4>
-              <ul className="footer-col__list">
-                <li><a href="https://www.linkedin.com/company/designsbybrik/" target="_blank" rel="noopener noreferrer" className="footer-link">LinkedIn</a></li>
-                <li><a href="https://www.facebook.com/designsbybrik" target="_blank" rel="noopener noreferrer" className="footer-link">Facebook</a></li>
-                <li><a href="https://www.instagram.com/designsbybrik/" target="_blank" rel="noopener noreferrer" className="footer-link">Instagram</a></li>
-              </ul>
-            </div>
-
-            {/* About */}
-            <div className="footer-col">
-              <h4 className="footer-col__heading">About</h4>
-              <ul className="footer-col__list">
-                {aboutLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className="footer-link">{link.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Customers */}
-            <div className="footer-col">
-              <h4 className="footer-col__heading">Customers</h4>
-              <ul className="footer-col__list">
-                {customerLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className="footer-link">{link.label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Services with badges */}
-            <div className="footer-col">
-              <h4 className="footer-col__heading">Services</h4>
-              <ul className="footer-col__list">
-                {serviceLines.map((line) => (
-                  <li key={line.href}>
-                    <Link href={line.href} className="footer-link footer-link--badge">
-                      <span className={`footer-badge footer-badge--${line.category}`} />
-                      {line.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {/* Copyright — Webflow: .footer-content-copyright */}
-        <div className="footer-copyright">
-          <div className="footer-copyright__left">
-            <span className="footer-copyright__text">&copy; {new Date().getFullYear()} Brik Designs. All rights reserved.</span>
-            <span className="footer-copyright__dot">&bull;</span>
-            <Link href="/terms" className="footer-copyright__link">Terms</Link>
-            <span className="footer-copyright__dot">&bull;</span>
-            <Link href="/privacy-policy" className="footer-copyright__link">Privacy policy</Link>
-          </div>
-          <span className="footer-copyright__text">Made with ❤️ in Palm Beach, FL</span>
-        </div>
-      </div>
-    </footer>
+      }
+      logo={
+        <Image
+          src="/images/Brik-logo.svg"
+          alt="Brik Designs logo"
+          width={100}
+          height={40}
+          className="site-logo"
+        />
+      }
+      tagline="We're a digital marketing and design agency."
+      brandExtra={
+        <>
+          <ContactItem icon="☎">Office: (561) 490-8714</ContactItem>
+          <ContactItem icon="✉" href="mailto:hello@brikdesigns.com">
+            hello@brikdesigns.com
+          </ContactItem>
+          <ContactItem icon="✉" href="/contact">
+            Send us a message
+          </ContactItem>
+        </>
+      }
+      columns={[
+        { heading: 'Follow Us Online', links: socialLinks },
+        { heading: 'About', links: aboutLinks },
+        { heading: 'Customers', links: customerLinks },
+        {
+          heading: 'Services',
+          links: serviceLines.map((line) => ({
+            label: line.label,
+            href: line.href,
+            adornment: <ServiceDot color={SERVICE_DOT_VAR[line.category]} />,
+          })),
+        },
+      ]}
+      copyright={`© ${new Date().getFullYear()} Brik Designs. All rights reserved.`}
+      bottomLinks={[
+        { label: 'Terms', href: '/terms' },
+        { label: 'Privacy policy', href: '/privacy-policy' },
+      ]}
+      socialLinks={<span>Made with ❤️ in Palm Beach, FL</span>}
+      variant="inverse"
+    />
   );
 }

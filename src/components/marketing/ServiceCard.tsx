@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
-import type { ServiceCategory } from '@bds/components/ui/ServiceBadge/ServiceBadge';
-import { composeButtonClasses } from '@bds/components/ui/Button/Button';
+import { ServiceBadge } from '@brikdesigns/bds';
+import type { ServiceCategory } from '@brikdesigns/bds';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
 interface ServiceCardProps {
   name: string;
   slug: string;

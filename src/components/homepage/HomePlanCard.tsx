@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import { LinkButton } from '@brikdesigns/bds';
 
 interface HomePlanCardProps {
   name: string;

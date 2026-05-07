@@ -19,11 +19,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@bds/components": ["./brik-bds/components"],
-      "@bds/components/*": ["./brik-bds/components/*"],
-      "@bds/tokens": ["./brik-bds/tokens"],
-      "@bds/tokens/*": ["./brik-bds/tokens/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [

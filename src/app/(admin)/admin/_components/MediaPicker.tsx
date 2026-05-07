@@ -2,8 +2,8 @@
 
 import { useState, useRef, type ChangeEvent } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { TextInput } from '@bds/components/ui/TextInput/TextInput';
-import { Button } from '@bds/components/ui/Button/Button';
+import { TextInput } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 
 const BUCKET = 'marketing-media';
 

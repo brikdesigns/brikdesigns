@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Card } from '@bds/components/ui/Card/Card';
-import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
-import { Button } from '@bds/components/ui/Button/Button';
+import { Card } from '@brikdesigns/bds';
+import { ServiceBadge } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 
 type ServiceCategory = 'brand' | 'marketing' | 'information' | 'product' | 'service';
 

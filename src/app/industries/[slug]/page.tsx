@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getIndustryPageBySlug } from '@/lib/supabase/queries';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import { LinkButton } from '@brikdesigns/bds';
 import '../../shared-sections.css';
 import '../industries.css';
 

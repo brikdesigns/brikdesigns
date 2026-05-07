@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
-import { composeButtonClasses } from '@bds/components/ui/Button/Button';
-import type { ServiceCategory } from '@bds/components/ui/ServiceBadge/ServiceBadge';
+import { ServiceBadge } from '@brikdesigns/bds';
+import { LinkButton } from '@brikdesigns/bds';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
+import type { ServiceCategory } from '@brikdesigns/bds';
 
 interface ServiceLineCardProps {
   name: string;

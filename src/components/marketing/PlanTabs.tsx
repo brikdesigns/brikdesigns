@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { SegmentedControl } from '@bds/components/ui/SegmentedControl/SegmentedControl';
-import { PricingCard } from '@bds/components/ui/PricingCard/PricingCard';
-import { Button } from '@bds/components/ui/Button/Button';
-import { Badge } from '@bds/components/ui/Badge/Badge';
+import { SegmentedControl } from '@brikdesigns/bds';
+import { PricingCard } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
+import { Badge } from '@brikdesigns/bds';
 
 interface Plan {
   name: string;

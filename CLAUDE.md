@@ -26,7 +26,7 @@ Full rule shape, rationale, and the pre-action checklist live in cross-repo CLAU
 | --- | --- |
 | Framework | Next.js 16, React 19, TypeScript, App Router |
 | Styling | BDS design tokens + Tailwind CSS utilities |
-| Design System | BDS submodule at `./brik-bds/` — aliased `@bds/components`, `@bds/tokens` |
+| Design System | `@brikdesigns/bds` (npm package via GitHub Packages — same as portal/renew-pms) |
 | Data | Supabase (same project as brik-client-portal staging) |
 | Deployment | Netlify with ISR |
 | Themes | Light/dark only (other BDS themes reserved for template marketplace) |
@@ -41,7 +41,28 @@ npm run lint         # ESLint
 
 ## BDS Usage
 
-Token layer: `src/lib/tokens.ts` + `src/lib/styles.ts`. Path aliases: `@bds/components` → `./brik-bds/components`.
+**brikdesigns consumes BDS via the `@brikdesigns/bds` npm package** (matches portal/renew-pms architecture). Imports are flat:
+
+```tsx
+import { Button, Card, ServiceBadge } from '@brikdesigns/bds';
+import { type ServiceCategory } from '@brikdesigns/bds';
+```
+
+Token + styles cascade is wired in `src/app/globals.css`:
+
+```css
+@layer theme, base, components, utilities;
+@layer bds-tokens, bds-components, client-theme, client-overrides;
+@import '@brikdesigns/bds/tokens.css' layer(bds-tokens);
+@import '@brikdesigns/bds/styles.css' layer(bds-components);
+@import "tailwindcss";
+```
+
+The explicit `@layer ...;` order before any imports is **required** to put `bds-components` higher than Tailwind's `base` preflight (which contains `a { color: inherit; }`). Without this, BDS component link colors get clobbered by Tailwind. See globals.css comment block for full rationale.
+
+Token layer (TypeScript wrappers): `src/lib/tokens.ts` + `src/lib/styles.ts`.
+
+**Install requires `PACKAGES_READ_TOKEN` env var** — local dev sources from `~/.secrets/brik-packages.env`; CI uses `${{ secrets.GITHUB_TOKEN }}`; Netlify must have it set in site env (one-time ops).
 
 **Read `COMPONENT-MAP.md` before building any section.** Every visual element must come from BDS.
 

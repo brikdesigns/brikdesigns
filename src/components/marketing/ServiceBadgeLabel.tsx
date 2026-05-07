@@ -1,8 +1,8 @@
 'use client';
 
-import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
-import { ServiceTag } from '@bds/components/ui/ServiceBadge/ServiceTag';
-import type { ServiceCategory } from '@bds/components/ui/ServiceBadge/ServiceBadge';
+import { ServiceBadge } from '@brikdesigns/bds';
+import { ServiceTag } from '@brikdesigns/bds';
+import type { ServiceCategory } from '@brikdesigns/bds';
 
 interface ServiceBadgeLabelProps {
   category: ServiceCategory;

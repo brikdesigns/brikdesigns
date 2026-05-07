@@ -1,7 +1,26 @@
-/* BDS Design System — auto-generated tokens (Style Dictionary from Figma).
+/* BDS consumption — npm package via @brikdesigns/bds (matches portal/renew-pms).
    Poppins loaded via next/font/google in src/lib/fonts.ts. */
-@import '../../brik-bds/tokens/figma-tokens.css';
-@import '../../brik-bds/tokens/gap-fills.css';
+
+/* ── Layer order: later = higher cascade priority ──
+   Tailwind's internal layers (theme, base, components, utilities) are declared
+   FIRST so they sit at the BOTTOM of the cascade. BDS layers are declared after,
+   making them higher priority than Tailwind's preflight and base resets.
+
+   Without this declaration, layer order is determined by which CSS chunk parses
+   first; submodule-style per-component CSS imports caused bds-components to
+   end up at the bottom and Tailwind's `a { color: inherit }` won on every BDS
+   anchor. Pattern lifted from renew-pms.
+
+   Final order, lowest → highest:
+     theme → base (preflight) → components → utilities
+     → bds-tokens → bds-components → client-theme → client-overrides
+*/
+@layer theme, base, components, utilities;
+@layer bds-tokens, bds-components, client-theme, client-overrides;
+
+/* BDS token + component layers (npm package) */
+@import '@brikdesigns/bds/tokens.css' layer(bds-tokens);
+@import '@brikdesigns/bds/styles.css' layer(bds-components);
 
 /* Tailwind layers */
 @import "tailwindcss";

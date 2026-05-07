@@ -1,4 +1,4 @@
-import type { SelectOption } from '@bds/components/ui/Select/Select';
+import type { SelectOption } from '@brikdesigns/bds';
 import type { FieldDef } from '../../_components/EntityForm';
 import type { BdsColorToken } from '@/lib/bds-color-tokens';
 

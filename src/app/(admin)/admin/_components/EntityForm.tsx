@@ -2,11 +2,11 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { TextInput } from '@bds/components/ui/TextInput/TextInput';
-import { TextArea } from '@bds/components/ui/TextArea/TextArea';
-import { Select, type SelectOption } from '@bds/components/ui/Select/Select';
-import { Switch } from '@bds/components/ui/Switch/Switch';
-import { Button } from '@bds/components/ui/Button/Button';
+import { TextInput } from '@brikdesigns/bds';
+import { TextArea } from '@brikdesigns/bds';
+import { Select, type SelectOption } from '@brikdesigns/bds';
+import { Switch } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { BdsColorPicker } from './BdsColorPicker';
 import { MediaPicker } from './MediaPicker';
 import type { BdsColorToken } from '@/lib/bds-color-tokens';

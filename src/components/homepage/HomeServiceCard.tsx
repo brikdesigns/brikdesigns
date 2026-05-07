@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
-import type { ServiceCategory } from '@bds/components/ui/ServiceBadge/ServiceBadge';
+import { ServiceBadge } from '@brikdesigns/bds';
+import { LinkButton } from '@brikdesigns/bds';
+import type { ServiceCategory } from '@brikdesigns/bds';
 
 interface HomeServiceCardProps {
   name: string;
