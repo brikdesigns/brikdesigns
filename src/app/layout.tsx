@@ -1,10 +1,17 @@
+// globals.css FIRST — its `@layer ...;` declaration must establish layer
+// order BEFORE any component CSS modules (which wrap rules in
+// `@layer bds-components { ... }`) get parsed by the browser. Without this,
+// bds-components ends up first in cascade order = lowest priority, and
+// Tailwind v4's `@layer base { a { color: inherit; } }` clobbers BDS Footer
+// link colors. See globals.css for full rationale.
+import './globals.css';
+
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { MegaNavServer } from '@/components/layout/MegaNavServer';
 import { Footer } from '@/components/layout/Footer';
 import { poppins } from '@/lib/fonts';
-import './globals.css';
 
 const CHROMELESS_PREFIXES = ['/admin', '/login'];
 
