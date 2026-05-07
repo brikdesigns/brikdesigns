@@ -2,48 +2,68 @@ import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, m
 import { MegaNav } from './MegaNav';
 
 /**
- * Nav content — hardcoded marketing copy matching the Webflow site.
- * Service slugs resolve to display names via Supabase, but taglines are
- * brand-voice decisions that live here, not in the DB.
+ * Nav content — taglines + service slug-lists per column.
  *
- * Some slugs live under a different DB category than the nav column they
- * appear in (e.g., patient-experience-mapping is DB "service" but Webflow
- * shows it under Marketing). The server component resolves cross-category
- * items by looking up slugs across ALL categories.
+ * Keyed by `service_lines.slug` (short form: brand / marketing / information /
+ * service). Slug values match the canonical Brik service catalog as of the
+ * 2026-04 reorg, NOT Webflow's old slugs. If a service is renamed in the
+ * admin CMS, update the corresponding entry here.
  *
- * TODO: Add a `show_in_nav` boolean column to Supabase so the slug lists
- * can be managed in the portal instead of hardcoded.
+ * Each slug must exist in the `services` table (else that entry is silently
+ * dropped from the column). DB-side filtering is `is_public=true`, so a
+ * service with `is_public=false` won't appear in the nav even if listed here.
+ *
+ * TODO: Add a `show_in_nav` boolean column on `services` so this list can
+ * be managed in the admin CMS instead of hardcoded here.
  */
 const NAV_COLUMNS: Record<string, { tagline: string; slugs: string[] }> = {
-  'brand-design': {
+  brand: {
     tagline: 'Shape your identity',
     slugs: [
-      'logo-design', 'brand-guidelines', 'stationary',
-      'business-card', 'email-signature', 'business-listings',
+      'logo-design',
+      'brand-identity',
+      'brand-guidelines',
+      'business-stationery',
+      'online-business-listings',
     ],
   },
-  'marketing-design': {
+  marketing: {
     tagline: 'Connect and convert',
     slugs: [
-      'website-experience-mapping', 'patient-experience-mapping',
-      'web-design', 'email-marketing',
-      'landing-page', 'social', 'swag', 'marketing-consulting',
-      'software-automation-setup',
+      'website-experience-mapping',
+      'patient-experience-mapping',
+      'web-design-development',
+      'email-marketing',
+      'landing-pages',
+      'social-media-graphics',
+      'swag-merchandise-design',
+      'marketing-consulting',
     ],
   },
-  'information-design': {
+  information: {
     tagline: 'Simplify the complex',
     slugs: [
-      'layout-design', 'sales-resources', 'welcome-onboarding-kit',
-      'infographic', 'presentation-design', 'signage-design', 'intake-forms',
+      'layout-design',
+      'sales-resources',
+      'welcome-onboarding-kit',
+      'infographics',
+      'presentation-design',
+      'signage-design',
+      'intake-forms',
     ],
   },
-  'back-office-design': {
+  // 'service' is the DB slug for the Back Office Design line.
+  service: {
     tagline: 'Make work flow',
     slugs: [
-      'automated-workflow-and-ai-integration', 'digital-file-organization',
-      'sop-creation', 'training-setup-organization',
-      'crm-setup-and-data-cleanup', 'journey-map', 'software-subscription-audit',
+      'software-automation-setup',
+      'digital-file-organization',
+      'sop-creation',
+      'training-setup',
+      'crm-setup',
+      'ai-workflow-integration',
+      'customer-journey-mapping',
+      'software-subscription-audit',
     ],
   },
 };
