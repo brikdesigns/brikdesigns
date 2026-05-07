@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
@@ -22,8 +21,6 @@ import AxeBuilder from '@axe-core/playwright';
  *   moderate/minor. Baseline file allows pre-existing debt and is burned
  *   down on its own cadence (see tests/a11y/README.md).
  */
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/', name: 'Home' },
@@ -54,7 +51,7 @@ interface BaselineFile {
   routes: Record<string, Record<string, string[]>>;
 }
 
-const BASELINE_PATH = path.join(__dirname, 'baseline.json');
+const BASELINE_PATH = path.join(process.cwd(), 'tests/a11y/baseline.json');
 const baseline: BaselineFile = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
 
 function isBaselined(routePath: string, ruleId: string, selector: string): boolean {
