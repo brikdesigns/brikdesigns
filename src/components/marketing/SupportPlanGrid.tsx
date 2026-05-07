@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { PricingCard } from '@bds/components/ui/PricingCard/PricingCard';
-import { Button } from '@bds/components/ui/Button/Button';
+import { PricingCard } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 
 interface SupportPlan {
   name: string;

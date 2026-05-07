@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { composeButtonClasses } from '@bds/components/ui/Button/Button';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import '../shared-sections.css';
 import './industries.css';

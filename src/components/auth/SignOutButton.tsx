@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Button } from '@bds/components/ui/Button/Button';
+import { Button } from '@brikdesigns/bds';
 
 export function SignOutButton() {
   const router = useRouter();

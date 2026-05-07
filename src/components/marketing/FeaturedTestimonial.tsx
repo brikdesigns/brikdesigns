@@ -1,6 +1,6 @@
 'use client';
 
-import { CardTestimonial } from '@bds/components/ui/CardTestimonial/CardTestimonial';
+import { CardTestimonial } from '@brikdesigns/bds';
 
 interface Props {
   quote: string;

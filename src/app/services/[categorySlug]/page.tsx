@@ -5,8 +5,8 @@ import Image from 'next/image';
 import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupportPlanBySlug, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
-import { composeButtonClasses } from '@bds/components/ui/Button/Button';
+import { LinkButton } from '@brikdesigns/bds';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
 import '../../shared-sections.css';
 import '../services.css';
 

@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
-import { Badge } from '@bds/components/ui/Badge/Badge';
+import { LinkButton } from '@brikdesigns/bds';
+import { Badge } from '@brikdesigns/bds';
 import { EntityTable, type EntityTableColumn } from '../_components/EntityTable';
 import { listBlogPosts } from '@/lib/admin/blog-posts';
 

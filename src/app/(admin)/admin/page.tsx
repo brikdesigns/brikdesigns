@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Card } from '@bds/components/ui/Card/Card';
+import { Card } from '@brikdesigns/bds';
 
 export default function AdminHomePage() {
   return (

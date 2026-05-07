@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Card } from '@bds/components/ui/Card/Card';
-import { Badge } from '@bds/components/ui/Badge/Badge';
-import { Button } from '@bds/components/ui/Button/Button';
+import { Card } from '@brikdesigns/bds';
+import { Badge } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 
 interface CustomerStoryCardProps {
   name: string;

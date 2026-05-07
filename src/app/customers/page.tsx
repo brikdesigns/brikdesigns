@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
-import { composeButtonClasses } from '@bds/components/ui/Button/Button';
+import { LinkButton } from '@brikdesigns/bds';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
 import '../shared-sections.css';
 import './customers.css';
 

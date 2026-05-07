@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { PricingCard } from '@bds/components/ui/PricingCard/PricingCard';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import { PricingCard } from '@brikdesigns/bds';
+import { LinkButton } from '@brikdesigns/bds';
 
 interface Plan {
   name: string;

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
-import { composeButtonClasses } from '@bds/components/ui/Button/Button';
+import { LinkButton } from '@brikdesigns/bds';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import '../shared-sections.css';
 import './about.css';

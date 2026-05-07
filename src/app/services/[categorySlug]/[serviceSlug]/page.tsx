@@ -12,8 +12,8 @@ import {
 } from '@/lib/supabase/queries';
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
-import { composeButtonClasses } from '@bds/components/ui/Button/Button';
+import { LinkButton } from '@brikdesigns/bds';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
 import '../../../shared-sections.css';
 import '../../services.css';
 

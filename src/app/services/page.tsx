@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import { LinkButton } from '@brikdesigns/bds';
 import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
 import '../shared-sections.css';

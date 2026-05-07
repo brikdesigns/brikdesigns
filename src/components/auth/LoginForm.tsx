@@ -3,8 +3,8 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { TextInput } from '@bds/components/ui/TextInput/TextInput';
-import { Button } from '@bds/components/ui/Button/Button';
+import { TextInput } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');

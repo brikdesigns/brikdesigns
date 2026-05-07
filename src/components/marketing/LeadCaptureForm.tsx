@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Button } from '@bds/components/ui/Button/Button';
-import { TextInput } from '@bds/components/ui/TextInput/TextInput';
-import { TextArea } from '@bds/components/ui/TextArea/TextArea';
+import { Button } from '@brikdesigns/bds';
+import { TextInput } from '@brikdesigns/bds';
+import { TextArea } from '@brikdesigns/bds';
 
 export function LeadCaptureForm({ source = 'get_started' }: { source?: string }) {
   const searchParams = useSearchParams();

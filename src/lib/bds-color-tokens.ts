@@ -2,13 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 /**
- * BDS color token catalog, parsed from `brik-bds/tokens/figma-tokens.css` at
+ * BDS color token catalog, parsed from `@brikdesigns/bds/dist/tokens.css` at
  * server-side module load. Only `--color-{family}-{tier}` tokens are
  * surfaced — these are the canonical palette swatches consumers should
  * reference. `--text-*`, `--surface-*`, `--background-*`, `--border-*` are
  * semantic roles, not picker options.
  *
- * Stays in sync with BDS automatically: when the submodule bumps, the next
+ * Stays in sync with BDS automatically: when the npm package bumps, the next
  * server reload re-parses. No manual list to maintain.
  */
 export interface BdsColorToken {
@@ -32,9 +32,11 @@ const TOKEN_LINE_RE =
 function parseTokens(): BdsColorToken[] {
   const cssPath = path.join(
     process.cwd(),
-    'brik-bds',
-    'tokens',
-    'figma-tokens.css',
+    'node_modules',
+    '@brikdesigns',
+    'bds',
+    'dist',
+    'tokens.css',
   );
   const css = fs.readFileSync(cssPath, 'utf-8');
 
