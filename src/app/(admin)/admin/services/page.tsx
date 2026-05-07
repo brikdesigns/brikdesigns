@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { LinkButton } from '@bds/components/ui/Button/LinkButton';
 import { Badge } from '@bds/components/ui/Badge/Badge';
 import { ServicesTabs } from './_components/Tabs';
-import { EntityTable, type EntityTableColumn } from './_components/EntityTable';
+import { EntityTable, type EntityTableColumn } from '../_components/EntityTable';
 import { listServiceLines } from '@/lib/admin/service-lines';
 import { listServices } from '@/lib/admin/services';
 import { listOfferings } from '@/lib/admin/offerings';

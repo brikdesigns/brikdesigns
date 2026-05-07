@@ -1,5 +1,5 @@
 import type { SelectOption } from '@bds/components/ui/Select/Select';
-import type { FieldDef } from './EntityForm';
+import type { FieldDef } from '../../_components/EntityForm';
 import type { BdsColorToken } from '@/lib/bds-color-tokens';
 
 type FieldOrSection = FieldDef | { sectionTitle: string };
