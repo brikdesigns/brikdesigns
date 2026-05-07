@@ -1,0 +1,72 @@
+name: Accessibility (axe + Playwright)
+
+# Runs WCAG 2.1 AA audit against the Netlify deploy-preview on every PR.
+# Pattern adapted from birdwell-mutlak / brik-client-portal CI.
+#
+# Why deploy-preview (not local CI build): the Next.js build pulls service
+# data from Supabase. Exposing service-role keys to GitHub Actions is a
+# high-blast-radius secret for what should be a low-risk a11y gate. Netlify
+# already builds the deploy-preview with the right secrets via its own
+# Build Environment — we audit what's actually deployed.
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: a11y-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  axe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      # Netlify deploy-preview URL pattern. Update the site name if
+      # brikdesigns is renamed on Netlify.
+      - name: Wait for Netlify deploy-preview
+        id: deploy
+        run: |
+          DEPLOY_URL="https://deploy-preview-${{ github.event.pull_request.number }}--brikdesigns.netlify.app"
+          echo "Polling $DEPLOY_URL for live deploy …"
+          for i in $(seq 1 60); do
+            CODE=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$DEPLOY_URL/" || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "Deploy live (HTTP $CODE) on attempt $i."
+              echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "  attempt $i: HTTP $CODE — sleeping 10s"
+            sleep 10
+          done
+          echo "Deploy never reached HTTP 200 after 10 minutes." >&2
+          exit 1
+
+      - name: Run a11y suite
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
+        run: npm run test:a11y
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:a11y": "playwright test"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
@@ -27,7 +28,9 @@
     "resend": "^6.12.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@netlify/plugin-nextjs": "^5.15.9",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
