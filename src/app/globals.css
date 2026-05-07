@@ -1,5 +1,15 @@
 /* BDS Design System — auto-generated tokens (Style Dictionary from Figma).
    Poppins loaded via next/font/google in src/lib/fonts.ts. */
+
+/* Layer order — bds-components LAST so BDS component styles (e.g., Footer
+   variant color overrides) beat Tailwind preflight resets like
+   `a { color: inherit; }` in @layer base. Without this explicit order, layer
+   priority depends on which CSS loads first; if BDS Footer.css's @layer
+   declaration is encountered before Tailwind's `@layer theme, base,
+   components, utilities;`, bds-components ends up LOWEST priority and Tailwind
+   base wins on anchor color. Surfaced by brikdesigns#42 inverse-variant flip. */
+@layer theme, base, components, utilities, bds-components;
+
 @import '../../brik-bds/tokens/figma-tokens.css';
 @import '../../brik-bds/tokens/gap-fills.css';
 
