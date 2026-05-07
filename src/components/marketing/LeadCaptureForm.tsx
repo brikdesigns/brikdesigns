@@ -28,6 +28,8 @@ export function LeadCaptureForm({ source = 'get_started' }: { source?: string })
       service: service || '',
       message: form.get('message') || '',
       source,
+      // Honeypot — bots fill every field, real users don't see this one.
+      website_url: form.get('website_url') || '',
     };
 
     try {
@@ -89,6 +91,15 @@ export function LeadCaptureForm({ source = 'get_started' }: { source?: string })
         </div>
       )}
 
+      {/* Honeypot — invisible to real users, fills bots in. */}
+      <input
+        type="text"
+        name="website_url"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}
+      />
       <TextInput
         label="Your name"
         name="name"

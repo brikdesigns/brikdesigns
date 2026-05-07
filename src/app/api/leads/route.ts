@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { notifyOnLead } from '@/lib/notifications';
+import { checkHoneypot, verifyRecaptcha } from '@/lib/spam-protection';
 
 /**
  * Lead capture endpoint.
@@ -20,9 +21,25 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: Verify reCAPTCHA token
-    // const recaptchaValid = await verifyRecaptcha(body.recaptcha_token);
-    // if (!recaptchaValid) return NextResponse.json({ error: 'Invalid captcha' }, { status: 400 });
+    // Layer 1 — honeypot. If filled, bot. Silent 200 so the bot doesn't learn.
+    const honeypot = checkHoneypot(body);
+    if (honeypot.silentDrop) {
+      console.warn('[lead] honeypot triggered:', honeypot.detail);
+      return NextResponse.json({
+        success: true,
+        message: "Thanks! We'll be in touch within 1 business day.",
+      });
+    }
+
+    // Layer 2 — reCAPTCHA v3 verification, only when keys are configured.
+    const recaptcha = await verifyRecaptcha(body);
+    if (recaptcha.recaptchaFailed) {
+      console.warn('[lead] recaptcha failed:', recaptcha.detail);
+      return NextResponse.json(
+        { error: 'Verification failed. Please try again.' },
+        { status: 400 }
+      );
+    }
 
     const supabase = createServiceClient();
 
