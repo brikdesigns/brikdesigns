@@ -22,6 +22,17 @@ jobs:
   axe:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
+      packages: read
+    env:
+      # Auto-issued per workflow run; no manual rotation. Same pattern
+      # renew-pms uses (renew-pms/.github/workflows/ci.yml). Required after
+      # brikdesigns#43 migrated to @brikdesigns/bds npm package consumption.
+      # Requires brikdesigns repo to be on the @brikdesigns/bds package's
+      # Actions-access list (github.com → org → packages → @brikdesigns/bds →
+      # Manage Actions access). Otherwise GITHUB_TOKEN gets 401 on install.
+      PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v5
 
