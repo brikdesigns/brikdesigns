@@ -41,9 +41,10 @@ export default function AdminHomePage() {
           status="live"
         />
         <SectionCard
+          href="/admin/stories"
           title="Customer stories"
           description="Portfolio entries shown on /customer-stories."
-          status="coming-soon"
+          status="live"
         />
         <SectionCard
           title="Plans"

@@ -1,5 +1,5 @@
-import { EditPageShell } from '../../_components/EditPageShell';
-import { EntityForm } from '../../_components/EntityForm';
+import { EditPageShell } from '../../../_components/EditPageShell';
+import { EntityForm } from '../../../_components/EntityForm';
 import { offeringFields } from '../../_components/field-configs';
 import { listServices } from '@/lib/admin/services';
 

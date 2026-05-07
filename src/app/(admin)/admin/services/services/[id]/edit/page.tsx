@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { EditPageShell } from '../../../_components/EditPageShell';
-import { EntityForm } from '../../../_components/EntityForm';
+import { EditPageShell } from '../../../../_components/EditPageShell';
+import { EntityForm } from '../../../../_components/EntityForm';
 import { serviceFields } from '../../../_components/field-configs';
 import { getServiceById } from '@/lib/admin/services';
 import { listServiceLines } from '@/lib/admin/service-lines';

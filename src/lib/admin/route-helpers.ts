@@ -62,3 +62,6 @@ export async function readJsonBody(request: Request): Promise<unknown> {
  * waiting on the 3600s ISR window.
  */
 export const SERVICES_REVALIDATE_PATHS = ['/services', '/'];
+
+/** Paths revalidated after customer_stories mutations. */
+export const STORIES_REVALIDATE_PATHS = ['/customer-stories', '/'];

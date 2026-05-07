@@ -1,5 +1,5 @@
-import { EditPageShell } from '../../_components/EditPageShell';
-import { EntityForm } from '../../_components/EntityForm';
+import { EditPageShell } from '../../../_components/EditPageShell';
+import { EntityForm } from '../../../_components/EntityForm';
 import { serviceLineFields } from '../../_components/field-configs';
 import { getBdsColorTokens, getGroupedBdsColorTokens } from '@/lib/bds-color-tokens';
 
