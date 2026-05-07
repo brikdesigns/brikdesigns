@@ -140,6 +140,18 @@
         "a[href$=\"product\"] > .text-body-md.text--secondary"
       ]
     },
+    "/free-marketing-analysis": {
+      "color-contrast": [
+        ".mega-nav__utility-label",
+        ".page-hero__description"
+      ]
+    },
+    "/get-started": {
+      "color-contrast": [
+        ".mega-nav__utility-label",
+        ".page-hero__description"
+      ]
+    },
     "/industries": {
       "color-contrast": [
         ".industries-card[href$=\"dental\"] > .text-body-md.text--secondary",
@@ -177,6 +189,11 @@
         ".plans-card-wrapper:nth-child(3) > .bds-pricing-card > .bds-pricing-card__price-block > .bds-pricing-card__period",
         ".plans-toggle__btn--active",
         ".plans-toggle__btn:nth-child(2)"
+      ]
+    },
+    "/privacy-policy": {
+      "color-contrast": [
+        ".mega-nav__utility-label"
       ]
     },
     "/services": {
@@ -221,6 +238,33 @@
         ".svc-detail-support-cta > .text-body-sm.text--secondary",
         ".svc-detail-support-cta > .text-label-sm.text--brand",
         ".text-body-md"
+      ]
+    },
+    "/value": {
+      "color-contrast": [
+        "#value-01 > .container-lg--comfortable.container-lg > .text-body-lg.text--secondary",
+        "#value-01 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(1) > .text-body-sm.text--secondary",
+        "#value-01 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(2) > .text-body-sm.text--secondary",
+        "#value-01 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(3) > .text-body-sm.text--secondary",
+        "#value-02 > .container-lg--comfortable.container-lg > .text-body-lg.text--secondary",
+        "#value-02 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(1) > .text-body-sm.text--secondary",
+        "#value-02 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(2) > .text-body-sm.text--secondary",
+        "#value-02 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(3) > .text-body-sm.text--secondary",
+        "#value-03 > .container-lg--comfortable.container-lg > .text-body-lg.text--secondary",
+        "#value-03 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(1) > .text-body-sm.text--secondary",
+        "#value-03 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(2) > .text-body-sm.text--secondary",
+        "#value-04 > .container-lg--comfortable.container-lg > .text-body-lg.text--secondary",
+        "#value-04 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(1) > .text-body-sm.text--secondary",
+        "#value-04 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(2) > .text-body-sm.text--secondary",
+        ".mega-nav__utility-label",
+        ".page-hero__container > .text-body-md.text--secondary",
+        ".page-hero__container > .text-label-sm.text--brand",
+        ".page-hero__description",
+        ".text-body-md.text--center.text--secondary",
+        "a[href$=\"#value-01\"] > .text-label-sm.text--brand",
+        "a[href$=\"#value-02\"] > .text-label-sm.text--brand",
+        "a[href$=\"#value-03\"] > .text-label-sm.text--brand",
+        "a[href$=\"#value-04\"] > .text-label-sm.text--brand"
       ]
     }
   }
