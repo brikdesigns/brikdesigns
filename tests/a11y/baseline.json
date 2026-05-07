@@ -193,7 +193,8 @@
     },
     "/privacy-policy": {
       "color-contrast": [
-        ".mega-nav__utility-label"
+        ".mega-nav__utility-label",
+        "article > p:nth-child(2)"
       ]
     },
     "/services": {
