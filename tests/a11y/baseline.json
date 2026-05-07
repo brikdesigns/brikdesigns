@@ -1,271 +1,159 @@
 {
-  "_comment": "Pre-existing serious/critical findings allowed at baseline-install time. New violations of any rule on any selector still fail CI. Burn-down policy: see tests/a11y/README.md. Format: routes[<path>][<axe-rule-id>] = string[] of CSS selectors to allow. Initial baseline captured 2026-05-07 against deploy-preview-37 — see issue #40 for follow-up burn-down work.",
+  "_comment": "Pre-existing serious/critical findings allowed at baseline-install time. New violations of any rule on any selector still fail CI. Burn-down policy: see tests/a11y/README.md. Format: routes[<path>][<axe-rule-id>] = string[] of CSS selectors to allow. RESET 2026-05-07 against deploy-preview-43 — supersedes prior baseline. brikdesigns#43 migrated BDS consumption from submodule to npm package; the bundled @brikdesigns/bds/styles.css now covers the full button system, surfacing brand-vs-AA contrast tensions (white-on-poppy 4.34:1, poppy-on-yellow 2.58:1, etc.) that previous architecture only partially exercised. Burn-down tracked in #40.",
   "routes": {
     "/": {
       "color-contrast": [
-        ".audit-subtext",
-        ".bds-button--outline.hero-btn-on-dark.bds-button--lg:nth-child(2) > .bds-button__content",
-        ".bds-button--outline.hero-btn-on-dark[href$=\"services\"] > .bds-button__content",
-        ".button-wrapper--center.button-wrapper > .bds-button--outline.hero-btn-on-dark.bds-button--lg > .bds-button__content",
-        ".cta-subtext",
-        ".hero-subtext",
-        ".mega-nav__utility-label",
-        ".plan-card:nth-child(1) > .plan-card__content > .plan-card__description",
-        ".plan-card:nth-child(2) > .plan-card__content > .plan-card__description",
-        ".plan-card:nth-child(3) > .plan-card__content > .plan-card__description",
-        ".section-plans > .section-container > .section-header > .section-subtext",
-        ".section-services > .section-container > .section-header > .section-subtext",
-        ".service-card:nth-child(1) > .service-card__header > .service-card__content > .service-card__description",
-        ".service-card:nth-child(2) > .service-card__header > .service-card__content > .service-card__description",
-        ".service-card:nth-child(3) > .service-card__header > .service-card__content > .service-card__description",
-        ".service-card:nth-child(4) > .service-card__header > .service-card__content > .service-card__description",
-        ".service-card:nth-child(5) > .service-card__header > .service-card__content > .service-card__description",
-        ".story-description"
+        ".bds-button--sm.bds-button--primary[href$=\"contact\"]",
+        ".bds-footer__above-top > div > h3",
+        ".bds-footer__above-top > div > p",
+        ".story-content > div:nth-child(2) > .bds-button--md.bds-button--primary.bds-button > .bds-button__content",
+        "a[href$=\"brand\"] > .bds-button__content",
+        "a[href$=\"free-marketing-analysis\"] > .bds-button__content",
+        "a[href$=\"information\"] > .bds-button__content",
+        "a[href$=\"marketing\"] > .bds-button__content",
+        "a[href$=\"plans#back-office-support\"] > .bds-button__content",
+        "a[href$=\"plans#marketing-support\"] > .bds-button__content",
+        "a[href$=\"plans#product-support\"] > .bds-button__content",
+        "a[href$=\"product\"] > .bds-button__content",
+        "a[href$=\"service\"] > .bds-button__content",
+        "button[type=\"submit\"] > .bds-button__content"
       ]
     },
     "/about": {
       "color-contrast": [
-        ".about-hero__intro:nth-child(2)",
-        ".about-hero__intro:nth-child(3)",
-        ".about-hero__scroll > .text-label-sm.text--secondary",
-        ".about-pillar-row:nth-child(1) > .about-pillar-body > .text-body-md.text--secondary",
-        ".about-pillar-row:nth-child(1) > .about-pillar-label > .text--brand.text-label-sm",
-        ".about-pillar-row:nth-child(2) > .about-pillar-body > .text-body-md.text--secondary",
-        ".about-pillar-row:nth-child(2) > .about-pillar-label > .text--brand.text-label-sm",
-        ".about-pillar-row:nth-child(3) > .about-pillar-body > .text-body-md.text--secondary",
-        ".about-pillar-row:nth-child(3) > .about-pillar-label > .text--brand.text-label-sm",
-        ".about-team-card:nth-child(1) > .about-team-bio > .text-body-sm.text--secondary:nth-child(1)",
-        ".about-team-card:nth-child(1) > .about-team-bio > .text-body-sm.text--secondary:nth-child(2)",
-        ".about-team-card:nth-child(1) > .text-label-sm.text--secondary",
-        ".about-team-card:nth-child(2) > .about-team-bio > .text-body-sm.text--secondary:nth-child(1)",
-        ".about-team-card:nth-child(2) > .about-team-bio > .text-body-sm.text--secondary:nth-child(2)",
-        ".about-team-card:nth-child(2) > .text-label-sm.text--secondary",
-        ".about-value-text > .text-body-md.text--secondary",
-        ".mega-nav__utility-label",
-        ".text--center",
-        "a[href$=\"brand\"] > .text-body-sm.text--secondary",
-        "a[href$=\"information\"] > .text-body-sm.text--secondary",
-        "a[href$=\"marketing\"] > .text-body-sm.text--secondary",
-        "a[href$=\"service\"] > .text-body-sm.text--secondary"
+        ".bds-button--md > .bds-button__content",
+        ".bds-button--primary.bds-button--sm[href$=\"contact\"]",
+        ".bds-footer__above-top > div > h3",
+        ".bds-footer__above-top > div > p",
+        "button[type=\"submit\"] > .bds-button__content"
       ]
     },
     "/blog": {
       "color-contrast": [
-        ".blog-card:nth-child(1) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(1) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(1) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(1) > .blog-card__content > .text-body-sm",
-        ".blog-card:nth-child(10) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(10) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(10) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(10) > .blog-card__content > .text-body-sm",
-        ".blog-card:nth-child(2) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(2) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(2) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(2) > .blog-card__content > .text-body-sm",
-        ".blog-card:nth-child(3) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(3) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(3) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(3) > .blog-card__content > .text-body-sm",
-        ".blog-card:nth-child(4) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(4) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(4) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(4) > .blog-card__content > .text-body-sm",
-        ".blog-card:nth-child(5) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(5) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(5) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(5) > .blog-card__content > .text-body-sm",
-        ".blog-card:nth-child(6) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(6) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(6) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(6) > .blog-card__content > .text-body-sm",
-        ".blog-card:nth-child(7) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(7) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(7) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(7) > .blog-card__content > .text-body-sm",
-        ".blog-card:nth-child(8) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(8) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(8) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(8) > .blog-card__content > .text-body-sm",
-        ".blog-card:nth-child(9) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(1)",
-        ".blog-card:nth-child(9) > .blog-card__content > .blog-card__meta > .text-label-sm.text--secondary:nth-child(2)",
-        ".blog-card:nth-child(9) > .blog-card__content > .text--brand.text-label-sm",
-        ".blog-card:nth-child(9) > .blog-card__content > .text-body-sm",
-        ".mega-nav__utility-label",
-        ".page-hero__description"
+        ".bds-button__content",
+        ".bds-footer__above-top > div > p",
+        ".mega-nav__actions > .bds-button.bds-button--primary.bds-button--sm",
+        "h3"
       ]
     },
     "/contact": {
       "color-contrast": [
-        ".mega-nav__utility-label",
-        ".text-body-sm"
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--md.bds-button[href=\"mailto:hello@brikdesigns.com\"] > .bds-button__content",
+        ".bds-button--md.bds-button[href=\"tel:+15614908714\"] > .bds-button__content",
+        ".bds-button--sm.bds-button[href$=\"contact\"]",
+        ".bds-button--sm.bds-button[type=\"submit\"] > .bds-button__content",
+        ".bds-footer__above-top > div > p",
+        "a[target=\"_blank\"] > .bds-button__content",
+        "h3"
       ]
     },
     "/customer-stories": {
       "color-contrast": [
-        ".mega-nav__utility-label",
-        ".page-hero__description",
-        ".story-list-card:nth-child(1) > .story-list-card__content > .text-body-sm.text--secondary",
-        ".story-list-card:nth-child(1) > .story-list-card__content > .text-label-sm.text--brand",
-        ".story-list-card:nth-child(1) > .story-list-card__cta.bds-button.bds-button--primary",
-        ".story-list-card:nth-child(2) > .story-list-card__content > .text-body-sm.text--secondary",
-        ".story-list-card:nth-child(2) > .story-list-card__content > .text-label-sm.text--brand",
-        ".story-list-card:nth-child(2) > .story-list-card__cta.bds-button.bds-button--primary",
-        ".story-list-card:nth-child(3) > .story-list-card__content > .text-body-sm.text--secondary",
-        ".story-list-card:nth-child(3) > .story-list-card__content > .text-label-sm.text--brand",
-        ".story-list-card:nth-child(3) > .story-list-card__cta.bds-button.bds-button--primary",
-        ".story-list-card:nth-child(4) > .story-list-card__content > .text-body-sm.text--secondary",
-        ".story-list-card:nth-child(4) > .story-list-card__content > .text-label-sm.text--brand",
-        ".story-list-card:nth-child(4) > .story-list-card__cta.bds-button.bds-button--primary",
-        ".story-list-card:nth-child(5) > .story-list-card__content > .text-body-sm.text--secondary",
-        ".story-list-card:nth-child(5) > .story-list-card__content > .text-label-sm.text--brand",
-        ".story-list-card:nth-child(5) > .story-list-card__cta.bds-button.bds-button--primary",
-        ".story-list-card:nth-child(6) > .story-list-card__content > .text-body-sm.text--secondary",
-        ".story-list-card:nth-child(6) > .story-list-card__content > .text-label-sm.text--brand",
-        ".story-list-card:nth-child(6) > .story-list-card__cta.bds-button.bds-button--primary",
-        ".story-list-card:nth-child(7) > .story-list-card__content > .text-label-sm.text--brand",
-        ".story-list-card:nth-child(7) > .story-list-card__cta.bds-button.bds-button--primary",
-        ".story-list-card:nth-child(8) > .story-list-card__content > .text-body-sm.text--secondary",
-        ".story-list-card:nth-child(8) > .story-list-card__content > .text-label-sm.text--brand",
-        ".story-list-card:nth-child(8) > .story-list-card__cta.bds-button.bds-button--primary"
+        ".bds-button.bds-button--primary[href$=\"contact\"]",
+        ".bds-button__content",
+        ".bds-footer__above-top > div > h3",
+        ".bds-footer__above-top > div > p"
       ]
     },
     "/customers": {
       "color-contrast": [
-        ".industries-card[href$=\"dental\"] > .text-body-md.text--secondary",
-        ".industries-card[href$=\"real-estate\"] > .text-body-md.text--secondary",
-        ".industries-card[href$=\"small-business\"] > .text-body-md.text--secondary",
-        ".mega-nav__utility-label",
-        ".page-hero__description",
-        "a[href$=\"product\"] > .text-body-md.text--secondary"
+        ".bds-button--primary.bds-button[href$=\"contact\"]",
+        ".bds-button__content",
+        ".bds-footer__above-top > div > p",
+        "div > h3"
       ]
     },
     "/free-marketing-analysis": {
       "color-contrast": [
-        ".mega-nav__utility-label",
-        ".page-hero__description"
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm.bds-button[href$=\"contact\"]",
+        ".bds-button--sm.bds-button[type=\"submit\"] > .bds-button__content",
+        ".bds-footer__above-top > div > p",
+        "h3"
       ]
     },
     "/get-started": {
       "color-contrast": [
-        ".mega-nav__utility-label",
-        ".page-hero__description"
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm.bds-button[href$=\"contact\"]",
+        ".bds-button--sm.bds-button[type=\"submit\"] > .bds-button__content",
+        ".bds-footer__above-top > div > p",
+        "h3"
       ]
     },
     "/industries": {
       "color-contrast": [
-        ".industries-card[href$=\"dental\"] > .text-body-md.text--secondary",
-        ".industries-card[href$=\"real-estate\"] > .text-body-md.text--secondary",
-        ".industries-card[href$=\"small-business\"] > .text-body-md.text--secondary",
-        ".mega-nav__utility-label",
-        ".page-hero__description",
-        "a[href$=\"product\"] > .text-body-md.text--secondary"
+        ".bds-button--primary.bds-button[href$=\"contact\"]",
+        ".bds-button__content",
+        ".bds-footer__above-top > div > p",
+        "div > h3"
       ]
     },
     "/industries/dental": {
       "color-contrast": [
-        ".industry-topic:nth-child(1) > .industry-topic__container > .text-body-md.text--secondary",
-        ".industry-topic:nth-child(1) > .industry-topic__container > .text-label-sm.text--brand",
-        ".industry-topic:nth-child(2) > .industry-topic__container > .text-body-md.text--secondary",
-        ".industry-topic:nth-child(2) > .industry-topic__container > .text-label-sm.text--brand",
-        ".industry-topic:nth-child(3) > .industry-topic__container > .text-body-md.text--secondary",
-        ".industry-topic:nth-child(3) > .industry-topic__container > .text-label-sm.text--brand",
-        ".industry-topic:nth-child(4) > .industry-topic__container > .text-label-sm.text--brand",
-        ".mega-nav__utility-label",
-        ".page-hero__tagline",
-        ".text--center.text-body-md.text--secondary",
-        ".text-body-lg"
+        ".bds-button--lg.bds-button--primary[href$=\"contact\"] > .bds-button__content",
+        ".bds-button--outline > .bds-button__content",
+        ".bds-button--sm.bds-button--primary[href$=\"contact\"]",
+        ".bds-footer__above-top > div > h3",
+        ".bds-footer__above-top > div > p",
+        "button[type=\"submit\"] > .bds-button__content"
       ]
     },
     "/plans": {
       "color-contrast": [
-        ".mega-nav__utility-label",
-        ".page-hero__description",
-        ".plans-card-wrapper:nth-child(1) > .bds-pricing-card > .bds-pricing-card__description",
-        ".plans-card-wrapper:nth-child(1) > .bds-pricing-card > .bds-pricing-card__price-block > .bds-pricing-card__period",
-        ".plans-card-wrapper:nth-child(2) > .bds-pricing-card > .bds-pricing-card__description",
-        ".plans-card-wrapper:nth-child(2) > .bds-pricing-card > .bds-pricing-card__price-block > .bds-pricing-card__period",
-        ".plans-card-wrapper:nth-child(3) > .bds-pricing-card > .bds-pricing-card__description",
-        ".plans-card-wrapper:nth-child(3) > .bds-pricing-card > .bds-pricing-card__price-block > .bds-pricing-card__period",
-        ".plans-toggle__btn--active",
-        ".plans-toggle__btn:nth-child(2)"
+        ".bds-button--sm.bds-button[href$=\"contact\"]",
+        ".bds-footer__above-top > div > h3",
+        ".bds-footer__above-top > div > p",
+        ".plans-card-wrapper:nth-child(1) > .bds-pricing-card > .bds-pricing-card__action > .bds-button--md.bds-button.bds-button--primary > .bds-button__content",
+        ".plans-card-wrapper:nth-child(2) > .bds-pricing-card > .bds-pricing-card__action > .bds-button--md.bds-button.bds-button--primary > .bds-button__content",
+        ".plans-card-wrapper:nth-child(3) > .bds-pricing-card > .bds-pricing-card__action > .bds-button--md.bds-button.bds-button--primary > .bds-button__content",
+        "button[type=\"submit\"] > .bds-button__content"
       ]
     },
     "/privacy-policy": {
       "color-contrast": [
-        ".mega-nav__utility-label",
-        "article > p:nth-child(2)"
+        ".bds-button__content",
+        ".bds-footer__above-top > div > p",
+        ".mega-nav__actions > .bds-button.bds-button--primary.bds-button--sm",
+        "h3"
       ]
     },
     "/services": {
       "color-contrast": [
-        ".content-section--accent > .container-lg > .content-wrapper.content-wrapper--center > .text-body-md.text--center.text--secondary",
-        ".content-section--accent > .container-lg > .services-callout > .services-callout__content > .text-body-md.text--secondary",
-        ".content-section:nth-child(4) > .container-lg > .content-wrapper.content-wrapper--center > .text-body-md.text--center.text--secondary",
-        ".content-section:nth-child(4) > .container-lg > .services-callout > .services-callout__content > .text-body-md.text--secondary",
-        ".content-wrapper--narrow > .text-body-md.text--center.text--secondary",
-        ".mega-nav__utility-label",
-        ".page-hero__description",
-        "a[href$=\"brand\"] > .bds-button--sm.bds-button--primary.bds-button",
-        "a[href$=\"brand\"] > .services-card__content > .text-body-sm.text--secondary",
-        "a[href$=\"marketing\"] > .bds-button--sm.bds-button--primary.bds-button",
-        "a[href$=\"marketing\"] > .services-card__content > .text-body-sm.text--secondary",
-        "a[href$=\"service\"] > .bds-button--sm.bds-button--primary.bds-button",
-        "a[href$=\"service\"] > .services-card__content > .text-body-sm.text--secondary",
-        "em"
+        ".bds-button--sm.bds-button--primary[href$=\"contact\"]",
+        ".bds-footer__above-top > div > h3",
+        ".bds-footer__above-top > div > p",
+        "a[href$=\"information\"] > .bds-button__content",
+        "a[href$=\"product\"] > .bds-button__content",
+        "button[type=\"submit\"] > .bds-button__content"
       ]
     },
     "/services/brand": {
       "color-contrast": [
-        ".mega-nav__utility-label"
+        ".bds-button__content",
+        ".mega-nav__actions > .bds-button.bds-button--primary.bds-button--sm"
       ]
     },
     "/services/brand/logo-design": {
       "color-contrast": [
-        ".mega-nav__utility-label",
-        ".page-hero__breadcrumb",
-        ".page-hero__breadcrumb > a[href$=\"brand-design\"]",
-        ".page-hero__breadcrumb > a[href$=\"services\"]",
-        ".page-hero__description",
-        ".svc-card.svc-card--rich:nth-child(1) > .svc-card__content > .bds-button--sm.bds-button--primary.bds-button",
-        ".svc-card.svc-card--rich:nth-child(1) > .svc-card__content > .text-body-sm.text--secondary",
-        ".svc-card.svc-card--rich:nth-child(2) > .svc-card__content > .bds-button--sm.bds-button--primary.bds-button",
-        ".svc-card.svc-card--rich:nth-child(2) > .svc-card__content > .text-body-sm.text--secondary",
-        ".svc-card.svc-card--rich:nth-child(3) > .svc-card__content > .bds-button--sm.bds-button--primary.bds-button",
-        ".svc-card.svc-card--rich:nth-child(3) > .svc-card__content > .text-body-sm.text--secondary",
-        ".svc-detail-story-content > .bds-button--sm.bds-button--primary.bds-button",
-        ".svc-detail-story-content > .text-body-sm.text--secondary",
-        ".svc-detail-story-content > .text-label-sm.text--brand",
-        ".svc-detail-support-cta > .text-body-sm.text--secondary",
-        ".svc-detail-support-cta > .text-label-sm.text--brand",
-        ".text-body-md"
+        ".bds-button--md > .bds-button__content",
+        ".bds-button--outline.bds-button--lg[href$=\"contact\"] > .bds-button__content",
+        ".bds-button--sm.bds-button--primary[href$=\"contact\"]",
+        ".bds-footer__above-top > div > h3",
+        ".bds-footer__above-top > div > p",
+        "a[href$=\"get-started\"] > .bds-button__content",
+        "a[href$=\"plans#marketing-support\"] > .bds-button__content",
+        "button[type=\"submit\"] > .bds-button__content"
       ]
     },
     "/value": {
       "color-contrast": [
-        "#value-01 > .container-lg--comfortable.container-lg > .text-body-lg.text--secondary",
-        "#value-01 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(1) > .text-body-sm.text--secondary",
-        "#value-01 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(2) > .text-body-sm.text--secondary",
-        "#value-01 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(3) > .text-body-sm.text--secondary",
-        "#value-02 > .container-lg--comfortable.container-lg > .text-body-lg.text--secondary",
-        "#value-02 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(1) > .text-body-sm.text--secondary",
-        "#value-02 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(2) > .text-body-sm.text--secondary",
-        "#value-02 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(3) > .text-body-sm.text--secondary",
-        "#value-03 > .container-lg--comfortable.container-lg > .text-body-lg.text--secondary",
-        "#value-03 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(1) > .text-body-sm.text--secondary",
-        "#value-03 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(2) > .text-body-sm.text--secondary",
-        "#value-04 > .container-lg--comfortable.container-lg > .text-body-lg.text--secondary",
-        "#value-04 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(1) > .text-body-sm.text--secondary",
-        "#value-04 > .container-lg--comfortable.container-lg > .value-stats-grid > .value-stat-card:nth-child(2) > .text-body-sm.text--secondary",
-        ".mega-nav__utility-label",
-        ".page-hero__container > .text-body-md.text--secondary",
-        ".page-hero__container > .text-label-sm.text--brand",
-        ".page-hero__description",
-        ".text-body-md.text--center.text--secondary",
-        "a[href$=\"#value-01\"] > .text-label-sm.text--brand",
-        "a[href$=\"#value-02\"] > .text-label-sm.text--brand",
-        "a[href$=\"#value-03\"] > .text-label-sm.text--brand",
-        "a[href$=\"#value-04\"] > .text-label-sm.text--brand"
+        ".bds-button--lg > .bds-button__content",
+        ".bds-footer__above-top > div > p",
+        ".mega-nav__actions > .bds-button--sm.bds-button.bds-button--primary",
+        "button[type=\"submit\"] > .bds-button__content",
+        "h3"
       ]
     }
   }

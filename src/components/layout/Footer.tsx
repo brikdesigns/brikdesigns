@@ -115,6 +115,11 @@ export function Footer() {
               fontSize: 'var(--heading-md)',
               fontWeight: 'var(--font-weight-bold)' as unknown as number,
               margin: 0,
+              // Explicit because the inline-styled h3 isn't a BDS class,
+              // so the variant="inverse" Footer's bds-footer__heading rule
+              // doesn't catch it; without this, body's --text-primary
+              // inherits = dark text on inverse surface = AA-fail.
+              color: 'var(--text-on-color-dark)',
             }}
           >
             Join Brik by Brik Newsletter
@@ -124,6 +129,7 @@ export function Footer() {
               fontFamily: 'var(--font-family-body)',
               fontSize: 'var(--body-sm)',
               margin: 0,
+              color: 'var(--text-on-color-dark)',
               opacity: 0.8,
             }}
           >
