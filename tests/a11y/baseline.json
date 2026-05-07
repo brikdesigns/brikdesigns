@@ -1,0 +1,4 @@
+{
+  "_comment": "Pre-existing serious/critical findings allowed at baseline-install time. New violations of any rule on any selector still fail CI. Burn-down policy: see tests/a11y/README.md. Format: routes[<path>][<axe-rule-id>] = string[] of CSS selectors to allow. Initially empty — populate from the first CI run if real findings surface.",
+  "routes": {}
+}
