@@ -21,8 +21,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/value`, changeFrequency: 'monthly', priority: 0.6 },
   ];
 
-  // Blog posts (MDX files)
-  const posts = getAllPosts();
+  // Blog posts (Supabase)
+  const posts = await getAllPosts();
   const blogPages: MetadataRoute.Sitemap = posts.map((post) => ({
     url: `${BASE_URL}/blog/${post.slug}`,
     lastModified: post.date ? new Date(post.date) : undefined,

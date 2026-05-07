@@ -65,3 +65,6 @@ export const SERVICES_REVALIDATE_PATHS = ['/services', '/'];
 
 /** Paths revalidated after customer_stories mutations. */
 export const STORIES_REVALIDATE_PATHS = ['/customer-stories', '/'];
+
+/** Paths revalidated after blog_posts mutations. */
+export const BLOG_REVALIDATE_PATHS = ['/blog', '/'];
