@@ -7,6 +7,9 @@ import { TextArea } from '@bds/components/ui/TextArea/TextArea';
 import { Select, type SelectOption } from '@bds/components/ui/Select/Select';
 import { Switch } from '@bds/components/ui/Switch/Switch';
 import { Button } from '@bds/components/ui/Button/Button';
+import { BdsColorPicker } from './BdsColorPicker';
+import { MediaPicker } from './MediaPicker';
+import type { BdsColorToken } from '@/lib/bds-color-tokens';
 
 export type FieldDef =
   | { kind: 'text'; name: string; label: string; required?: boolean; placeholder?: string }
@@ -20,6 +23,20 @@ export type FieldDef =
       options: SelectOption[];
       required?: boolean;
       placeholder?: string;
+    }
+  | {
+      kind: 'color';
+      name: string;
+      label: string;
+      groups: { family: string; tokens: BdsColorToken[] }[];
+      flat: BdsColorToken[];
+    }
+  | {
+      kind: 'media';
+      name: string;
+      label: string;
+      pathPrefix?: string;
+      accept?: string;
     };
 
 export interface EntityFormProps {
@@ -120,6 +137,9 @@ export function EntityForm({
         } else {
           payload[f.name] = s;
         }
+      } else if (f.kind === 'color' || f.kind === 'media') {
+        const s = typeof v === 'string' ? v : '';
+        payload[f.name] = s ? s : null;
       }
     }
 
@@ -223,6 +243,30 @@ export function EntityForm({
               onChange={(e) => setValue(f.name, e.target.value)}
               placeholder={f.placeholder ?? 'Select…'}
               required={f.required}
+            />
+          );
+        }
+        if (f.kind === 'color') {
+          return (
+            <BdsColorPicker
+              key={f.name}
+              label={f.label}
+              value={String(values[f.name] ?? '')}
+              onChange={(v) => setValue(f.name, v)}
+              groups={f.groups}
+              flat={f.flat}
+            />
+          );
+        }
+        if (f.kind === 'media') {
+          return (
+            <MediaPicker
+              key={f.name}
+              label={f.label}
+              value={String(values[f.name] ?? '')}
+              onChange={(v) => setValue(f.name, v)}
+              pathPrefix={f.pathPrefix}
+              accept={f.accept}
             />
           );
         }

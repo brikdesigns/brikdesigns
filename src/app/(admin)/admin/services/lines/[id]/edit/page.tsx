@@ -3,6 +3,7 @@ import { EditPageShell } from '../../../_components/EditPageShell';
 import { EntityForm } from '../../../_components/EntityForm';
 import { serviceLineFields } from '../../../_components/field-configs';
 import { getServiceLineById } from '@/lib/admin/service-lines';
+import { getBdsColorTokens, getGroupedBdsColorTokens } from '@/lib/bds-color-tokens';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -18,6 +19,9 @@ export default async function EditServiceLinePage({ params }: Props) {
   }
   if (!row) notFound();
 
+  const flat = getBdsColorTokens();
+  const groups = getGroupedBdsColorTokens();
+
   return (
     <EditPageShell
       backHref="/admin/services?tab=lines"
@@ -26,7 +30,7 @@ export default async function EditServiceLinePage({ params }: Props) {
       subtitle={`Slug: ${row.slug}`}
     >
       <EntityForm
-        fields={serviceLineFields()}
+        fields={serviceLineFields({ groups, flat })}
         initial={row}
         endpoint="/api/admin/service-lines"
         mode="edit"

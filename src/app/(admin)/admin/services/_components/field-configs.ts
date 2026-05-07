@@ -1,9 +1,17 @@
 import type { SelectOption } from '@bds/components/ui/Select/Select';
 import type { FieldDef } from './EntityForm';
+import type { BdsColorToken } from '@/lib/bds-color-tokens';
 
 type FieldOrSection = FieldDef | { sectionTitle: string };
 
-export function serviceLineFields(): FieldOrSection[] {
+export interface ColorTokenInputs {
+  groups: { family: string; tokens: BdsColorToken[] }[];
+  flat: BdsColorToken[];
+}
+
+export function serviceLineFields(opts: ColorTokenInputs): FieldOrSection[] {
+  const { groups, flat } = opts;
+  const prefix = 'service-lines';
   return [
     { sectionTitle: 'Identity' },
     { kind: 'text', name: 'name', label: 'Name', required: true },
@@ -12,19 +20,19 @@ export function serviceLineFields(): FieldOrSection[] {
     { kind: 'textarea', name: 'description', label: 'Description', rows: 4 },
 
     { sectionTitle: 'Imagery' },
-    { kind: 'text', name: 'hero_image_url', label: 'Hero image URL' },
-    { kind: 'text', name: 'card_image_url', label: 'Card image URL' },
-    { kind: 'text', name: 'primary_badge_url', label: 'Primary badge URL' },
-    { kind: 'text', name: 'secondary_badge_url', label: 'Secondary badge URL' },
+    { kind: 'media', name: 'hero_image_url', label: 'Hero image', pathPrefix: `${prefix}/hero` },
+    { kind: 'media', name: 'card_image_url', label: 'Card image', pathPrefix: `${prefix}/card` },
+    { kind: 'media', name: 'primary_badge_url', label: 'Primary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
+    { kind: 'media', name: 'secondary_badge_url', label: 'Secondary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
 
     { sectionTitle: 'Brand colors' },
-    { kind: 'text', name: 'brand_color_light', label: 'Brand color — light' },
-    { kind: 'text', name: 'brand_color_base', label: 'Brand color — base' },
-    { kind: 'text', name: 'brand_color_dark', label: 'Brand color — dark' },
+    { kind: 'color', name: 'brand_color_light', label: 'Brand color — light', groups, flat },
+    { kind: 'color', name: 'brand_color_base', label: 'Brand color — base', groups, flat },
+    { kind: 'color', name: 'brand_color_dark', label: 'Brand color — dark', groups, flat },
 
     { sectionTitle: 'Linking' },
     { kind: 'text', name: 'support_plan_slug', label: 'Support plan slug' },
-    { kind: 'text', name: 'support_plan_image_url', label: 'Support plan image URL' },
+    { kind: 'media', name: 'support_plan_image_url', label: 'Support plan image', pathPrefix: `${prefix}/support-plan` },
 
     { sectionTitle: 'Publishing' },
     { kind: 'number', name: 'rank', label: 'Display rank (lower = earlier)' },
@@ -33,6 +41,7 @@ export function serviceLineFields(): FieldOrSection[] {
 }
 
 export function serviceFields(serviceLineOptions: SelectOption[]): FieldOrSection[] {
+  const prefix = 'services';
   return [
     { sectionTitle: 'Identity' },
     { kind: 'text', name: 'name', label: 'Name', required: true },
@@ -49,9 +58,9 @@ export function serviceFields(serviceLineOptions: SelectOption[]): FieldOrSectio
     { kind: 'textarea', name: 'description', label: 'Description', rows: 4 },
 
     { sectionTitle: 'Imagery' },
-    { kind: 'text', name: 'image_url', label: 'Image URL' },
-    { kind: 'text', name: 'primary_badge_url', label: 'Primary badge URL' },
-    { kind: 'text', name: 'secondary_badge_url', label: 'Secondary badge URL' },
+    { kind: 'media', name: 'image_url', label: 'Image', pathPrefix: `${prefix}/image` },
+    { kind: 'media', name: 'primary_badge_url', label: 'Primary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
+    { kind: 'media', name: 'secondary_badge_url', label: 'Secondary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
 
     { sectionTitle: 'Linking' },
     { kind: 'text', name: 'related_service_slug', label: 'Related service slug' },
@@ -65,6 +74,7 @@ export function serviceFields(serviceLineOptions: SelectOption[]): FieldOrSectio
 }
 
 export function offeringFields(serviceOptions: SelectOption[]): FieldOrSection[] {
+  const prefix = 'offerings';
   return [
     { sectionTitle: 'Identity' },
     { kind: 'text', name: 'name', label: 'Name', required: true },
@@ -82,11 +92,11 @@ export function offeringFields(serviceOptions: SelectOption[]): FieldOrSection[]
     { kind: 'textarea', name: 'marketing_description', label: 'Marketing description', rows: 4 },
 
     { sectionTitle: 'Imagery' },
-    { kind: 'text', name: 'image_url', label: 'Image URL' },
-    { kind: 'text', name: 'hero_image_url', label: 'Hero image URL' },
-    { kind: 'text', name: 'card_image_url', label: 'Card image URL' },
-    { kind: 'text', name: 'primary_badge_url', label: 'Primary badge URL' },
-    { kind: 'text', name: 'secondary_badge_url', label: 'Secondary badge URL' },
+    { kind: 'media', name: 'image_url', label: 'Image', pathPrefix: `${prefix}/image` },
+    { kind: 'media', name: 'hero_image_url', label: 'Hero image', pathPrefix: `${prefix}/hero` },
+    { kind: 'media', name: 'card_image_url', label: 'Card image', pathPrefix: `${prefix}/card` },
+    { kind: 'media', name: 'primary_badge_url', label: 'Primary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
+    { kind: 'media', name: 'secondary_badge_url', label: 'Secondary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
 
     { sectionTitle: 'Flags' },
     { kind: 'switch', name: 'is_featured', label: 'Featured' },
