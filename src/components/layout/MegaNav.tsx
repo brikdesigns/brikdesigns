@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
 import type { ServiceCategory } from '@bds/components/ui/ServiceBadge/ServiceBadge';
+import { composeButtonClasses } from '@bds/components/ui/Button/Button';
 import { ThemeToggle } from './ThemeToggle';
 import '@bds/components/ui/Button/Button.css';
 import './MegaNav.css';
@@ -201,7 +202,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         </p>
                         <Link
                           href="/services/product-design"
-                          className="bds-button bds-button--primary bds-button--sm"
+                          className={composeButtonClasses({ variant: 'primary', size: 'sm' })}
                           onClick={() => setOpen(null)}
                         >
                           Learn More
@@ -236,7 +237,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
                       </p>
-                      <Link href="/customers" className="bds-button bds-button--primary bds-button--sm" onClick={() => setOpen(null)}>
+                      <Link href="/customers" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
                         Learn More
                       </Link>
                     </div>
@@ -261,7 +262,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             </div>
                             <span className="mega-nav__industry-name">{ind.name}</span>
                             <span className="mega-nav__industry-tagline">{ind.tagline}</span>
-                            <span className="bds-button bds-button--secondary bds-button--sm">View Details <ArrowRight /></span>
+                            <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}>View Details <ArrowRight /></span>
                           </Link>
                         ))}
                       </div>
@@ -274,7 +275,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                       >
                         <span className="mega-nav__stories-promo-title">Customer Stories</span>
                         <span className="mega-nav__stories-promo-desc">Real stories, real results. See what we&apos;ve built together.</span>
-                        <span className="bds-button bds-button--primary bds-button--sm">View Stories</span>
+                        <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>View Stories</span>
                       </Link>
                     </div>
                   </div>
@@ -341,7 +342,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
                       </p>
-                      <Link href="/plans" className="bds-button bds-button--primary bds-button--sm" onClick={() => setOpen(null)}>
+                      <Link href="/plans" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
                         Learn More
                       </Link>
                     </div>
@@ -381,7 +382,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
 
           {/* Webflow: .nav-button-wrapper — CTA + mobile toggle, far right */}
           <div className="mega-nav__actions">
-            <Link href="/contact" className="bds-button bds-button--primary bds-button--sm">
+            <Link href="/contact" className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>
               Let&apos;s Talk
             </Link>
             <button
@@ -443,7 +444,7 @@ function AboutNavCard({ href, image, title, desc, cta, onClick }: {
       </div>
       <span className="mega-nav__about-card-title">{title}</span>
       <span className="mega-nav__about-card-desc">{desc}</span>
-      <span className="bds-button bds-button--secondary bds-button--sm">{cta} <ArrowRight /></span>
+      <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}>{cta} <ArrowRight /></span>
     </Link>
   );
 }

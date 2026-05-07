@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { composeButtonClasses } from '@bds/components/ui/Button/Button';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import '../shared-sections.css';
 import './industries.css';
@@ -34,7 +35,7 @@ export default async function IndustriesPage() {
                 {ind.tagline && (
                   <p className="text-body-md text--secondary">{ind.tagline}</p>
                 )}
-                <span className="bds-button bds-button--secondary bds-button--sm" style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
+                <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })} style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
                   Learn More
                 </span>
               </Link>

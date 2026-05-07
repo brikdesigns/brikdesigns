@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { composeButtonClasses } from '@bds/components/ui/Button/Button';
 import { getCustomerStories } from '@/lib/supabase/queries';
 import '../shared-sections.css';
 import './customer-stories.css';
@@ -42,7 +43,7 @@ export default async function CustomerStoriesPage() {
                     {story.industry && <p className="text-label-sm text--brand">{story.industry}</p>}
                     {story.short_description && <p className="text-body-sm text--secondary">{story.short_description}</p>}
                   </div>
-                  <span className="bds-button bds-button--primary bds-button--sm story-list-card__cta">Read Story</span>
+                  <span className={`${composeButtonClasses({ variant: 'primary', size: 'sm' })} story-list-card__cta`}>Read Story</span>
                 </Link>
               ))}
             </div>

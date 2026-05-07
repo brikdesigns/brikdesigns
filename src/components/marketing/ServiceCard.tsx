@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
 import type { ServiceCategory } from '@bds/components/ui/ServiceBadge/ServiceBadge';
+import { composeButtonClasses } from '@bds/components/ui/Button/Button';
 interface ServiceCardProps {
   name: string;
   slug: string;
@@ -36,7 +37,7 @@ export function ServiceCard({
         {tagline && <p className="text-body-sm text--secondary">{tagline}</p>}
         {description && <p className="text-body-sm text--secondary">{description}</p>}
         {showCta && (
-          <span className="bds-button bds-button--primary bds-button--sm">Learn More</span>
+          <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>Learn More</span>
         )}
       </div>
     </Link>

@@ -6,6 +6,7 @@ import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupp
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import { composeButtonClasses } from '@bds/components/ui/Button/Button';
 import '../../shared-sections.css';
 import '../services.css';
 
@@ -160,7 +161,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
                   )}
                   <h3 className="text-heading-sm">{cat.name}</h3>
                   {cat.tagline && <p className="text-body-sm text--secondary">{cat.tagline}</p>}
-                  <span className="bds-button bds-button--secondary bds-button--sm" style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
+                  <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })} style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
                     Learn more
                   </span>
                 </Link>
