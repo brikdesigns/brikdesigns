@@ -184,6 +184,7 @@ export function Footer() {
         { label: 'Privacy policy', href: '/privacy-policy' },
       ]}
       socialLinks={<span>Made with ❤️ in Palm Beach, FL</span>}
+      variant="inverse"
     />
   );
 }
