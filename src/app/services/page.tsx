@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { LinkButton } from '@bds/components/ui/Button/LinkButton';
 import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
 import '../shared-sections.css';
@@ -46,9 +47,9 @@ export default async function ServicesPage() {
             From branding to websites to behind-the-scenes systems, we help you build a
             business that looks good <em>and</em> works better.
           </p>
-          <a href="/contact" className="bds-button bds-button--inverse bds-button--lg">
+          <LinkButton href="/contact" variant="inverse" size="lg">
             Let&apos;s Talk
-          </a>
+          </LinkButton>
         </div>
       </section>
 

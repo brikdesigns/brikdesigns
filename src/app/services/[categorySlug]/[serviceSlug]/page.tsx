@@ -13,6 +13,7 @@ import {
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import { composeButtonClasses } from '@bds/components/ui/Button/Button';
 import '../../../shared-sections.css';
 import '../../services.css';
 
@@ -233,7 +234,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 {relatedStory.short_description && (
                   <p className="text-body-sm text--secondary">{relatedStory.short_description}</p>
                 )}
-                <span className="bds-button bds-button--primary bds-button--sm" style={{ alignSelf: 'flex-start' }}>
+                <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })} style={{ alignSelf: 'flex-start' }}>
                   Read Story
                 </span>
               </div>

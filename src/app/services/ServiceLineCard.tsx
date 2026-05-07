@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ServiceBadge } from '@bds/components/ui/ServiceBadge/ServiceBadge';
 import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import { composeButtonClasses } from '@bds/components/ui/Button/Button';
 import type { ServiceCategory } from '@bds/components/ui/ServiceBadge/ServiceBadge';
 
 interface ServiceLineCardProps {
@@ -30,7 +31,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
         <h3 className="text-heading-sm">{name}</h3>
         <p className="text-body-sm text--secondary">{tagline}</p>
       </div>
-      <span className="bds-button bds-button--primary bds-button--sm">Learn more</span>
+      <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>Learn more</span>
     </Link>
   );
 }

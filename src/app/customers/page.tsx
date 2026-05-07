@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LinkButton } from '@bds/components/ui/Button/LinkButton';
+import { composeButtonClasses } from '@bds/components/ui/Button/Button';
 import '../shared-sections.css';
 import './customers.css';
 
@@ -145,7 +146,7 @@ export default function CustomersPage() {
               <Link key={ind.slug} href={`/customers/${ind.slug}`} className="customers-detail-card">
                 <h3 className="text-heading-sm">{ind.name}</h3>
                 <p className="text-body-sm text--secondary">{ind.tagline}</p>
-                <span className="bds-button bds-button--secondary bds-button--sm">Learn More</span>
+                <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}>Learn More</span>
               </Link>
             ))}
           </div>
