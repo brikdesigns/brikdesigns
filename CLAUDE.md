@@ -61,7 +61,7 @@ This site represents **Brik Designs company brand** — not any numbered BDS tem
 
 ## Content & Notion
 
-Blog posts and marketing copy sourced from Notion. Use `/blog-rewrite` skill for StoryBrand + Sandler + SEO optimization. Brik Voice guide: `brik-llm/foundations/BRIK-VOICE.md`.
+Blog posts and marketing copy sourced from Notion. Use `/blog-rewrite` skill for StoryBrand + Sandler + SEO optimization. Brik Voice substrate: [`brik-bds/content-system/brand/Brik.mdx`](https://design.brikdesigns.com/docs/content-system/brand/Brik).
 
 ## Rules
 
