@@ -40,7 +40,7 @@ export default async function IndustryDetailPage({ params }: Props) {
   return (
     <>
       {/* Hero */}
-      <section className="page-hero page-hero--brand">
+      <section className="page-hero">
         <div className="page-hero__container">
           <h1 className="page-hero__title">{page.name}</h1>
           {page.tagline && (
