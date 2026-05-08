@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getCustomerStories } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
@@ -32,7 +33,7 @@ export default async function CustomerStoriesPage() {
       <section className="content-section stories-section">
         <div className="container-lg">
           {stories && stories.length > 0 ? (
-            <div className="grid-2">
+            <div className="story-list">
               {stories.map((story) => (
                 <Link key={story.id} href={`/customer-stories/${story.slug}`} className="story-list-card">
                   {story.hero_image_url && (
@@ -52,6 +53,19 @@ export default async function CustomerStoriesPage() {
           ) : (
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>Customer stories coming soon.</p>
           )}
+        </div>
+      </section>
+
+      {/* Bottom Get In Touch CTA — Webflow shows this on the customer-stories index */}
+      <section className="stories-cta-section">
+        <div className="stories-cta-card">
+          <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>Get in Touch</h2>
+          <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0, opacity: 0.9 }}>
+            Starting a new project or want to collaborate with us?
+          </p>
+          <LinkButton href="/contact" variant="inverse" size="lg">
+            Let&apos;s Talk
+          </LinkButton>
         </div>
       </section>
     </>
