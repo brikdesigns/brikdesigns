@@ -1,20 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@brikdesigns/bds';
-import { TextInput } from '@brikdesigns/bds';
-import { TextArea } from '@brikdesigns/bds';
+import { Button, TextInput, TextArea } from '@brikdesigns/bds';
+import { useFormSubmit } from '@/lib/hooks/useFormSubmit';
+import { FormError } from '@/components/marketing/forms/FormError';
+import { FormSuccessCard } from '@/components/marketing/forms/FormSuccessCard';
 
 export function ContactForm() {
-  const [formState, setFormState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+  const { isSubmitting, isSuccess, isError, error, submit } = useFormSubmit({
+    endpoint: '/api/leads',
+  });
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setFormState('submitting');
-
     const form = new FormData(e.currentTarget);
-    const body = {
+    await submit({
       name: form.get('name'),
       email: form.get('email'),
       company_name: form.get('company_name') || 'Not provided',
@@ -22,44 +21,15 @@ export function ContactForm() {
       source: 'contact',
       // Honeypot — bots fill every field, real users don't see this one.
       website_url: form.get('website_url') || '',
-    };
-
-    try {
-      const res = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Something went wrong.');
-      }
-
-      setFormState('success');
-    } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : 'Something went wrong.');
-      setFormState('error');
-    }
+    });
   }
 
-  if (formState === 'success') {
+  if (isSuccess) {
     return (
-      <div
-        style={{
-          padding: 'var(--padding-xl)',
-          backgroundColor: 'var(--surface-success)',
-          borderRadius: 'var(--border-radius-lg)',
-          textAlign: 'center',
-        }}
-      >
-        <h2 style={{ fontFamily: 'var(--font-family-heading)', fontSize: 'var(--heading-md)', color: 'var(--text-success)' }}>
-          Message sent!
-        </h2>
-        <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', marginTop: 'var(--gap-sm)' }}>
-          We&apos;ll get back to you within 1 business day.
-        </p>
-      </div>
+      <FormSuccessCard
+        title="Message sent!"
+        body="We'll get back to you within 1 business day."
+      />
     );
   }
 
@@ -85,14 +55,10 @@ export function ContactForm() {
         rows={5}
       />
 
-      {formState === 'error' && (
-        <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-sm)', color: 'var(--text-negative)' }}>
-          {errorMessage}
-        </p>
-      )}
+      {isError && <FormError message={error} />}
 
-      <Button type="submit" variant="primary" size="lg" fullWidth loading={formState === 'submitting'}>
-        {formState === 'submitting' ? 'Sending...' : 'Send Message'}
+      <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting}>
+        {isSubmitting ? 'Sending...' : 'Send Message'}
       </Button>
     </form>
   );
