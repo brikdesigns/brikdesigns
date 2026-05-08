@@ -1,31 +1,75 @@
-/* ─── Free Marketing Analysis — layout only ─────────────── */
+/* ─── Free Marketing Analysis ──────────────────────────────
+   Webflow target: orange brand background; 2-col layout with
+   text content (left) + white form card (right).
+   ──────────────────────────────────────────────────────────── */
 
-.fma-hero-layout {
+.fma-section {
+  background-color: var(--surface-brand-primary);
+  min-height: 100vh;
+  padding: var(--padding-huge) 0;
   display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.fma-layout {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 var(--padding-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: var(--gap-xl);
-  align-items: center;
+  align-items: start;
 }
 
-.fma-hero-content {
-  flex: 1 1 400px;
+.fma-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  padding-top: var(--padding-md);
 }
 
-.fma-hero-image {
-  flex: 0 0 320px;
+.fma-review {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
 }
 
-.fma-form-wrapper {
-  margin-top: var(--gap-xl);
+.fma-review-list {
+  list-style: disc;
+  padding-left: var(--padding-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  margin: 0;
+}
+
+.fma-form-card {
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--padding-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.fma-form-card > div[id^="loading"],
+.fma-form-card > form {
+  margin-top: var(--gap-md);
 }
 
 @media (max-width: 991px) {
-  .fma-hero-layout {
-    flex-direction: column;
+  .fma-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .fma-section {
+    padding: var(--padding-xl) 0;
   }
 
-  .fma-hero-image {
-    flex: none;
-    width: 100%;
-    max-width: 320px;
+  .fma-form-card {
+    padding: var(--padding-lg);
   }
 }

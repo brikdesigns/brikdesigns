@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import { Suspense } from 'react';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
-import { heading } from '@/lib/styles';
-import '../shared-sections.css';
+import { text, heading, label } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import './free-marketing-analysis.css';
 
 export const metadata: Metadata = {
@@ -11,43 +10,53 @@ export const metadata: Metadata = {
   description: 'Get a free marketing analysis from Brik Designs. We\'ll review your brand, website, and marketing presence and give you actionable next steps.',
 };
 
+const REVIEW_ITEMS = [
+  'Your website (design, SEO, usability)',
+  'Local listings (accuracy + visibility)',
+  'Online reviews (strengths + red flags)',
+  'Brand presence across platforms',
+  'Competitors in your area',
+];
+
 export default function FreeMarketingAnalysisPage() {
   return (
-    <>
-      <section className="page-hero">
-        <div className="page-hero__container">
-          <div className="fma-hero-layout">
-            <div className="fma-hero-content">
-              <h1 className="page-hero__title">
-                Not sure what you need yet?
-              </h1>
-              <p style={heading.md}>
-                Start with a <em>free</em> marketing assessment.
-              </p>
-              <p className="page-hero__description">
-                We&apos;ll review your current marketing, systems, and tools &mdash; and send you
-                a 3-part plan to fix what&apos;s holding you back.
-              </p>
-              <div className="fma-form-wrapper">
-                <Suspense fallback={<div>Loading form...</div>}>
-                  <LeadCaptureForm source="marketing_analysis" />
-                </Suspense>
-              </div>
-            </div>
-            <div className="fma-hero-image">
-              <div className="img-frame">
-                <Image
-                  src="/images/3d-form-robot.png"
-                  alt="3D clay form illustration"
-                  width={504}
-                  height={504}
-                  style={{ width: '100%', height: 'auto' }}
-                />
-              </div>
-            </div>
+    <section className="fma-section">
+      <div className="fma-layout">
+        <div className="fma-content">
+          <h1 style={{ ...heading.lg, color: color.text.onColorDark, margin: 0 }}>
+            The Brikdown
+          </h1>
+          <p style={{ ...text.bodyLg, color: color.text.onColorDark, margin: 0}}>
+            Before we discuss, plan, or propose&mdash;we break (or brik) it down.
+          </p>
+          <p style={{ ...text.body, color: color.text.onColorDark, margin: 0}}>
+            <strong>The Brikdown</strong> is our free marketing assessment that looks at how your business is represented online and where the cracks might be. We&apos;ll review your website, local listings, reviews, branding, and SEO&mdash;then deliver clear insights you can actually use. Strategic, straightforward, and built to give you clarity, fast.
+          </p>
+          <div className="fma-review">
+            <p style={{ ...label.smBold, color: color.text.onColorDark, margin: 0 }}>We&apos;ll review:</p>
+            <ul className="fma-review-list">
+              {REVIEW_ITEMS.map((item) => (
+                <li key={item} style={{ ...text.body, color: color.text.onColorDark}}>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
+          <p style={{ ...text.body, color: color.text.onColorDark, margin: 0}}>
+            You&apos;ll walk away with insights you can act on&mdash;whether you work with us or not.
+          </p>
         </div>
-      </section>
-    </>
+
+        <div className="fma-form-card">
+          <h2 style={{ ...heading.md, margin: 0 }}>Share your details</h2>
+          <p style={{ ...text.bodySm, color: color.text.secondary, margin: 0 }}>
+            Provide your contact details and we&apos;ll reach out.
+          </p>
+          <Suspense fallback={<div>Loading form...</div>}>
+            <LeadCaptureForm source="marketing_analysis" />
+          </Suspense>
+        </div>
+      </div>
+    </section>
   );
 }
