@@ -30,6 +30,9 @@ export default async function BlogPage() {
 
       <section className="content-section blog-section">
         <div className="container-lg">
+          <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
+            <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Latest Posts</h2>
+          </div>
           <div className="blog-grid">
             {posts.map((post) => (
               <Link key={post.slug} href={`/blog/${post.slug}`} className="blog-card">
