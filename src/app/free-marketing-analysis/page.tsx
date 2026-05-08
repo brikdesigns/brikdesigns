@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Suspense } from 'react';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
+import { heading } from '@/lib/styles';
 import '../shared-sections.css';
 import './free-marketing-analysis.css';
 
@@ -20,7 +21,7 @@ export default function FreeMarketingAnalysisPage() {
               <h1 className="page-hero__title">
                 Not sure what you need yet?
               </h1>
-              <p className="text-heading-md">
+              <p style={heading.md}>
                 Start with a <em>free</em> marketing assessment.
               </p>
               <p className="page-hero__description">

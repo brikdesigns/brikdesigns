@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getAllPosts } from '@/lib/blog';
+import { text, heading, label } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './blog.css';
 
@@ -37,15 +39,15 @@ export default async function BlogPage() {
                   </div>
                 )}
                 <div className="blog-card__content">
-                  <h2 className="text-heading-sm">{post.title}</h2>
+                  <h2 style={heading.sm}>{post.title}</h2>
                   <div className="blog-card__meta">
-                    <span className="text-label-sm text--secondary">
+                    <span style={{ ...label.smBold, color: color.text.secondary }}>
                       {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
-                    {post.duration && <span className="text-label-sm text--secondary">{post.duration}</span>}
+                    {post.duration && <span style={{ ...label.smBold, color: color.text.secondary }}>{post.duration}</span>}
                   </div>
-                  <p className="text-body-sm text--secondary">{post.summary}</p>
-                  {post.category && <span className="text-label-sm text--brand">{post.category}</span>}
+                  <p style={{ ...text.bodySm, color: color.text.secondary }}>{post.summary}</p>
+                  {post.category && <span style={{ ...label.smBold, color: color.text.brand }}>{post.category}</span>}
                 </div>
               </Link>
             ))}

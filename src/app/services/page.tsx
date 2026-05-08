@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { LinkButton } from '@brikdesigns/bds';
 import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
+import { text, heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './services.css';
 
@@ -57,8 +59,8 @@ export default async function ServicesPage() {
       <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 className="text-heading-lg text--center">Our Services</h2>
-            <p className="text-body-md text--secondary text--center">
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
+            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               We offer design services at every stage of your business growth — from establishment to maturity.
             </p>
           </div>
@@ -85,8 +87,8 @@ export default async function ServicesPage() {
             <div className="container-lg">
               {copy && (
                 <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-                  <h2 className="text-heading-lg text--center">{copy.heading}</h2>
-                  <p className="text-body-md text--secondary text--center">{copy.subheading}</p>
+                  <h2 style={{ ...heading.lg, textAlign: 'center' }}>{copy.heading}</h2>
+                  <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>{copy.subheading}</p>
                 </div>
               )}
               <ServiceCallout

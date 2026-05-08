@@ -7,6 +7,8 @@ import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 import { LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { text, heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../services.css';
 
@@ -104,7 +106,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
       {/* ═══ Service Cards ═══ */}
       <section id="services" className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
-          <h2 className="text-heading-lg text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
+          <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {category.name} Services
           </h2>
           <div className="grid-3">
@@ -130,14 +132,14 @@ export default async function ServiceCategoryPage({ params }: Props) {
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-              <h2 className="text-heading-md text--center">Monthly support services</h2>
-              <p className="text-body-md text--secondary text--center">
+              <h2 style={{ ...heading.md, textAlign: 'center' }}>Monthly support services</h2>
+              <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 Join our monthly support plan to get professional advice without the need for a team.
               </p>
             </div>
             <div className="svc-detail-support-cta">
-              <h3 className="text-heading-sm">{supportPlan.name}</h3>
-              <p className="text-body-sm text--secondary">{supportPlan.description}</p>
+              <h3 style={heading.sm}>{supportPlan.name}</h3>
+              <p style={{ ...text.bodySm, color: color.text.secondary }}>{supportPlan.description}</p>
               <LinkButton href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn more</LinkButton>
             </div>
           </div>
@@ -148,7 +150,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
       {otherCategories.length > 0 && (
         <section className="content-section content-section--accent">
           <div className="container-lg container-lg--comfortable">
-            <h2 className="text-heading-md text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
+            <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Other Design Services
             </h2>
             <div className="svc-category-others">
@@ -159,8 +161,8 @@ export default async function ServiceCategoryPage({ params }: Props) {
                       <Image src={cat.hero_image_url} alt={cat.name} width={300} height={200} />
                     </div>
                   )}
-                  <h3 className="text-heading-sm">{cat.name}</h3>
-                  {cat.tagline && <p className="text-body-sm text--secondary">{cat.tagline}</p>}
+                  <h3 style={heading.sm}>{cat.name}</h3>
+                  {cat.tagline && <p style={{ ...text.bodySm, color: color.text.secondary }}>{cat.tagline}</p>}
                   <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })} style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
                     Learn more
                   </span>

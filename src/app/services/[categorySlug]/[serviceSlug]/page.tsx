@@ -14,6 +14,8 @@ import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { text, heading, label } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../../../shared-sections.css';
 import '../../services.css';
 
@@ -140,8 +142,8 @@ export default async function ServiceDetailPage({ params }: Props) {
                 </div>
                 {startingPrice && (
                   <div className="svc-detail-hero__price-card">
-                    <span className="text-label-sm text--secondary">Starting at</span>
-                    <span className="text-heading-lg text--brand">{startingPrice}</span>
+                    <span style={{ ...label.smBold, color: color.text.secondary }}>Starting at</span>
+                    <span style={{ ...heading.lg, color: color.text.brand }}>{startingPrice}</span>
                     <LinkButton href="/contact" variant="primary" size="sm">Let&apos;s Talk</LinkButton>
                   </div>
                 )}
@@ -155,7 +157,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       {sortedOfferings.length > 0 && (
         <section id="pricing" className="content-section content-section--secondary">
           <div className="container-lg">
-            <h2 className="text-heading-lg text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
+            <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Pricing Options
             </h2>
             <div className={`svc-detail-offerings ${sortedOfferings.length >= 3 ? 'svc-detail-offerings--grid' : ''}`}>
@@ -170,29 +172,29 @@ export default async function ServiceDetailPage({ params }: Props) {
                         serviceName={off.name}
                       />
                     )}
-                    <h3 className="text-heading-sm">{off.name}</h3>
+                    <h3 style={heading.sm}>{off.name}</h3>
                   </div>
                   {off.description && (
-                    <p className="text-body-sm text--secondary">{off.description}</p>
+                    <p style={{ ...text.bodySm, color: color.text.secondary }}>{off.description}</p>
                   )}
                   <div className="svc-detail-offering-meta">
                     <div className="svc-detail-offering-price-row">
-                      <span className="text-label-sm text--secondary">Price</span>
+                      <span style={{ ...label.smBold, color: color.text.secondary }}>Price</span>
                       {off.price_display && (
-                        <span className="text-heading-sm text--brand">{off.price_display}</span>
+                        <span style={{ ...heading.sm, color: color.text.brand }}>{off.price_display}</span>
                       )}
                     </div>
                     {off.price_model && (
                       <div className="svc-detail-offering-price-row">
-                        <span className="text-label-sm text--secondary">Type</span>
-                        <span className="text-label-sm">{off.price_model}</span>
+                        <span style={{ ...label.smBold, color: color.text.secondary }}>Type</span>
+                        <span style={label.smBold}>{off.price_model}</span>
                       </div>
                     )}
                   </div>
                   {off.what_you_get && (
                     <div className="svc-detail-offering-includes">
-                      <span className="text-label-sm">What you get:</span>
-                      <p className="text-body-sm text--secondary">{off.what_you_get}</p>
+                      <span style={label.smBold}>What you get:</span>
+                      <p style={{ ...text.bodySm, color: color.text.secondary }}>{off.what_you_get}</p>
                     </div>
                   )}
                   <LinkButton href="/contact" variant="primary" size="sm">
@@ -209,7 +211,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       {relatedStory && (
         <section className="content-section">
           <div className="container-lg">
-            <h2 className="text-heading-md text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
+            <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Related Customer Story
             </h2>
             <Link
@@ -227,12 +229,12 @@ export default async function ServiceDetailPage({ params }: Props) {
                 </div>
               )}
               <div className="svc-detail-story-content">
-                <p className="text-label-sm text--brand">
+                <p style={{ ...label.smBold, color: color.text.brand }}>
                   We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.
                 </p>
-                <h3 className="text-heading-sm">{relatedStory.name || relatedStory.client_name}</h3>
+                <h3 style={heading.sm}>{relatedStory.name || relatedStory.client_name}</h3>
                 {relatedStory.short_description && (
-                  <p className="text-body-sm text--secondary">{relatedStory.short_description}</p>
+                  <p style={{ ...text.bodySm, color: color.text.secondary }}>{relatedStory.short_description}</p>
                 )}
                 <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })} style={{ alignSelf: 'flex-start' }}>
                   Read Story
@@ -247,7 +249,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       {relatedService && (
         <section className="content-section content-section--accent">
           <div className="container-lg">
-            <h2 className="text-heading-md text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
+            <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Recommended Add-On Service
             </h2>
             <div className="svc-detail-addon-card">
@@ -266,9 +268,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                   category={mapCategorySlug(relatedCatSlug)}
                   serviceName={relatedService.name}
                 />
-                <h3 className="text-heading-sm">{relatedService.name}</h3>
+                <h3 style={heading.sm}>{relatedService.name}</h3>
                 {(relatedService.marketing_description || relatedService.tagline) && (
-                  <p className="text-body-sm text--secondary">
+                  <p style={{ ...text.bodySm, color: color.text.secondary }}>
                     {relatedService.marketing_description || relatedService.tagline}
                   </p>
                 )}
@@ -289,7 +291,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       {siblingServices.length > 0 && (
         <section className="content-section content-section--secondary">
           <div className="container-lg container-lg--comfortable">
-            <h2 className="text-heading-md text--center" style={{ marginBottom: 'var(--gap-lg)' }}>
+            <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Other {category?.name || ''} Services
             </h2>
             <div className="grid-3">
@@ -316,9 +318,9 @@ export default async function ServiceDetailPage({ params }: Props) {
         <section className="content-section">
           <div className="container-lg">
             <div className="svc-detail-support-cta">
-              <p className="text-label-sm text--brand">Want a partner to avoid the full-time hassle?</p>
-              <h2 className="text-heading-md">{supportPlan.name}</h2>
-              <p className="text-body-sm text--secondary">{supportPlan.description}</p>
+              <p style={{ ...label.smBold, color: color.text.brand }}>Want a partner to avoid the full-time hassle?</p>
+              <h2 style={heading.md}>{supportPlan.name}</h2>
+              <p style={{ ...text.bodySm, color: color.text.secondary }}>{supportPlan.description}</p>
               <LinkButton href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn More</LinkButton>
             </div>
           </div>
@@ -329,8 +331,8 @@ export default async function ServiceDetailPage({ params }: Props) {
       <section className="content-section content-section--secondary">
         <div className="container-lg">
           <div className="content-wrapper content-wrapper--center">
-            <h2 className="text-heading-lg text--center">Interested in {service.name}?</h2>
-            <p className="text-body-md text--secondary text--center">Let&apos;s talk about what you need.</p>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Interested in {service.name}?</h2>
+            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>Let&apos;s talk about what you need.</p>
             <div className="button-wrapper button-wrapper--center">
               <LinkButton href="/get-started" variant="primary" size="lg">Get Started</LinkButton>
               <LinkButton href="/contact" variant="outline" size="lg">Let&apos;s Talk</LinkButton>

@@ -6,6 +6,8 @@ import { ServiceBadge } from '@brikdesigns/bds';
 import { LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceCategory } from '@brikdesigns/bds';
+import { text, heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 
 interface ServiceLineCardProps {
   name: string;
@@ -28,8 +30,8 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
       </div>
       <div className="services-card__content">
         <ServiceBadge category={category} size="md" />
-        <h3 className="text-heading-sm">{name}</h3>
-        <p className="text-body-sm text--secondary">{tagline}</p>
+        <h3 style={heading.sm}>{name}</h3>
+        <p style={{ ...text.bodySm, color: color.text.secondary }}>{tagline}</p>
       </div>
       <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>Learn more</span>
     </Link>
@@ -57,8 +59,8 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
       </div>
       <div className="services-callout__content">
         <ServiceBadge category={category} size="md" />
-        <h2 className="text-heading-lg">{name}</h2>
-        <p className="text-body-md text--secondary">{description}</p>
+        <h2 style={heading.lg}>{name}</h2>
+        <p style={{ ...text.body, color: color.text.secondary }}>{description}</p>
         <LinkButton href={`/services/${slug}`} variant="primary" size="md">
           Learn more
         </LinkButton>

@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getIndustryPageBySlug } from '@/lib/supabase/queries';
 import { LinkButton } from '@brikdesigns/bds';
+import { text, heading, label } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../industries.css';
 
@@ -53,10 +55,10 @@ export default async function IndustryDetailPage({ params }: Props) {
           <div className="container-lg">
             <div className="industry-intro">
               {page.intro_title && (
-                <h2 className="text-heading-md">{page.intro_title}</h2>
+                <h2 style={heading.md}>{page.intro_title}</h2>
               )}
               {page.intro_description && (
-                <p className="text-body-lg text--secondary" style={{ marginTop: 'var(--gap-md)', lineHeight: 1.7 }}>
+                <p style={{ ...text.bodyLg, color: color.text.secondary, marginTop: 'var(--gap-md)', lineHeight: 1.7 }}>
                   {page.intro_description}
                 </p>
               )}
@@ -72,12 +74,12 @@ export default async function IndustryDetailPage({ params }: Props) {
             {topics.map((topic: { topic_number: number; title: string; description: string }) => (
               <div key={topic.topic_number} className="industry-topic">
                 <div className="industry-topic__container">
-                  <span className="text-label-sm text--brand">
+                  <span style={{ ...label.smBold, color: color.text.brand }}>
                     {String(topic.topic_number).padStart(2, '0')}
                   </span>
-                  <h3 className="text-heading-sm">{topic.title}</h3>
+                  <h3 style={heading.sm}>{topic.title}</h3>
                   {topic.description && (
-                    <p className="text-body-md text--secondary">{topic.description}</p>
+                    <p style={{ ...text.body, color: color.text.secondary }}>{topic.description}</p>
                   )}
                 </div>
               </div>
@@ -90,8 +92,8 @@ export default async function IndustryDetailPage({ params }: Props) {
       <section className="content-section">
         <div className="container-lg">
           <div className="content-wrapper content-wrapper--center">
-            <h2 className="text-heading-lg text--center">Ready to get started?</h2>
-            <p className="text-body-md text--secondary text--center">
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Ready to get started?</h2>
+            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               Let&apos;s talk about how we can help your {page.name.toLowerCase()} business.
             </p>
             <div className="button-wrapper button-wrapper--center">

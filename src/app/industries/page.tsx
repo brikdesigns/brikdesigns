@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getIndustryPages } from '@/lib/supabase/queries';
+import { text, heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './industries.css';
 
@@ -31,9 +33,9 @@ export default async function IndustriesPage() {
           <div className="industries-grid">
             {industries.map((ind) => (
               <Link key={ind.slug} href={`/industries/${ind.slug}`} className="industries-card">
-                <h3 className="text-heading-md">{ind.name}</h3>
+                <h3 style={heading.md}>{ind.name}</h3>
                 {ind.tagline && (
-                  <p className="text-body-md text--secondary">{ind.tagline}</p>
+                  <p style={{ ...text.body, color: color.text.secondary }}>{ind.tagline}</p>
                 )}
                 <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })} style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
                   Learn More
