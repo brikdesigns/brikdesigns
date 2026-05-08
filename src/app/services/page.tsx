@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { LinkButton } from '@brikdesigns/bds';
 import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
 import { text, heading } from '@/lib/styles';
@@ -36,12 +35,15 @@ export default async function ServicesPage() {
   const categories = await getServiceCategories();
 
   const mainLines = categories.filter((c) => MAIN_LINES.includes(c.slug));
-  const calloutLines = categories.filter((c) => CALLOUT_LINES.includes(c.slug));
+  // Preserve CALLOUT_LINES order (DB sort doesn't match the design intent: Product → Information).
+  const calloutLines = CALLOUT_LINES
+    .map((slug) => categories.find((c) => c.slug === slug))
+    .filter((c): c is NonNullable<typeof c> => Boolean(c));
 
   return (
     <>
       {/* ═══ Hero ═══ */}
-      <section className="page-hero page-hero--brand">
+      <section className="page-hero">
         <div className="page-hero__container">
           <h1 className="page-hero__title">Design Services</h1>
           <p className="page-hero__description">
@@ -49,9 +51,6 @@ export default async function ServicesPage() {
             From branding to websites to behind-the-scenes systems, we help you build a
             business that looks good <em>and</em> works better.
           </p>
-          <LinkButton href="/contact" variant="inverse" size="lg">
-            Let&apos;s Talk
-          </LinkButton>
         </div>
       </section>
 
@@ -80,10 +79,14 @@ export default async function ServicesPage() {
       </section>
 
       {/* ═══ Callout sections (Product, Information) ═══ */}
-      {calloutLines.map((cat, i) => {
+      {calloutLines.map((cat) => {
         const copy = CALLOUT_COPY[cat.slug];
         return (
-          <section key={cat.slug} className={i % 2 === 0 ? 'content-section content-section--accent' : 'content-section'}>
+          <section
+            key={cat.slug}
+            className="content-section"
+            style={cat.brand_color_light ? { backgroundColor: cat.brand_color_light } : undefined}
+          >
             <div className="container-lg">
               {copy && (
                 <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
