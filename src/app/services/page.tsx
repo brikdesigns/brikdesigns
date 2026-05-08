@@ -91,7 +91,7 @@ export default async function ServicesPage() {
               {copy && (
                 <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
                   <h2 style={{ ...heading.lg, textAlign: 'center' }}>{copy.heading}</h2>
-                  <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>{copy.subheading}</p>
+                  <p style={{ ...text.body, color: color.text.primary, textAlign: 'center' }}>{copy.subheading}</p>
                 </div>
               )}
               <ServiceCallout

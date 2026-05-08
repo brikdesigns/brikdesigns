@@ -60,7 +60,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
       <div className="services-callout__content">
         <ServiceBadge category={category} size="md" />
         <h2 style={heading.lg}>{name}</h2>
-        <p style={{ ...text.body, color: color.text.secondary }}>{description}</p>
+        <p style={{ ...text.body, color: color.text.primary }}>{description}</p>
         <LinkButton href={`/services/${slug}`} variant="primary" size="md">
           Learn more
         </LinkButton>
