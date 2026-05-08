@@ -10,6 +10,7 @@
         ".bds-footer__above-top > div > h3",
         ".bds-footer__above-top > div > p",
         ".button-wrapper--center.button-wrapper > .bds-button--outline.hero-btn-on-dark.bds-button--lg > .bds-button__content",
+        ".hero-layout > .button-wrapper > .bds-button--outline.hero-btn-on-dark.bds-button--lg > .bds-button__content",
         ".cta-subtext",
         ".hero-subtext",
         ".mega-nav__utility-label",
