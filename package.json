@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:a11y": "playwright test"
+    "test:a11y": "playwright test",
+    "visual-parity": "node scripts/visual-parity.mjs"
   },
   "dependencies": {
     "@brikdesigns/bds": "^0.61.0",
