@@ -40,22 +40,6 @@
   padding-right: var(--padding-lg);
 }
 
-.page-hero__breadcrumb {
-  font-family: var(--font-family-label);
-  font-size: var(--label-sm);
-  color: var(--text-secondary);
-  margin: 0 0 var(--gap-sm);
-}
-
-.page-hero__breadcrumb a {
-  color: var(--text-secondary);
-  text-decoration: none;
-}
-
-.page-hero__breadcrumb a:hover {
-  color: var(--text-primary);
-}
-
 .page-hero__title {
   font-family: var(--font-family-heading);
   font-size: var(--heading-xl);

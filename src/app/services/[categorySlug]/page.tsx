@@ -5,10 +5,10 @@ import Image from 'next/image';
 import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupportPlanBySlug, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
-import { LinkButton } from '@brikdesigns/bds';
+import { LinkButton, Breadcrumb } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading } from '@/lib/styles';
-import { color } from '@/lib/tokens';
+import { color, gap } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../services.css';
 
@@ -64,9 +64,14 @@ export default async function ServiceCategoryPage({ params }: Props) {
         style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
       >
         <div className="page-hero__container">
-          <p className="page-hero__breadcrumb">
-            <Link href="/services">All Services</Link> / {category.name}
-          </p>
+          <Breadcrumb
+            style={{ marginBottom: gap.sm, flexWrap: 'wrap' }}
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Services', href: '/services' },
+              { label: category.name },
+            ]}
+          />
 
           <div className="svc-detail-hero">
             <div className="svc-detail-hero__content">
