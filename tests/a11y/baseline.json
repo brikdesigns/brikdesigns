@@ -293,6 +293,9 @@
     },
     "/services/brand": {
       "color-contrast": [
+        ".bds-breadcrumb__current",
+        ".bds-breadcrumb__link[href$=\"services\"]",
+        ".bds-breadcrumb__link[href=\"/\"]",
         ".bds-button__content",
         ".mega-nav__actions > .bds-button.bds-button--primary.bds-button--sm",
         ".mega-nav__utility-label"
@@ -300,6 +303,10 @@
     },
     "/services/brand/logo-design": {
       "color-contrast": [
+        ".bds-breadcrumb__current",
+        ".bds-breadcrumb__link[href$=\"brand-design\"]",
+        ".bds-breadcrumb__link[href$=\"services\"]",
+        ".bds-breadcrumb__link[href=\"/\"]",
         ".bds-button--md > .bds-button__content",
         ".bds-button--outline.bds-button--lg[href$=\"contact\"] > .bds-button__content",
         ".bds-button--sm.bds-button--primary[href$=\"contact\"]",
@@ -307,9 +314,6 @@
         ".bds-footer__above-top > div > p",
         ".content-wrapper > p",
         ".mega-nav__utility-label",
-        ".page-hero__breadcrumb",
-        ".page-hero__breadcrumb > a[href$=\"brand-design\"]",
-        ".page-hero__breadcrumb > a[href$=\"services\"]",
         ".page-hero__description",
         ".svc-card.svc-card--rich:nth-child(1) > .svc-card__content > .bds-button--sm.bds-button--primary.bds-button",
         ".svc-card.svc-card--rich:nth-child(1) > .svc-card__content > p",
