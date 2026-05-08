@@ -3,7 +3,6 @@ import { LinkButton } from '@brikdesigns/bds';
 import { ContactForm } from '@/components/marketing/ContactForm';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
-import '../shared-sections.css';
 import './contact.css';
 
 export const metadata: Metadata = {
@@ -13,35 +12,29 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <>
-      {/* Header + Quick CTAs */}
-      <section className="page-hero">
-        <div className="page-hero__container">
-          <div className="contact-hero-row">
-            <h1 className="page-hero__title">Get in touch</h1>
-            <div className="button-wrapper">
-              <LinkButton href="https://calendly.com/brikdesigns" variant="primary" size="md" target="_blank" rel="noopener noreferrer">
-                Book a Call
-              </LinkButton>
-              <LinkButton href="mailto:hello@brikdesigns.com" variant="primary" size="md">
-                Send Email
-              </LinkButton>
-              <LinkButton href="tel:+15614908714" variant="primary" size="md">
-                Click to Call
-              </LinkButton>
-            </div>
+    <section className="contact-section">
+      <div className="contact-card">
+        <div className="contact-hero-row">
+          <h1 style={heading.lg}>Get in touch</h1>
+          <div className="contact-cta-row">
+            <LinkButton href="https://calendly.com/brikdesigns" variant="secondary" size="md" target="_blank" rel="noopener noreferrer">
+              Book a Call
+            </LinkButton>
+            <LinkButton href="mailto:hello@brikdesigns.com" variant="secondary" size="md">
+              Send Email
+            </LinkButton>
+            <LinkButton href="tel:+15614908714" variant="secondary" size="md">
+              Click to Call
+            </LinkButton>
           </div>
         </div>
-      </section>
 
-      {/* Contact Form */}
-      <section className="content-section contact-form-section">
-        <div className="container-lg contact-form-container">
+        <div className="contact-form-block">
           <h2 style={heading.md}>Send us a message</h2>
-          <p style={{ ...text.bodySm, color: color.text.secondary }}>Let us know what you&apos;re interested in</p>
+          <p style={{ ...text.bodySm, color: color.text.secondary, margin: 0 }}>Let us know what you&apos;re interested in</p>
           <ContactForm />
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }
