@@ -192,6 +192,14 @@ export const label = {
     whiteSpace: 'nowrap' as const,
     margin: 0,
   } satisfies CSSProperties,
+
+  /** label/tiny — semibold for badges and compact metadata where small text needs intrinsic emphasis */
+  tiny: {
+    fontFamily: font.family.label,
+    fontSize: font.size.label.tiny,
+    fontWeight: font.weight.semibold,
+    color: color.text.primary,
+  } satisfies CSSProperties,
 } as const;
 
 // ─── Meta (label + value pairs) ──────────────────────────────────────
