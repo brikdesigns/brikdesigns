@@ -61,6 +61,7 @@ export const font = {
       xl: 'var(--body-xl)',
     },
     label: {
+      tiny: 'var(--label-tiny)',
       sm: 'var(--label-sm)',
       md: 'var(--label-md)',
       lg: 'var(--label-lg)',

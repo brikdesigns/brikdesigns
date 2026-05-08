@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
 import { LinkButton } from '@brikdesigns/bds';
+import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import './homepage.css';
@@ -174,7 +175,7 @@ export default async function HomePage() {
                   {featuredStory.award_label && (
                     <div className="story-badge">
                       <Image src="/images/choice.svg" alt="" width={16} height={16} className="icon-md" />
-                      <span className="text-label-tiny">{featuredStory.award_label}</span>
+                      <span style={label.tiny}>{featuredStory.award_label}</span>
                     </div>
                   )}
                 </div>
