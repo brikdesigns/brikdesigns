@@ -15,10 +15,12 @@ interface ServiceLineCardProps {
   category: ServiceCategory;
   tagline: string;
   imageUrl?: string | null;
+  /** Per-category brand color used to tint the "Learn more" CTA. Falls back to the BDS primary variant when undefined. */
+  brandColorBase?: string | null;
 }
 
 /** Service line card — badge is always shown as the primary visual */
-export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: ServiceLineCardProps) {
+export function ServiceLineCard({ name, slug, category, tagline, imageUrl, brandColorBase }: ServiceLineCardProps) {
   return (
     <Link href={`/services/${slug}`} className="services-card">
       <div className="services-card__image">
@@ -33,7 +35,12 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
         <h3 style={heading.sm}>{name}</h3>
         <p style={{ ...text.bodySm, color: color.text.secondary }}>{tagline}</p>
       </div>
-      <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>Learn more</span>
+      <span
+        className={composeButtonClasses({ variant: 'primary', size: 'sm' })}
+        style={brandColorBase ? { backgroundColor: brandColorBase, borderColor: brandColorBase } : undefined}
+      >
+        Learn more
+      </span>
     </Link>
   );
 }
@@ -44,10 +51,12 @@ interface ServiceCalloutProps {
   category: ServiceCategory;
   description: string;
   imageUrl?: string | null;
+  /** Per-category brand color used to tint the "Learn more" CTA. Falls back to the BDS primary variant when undefined. */
+  brandColorBase?: string | null;
 }
 
 /** Side-by-side callout — badge + image for Product and Information design */
-export function ServiceCallout({ name, slug, category, description, imageUrl }: ServiceCalloutProps) {
+export function ServiceCallout({ name, slug, category, description, imageUrl, brandColorBase }: ServiceCalloutProps) {
   return (
     <div className="services-callout">
       <div className="services-callout__image">
@@ -61,7 +70,12 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
         <ServiceBadge category={category} size="md" />
         <h2 style={heading.lg}>{name}</h2>
         <p style={{ ...text.body, color: color.text.primary }}>{description}</p>
-        <LinkButton href={`/services/${slug}`} variant="primary" size="md">
+        <LinkButton
+          href={`/services/${slug}`}
+          variant="primary"
+          size="md"
+          style={brandColorBase ? { backgroundColor: brandColorBase, borderColor: brandColorBase } : undefined}
+        >
           Learn more
         </LinkButton>
       </div>

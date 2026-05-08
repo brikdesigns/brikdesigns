@@ -11,13 +11,15 @@ interface HomeServiceCardProps {
   category: ServiceCategory;
   tagline: string;
   imageUrl?: string | null;
+  /** Per-category brand color used to tint the "Learn more" CTA. Falls back to the BDS primary variant when undefined. */
+  brandColorBase?: string | null;
 }
 
 /**
  * Homepage service line card — uses BDS CardDisplay pattern.
  * Webflow: .cms-item.stacked.border
  */
-export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: HomeServiceCardProps) {
+export function HomeServiceCard({ name, slug, category, tagline, imageUrl, brandColorBase }: HomeServiceCardProps) {
   return (
     <div className="service-card">
       {/* Webflow: .img-frame-service.accent */}
@@ -39,7 +41,12 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: Hom
         </div>
       </div>
 
-      <LinkButton href={`/services/${slug}`} variant="primary" size="md">
+      <LinkButton
+        href={`/services/${slug}`}
+        variant="primary"
+        size="md"
+        style={brandColorBase ? { backgroundColor: brandColorBase, borderColor: brandColorBase } : undefined}
+      >
         Learn more
       </LinkButton>
     </div>
