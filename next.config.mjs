@@ -1,9 +1,5 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
 import createMDX from '@next/mdx';
 import { withSentryConfig } from '@sentry/nextjs';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -90,20 +86,6 @@ const nextConfig = {
       { source: '/service/website-experience-mapping', destination: '/services/marketing/website-experience-mapping', permanent: true },
       { source: '/service/welcome-onboarding-kit', destination: '/services/information/welcome-onboarding-kit', permanent: true },
     ];
-  },
-  turbopack: {
-    resolveAlias: {
-      '@bds/components': path.resolve(__dirname, 'brik-bds/components'),
-      '@bds/tokens': path.resolve(__dirname, 'brik-bds/tokens'),
-    },
-  },
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@bds/components': path.resolve(__dirname, 'brik-bds/components'),
-      '@bds/tokens': path.resolve(__dirname, 'brik-bds/tokens'),
-    };
-    return config;
   },
 };
 
