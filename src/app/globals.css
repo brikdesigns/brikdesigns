@@ -349,3 +349,39 @@ h1, h2, h3, h4, h5, h6 {
   filter: brightness(0) invert(1);
   transition: filter 0.3s ease;
 }
+
+/* ================================================================
+   BDS Footer — pin inverse variant to always-dark.
+
+   In dark theme, BDS flips `--surface-inverse` to white (the inverse
+   of a dark page is light). But `--text-on-color-dark` stays white in
+   every theme. The Footer's inverse variant pairs them — bg is white
+   AND text is white in dark mode → invisible footer.
+
+   The Webflow site renders the footer always-dark regardless of
+   user OS preference. Match that here by pinning the inverse footer
+   to absolute black/white tokens that don't shift with theme.
+
+   Layered into `client-overrides` (the highest custom layer per
+   globals.css line 19), so it wins over `bds-components`.
+   ================================================================ */
+@layer client-overrides {
+  .bds-footer--inverse {
+    background-color: var(--color-grayscale-black);
+  }
+
+  .bds-footer--inverse .bds-footer__heading,
+  .bds-footer--inverse .bds-footer__link,
+  .bds-footer--inverse .bds-footer__tagline,
+  .bds-footer--inverse .bds-footer__brand-extra,
+  .bds-footer--inverse .bds-footer__copyright,
+  .bds-footer--inverse .bds-footer__bottom-link,
+  .bds-footer--inverse .bds-footer__bottom-sep,
+  .bds-footer--inverse .bds-footer__social {
+    color: var(--color-grayscale-white);
+  }
+
+  .bds-footer--inverse .bds-footer__above-top {
+    border-bottom-color: rgba(255, 255, 255, 0.15);
+  }
+}
