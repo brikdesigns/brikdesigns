@@ -72,6 +72,8 @@ Always query the Storybook MCP for BDS component props before writing JSX. Endpo
 
 **brikdesigns-specific surface filter.** brikdesigns.com is a marketing site — filter to `surface-web` + `surface-shared`. **Never use `surface-product` components** (`AddableEntryList`, `Board`, `BrikDevBar`, `CatalogPicker`, `DataSection`, `FieldGrid`, `FilterBar`, `NotificationList`, `PageHeader`, `Sheet*`, `SidebarNavigation`, `Stepper`, `TaskConsole`, etc.) — they belong in product apps and will misfit a marketing surface.
 
+**Staging-only exception (Phase 3 of brikdesigns/brik-llm#352, since #54).** `BrikDevBar` + the vanilla feedback widget (form-mode + user-auth) are mounted via `src/components/DevTools.tsx`, gated behind `NEXT_PUBLIC_ENABLE_DEV_TOOLS === 'true'`. The env var is set only on the staging Netlify context and the entire dynamic-import branch tree-shakes out of the production bundle. Don't extend this exception to other `surface-product` components without an updated decision in #352.
+
 ## Brand
 
 This site represents **Brik Designs company brand** — not any numbered BDS template theme.
