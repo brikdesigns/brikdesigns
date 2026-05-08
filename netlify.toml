@@ -9,23 +9,14 @@
 # Branch deploys (staging + any other non-production branch).
 # Per-context Supabase URL/keys, SITE_URL, etc. are configured in the Netlify
 # UI under Environment variables, scoped to "Branch deploys".
+# Note: Netlify silently ignores per-context [[headers]] blocks despite the
+# docs claiming support — the X-Robots-Tag is set from next.config.mjs
+# instead, gated on NEXT_PUBLIC_ENV !== "production".
 [context.branch-deploy.environment]
   NEXT_PUBLIC_ENV = "staging"
 
-# Block search engines on every non-production deploy.
-# Pairs with src/app/robots.ts which serves a Disallow when NEXT_PUBLIC_ENV !== "production".
-[[context.branch-deploy.headers]]
-  for = "/*"
-  [context.branch-deploy.headers.values]
-    X-Robots-Tag = "noindex, nofollow"
-
 [context.deploy-preview.environment]
   NEXT_PUBLIC_ENV = "preview"
-
-[[context.deploy-preview.headers]]
-  for = "/*"
-  [context.deploy-preview.headers.values]
-    X-Robots-Tag = "noindex, nofollow"
 
 # Next.js on Netlify
 [[plugins]]
