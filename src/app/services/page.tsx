@@ -72,6 +72,7 @@ export default async function ServicesPage() {
                 category={mapCategorySlug(cat.slug)}
                 tagline={cat.tagline || cat.description || ''}
                 imageUrl={cat.card_image_url}
+                brandColorBase={cat.brand_color_base}
               />
             ))}
           </div>
@@ -100,6 +101,7 @@ export default async function ServicesPage() {
                 category={mapCategorySlug(cat.slug)}
                 description={cat.description || cat.tagline || ''}
                 imageUrl={cat.card_image_url}
+                brandColorBase={cat.brand_color_base}
               />
             </div>
           </section>

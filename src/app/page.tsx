@@ -27,6 +27,7 @@ export default async function HomePage() {
     description: cat.description || '',
     hero_image_url: cat.hero_image_url || null,
     card_image_url: cat.card_image_url || null,
+    brand_color_base: cat.brand_color_base || null,
   }));
 
   const supportPlans = plans.map((plan) => ({
@@ -87,6 +88,7 @@ export default async function HomePage() {
                 category={line.category}
                 tagline={line.tagline}
                 imageUrl={line.card_image_url}
+                brandColorBase={line.brand_color_base}
               />
             ))}
           </div>
