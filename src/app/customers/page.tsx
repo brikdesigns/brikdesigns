@@ -62,18 +62,20 @@ const INDUSTRY_CARDS = [
   { name: 'Dental', slug: 'dental', tagline: 'Build trust, grow referrals.' },
 ];
 
+// Light tints matching the brikdesigns.com (Webflow) target \u2014 decorative pastels
+// per challenge card, in a fixed order. Text uses text.primary so contrast holds.
 const CHALLENGES = [
-  'We need to look more professional, but don\u2019t have the budget for a full-time designer',
-  'Our marketing materials aren\u2019t consistent with our brand anymore',
-  'We have a great product, but struggle to explain it simply',
-  'We need high-quality design work, but can\u2019t wait weeks for an agency',
+  { text: 'We need to look more professional, but don\u2019t have the budget for a full-time designer', bg: '#bcdfeb' },
+  { text: 'Our marketing materials aren\u2019t consistent with our brand anymore', bg: '#c8e6c9' },
+  { text: 'We have a great product, but struggle to explain it simply', bg: '#fff4ad' },
+  { text: 'We need high-quality design work, but can\u2019t wait weeks for an agency', bg: '#d8c5e8' },
 ];
 
 export default function CustomersPage() {
   return (
     <>
       {/* Hero */}
-      <section className="page-hero page-hero--brand">
+      <section className="page-hero">
         <div className="page-hero__container">
           <h1 className="page-hero__title">Customers</h1>
           <p className="page-hero__description">
@@ -163,8 +165,12 @@ export default function CustomersPage() {
           </div>
           <div className="customers-challenges">
             {CHALLENGES.map((challenge) => (
-              <div key={challenge} className="customers-challenge">
-                <p style={text.body}>{challenge}</p>
+              <div
+                key={challenge.text}
+                className="customers-challenge"
+                style={{ backgroundColor: challenge.bg }}
+              >
+                <p style={text.body}>{challenge.text}</p>
               </div>
             ))}
           </div>
