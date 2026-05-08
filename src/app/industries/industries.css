@@ -36,11 +36,6 @@
 
 .industry-topic {
   padding: var(--padding-lg) 0;
-  border-bottom: 1px solid var(--border-secondary);
-}
-
-.industry-topic:last-child {
-  border-bottom: none;
 }
 
 .industry-topic__container {
@@ -49,6 +44,71 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
+}
+
+/* Inline customer-story card on the industry detail page */
+.industry-story-card {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  align-items: center;
+  gap: var(--gap-lg);
+  padding: var(--padding-md);
+  border: 1px solid var(--border-secondary);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--surface-primary);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.industry-story-card:hover {
+  border-color: var(--border-brand-primary);
+}
+
+.industry-story-card__image {
+  aspect-ratio: 16/9;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+.industry-story-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Other industries detail card needs flex column to align "Learn more" */
+.industry-other-card {
+  height: 100%;
+}
+
+/* Bottom Get In Touch CTA — orange brand panel */
+.industry-cta-section {
+  padding: var(--padding-huge) 0;
+  display: flex;
+  justify-content: center;
+}
+
+.industry-cta-card {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 var(--padding-lg);
+  padding: var(--padding-huge) var(--padding-xl);
+  background-color: var(--surface-brand-primary);
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-md);
+}
+
+@media (max-width: 767px) {
+  .industry-story-card {
+    grid-template-columns: 1fr;
+  }
+
+  .industry-cta-card {
+    padding: var(--padding-xl);
+  }
 }
 
 /* Other industries grid on detail page */
