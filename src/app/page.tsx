@@ -1,9 +1,10 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
 import { LinkButton } from '@brikdesigns/bds';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
+import { display, text, heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import './homepage.css';
 import './shared-sections.css';
 
@@ -43,21 +44,21 @@ export default async function HomePage() {
       {/* ═══ Hero ═══ */}
       {/* Webflow: .section_hero.brand → .container-hero → .layout-wrapper-hero.comfortable → .content-wrapper.narrow + .button-wrapper.stretch */}
       <section className="section-hero">
-        <div className="hero-container">
-          <div className="hero-layout">
-            <div className="hero-text">
-              <h1 className="hero-heading">
+        <div className="page-hero__container">
+          <div className="stack stack--xl">
+            <div className="stack content-wrapper--narrow" style={{ gap: 'var(--gap-tiny)' }}>
+              <h1 style={{ ...display.sm, color: color.text.onColorDark }}>
                 Marketing That Works. Design That Builds.
               </h1>
-              <p className="hero-subtext">
+              <p style={{ ...text.bodyXl, color: color.text.onColorDark }}>
                 We help small businesses show up better, work smarter, and grow faster—brik by brik.
               </p>
             </div>
             <div className="button-wrapper">
-              <LinkButton href="/services" variant="outline" size="lg" className="hero-btn-on-dark">
+              <LinkButton href="/services" variant="outline" size="lg" className="btn-outline--on-dark">
                 Explore Design Services
               </LinkButton>
-              <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
+              <LinkButton href="/contact" variant="outline" size="lg" className="btn-outline--on-dark">
                 Let&apos;s Talk
               </LinkButton>
             </div>
@@ -68,14 +69,14 @@ export default async function HomePage() {
       {/* ═══ Services ("What We Do") ═══ */}
       {/* Webflow: .section_services */}
       <section className="section-services">
-        <div className="section-container">
-          <div className="section-header">
-            <h2 className="section-heading">What We Do</h2>
-            <p className="section-subtext">
+        <div className="container-lg container-lg--tight">
+          <div className="stack stack--md content-wrapper content-wrapper--center content-wrapper--narrowest">
+            <h2 style={heading.lg}>What We Do</h2>
+            <p style={{ ...text.body, color: color.text.secondary, maxWidth: 600, textAlign: 'center' }}>
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>
           </div>
-          <div className="grid-3-col">
+          <div className="grid-3">
             {serviceLines.map((line) => (
               <HomeServiceCard
                 key={line.slug}
@@ -93,14 +94,14 @@ export default async function HomePage() {
       {/* ═══ Support Plans ("Monthly Subscription") ═══ */}
       {/* Webflow: .section_service */}
       <section className="section-plans">
-        <div className="section-container">
-          <div className="section-header">
-            <h2 className="section-heading">Monthly Subscription</h2>
-            <p className="section-subtext">
+        <div className="container-lg container-lg--tight">
+          <div className="stack stack--md content-wrapper content-wrapper--center content-wrapper--narrowest">
+            <h2 style={heading.lg}>Monthly Subscription</h2>
+            <p style={{ ...text.body, color: color.text.secondary, maxWidth: 600, textAlign: 'center' }}>
               We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
             </p>
           </div>
-          <div className="grid-3-col">
+          <div className="grid-3">
             {supportPlans.map((plan) => (
               <HomePlanCard
                 key={plan.slug}
@@ -120,10 +121,10 @@ export default async function HomePage() {
       <section className="section-audit">
         <div className="audit-layout">
           <div className="audit-content">
-            <div className="audit-text">
-              <h3 className="audit-heading">Not sure what you need yet?</h3>
-              <h3 className="audit-heading">Start with a <strong><em>free</em></strong> marketing assessment.</h3>
-              <p className="audit-subtext">
+            <div className="stack stack--md content-wrapper--center">
+              <h3 style={heading.lg}>Not sure what you need yet?</h3>
+              <h3 style={heading.lg}>Start with a <strong><em>free</em></strong> marketing assessment.</h3>
+              <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 We&apos;ll review your current marketing, systems, and tools — and send you a 3-part plan to fix what&apos;s holding you back.
               </p>
             </div>
@@ -134,7 +135,7 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="audit-image">
-            <div className="audit-image-frame">
+            <div className="img-frame">
               <Image
                 src="/images/3d-form-robot.png"
                 alt="3D clay form illustration"
@@ -153,13 +154,13 @@ export default async function HomePage() {
       {/* Webflow: .section_customer-story → .container-lg.comfortable → .cms-item-story (row card) */}
       {featuredStory && (
         <section className="section-story">
-          <div className="story-container">
-            <div className="section-header">
-              <h2 className="section-heading">Latest Customer Story</h2>
+          <div className="container-lg container-lg--comfortable">
+            <div className="stack stack--md content-wrapper content-wrapper--center content-wrapper--narrowest">
+              <h2 style={heading.lg}>Latest Customer Story</h2>
             </div>
             <div className="story-card">
               <div className="story-image-wrapper">
-                <div className="story-image-frame">
+                <div className="img-frame img-frame--landscape">
                   {featuredStory.hero_image_url ? (
                     <Image
                       src={featuredStory.hero_image_url}
@@ -181,10 +182,10 @@ export default async function HomePage() {
               </div>
               <div className="story-content">
                 <div>
-                  <h3 className="story-title">
+                  <h3 style={heading.md}>
                     {featuredStory.name || featuredStory.client_name}
                   </h3>
-                  <p className="story-description">
+                  <p style={{ ...text.body, color: color.text.secondary }}>
                     {featuredStory.short_description || featuredStory.quote || ''}
                   </p>
                 </div>
@@ -203,14 +204,14 @@ export default async function HomePage() {
       {/* Webflow: .section_cta → .container-cta → .inner-wrapper._90.center.stacked */}
       <section className="section-cta">
         <div className="cta-card">
-          <div className="cta-inner">
-            <h2 className="cta-heading">Get in Touch</h2>
-            <p className="cta-subtext">
+          <div className="stack stack--md content-wrapper--center" style={{ maxWidth: '90%' }}>
+            <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center' }}>Get in Touch</h2>
+            <p style={{ ...text.bodyLg, color: color.text.onColorDark, textAlign: 'center' }}>
               Starting a new project or want to collaborate with us?
             </p>
           </div>
           <div className="button-wrapper button-wrapper--center">
-            <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
+            <LinkButton href="/contact" variant="outline" size="lg" className="btn-outline--on-dark">
               Let&apos;s Talk
             </LinkButton>
           </div>

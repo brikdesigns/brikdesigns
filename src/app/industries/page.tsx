@@ -28,16 +28,16 @@ export default async function IndustriesPage() {
         </div>
       </section>
 
-      <section className="content-section industries-section">
+      <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="industries-grid">
             {industries.map((ind) => (
-              <Link key={ind.slug} href={`/industries/${ind.slug}`} className="industries-card">
+              <Link key={ind.slug} href={`/industries/${ind.slug}`} className="card-bordered card-bordered--thin">
                 <h3 style={heading.md}>{ind.name}</h3>
                 {ind.tagline && (
                   <p style={{ ...text.body, color: color.text.secondary }}>{ind.tagline}</p>
                 )}
-                <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })} style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
+                <span className={`${composeButtonClasses({ variant: 'secondary', size: 'sm' })} cta-pin-bottom`}>
                   Learn More
                 </span>
               </Link>

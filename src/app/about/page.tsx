@@ -82,14 +82,14 @@ export default async function AboutPage() {
       <section className="page-hero about-hero">
         <div className="page-hero__container">
           <h1 className="page-hero__title">About</h1>
-          <p className="about-hero__intro">
+          <p style={{ ...text.body, color: color.text.secondary, maxWidth: 700, marginTop: 'var(--gap-md)', lineHeight: '170%' }}>
             With over 20 years of combined experience, Abbey and Nick form a dynamic partnership
             that challenges the status quo. They don&apos;t settle for &ldquo;how it&apos;s always been done&rdquo;&mdash;instead,
             they strive to make every project better, smarter, and more impactful. Their shared
             commitment to clear communication, high-quality work, and quick turnarounds ensures
             their clients feel supported every step of the way.
           </p>
-          <p className="about-hero__intro">
+          <p style={{ ...text.body, color: color.text.secondary, maxWidth: 700, marginTop: 'var(--gap-md)', lineHeight: '170%' }}>
             At the core of their work is a focus on people&mdash;whether it&apos;s their customers or their
             customers&apos; customers&mdash;creating designs and strategies that work for everyone.
           </p>
@@ -101,9 +101,9 @@ export default async function AboutPage() {
 
       {/* ═══ Team ═══ */}
       {/* Webflow: 2-col bordered cards, large circle headshots, social links, full bios */}
-      <section className="content-section about-team-section">
+      <section className="content-section">
         <div className="container-lg">
-          <div className="about-team-grid">
+          <div className="grid-2">
             {TEAM.map((member) => (
               <div key={member.name} className="about-team-card">
                 <div className="about-team-avatar">
@@ -130,7 +130,7 @@ export default async function AboutPage() {
                     </a>
                   )}
                 </div>
-                <div className="about-team-bio">
+                <div className="stack stack--md" style={{ textAlign: 'left' }}>
                   {member.bio.map((paragraph, i) => (
                     <p key={i} style={{ ...text.bodySm, color: color.text.secondary }}>{paragraph}</p>
                   ))}
@@ -143,10 +143,10 @@ export default async function AboutPage() {
 
       {/* ═══ Value of Design CTA ═══ */}
       {/* Webflow: bordered card, 2-col: text left + 3D diamond image right */}
-      <section className="content-section about-value-section">
+      <section className="content-section">
         <div className="container-lg">
           <div className="about-value-card">
-            <div className="about-value-text">
+            <div className="stack stack--md" style={{ flex: 1 }}>
               <h2 style={heading.md}>The Value of Design</h2>
               <p style={{ ...text.body, color: color.text.secondary }}>Learn about the value of design in 4 steps.</p>
               <LinkButton href="/value" variant="primary" size="md">Learn More</LinkButton>
@@ -166,11 +166,11 @@ export default async function AboutPage() {
 
       {/* ═══ Pillars (Approach / Mission / Vision) ═══ */}
       {/* Webflow: tan bg, stacked rows: number+title left, body text right */}
-      <section className="content-section content-section--accent about-pillars-section">
+      <section className="content-section content-section--accent">
         <div className="container-lg container-lg--comfortable">
           {PILLARS.map((pillar) => (
             <div key={pillar.number} className="about-pillar-row">
-              <div className="about-pillar-label">
+              <div className="stack stack--xs" style={{ flex: '0 0 200px' }}>
                 <span style={{ ...label.smBold, color: color.text.brand }}>{pillar.number}</span>
                 <h3 style={heading.md}>{pillar.title}</h3>
               </div>
@@ -184,17 +184,17 @@ export default async function AboutPage() {
 
       {/* ═══ Our Services ═══ */}
       {/* Webflow: header text + 3-col grid of image cards with "Learn more" buttons */}
-      <section className="content-section about-services-section">
+      <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>
           </div>
-          <div className="about-services-grid">
+          <div className="grid-3">
             {serviceLines.map((line) => (
-              <Link key={line.slug} href={`/services/${line.slug}`} className="about-service-card">
-                <div className="about-service-image">
+              <Link key={line.slug} href={`/services/${line.slug}`} className="card-bordered card-bordered--thin">
+                <div className="img-frame">
                   {line.imageUrl ? (
                     <Image
                       src={line.imageUrl}
@@ -209,7 +209,7 @@ export default async function AboutPage() {
                 </div>
                 <h3 style={heading.sm}>{line.name}</h3>
                 <p style={{ ...text.bodySm, color: color.text.secondary }}>{line.description}</p>
-                <span className={`${composeButtonClasses({ variant: 'secondary', size: 'sm' })} about-service-cta`}>Learn more</span>
+                <span className={`${composeButtonClasses({ variant: 'secondary', size: 'sm' })} cta-pin-bottom`}>Learn more</span>
               </Link>
             ))}
           </div>

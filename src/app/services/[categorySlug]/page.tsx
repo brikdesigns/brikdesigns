@@ -69,7 +69,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
           </p>
 
           <div className="svc-detail-hero">
-            <div className="svc-detail-hero__content">
+            <div className="stack stack--md">
               <ServiceBadgeLabel category={mapCategorySlug(category.slug)} />
               <h1 className="page-hero__title">{category.name}</h1>
               {category.tagline && (
@@ -155,15 +155,15 @@ export default async function ServiceCategoryPage({ params }: Props) {
             </h2>
             <div className="svc-category-others">
               {otherCategories.map((cat) => (
-                <Link key={cat.slug} href={`/services/${cat.slug}`} className="svc-category-other-card">
+                <Link key={cat.slug} href={`/services/${cat.slug}`} className="card-bordered card-bordered--thin">
                   {cat.hero_image_url && (
-                    <div className="svc-category-other-card__image">
+                    <div className="img-frame img-frame--landscape">
                       <Image src={cat.hero_image_url} alt={cat.name} width={300} height={200} />
                     </div>
                   )}
                   <h3 style={heading.sm}>{cat.name}</h3>
                   {cat.tagline && <p style={{ ...text.bodySm, color: color.text.secondary }}>{cat.tagline}</p>}
-                  <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })} style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
+                  <span className={`${composeButtonClasses({ variant: 'secondary', size: 'sm' })} cta-pin-bottom`}>
                     Learn more
                   </span>
                 </Link>

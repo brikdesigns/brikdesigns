@@ -109,7 +109,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           </p>
 
           <div className="svc-detail-hero">
-            <div className="svc-detail-hero__content">
+            <div className="stack stack--md">
               <ServiceBadgeLabel
                 category={mapCategorySlug(category?.slug || categorySlug)}
                 serviceName={service.name}
@@ -163,7 +163,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             <div className={`svc-detail-offerings ${sortedOfferings.length >= 3 ? 'svc-detail-offerings--grid' : ''}`}>
               {sortedOfferings.map((off: { slug: string; name: string; price_display: string; description: string; what_you_get: string; price_model?: string; icon_url?: string }) => (
                 <div key={off.slug} className="svc-detail-offering-card">
-                  <div className="svc-detail-offering-top">
+                  <div className="stack stack--sm">
                     {off.icon_url ? (
                       <Image src={off.icon_url} alt="" width={40} height={40} className="svc-detail-offering-icon" />
                     ) : (
@@ -219,7 +219,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               className={`svc-detail-story-card${relatedStory.hero_image_url ? ' svc-detail-story-card--with-image' : ''}`}
             >
               {relatedStory.hero_image_url && (
-                <div className="svc-detail-story-card__image">
+                <div className="img-frame img-frame--landscape">
                   <Image
                     src={relatedStory.hero_image_url}
                     alt={relatedStory.name || relatedStory.client_name}
@@ -228,7 +228,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   />
                 </div>
               )}
-              <div className="svc-detail-story-content">
+              <div className="stack stack--sm">
                 <p style={{ ...label.smBold, color: color.text.brand }}>
                   We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.
                 </p>
@@ -254,7 +254,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             </h2>
             <div className="svc-detail-addon-card">
               {relatedService.image_url && (
-                <div className="svc-detail-addon-card__image">
+                <div className="img-frame">
                   <Image
                     src={relatedService.image_url}
                     alt={relatedService.name}
@@ -263,7 +263,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   />
                 </div>
               )}
-              <div className="svc-detail-addon-card__content">
+              <div className="stack stack--md">
                 <ServiceBadgeLabel
                   category={mapCategorySlug(relatedCatSlug)}
                   serviceName={relatedService.name}

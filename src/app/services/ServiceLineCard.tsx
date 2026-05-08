@@ -20,15 +20,15 @@ interface ServiceLineCardProps {
 /** Service line card — badge is always shown as the primary visual */
 export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: ServiceLineCardProps) {
   return (
-    <Link href={`/services/${slug}`} className="services-card">
-      <div className="services-card__image">
+    <Link href={`/services/${slug}`} className="card-bordered card-bordered--centered">
+      <div className="img-frame">
         {imageUrl ? (
           <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
           <ServiceBadge category={category} size="lg" />
         )}
       </div>
-      <div className="services-card__content">
+      <div className="stack stack--sm" style={{ width: '100%' }}>
         <ServiceBadge category={category} size="md" />
         <h3 style={heading.sm}>{name}</h3>
         <p style={{ ...text.bodySm, color: color.text.secondary }}>{tagline}</p>

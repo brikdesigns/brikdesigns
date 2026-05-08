@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { LinkButton } from '@brikdesigns/bds';
-import { text, heading, label } from '@/lib/styles';
+import { display, text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './value.css';
@@ -88,16 +88,16 @@ export default function ValuePage() {
         >
           <div className="container-lg container-lg--comfortable">
             <div className="value-step-header">
-              <span className="value-step-number">{step.number}</span>
+              <span style={{ ...display.sm, color: color.text.brand }}>{step.number}</span>
               <h2 style={heading.lg}>{step.title}</h2>
             </div>
             <p style={{ ...text.bodyLg, color: color.text.secondary, maxWidth: 700 }}>
               {step.intro}
             </p>
-            <div className="value-stats-grid">
+            <div className="grid-3" style={{ marginTop: 'var(--gap-xl)' }}>
               {step.stats.map((stat) => (
-                <div key={stat.value} className="value-stat-card">
-                  <span className="value-stat-value">{stat.value}</span>
+                <div key={stat.value} className="card-bordered card-bordered--thin">
+                  <span style={{ ...display.xs, color: color.text.brand }}>{stat.value}</span>
                   <p style={{ ...text.bodySm, color: color.text.secondary }}>{stat.label}</p>
                 </div>
               ))}

@@ -1,44 +1,6 @@
 /* ─── Services page — layout only ───────────────────────── */
 /* Typography, buttons, and colors come from BDS components. */
 
-/* Service line card (used in 3-col grid) */
-.services-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 16px;
-  border: 2px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-primary);
-  text-decoration: none;
-  height: 100%;
-  transition: border-color 0.15s;
-}
-
-.services-card:hover {
-  border-color: var(--border-brand-primary);
-}
-
-.services-card__image {
-  aspect-ratio: 1;
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-accent);
-  overflow: hidden;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.services-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-  width: 100%;
-}
-
 /* Callout section (image + text side by side) */
 .services-callout {
   display: flex;
@@ -64,11 +26,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-/* Accent section background */
-.content-section--accent {
-  background-color: var(--surface-accent);
 }
 
 /* Individual service card (badge + name + tagline) */
@@ -100,27 +57,8 @@
   align-items: stretch;
 }
 
-.svc-card__image {
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  aspect-ratio: 3 / 2;
-  background-color: var(--surface-accent);
-}
-
-.svc-card__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
 .svc-card--rich .svc-card__content {
   gap: var(--gap-sm);
-}
-
-/* Secondary section background */
-.content-section--secondary {
-  background-color: var(--surface-secondary);
 }
 
 /* ─── Service detail page ─────────────────────────────────── */
@@ -142,12 +80,6 @@
   align-items: center;
   width: 100%;
   margin-top: var(--gap-lg);
-}
-
-.svc-detail-hero__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
 }
 
 .svc-detail-hero__aside {
@@ -213,12 +145,6 @@
   justify-content: space-between;
 }
 
-.svc-detail-offering-top {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
 .svc-detail-offering-icon {
   width: 40px;
   height: 40px;
@@ -270,25 +196,6 @@
   border-color: var(--border-brand-primary);
 }
 
-.svc-detail-story-card__image {
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  aspect-ratio: 3 / 2;
-}
-
-.svc-detail-story-card__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.svc-detail-story-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
 /* Recommended add-on card */
 .svc-detail-addon-card {
   display: grid;
@@ -302,25 +209,6 @@
   width: 100%;
 }
 
-.svc-detail-addon-card__image {
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  aspect-ratio: 1;
-}
-
-.svc-detail-addon-card__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.svc-detail-addon-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
-
 /* Monthly support CTA */
 .svc-detail-support-cta {
   display: flex;
@@ -332,57 +220,12 @@
   width: 100%;
 }
 
-/* Category page — monthly support section */
-.svc-category-support {
-  display: flex;
-  gap: var(--gap-xl);
-  align-items: center;
-  width: 100%;
-}
-
-.svc-category-support__content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
-
 /* Category page — other service lines */
 .svc-category-others {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: var(--gap-lg);
   width: 100%;
-}
-
-.svc-category-other-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-  padding: var(--padding-lg);
-  background-color: var(--surface-primary);
-  border: 1px solid var(--border-secondary);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  transition: border-color 0.15s;
-}
-
-.svc-category-other-card:hover {
-  border-color: var(--border-brand-primary);
-}
-
-.svc-category-other-card__image {
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  aspect-ratio: 3 / 2;
-  background-color: var(--surface-accent);
-}
-
-.svc-category-other-card__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
 }
 
 /* ─── Responsive ──────────────────────────────────────────── */

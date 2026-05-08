@@ -178,6 +178,23 @@
   text-decoration: none;
 }
 
+/* Card-bordered modifiers — repeating variants across services / about /
+   customers / value / industries / blog / customer-stories. */
+.card-bordered--thin {
+  border-width: 1px;
+  border-color: var(--border-secondary);
+}
+
+.card-bordered--subtle {
+  border-color: var(--border-secondary);
+}
+
+.card-bordered--centered {
+  align-items: center;
+  gap: var(--gap-md);
+  height: 100%;
+}
+
 /* ─── Image frame ────────────────────────────────────────── */
 /* Webflow: .img-frame-service */
 .img-frame {
@@ -336,6 +353,10 @@
   width: 80%;
 }
 
+.content-wrapper--narrowest {
+  width: 70%;
+}
+
 .content-wrapper--center.content-wrapper--narrow {
   width: 70%;
 }
@@ -365,6 +386,39 @@
 
 .container-lg--tight      { gap: 12px; }
 .container-lg--comfortable { gap: 36px; }
+
+/* ─── Stack family ───────────────────────────────────────── */
+/* `flex column` wrappers with token-based gap. Supplants ad-hoc
+   per-page rules like .hero-text, .audit-text, .svc-card__content. */
+
+.stack       { display: flex; flex-flow: column; }
+.stack--xs   { gap: var(--gap-xs); }
+.stack--sm   { gap: var(--gap-sm); }
+.stack--md   { gap: var(--gap-md); }
+.stack--lg   { gap: var(--gap-lg); }
+.stack--xl   { gap: var(--gap-xl); }
+
+/* ─── Page-hero modifier ─────────────────────────────────── */
+/* Full-viewport hero composition (homepage/about/value heroes).
+   Pairs with `.page-hero` or `.section-*` flex-center compositions. */
+
+.page-hero--full-viewport {
+  min-height: 100vh;
+}
+
+@supports (min-height: 100svh) {
+  .page-hero--full-viewport {
+    min-height: 100svh;
+  }
+}
+
+/* ─── CTA pin-to-bottom ──────────────────────────────────── */
+/* Pin a CTA button to the bottom of a flex-column card. */
+
+.cta-pin-bottom {
+  align-self: flex-start;
+  margin-top: auto;
+}
 
 /* ─── Responsive ─────────────────────────────────────────── */
 

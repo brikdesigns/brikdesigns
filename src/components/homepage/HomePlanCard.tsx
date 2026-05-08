@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { LinkButton } from '@brikdesigns/bds';
+import { text, heading } from '@/lib/styles';
 
 interface HomePlanCardProps {
   name: string;
@@ -17,8 +18,8 @@ interface HomePlanCardProps {
  */
 export function HomePlanCard({ name, slug, price, description, imageUrl }: HomePlanCardProps) {
   return (
-    <div className="plan-card">
-      <div className="plan-card__image-frame">
+    <div className="card-plain card-bordered--centered">
+      <div className="img-frame">
         {imageUrl ? (
           <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
@@ -27,9 +28,9 @@ export function HomePlanCard({ name, slug, price, description, imageUrl }: HomeP
       </div>
 
       <div className="plan-card__content">
-        <p className="plan-card__price">{price}</p>
-        <h3 className="plan-card__name">{name}</h3>
-        <p className="plan-card__description">{description}</p>
+        <p style={heading.lg}>{price}</p>
+        <h3 style={heading.sm}>{name}</h3>
+        <p style={text.bodySmall}>{description}</p>
       </div>
 
       <LinkButton href={`/plans#${slug}`} variant="primary" size="md">

@@ -28,7 +28,7 @@ export default async function BlogPage() {
         </div>
       </section>
 
-      <section className="content-section blog-section">
+      <section className="content-section">
         <div className="container-lg">
           <div className="blog-grid">
             {posts.map((post) => (

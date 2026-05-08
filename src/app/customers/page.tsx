@@ -84,7 +84,7 @@ export default function CustomersPage() {
       </section>
 
       {/* Intro */}
-      <section className="content-section customers-section">
+      <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
             <p style={{ ...text.bodyLg, textAlign: 'center' }}>
@@ -96,7 +96,7 @@ export default function CustomersPage() {
       </section>
 
       {/* Industries we know */}
-      <section className="content-section content-section--accent customers-section">
+      <section className="content-section content-section--accent">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Know Inside-Out</h2>
@@ -104,7 +104,7 @@ export default function CustomersPage() {
               We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:
             </p>
           </div>
-          <div className="customers-industry-grid">
+          <div className="grid-3">
             {INDUSTRIES.map((name) => (
               <div key={name} className="customers-industry-card">
                 <h3 style={{ ...heading.sm, textAlign: 'center' }}>{name}</h3>
@@ -115,11 +115,11 @@ export default function CustomersPage() {
       </section>
 
       {/* Company size segments */}
-      <section className="content-section content-section--secondary customers-section">
+      <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="grid-3">
             {SEGMENTS.map((seg) => (
-              <div key={seg.heading} className="customers-segment-card">
+              <div key={seg.heading} className="card-bordered card-bordered--thin customers-segment-card">
                 <h3 style={heading.sm}>{seg.heading}</h3>
                 <p style={{ ...label.smBold, color: color.text.brand }}>{seg.subheading}</p>
                 <p style={{ ...text.bodySm, color: color.text.secondary }}>{seg.desc}</p>
@@ -141,7 +141,7 @@ export default function CustomersPage() {
       </section>
 
       {/* Industry detail cards */}
-      <section className="content-section customers-section">
+      <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="customers-detail-grid">
             {INDUSTRY_CARDS.map((ind) => (
@@ -156,12 +156,12 @@ export default function CustomersPage() {
       </section>
 
       {/* Common challenges */}
-      <section className="content-section content-section--secondary customers-section">
+      <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common Challenges We Solve</h2>
           </div>
-          <div className="customers-challenges">
+          <div className="grid-2">
             {CHALLENGES.map((challenge) => (
               <div key={challenge} className="customers-challenge">
                 <p style={text.body}>{challenge}</p>
@@ -172,7 +172,7 @@ export default function CustomersPage() {
       </section>
 
       {/* CTA */}
-      <section className="content-section customers-section">
+      <section className="content-section">
         <div className="container-lg">
           <div className="content-wrapper content-wrapper--center">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Get in Touch</h2>

@@ -4,7 +4,6 @@ import { ContactForm } from '@/components/marketing/ContactForm';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../shared-sections.css';
-import './contact.css';
 
 export const metadata: Metadata = {
   title: 'Contact Brik Designs | Start Your Project or Ask a Question',
@@ -17,7 +16,7 @@ export default function ContactPage() {
       {/* Header + Quick CTAs */}
       <section className="page-hero">
         <div className="page-hero__container">
-          <div className="contact-hero-row">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--gap-lg)' }}>
             <h1 className="page-hero__title">Get in touch</h1>
             <div className="button-wrapper">
               <LinkButton href="https://calendly.com/brikdesigns" variant="primary" size="md" target="_blank" rel="noopener noreferrer">
@@ -35,8 +34,8 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form */}
-      <section className="content-section contact-form-section">
-        <div className="container-lg contact-form-container">
+      <section className="content-section">
+        <div className="container-lg" style={{ maxWidth: 800, alignItems: 'flex-start', gap: 'var(--gap-xs)' }}>
           <h2 style={heading.md}>Send us a message</h2>
           <p style={{ ...text.bodySm, color: color.text.secondary }}>Let us know what you&apos;re interested in</p>
           <ContactForm />

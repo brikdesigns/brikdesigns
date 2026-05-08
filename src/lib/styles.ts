@@ -65,6 +65,16 @@ export const text = {
     color: color.text.secondary,
   } satisfies CSSProperties,
 
+  /** body/xl · 20/150 primary — large body for hero subtext */
+  bodyXl: {
+    fontFamily: font.family.body,
+    fontSize: font.size.body.xl,
+    fontWeight: font.weight.regular,
+    lineHeight: font.lineHeight.normal,
+    color: color.text.primary,
+    margin: 0,
+  } satisfies CSSProperties,
+
   /** body/xs · 11.5/150 muted — fine print, timestamps */
   bodyXs: {
     fontFamily: font.family.body,
@@ -228,5 +238,29 @@ export const list = {
   li: {
     fontSize: 'inherit',
     marginBottom: gap.xs,
+  } satisfies CSSProperties,
+} as const;
+
+// ─── Display (oversized headings — hero / stat callouts) ─────────────
+
+export const display = {
+  /** display/sm · --heading-huge / display family / bold / tight — homepage hero, value step number */
+  sm: {
+    fontFamily: font.family.display,
+    fontSize: font.size.heading.xxxLarge,
+    fontWeight: font.weight.bold,
+    lineHeight: font.lineHeight.tight,
+    color: color.text.primary,
+    margin: 0,
+  } satisfies CSSProperties,
+
+  /** display/xs · --heading-xl / heading family / bold / lh 1 — stat callouts (value-stat-value) */
+  xs: {
+    fontFamily: font.family.heading,
+    fontSize: font.size.heading.xLarge,
+    fontWeight: font.weight.bold,
+    lineHeight: font.lineHeight.none,
+    color: color.text.primary,
+    margin: 0,
   } satisfies CSSProperties,
 } as const;

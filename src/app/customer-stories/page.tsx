@@ -6,7 +6,6 @@ import { getCustomerStories } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../shared-sections.css';
-import './customer-stories.css';
 
 export const metadata: Metadata = {
   title: 'Customer Stories | Brik Design Portfolio & Client Projects',
@@ -29,23 +28,23 @@ export default async function CustomerStoriesPage() {
         </div>
       </section>
 
-      <section className="content-section stories-section">
+      <section className="content-section">
         <div className="container-lg">
           {stories && stories.length > 0 ? (
             <div className="grid-2">
               {stories.map((story) => (
-                <Link key={story.id} href={`/customer-stories/${story.slug}`} className="story-list-card">
+                <Link key={story.id} href={`/customer-stories/${story.slug}`} className="card-bordered card-bordered--subtle">
                   {story.hero_image_url && (
-                    <div className="story-list-card__image">
+                    <div className="img-frame img-frame--wide">
                       <Image src={story.hero_image_url} alt={story.client_name || story.name} width={600} height={338} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )}
-                  <div className="story-list-card__content">
+                  <div className="stack stack--xs">
                     <h3 style={heading.sm}>{story.name || story.client_name}</h3>
                     {story.industry && <p style={{ ...label.smBold, color: color.text.brand }}>{story.industry}</p>}
                     {story.short_description && <p style={{ ...text.bodySm, color: color.text.secondary }}>{story.short_description}</p>}
                   </div>
-                  <span className={`${composeButtonClasses({ variant: 'primary', size: 'sm' })} story-list-card__cta`}>Read Story</span>
+                  <span className={`${composeButtonClasses({ variant: 'primary', size: 'sm' })} cta-pin-bottom`}>Read Story</span>
                 </Link>
               ))}
             </div>

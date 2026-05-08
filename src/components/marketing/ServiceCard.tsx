@@ -28,7 +28,7 @@ export function ServiceCard({
   return (
     <Link href={href} className={`svc-card${isRich ? ' svc-card--rich' : ''}`}>
       {imageUrl && (
-        <div className="svc-card__image">
+        <div className="img-frame img-frame--landscape">
           <Image src={imageUrl} alt={name} width={400} height={267} />
         </div>
       )}

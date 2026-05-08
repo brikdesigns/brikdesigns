@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { ServiceBadge } from '@brikdesigns/bds';
 import { LinkButton } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
+import { text, heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 
 interface HomeServiceCardProps {
   name: string;
@@ -19,9 +21,9 @@ interface HomeServiceCardProps {
  */
 export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: HomeServiceCardProps) {
   return (
-    <div className="service-card">
+    <div className="card-bordered card-bordered--centered">
       {/* Webflow: .img-frame-service.accent */}
-      <div className="service-card__image-frame">
+      <div className="img-frame">
         {imageUrl ? (
           <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
@@ -34,8 +36,8 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: Hom
       <div className="service-card__header">
         <ServiceBadge category={category} size="md" />
         <div className="service-card__content">
-          <h3 className="service-card__title">{name}</h3>
-          <p className="service-card__description">{tagline}</p>
+          <h3 style={heading.sm}>{name}</h3>
+          <p style={{ ...text.bodyLg, color: color.text.secondary }}>{tagline}</p>
         </div>
       </div>
 
