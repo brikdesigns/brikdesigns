@@ -48,14 +48,16 @@ export default async function HomePage() {
           <div className="hero-layout">
             <div className="hero-text">
               <h1 className="hero-heading">
-                Marketing That Works. Design That Builds.
+                Marketing That Works.
+                <br />
+                Design That Builds.
               </h1>
               <p className="hero-subtext">
                 We help small businesses show up better, work smarter, and grow faster—brik by brik.
               </p>
             </div>
             <div className="button-wrapper">
-              <LinkButton href="/services" variant="outline" size="lg" className="hero-btn-on-dark">
+              <LinkButton href="/services" variant="inverse" size="lg">
                 Explore Design Services
               </LinkButton>
               <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
