@@ -200,9 +200,20 @@
         ".bds-button--sm.bds-button[href$=\"contact\"]",
         ".bds-button--sm.bds-button[type=\"submit\"] > .bds-button__content",
         ".bds-footer__above-top > div > p",
+        ".fma-content > p:nth-child(2)",
+        ".fma-form-card > p",
+        ".fma-review > p",
+        ".fma-review-list > li:nth-child(1)",
+        ".fma-review-list > li:nth-child(2)",
+        ".fma-review-list > li:nth-child(3)",
+        ".fma-review-list > li:nth-child(4)",
         ".mega-nav__utility-label",
         ".page-hero__description",
-        "h3"
+        "h3",
+        "li:nth-child(5)",
+        "p:nth-child(3)",
+        "p:nth-child(5)",
+        "strong"
       ]
     },
     "/get-started": {
