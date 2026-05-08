@@ -33,10 +33,6 @@
 /* Webflow: 2-col grid, bordered cards, large circle headshots centered,
    social links below name, full-length bios */
 
-.about-team-section {
-  padding: var(--padding-huge) 0;
-}
-
 .about-team-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -101,10 +97,6 @@
 /* ─── Value of Design CTA ──────────────────────────────────── */
 /* Webflow: bordered card, 2-col: text+button left, 3D illustration right */
 
-.about-value-section {
-  padding: var(--padding-huge) 0;
-}
-
 .about-value-card {
   display: flex;
   align-items: center;
@@ -134,10 +126,6 @@
 /* ─── Pillars (Approach / Mission / Vision) ────────────────── */
 /* Webflow: tan/accent bg, stacked rows: number+title left column, body text right column */
 
-.about-pillars-section {
-  padding: var(--padding-huge) 0;
-}
-
 .about-pillar-row {
   display: flex;
   gap: var(--gap-xl);
@@ -162,10 +150,6 @@
 
 /* ─── Our Services ─────────────────────────────────────────── */
 /* Webflow: 3-col grid of image cards with 3D illustrations, title, desc, "Learn more" button */
-
-.about-services-section {
-  padding: var(--padding-huge) 0;
-}
 
 .about-services-grid {
   display: grid;

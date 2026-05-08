@@ -30,7 +30,7 @@ export default async function CustomerStoriesPage() {
         </div>
       </section>
 
-      <section className="content-section stories-section">
+      <section className="content-section">
         <div className="container-lg">
           {stories && stories.length > 0 ? (
             <div className="story-list">
@@ -57,8 +57,8 @@ export default async function CustomerStoriesPage() {
       </section>
 
       {/* Bottom Get In Touch CTA — Webflow shows this on the customer-stories index */}
-      <section className="stories-cta-section">
-        <div className="stories-cta-card">
+      <section className="cta-section-brand">
+        <div className="cta-card-brand">
           <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>Get in Touch</h2>
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0, opacity: 0.9 }}>
             Starting a new project or want to collaborate with us?

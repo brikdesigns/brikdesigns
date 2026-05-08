@@ -1,9 +1,5 @@
 /* ─── Plans page — layout only ──────────────────────────── */
 
-.plans-section {
-  padding: var(--padding-huge) 0;
-}
-
 /* Billing toggle — Monthly / Annually */
 .plans-toggle {
   display: flex;

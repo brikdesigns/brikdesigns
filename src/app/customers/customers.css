@@ -1,9 +1,5 @@
 /* ─── Customers page — layout only ──────────────────────── */
 
-.customers-section {
-  padding: var(--padding-huge) 0;
-}
-
 .customers-industry-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

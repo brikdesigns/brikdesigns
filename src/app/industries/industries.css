@@ -1,9 +1,5 @@
 /* ─── Industries pages — layout only ─────────────────────── */
 
-.industries-section {
-  padding: var(--padding-huge) 0;
-}
-
 /* List page — card grid */
 .industries-grid {
   display: grid;
@@ -81,33 +77,9 @@
   height: 100%;
 }
 
-/* Bottom Get In Touch CTA — orange brand panel */
-.industry-cta-section {
-  padding: var(--padding-huge) 0;
-  display: flex;
-  justify-content: center;
-}
-
-.industry-cta-card {
-  width: 100%;
-  max-width: 1080px;
-  margin: 0 var(--padding-lg);
-  padding: var(--padding-huge) var(--padding-xl);
-  background-color: var(--surface-brand-primary);
-  border-radius: var(--border-radius-lg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--gap-md);
-}
-
 @media (max-width: 767px) {
   .industry-story-card {
     grid-template-columns: 1fr;
-  }
-
-  .industry-cta-card {
-    padding: var(--padding-xl);
   }
 }
 

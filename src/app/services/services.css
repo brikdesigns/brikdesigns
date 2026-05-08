@@ -66,11 +66,6 @@
   gap: 12px;
 }
 
-/* Accent section background */
-.content-section--accent {
-  background-color: var(--surface-accent);
-}
-
 /* Individual service card (badge + name + tagline) */
 .svc-card {
   display: flex;
@@ -116,11 +111,6 @@
 
 .svc-card--rich .svc-card__content {
   gap: var(--gap-sm);
-}
-
-/* Secondary section background */
-.content-section--secondary {
-  background-color: var(--surface-secondary);
 }
 
 /* ─── Service detail page ─────────────────────────────────── */

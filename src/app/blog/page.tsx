@@ -28,7 +28,7 @@ export default async function BlogPage() {
         </div>
       </section>
 
-      <section className="content-section blog-section">
+      <section className="content-section">
         <div className="container-lg">
           <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
             <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Latest Posts</h2>
