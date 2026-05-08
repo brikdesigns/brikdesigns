@@ -86,7 +86,7 @@ export default function CustomersPage() {
       </section>
 
       {/* Intro */}
-      <section className="content-section customers-section">
+      <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
             <p style={{ ...text.bodyLg, textAlign: 'center' }}>
@@ -98,7 +98,7 @@ export default function CustomersPage() {
       </section>
 
       {/* Industries we know */}
-      <section className="content-section content-section--accent customers-section">
+      <section className="content-section content-section--accent">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Know Inside-Out</h2>
@@ -117,7 +117,7 @@ export default function CustomersPage() {
       </section>
 
       {/* Company size segments */}
-      <section className="content-section content-section--secondary customers-section">
+      <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="grid-3">
             {SEGMENTS.map((seg) => (
@@ -143,7 +143,7 @@ export default function CustomersPage() {
       </section>
 
       {/* Industry detail cards */}
-      <section className="content-section customers-section">
+      <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="customers-detail-grid">
             {INDUSTRY_CARDS.map((ind) => (
@@ -158,7 +158,7 @@ export default function CustomersPage() {
       </section>
 
       {/* Common challenges */}
-      <section className="content-section content-section--secondary customers-section">
+      <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common Challenges We Solve</h2>
@@ -178,7 +178,7 @@ export default function CustomersPage() {
       </section>
 
       {/* CTA */}
-      <section className="content-section customers-section">
+      <section className="content-section">
         <div className="container-lg">
           <div className="content-wrapper content-wrapper--center">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Get in Touch</h2>

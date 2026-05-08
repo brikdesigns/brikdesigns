@@ -332,6 +332,29 @@
   gap: 36px; /* Webflow: gap--xl */
 }
 
+/* ─── Brand-color CTA card ───────────────────────────────── */
+/* Centered orange panel inside a section gutter — used at the bottom of
+   customer-stories index and industry detail pages. */
+
+.cta-section-brand {
+  padding: var(--padding-huge) 0;
+  display: flex;
+  justify-content: center;
+}
+
+.cta-card-brand {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 var(--padding-lg);
+  padding: var(--padding-huge) var(--padding-xl);
+  background-color: var(--surface-brand-primary);
+  border-radius: var(--border-radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-md);
+}
+
 /* ─── Container ──────────────────────────────────────────── */
 /* Webflow: .container-lg — centered flex column, 90% max */
 
@@ -392,5 +415,9 @@
 
   .button-wrapper--center {
     flex-flow: row;
+  }
+
+  .cta-card-brand {
+    padding: var(--padding-xl);
   }
 }

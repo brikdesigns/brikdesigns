@@ -165,8 +165,8 @@ export default async function IndustryDetailPage({ params }: Props) {
       )}
 
       {/* Get In Touch CTA — orange brand panel */}
-      <section className="industry-cta-section">
-        <div className="industry-cta-card">
+      <section className="cta-section-brand">
+        <div className="cta-card-brand">
           <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>Get in Touch</h2>
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
             Let&apos;s talk about how we can help your {page.name.toLowerCase()} business.

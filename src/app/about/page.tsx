@@ -101,7 +101,7 @@ export default async function AboutPage() {
 
       {/* ═══ Team ═══ */}
       {/* Webflow: 2-col bordered cards, large circle headshots, social links, full bios */}
-      <section className="content-section about-team-section">
+      <section className="content-section">
         <div className="container-lg">
           <div className="about-team-grid">
             {TEAM.map((member) => (
@@ -143,7 +143,7 @@ export default async function AboutPage() {
 
       {/* ═══ Value of Design CTA ═══ */}
       {/* Webflow: bordered card, 2-col: text left + 3D diamond image right */}
-      <section className="content-section about-value-section">
+      <section className="content-section">
         <div className="container-lg">
           <div className="about-value-card">
             <div className="about-value-text">
@@ -166,7 +166,7 @@ export default async function AboutPage() {
 
       {/* ═══ Pillars (Approach / Mission / Vision) ═══ */}
       {/* Webflow: tan bg, stacked rows: number+title left, body text right */}
-      <section className="content-section content-section--accent about-pillars-section">
+      <section className="content-section content-section--accent">
         <div className="container-lg container-lg--comfortable">
           {PILLARS.map((pillar) => (
             <div key={pillar.number} className="about-pillar-row">
@@ -184,7 +184,7 @@ export default async function AboutPage() {
 
       {/* ═══ Our Services ═══ */}
       {/* Webflow: header text + 3-col grid of image cards with "Learn more" buttons */}
-      <section className="content-section about-services-section">
+      <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>

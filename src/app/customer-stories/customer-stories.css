@@ -1,9 +1,5 @@
 /* ─── Customer stories — layout only ────────────────────── */
 
-.stories-section {
-  padding: var(--padding-huge) 0;
-}
-
 /* Single-column list of horizontal cards (matches Webflow target) */
 .story-list {
   display: flex;
@@ -46,26 +42,6 @@
   margin-left: var(--gap-md);
 }
 
-/* Bottom CTA panel — orange brand bg, centered content */
-.stories-cta-section {
-  padding: var(--padding-huge) 0;
-  display: flex;
-  justify-content: center;
-}
-
-.stories-cta-card {
-  width: 100%;
-  max-width: 1080px;
-  margin: 0 var(--padding-lg);
-  padding: var(--padding-huge) var(--padding-xl);
-  background-color: var(--surface-brand-primary);
-  border-radius: var(--border-radius-lg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--gap-md);
-}
-
 /* Responsive — stack image above content on narrow viewports */
 @media (max-width: 767px) {
   .story-list-card {
@@ -79,9 +55,5 @@
   .story-list-card__cta {
     align-self: flex-start;
     margin-left: 0;
-  }
-
-  .stories-cta-card {
-    padding: var(--padding-xl);
   }
 }

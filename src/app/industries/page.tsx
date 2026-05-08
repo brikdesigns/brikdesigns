@@ -28,7 +28,7 @@ export default async function IndustriesPage() {
         </div>
       </section>
 
-      <section className="content-section industries-section">
+      <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="industries-grid">
             {industries.map((ind) => (
