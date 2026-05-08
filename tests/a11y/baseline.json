@@ -124,10 +124,13 @@
         ".bds-button--lg > .bds-button__content",
         ".bds-button--md.bds-button[href=\"mailto:hello@brikdesigns.com\"] > .bds-button__content",
         ".bds-button--md.bds-button[href=\"tel:+15614908714\"] > .bds-button__content",
+        ".bds-button--sm.bds-button--primary[href$=\"contact\"]",
+        ".bds-button--sm.bds-button--primary[type=\"submit\"] > .bds-button__content",
         ".bds-button--sm.bds-button[href$=\"contact\"]",
         ".bds-button--sm.bds-button[type=\"submit\"] > .bds-button__content",
         ".bds-footer__above-top > div > p",
         ".container-lg > p",
+        ".contact-form-block > p",
         ".mega-nav__utility-label",
         "a[target=\"_blank\"] > .bds-button__content",
         "h3"
