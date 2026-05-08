@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { MegaNavServer } from '@/components/layout/MegaNavServer';
 import { Footer } from '@/components/layout/Footer';
+import { DevTools } from '@/components/DevTools';
 import { poppins } from '@/lib/fonts';
 import './globals.css';
 
@@ -71,6 +72,7 @@ export default async function RootLayout({
           {!chromeless && <MegaNavServer />}
           <main>{children}</main>
           {!chromeless && <Footer />}
+          <DevTools />
         </ThemeProvider>
       </body>
     </html>
