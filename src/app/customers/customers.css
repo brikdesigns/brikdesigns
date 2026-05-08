@@ -101,7 +101,6 @@
   padding: 24px;
   background-color: var(--surface-primary);
   border-radius: var(--border-radius-md);
-  border-left: 4px solid var(--border-brand-primary);
 }
 
 /* ─── Responsive ──────────────────────────────────────────── */
