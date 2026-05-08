@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { LinkButton } from '@brikdesigns/bds';
 import { ContactForm } from '@/components/marketing/ContactForm';
+import { text, heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './contact.css';
 
@@ -35,8 +37,8 @@ export default function ContactPage() {
       {/* Contact Form */}
       <section className="content-section contact-form-section">
         <div className="container-lg contact-form-container">
-          <h2 className="text-heading-md">Send us a message</h2>
-          <p className="text-body-sm text--secondary">Let us know what you&apos;re interested in</p>
+          <h2 style={heading.md}>Send us a message</h2>
+          <p style={{ ...text.bodySm, color: color.text.secondary }}>Let us know what you&apos;re interested in</p>
           <ContactForm />
         </div>
       </section>

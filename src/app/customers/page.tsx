@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { text, heading, label } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './customers.css';
 
@@ -85,7 +87,7 @@ export default function CustomersPage() {
       <section className="content-section customers-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <p className="text-body-lg text--center">
+            <p style={{ ...text.bodyLg, textAlign: 'center' }}>
               You don&apos;t need to hire a full in-house team to move like one. Brik gives you access
               to senior-level design and strategic support&mdash;without the full-time overhead.
             </p>
@@ -97,15 +99,15 @@ export default function CustomersPage() {
       <section className="content-section content-section--accent customers-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 className="text-heading-lg text--center">Industries We Know Inside-Out</h2>
-            <p className="text-body-md text--secondary text--center">
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Know Inside-Out</h2>
+            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:
             </p>
           </div>
           <div className="customers-industry-grid">
             {INDUSTRIES.map((name) => (
               <div key={name} className="customers-industry-card">
-                <h3 className="text-heading-sm text--center">{name}</h3>
+                <h3 style={{ ...heading.sm, textAlign: 'center' }}>{name}</h3>
               </div>
             ))}
           </div>
@@ -118,14 +120,14 @@ export default function CustomersPage() {
           <div className="grid-3">
             {SEGMENTS.map((seg) => (
               <div key={seg.heading} className="customers-segment-card">
-                <h3 className="text-heading-sm">{seg.heading}</h3>
-                <p className="text-label-sm text--brand">{seg.subheading}</p>
-                <p className="text-body-sm text--secondary">{seg.desc}</p>
+                <h3 style={heading.sm}>{seg.heading}</h3>
+                <p style={{ ...label.smBold, color: color.text.brand }}>{seg.subheading}</p>
+                <p style={{ ...text.bodySm, color: color.text.secondary }}>{seg.desc}</p>
                 <div className="customers-segment-fits">
-                  <p className="text-label-sm">Great fit for:</p>
+                  <p style={label.smBold}>Great fit for:</p>
                   <ul className="customers-segment-list">
                     {seg.fits.map((fit) => (
-                      <li key={fit} className="text-body-sm text--secondary">{fit}</li>
+                      <li key={fit} style={{ ...text.bodySm, color: color.text.secondary }}>{fit}</li>
                     ))}
                   </ul>
                 </div>
@@ -144,8 +146,8 @@ export default function CustomersPage() {
           <div className="customers-detail-grid">
             {INDUSTRY_CARDS.map((ind) => (
               <Link key={ind.slug} href={`/customers/${ind.slug}`} className="customers-detail-card">
-                <h3 className="text-heading-sm">{ind.name}</h3>
-                <p className="text-body-sm text--secondary">{ind.tagline}</p>
+                <h3 style={heading.sm}>{ind.name}</h3>
+                <p style={{ ...text.bodySm, color: color.text.secondary }}>{ind.tagline}</p>
                 <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}>Learn More</span>
               </Link>
             ))}
@@ -157,12 +159,12 @@ export default function CustomersPage() {
       <section className="content-section content-section--secondary customers-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 className="text-heading-lg text--center">Common Challenges We Solve</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common Challenges We Solve</h2>
           </div>
           <div className="customers-challenges">
             {CHALLENGES.map((challenge) => (
               <div key={challenge} className="customers-challenge">
-                <p className="text-body-md">{challenge}</p>
+                <p style={text.body}>{challenge}</p>
               </div>
             ))}
           </div>
@@ -173,8 +175,8 @@ export default function CustomersPage() {
       <section className="content-section customers-section">
         <div className="container-lg">
           <div className="content-wrapper content-wrapper--center">
-            <h2 className="text-heading-lg text--center">Get in Touch</h2>
-            <p className="text-body-md text--secondary text--center">
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Get in Touch</h2>
+            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               Starting a new project or want to collaborate with us?
             </p>
             <div className="button-wrapper button-wrapper--center">

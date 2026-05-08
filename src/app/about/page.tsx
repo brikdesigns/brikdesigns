@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
+import { text, heading, label } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './about.css';
 
@@ -92,7 +94,7 @@ export default async function AboutPage() {
             customers&apos; customers&mdash;creating designs and strategies that work for everyone.
           </p>
           <div className="about-hero__scroll">
-            <span className="text-label-sm text--secondary">Scroll down</span>
+            <span style={{ ...label.smBold, color: color.text.secondary }}>Scroll down</span>
           </div>
         </div>
       </section>
@@ -113,8 +115,8 @@ export default async function AboutPage() {
                     style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                   />
                 </div>
-                <h3 className="text-heading-md about-team-name">Meet {member.name}</h3>
-                <p className="text-label-sm text--secondary">{member.role}</p>
+                <h3 className="about-team-name" style={heading.md}>Meet {member.name}</h3>
+                <p style={{ ...label.smBold, color: color.text.secondary }}>{member.role}</p>
                 <div className="about-team-social">
                   <a href={member.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="about-social-link">
                     <svg width="16" height="16" viewBox="0 0 448 512" fill="currentColor"><path d="M100.3 448H7.4V148.9h92.9zM53.8 108.1C24.1 108.1 0 83.5 0 53.8a53.8 53.8 0 0 1 107.6 0c0 29.7-24.1 54.3-53.8 54.3zM447.9 448h-92.7V302.4c0-34.7-.7-79.2-48.3-79.2-48.3 0-55.7 37.7-55.7 76.7V448h-92.8V148.9h89.1v40.8h1.3c12.4-23.5 42.7-48.3 87.9-48.3 94 0 111.3 61.9 111.3 142.3V448z" /></svg>
@@ -130,7 +132,7 @@ export default async function AboutPage() {
                 </div>
                 <div className="about-team-bio">
                   {member.bio.map((paragraph, i) => (
-                    <p key={i} className="text-body-sm text--secondary">{paragraph}</p>
+                    <p key={i} style={{ ...text.bodySm, color: color.text.secondary }}>{paragraph}</p>
                   ))}
                 </div>
               </div>
@@ -145,8 +147,8 @@ export default async function AboutPage() {
         <div className="container-lg">
           <div className="about-value-card">
             <div className="about-value-text">
-              <h2 className="text-heading-md">The Value of Design</h2>
-              <p className="text-body-md text--secondary">Learn about the value of design in 4 steps.</p>
+              <h2 style={heading.md}>The Value of Design</h2>
+              <p style={{ ...text.body, color: color.text.secondary }}>Learn about the value of design in 4 steps.</p>
               <LinkButton href="/value" variant="primary" size="md">Learn More</LinkButton>
             </div>
             <div className="about-value-image">
@@ -169,11 +171,11 @@ export default async function AboutPage() {
           {PILLARS.map((pillar) => (
             <div key={pillar.number} className="about-pillar-row">
               <div className="about-pillar-label">
-                <span className="text-label-sm text--brand">{pillar.number}</span>
-                <h3 className="text-heading-md">{pillar.title}</h3>
+                <span style={{ ...label.smBold, color: color.text.brand }}>{pillar.number}</span>
+                <h3 style={heading.md}>{pillar.title}</h3>
               </div>
               <div className="about-pillar-body">
-                <p className="text-body-md text--secondary">{pillar.body}</p>
+                <p style={{ ...text.body, color: color.text.secondary }}>{pillar.body}</p>
               </div>
             </div>
           ))}
@@ -185,7 +187,7 @@ export default async function AboutPage() {
       <section className="content-section about-services-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
-            <p className="text-body-md text--secondary text--center">
+            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>
           </div>
@@ -205,8 +207,8 @@ export default async function AboutPage() {
                     <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-accent)' }} />
                   )}
                 </div>
-                <h3 className="text-heading-sm">{line.name}</h3>
-                <p className="text-body-sm text--secondary">{line.description}</p>
+                <h3 style={heading.sm}>{line.name}</h3>
+                <p style={{ ...text.bodySm, color: color.text.secondary }}>{line.description}</p>
                 <span className={`${composeButtonClasses({ variant: 'secondary', size: 'sm' })} about-service-cta`}>Learn more</span>
               </Link>
             ))}

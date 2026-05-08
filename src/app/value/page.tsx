@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { LinkButton } from '@brikdesigns/bds';
+import { text, heading, label } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './value.css';
 
@@ -55,13 +57,13 @@ export default function ValuePage() {
       {/* Hero */}
       <section className="page-hero value-hero">
         <div className="page-hero__container">
-          <p className="text-label-sm text--brand">Why Design?</p>
+          <p style={{ ...label.smBold, color: color.text.brand }}>Why Design?</p>
           <h1 className="page-hero__title">In 4 Steps</h1>
           <p className="page-hero__description">
             Design is more than just making things look pretty. It&apos;s the secret weapon behind every successful brand,
             the silent salesperson that builds trust, boosts engagement, and turns browsers into buyers.
           </p>
-          <p className="text-body-md text--secondary">
+          <p style={{ ...text.body, color: color.text.secondary }}>
             Here&apos;s why design deserves a front-row seat in your marketing strategy.
           </p>
 
@@ -69,8 +71,8 @@ export default function ValuePage() {
           <nav className="value-step-nav">
             {STEPS.map((step) => (
               <a key={step.number} href={`#value-${step.number}`} className="value-step-nav__link">
-                <span className="text-label-sm text--brand">{step.number}</span>
-                <span className="text-body-sm">{step.title}</span>
+                <span style={{ ...label.smBold, color: color.text.brand }}>{step.number}</span>
+                <span style={text.bodySm}>{step.title}</span>
               </a>
             ))}
           </nav>
@@ -87,16 +89,16 @@ export default function ValuePage() {
           <div className="container-lg container-lg--comfortable">
             <div className="value-step-header">
               <span className="value-step-number">{step.number}</span>
-              <h2 className="text-heading-lg">{step.title}</h2>
+              <h2 style={heading.lg}>{step.title}</h2>
             </div>
-            <p className="text-body-lg text--secondary" style={{ maxWidth: 700 }}>
+            <p style={{ ...text.bodyLg, color: color.text.secondary, maxWidth: 700 }}>
               {step.intro}
             </p>
             <div className="value-stats-grid">
               {step.stats.map((stat) => (
                 <div key={stat.value} className="value-stat-card">
                   <span className="value-stat-value">{stat.value}</span>
-                  <p className="text-body-sm text--secondary">{stat.label}</p>
+                  <p style={{ ...text.bodySm, color: color.text.secondary }}>{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -108,13 +110,13 @@ export default function ValuePage() {
       <section className="content-section content-section--accent">
         <div className="container-lg">
           <div className="content-wrapper content-wrapper--center">
-            <p className="text-body-lg text--center">
+            <p style={{ ...text.bodyLg, textAlign: 'center' }}>
               Whether you need a fresh new look, a website that wows, or branding that speaks to your audience, we&apos;ve got you covered.
             </p>
-            <h2 className="text-heading-lg text--center">
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>
               Ready to see what great design can do for you?
             </h2>
-            <p className="text-body-md text--secondary text--center">
+            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               Let&apos;s make something amazing together.
             </p>
             <div className="button-wrapper button-wrapper--center">

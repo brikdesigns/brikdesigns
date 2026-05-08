@@ -27,15 +27,37 @@ import { font, color, gap, space } from './tokens';
 // ─── Body Text ───────────────────────────────────────────────────────
 
 export const text = {
-  /** body/md · 16/150 — default body text */
+  /** body/md · 16/150 primary — default body text (margin: 0) */
   body: {
     fontFamily: font.family.body,
     fontSize: font.size.body.md,
+    fontWeight: font.weight.regular,
     lineHeight: font.lineHeight.normal,
     color: color.text.primary,
+    margin: 0,
   } satisfies CSSProperties,
 
-  /** body/sm · 14/150 — secondary body text */
+  /** body/lg · 18/150 primary — larger body text (marketing) */
+  bodyLg: {
+    fontFamily: font.family.body,
+    fontSize: font.size.body.lg,
+    fontWeight: font.weight.regular,
+    lineHeight: font.lineHeight.normal,
+    color: color.text.primary,
+    margin: 0,
+  } satisfies CSSProperties,
+
+  /** body/sm · 14/150 primary — small body text (marketing). For secondary-color body, see `bodySmall`. */
+  bodySm: {
+    fontFamily: font.family.body,
+    fontSize: font.size.body.sm,
+    fontWeight: font.weight.regular,
+    lineHeight: font.lineHeight.normal,
+    color: color.text.primary,
+    margin: 0,
+  } satisfies CSSProperties,
+
+  /** body/sm · 14/150 secondary — descriptive body text */
   bodySmall: {
     fontFamily: font.family.body,
     fontSize: font.size.body.sm,
@@ -43,7 +65,7 @@ export const text = {
     color: color.text.secondary,
   } satisfies CSSProperties,
 
-  /** body/xs · 11.5/150 — fine print, timestamps */
+  /** body/xs · 11.5/150 muted — fine print, timestamps */
   bodyXs: {
     fontFamily: font.family.body,
     fontSize: font.size.body.xs,
@@ -99,6 +121,36 @@ export const heading = {
     color: color.text.primary,
     margin: 0,
   } satisfies CSSProperties,
+
+  /** heading/lg · 32/110 bold (marketing) — top-level page heading */
+  lg: {
+    fontFamily: font.family.heading,
+    fontSize: font.size.heading.large,
+    fontWeight: font.weight.bold,
+    lineHeight: font.lineHeight.tight,
+    color: color.text.primary,
+    margin: 0,
+  } satisfies CSSProperties,
+
+  /** heading/md · 25.3/125 bold (marketing) */
+  md: {
+    fontFamily: font.family.heading,
+    fontSize: font.size.heading.medium,
+    fontWeight: font.weight.bold,
+    lineHeight: font.lineHeight.snug,
+    color: color.text.primary,
+    margin: 0,
+  } satisfies CSSProperties,
+
+  /** heading/sm · 20/125 bold (marketing) */
+  sm: {
+    fontFamily: font.family.heading,
+    fontSize: font.size.heading.small,
+    fontWeight: font.weight.bold,
+    lineHeight: font.lineHeight.snug,
+    color: color.text.primary,
+    margin: 0,
+  } satisfies CSSProperties,
 } as const;
 
 // ─── Labels (subtitle/md pattern) ────────────────────────────────────
@@ -128,6 +180,17 @@ export const label = {
     fontSize: font.size.label.md,
     fontWeight: font.weight.medium,
     color: color.text.primary,
+  } satisfies CSSProperties,
+
+  /** label/sm · 14/125 semibold (marketing) — bolder counterpart to `label.sm` */
+  smBold: {
+    fontFamily: font.family.label,
+    fontSize: font.size.label.sm,
+    fontWeight: font.weight.semibold,
+    lineHeight: font.lineHeight.snug,
+    color: color.text.primary,
+    whiteSpace: 'nowrap' as const,
+    margin: 0,
   } satisfies CSSProperties,
 } as const;
 

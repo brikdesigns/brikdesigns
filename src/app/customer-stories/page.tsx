@@ -3,6 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getCustomerStories } from '@/lib/supabase/queries';
+import { text, heading, label } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './customer-stories.css';
 
@@ -39,16 +41,16 @@ export default async function CustomerStoriesPage() {
                     </div>
                   )}
                   <div className="story-list-card__content">
-                    <h3 className="text-heading-sm">{story.name || story.client_name}</h3>
-                    {story.industry && <p className="text-label-sm text--brand">{story.industry}</p>}
-                    {story.short_description && <p className="text-body-sm text--secondary">{story.short_description}</p>}
+                    <h3 style={heading.sm}>{story.name || story.client_name}</h3>
+                    {story.industry && <p style={{ ...label.smBold, color: color.text.brand }}>{story.industry}</p>}
+                    {story.short_description && <p style={{ ...text.bodySm, color: color.text.secondary }}>{story.short_description}</p>}
                   </div>
                   <span className={`${composeButtonClasses({ variant: 'primary', size: 'sm' })} story-list-card__cta`}>Read Story</span>
                 </Link>
               ))}
             </div>
           ) : (
-            <p className="text-body-md text--secondary text--center">Customer stories coming soon.</p>
+            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>Customer stories coming soon.</p>
           )}
         </div>
       </section>

@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { ServiceBadge } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { text, heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 interface ServiceCardProps {
   name: string;
   slug: string;
@@ -33,9 +35,9 @@ export function ServiceCard({
       {!isRich && <ServiceBadge category={category} size="md" serviceName={name} />}
       <div className="svc-card__content">
         {isRich && <ServiceBadge category={category} size="sm" serviceName={name} />}
-        <h3 className="text-heading-sm">{name}</h3>
-        {tagline && <p className="text-body-sm text--secondary">{tagline}</p>}
-        {description && <p className="text-body-sm text--secondary">{description}</p>}
+        <h3 style={heading.sm}>{name}</h3>
+        {tagline && <p style={{ ...text.bodySm, color: color.text.secondary }}>{tagline}</p>}
+        {description && <p style={{ ...text.bodySm, color: color.text.secondary }}>{description}</p>}
         {showCta && (
           <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>Learn More</span>
         )}
