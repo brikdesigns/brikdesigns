@@ -12,10 +12,10 @@ import {
 } from '@/lib/supabase/queries';
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { LinkButton } from '@brikdesigns/bds';
+import { LinkButton, Breadcrumb } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading, label } from '@/lib/styles';
-import { color } from '@/lib/tokens';
+import { color, gap } from '@/lib/tokens';
 import '../../../shared-sections.css';
 import '../../services.css';
 
@@ -100,13 +100,15 @@ export default async function ServiceDetailPage({ params }: Props) {
         style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
       >
         <div className="page-hero__container">
-          <p className="page-hero__breadcrumb">
-            <Link href="/services">All Services</Link>
-            {' / '}
-            <Link href={`/services/${categorySlug}`}>{category?.name || categorySlug}</Link>
-            {' / '}
-            {service.name}
-          </p>
+          <Breadcrumb
+            style={{ marginBottom: gap.sm, flexWrap: 'wrap' }}
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Services', href: '/services' },
+              { label: category?.name || categorySlug, href: `/services/${categorySlug}` },
+              { label: service.name },
+            ]}
+          />
 
           <div className="svc-detail-hero">
             <div className="svc-detail-hero__content">
