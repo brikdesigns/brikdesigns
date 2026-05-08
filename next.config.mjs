@@ -11,17 +11,22 @@ const nextConfig = {
     ],
   },
   async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-XSS-Protection', value: '1; mode=block' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-        ],
-      },
+    const baseHeaders = [
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'X-Frame-Options', value: 'DENY' },
+      { key: 'X-XSS-Protection', value: '1; mode=block' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
     ];
+
+    // Block crawlers on every non-production deploy. NEXT_PUBLIC_ENV is
+    // set by netlify.toml: production=production, branch-deploy=staging,
+    // deploy-preview=preview. Netlify's per-context [[headers]] blocks are
+    // silently ignored, so we set this from Next.js where env is reliable.
+    if (process.env.NEXT_PUBLIC_ENV !== 'production') {
+      baseHeaders.push({ key: 'X-Robots-Tag', value: 'noindex, nofollow' });
+    }
+
+    return [{ source: '/:path*', headers: baseHeaders }];
   },
   // Webflow → Netlify URL migration. All 301 (permanent) so Google
   // transfers link equity. See `docs/cutover-redirects.md` for the source
