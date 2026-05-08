@@ -9,6 +9,8 @@ import { Switch } from '@brikdesigns/bds';
 import { Button } from '@brikdesigns/bds';
 import { BdsColorPicker } from './BdsColorPicker';
 import { MediaPicker } from './MediaPicker';
+import { useFormSubmit } from '@/lib/hooks/useFormSubmit';
+import { FormError } from '@/components/marketing/forms/FormError';
 import type { BdsColorToken } from '@/lib/bds-color-tokens';
 
 export type FieldDef =
@@ -84,8 +86,16 @@ export function EntityForm({
     }
     return seed;
   });
-  const [error, setError] = useState('');
-  const [saving, setSaving] = useState(false);
+
+  const url = mode === 'create' ? endpoint : `${endpoint}/${id}`;
+  const { isSubmitting: saving, isError, error, submit, setError } = useFormSubmit({
+    endpoint: url,
+    method: mode === 'create' ? 'POST' : 'PATCH',
+    onSuccess: () => {
+      router.push(successHref);
+      router.refresh();
+    },
+  });
 
   function setValue(name: string, value: unknown) {
     setValues((prev) => ({ ...prev, [name]: value }));
@@ -93,8 +103,6 @@ export function EntityForm({
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError('');
-    setSaving(true);
 
     let payload: Record<string, unknown> = {};
     for (const f of fields) {
@@ -107,7 +115,6 @@ export function EntityForm({
           const n = typeof v === 'number' ? v : Number(v);
           if (!Number.isFinite(n)) {
             setError(`${f.label} must be a number`);
-            setSaving(false);
             return;
           }
           payload[f.name] = n;
@@ -119,7 +126,6 @@ export function EntityForm({
         if (!s) {
           if (f.required) {
             setError(`${f.label} is required`);
-            setSaving(false);
             return;
           }
           continue;
@@ -130,7 +136,6 @@ export function EntityForm({
         if (!s) {
           if (f.kind === 'text' && f.required) {
             setError(`${f.label} is required`);
-            setSaving(false);
             return;
           }
           payload[f.name] = null;
@@ -145,24 +150,7 @@ export function EntityForm({
 
     if (onBeforeSubmit) payload = onBeforeSubmit(payload);
 
-    const url = mode === 'create' ? endpoint : `${endpoint}/${id}`;
-    const method = mode === 'create' ? 'POST' : 'PATCH';
-
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const errorBody = (await res.json().catch(() => ({}))) as { error?: string };
-      setError(errorBody.error || `Save failed (${res.status})`);
-      setSaving(false);
-      return;
-    }
-
-    router.push(successHref);
-    router.refresh();
+    await submit(payload);
   }
 
   return (
@@ -273,18 +261,7 @@ export function EntityForm({
         return null;
       })}
 
-      {error && (
-        <p
-          style={{
-            fontFamily: 'var(--font-family-body)',
-            fontSize: 'var(--body-sm)',
-            color: 'var(--text-negative)',
-            margin: 0,
-          }}
-        >
-          {error}
-        </p>
-      )}
+      {isError && <FormError message={error} />}
 
       <div style={{ display: 'flex', gap: 'var(--gap-md)', marginTop: 'var(--gap-md)' }}>
         <Button type="submit" variant="primary" size="md" loading={saving}>
