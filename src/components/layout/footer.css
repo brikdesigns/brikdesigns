@@ -1,0 +1,13 @@
+/* ─── Site-width constraint ────────────────────────────────────
+   BDS footer is full-width with its own background.  This override
+   mirrors the same effective content width as .mega-nav__container
+   and .content-section__container (90% → 1280px cap) using only
+   padding so the inverse background still spans the full viewport.
+
+   Formula: padding-inline = max(5%, (100% - 1280px) / 2)
+     < 1280px → 5% on each side  → content = 90% of viewport
+     ≥ 1280px → centered 1280px  → content = 1280px
+   ─────────────────────────────────────────────────────────────── */
+.bds-footer.footer-site-width {
+  padding-inline: max(5%, calc((100% - 1280px) / 2));
+}

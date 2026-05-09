@@ -1,23 +1,26 @@
 import Image from 'next/image';
-import { Footer as BdsFooter } from '@brikdesigns/bds';
+import { Icon } from '@iconify/react';
+import { Footer as BdsFooter, ServiceTag } from '@brikdesigns/bds';
+import type { ServiceCategory } from '@brikdesigns/bds';
 import { NewsletterForm } from './NewsletterForm';
+import './footer.css';
 
-const aboutLinks = [
-  { label: 'Who We Are', href: '/about' },
-  { label: 'What We Do', href: '/services' },
-  { label: 'Support Plans', href: '/plans' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'Customer Stories', href: '/customer-stories' },
+const aboutLinks: { label: string; href: string; icon: string }[] = [
+  { label: 'Who We Are', href: '/about', icon: 'ph:users-three' },
+  { label: 'What We Do', href: '/services', icon: 'ph:briefcase' },
+  { label: 'Support Plans', href: '/plans', icon: 'ph:lifebuoy' },
+  { label: 'Blog', href: '/blog', icon: 'ph:notebook' },
+  { label: 'Customer Stories', href: '/customer-stories', icon: 'ph:star' },
 ];
 
-const customerLinks = [
-  { label: 'Who We Support', href: '/customers' },
-  { label: 'Dental', href: '/industries/dental' },
-  { label: 'Real Estate', href: '/industries/real-estate' },
-  { label: 'Small Business', href: '/industries/small-business' },
+const customerLinks: { label: string; href: string; icon: string }[] = [
+  { label: 'Who We Support', href: '/customers', icon: 'ph:users' },
+  { label: 'Dental', href: '/industries/dental', icon: 'ph:tooth' },
+  { label: 'Real Estate', href: '/industries/real-estate', icon: 'ph:house' },
+  { label: 'Small Business', href: '/industries/small-business', icon: 'ph:storefront' },
 ];
 
-const serviceLines: { label: string; href: string; category: 'brand' | 'information' | 'marketing' | 'product' | 'service' }[] = [
+const serviceLines: { label: string; href: string; category: ServiceCategory }[] = [
   { label: 'Brand Design', href: '/services/brand-design', category: 'brand' },
   { label: 'Information Design', href: '/services/information-design', category: 'information' },
   { label: 'Marketing Design', href: '/services/marketing-design', category: 'marketing' },
@@ -25,32 +28,20 @@ const serviceLines: { label: string; href: string; category: 'brand' | 'informat
   { label: 'Back Office Design', href: '/services/back-office-design', category: 'service' },
 ];
 
-const socialLinks = [
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/designsbybrik/' },
-  { label: 'Facebook', href: 'https://www.facebook.com/designsbybrik' },
-  { label: 'Instagram', href: 'https://www.instagram.com/designsbybrik/' },
+const socialLinks: { label: string; href: string; icon: string }[] = [
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/designsbybrik/', icon: 'ph:linkedin-logo' },
+  { label: 'Facebook', href: 'https://www.facebook.com/designsbybrik', icon: 'ph:facebook-logo' },
+  { label: 'Instagram', href: 'https://www.instagram.com/designsbybrik/', icon: 'ph:instagram-logo' },
 ];
 
-const SERVICE_DOT_VAR: Record<typeof serviceLines[number]['category'], string> = {
-  brand: 'var(--services--yellow)',
-  marketing: 'var(--services--green)',
-  information: 'var(--services--blue)',
-  product: 'var(--services--purple)',
-  service: 'var(--services--orange)',
-};
-
-function ServiceDot({ color }: { color: string }) {
+function NavIcon({ name }: { name: string }) {
   return (
-    <span
+    <Icon
+      icon={name}
       aria-hidden="true"
-      style={{
-        display: 'inline-block',
-        width: 10,
-        height: 10,
-        borderRadius: '50%',
-        backgroundColor: color,
-        flexShrink: 0,
-      }}
+      style={{ flexShrink: 0 }}
+      width={20}
+      height={20}
     />
   );
 }
@@ -85,11 +76,13 @@ function ContactItem({ icon, children, href }: { icon: string; children: React.R
  *   logo         → Brik logo
  *   tagline      → agency line
  *   brandExtra   → contact block (phone / email / contact link)
- *   columns      → Follow Us / About / Customers / Services (with category dots)
+ *   columns      → Follow Us / About / Customers / Services
  *   copyright    → © year Brik Designs
  *   bottomLinks  → Terms / Privacy policy
- *   socialLinks  → "Made with ❤️ in Palm Beach, FL" (right-aligned bottom-bar slot)
+ *   socialLinks  → "Made with ❤️ in Iowa" (right-aligned bottom-bar slot)
  *   variant      → 'inverse' (dark surface, AA-passing per brik-bds#463)
+ *   className    → 'footer-site-width' constrains content to 90% → 1280px
+ *                  (same as .mega-nav__container) while keeping full-width bg
  *
  * Two known minor regressions vs the prior bespoke footer, tracked in BDS:
  *   1. Social column links lose target=_blank — brik-bds#461
@@ -98,6 +91,7 @@ function ContactItem({ icon, children, href }: { icon: string; children: React.R
 export function Footer() {
   return (
     <BdsFooter
+      className="footer-site-width"
       aboveTop={
         <div
           style={{
@@ -162,15 +156,43 @@ export function Footer() {
         </>
       }
       columns={[
-        { heading: 'Follow Us Online', links: socialLinks },
-        { heading: 'About', links: aboutLinks },
-        { heading: 'Customers', links: customerLinks },
+        {
+          heading: 'Follow Us Online',
+          links: socialLinks.map((link) => ({
+            label: link.label,
+            href: link.href,
+            adornment: <NavIcon name={link.icon} />,
+          })),
+        },
+        {
+          heading: 'About',
+          links: aboutLinks.map((link) => ({
+            label: link.label,
+            href: link.href,
+            adornment: <NavIcon name={link.icon} />,
+          })),
+        },
+        {
+          heading: 'Customers',
+          links: customerLinks.map((link) => ({
+            label: link.label,
+            href: link.href,
+            adornment: <NavIcon name={link.icon} />,
+          })),
+        },
         {
           heading: 'Services',
           links: serviceLines.map((line) => ({
             label: line.label,
             href: line.href,
-            adornment: <ServiceDot color={SERVICE_DOT_VAR[line.category]} />,
+            adornment: (
+              <ServiceTag
+                category={line.category}
+                variant="icon"
+                size="sm"
+                aria-hidden="true"
+              />
+            ),
           })),
         },
       ]}
@@ -179,7 +201,7 @@ export function Footer() {
         { label: 'Terms', href: '/terms' },
         { label: 'Privacy policy', href: '/privacy-policy' },
       ]}
-      socialLinks={<span>Made with ❤️ in Palm Beach, FL</span>}
+      socialLinks={<span>Made with ❤️ in Iowa</span>}
       variant="inverse"
     />
   );
