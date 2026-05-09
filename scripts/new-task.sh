@@ -197,8 +197,24 @@ git worktree add "${WORKTREE_BASE}/${TASK_NAME}" -b "${BRANCH_NAME}" "origin/${B
 
 cd "${WORKTREE_BASE}/${TASK_NAME}"
 
+# ── Symlink shared resources from primary ──
+# brikdesigns has runtime secrets (.env / .env.local) and gitignored CSV
+# fixtures (content/csv/) that the reconciliation pipeline reads. Symlink
+# (don't copy) so the worktree always sees primary's canonical state.
+echo -e "${YELLOW}▸ Symlinking shared resources from primary...${NC}"
+for f in .env .env.local; do
+  if [ -f "${PRIMARY_PATH}/${f}" ]; then
+    ln -sf "${PRIMARY_PATH}/${f}" "./${f}"
+    echo "    ${f} → primary"
+  fi
+done
+if [ -d "${PRIMARY_PATH}/content/csv" ]; then
+  mkdir -p ./content
+  ln -sf "${PRIMARY_PATH}/content/csv" ./content/csv
+  echo "    content/csv/ → primary"
+fi
+
 # ── Install dependencies ──
-# BDS has no .env — no secrets to copy. Just deps.
 echo -e "${YELLOW}▸ Installing dependencies (npm ci --prefer-offline)...${NC}"
 npm ci --prefer-offline 2>&1 | tail -1
 
