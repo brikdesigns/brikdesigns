@@ -17,6 +17,10 @@
 
 [context.deploy-preview.environment]
   NEXT_PUBLIC_ENV = "preview"
+  # Dev-tools are staging-only. If the Netlify UI has NEXT_PUBLIC_ENABLE_DEV_TOOLS
+  # scoped broadly, this explicit false ensures deploy-preview builds never render
+  # BrikDevBar (which has a known color-contrast violation on its logo element).
+  NEXT_PUBLIC_ENABLE_DEV_TOOLS = "false"
 
 # Next.js on Netlify
 [[plugins]]
