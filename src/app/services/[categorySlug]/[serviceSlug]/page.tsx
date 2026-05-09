@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const service = await getServiceBySlug(serviceSlug);
     return {
       title: `${service.name} | Design Services`,
-      description: service.tagline || service.marketing_description || undefined,
+      description: service.tagline || service.description || undefined,
     };
   } catch {
     return { title: 'Service Not Found' };
@@ -271,9 +271,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                   serviceName={relatedService.name}
                 />
                 <h3 style={heading.sm}>{relatedService.name}</h3>
-                {(relatedService.marketing_description || relatedService.tagline) && (
+                {(relatedService.description || relatedService.tagline) && (
                   <p style={{ ...text.bodySm, color: color.text.secondary }}>
-                    {relatedService.marketing_description || relatedService.tagline}
+                    {relatedService.description || relatedService.tagline}
                   </p>
                 )}
                 <LinkButton
@@ -305,7 +305,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   categorySlug={categorySlug}
                   category={mapCategorySlug(category?.slug || categorySlug)}
                   tagline={svc.tagline}
-                  description={svc.marketing_description}
+                  description={svc.description}
                   imageUrl={svc.image_url}
                   showCta
                 />

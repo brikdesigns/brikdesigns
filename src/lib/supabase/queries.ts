@@ -109,7 +109,7 @@ export async function getRelatedService(slug: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from('services')
-    .select('name, slug, tagline, marketing_description, image_url, primary_badge_url, service_lines(slug)')
+    .select('name, slug, tagline, description, image_url, primary_badge_url, service_lines(slug)')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();
