@@ -1,0 +1,21 @@
+/*
+ * Consumer-side overrides for the hero_split_image_card_overlay
+ * blueprint shipped in @brikdesigns/bds@0.62.0.
+ *
+ * Tracking: brik-bds follow-up for 0.62.1 — the blueprint's left
+ * CTA uses `var(--background-primary, var(--text-primary))` which
+ * resolves to white-on-white in light mode (the fallback chain is
+ * nonsensical — "white page bg" doesn't fall back to "dark text
+ * color"). The proper fix is to expose `--bp-hero-img-card-cta-bg`
+ * as an override surface defaulting to `--background-inverse`.
+ *
+ * Once that lands and we bump @brikdesigns/bds, this file can be
+ * deleted in a single revert.
+ */
+
+.bp-hero-img-card__cta {
+  /* `--page-inverse` (not overridden by brikdesigns globals) flows the
+   * BDS canonical: black in light mode, white in dark mode. */
+  background: var(--page-inverse);
+  color: var(--text-inverse);
+}

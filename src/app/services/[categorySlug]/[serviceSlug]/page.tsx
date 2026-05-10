@@ -12,12 +12,15 @@ import {
 } from '@/lib/supabase/queries';
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { LinkButton, Breadcrumb } from '@brikdesigns/bds';
+import { LinkButton, HeroSplitImageCardOverlay } from '@brikdesigns/bds';
+import type { BlueprintSection } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { text, heading, label } from '@/lib/styles';
-import { color, gap } from '@/lib/tokens';
+import { color } from '@/lib/tokens';
 import '../../../shared-sections.css';
 import '../../services.css';
+import '../../hero-blueprint-overrides.css';
 
 type Props = { params: Promise<{ categorySlug: string; serviceSlug: string }> };
 
@@ -87,73 +90,63 @@ export default async function ServiceDetailPage({ params }: Props) {
     }
   }
 
-  // Brand colors for dynamic hero background
+  // Brand color drives `--page-brand-primary` for the hero blueprint.
+  // Supabase column is the source of truth; the inline CSS custom
+  // property overrides BDS's `--page-brand-primary` token within the
+  // hero subtree without hardcoding a `[data-audience='X']` cascade.
   const brandColorLight = category?.brand_color_light || null;
-  const brandColorBase = category?.brand_color_base || null;
-  const brandColorDark = category?.brand_color_dark || null;
+
+  const heroSection: BlueprintSection = {
+    sectionKey: `hero-${service.slug}`,
+    sectionType: 'hero',
+    heading: service.name,
+    subheading: category?.name?.toUpperCase() ?? null,
+    body: service.tagline ?? null,
+    cta:
+      sortedOfferings.length > 0
+        ? { label: 'View Details', url: '#pricing' }
+        : null,
+    breadcrumb: [
+      { label: 'All Services', href: '/services' },
+      { label: category?.name || categorySlug, href: `/services/${categorySlug}` },
+      { label: service.name },
+    ],
+    audience: mapCategorySlug(category?.slug || categorySlug),
+    priceCard: service.image_url
+      ? {
+          imageUrl: service.image_url,
+          imageAlt: service.name,
+          ...(startingPrice && { priceLabel: 'Starting at', price: startingPrice }),
+          cta: { label: "Let's Talk", url: '/contact' },
+        }
+      : undefined,
+    visualNotes: {
+      blueprintKey: 'hero_split_image_card_overlay',
+      moodKeywords: [],
+      layoutBlueprint: 'hero_split_image_card_overlay',
+      imageOpportunity: null,
+      animationSuggestion: null,
+      illustrationOpportunity: null,
+    },
+    items: [],
+  };
 
   return (
     <>
       {/* ═══ Hero ═══ */}
-      <section
-        className="svc-detail-hero-section"
-        style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
+      <div
+        style={
+          brandColorLight
+            ? ({ '--page-brand-primary': brandColorLight } as React.CSSProperties)
+            : undefined
+        }
       >
-        <div className="page-hero__container">
-          <Breadcrumb
-            style={{ marginBottom: gap.sm, flexWrap: 'wrap' }}
-            items={[
-              { label: 'Home', href: '/' },
-              { label: 'Services', href: '/services' },
-              { label: category?.name || categorySlug, href: `/services/${categorySlug}` },
-              { label: service.name },
-            ]}
-          />
-
-          <div className="svc-detail-hero">
-            <div className="svc-detail-hero__content">
-              <ServiceBadgeLabel
-                category={mapCategorySlug(category?.slug || categorySlug)}
-                serviceName={service.name}
-              />
-              <h1 className="page-hero__title">{service.name}</h1>
-              {service.tagline && (
-                <p className="page-hero__description">{service.tagline}</p>
-              )}
-              <div className="button-wrapper">
-                {sortedOfferings.length > 0 && (
-                  <LinkButton href="#pricing" variant="primary" size="md">View Details</LinkButton>
-                )}
-                <LinkButton href="/contact" variant="outline" size="md">Let&apos;s Talk</LinkButton>
-              </div>
-            </div>
-
-            {service.image_url && (
-              <div className="svc-detail-hero__aside">
-                <div
-                  className="svc-detail-hero__image"
-                  style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
-                >
-                  <Image
-                    src={service.image_url}
-                    alt={service.name}
-                    width={560}
-                    height={560}
-                    priority
-                  />
-                </div>
-                {startingPrice && (
-                  <div className="svc-detail-hero__price-card">
-                    <span style={{ ...label.smBold, color: color.text.secondary }}>Starting at</span>
-                    <span style={{ ...heading.lg, color: color.text.brand }}>{startingPrice}</span>
-                    <LinkButton href="/contact" variant="primary" size="sm">Let&apos;s Talk</LinkButton>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+        <HeroSplitImageCardOverlay
+          section={heroSection}
+          clientFacts={defaultClientFacts}
+          theme={defaultMarketingTheme}
+        />
+      </div>
 
       {/* ═══ Pricing / Offerings ═══ */}
       {sortedOfferings.length > 0 && (
