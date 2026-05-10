@@ -12,10 +12,12 @@ import {
 } from '@/lib/supabase/queries';
 import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { LinkButton, Breadcrumb } from '@brikdesigns/bds';
+import { LinkButton, HeroSplitImageCardOverlay } from '@brikdesigns/bds';
+import type { BlueprintSection } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { text, heading, label } from '@/lib/styles';
-import { color, gap } from '@/lib/tokens';
+import { color } from '@/lib/tokens';
 import '../../../shared-sections.css';
 import '../../services.css';
 
@@ -87,73 +89,101 @@ export default async function ServiceDetailPage({ params }: Props) {
     }
   }
 
-  // Brand colors for dynamic hero background
+  // Brand colors drive the audience cascade for the hero blueprint.
+  // Supabase columns are the source of truth; inline CSS custom
+  // properties override BDS tokens within the hero subtree without
+  // hardcoding a `[data-audience='X']` rule set.
+  //
+  // - `--page-brand-primary` ← brand_color_light: the soft hero bg.
+  // - `--text-brand-primary` ← brand_color_dark: the breadcrumb +
+  //   accent text. The dark variant ensures WCAG AA contrast against
+  //   the light audience bg (poppy on yellow fails 2.58:1; brand-dark
+  //   on brand-light is the canonical legible pairing).
   const brandColorLight = category?.brand_color_light || null;
-  const brandColorBase = category?.brand_color_base || null;
   const brandColorDark = category?.brand_color_dark || null;
+
+  const heroSection: BlueprintSection = {
+    sectionKey: `hero-${service.slug}`,
+    sectionType: 'hero',
+    heading: service.name,
+    // Live Webflow service detail pages render an icon-only eyebrow
+    // (no text label). Setting subheading null suppresses the wrong
+    // "INFORMATION DESIGN" text the blueprint would otherwise emit.
+    // Audience-keyed icon support is tracked in brik-bds#500.
+    subheading: null,
+    // `service.description` is the long body paragraph (sentences).
+    // `service.tagline` is the mega-menu hover string (3-5 words);
+    // not the right field for the hero body.
+    body: service.description ?? null,
+    cta:
+      sortedOfferings.length > 0
+        ? { label: 'View Details', url: '#pricing' }
+        : null,
+    breadcrumb: [
+      { label: 'All Services', href: '/services' },
+      { label: category?.name || categorySlug, href: `/services/${categorySlug}` },
+      { label: service.name },
+    ],
+    audience: mapCategorySlug(category?.slug || categorySlug),
+    // Audience badge icon — Webflow shows a small SVG icon between the
+    // breadcrumb and h1, sourced from the parent service-line's
+    // primary_badge_url column. BDS 0.64.0 added the iconUrl slot.
+    iconUrl: category?.primary_badge_url ?? undefined,
+    iconAlt: category?.name ? `${category.name} badge` : undefined,
+    priceCard: service.image_url
+      ? {
+          imageUrl: service.image_url,
+          imageAlt: service.name,
+          ...(startingPrice && { priceLabel: 'Starting at', price: startingPrice }),
+          cta: { label: "Let's Talk", url: '/contact' },
+        }
+      : undefined,
+    visualNotes: {
+      blueprintKey: 'hero_split_image_card_overlay',
+      moodKeywords: [],
+      layoutBlueprint: 'hero_split_image_card_overlay',
+      imageOpportunity: null,
+      animationSuggestion: null,
+      illustrationOpportunity: null,
+    },
+    items: [],
+  };
 
   return (
     <>
       {/* ═══ Hero ═══ */}
-      <section
-        className="svc-detail-hero-section"
-        style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
+      <div
+        style={
+          {
+            // Per-page audience-color cascade. brikdesigns globals don't
+            // define audience-specific tokens; Supabase columns drive
+            // them inline.
+            //
+            // Webflow truth on /service/{slug}:
+            //   - hero bg: audience-LIGHT
+            //   - h1 text: audience-DARK
+            //   - "View Details" CTA: audience-DARK fill, white text
+            //   - breadcrumb: brand-DARK (passes AA on audience-light)
+            //   - price-card "Let's Talk": brand-primary poppy (universal)
+            ...(brandColorLight && { '--page-brand-primary': brandColorLight }),
+            ...(brandColorDark && { '--text-brand-primary': brandColorDark }),
+            ...(brandColorDark && {
+              // h1 + LinkButton variant="inverse" both pick up brand-dark
+              '--bp-hero-img-card-headline-color': brandColorDark,
+              '--background-inverse': brandColorDark,
+              '--text-on-color-light': '#fff',
+            }),
+            // Match Webflow's hero rhythm
+            '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
+          } as React.CSSProperties
+        }
       >
-        <div className="page-hero__container">
-          <Breadcrumb
-            style={{ marginBottom: gap.sm, flexWrap: 'wrap' }}
-            items={[
-              { label: 'Home', href: '/' },
-              { label: 'Services', href: '/services' },
-              { label: category?.name || categorySlug, href: `/services/${categorySlug}` },
-              { label: service.name },
-            ]}
-          />
-
-          <div className="svc-detail-hero">
-            <div className="svc-detail-hero__content">
-              <ServiceBadgeLabel
-                category={mapCategorySlug(category?.slug || categorySlug)}
-                serviceName={service.name}
-              />
-              <h1 className="page-hero__title">{service.name}</h1>
-              {service.tagline && (
-                <p className="page-hero__description">{service.tagline}</p>
-              )}
-              <div className="button-wrapper">
-                {sortedOfferings.length > 0 && (
-                  <LinkButton href="#pricing" variant="primary" size="md">View Details</LinkButton>
-                )}
-                <LinkButton href="/contact" variant="outline" size="md">Let&apos;s Talk</LinkButton>
-              </div>
-            </div>
-
-            {service.image_url && (
-              <div className="svc-detail-hero__aside">
-                <div
-                  className="svc-detail-hero__image"
-                  style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
-                >
-                  <Image
-                    src={service.image_url}
-                    alt={service.name}
-                    width={560}
-                    height={560}
-                    priority
-                  />
-                </div>
-                {startingPrice && (
-                  <div className="svc-detail-hero__price-card">
-                    <span style={{ ...label.smBold, color: color.text.secondary }}>Starting at</span>
-                    <span style={{ ...heading.lg, color: color.text.brand }}>{startingPrice}</span>
-                    <LinkButton href="/contact" variant="primary" size="sm">Let&apos;s Talk</LinkButton>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+        <HeroSplitImageCardOverlay
+          section={heroSection}
+          clientFacts={defaultClientFacts}
+          theme={defaultMarketingTheme}
+        />
+      </div>
 
       {/* ═══ Pricing / Offerings ═══ */}
       {sortedOfferings.length > 0 && (

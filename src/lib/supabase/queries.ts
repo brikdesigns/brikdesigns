@@ -95,7 +95,7 @@ export async function getServiceBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('services')
-    .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
+    .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark, primary_badge_url, secondary_badge_url), offerings(*)')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();
