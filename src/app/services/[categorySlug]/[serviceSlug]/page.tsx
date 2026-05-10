@@ -109,10 +109,12 @@ export default async function ServiceDetailPage({ params }: Props) {
     // Live Webflow service detail pages render an icon-only eyebrow
     // (no text label). Setting subheading null suppresses the wrong
     // "INFORMATION DESIGN" text the blueprint would otherwise emit.
-    // Audience-keyed icon support is tracked in brik-bds#500 (0.62.1) —
-    // when that lands, the icon will render natively from `section.audience`.
+    // Audience-keyed icon support is tracked in brik-bds#500.
     subheading: null,
-    body: service.tagline ?? null,
+    // `service.description` is the long body paragraph (sentences).
+    // `service.tagline` is the mega-menu hover string (3-5 words);
+    // not the right field for the hero body.
+    body: service.description ?? null,
     cta:
       sortedOfferings.length > 0
         ? { label: 'View Details', url: '#pricing' }
@@ -147,12 +149,18 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* ═══ Hero ═══ */}
       <div
         style={
-          brandColorLight || brandColorDark
-            ? ({
-                ...(brandColorLight && { '--page-brand-primary': brandColorLight }),
-                ...(brandColorDark && { '--text-brand-primary': brandColorDark }),
-              } as React.CSSProperties)
-            : undefined
+          {
+            // Audience-light bg + dark-variant text-brand-primary for AA
+            // contrast on the breadcrumb. Supabase columns drive these;
+            // brikdesigns globals don't define audience-specific tokens.
+            ...(brandColorLight && { '--page-brand-primary': brandColorLight }),
+            ...(brandColorDark && { '--text-brand-primary': brandColorDark }),
+            // Match Webflow's hero rhythm — BDS default
+            // (`clamp(--padding-xl, 6vw, --padding-huge)`) is visibly
+            // tighter than Webflow. Override per-page until the blueprint
+            // default catches up.
+            '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
+          } as React.CSSProperties
         }
       >
         <HeroSplitImageCardOverlay
