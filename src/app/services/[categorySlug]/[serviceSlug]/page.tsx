@@ -90,11 +90,18 @@ export default async function ServiceDetailPage({ params }: Props) {
     }
   }
 
-  // Brand color drives `--page-brand-primary` for the hero blueprint.
-  // Supabase column is the source of truth; the inline CSS custom
-  // property overrides BDS's `--page-brand-primary` token within the
-  // hero subtree without hardcoding a `[data-audience='X']` cascade.
+  // Brand colors drive the audience cascade for the hero blueprint.
+  // Supabase columns are the source of truth; inline CSS custom
+  // properties override BDS tokens within the hero subtree without
+  // hardcoding a `[data-audience='X']` rule set.
+  //
+  // - `--page-brand-primary` ← brand_color_light: the soft hero bg.
+  // - `--text-brand-primary` ← brand_color_dark: the breadcrumb +
+  //   accent text. The dark variant ensures WCAG AA contrast against
+  //   the light audience bg (poppy on yellow fails 2.58:1; brand-dark
+  //   on brand-light is the canonical legible pairing).
   const brandColorLight = category?.brand_color_light || null;
+  const brandColorDark = category?.brand_color_dark || null;
 
   const heroSection: BlueprintSection = {
     sectionKey: `hero-${service.slug}`,
@@ -141,8 +148,11 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* ═══ Hero ═══ */}
       <div
         style={
-          brandColorLight
-            ? ({ '--page-brand-primary': brandColorLight } as React.CSSProperties)
+          brandColorLight || brandColorDark
+            ? ({
+                ...(brandColorLight && { '--page-brand-primary': brandColorLight }),
+                ...(brandColorDark && { '--text-brand-primary': brandColorDark }),
+              } as React.CSSProperties)
             : undefined
         }
       >
