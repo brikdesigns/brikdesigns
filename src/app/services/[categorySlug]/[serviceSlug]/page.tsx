@@ -125,6 +125,11 @@ export default async function ServiceDetailPage({ params }: Props) {
       { label: service.name },
     ],
     audience: mapCategorySlug(category?.slug || categorySlug),
+    // Audience badge icon — Webflow shows a small SVG icon between the
+    // breadcrumb and h1, sourced from the parent service-line's
+    // primary_badge_url column. BDS 0.64.0 added the iconUrl slot.
+    iconUrl: category?.primary_badge_url ?? undefined,
+    iconAlt: category?.name ? `${category.name} badge` : undefined,
     priceCard: service.image_url
       ? {
           imageUrl: service.image_url,
