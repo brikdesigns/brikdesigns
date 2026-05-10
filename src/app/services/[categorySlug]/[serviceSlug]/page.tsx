@@ -20,7 +20,6 @@ import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../../../shared-sections.css';
 import '../../services.css';
-import '../../hero-blueprint-overrides.css';
 
 type Props = { params: Promise<{ categorySlug: string; serviceSlug: string }> };
 

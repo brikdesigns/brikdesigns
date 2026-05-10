@@ -343,10 +343,13 @@
     },
     "/services/brand/logo-design": {
       "color-contrast": [
+        ".bdb-logo > span:nth-child(2)",
         ".bds-breadcrumb__current",
         ".bds-breadcrumb__link[href$=\"brand-design\"]",
         ".bds-breadcrumb__link[href$=\"services\"]",
         ".bds-breadcrumb__link[href=\"/\"]",
+        ".bds-button--sm.bds-button--primary[href$=\"contact\"] > .bds-button__content",
+        ".mega-nav__actions > .bds-button--sm.bds-button--primary[href$=\"contact\"]",
         ".bds-button--md > .bds-button__content",
         ".bds-button--outline.bds-button--lg[href$=\"contact\"] > .bds-button__content",
         ".bds-button--outline > .bds-button__content",
