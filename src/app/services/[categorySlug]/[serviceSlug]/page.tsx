@@ -150,15 +150,25 @@ export default async function ServiceDetailPage({ params }: Props) {
       <div
         style={
           {
-            // Audience-light bg + dark-variant text-brand-primary for AA
-            // contrast on the breadcrumb. Supabase columns drive these;
-            // brikdesigns globals don't define audience-specific tokens.
+            // Per-page audience-color cascade. brikdesigns globals don't
+            // define audience-specific tokens; Supabase columns drive
+            // them inline.
+            //
+            // Webflow truth on /service/{slug}:
+            //   - hero bg: audience-LIGHT
+            //   - h1 text: audience-DARK
+            //   - "View Details" CTA: audience-DARK fill, white text
+            //   - breadcrumb: brand-DARK (passes AA on audience-light)
+            //   - price-card "Let's Talk": brand-primary poppy (universal)
             ...(brandColorLight && { '--page-brand-primary': brandColorLight }),
             ...(brandColorDark && { '--text-brand-primary': brandColorDark }),
-            // Match Webflow's hero rhythm — BDS default
-            // (`clamp(--padding-xl, 6vw, --padding-huge)`) is visibly
-            // tighter than Webflow. Override per-page until the blueprint
-            // default catches up.
+            ...(brandColorDark && {
+              // h1 + LinkButton variant="inverse" both pick up brand-dark
+              '--bp-hero-img-card-headline-color': brandColorDark,
+              '--background-inverse': brandColorDark,
+              '--text-on-color-light': '#fff',
+            }),
+            // Match Webflow's hero rhythm
             '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
           } as React.CSSProperties
         }
