@@ -2,14 +2,18 @@
  * Consumer-side overrides for the hero_split_image_card_overlay
  * blueprint shipped in @brikdesigns/bds@0.62.0.
  *
- * Tracking: brik-bds follow-up for 0.62.1 — the blueprint's left
- * CTA uses `var(--background-primary, var(--text-primary))` which
- * resolves to white-on-white in light mode (the fallback chain is
- * nonsensical — "white page bg" doesn't fall back to "dark text
- * color"). The proper fix is to expose `--bp-hero-img-card-cta-bg`
- * as an override surface defaulting to `--background-inverse`.
+ * Tracking BDS 0.62.1 — bundles three patches:
+ *   - brik-bds#499: CTA token chain fix (handled below)
+ *   - brik-bds#500: icon eyebrow + "Starting at" suppression
  *
- * Once that lands and we bump @brikdesigns/bds, this file can be
+ * The CTA bug: blueprint shipped with
+ *   `var(--background-primary, var(--text-primary))`
+ * which resolves to white-on-white in light mode (fallback chain is
+ * nonsensical — "white page bg" doesn't fall back to "dark text
+ * color"). Proper fix exposes `--bp-hero-img-card-cta-bg` as an
+ * override surface defaulting to `--background-inverse`.
+ *
+ * Once 0.62.1 ships and we bump @brikdesigns/bds, this file can be
  * deleted in a single revert.
  */
 

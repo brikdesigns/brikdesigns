@@ -100,7 +100,12 @@ export default async function ServiceDetailPage({ params }: Props) {
     sectionKey: `hero-${service.slug}`,
     sectionType: 'hero',
     heading: service.name,
-    subheading: category?.name?.toUpperCase() ?? null,
+    // Live Webflow service detail pages render an icon-only eyebrow
+    // (no text label). Setting subheading null suppresses the wrong
+    // "INFORMATION DESIGN" text the blueprint would otherwise emit.
+    // Audience-keyed icon support is tracked in brik-bds#500 (0.62.1) —
+    // when that lands, the icon will render natively from `section.audience`.
+    subheading: null,
     body: service.tagline ?? null,
     cta:
       sortedOfferings.length > 0
