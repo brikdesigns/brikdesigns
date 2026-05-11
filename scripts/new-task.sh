@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # new-task.sh — Create an isolated git worktree for a single BDS task.
 #
-# Branches from origin/main. Enforces task/{scope}-{name} naming.
+# Branches from origin/staging (staging-first flow). Enforces task/{scope}-{name} naming.
 # Installs dependencies in the new worktree.
 #
 # Usage:
@@ -30,7 +30,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # ── Config ──
-BASE_BRANCH="main"
+BASE_BRANCH="staging"
 
 # ── Resolve repo root ──
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
@@ -178,7 +178,7 @@ if command -v gh &>/dev/null; then
       echo -e "${YELLOW}   Parallel work on overlapping files = cascading rebase conflicts.${NC}"
       echo -e "${YELLOW}   Options:${NC}"
       echo -e "${YELLOW}     1) Wait for the open PR(s) to merge, then start this task${NC}"
-      echo -e "${YELLOW}     2) Chain this branch off the open PR instead of main${NC}"
+      echo -e "${YELLOW}     2) Chain this branch off the open PR instead of ${BASE_BRANCH}${NC}"
       echo -e "${YELLOW}     3) Proceed (accept the rebase cost)${NC}"
       echo ""
       echo -e "${YELLOW}   Press Enter to proceed, Ctrl+C to abort.${NC}"
