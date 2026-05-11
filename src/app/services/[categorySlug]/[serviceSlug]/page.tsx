@@ -12,7 +12,7 @@ import {
   mapCategorySlug,
 } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { LinkButton, HeroSplitImageCardOverlay, ServiceTag } from '@brikdesigns/bds';
+import { LinkButton, HeroSplitImageCardOverlay, PricingCard, ServiceTag } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
@@ -33,25 +33,44 @@ function formatPrice(cents: number | null | undefined): string | null {
   });
 }
 
-const BILLING_LABELS: Record<string, string> = {
-  one_time: 'One-time',
-  monthly: 'Monthly',
-  quarterly: 'Quarterly',
-  annual: 'Annual',
-  // Stripe sync may emit `yearly` as an alias for `annual`. Keep as a
-  // display-only mapping — the admin form's select offers `annual` as the
-  // canonical value, not yearly.
-  yearly: 'Annual',
-  hourly: 'Hourly',
+// Short period suffix for the PricingCard `period` slot. Designed to read
+// next to the price (e.g., "$1,500 /month"). `one_time` returns null so the
+// price stands alone — no awkward "/one-time" suffix.
+const PERIOD_SUFFIXES: Record<string, string | null> = {
+  one_time: null,
+  monthly: '/month',
+  quarterly: '/quarter',
+  // Stripe sync may emit `yearly` as an alias for `annual`. Both map to the
+  // same display — the admin form writes `annual` canonically.
+  annual: '/year',
+  yearly: '/year',
+  hourly: '/hour',
 };
 
-function formatPriceModel(
+function formatPeriod(
   billingFrequency: string | null | undefined,
-  serviceType: string | null | undefined,
-): string | null {
-  const key = (billingFrequency ?? serviceType ?? '').toLowerCase();
-  if (!key) return null;
-  return BILLING_LABELS[key] ?? key.replace(/_/g, ' ');
+): string | undefined {
+  const key = (billingFrequency ?? '').toLowerCase();
+  if (!key) return undefined;
+  return PERIOD_SUFFIXES[key] ?? `/${key.replace(/_/g, ' ')}`;
+}
+
+// Split the operator-authored "What you get" block (one item per line) into
+// individual feature strings for the PricingCard checklist. Empty lines and
+// stray indentation are trimmed; bullet-prefix glyphs and numeric markers
+// (•, -, –, —, *, >, ✓, ✗, ◦, "1.", "2)") are stripped so operators can paste
+// lists from Google Docs / Notion / Word without leading glyphs leaking
+// through. Unrecognised prefix characters render verbatim — fine for
+// operator-authored copy, but new bullet styles may need to be added here.
+function parseFeatures(includedScope: string | null | undefined): string[] | undefined {
+  if (!includedScope) return undefined;
+  const items = includedScope
+    .split('\n')
+    .map((line) =>
+      line.replace(/^\s*(?:[•\-–—*>✓✗◦]|\d+[.)])\s*/, '').trim()
+    )
+    .filter(Boolean);
+  return items.length > 0 ? items : undefined;
 }
 
 type Props = { params: Promise<{ categorySlug: string; serviceSlug: string }> };
@@ -249,53 +268,30 @@ export default async function ServiceDetailPage({ params }: Props) {
                 description: string | null;
                 base_price_cents: number | null;
                 billing_frequency: string | null;
-                service_type: string | null;
                 included_scope: string | null;
+                is_featured: boolean | null;
               }) => {
                 const priceDisplay = formatPrice(off.base_price_cents);
-                const priceModel = formatPriceModel(off.billing_frequency, off.service_type);
+                // No-price offerings show "Quote" in the price slot (single
+                // word, fits the heading-xl typography PricingCard renders).
+                // The action button below carries the actual "contact for a
+                // custom quote" CTA — the slot just needs to render *something*
+                // typographically appropriate so the card doesn't look broken.
                 return (
-                  <div key={off.slug} className="svc-detail-offering-card">
-                    <div className="svc-detail-offering-top">
-                      <ServiceTag
-                        category={mapCategorySlug(category?.slug || categorySlug)}
-                        {...(hasIconFor(mapCategorySlug(category?.slug || categorySlug), off.name)
-                          ? { serviceName: off.name }
-                          : {})}
-                        variant="icon"
-                        size="lg"
-                      />
-                      <h3 style={heading.sm}>{off.name}</h3>
-                    </div>
-                    {off.description && (
-                      <p style={{ ...text.bodySm, color: color.text.secondary }}>{off.description}</p>
-                    )}
-                    <div className="svc-detail-offering-meta">
-                      <div className="svc-detail-offering-price-row">
-                        <span style={{ ...label.smBold, color: color.text.secondary }}>Price</span>
-                        <span style={{ ...heading.sm, color: color.text.brand }}>
-                          {priceDisplay ?? 'Contact us'}
-                        </span>
-                      </div>
-                      {priceModel && (
-                        <div className="svc-detail-offering-price-row">
-                          <span style={{ ...label.smBold, color: color.text.secondary }}>Type</span>
-                          <span style={label.smBold}>{priceModel}</span>
-                        </div>
-                      )}
-                    </div>
-                    {off.included_scope && (
-                      <div className="svc-detail-offering-includes">
-                        <span style={label.smBold}>What you get:</span>
-                        <p style={{ ...text.bodySm, color: color.text.secondary, whiteSpace: 'pre-line' }}>
-                          {off.included_scope}
-                        </p>
-                      </div>
-                    )}
-                    <LinkButton href="/contact" variant="primary" size="sm">
-                      Let&apos;s Talk
-                    </LinkButton>
-                  </div>
+                  <PricingCard
+                    key={off.slug}
+                    title={off.name}
+                    price={priceDisplay ?? 'Quote'}
+                    period={priceDisplay ? formatPeriod(off.billing_frequency) : undefined}
+                    description={off.description ?? undefined}
+                    features={parseFeatures(off.included_scope)}
+                    highlighted={!!off.is_featured}
+                    action={
+                      <LinkButton href="/contact" variant="primary" size="sm">
+                        Let&apos;s Talk
+                      </LinkButton>
+                    }
+                  />
                 );
               })}
             </div>

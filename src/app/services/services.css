@@ -192,51 +192,10 @@
   gap: var(--gap-lg);
 }
 
-.svc-detail-offering-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  padding: var(--padding-lg);
-  border: 2px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-primary);
-  justify-content: space-between;
-}
-
-.svc-detail-offering-top {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
-.svc-detail-offering-icon {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-
-.svc-detail-offering-meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-  padding-top: var(--gap-sm);
-  border-top: 1px solid var(--border-secondary);
-}
-
-.svc-detail-offering-price-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--gap-md);
-}
-
-.svc-detail-offering-includes {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-  padding-top: var(--gap-sm);
-  border-top: 1px solid var(--border-secondary);
-}
+/* Individual offering cards are now BDS `<PricingCard>` — see
+   src/app/services/[categorySlug]/[serviceSlug]/page.tsx. This file only
+   keeps the grid/flex wrapper (`.svc-detail-offerings[--grid]`) for layout
+   of N cards on the detail page. */
 
 /* Related customer story card */
 .svc-detail-story-card {
