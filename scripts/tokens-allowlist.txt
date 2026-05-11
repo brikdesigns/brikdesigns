@@ -5,4 +5,3 @@
 #
 # Format: one bare token name per line. `#` starts a comment.
 
-border-radius-huge
