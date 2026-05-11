@@ -63,12 +63,16 @@
   flex-shrink: 0;
 }
 
-/* Webflow: .text-label-xs — "Talk to sales:" label */
+/* Webflow: .text-label-xs — "Talk to sales:" label.
+   Color: --text-primary (12.6:1 on white) rather than --text-brand-primary
+   (3.78:1) so the label hits WCAG 2.1 AA at --body-xs. The phone icon
+   above keeps --text-brand-primary — icons are decorative and exempt
+   from text-contrast rules, preserving the brand pop in this section. */
 .mega-nav__utility-label {
   font-family: var(--font-family-label);
   font-size: var(--body-xs);
   font-weight: 600;
-  color: var(--text-brand-primary);
+  color: var(--text-primary);
 }
 
 .mega-nav__utility-link {
