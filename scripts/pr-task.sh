@@ -15,8 +15,8 @@
 #   - Branch must have commits ahead of base branch.
 #   - gh CLI must be authenticated.
 #
-# brikdesigns has a single base branch: main. --base override available
-# if a release/rc branch workflow is introduced later.
+# brikdesigns runs staging-first: task PRs target `staging`. Promote `staging → main`
+# via a separate PR after preview sign-off. Use `--base main` for hotfixes only.
 
 set -euo pipefail
 
@@ -26,8 +26,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 # ── Base branch config ──
-# Change this to "main" when a prod branch is carved out.
-BASE_BRANCH="main"
+# staging-first flow: task branches PR to staging; staging → main promoted on sign-off.
+BASE_BRANCH="staging"
 
 # ── Parse flags ──
 POSITIONAL_ARGS=()
