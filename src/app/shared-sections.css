@@ -67,7 +67,11 @@
 .page-hero__description {
   font-family: var(--font-family-body);
   font-size: var(--body-lg);
-  color: var(--text-secondary);
+  /* --text-secondary (#828282 on white = 3.94:1) fails WCAG 2.1 AA on body
+     copy. AA Large (3:1) doesn't apply until 18pt = 24px regular, so a
+     size-bump to --body-xl (20px) wouldn't clear it. Swap to --text-primary
+     (#333 on white = 12.6:1) — same pattern as PR #81 (meganav label). */
+  color: var(--text-primary);
   margin: var(--gap-md) 0 0;
   max-width: 700px;
   line-height: 1.7;
