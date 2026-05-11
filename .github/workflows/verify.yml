@@ -1,0 +1,54 @@
+name: Verify (lint + token gate + schema parity)
+
+# Fast CI gates that don't need a deploy-preview. Catches:
+#  - ESLint errors (incl. brik-tokens/no-invented-tokens — inline `var(--*)`
+#    references that aren't canonical / declared / allowlisted)
+#  - Token-lint script: same check across .ts/.tsx/.css
+#  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
+#    src/app/(admin)/admin/services/_components/field-configs.ts
+#
+# Sibling to a11y.yml (which waits for Netlify) and visual-parity.yml
+# (which also waits for Netlify). This one runs on every push and PR.
+
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+  push:
+    branches:
+      - main
+      - staging
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      packages: read
+    env:
+      PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: ESLint (incl. brik-tokens rule)
+        run: npm run lint
+
+      - name: Token lint (.css + .ts + .tsx)
+        run: npm run lint:tokens
+
+      - name: Schema parity (Row ↔ SCHEMA ↔ field-configs)
+        run: npm run check:schema
