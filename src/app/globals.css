@@ -84,12 +84,25 @@ html {
 
   /* Text */
   --text-primary: var(--grayscale--darkest);
-  --text-secondary: var(--grayscale--dark);
+  /* AA fix: BDS canonical comments document `--color-grayscale-darker` (#4f4f4f)
+     as the intended Secondary Text token, but the canonical `--text-secondary`
+     alias maps to `--color-grayscale-dark` (#828282 — Placeholder/Tertiary),
+     which fails AA at body sizes (3.84:1 on white). Override locally so the
+     43+ `color.text.secondary` consumers + 51+ direct CSS readers all become
+     AA-compliant (8.59:1 on white). Re-evaluate when BDS corrects the alias. */
+  --text-secondary: var(--color-grayscale-darker);
   --text-muted: var(--grayscale--light);
   --text-inverse: var(--grayscale--white);
   --text-on-color-dark: var(--grayscale--white);
   --text-on-color-light: var(--grayscale--black);
-  --text-brand-primary: var(--brand--primary);
+  /* AA fix: `--brand--primary` (#e35335 poppy-light) used as text color fails
+     AA on white (3.78:1) and tan-lightest (3.31:1) at body sizes. Swap to
+     `--color-poppy-dark` (#b0351b): 7.04:1 on white, 5.27:1 on tan-lightest —
+     both AA pass. Visually still on-brand poppy; the lighter shade remains
+     available as `--background-brand-primary` for fills (where text contrast
+     comes from the inverse text color, not the brand color). Dark theme
+     keeps the lighter poppy — it has enough contrast against the dark bg. */
+  --text-brand-primary: var(--color-poppy-dark);
   --text-negative: var(--color-system-red);
   --text-warning: var(--services--yellow-dark);
   --text-success: var(--services--green-dark);

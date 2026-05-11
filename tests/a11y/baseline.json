@@ -95,13 +95,17 @@
     },
     "/customers": {
       "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
         ".bds-button--primary.bds-button[href$=\"contact\"]",
         ".bds-button__content",
         ".bds-footer__above-top > div > p",
+        ".customers-segment-card > .bds-button--primary.bds-button--sm[href$=\"contact\"] > .bds-button__content",
         ".industries-card[href$=\"dental\"] > p",
         ".industries-card[href$=\"real-estate\"] > p",
         ".industries-card[href$=\"small-business\"] > p",
+        ".mega-nav__actions > .bds-button--primary.bds-button--sm[href$=\"contact\"]",
         "a[href$=\"product\"] > p",
+        "button[type=\"submit\"] > .bds-button__content",
         "div > h3"
       ]
     },
@@ -217,8 +221,15 @@
         ".bds-breadcrumb__current",
         ".bds-breadcrumb__link[href$=\"services\"]",
         ".bds-breadcrumb__link[href=\"/\"]",
+        ".bds-button--md > .bds-button__content",
+        ".bds-button--primary.bds-button--sm[href$=\"contact\"]",
         ".bds-button__content",
-        ".mega-nav__actions > .bds-button.bds-button--primary.bds-button--sm"
+        ".mega-nav__actions > .bds-button.bds-button--primary.bds-button--sm",
+        ".svc-card.svc-card--rich > .svc-card__content > .bds-button--primary.bds-button--sm.bds-button",
+        "a[href$=\"business-card\"] > .svc-card__content > .bds-button--primary.bds-button--sm.bds-button",
+        "a[href$=\"logo-design\"] > .svc-card__content > .bds-button--primary.bds-button--sm.bds-button",
+        "a[href$=\"plans#marketing-support\"] > .bds-button__content",
+        "button[type=\"submit\"] > .bds-button__content"
       ]
     },
     "/services/brand/logo-design": {
