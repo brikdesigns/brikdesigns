@@ -8,8 +8,6 @@ const SCHEMA: FieldSchema = {
   description: 'string-or-null',
   hero_image_url: 'string-or-null',
   card_image_url: 'string-or-null',
-  primary_badge_url: 'string-or-null',
-  secondary_badge_url: 'string-or-null',
   color_light: 'string-or-null',
   color_base: 'string-or-null',
   color_dark: 'string-or-null',

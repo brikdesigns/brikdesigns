@@ -22,8 +22,6 @@ export function serviceLineFields(opts: ColorTokenInputs): FieldOrSection[] {
     { sectionTitle: 'Imagery' },
     { kind: 'media', name: 'hero_image_url', label: 'Hero image', pathPrefix: `${prefix}/hero` },
     { kind: 'media', name: 'card_image_url', label: 'Card image', pathPrefix: `${prefix}/card` },
-    { kind: 'media', name: 'primary_badge_url', label: 'Primary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
-    { kind: 'media', name: 'secondary_badge_url', label: 'Secondary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
 
     { sectionTitle: 'Brand colors' },
     { kind: 'color', name: 'brand_color_light', label: 'Brand color — light', groups, flat },
@@ -59,8 +57,6 @@ export function serviceFields(serviceLineOptions: SelectOption[]): FieldOrSectio
 
     { sectionTitle: 'Imagery' },
     { kind: 'media', name: 'image_url', label: 'Image', pathPrefix: `${prefix}/image` },
-    { kind: 'media', name: 'primary_badge_url', label: 'Primary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
-    { kind: 'media', name: 'secondary_badge_url', label: 'Secondary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
 
     { sectionTitle: 'Linking' },
     { kind: 'text', name: 'related_service_slug', label: 'Related service slug' },
@@ -72,6 +68,21 @@ export function serviceFields(serviceLineOptions: SelectOption[]): FieldOrSectio
     { kind: 'switch', name: 'is_public', label: 'Visible on brikdesigns.com' },
   ];
 }
+
+const BILLING_FREQUENCY_OPTIONS: SelectOption[] = [
+  { label: 'One-time', value: 'one_time' },
+  { label: 'Monthly', value: 'monthly' },
+  { label: 'Quarterly', value: 'quarterly' },
+  { label: 'Annual', value: 'annual' },
+  { label: 'Hourly', value: 'hourly' },
+];
+
+const SERVICE_TYPE_OPTIONS: SelectOption[] = [
+  { label: 'One-time', value: 'one_time' },
+  { label: 'Subscription', value: 'subscription' },
+  { label: 'Maintenance', value: 'maintenance' },
+  { label: 'Consulting', value: 'consulting' },
+];
 
 export function offeringFields(serviceOptions: SelectOption[]): FieldOrSection[] {
   const prefix = 'offerings';
@@ -91,12 +102,28 @@ export function offeringFields(serviceOptions: SelectOption[]): FieldOrSection[]
     { kind: 'textarea', name: 'description', label: 'Description', rows: 3 },
     { kind: 'textarea', name: 'marketing_description', label: 'Marketing description', rows: 4 },
 
+    { sectionTitle: 'Pricing & scope' },
+    { kind: 'dollar', name: 'base_price_cents', label: 'Price', placeholder: '$1,500' },
+    {
+      kind: 'select',
+      name: 'billing_frequency',
+      label: 'Billing frequency',
+      options: BILLING_FREQUENCY_OPTIONS,
+      placeholder: 'How is this billed?',
+    },
+    {
+      kind: 'select',
+      name: 'service_type',
+      label: 'Service type',
+      options: SERVICE_TYPE_OPTIONS,
+      placeholder: 'Engagement shape',
+    },
+    { kind: 'textarea', name: 'included_scope', label: 'What you get', rows: 4 },
+
     { sectionTitle: 'Imagery' },
     { kind: 'media', name: 'image_url', label: 'Image', pathPrefix: `${prefix}/image` },
     { kind: 'media', name: 'hero_image_url', label: 'Hero image', pathPrefix: `${prefix}/hero` },
     { kind: 'media', name: 'card_image_url', label: 'Card image', pathPrefix: `${prefix}/card` },
-    { kind: 'media', name: 'primary_badge_url', label: 'Primary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
-    { kind: 'media', name: 'secondary_badge_url', label: 'Secondary badge', pathPrefix: `${prefix}/badges`, accept: 'image/svg+xml,image/png' },
 
     { sectionTitle: 'Flags' },
     { kind: 'switch', name: 'is_featured', label: 'Featured' },

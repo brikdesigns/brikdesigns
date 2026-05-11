@@ -2,10 +2,18 @@ import { createClient } from '@/lib/supabase/server';
 import { pickAndValidate, type FieldSchema } from './_validation';
 
 /**
- * Offerings carry both marketing and operational data. The portal admin owns
- * fields like `base_price_cents`, `billing_frequency`, `stripe_*`,
- * `service_type`, `proposal_copy`, `contract_copy`, etc. — they're absent from
- * this schema by design. Editing those belongs in the portal.
+ * Offerings carry both marketing and operational data on a SHARED Supabase
+ * table with `brik-client-portal`. Ownership split:
+ *
+ * - Both admins write `base_price_cents`, `billing_frequency`, `service_type`,
+ *   `included_scope` — last-edit-wins. Per 2026-05-11 decision: marketers
+ *   need to edit these from brikdesigns admin, portal still syncs from
+ *   Stripe. Risk: drift if a manual edit here later gets overwritten by
+ *   Stripe sync. Operators should know the field is canonical to Stripe.
+ *
+ * - Portal admin owns Stripe identifiers (`stripe_product_id`,
+ *   `stripe_price_id`, `stripe_last_synced`, `stripe_sync_status`) and
+ *   proposal/contract copy. Never expose those here.
  */
 const SCHEMA: FieldSchema = {
   name: 'string',
@@ -18,8 +26,10 @@ const SCHEMA: FieldSchema = {
   image_url: 'string-or-null',
   hero_image_url: 'string-or-null',
   card_image_url: 'string-or-null',
-  primary_badge_url: 'string-or-null',
-  secondary_badge_url: 'string-or-null',
+  base_price_cents: 'number-or-null',
+  billing_frequency: 'string-or-null',
+  service_type: 'string-or-null',
+  included_scope: 'string-or-null',
   is_featured: 'boolean',
   has_customer_story: 'boolean',
   has_multiple_offerings: 'boolean',
@@ -52,7 +62,7 @@ export async function getOfferingById(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('offerings')
-    .select('*, services(id, name, slug)')
+    .select('*, services(id, name, slug, service_lines(slug, name))')
     .eq('id', id)
     .single();
   if (error) throw error;

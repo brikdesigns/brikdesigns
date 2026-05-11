@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ServiceBadge } from '@brikdesigns/bds';
+import { ServiceTag } from '@brikdesigns/bds';
 import { LinkButton } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 
@@ -28,13 +28,13 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl, brand
           <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ServiceBadge category={category} size="lg" />
+            <ServiceTag category={category} variant="icon" size="lg" />
           </div>
         )}
       </div>
 
       <div className="service-card__header">
-        <ServiceBadge category={category} size="md" />
+        <ServiceTag category={category} variant="icon" size="md" />
         <div className="service-card__content">
           <h3 className="service-card__title">{name}</h3>
           <p className="service-card__description">{tagline}</p>
