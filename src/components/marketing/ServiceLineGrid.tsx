@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Card } from '@brikdesigns/bds';
-import { ServiceBadge } from '@brikdesigns/bds';
+import { ServiceTag } from '@brikdesigns/bds';
 import { Button } from '@brikdesigns/bds';
 
 type ServiceCategory = 'brand' | 'marketing' | 'information' | 'product' | 'service';
@@ -35,7 +35,7 @@ export function ServiceLineGrid({ items }: { items: ServiceLine[] }) {
               textAlign: 'left',
             }}
           >
-            <ServiceBadge category={line.category} mode="badge" size="lg" />
+            <ServiceTag category={line.category} variant="icon" size="lg" />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-md)' }}>
               <h3
                 style={{

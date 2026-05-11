@@ -4,8 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupportPlanBySlug, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
-import { LinkButton, Breadcrumb } from '@brikdesigns/bds';
+import { hasIconFor } from '@/lib/service-icons';
+import { LinkButton, Breadcrumb, ServiceTag } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
@@ -75,7 +75,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
 
           <div className="svc-detail-hero">
             <div className="svc-detail-hero__content">
-              <ServiceBadgeLabel category={mapCategorySlug(category.slug)} />
+              <ServiceTag category={mapCategorySlug(category.slug)} variant="icon-text" label={category.name} size="md" />
               <h1 className="page-hero__title">{category.name}</h1>
               {category.tagline && (
                 <p className="page-hero__tagline">{category.tagline}</p>
@@ -115,19 +115,23 @@ export default async function ServiceCategoryPage({ params }: Props) {
             {category.name} Services
           </h2>
           <div className="grid-3">
-            {services.map((svc) => (
-              <ServiceCard
-                key={svc.slug}
-                name={svc.name}
-                slug={svc.slug}
-                categorySlug={categorySlug}
-                category={mapCategorySlug(category.slug)}
-                tagline={svc.tagline}
-                description={svc.description}
-                imageUrl={svc.image_url}
-                showCta
-              />
-            ))}
+            {services.map((svc) => {
+              const cat = mapCategorySlug(category.slug);
+              return (
+                <ServiceCard
+                  key={svc.slug}
+                  name={svc.name}
+                  slug={svc.slug}
+                  categorySlug={categorySlug}
+                  category={cat}
+                  tagline={svc.tagline}
+                  description={svc.description}
+                  imageUrl={svc.image_url}
+                  iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                  showCta
+                />
+              );
+            })}
           </div>
         </div>
       </section>

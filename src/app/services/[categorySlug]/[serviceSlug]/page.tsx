@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { hasIconFor, SERVICE_LINE_ICON } from '@/lib/service-icons';
 import {
   getServiceBySlug,
   getServicesByCategory,
@@ -10,9 +11,8 @@ import {
   getSupportPlanBySlug,
   mapCategorySlug,
 } from '@/lib/supabase/queries';
-import { ServiceBadgeLabel } from '@/components/marketing/ServiceBadgeLabel';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { LinkButton, HeroSplitImageCardOverlay } from '@brikdesigns/bds';
+import { LinkButton, HeroSplitImageCardOverlay, ServiceTag } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
@@ -20,6 +20,39 @@ import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../../../shared-sections.css';
 import '../../services.css';
+
+// Derive marketing-display strings from the portal's canonical operational
+// columns. We render whatever the portal admin / Stripe sync wrote — no
+// separate display strings stored on the marketing side, no drift.
+function formatPrice(cents: number | null | undefined): string | null {
+  if (cents == null) return null;
+  return (cents / 100).toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+}
+
+const BILLING_LABELS: Record<string, string> = {
+  one_time: 'One-time',
+  monthly: 'Monthly',
+  quarterly: 'Quarterly',
+  annual: 'Annual',
+  // Stripe sync may emit `yearly` as an alias for `annual`. Keep as a
+  // display-only mapping — the admin form's select offers `annual` as the
+  // canonical value, not yearly.
+  yearly: 'Annual',
+  hourly: 'Hourly',
+};
+
+function formatPriceModel(
+  billingFrequency: string | null | undefined,
+  serviceType: string | null | undefined,
+): string | null {
+  const key = (billingFrequency ?? serviceType ?? '').toLowerCase();
+  if (!key) return null;
+  return BILLING_LABELS[key] ?? key.replace(/_/g, ' ');
+}
 
 type Props = { params: Promise<{ categorySlug: string; serviceSlug: string }> };
 
@@ -50,10 +83,25 @@ export default async function ServiceDetailPage({ params }: Props) {
 
   const category = service.service_lines;
   const offerings = service.offerings?.filter((o: { is_public: boolean }) => o.is_public) || [];
+  // Cheapest first. base_price_cents is the canonical price column owned by
+  // the portal admin (mirrors the Stripe price); marketing-display strings
+  // are derived from it on the fly. Ties on price break by `rank` — the
+  // column the brikdesigns admin form writes — so operator edits propagate
+  // to the public order. (Don't use `sort_order`: it's a legacy column
+  // seeded from the Webflow CSV's `tier_rank` and is not editable from this
+  // admin.)
   const sortedOfferings = [...offerings].sort(
-    (a: { tier_rank: number }, b: { tier_rank: number }) => (a.tier_rank || 0) - (b.tier_rank || 0)
+    (a: { base_price_cents: number | null; rank: number | null },
+     b: { base_price_cents: number | null; rank: number | null }) => {
+      const ap = a.base_price_cents ?? Number.POSITIVE_INFINITY;
+      const bp = b.base_price_cents ?? Number.POSITIVE_INFINITY;
+      if (ap !== bp) return ap - bp;
+      return (a.rank ?? 0) - (b.rank ?? 0);
+    }
   );
-  const startingPrice = sortedOfferings.length > 0 ? sortedOfferings[0]?.price_display : null;
+  const startingPrice = sortedOfferings.length > 0
+    ? formatPrice(sortedOfferings[0]?.base_price_cents)
+    : null;
 
   // Related services in same category (exclude current)
   const siblingServices = category?.id
@@ -126,10 +174,12 @@ export default async function ServiceDetailPage({ params }: Props) {
     ],
     audience: mapCategorySlug(category?.slug || categorySlug),
     // Audience badge icon — Webflow shows a small SVG icon between the
-    // breadcrumb and h1, sourced from the parent service-line's
-    // primary_badge_url column. BDS 0.64.0 added the iconUrl slot.
-    iconUrl: category?.primary_badge_url ?? undefined,
-    iconAlt: category?.name ? `${category.name} badge` : undefined,
+    // breadcrumb and h1. Resolved from the static service-line icon set in
+    // /public/icons/{category}/, so no per-record URL upload is needed and
+    // the icon set comes from the canonical BDS-shipped art (theme handling
+    // happens at the surrounding hero level).
+    iconUrl: SERVICE_LINE_ICON[mapCategorySlug(category?.slug || categorySlug)],
+    iconAlt: `${category?.name || categorySlug} icon`,
     priceCard: service.image_url
       ? {
           imageUrl: service.image_url,
@@ -171,7 +221,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               // h1 + LinkButton variant="inverse" both pick up brand-dark
               '--bp-hero-img-card-headline-color': brandColorDark,
               '--background-inverse': brandColorDark,
-              '--text-on-color-light': '#fff',
+              '--text-on-color-light': 'var(--color-grayscale-white)',
             }),
             // Match Webflow's hero rhythm
             '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
@@ -193,47 +243,61 @@ export default async function ServiceDetailPage({ params }: Props) {
               Pricing Options
             </h2>
             <div className={`svc-detail-offerings ${sortedOfferings.length >= 3 ? 'svc-detail-offerings--grid' : ''}`}>
-              {sortedOfferings.map((off: { slug: string; name: string; price_display: string; description: string; what_you_get: string; price_model?: string; icon_url?: string }) => (
-                <div key={off.slug} className="svc-detail-offering-card">
-                  <div className="svc-detail-offering-top">
-                    {off.icon_url ? (
-                      <Image src={off.icon_url} alt="" width={40} height={40} className="svc-detail-offering-icon" />
-                    ) : (
-                      <ServiceBadgeLabel
+              {sortedOfferings.map((off: {
+                slug: string;
+                name: string;
+                description: string | null;
+                base_price_cents: number | null;
+                billing_frequency: string | null;
+                service_type: string | null;
+                included_scope: string | null;
+              }) => {
+                const priceDisplay = formatPrice(off.base_price_cents);
+                const priceModel = formatPriceModel(off.billing_frequency, off.service_type);
+                return (
+                  <div key={off.slug} className="svc-detail-offering-card">
+                    <div className="svc-detail-offering-top">
+                      <ServiceTag
                         category={mapCategorySlug(category?.slug || categorySlug)}
-                        serviceName={off.name}
+                        {...(hasIconFor(mapCategorySlug(category?.slug || categorySlug), off.name)
+                          ? { serviceName: off.name }
+                          : {})}
+                        variant="icon"
+                        size="lg"
                       />
+                      <h3 style={heading.sm}>{off.name}</h3>
+                    </div>
+                    {off.description && (
+                      <p style={{ ...text.bodySm, color: color.text.secondary }}>{off.description}</p>
                     )}
-                    <h3 style={heading.sm}>{off.name}</h3>
-                  </div>
-                  {off.description && (
-                    <p style={{ ...text.bodySm, color: color.text.secondary }}>{off.description}</p>
-                  )}
-                  <div className="svc-detail-offering-meta">
-                    <div className="svc-detail-offering-price-row">
-                      <span style={{ ...label.smBold, color: color.text.secondary }}>Price</span>
-                      {off.price_display && (
-                        <span style={{ ...heading.sm, color: color.text.brand }}>{off.price_display}</span>
+                    <div className="svc-detail-offering-meta">
+                      <div className="svc-detail-offering-price-row">
+                        <span style={{ ...label.smBold, color: color.text.secondary }}>Price</span>
+                        <span style={{ ...heading.sm, color: color.text.brand }}>
+                          {priceDisplay ?? 'Contact us'}
+                        </span>
+                      </div>
+                      {priceModel && (
+                        <div className="svc-detail-offering-price-row">
+                          <span style={{ ...label.smBold, color: color.text.secondary }}>Type</span>
+                          <span style={label.smBold}>{priceModel}</span>
+                        </div>
                       )}
                     </div>
-                    {off.price_model && (
-                      <div className="svc-detail-offering-price-row">
-                        <span style={{ ...label.smBold, color: color.text.secondary }}>Type</span>
-                        <span style={label.smBold}>{off.price_model}</span>
+                    {off.included_scope && (
+                      <div className="svc-detail-offering-includes">
+                        <span style={label.smBold}>What you get:</span>
+                        <p style={{ ...text.bodySm, color: color.text.secondary, whiteSpace: 'pre-line' }}>
+                          {off.included_scope}
+                        </p>
                       </div>
                     )}
+                    <LinkButton href="/contact" variant="primary" size="sm">
+                      Let&apos;s Talk
+                    </LinkButton>
                   </div>
-                  {off.what_you_get && (
-                    <div className="svc-detail-offering-includes">
-                      <span style={label.smBold}>What you get:</span>
-                      <p style={{ ...text.bodySm, color: color.text.secondary }}>{off.what_you_get}</p>
-                    </div>
-                  )}
-                  <LinkButton href="/contact" variant="primary" size="sm">
-                    Let&apos;s Talk
-                  </LinkButton>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
@@ -296,9 +360,14 @@ export default async function ServiceDetailPage({ params }: Props) {
                 </div>
               )}
               <div className="svc-detail-addon-card__content">
-                <ServiceBadgeLabel
+                <ServiceTag
                   category={mapCategorySlug(relatedCatSlug)}
-                  serviceName={relatedService.name}
+                  {...(hasIconFor(mapCategorySlug(relatedCatSlug), relatedService.name)
+                    ? { serviceName: relatedService.name }
+                    : {})}
+                  variant="icon-text"
+                  label={relatedService.name}
+                  size="md"
                 />
                 <h3 style={heading.sm}>{relatedService.name}</h3>
                 {(relatedService.description || relatedService.tagline) && (
@@ -327,19 +396,23 @@ export default async function ServiceDetailPage({ params }: Props) {
               Other {category?.name || ''} Services
             </h2>
             <div className="grid-3">
-              {siblingServices.map((svc) => (
-                <ServiceCard
-                  key={svc.slug}
-                  name={svc.name}
-                  slug={svc.slug}
-                  categorySlug={categorySlug}
-                  category={mapCategorySlug(category?.slug || categorySlug)}
-                  tagline={svc.tagline}
-                  description={svc.description}
-                  imageUrl={svc.image_url}
-                  showCta
-                />
-              ))}
+              {siblingServices.map((svc) => {
+                const cat = mapCategorySlug(category?.slug || categorySlug);
+                return (
+                  <ServiceCard
+                    key={svc.slug}
+                    name={svc.name}
+                    slug={svc.slug}
+                    categorySlug={categorySlug}
+                    category={cat}
+                    tagline={svc.tagline}
+                    description={svc.description}
+                    imageUrl={svc.image_url}
+                    iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                    showCta
+                  />
+                );
+              })}
             </div>
           </div>
         </section>

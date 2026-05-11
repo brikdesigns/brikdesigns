@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ServiceBadge } from '@brikdesigns/bds';
+import { ServiceTag } from '@brikdesigns/bds';
 import { LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceCategory } from '@brikdesigns/bds';
@@ -19,7 +19,7 @@ interface ServiceLineCardProps {
   brandColorBase?: string | null;
 }
 
-/** Service line card — badge is always shown as the primary visual */
+/** Service line card — ServiceTag is always shown as the primary visual */
 export function ServiceLineCard({ name, slug, category, tagline, imageUrl, brandColorBase }: ServiceLineCardProps) {
   return (
     <Link href={`/services/${slug}`} className="services-card">
@@ -27,11 +27,11 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl, brand
         {imageUrl ? (
           <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
-          <ServiceBadge category={category} size="lg" />
+          <ServiceTag category={category} variant="icon" size="lg" />
         )}
       </div>
       <div className="services-card__content">
-        <ServiceBadge category={category} size="md" />
+        <ServiceTag category={category} variant="icon" size="md" />
         <h3 style={heading.sm}>{name}</h3>
         <p style={{ ...text.bodySm, color: color.text.secondary }}>{tagline}</p>
       </div>
@@ -55,7 +55,7 @@ interface ServiceCalloutProps {
   brandColorBase?: string | null;
 }
 
-/** Side-by-side callout — badge + image for Product and Information design */
+/** Side-by-side callout — ServiceTag + image for Product and Information design */
 export function ServiceCallout({ name, slug, category, description, imageUrl, brandColorBase }: ServiceCalloutProps) {
   return (
     <div className="services-callout">
@@ -63,11 +63,11 @@ export function ServiceCallout({ name, slug, category, description, imageUrl, br
         {imageUrl ? (
           <Image src={imageUrl} alt={name} width={600} height={600} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
-          <ServiceBadge category={category} size="lg" />
+          <ServiceTag category={category} variant="icon" size="lg" />
         )}
       </div>
       <div className="services-callout__content">
-        <ServiceBadge category={category} size="md" />
+        <ServiceTag category={category} variant="icon" size="md" />
         <h2 style={heading.lg}>{name}</h2>
         <p style={{ ...text.body, color: color.text.primary }}>{description}</p>
         <LinkButton

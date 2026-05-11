@@ -5,14 +5,17 @@ import { createClient } from './server';
  * All queries use the anon key (public read via RLS).
  *
  * Tables are shared with brik-client-portal (same Supabase project).
- * Marketing fields (image_url, badges, tagline, rank, is_public) were added
- * in migration 00044_marketing_cms_schema.sql.
+ * Marketing fields (image_url, tagline, rank, is_public) were added in
+ * migration 00044_marketing_cms_schema.sql. Badge URL columns from that
+ * migration are scheduled for removal in the brik-client-portal
+ * `drop-marketing-badge-columns` migration — service tags are now rendered
+ * via BDS `<ServiceTag>` driven by category + service name.
  *
  * Taxonomy (4-tier hierarchy):
  *   service_lines → services → offerings → engagements
  */
 
-// Map category slugs to BDS ServiceBadge category names.
+// Map category slugs to BDS ServiceTag category names.
 // Canonical slugs are the long form (brand-design, marketing-design, etc.).
 // Short slugs kept for backward URL compatibility only.
 const CATEGORY_MAP: Record<string, 'brand' | 'marketing' | 'information' | 'product' | 'service'> = {
@@ -95,7 +98,7 @@ export async function getServiceBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('services')
-    .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark, primary_badge_url, secondary_badge_url), offerings(*)')
+    .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();
@@ -109,7 +112,7 @@ export async function getRelatedService(slug: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from('services')
-    .select('name, slug, tagline, description, image_url, primary_badge_url, service_lines(slug)')
+    .select('name, slug, tagline, description, image_url, service_lines(slug)')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();

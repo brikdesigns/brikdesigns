@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ServiceBadge } from '@brikdesigns/bds';
+import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { ThemeToggle } from './ThemeToggle';
@@ -161,8 +161,9 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                                     className="mega-nav__service-link"
                                     onClick={() => setOpen(null)}
                                   >
-                                    <ServiceBadge
+                                    <ServiceTag
                                       category={line.category}
+                                      variant="icon"
                                       size="sm"
                                       serviceName={svc.name}
                                     />
@@ -407,7 +408,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               className="mega-nav__mobile-link mega-nav__mobile-link--indent"
               onClick={() => setMobileOpen(false)}
             >
-              <ServiceBadge category={line.category} size="sm" />
+              <ServiceTag category={line.category} variant="icon" size="sm" />
               {line.name}
             </Link>
           ))}
