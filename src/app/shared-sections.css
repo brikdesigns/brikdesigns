@@ -66,7 +66,9 @@
 
 .page-hero__description {
   font-family: var(--font-family-body);
-  font-size: var(--body-lg);
+  /* --body-xl (20px) clears WCAG 2.1 AA Large threshold (≥18.66px regular),
+     allowing --text-secondary (#828282 on white = 3.94:1) to pass at 3:1. */
+  font-size: var(--body-xl);
   color: var(--text-secondary);
   margin: var(--gap-md) 0 0;
   max-width: 700px;
