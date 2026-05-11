@@ -54,10 +54,27 @@ interface BaselineFile {
 const BASELINE_PATH = path.join(process.cwd(), 'tests/a11y/baseline.json');
 const baseline: BaselineFile = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
 
+// Axe emits positional indices like `:nth-child(3)` to point at a specific
+// node, but the underlying violation is usually identical across siblings
+// (e.g., five service cards with the same low-contrast subtext style).
+// Stripping these indices on both sides collapses repeats into one canonical
+// baseline entry per underlying violation. See issue #40 thread.
+function normalizeSelector(selector: string): string {
+  return selector
+    .replace(/:nth-child\(\d+\)/g, '')
+    .replace(/:nth-of-type\(\d+\)/g, '');
+}
+
+const normalizedBaseline: Record<string, Record<string, Set<string>>> = {};
+for (const [route, rules] of Object.entries(baseline.routes)) {
+  normalizedBaseline[route] = {};
+  for (const [ruleId, selectors] of Object.entries(rules)) {
+    normalizedBaseline[route][ruleId] = new Set(selectors.map(normalizeSelector));
+  }
+}
+
 function isBaselined(routePath: string, ruleId: string, selector: string): boolean {
-  const allowedSelectors = baseline.routes[routePath]?.[ruleId];
-  if (!allowedSelectors) return false;
-  return allowedSelectors.includes(selector);
+  return normalizedBaseline[routePath]?.[ruleId]?.has(normalizeSelector(selector)) ?? false;
 }
 
 test.describe('Public routes — WCAG 2.1 AA audit', () => {

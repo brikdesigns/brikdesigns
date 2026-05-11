@@ -53,6 +53,21 @@ Open a follow-up issue in the same commit and link it from a comment in
 `baseline.json`. Burn-down expectation: first Monday of every month, ship
 a PR removing the cheapest-to-fix selectors. Don't accumulate.
 
+### Selector matching: positional indices are stripped
+
+The matcher in `public-routes.spec.ts` normalizes both sides by stripping
+`:nth-child(N)` and `:nth-of-type(N)` before comparing. Five service
+cards with the same low-contrast subtext register as one baseline entry,
+not five. Write baseline entries in the canonical (un-indexed) form:
+
+```json
+".service-card > .service-card__content > .service-card__description"
+```
+
+…not `:nth-child(1)`, `:nth-child(2)`, etc. Axe will emit the indexed
+form at audit time, but the matcher absorbs it. See issue #40 for the
+underlying motivation.
+
 ## Healthcare clients
 
 If brikdesigns ever hosts a healthcare client surface, the elevated rules
