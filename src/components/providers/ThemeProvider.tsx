@@ -29,9 +29,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    // Read the theme set by the anti-FOUC inline script
+    // Sync React state with the data-theme attribute the anti-FOUC inline
+    // script in layout.tsx wrote before hydration. Initial render must match
+    // SSR ('light') so this can't run during render or via a lazy useState
+    // initializer — both would diverge from SSR and break hydration on the
+    // ThemeToggle (which renders isDark-dependent visuals).
     const current = document.documentElement.dataset.theme as Theme;
     if (current === 'light' || current === 'dark') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTheme(current);
     }
   }, []);
