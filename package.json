@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:tokens": "node scripts/lint-tokens.mjs",
+    "gen:types": "node scripts/gen-types.mjs",
+    "check:schema": "node scripts/check-schema-parity.mjs",
     "test:a11y": "playwright test",
     "visual-parity": "node scripts/visual-parity.mjs"
   },
