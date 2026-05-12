@@ -80,13 +80,6 @@
   filter: none;
 }
 
-/* Webflow: .icon_1x1-md — Font Awesome arrow icon in button */
-.icon-arrow {
-  font-family: 'Font Awesome 6 Pro', 'Font Awesome 6 Free', sans-serif;
-  font-size: var(--icon-md);
-  font-weight: 400;
-}
-
 /* ─── Services ("What We Do") ──────────────────────────────── */
 /* Webflow: .section_services — full-width, centered, 100svh min */
 .section-services {
@@ -201,10 +194,6 @@
   flex-flow: column;
   gap: 12px;
   width: 100%;
-}
-
-.service-card__badge {
-  /* no extra margin — gap from parent handles it */
 }
 
 /* Webflow: .text_heading-sm */
@@ -675,11 +664,6 @@
 
   .hero-layout {
     gap: 36px; /* gap-xl at mobile */
-  }
-
-  .hero-btn-secondary {
-    width: 100%;
-    justify-content: center;
   }
 
   .audit-layout {
