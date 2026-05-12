@@ -7,7 +7,7 @@ import { LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
-import { color } from '@/lib/tokens';
+import { color, serviceColor } from '@/lib/tokens';
 
 interface ServiceLineCardProps {
   name: string;
@@ -15,12 +15,14 @@ interface ServiceLineCardProps {
   category: ServiceCategory;
   tagline: string;
   imageUrl?: string | null;
-  /** Per-category brand color used to tint the "Learn more" CTA. Falls back to the BDS primary variant when undefined. */
-  brandColorBase?: string | null;
 }
 
 /** Service line card — ServiceTag is always shown as the primary visual */
-export function ServiceLineCard({ name, slug, category, tagline, imageUrl, brandColorBase }: ServiceLineCardProps) {
+export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: ServiceLineCardProps) {
+  // Audience-tinted CTA: canonical service-line text token (--text-service-*),
+  // AA-pairs with white text. Replaces raw `cat.brand_color_base` hex
+  // (brikdesigns#99).
+  const ctaTint = serviceColor(category).text;
   return (
     <Link href={`/services/${slug}`} className="services-card">
       <div className="services-card__image">
@@ -37,7 +39,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl, brand
       </div>
       <span
         className={composeButtonClasses({ variant: 'primary', size: 'sm' })}
-        style={brandColorBase ? { backgroundColor: brandColorBase, borderColor: brandColorBase } : undefined}
+        style={{ backgroundColor: ctaTint, borderColor: ctaTint }}
       >
         Learn more
       </span>
@@ -51,12 +53,11 @@ interface ServiceCalloutProps {
   category: ServiceCategory;
   description: string;
   imageUrl?: string | null;
-  /** Per-category brand color used to tint the "Learn more" CTA. Falls back to the BDS primary variant when undefined. */
-  brandColorBase?: string | null;
 }
 
 /** Side-by-side callout — ServiceTag + image for Product and Information design */
-export function ServiceCallout({ name, slug, category, description, imageUrl, brandColorBase }: ServiceCalloutProps) {
+export function ServiceCallout({ name, slug, category, description, imageUrl }: ServiceCalloutProps) {
+  const ctaTint = serviceColor(category).text;
   return (
     <div className="services-callout">
       <div className="services-callout__image">
@@ -74,7 +75,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl, br
           href={`/services/${slug}`}
           variant="primary"
           size="md"
-          style={brandColorBase ? { backgroundColor: brandColorBase, borderColor: brandColorBase } : undefined}
+          style={{ backgroundColor: ctaTint, borderColor: ctaTint }}
         >
           Learn more
         </LinkButton>

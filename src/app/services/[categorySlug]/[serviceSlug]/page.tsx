@@ -17,7 +17,7 @@ import type { BlueprintSection } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { text, heading, label } from '@/lib/styles';
-import { color } from '@/lib/tokens';
+import { color, serviceColor } from '@/lib/tokens';
 import '../../../shared-sections.css';
 import '../../services.css';
 
@@ -156,18 +156,18 @@ export default async function ServiceDetailPage({ params }: Props) {
     }
   }
 
-  // Brand colors drive the audience cascade for the hero blueprint.
-  // Supabase columns are the source of truth; inline CSS custom
-  // properties override BDS tokens within the hero subtree without
-  // hardcoding a `[data-audience='X']` rule set.
+  // Canonical service-line tokens drive the audience cascade for the hero
+  // blueprint. Inline CSS custom properties override BDS tokens within the
+  // hero subtree without hardcoding a `[data-audience='X']` rule set.
   //
-  // - `--page-brand-primary` ← brand_color_light: the soft hero bg.
-  // - `--text-brand-primary` ← brand_color_dark: the breadcrumb +
-  //   accent text. The dark variant ensures WCAG AA contrast against
-  //   the light audience bg (poppy on yellow fails 2.58:1; brand-dark
-  //   on brand-light is the canonical legible pairing).
-  const brandColorLight = category?.brand_color_light || null;
-  const brandColorDark = category?.brand_color_dark || null;
+  //   --page-brand-primary           ← --surface-service-{audience} (soft hero bg)
+  //   --text-brand-primary           ← --text-service-{audience}    (audience-dark, AA on the surface)
+  //   --bp-hero-img-card-headline-color, --background-inverse same as text
+  //
+  // Replaces raw `category.brand_color_light` / `brand_color_dark` hex
+  // (brikdesigns#99 — bypassed the BDS token system).
+  const audience = mapCategorySlug(category?.slug || categorySlug);
+  const audienceTokens = serviceColor(audience);
 
   const heroSection: BlueprintSection = {
     sectionKey: `hero-${service.slug}`,
@@ -191,13 +191,13 @@ export default async function ServiceDetailPage({ params }: Props) {
       { label: category?.name || categorySlug, href: `/services/${categorySlug}` },
       { label: service.name },
     ],
-    audience: mapCategorySlug(category?.slug || categorySlug),
+    audience,
     // Audience badge icon — Webflow shows a small SVG icon between the
     // breadcrumb and h1. Resolved from the static service-line icon set in
     // /public/icons/{category}/, so no per-record URL upload is needed and
     // the icon set comes from the canonical BDS-shipped art (theme handling
     // happens at the surrounding hero level).
-    iconUrl: SERVICE_LINE_ICON[mapCategorySlug(category?.slug || categorySlug)],
+    iconUrl: SERVICE_LINE_ICON[audience],
     iconAlt: `${category?.name || categorySlug} icon`,
     priceCard: service.image_url
       ? {
@@ -224,24 +224,20 @@ export default async function ServiceDetailPage({ params }: Props) {
       <div
         style={
           {
-            // Per-page audience-color cascade. brikdesigns globals don't
-            // define audience-specific tokens; Supabase columns drive
-            // them inline.
+            // Per-page audience-color cascade. Sources from canonical
+            // service-line tokens (BDS 0.66.0).
             //
             // Webflow truth on /service/{slug}:
-            //   - hero bg: audience-LIGHT
-            //   - h1 text: audience-DARK
-            //   - "View Details" CTA: audience-DARK fill, white text
-            //   - breadcrumb: brand-DARK (passes AA on audience-light)
+            //   - hero bg: audience-LIGHT (--surface-service-{audience})
+            //   - h1 text + "View Details" CTA bg: audience-DARK (--text-service-{audience})
+            //   - "View Details" CTA text: white (grayscale)
             //   - price-card "Let's Talk": brand-primary poppy (universal)
-            ...(brandColorLight && { '--page-brand-primary': brandColorLight }),
-            ...(brandColorDark && { '--text-brand-primary': brandColorDark }),
-            ...(brandColorDark && {
-              // h1 + LinkButton variant="inverse" both pick up brand-dark
-              '--bp-hero-img-card-headline-color': brandColorDark,
-              '--background-inverse': brandColorDark,
-              '--text-on-color-light': 'var(--color-grayscale-white)',
-            }),
+            '--page-brand-primary': audienceTokens.surface,
+            '--text-brand-primary': audienceTokens.text,
+            // h1 + LinkButton variant="inverse" both pick up audience-dark
+            '--bp-hero-img-card-headline-color': audienceTokens.text,
+            '--background-inverse': audienceTokens.text,
+            '--text-on-color-light': 'var(--color-grayscale-white)',
             // Match Webflow's hero rhythm
             '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
           } as React.CSSProperties

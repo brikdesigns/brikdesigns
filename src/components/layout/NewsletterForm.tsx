@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@brikdesigns/bds';
+import { color } from '@/lib/tokens';
 
 /**
  * Newsletter signup form using Kit.com (Klaviyo).
@@ -37,7 +38,7 @@ export function NewsletterForm() {
 
   if (status === 'success') {
     return (
-      <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-sm)', color: 'var(--text-success)' }}>
+      <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-sm)', color: color.text.success }}>
         You&apos;re subscribed!
       </p>
     );

@@ -8,7 +8,7 @@ import { hasIconFor } from '@/lib/service-icons';
 import { LinkButton, Breadcrumb, ServiceTag } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading } from '@/lib/styles';
-import { color, gap } from '@/lib/tokens';
+import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../services.css';
 
@@ -54,14 +54,17 @@ export default async function ServiceCategoryPage({ params }: Props) {
   // Other service lines (exclude current category)
   const otherCategories = allCategories.filter((c) => c.slug !== categorySlug);
 
-  const brandColorLight = category.brand_color_light || null;
+  // Service-line hero surface — canonical BDS `--surface-service-*` token
+  // resolved via the JS-side ServiceCategory key. Replaces the previous raw
+  // hex pulled from CMS `category.brand_color_light` (brikdesigns#99).
+  const heroSurface = serviceColor(mapCategorySlug(category.slug)).surface;
 
   return (
     <>
       {/* ═══ Hero ═══ */}
       <section
         className="svc-detail-hero-section"
-        style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
+        style={{ backgroundColor: heroSurface }}
       >
         <div className="page-hero__container">
           <Breadcrumb
@@ -92,7 +95,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
               <div className="svc-detail-hero__aside">
                 <div
                   className="svc-detail-hero__image"
-                  style={brandColorLight ? { backgroundColor: brandColorLight } as React.CSSProperties : undefined}
+                  style={{ backgroundColor: heroSurface }}
                 >
                   <Image
                     src={category.hero_image_url}
