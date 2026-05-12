@@ -107,13 +107,13 @@ html {
   --text-warning: var(--services--yellow-dark);
   --text-success: var(--services--green-dark);
 
-  /* Surface */
+  /* Surface — brand-specific shadows of canonical BDS tokens. Values diverge
+     from BDS canonical (e.g., secondary uses tan-lightest, not grayscale-
+     lighter) to carry the brikdesigns brand palette across the site. */
   --surface-primary: var(--grayscale--white);
   --surface-secondary: var(--tan--lightest);
-  --surface-tertiary: var(--grayscale--lighter);
   --surface-negative: #fdeaea;
   --surface-warning: var(--services--yellow-light);
-  --surface-success: var(--services--green-light);
   --surface-brand-primary: var(--brand--primary);
   --surface-brand-secondary: var(--grayscale--white);
 
@@ -148,10 +148,11 @@ html {
   --color-system-blue: #2f80ed;
   --color-system-orange: #f2994a;
 
-  /* Webflow-parity tokens (used by BDS components + mega nav) */
+  /* Webflow-parity tokens (used by BDS components + mega nav).
+     `--surface-accent` is brand-specific (tan-lightest, no canonical
+     equivalent — BDS extension pending). Kept project-local until BDS
+     ships a canonical accent surface. */
   --surface-accent: var(--tan--lightest);
-  --surface-nav: var(--surface-primary);
-  --surface-footer: var(--grayscale--darkest);
   --text-on-footer: var(--grayscale--white);
   --text-on-color-dark: var(--grayscale--white);
   --text-on-color-light: var(--grayscale--black);
@@ -161,7 +162,11 @@ html {
 
   /* BDS component CSS compatibility aliases */
   --system--red: var(--color-system-red);
-  --background-tertiary: var(--surface-tertiary);
+  /* Override BDS canonical `--background-tertiary` (= --color-grayscale-lighter
+     in light) to keep brikdesigns' grayscale-lighter alias direct — same value
+     today, but lets us flex the dark-theme value below (BDS canonical has no
+     dark-theme override for --background-tertiary, so we provide one). */
+  --background-tertiary: var(--grayscale--lighter);
 
   /* ---- Typography (Poppins — Brik brand font) ---- */
   --font-family-body: Poppins, sans-serif;
@@ -269,10 +274,8 @@ html {
   /* Surface — Figma color/dark mode values */
   --surface-primary: var(--grayscale--black);         /* Figma: grayscale.black ✓ */
   --surface-secondary: var(--grayscale--darker);      /* Figma: grayscale.darker — FIX from --darkest */
-  --surface-tertiary: var(--grayscale--dark);         /* Adjusted to maintain hierarchy */
   --surface-negative: #3d1a1a;
   --surface-warning: #2a2110;
-  --surface-success: #1a2a14;
   --surface-brand-primary: var(--brand--primary);     /* Brik override (Figma: theme.blue) */
   --surface-brand-secondary: var(--grayscale--darkest);
 
@@ -301,10 +304,9 @@ html {
   /* System */
   --color-system-link: #6b8aff;
 
-  /* Webflow-parity tokens — dark mode */
+  /* Webflow-parity tokens — dark mode. Same brand-customization rationale
+     as light theme (see top of file). */
   --surface-accent: var(--grayscale--darkest);
-  --surface-nav: var(--surface-primary);
-  --surface-footer: var(--grayscale--black);
   --text-on-footer: var(--grayscale--lightest);
   --background-image: var(--grayscale--darker);
   --background-image-brand: var(--brand--primary);
@@ -312,7 +314,10 @@ html {
 
   /* BDS compatibility aliases — dark mode */
   --system--red: var(--color-system-red);
-  --background-tertiary: var(--surface-tertiary);
+  /* Dark-theme value for --background-tertiary (BDS canonical has no dark
+     override). Was previously routed through `--surface-tertiary`; inlined
+     to remove that one-use private alias. */
+  --background-tertiary: var(--grayscale--dark);
 
   /* Service category colors — dark mode (muted for dark backgrounds) */
   --services--yellow: #d4b54a;
