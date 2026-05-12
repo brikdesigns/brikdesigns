@@ -185,26 +185,31 @@ export const color = {
       bg: 'var(--background-service-brand)',
       text: 'var(--text-service-brand)',
       surface: 'var(--surface-service-brand)',
+      inverse: 'var(--background-service-brand-inverse)',
     },
     marketing: {
       bg: 'var(--background-service-marketing)',
       text: 'var(--text-service-marketing)',
       surface: 'var(--surface-service-marketing)',
+      inverse: 'var(--background-service-marketing-inverse)',
     },
     information: {
       bg: 'var(--background-service-information)',
       text: 'var(--text-service-information)',
       surface: 'var(--surface-service-information)',
+      inverse: 'var(--background-service-information-inverse)',
     },
     product: {
       bg: 'var(--background-service-product)',
       text: 'var(--text-service-product)',
       surface: 'var(--surface-service-product)',
+      inverse: 'var(--background-service-product-inverse)',
     },
     service: {
       bg: 'var(--background-service-back-office)',
       text: 'var(--text-service-back-office)',
       surface: 'var(--surface-service-back-office)',
+      inverse: 'var(--background-service-back-office-inverse)',
     },
   },
 } as const;

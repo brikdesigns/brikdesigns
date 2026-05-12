@@ -19,10 +19,11 @@ interface ServiceLineCardProps {
 
 /** Service line card — ServiceTag is always shown as the primary visual */
 export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: ServiceLineCardProps) {
-  // Audience-tinted CTA: canonical service-line text token (--text-service-*),
-  // AA-pairs with white text. Replaces raw `cat.brand_color_base` hex
-  // (brikdesigns#99).
-  const ctaTint = serviceColor(category).text;
+  // Audience-tinted CTA — same canonical pairing as BDS ServiceTag:
+  // `--background-service-{slug}` + `--text-service-{slug}`. BDS designs
+  // these to flip together across themes, so AA holds in light + dark.
+  // Replaces raw `cat.brand_color_base` hex (brikdesigns#99).
+  const tokens = serviceColor(category);
   return (
     <Link href={`/services/${slug}`} className="services-card">
       <div className="services-card__image">
@@ -39,7 +40,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
       </div>
       <span
         className={composeButtonClasses({ variant: 'primary', size: 'sm' })}
-        style={{ backgroundColor: ctaTint, borderColor: ctaTint }}
+        style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}
       >
         Learn more
       </span>
@@ -57,7 +58,7 @@ interface ServiceCalloutProps {
 
 /** Side-by-side callout — ServiceTag + image for Product and Information design */
 export function ServiceCallout({ name, slug, category, description, imageUrl }: ServiceCalloutProps) {
-  const ctaTint = serviceColor(category).text;
+  const tokens = serviceColor(category);
   return (
     <div className="services-callout">
       <div className="services-callout__image">
@@ -75,7 +76,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
           href={`/services/${slug}`}
           variant="primary"
           size="md"
-          style={{ backgroundColor: ctaTint, borderColor: ctaTint }}
+          style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}
         >
           Learn more
         </LinkButton>

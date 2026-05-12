@@ -225,18 +225,20 @@ export default async function ServiceDetailPage({ params }: Props) {
         style={
           {
             // Per-page audience-color cascade. Sources from canonical
-            // service-line tokens (BDS 0.66.0).
+            // service-line tokens (BDS 0.66.0). One token-family per slot:
             //
-            // Webflow truth on /service/{slug}:
-            //   - hero bg: audience-LIGHT (--surface-service-{audience})
-            //   - h1 text + "View Details" CTA bg: audience-DARK (--text-service-{audience})
-            //   - "View Details" CTA text: white (grayscale)
-            //   - price-card "Let's Talk": brand-primary poppy (universal)
+            //   --page-brand-primary       surface  (--surface-service-{audience})       hero container
+            //   --text-brand-primary       text     (--text-service-{audience})          breadcrumb/accent text
+            //   --bp-hero-img-card-...     text     (--text-service-{audience})          h1
+            //   --background-inverse       inverse  (--background-service-{audience}-inverse) inverse-CTA fill
+            //   --text-on-color-light      grayscale-white                                 text on the inverse fill
+            //
+            // (Avoids text-as-bg vocabulary slip — BDS pairs `background-*-inverse`
+            // with the canonical white text token for AA across themes.)
             '--page-brand-primary': audienceTokens.surface,
             '--text-brand-primary': audienceTokens.text,
-            // h1 + LinkButton variant="inverse" both pick up audience-dark
             '--bp-hero-img-card-headline-color': audienceTokens.text,
-            '--background-inverse': audienceTokens.text,
+            '--background-inverse': audienceTokens.inverse,
             '--text-on-color-light': 'var(--color-grayscale-white)',
             // Match Webflow's hero rhythm
             '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
