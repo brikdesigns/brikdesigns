@@ -4,32 +4,16 @@
    ──────────────────────────────────────────────────────────── */
 
 /* ─── Interior page hero ─────────────────────────────────── */
-/* Webflow: .section_hero (interior variant — no brand bg) */
+/* Standardised header for non-home pages (about, plans, blog, customers,
+   industries, services, services/[cat], customer-stories, value,
+   get-started). Used in 11 pages — keep this pattern DRY here rather than
+   per-page CSS. */
 .page-hero {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.page-hero--brand {
-  background-color: var(--surface-brand-primary);
-  min-height: 100vh;
-  color: var(--text-on-color-dark);
-}
-
-.page-hero--brand .page-hero__title,
-.page-hero--brand .page-hero__description {
-  color: var(--text-on-color-dark);
-}
-
-.page-hero--accent {
-  background-color: var(--surface-accent);
-}
-
-.page-hero--secondary {
-  background-color: var(--surface-secondary);
 }
 
 .page-hero__container {
@@ -48,20 +32,11 @@
   margin: 0;
 }
 
-.page-hero--brand .page-hero__title {
-  color: var(--text-on-color-dark);
-}
-
 .page-hero__tagline {
   font-family: var(--font-family-body);
   font-size: var(--body-xl);
   color: var(--text-brand-primary);
   margin: var(--gap-sm) 0 0;
-}
-
-.page-hero--brand .page-hero__tagline {
-  color: var(--text-on-color-dark);
-  opacity: 0.9;
 }
 
 .page-hero__description {
@@ -75,11 +50,6 @@
   margin: var(--gap-md) 0 0;
   max-width: 700px;
   line-height: 1.7;
-}
-
-.page-hero--brand .page-hero__description {
-  color: var(--text-on-color-dark);
-  opacity: 0.8;
 }
 
 /* ─── Standard content section ───────────────────────────── */
@@ -96,33 +66,6 @@
   background-color: var(--surface-accent);
 }
 
-.content-section__container {
-  max-width: 90%;
-  margin: 0 auto;
-  padding: 0 var(--padding-lg);
-}
-
-.content-section__header {
-  text-align: center;
-  margin-bottom: var(--gap-xl);
-}
-
-.content-section__heading {
-  font-family: var(--font-family-heading);
-  font-size: var(--heading-lg);
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.content-section__subtext {
-  font-family: var(--font-family-body);
-  font-size: var(--body-md);
-  color: var(--text-secondary);
-  margin: var(--gap-md) auto 0;
-  max-width: 600px;
-}
-
 /* ─── Grid layouts ───────────────────────────────────────── */
 /* Webflow: .cms-layout-3-col */
 .grid-3 {
@@ -131,157 +74,8 @@
   gap: var(--gap-md);
 }
 
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap-md);
-}
-
-/* ─── Standard card ──────────────────────────────────────── */
-/* Webflow: .cms-item.stacked.border */
-.card-bordered {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: var(--padding-lg);
-  border: 2px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-primary);
-  text-decoration: none;
-  transition: border-color 0.15s;
-}
-
-.card-bordered:hover {
-  border-color: var(--border-brand-primary);
-}
-
-/* Webflow: .cms-item.stacked (no border) */
-.card-plain {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: var(--padding-lg);
-  background-color: var(--surface-primary);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-}
-
-/* ─── Image frame ────────────────────────────────────────── */
-/* Webflow: .img-frame-service */
-.img-frame {
-  aspect-ratio: 1;
-  border-radius: 8px; /* Webflow: border-radius--md */
-  background-color: var(--surface-accent);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  margin-bottom: var(--gap-md);
-}
-
-.img-frame--landscape {
-  aspect-ratio: 3/2; /* Webflow: .img-frame-landscape */
-}
-
-.img-frame--wide {
-  aspect-ratio: 16/9;
-}
-
-.img-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* ─── Primary CTA button ─────────────────────────────────── */
-/* Webflow: .button-primary-md */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-family-label);
-  font-size: var(--label-md);
-  font-weight: 600;
-  color: var(--text-on-color-dark);
-  background-color: var(--background-brand-primary);
-  padding: 16px 20px; /* Webflow: space-lg × space-xl */
-  border-radius: 4px; /* Webflow: border-radius-sm */
-  text-decoration: none;
-  border: none;
-  transition: opacity 0.15s;
-  cursor: pointer;
-}
-
-.btn-primary:hover { opacity: 0.9; }
-
-/* Webflow: .button-primary-md.inverse */
-.btn-primary--inverse {
-  color: var(--text-primary);
-  background-color: var(--surface-primary);
-}
-
-/* Webflow: .button-tertiary-md */
-/* Webflow: .button-tertiary-md — transparent bg, 2px border, sm radius */
-.btn-outline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--gap-md);
-  font-family: var(--font-family-label);
-  font-size: var(--label-md);
-  font-weight: 600;
-  color: var(--text-primary);
-  background: transparent;
-  padding: 16px 20px; /* Webflow: space-lg × space-xl */
-  border: 2px solid var(--border-primary);
-  border-radius: 4px; /* Webflow: border-radius-sm */
-  text-decoration: none;
-  text-align: center;
-  transition: background-color 0.2s, color 0.2s;
-  cursor: pointer;
-}
-
-.btn-outline:hover {
-  background-color: var(--surface-secondary);
-}
-
-/* Webflow: .button-tertiary-md on dark backgrounds */
-.btn-outline--on-dark {
-  color: var(--text-on-color-dark);
-  border-color: var(--border-inverse);
-}
-
-.btn-outline--on-dark:hover {
-  background-color: var(--background-primary);
-  color: var(--text-inverse);
-}
-
-/* Webflow: .button-secondary-sm — secondary bg, label font, sm radius */
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  font-family: var(--font-family-label);
-  font-size: var(--body-sm);
-  font-weight: 600;
-  line-height: 150%;
-  color: var(--text-primary);
-  background-color: var(--background-secondary);
-  padding: 8px 16px;
-  border-radius: 4px;
-  border: none;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 0.15s;
-  cursor: pointer;
-}
-
-.btn-secondary:hover {
-  background-color: var(--background-inverse);
-}
-
 /* ─── Button wrappers ────────────────────────────────────── */
-/* Webflow: .button-wrapper — reusable flex row for CTA buttons.
-   Variants: .center, .stretch, .right — match Webflow modifier classes. */
+/* Webflow: .button-wrapper — reusable flex row for CTA buttons. */
 
 .button-wrapper {
   display: flex;
@@ -292,15 +86,6 @@
 
 .button-wrapper--center {
   justify-content: center;
-}
-
-.button-wrapper--stretch {
-  align-items: stretch;
-  flex-wrap: wrap;
-}
-
-.button-wrapper--right {
-  justify-content: flex-end;
 }
 
 /* ─── Content wrappers ───────────────────────────────────── */
@@ -326,14 +111,6 @@
 
 .content-wrapper--center.content-wrapper--narrow {
   width: 70%;
-}
-
-.content-wrapper--tight {
-  gap: 2px; /* Webflow: gap--tiny */
-}
-
-.content-wrapper--comfortable {
-  gap: 36px; /* Webflow: gap--xl */
 }
 
 /* ─── Brand-color CTA card ───────────────────────────────── */
@@ -374,7 +151,6 @@
   padding-right: var(--padding-lg);
 }
 
-.container-lg--tight      { gap: 12px; }
 .container-lg--comfortable { gap: 36px; }
 
 /* ─── Responsive ─────────────────────────────────────────── */
@@ -394,8 +170,7 @@
 }
 
 @media (max-width: 767px) {
-  .grid-3,
-  .grid-2 {
+  .grid-3 {
     grid-template-columns: 1fr;
   }
 
