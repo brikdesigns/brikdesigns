@@ -20,16 +20,6 @@
   text-align: center;
 }
 
-/* Font Awesome icon — monochrome, medium size */
-.customers-industry-icon {
-  font-family: 'Font Awesome 6 Pro Solid 900', 'Font Awesome 6 Free', sans-serif;
-  font-size: 32px;
-  line-height: 1;
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 .customers-segment-card {
   display: flex;
   flex-direction: column;

@@ -4,15 +4,19 @@
  * Each marketing entity exposes a strict allowlist of fields that the admin UI
  * (and external agents) are permitted to write. Unknown fields are dropped
  * rather than failing — this keeps the API forward-compatible while preventing
- * agents from accidentally writing portal-owned fields like `stripe_product_id`
- * or `base_price_cents`.
+ * agents from accidentally writing portal-owned fields like `stripe_product_id`,
+ * `stripe_price_id`, `proposal_copy`, or `contract_copy`.
+ *
+ * Note: `base_price_cents` and `billing_frequency` ARE writable here per
+ * 2026-05-11 decision (marketers need to edit prices). Stripe identifiers
+ * stay portal-only — those are the actual source-of-truth for billing.
  *
  * Validation is intentionally narrow: type shape only. Slug format, FK
  * existence, and uniqueness are enforced by Postgres (UNIQUE constraints +
  * REFERENCES) so the database error surfaces directly to the caller.
  */
 
-export type FieldType = 'string' | 'string-or-null' | 'number' | 'boolean' | 'uuid';
+export type FieldType = 'string' | 'string-or-null' | 'number' | 'number-or-null' | 'boolean' | 'uuid';
 
 export type FieldSchema = Record<string, FieldType>;
 
@@ -58,6 +62,12 @@ export function pickAndValidate(
       case 'number':
         if (typeof value !== 'number' || !Number.isFinite(value)) {
           throw new AdminInputError(`${key} must be a finite number`);
+        }
+        out[key] = value;
+        break;
+      case 'number-or-null':
+        if (value !== null && (typeof value !== 'number' || !Number.isFinite(value))) {
+          throw new AdminInputError(`${key} must be a finite number or null`);
         }
         out[key] = value;
         break;

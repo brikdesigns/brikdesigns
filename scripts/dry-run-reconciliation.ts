@@ -61,8 +61,6 @@ const SERVICE_LINES_FIELDS: Array<[string, string]> = [
   ['Description', 'description'],
   ['Hero', 'hero_image_url'],
   ['Main Image', 'card_image_url'],
-  ['Primary Badge - light', 'primary_badge_url'],
-  ['Secondary Badge', 'secondary_badge_url'],
   ['Support Plan', 'support_plan_slug'],
   ['Support Plan Img', 'support_plan_image_url'],
   ['Light', 'brand_color_light'],
@@ -76,8 +74,6 @@ const SERVICES_FIELDS: Array<[string, string]> = [
   ['Description', 'marketing_description'],
   ['Description', 'description'], // dual-write to both, mirrors seed script
   ['Image', 'image_url'],
-  ['Primary Badge', 'primary_badge_url'],
-  ['Secondary Badge', 'secondary_badge_url'],
   ['Related', 'related_service_slug'],
   ['Support Plan', 'support_plan_slug'],
 ];

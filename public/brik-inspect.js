@@ -10,9 +10,20 @@
  * font for visual consistency.
  *
  * Enable via:
- *   1. Query param:        ?inspect=1
- *   2. Script data-attr:   data-auto-enable="1"  (loads toolbar; doesn't activate hover)
- *   3. localStorage:       brik-inspect-enabled=1  (auto-activates from prior session)
+ *   1. Query param:        ?inspect=1  (loads toolbar AND activates hover)
+ *   2. Script data-attr:   data-auto-enable="1"  (loads toolbar; hover stays off
+ *                                                 until the user clicks Inspect
+ *                                                 in the DevBar or the toolbar
+ *                                                 fallback button)
+ *
+ * Inspect state is intentionally session-only: each page load starts inactive
+ * unless the URL explicitly requests it. The widget formerly auto-activated
+ * from `localStorage.brik-inspect-enabled` left over from a prior session,
+ * which surprised users — the DevBar pill could show "inactive" while the
+ * inspector was actually running because the DevBar shell hadn't yet hydrated
+ * at the time the localStorage check ran (race condition). The persistence
+ * was removed to keep the UI honest: pill state and runtime state are now
+ * always in sync.
  *
  * Inject alongside feedback-widget.js (same deploy pipeline):
  *   <script src="inspect-widget.js" data-auto-enable="1"></script>
@@ -32,10 +43,15 @@
   const script = document.currentScript;
   const AUTO_ENABLE = script?.getAttribute('data-auto-enable') === '1';
   const URL_ENABLED = /[?&]inspect=1\b/.test(location.search);
-  const LS_ENABLED = localStorage.getItem('brik-inspect-enabled') === '1';
-  const SHOULD_ENABLE = AUTO_ENABLE || URL_ENABLED || LS_ENABLED;
+  const SHOULD_ENABLE = AUTO_ENABLE || URL_ENABLED;
 
   if (!SHOULD_ENABLE) return;
+
+  // Clear any stale persistence from sessions before this widget stopped
+  // auto-activating from localStorage. Users who toggled inspect on in the
+  // past would otherwise still have `brik-inspect-enabled=1` lingering; this
+  // ensures their next session starts clean.
+  try { localStorage.removeItem('brik-inspect-enabled'); } catch {}
 
   // Token prefixes considered valid BDS tokens. Anything not starting with
   // one of these is treated as an unknown custom var (still surfaced, but
@@ -832,7 +848,6 @@
     if (window.BrikDevBar?.isRegistered?.('inspect')) {
       window.BrikDevBar.setActive('inspect', active);
     }
-    localStorage.setItem('brik-inspect-enabled', active ? '1' : '0');
     if (!active) {
       clearOutline();
       hidePill();
@@ -1201,7 +1216,9 @@
     document.addEventListener('keydown', onKey);
     window.addEventListener('scroll', onScrollOrResize, true);
     window.addEventListener('resize', onScrollOrResize);
-    if (LS_ENABLED) toggleActive();
+    // Activate on load only when the URL explicitly requested it (`?inspect=1`).
+    // Otherwise hover stays off until the user toggles via DevBar or shortcut.
+    if (URL_ENABLED) toggleActive();
   }
 
   if (document.readyState === 'loading') {

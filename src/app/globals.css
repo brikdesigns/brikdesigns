@@ -84,23 +84,33 @@ html {
 
   /* Text */
   --text-primary: var(--grayscale--darkest);
-  --text-secondary: var(--grayscale--dark);
+  /* AA fix: BDS canonical comments document `--color-grayscale-darker` (#4f4f4f)
+     as the intended Secondary Text token, but the canonical `--text-secondary`
+     alias maps to `--color-grayscale-dark` (#828282 — Placeholder/Tertiary),
+     which fails AA at body sizes (3.84:1 on white). Override locally so the
+     43+ `color.text.secondary` consumers + 51+ direct CSS readers all become
+     AA-compliant (8.59:1 on white). Re-evaluate when BDS corrects the alias. */
+  --text-secondary: var(--color-grayscale-darker);
   --text-muted: var(--grayscale--light);
   --text-inverse: var(--grayscale--white);
   --text-on-color-dark: var(--grayscale--white);
   --text-on-color-light: var(--grayscale--black);
-  --text-brand-primary: var(--brand--primary);
+  /* AA fix: `--brand--primary` (#e35335 poppy-light) used as text color fails
+     AA on white (3.78:1) and tan-lightest (3.31:1) at body sizes. Swap to
+     `--color-poppy-dark` (#b0351b): 7.04:1 on white, 5.27:1 on tan-lightest —
+     both AA pass. Visually still on-brand poppy; the lighter shade remains
+     available as `--background-brand-primary` for fills (where text contrast
+     comes from the inverse text color, not the brand color). Dark theme
+     keeps the lighter poppy — it has enough contrast against the dark bg. */
+  --text-brand-primary: var(--color-poppy-dark);
   --text-negative: var(--color-system-red);
-  --text-warning: var(--services--yellow-dark);
-  --text-success: var(--services--green-dark);
 
-  /* Surface */
+  /* Surface — brand-specific shadows of canonical BDS tokens. Values diverge
+     from BDS canonical (e.g., secondary uses tan-lightest, not grayscale-
+     lighter) to carry the brikdesigns brand palette across the site. */
   --surface-primary: var(--grayscale--white);
   --surface-secondary: var(--tan--lightest);
-  --surface-tertiary: var(--grayscale--lighter);
   --surface-negative: #fdeaea;
-  --surface-warning: var(--services--yellow-light);
-  --surface-success: var(--services--green-light);
   --surface-brand-primary: var(--brand--primary);
   --surface-brand-secondary: var(--grayscale--white);
 
@@ -135,10 +145,11 @@ html {
   --color-system-blue: #2f80ed;
   --color-system-orange: #f2994a;
 
-  /* Webflow-parity tokens (used by BDS components + mega nav) */
+  /* Webflow-parity tokens (used by BDS components + mega nav).
+     `--surface-accent` is brand-specific (tan-lightest, no canonical
+     equivalent — BDS extension pending). Kept project-local until BDS
+     ships a canonical accent surface. */
   --surface-accent: var(--tan--lightest);
-  --surface-nav: var(--surface-primary);
-  --surface-footer: var(--grayscale--darkest);
   --text-on-footer: var(--grayscale--white);
   --text-on-color-dark: var(--grayscale--white);
   --text-on-color-light: var(--grayscale--black);
@@ -148,7 +159,11 @@ html {
 
   /* BDS component CSS compatibility aliases */
   --system--red: var(--color-system-red);
-  --background-tertiary: var(--surface-tertiary);
+  /* Override BDS canonical `--background-tertiary` (= --color-grayscale-lighter
+     in light) to keep brikdesigns' grayscale-lighter alias direct — same value
+     today, but lets us flex the dark-theme value below (BDS canonical has no
+     dark-theme override for --background-tertiary, so we provide one). */
+  --background-tertiary: var(--grayscale--lighter);
 
   /* ---- Typography (Poppins — Brik brand font) ---- */
   --font-family-body: Poppins, sans-serif;
@@ -204,34 +219,10 @@ html {
   --icon-md: var(--font-size-100);
   --icon-lg: var(--font-size-200);
 
-  /* ---- Service category color primitives ---- */
-  --services--yellow: #f4d364;
-  --services--yellow-dark: #634716;
-  --services--yellow-light: #fffee1;
-  --services--green: #9ada6c;
-  --services--green-dark: #2a5542;
-  --services--green-light: #f8fff3;
-  --services--blue: #8ebbcc;
-  --services--blue-dark: #314952;
-  --services--blue-light: #f8fdff;
-  --services--purple: #c4b0eb;
-  --services--purple-dark: #362d48;
-  --services--purple-light: #eae3f3;
-  --services--orange: #e76134;
-  --services--orange-dark: #4e1400;
-  --services--orange-light: #ffe8dc;
-
-  /* BDS semantic service tokens */
-  --background-service-brand: var(--services--yellow);
-  --text-service-brand: var(--services--yellow-dark);
-  --background-service-marketing: var(--services--green);
-  --text-service-marketing: var(--services--green-dark);
-  --background-service-information: var(--services--blue);
-  --text-service-information: var(--services--blue-dark);
-  --background-service-product: var(--services--purple);
-  --text-service-product: var(--services--purple-dark);
-  --background-service-service: var(--services--orange);
-  --text-service-service: var(--services--orange-dark);
+  /* Service-line tokens (--surface-service-*, --background-service-*,
+     --text-service-*) are owned by BDS canonical (`bds-tokens` layer).
+     Reconciled in brik-bds#575 — the orange line's canonical suffix is
+     `back-office` (renamed from the bug-named `service`). */
 }
 
 /* ================================================================
@@ -250,16 +241,11 @@ html {
   --text-brand-primary: var(--brand--primary);        /* Brik override (Figma: theme.blue) */
   --text-inverse: var(--grayscale--black);            /* Figma: grayscale.black — FIX from --darkest */
   --text-negative: #ff6b6b;
-  --text-warning: #f4d364;
-  --text-success: #9ada6c;
 
   /* Surface — Figma color/dark mode values */
   --surface-primary: var(--grayscale--black);         /* Figma: grayscale.black ✓ */
   --surface-secondary: var(--grayscale--darker);      /* Figma: grayscale.darker — FIX from --darkest */
-  --surface-tertiary: var(--grayscale--dark);         /* Adjusted to maintain hierarchy */
   --surface-negative: #3d1a1a;
-  --surface-warning: #2a2110;
-  --surface-success: #1a2a14;
   --surface-brand-primary: var(--brand--primary);     /* Brik override (Figma: theme.blue) */
   --surface-brand-secondary: var(--grayscale--darkest);
 
@@ -288,10 +274,9 @@ html {
   /* System */
   --color-system-link: #6b8aff;
 
-  /* Webflow-parity tokens — dark mode */
+  /* Webflow-parity tokens — dark mode. Same brand-customization rationale
+     as light theme (see top of file). */
   --surface-accent: var(--grayscale--darkest);
-  --surface-nav: var(--surface-primary);
-  --surface-footer: var(--grayscale--black);
   --text-on-footer: var(--grayscale--lightest);
   --background-image: var(--grayscale--darker);
   --background-image-brand: var(--brand--primary);
@@ -299,36 +284,13 @@ html {
 
   /* BDS compatibility aliases — dark mode */
   --system--red: var(--color-system-red);
-  --background-tertiary: var(--surface-tertiary);
+  /* Dark-theme value for --background-tertiary (BDS canonical has no dark
+     override). Was previously routed through `--surface-tertiary`; inlined
+     to remove that one-use private alias. */
+  --background-tertiary: var(--grayscale--dark);
 
-  /* Service category colors — dark mode (muted for dark backgrounds) */
-  --services--yellow: #d4b54a;
-  --services--yellow-dark: #f4d364;
-  --services--yellow-light: #2a2110;
-  --services--green: #7aba52;
-  --services--green-dark: #9ada6c;
-  --services--green-light: #1a2a14;
-  --services--blue: #6e9bac;
-  --services--blue-dark: #8ebbcc;
-  --services--blue-light: #141f24;
-  --services--purple: #a490cb;
-  --services--purple-dark: #c4b0eb;
-  --services--purple-light: #1e1828;
-  --services--orange: #c74e24;
-  --services--orange-dark: #e76134;
-  --services--orange-light: #241008;
-
-  /* BDS semantic service tokens — dark mode */
-  --background-service-brand: var(--services--yellow);
-  --text-service-brand: var(--services--yellow-dark);
-  --background-service-marketing: var(--services--green);
-  --text-service-marketing: var(--services--green-dark);
-  --background-service-information: var(--services--blue);
-  --text-service-information: var(--services--blue-dark);
-  --background-service-product: var(--services--purple);
-  --text-service-product: var(--services--purple-dark);
-  --background-service-service: var(--services--orange);
-  --text-service-service: var(--services--orange-dark);
+  /* Service-line dark-mode tokens are owned by BDS canonical (`bds-tokens`
+     layer — see brik-bds#575 for the tone/context/inverse variants). */
 }
 
 /* ---- Base element styles ---- */

@@ -1,0 +1,77 @@
+name: Visual parity (Webflow vs Netlify)
+
+# Captures side-by-side screenshots of every refactored route on the Netlify
+# deploy-preview vs the live Webflow page. Uploads the HTML report + raw PNGs
+# as a PR artifact so reviewers can eyeball drift without running the script
+# locally.
+#
+# Non-blocking: capture failures (network blips, theme not yet wired) don't
+# fail the PR — diff judgment is human-only for now. Wire a hard gate once
+# we add pixel-diff thresholds + a baseline.
+
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+
+concurrency:
+  group: visual-parity-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
+    env:
+      # Same GITHUB_TOKEN pattern as .github/workflows/a11y.yml — needs to be
+      # on the @brikdesigns/bds package's Actions-access list.
+      PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for Netlify deploy-preview
+        id: deploy
+        run: |
+          DEPLOY_URL="https://deploy-preview-${{ github.event.pull_request.number }}--brikdesigns.netlify.app"
+          echo "Polling $DEPLOY_URL for live deploy …"
+          for i in $(seq 1 60); do
+            CODE=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$DEPLOY_URL/" || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "Deploy live (HTTP $CODE) on attempt $i."
+              echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "  attempt $i: HTTP $CODE — sleeping 10s"
+            sleep 10
+          done
+          echo "Deploy never reached HTTP 200 after 10 minutes." >&2
+          exit 1
+
+      - name: Capture visual parity
+        env:
+          NETLIFY_URL: ${{ steps.deploy.outputs.url }}
+        run: npm run visual-parity -- "$NETLIFY_URL"
+        continue-on-error: true
+
+      - name: Upload report
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: visual-parity-report
+          path: tests/visual-parity/
+          retention-days: 14

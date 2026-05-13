@@ -166,18 +166,6 @@
   display: block;
 }
 
-.svc-detail-hero__price-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--gap-xs);
-  padding: var(--padding-lg);
-  background-color: var(--surface-primary);
-  border-radius: var(--border-radius-md);
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
 /* Offerings — default vertical, grid for 3+ */
 .svc-detail-offerings {
   display: flex;
@@ -192,51 +180,10 @@
   gap: var(--gap-lg);
 }
 
-.svc-detail-offering-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  padding: var(--padding-lg);
-  border: 2px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-primary);
-  justify-content: space-between;
-}
-
-.svc-detail-offering-top {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
-.svc-detail-offering-icon {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-
-.svc-detail-offering-meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-  padding-top: var(--gap-sm);
-  border-top: 1px solid var(--border-secondary);
-}
-
-.svc-detail-offering-price-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--gap-md);
-}
-
-.svc-detail-offering-includes {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-  padding-top: var(--gap-sm);
-  border-top: 1px solid var(--border-secondary);
-}
+/* Individual offering cards are now BDS `<PricingCard>` — see
+   src/app/services/[categorySlug]/[serviceSlug]/page.tsx. This file only
+   keeps the grid/flex wrapper (`.svc-detail-offerings[--grid]`) for layout
+   of N cards on the detail page. */
 
 /* Related customer story card */
 .svc-detail-story-card {
@@ -320,21 +267,6 @@
   background-color: var(--surface-accent);
   border-radius: var(--border-radius-lg);
   width: 100%;
-}
-
-/* Category page — monthly support section */
-.svc-category-support {
-  display: flex;
-  gap: var(--gap-xl);
-  align-items: center;
-  width: 100%;
-}
-
-.svc-category-support__content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
 }
 
 /* Category page — other service lines */

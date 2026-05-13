@@ -18,6 +18,12 @@ export type FieldDef =
   | { kind: 'textarea'; name: string; label: string; rows?: number }
   | { kind: 'number'; name: string; label: string }
   | { kind: 'switch'; name: string; label: string }
+  /**
+   * Dollar input — displays + accepts "$1,500" / "1500" / "$1,500.00", stores
+   * as integer cents on submit. Use for price columns owned by Stripe sync
+   * where the DB representation is `..._cents`.
+   */
+  | { kind: 'dollar'; name: string; label: string; placeholder?: string }
   | {
       kind: 'select';
       name: string;
@@ -65,7 +71,35 @@ function fieldDefaultValue(def: FieldDef, initial: Record<string, unknown>): unk
     if (def.kind === 'number') return '';
     return '';
   }
+  if (def.kind === 'dollar') {
+    // Stored as cents; display as "$X,XXX" or "$X,XXX.XX" if there are cents.
+    const cents = typeof v === 'number' ? v : Number(v);
+    if (!Number.isFinite(cents)) return '';
+    const hasFractionalCents = cents % 100 !== 0;
+    return (cents / 100).toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: hasFractionalCents ? 2 : 0,
+      maximumFractionDigits: hasFractionalCents ? 2 : 0,
+    });
+  }
   return v;
+}
+
+/**
+ * Parse a user-typed price string ("$1,500", "1500", "1,500.50") into integer
+ * cents. Returns null when input is blank, or NaN (which is assignable to
+ * `number`) as a sentinel when input is non-numeric or negative — the form's
+ * submit handler treats NaN as a validation error and shows a message.
+ */
+function parseDollarToCents(raw: string): number | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  const cleaned = trimmed.replace(/[$,\s]/g, '');
+  const n = Number(cleaned);
+  if (!Number.isFinite(n)) return NaN;
+  if (n < 0) return NaN;
+  return Math.round(n * 100);
 }
 
 export function EntityForm({
@@ -145,6 +179,14 @@ export function EntityForm({
       } else if (f.kind === 'color' || f.kind === 'media') {
         const s = typeof v === 'string' ? v : '';
         payload[f.name] = s ? s : null;
+      } else if (f.kind === 'dollar') {
+        const raw = typeof v === 'string' ? v : '';
+        const cents = parseDollarToCents(raw);
+        if (Number.isNaN(cents)) {
+          setError(`${f.label} must be a dollar amount (e.g. $1,500 or 1500)`);
+          return;
+        }
+        payload[f.name] = cents;
       }
     }
 
@@ -207,6 +249,18 @@ export function EntityForm({
               type="number"
               value={String(values[f.name] ?? '')}
               onChange={(e) => setValue(f.name, e.target.value)}
+              fullWidth
+            />
+          );
+        }
+        if (f.kind === 'dollar') {
+          return (
+            <TextInput
+              key={f.name}
+              label={f.label}
+              value={String(values[f.name] ?? '')}
+              onChange={(e) => setValue(f.name, e.target.value)}
+              placeholder={f.placeholder ?? '$1,500'}
               fullWidth
             />
           );

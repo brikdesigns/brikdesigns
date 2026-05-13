@@ -8,8 +8,6 @@ const SCHEMA: FieldSchema = {
   tagline: 'string-or-null',
   description: 'string-or-null',
   image_url: 'string-or-null',
-  primary_badge_url: 'string-or-null',
-  secondary_badge_url: 'string-or-null',
   has_customer_story: 'boolean',
   related_service_slug: 'string-or-null',
   support_plan_slug: 'string-or-null',
