@@ -1,0 +1,87 @@
+/* Fixture: canonical service-token usage. Expected violations: 0.
+ *
+ * Run by scripts/lint-tokens.test.mjs against findFamilyViolations.
+ * Documents the patterns that MUST pass the family rule. */
+
+/* ── Sections / heroes / callouts use --surface-service-* ── */
+
+.service-hero {
+  background: var(--surface-service-marketing);
+  color: var(--text-service-marketing);
+}
+
+.audience-callout-section {
+  background-color: var(--surface-service-product);
+}
+
+.hero-band {
+  background: var(--surface-service-information-light);
+}
+
+section.panel-marketing {
+  background: var(--surface-service-marketing-dark);
+}
+
+/* ── Components (badges, tags, pills, buttons) use --background-service-* ── */
+
+.service-tag--marketing {
+  background: var(--background-service-marketing);
+  color: var(--text-service-marketing-on-light);
+}
+
+.audience-badge {
+  background: var(--background-service-brand-on-light);
+}
+
+.cta-btn--inverse {
+  background: var(--background-service-product-inverse);
+  color: var(--text-service-product-on-dark);
+}
+
+.service-pill {
+  background: var(--background-service-back-office);
+}
+
+/* ── Border and text families: no family-rule constraint (universally OK) ── */
+
+.service-tag {
+  border: 1px solid var(--border-service-marketing);
+  color: var(--text-service-marketing-on-light);
+}
+
+.hero {
+  border-bottom: 1px solid var(--border-service-marketing);
+}
+
+/* ── :root / theme overrides skip the check ── */
+
+:root {
+  --my-local-bg: var(--background-service-marketing);
+  --my-local-surface: var(--surface-service-marketing);
+}
+
+:root[data-theme='dark'] {
+  --my-local-bg: var(--background-service-marketing-inverse);
+}
+
+/* ── @media wraps a surface rule — context is the inner rule, still correct ── */
+
+@media (min-width: 768px) {
+  .hero-section {
+    background: var(--surface-service-marketing);
+  }
+
+  .tag-list .tag {
+    background: var(--background-service-marketing);
+  }
+}
+
+/* ── Neutral selectors (no surface/component keyword) are skipped ── */
+
+.foo {
+  background: var(--surface-service-marketing); /* not flagged — .foo is neutral */
+}
+
+.bar {
+  background: var(--background-service-marketing); /* not flagged — .bar is neutral */
+}

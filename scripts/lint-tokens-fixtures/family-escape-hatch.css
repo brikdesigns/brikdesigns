@@ -1,0 +1,13 @@
+/* Fixture: the `lint-tokens-ignore-family` pragma. Expected violations: 1.
+ *
+ * The first declaration intentionally violates the family rule but is
+ * suppressed by an inline pragma. The second is the same violation without
+ * the pragma — it should be reported. */
+
+.hero-section {
+  background: var(--background-service-marketing); /* lint-tokens-ignore-family — design wants the deeper tone here */
+}
+
+.hero-section-unsuppressed {
+  background: var(--background-service-marketing);
+}

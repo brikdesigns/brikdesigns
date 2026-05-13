@@ -8,13 +8,16 @@
     "start": "next start",
     "lint": "eslint",
     "lint:tokens": "node scripts/lint-tokens.mjs",
+    "test:lint:tokens": "node scripts/lint-tokens.test.mjs",
+    "lint:service-urls": "node scripts/lint-service-urls.mjs",
+    "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "gen:types": "node scripts/gen-types.mjs",
     "check:schema": "node scripts/check-schema-parity.mjs",
     "test:a11y": "playwright test",
     "visual-parity": "node scripts/visual-parity.mjs"
   },
   "dependencies": {
-    "@brikdesigns/bds": "^0.66.0",
+    "@brikdesigns/bds": "^0.67.0",
     "@gsap/react": "^2.1.2",
     "@iconify/react": "^6.0.2",
     "@mdx-js/mdx": "^3.1.1",

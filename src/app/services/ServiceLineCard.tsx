@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ServiceTag } from '@brikdesigns/bds';
+import { Card, ServiceTag } from '@brikdesigns/bds';
 import { LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceCategory } from '@brikdesigns/bds';
@@ -56,7 +56,13 @@ interface ServiceCalloutProps {
   imageUrl?: string | null;
 }
 
-/** Side-by-side callout — ServiceTag + image for Product and Information design */
+/** Side-by-side callout — ServiceTag + image for Product and Information design.
+ *
+ * The content area sits in a neutral BDS <Card> so the audience-tinted CTA
+ * (`--background-service-{audience}`) contrasts against `--surface-primary`
+ * instead of disappearing into the section's outer service surface tint
+ * (brikdesigns#103). Image stays on the section's tint (existing design).
+ */
 export function ServiceCallout({ name, slug, category, description, imageUrl }: ServiceCalloutProps) {
   const tokens = serviceColor(category);
   return (
@@ -68,7 +74,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
           <ServiceTag category={category} variant="icon" size="lg" />
         )}
       </div>
-      <div className="services-callout__content">
+      <Card padding="lg" className="services-callout__content">
         <ServiceTag category={category} variant="icon" size="md" />
         <h2 style={heading.lg}>{name}</h2>
         <p style={{ ...text.body, color: color.text.primary }}>{description}</p>
@@ -80,7 +86,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
         >
           Learn more
         </LinkButton>
-      </div>
+      </Card>
     </div>
   );
 }
