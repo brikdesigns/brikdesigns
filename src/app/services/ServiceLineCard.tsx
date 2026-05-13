@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, ServiceTag } from '@brikdesigns/bds';
-import { LinkButton } from '@brikdesigns/bds';
+import { Card, CardTitle, CardDescription, CardFooter, Stack, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
@@ -56,37 +55,47 @@ interface ServiceCalloutProps {
   imageUrl?: string | null;
 }
 
-/** Side-by-side callout — ServiceTag + image for Product and Information design.
+/** Row-card callout — image + content inside a single BDS Card. Used for the
+ * Product and Information service lines on /services.
  *
- * The content area sits in a neutral BDS <Card> so the audience-tinted CTA
- * (`--background-service-{audience}`) contrasts against `--surface-primary`
- * instead of disappearing into the section's outer service surface tint
- * (brikdesigns#103). Image stays on the section's tint (existing design).
+ * Mirrors the Recommended Add-On pattern on service detail pages (#107):
+ * `<Card padding="lg">` wraps a horizontal `<Stack>` with image-left + content-right.
+ *
+ * The Card sits on the section's `--surface-service-{slug}` tinted background;
+ * the audience-tinted CTA (`--background-service-{audience}`) contrasts
+ * against Card's `--surface-primary` instead of disappearing into the section
+ * tint (#103).
  */
 export function ServiceCallout({ name, slug, category, description, imageUrl }: ServiceCalloutProps) {
   const tokens = serviceColor(category);
   return (
-    <div className="services-callout">
-      <div className="services-callout__image">
-        {imageUrl ? (
-          <Image src={imageUrl} alt={name} width={600} height={600} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <ServiceTag category={category} variant="icon" size="lg" />
-        )}
-      </div>
-      <Card padding="lg" className="services-callout__content">
-        <ServiceTag category={category} variant="icon" size="md" />
-        <h2 style={heading.lg}>{name}</h2>
-        <p style={{ ...text.body, color: color.text.primary }}>{description}</p>
-        <LinkButton
-          href={`/services/${slug}`}
-          variant="primary"
-          size="md"
-          style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}
-        >
-          Learn more
-        </LinkButton>
-      </Card>
-    </div>
+    <Card padding="lg" className="services-callout-card">
+      <Stack direction="horizontal" gap="lg" align="center">
+        <div className="services-callout-card__image">
+          <Frame ratio="square" fit="cover">
+            {imageUrl ? (
+              <Image src={imageUrl} alt={name} width={600} height={600} />
+            ) : (
+              <ServiceTag category={category} variant="icon" size="lg" />
+            )}
+          </Frame>
+        </div>
+        <Stack direction="vertical" gap="sm" className="services-callout-card__content">
+          <ServiceTag category={category} variant="icon" size="md" />
+          <CardTitle>{name}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+          <CardFooter>
+            <LinkButton
+              href={`/services/${slug}`}
+              variant="primary"
+              size="md"
+              style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}
+            >
+              Learn more
+            </LinkButton>
+          </CardFooter>
+        </Stack>
+      </Stack>
+    </Card>
   );
 }
