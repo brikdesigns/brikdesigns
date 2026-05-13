@@ -1,0 +1,84 @@
+/* Fixture: CSS-form of the canonical service-token patterns currently shipped
+ * in src/ (audited 2026-05-13 under brikdesigns#117). Expected violations: 0.
+ *
+ * This fixture exists so the family rule has REAL-WORLD ground truth to
+ * regress against, not just synthetic examples. Each block mirrors one of
+ * the inline-style patterns in our TSX consumers — what they'd look like
+ * if extracted to a stylesheet. When the lint heuristic evolves, this
+ * fixture catches accidental breakage of patterns we know are correct.
+ *
+ * Audit table → comment on brikdesigns#117. */
+
+/* ── src/app/services/page.tsx:88 ─────────────────────────────────────────
+ * Callout section background uses the audience surface token.
+ * `<section className="content-section" style={{ backgroundColor: tokens.surface }}>` */
+.content-section--marketing-callout {
+  background-color: var(--surface-service-marketing);
+}
+.content-section--brand-callout {
+  background-color: var(--surface-service-brand);
+}
+.content-section--information-callout {
+  background-color: var(--surface-service-information);
+}
+.content-section--product-callout {
+  background-color: var(--surface-service-product);
+}
+.content-section--back-office-callout {
+  background-color: var(--surface-service-back-office);
+}
+
+/* ── src/app/services/[categorySlug]/page.tsx:60,67,98 ────────────────────
+ * Service-line hero section + image card both use the surface token. */
+.svc-detail-hero-section {
+  background-color: var(--surface-service-marketing);
+}
+
+.svc-detail-hero__image {
+  background-color: var(--surface-service-marketing);
+}
+
+/* ── src/app/services/[categorySlug]/[serviceSlug]/page.tsx:238 ──────────
+ * Audience cascade — the wrapping div sets --page-brand-primary FROM the
+ * audience surface token so the BDS hero blueprint picks it up. The fixture
+ * mirrors the resolved value rather than the indirection. */
+.svc-detail-hero-wrap {
+  --page-brand-primary: var(--surface-service-marketing);
+  --text-brand-primary: var(--text-service-marketing);
+  --bp-hero-img-card-headline-color: var(--text-service-marketing);
+  --background-inverse: var(--background-service-marketing-inverse);
+}
+
+/* ── src/app/services/ServiceLineCard.tsx:43,79 ───────────────────────────
+ * CTA buttons (a span styled as a button, and a LinkButton) use the
+ * background-family token for the fill — components, not surfaces. */
+.services-card__cta-btn {
+  background-color: var(--background-service-marketing);
+  color: var(--text-service-marketing);
+  border-color: var(--background-service-marketing);
+}
+
+.services-callout__cta-btn {
+  background-color: var(--background-service-marketing);
+  color: var(--text-service-marketing);
+}
+
+/* ── BDS ServiceTag consumption (component, background family) ────────────
+ * ServiceTag is rendered via @brikdesigns/bds (no local CSS) but the
+ * pattern under the hood mirrors this. Kept here for completeness. */
+.service-tag--marketing {
+  background-color: var(--background-service-marketing);
+  color: var(--text-service-marketing-on-light);
+  border-color: var(--border-service-marketing-on-light);
+}
+
+/* ── Audience-aware dark-mode counterpart for the hero cascade ─────────────
+ * `:root[data-theme='dark']` flips the defaults; consumers inherit. The
+ * fixture documents that --page-brand-primary etc. are theme-aware via the
+ * canon's own dark-mode block (no local override needed). */
+:root[data-theme='dark'] .svc-detail-hero-wrap {
+  /* --page-brand-primary is already mode-aware via canon; this block exists
+   * only to demonstrate that a :root-scoped theme override is theme-class,
+   * not a surface/component rule, and the family check skips it. */
+  --custom-local-bg: var(--background-service-marketing);
+}
