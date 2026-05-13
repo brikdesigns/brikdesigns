@@ -12,13 +12,17 @@ import {
 } from '@/lib/supabase/queries';
 import {
   Card,
+  CardDescription,
+  CardFooter,
   CardGrid,
+  CardTitle,
   Frame,
   Grid,
   HeroSplitImageCardOverlay,
   LinkButton,
   PricingCard,
   ServiceTag,
+  Stack,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
@@ -299,69 +303,76 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* ═══ Related Customer Story ═══ */}
       {relatedStory && (
         <CardGrid sectionKey="story" title="Related Customer Story">
-          <Card
-            preset="display"
-            href={`/customer-stories/${relatedStory.slug}`}
-            image={
-              relatedStory.hero_image_url ? (
-                <Frame customRatio="3 / 2" fit="cover">
-                  <Image
-                    src={relatedStory.hero_image_url}
-                    alt={relatedStory.name || relatedStory.client_name}
-                    width={400}
-                    height={267}
-                  />
-                </Frame>
-              ) : undefined
-            }
-            title={relatedStory.name || relatedStory.client_name}
-            description={relatedStory.short_description ?? undefined}
-          />
+          <Card href={`/customer-stories/${relatedStory.slug}`} interactive padding="lg">
+            <Stack direction="horizontal" gap="lg" align="center">
+              {relatedStory.hero_image_url && (
+                <div style={{ flex: '0 0 40%' }}>
+                  <Frame customRatio="3 / 2" fit="cover">
+                    <Image
+                      src={relatedStory.hero_image_url}
+                      alt={relatedStory.name || relatedStory.client_name}
+                      width={400}
+                      height={267}
+                    />
+                  </Frame>
+                </div>
+              )}
+              <Stack direction="vertical" gap="sm">
+                <CardTitle>{relatedStory.name || relatedStory.client_name}</CardTitle>
+                {relatedStory.short_description && (
+                  <CardDescription>{relatedStory.short_description}</CardDescription>
+                )}
+              </Stack>
+            </Stack>
+          </Card>
         </CardGrid>
       )}
 
       {/* ═══ Recommended Add-On ═══ */}
       {relatedService && (
         <CardGrid sectionKey="addon" title="Recommended Add-On Service">
-          <Card
-            preset="display"
-            image={
-              relatedService.image_url ? (
-                <Frame ratio="square" fit="cover">
-                  <Image
-                    src={relatedService.image_url}
-                    alt={relatedService.name}
-                    width={400}
-                    height={400}
-                  />
-                </Frame>
-              ) : undefined
-            }
-            tag={
-              <ServiceTag
-                category={mapCategorySlug(relatedCatSlug)}
-                {...(hasIconFor(mapCategorySlug(relatedCatSlug), relatedService.name)
-                  ? { serviceName: relatedService.name }
-                  : {})}
-                variant="icon-text"
-                label={relatedService.name}
-                size="md"
-              />
-            }
-            title={relatedService.name}
-            description={
-              relatedService.description || relatedService.tagline || undefined
-            }
-            action={
-              <LinkButton
-                href={`/services/${relatedCatSlug}/${relatedService.slug}`}
-                variant="primary"
-                size="sm"
-              >
-                Learn More
-              </LinkButton>
-            }
-          />
+          <Card padding="lg">
+            <Stack direction="horizontal" gap="lg" align="center">
+              {relatedService.image_url && (
+                <div style={{ flex: '0 0 35%' }}>
+                  <Frame ratio="square" fit="cover">
+                    <Image
+                      src={relatedService.image_url}
+                      alt={relatedService.name}
+                      width={400}
+                      height={400}
+                    />
+                  </Frame>
+                </div>
+              )}
+              <Stack direction="vertical" gap="sm">
+                <ServiceTag
+                  category={mapCategorySlug(relatedCatSlug)}
+                  {...(hasIconFor(mapCategorySlug(relatedCatSlug), relatedService.name)
+                    ? { serviceName: relatedService.name }
+                    : {})}
+                  variant="icon-text"
+                  label={relatedService.name}
+                  size="md"
+                />
+                <CardTitle>{relatedService.name}</CardTitle>
+                {(relatedService.description || relatedService.tagline) && (
+                  <CardDescription>
+                    {relatedService.description || relatedService.tagline}
+                  </CardDescription>
+                )}
+                <CardFooter>
+                  <LinkButton
+                    href={`/services/${relatedCatSlug}/${relatedService.slug}`}
+                    variant="primary"
+                    size="sm"
+                  >
+                    Learn More
+                  </LinkButton>
+                </CardFooter>
+              </Stack>
+            </Stack>
+          </Card>
         </CardGrid>
       )}
 
