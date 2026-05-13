@@ -203,6 +203,49 @@ test('escape-hatch fixture: pragma suppresses, unsuppressed flags', () => {
   assert.equal(v[0].selector, '.hero-section-unsuppressed');
 });
 
+// ── findFamilyViolations: cascade-setter carve-out ──────────────────────────
+
+test('cascade setter: --custom-var defining a service token value is exempt', () => {
+  // The wrapper is classified as surface (via 'wrap' keyword), but it's
+  // defining --background-inverse for a downstream CTA, not painting itself.
+  const text = `
+    .hero-wrap {
+      --background-inverse: var(--background-service-marketing-inverse);
+    }
+  `;
+  const v = findFamilyViolations('inline.css', text);
+  assert.equal(v.length, 0, `Expected 0 violations, got ${v.length}`);
+});
+
+test('cascade setter: direct paint with same token on same element WOULD flag', () => {
+  // Sanity check — the wrapper would still be caught if it tried to paint
+  // ITSELF with the wrong family. The carve-out is for LHS=custom-property only.
+  const text = `
+    .hero-wrap {
+      background: var(--background-service-marketing);
+    }
+  `;
+  const v = findFamilyViolations('inline.css', text);
+  assert.equal(v.length, 1, `Expected 1 violation, got ${v.length}`);
+  assert.equal(v[0].actualFamily, 'background');
+  assert.equal(v[0].expectedFamily, 'surface');
+});
+
+// ── findFamilyViolations: real-world consumer patterns (audit #117) ─────────
+
+test('real-world fixture: zero violations on canonical consumer patterns', () => {
+  // Mirrors the patterns currently shipped in src/ (TSX inline styles
+  // equivalents, audited under brikdesigns#117). If this ever fails, the
+  // heuristic regressed against a pattern we already shipped.
+  const text = readFixture('family-real-world.css');
+  const v = findFamilyViolations('family-real-world.css', text);
+  assert.equal(
+    v.length,
+    0,
+    `Expected 0 violations on real-world patterns, got ${v.length}:\n${JSON.stringify(v, null, 2)}`
+  );
+});
+
 // ── findFamilyViolations: line numbers point at the var() ───────────────────
 
 test('line numbers: violations report the line of the var() ref', () => {

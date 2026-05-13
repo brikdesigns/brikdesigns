@@ -177,8 +177,11 @@ export function classifySelector(selector) {
 // Flat CSS is fully handled. Nested CSS (Tailwind v4 / native nesting) works
 // because the walker tracks the stack — the innermost selector wins.
 //
-// Escape hatch: a `/* lint-tokens-ignore-family */` comment on the same line
-// as the var() ref suppresses the check for that line.
+// Two carve-outs:
+//   1. Cascade setters — `--foo: var(--background-service-X)` defines a value
+//      for downstream consumers, not a paint on the current element. Skipped.
+//   2. Inline pragma — `/* lint-tokens-ignore-family */` on the same line as
+//      the var() ref suppresses the check for that line.
 export function findFamilyViolations(file, text) {
   const violations = [];
 
@@ -212,6 +215,19 @@ export function findFamilyViolations(file, text) {
     if (!declText.includes('var(--')) return;
     const ctx = currentContext();
     if (!ctx) return;
+
+    // Cascade setters (LHS is a CSS custom property) are exempt from the
+    // family rule. The element doesn't paint with the value; it defines a
+    // variable for a downstream consumer to paint with. Example:
+    //   .hero-wrap { --background-inverse: var(--background-service-X-inverse); }
+    // Here `.hero-wrap` isn't using `--background-service-*` as its own
+    // background — it's relaying it to a child CTA. The family appropriate
+    // to that child is what matters, not the wrapper's classification.
+    const colonIdx = declText.indexOf(':');
+    if (colonIdx !== -1) {
+      const propName = declText.slice(0, colonIdx).trim();
+      if (propName.startsWith('--')) return;
+    }
 
     for (const m of declText.matchAll(FAMILY_RE)) {
       const family = m[1]; // 'surface' | 'background'
