@@ -301,10 +301,16 @@ export default async function ServiceDetailPage({ params }: Props) {
         </CardGrid>
       )}
 
-      {/* ═══ Related Customer Story ═══ */}
+      {/* ═══ Related Customer Story ═══
+       * Pattern parity with the Recommended Add-On section below: the Card
+       * itself is non-interactive (no `href`, no `interactive`); the only
+       * click target is the explicit <LinkButton> in the footer. Avoids the
+       * "whole card is the link" anti-pattern that prior agents shipped via
+       * #105/#107 (asymmetric with the sibling Add-On block in the same file).
+       */}
       {relatedStory && (
         <CardGrid sectionKey="story" title="Related Customer Story">
-          <Card href={`/customer-stories/${relatedStory.slug}`} interactive padding="lg">
+          <Card padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedStory.hero_image_url && (
                 <div style={{ flex: '0 0 40%' }}>
@@ -323,6 +329,15 @@ export default async function ServiceDetailPage({ params }: Props) {
                 {relatedStory.short_description && (
                   <CardDescription>{relatedStory.short_description}</CardDescription>
                 )}
+                <CardFooter>
+                  <LinkButton
+                    href={`/customer-stories/${relatedStory.slug}`}
+                    variant="primary"
+                    size="sm"
+                  >
+                    Read Story
+                  </LinkButton>
+                </CardFooter>
               </Stack>
             </Stack>
           </Card>
