@@ -1,24 +1,23 @@
 /* ─── Services page — layout only ───────────────────────── */
 /* Typography, buttons, and colors come from BDS components. */
 
-/* Service line card (used in 3-col grid) */
+/* Service line card link wrapper — preserves Next.js Link navigation.
+ * Chrome (border, surface, hover affordance) lives on the inner BDS Card. */
+.services-card-link {
+  display: block;
+  text-decoration: none;
+  height: 100%;
+}
+
+/* Inner BDS Card — layout-only overrides; Card provides border / surface /
+ * padding / hover via `variant="outlined" padding="md" interactive`. */
 .services-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 16px;
-  border: 2px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-primary);
-  text-decoration: none;
   height: 100%;
-  transition: border-color 0.15s;
-}
-
-.services-card:hover {
-  border-color: var(--border-brand-primary);
 }
 
 .services-card__image {
