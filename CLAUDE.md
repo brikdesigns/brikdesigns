@@ -20,6 +20,7 @@ Next.js 16 marketing site for Brik Designs. Deployed on Netlify.
 - **Staging tools scope** — NEVER extend the exception to other `surface-product` components — see [decision context](https://github.com/brikdesigns/brik-llm/issues/352).
 - **CSS layer order** — `src/app/globals.css` MUST declare `@layer bds-tokens, bds-components, client-theme, client-overrides;` BEFORE any imports — Tailwind preflight clobbers BDS link colors otherwise.
 - **Tokens in TS/TSX** — IMPORT from [`src/lib/tokens.ts`](src/lib/tokens.ts) + [`src/lib/styles.ts`](src/lib/styles.ts). NEVER write raw `var(--...)` strings.
+- **Service-line tokens** — READ [`.claude/references/service-token-decision-tree.md`](.claude/references/service-token-decision-tree.md) before writing any `--{surface,background,border,text}-service-*` CSS. `surface-*` = sections/cards, `background-*` = badges/tags/buttons — same ramp, different intent.
 - **Install** — `PACKAGES_READ_TOKEN` required (local: `~/.secrets/brik-packages.env`; CI: `${{ secrets.GITHUB_TOKEN }}`; Netlify: one-time site env).
 - **Pre-implementation** — READ [`COMPONENT-MAP.md`](COMPONENT-MAP.md) before building any section. Every visual element comes from BDS.
 - **Pre-push** — RUN `npm run build` locally before pushing. NEVER push to `staging` or `main` without user confirmation.
