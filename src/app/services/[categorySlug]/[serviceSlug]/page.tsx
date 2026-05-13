@@ -229,28 +229,26 @@ export default async function ServiceDetailPage({ params }: Props) {
   };
 
   return (
-    <>
+    // Page-level audience cascade. Sets two vars that must reach ALL sections:
+    //   --background-inverse   → audience-colored primary buttons (pricing CTAs,
+    //                            related service CTAs, hero CTA)
+    //   --text-brand-primary   → audience-colored accent text (eyebrows, breadcrumb)
+    // Hero background + headline color come from [data-audience] CSS in BDS
+    // (bds-hero-img-card.css) — those don't need to be set here.
+    <div
+      style={
+        {
+          '--background-inverse': audienceTokens.inverse,
+          '--text-brand-primary': audienceTokens.text,
+        } as React.CSSProperties
+      }
+    >
       {/* ═══ Hero ═══ */}
       <div
         style={
           {
-            // Per-page audience-color cascade. Sources from canonical
-            // service-line tokens (BDS 0.66.0). One token-family per slot:
-            //
-            //   --page-brand-primary       surface  (--surface-service-{audience})       hero container
-            //   --text-brand-primary       text     (--text-service-{audience})          breadcrumb/accent text
-            //   --bp-hero-img-card-...     text     (--text-service-{audience})          h1
-            //   --background-inverse       inverse  (--background-service-{audience}-inverse) inverse-CTA fill
-            //   --text-on-color-light      grayscale-white                                 text on the inverse fill
-            //
-            // (Avoids text-as-bg vocabulary slip — BDS pairs `background-*-inverse`
-            // with the canonical white text token for AA across themes.)
-            '--page-brand-primary': audienceTokens.surface,
-            '--text-brand-primary': audienceTokens.text,
-            '--bp-hero-img-card-headline-color': audienceTokens.text,
-            '--background-inverse': audienceTokens.inverse,
-            '--text-on-color-light': 'var(--color-grayscale-white)',
-            // Match Webflow's hero rhythm
+            // Match Webflow's hero vertical rhythm — only override needed
+            // beyond what [data-audience] already handles in BDS.
             '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
           } as React.CSSProperties
         }
@@ -265,7 +263,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* ═══ Pricing / Offerings ═══ */}
       {sortedOfferings.length > 0 && (
         <CardGrid id="pricing" sectionKey="pricing" title="Pricing Options">
-          <Grid columns={sortedOfferings.length >= 3 ? 3 : (sortedOfferings.length as 1 | 2)} gap="lg">
+          <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
               slug: string;
               name: string;
@@ -317,7 +315,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   </Frame>
                 </div>
               )}
-              <Stack direction="vertical" gap="sm">
+              <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
                 <CardTitle>{relatedStory.name || relatedStory.client_name}</CardTitle>
                 {relatedStory.short_description && (
                   <CardDescription>{relatedStory.short_description}</CardDescription>
@@ -345,7 +343,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   </Frame>
                 </div>
               )}
-              <Stack direction="vertical" gap="sm">
+              <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
                 <ServiceTag
                   category={mapCategorySlug(relatedCatSlug)}
                   {...(hasIconFor(mapCategorySlug(relatedCatSlug), relatedService.name)
@@ -354,6 +352,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   variant="icon-text"
                   label={relatedService.name}
                   size="md"
+                  style={{ alignSelf: 'flex-start' }}
                 />
                 <CardTitle>{relatedService.name}</CardTitle>
                 {(relatedService.description || relatedService.tagline) && (
@@ -455,6 +454,6 @@ export default async function ServiceDetailPage({ params }: Props) {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
