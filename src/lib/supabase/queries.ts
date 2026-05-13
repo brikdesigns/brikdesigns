@@ -36,6 +36,23 @@ export function mapCategorySlug(slug: string) {
   return CATEGORY_MAP[slug] || 'brand';
 }
 
+/**
+ * Resolve the BDS <ServiceTag> category for a service_lines row.
+ *
+ * Prefers the CMS-editable `service_tag_category` column (portal migration
+ * 00182, brikdesigns#129). Falls back to slug-derivation via mapCategorySlug
+ * when the column is NULL — preserves rendering for legacy rows during
+ * rollout. Cast is safe because the DB check constraint enforces the 5
+ * canonical BDS values.
+ */
+export function resolveServiceTagCategory(row: {
+  slug: string;
+  service_tag_category?: string | null;
+}): 'brand' | 'marketing' | 'information' | 'product' | 'service' {
+  return (row.service_tag_category ?? mapCategorySlug(row.slug)) as
+    'brand' | 'marketing' | 'information' | 'product' | 'service';
+}
+
 // ============================================================
 // Service Lines (was: Service Categories)
 // ============================================================

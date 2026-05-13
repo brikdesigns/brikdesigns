@@ -14,6 +14,7 @@ const SCHEMA: FieldSchema = {
   brand_color_light: 'string-or-null',
   brand_color_base: 'string-or-null',
   brand_color_dark: 'string-or-null',
+  service_tag_category: 'string-or-null',
   support_plan_slug: 'string-or-null',
   support_plan_image_url: 'string-or-null',
   rank: 'number',
