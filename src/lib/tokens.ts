@@ -176,33 +176,40 @@ export const color = {
   },
   // brikdesigns: Brik's marketing site IS the surface that introduces the
   // five service categories to the public, so service tokens belong here.
-  // The `light` entries use BDS gap-fill names (`--services--*-light`,
-  // double-dash) — the form actually defined in brik-bds/tokens/gap-fills.css.
+  // The JS-side `service` key still matches ServiceCategory's `'service'`
+  // member (BDS export). The token suffix is `back-office` post-brik-bds#575
+  // — the orange line was renamed at the token layer only, not at the
+  // component-type layer.
   service: {
     brand: {
       bg: 'var(--background-service-brand)',
       text: 'var(--text-service-brand)',
-      light: 'var(--services--yellow-light)',
+      surface: 'var(--surface-service-brand)',
+      inverse: 'var(--background-service-brand-inverse)',
     },
     marketing: {
       bg: 'var(--background-service-marketing)',
       text: 'var(--text-service-marketing)',
-      light: 'var(--services--green-light)',
+      surface: 'var(--surface-service-marketing)',
+      inverse: 'var(--background-service-marketing-inverse)',
     },
     information: {
       bg: 'var(--background-service-information)',
       text: 'var(--text-service-information)',
-      light: 'var(--services--blue-light)',
+      surface: 'var(--surface-service-information)',
+      inverse: 'var(--background-service-information-inverse)',
     },
     product: {
       bg: 'var(--background-service-product)',
       text: 'var(--text-service-product)',
-      light: 'var(--services--purple-light)',
+      surface: 'var(--surface-service-product)',
+      inverse: 'var(--background-service-product-inverse)',
     },
     service: {
-      bg: 'var(--background-service-service)',
-      text: 'var(--text-service-service)',
-      light: 'var(--services--orange-light)',
+      bg: 'var(--background-service-back-office)',
+      text: 'var(--text-service-back-office)',
+      surface: 'var(--surface-service-back-office)',
+      inverse: 'var(--background-service-back-office-inverse)',
     },
   },
 } as const;
