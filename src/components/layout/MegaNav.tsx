@@ -202,7 +202,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                           well-crafted, intuitive, and aligned with your business goals.
                         </p>
                         <Link
-                          href="/services/product-design"
+                          href="/services/product"
                           className={composeButtonClasses({ variant: 'primary', size: 'sm' })}
                           onClick={() => setOpen(null)}
                         >
