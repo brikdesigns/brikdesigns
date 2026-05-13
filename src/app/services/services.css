@@ -258,13 +258,14 @@
   gap: var(--gap-md);
 }
 
-/* Monthly support CTA */
+/* Monthly support CTA — uses --page-service-surface (set by the service detail
+   page wrapper from CMS audience tokens) so the tint matches the service line. */
 .svc-detail-support-cta {
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
   padding: var(--padding-xl);
-  background-color: var(--surface-accent);
+  background-color: var(--page-service-surface, var(--surface-accent));
   border-radius: var(--border-radius-lg);
   width: 100%;
 }

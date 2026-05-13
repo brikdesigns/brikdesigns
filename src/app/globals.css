@@ -347,6 +347,15 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom-color: rgba(255, 255, 255, 0.15);
   }
 
+  /* bds-card-grid__header defaults to max-width: 72ch (readability cap).
+     On this site all section headers are centered; the 72ch box without
+     margin-inline:auto produces a left-anchored truncated block that looks
+     off-center on wide viewports. Removing the cap lets text-align:center
+     work correctly across the full container width. brik-bds#591. */
+  .bds-card-grid__header {
+    max-width: none;
+  }
+
   /* bds-card-grid__title defaults to clamp(--heading-lg, 3.5vw, --heading-huge) which
      can exceed the page H1 on service/category pages. Cap to --heading-md and center
      to match Webflow section header rhythm. brik-bds#591. */

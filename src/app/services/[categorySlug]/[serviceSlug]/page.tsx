@@ -229,17 +229,28 @@ export default async function ServiceDetailPage({ params }: Props) {
   };
 
   return (
-    // Page-level audience cascade. Sets two vars that must reach ALL sections:
-    //   --background-inverse   → audience-colored primary buttons (pricing CTAs,
-    //                            related service CTAs, hero CTA)
-    //   --text-brand-primary   → audience-colored accent text (eyebrows, breadcrumb)
+    // Page-level audience cascade — CMS category (service_lines.slug) drives
+    // these CSS custom properties so every section inherits the right tokens:
+    //
+    //   --background-inverse     → audience-colored fill on <LinkButton variant="primary">
+    //   --text-brand-primary     → audience text (eyebrows, breadcrumbs, accent copy)
+    //   --page-service-surface   → alias for --surface-service-{audience}: light tint
+    //                              used by support CTA and any section opting into
+    //                              a service-line-colored background
+    //   --page-service-bg        → alias for --background-service-{audience}: the
+    //                              full-weight audience fill (hero-strength, for CTAs
+    //                              or banners that need the dark service color)
+    //
     // Hero background + headline color come from [data-audience] CSS in BDS
-    // (bds-hero-img-card.css) — those don't need to be set here.
+    // (bds-hero-img-card.css) and are set directly on .bp-hero-img-card — those
+    // don't need to be repeated here.
     <div
       style={
         {
           '--background-inverse': audienceTokens.inverse,
           '--text-brand-primary': audienceTokens.text,
+          '--page-service-surface': audienceTokens.surface,
+          '--page-service-bg': audienceTokens.bg,
         } as React.CSSProperties
       }
     >
