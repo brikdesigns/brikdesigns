@@ -12,13 +12,17 @@ import {
 } from '@/lib/supabase/queries';
 import {
   Card,
+  CardDescription,
+  CardFooter,
   CardGrid,
+  CardTitle,
   Frame,
   Grid,
   HeroSplitImageCardOverlay,
   LinkButton,
   PricingCard,
   ServiceTag,
+  Stack,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
@@ -225,28 +229,29 @@ export default async function ServiceDetailPage({ params }: Props) {
   };
 
   return (
-    <>
+    // Page-level audience cascade — CMS category (service_lines.slug) drives
+    // these CSS custom properties so every section inherits the right tokens:
+    //
+    //   --background-inverse   → audience-colored fill on <LinkButton variant="primary">
+    //   --text-brand-primary   → audience text (eyebrows, breadcrumbs, accent copy)
+    //
+    // Hero background + headline color come from [data-audience] CSS in BDS
+    // (bds-hero-img-card.css) and are set directly on .bp-hero-img-card — those
+    // don't need to be repeated here.
+    <div
+      style={
+        {
+          '--background-inverse': audienceTokens.inverse,
+          '--text-brand-primary': audienceTokens.text,
+        } as React.CSSProperties
+      }
+    >
       {/* ═══ Hero ═══ */}
       <div
         style={
           {
-            // Per-page audience-color cascade. Sources from canonical
-            // service-line tokens (BDS 0.66.0). One token-family per slot:
-            //
-            //   --page-brand-primary       surface  (--surface-service-{audience})       hero container
-            //   --text-brand-primary       text     (--text-service-{audience})          breadcrumb/accent text
-            //   --bp-hero-img-card-...     text     (--text-service-{audience})          h1
-            //   --background-inverse       inverse  (--background-service-{audience}-inverse) inverse-CTA fill
-            //   --text-on-color-light      grayscale-white                                 text on the inverse fill
-            //
-            // (Avoids text-as-bg vocabulary slip — BDS pairs `background-*-inverse`
-            // with the canonical white text token for AA across themes.)
-            '--page-brand-primary': audienceTokens.surface,
-            '--text-brand-primary': audienceTokens.text,
-            '--bp-hero-img-card-headline-color': audienceTokens.text,
-            '--background-inverse': audienceTokens.inverse,
-            '--text-on-color-light': 'var(--color-grayscale-white)',
-            // Match Webflow's hero rhythm
+            // Match Webflow's hero vertical rhythm — only override needed
+            // beyond what [data-audience] already handles in BDS.
             '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
           } as React.CSSProperties
         }
@@ -261,7 +266,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* ═══ Pricing / Offerings ═══ */}
       {sortedOfferings.length > 0 && (
         <CardGrid id="pricing" sectionKey="pricing" title="Pricing Options">
-          <Grid columns={sortedOfferings.length >= 3 ? 3 : (sortedOfferings.length as 1 | 2)} gap="lg">
+          <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
               slug: string;
               name: string;
@@ -299,69 +304,77 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* ═══ Related Customer Story ═══ */}
       {relatedStory && (
         <CardGrid sectionKey="story" title="Related Customer Story">
-          <Card
-            preset="display"
-            href={`/customer-stories/${relatedStory.slug}`}
-            image={
-              relatedStory.hero_image_url ? (
-                <Frame customRatio="3 / 2" fit="cover">
-                  <Image
-                    src={relatedStory.hero_image_url}
-                    alt={relatedStory.name || relatedStory.client_name}
-                    width={400}
-                    height={267}
-                  />
-                </Frame>
-              ) : undefined
-            }
-            title={relatedStory.name || relatedStory.client_name}
-            description={relatedStory.short_description ?? undefined}
-          />
+          <Card href={`/customer-stories/${relatedStory.slug}`} interactive padding="lg">
+            <Stack direction="horizontal" gap="lg" align="center">
+              {relatedStory.hero_image_url && (
+                <div style={{ flex: '0 0 40%' }}>
+                  <Frame customRatio="3 / 2" fit="cover">
+                    <Image
+                      src={relatedStory.hero_image_url}
+                      alt={relatedStory.name || relatedStory.client_name}
+                      width={400}
+                      height={267}
+                    />
+                  </Frame>
+                </div>
+              )}
+              <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
+                <CardTitle>{relatedStory.name || relatedStory.client_name}</CardTitle>
+                {relatedStory.short_description && (
+                  <CardDescription>{relatedStory.short_description}</CardDescription>
+                )}
+              </Stack>
+            </Stack>
+          </Card>
         </CardGrid>
       )}
 
       {/* ═══ Recommended Add-On ═══ */}
       {relatedService && (
         <CardGrid sectionKey="addon" title="Recommended Add-On Service">
-          <Card
-            preset="display"
-            image={
-              relatedService.image_url ? (
-                <Frame ratio="square" fit="cover">
-                  <Image
-                    src={relatedService.image_url}
-                    alt={relatedService.name}
-                    width={400}
-                    height={400}
-                  />
-                </Frame>
-              ) : undefined
-            }
-            tag={
-              <ServiceTag
-                category={mapCategorySlug(relatedCatSlug)}
-                {...(hasIconFor(mapCategorySlug(relatedCatSlug), relatedService.name)
-                  ? { serviceName: relatedService.name }
-                  : {})}
-                variant="icon-text"
-                label={relatedService.name}
-                size="md"
-              />
-            }
-            title={relatedService.name}
-            description={
-              relatedService.description || relatedService.tagline || undefined
-            }
-            action={
-              <LinkButton
-                href={`/services/${relatedCatSlug}/${relatedService.slug}`}
-                variant="primary"
-                size="sm"
-              >
-                Learn More
-              </LinkButton>
-            }
-          />
+          <Card padding="lg">
+            <Stack direction="horizontal" gap="lg" align="center">
+              {relatedService.image_url && (
+                <div style={{ flex: '0 0 35%' }}>
+                  <Frame ratio="square" fit="cover">
+                    <Image
+                      src={relatedService.image_url}
+                      alt={relatedService.name}
+                      width={400}
+                      height={400}
+                    />
+                  </Frame>
+                </div>
+              )}
+              <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
+                <ServiceTag
+                  category={mapCategorySlug(relatedCatSlug)}
+                  {...(hasIconFor(mapCategorySlug(relatedCatSlug), relatedService.name)
+                    ? { serviceName: relatedService.name }
+                    : {})}
+                  variant="icon-text"
+                  label={relatedService.name}
+                  size="md"
+                  style={{ alignSelf: 'flex-start' }}
+                />
+                <CardTitle>{relatedService.name}</CardTitle>
+                {(relatedService.description || relatedService.tagline) && (
+                  <CardDescription>
+                    {relatedService.description || relatedService.tagline}
+                  </CardDescription>
+                )}
+                <CardFooter>
+                  <LinkButton
+                    href={`/services/${relatedCatSlug}/${relatedService.slug}`}
+                    variant="primary"
+                    size="sm"
+                  >
+                    Learn More
+                  </LinkButton>
+                </CardFooter>
+              </Stack>
+            </Stack>
+          </Card>
         </CardGrid>
       )}
 
@@ -444,6 +457,6 @@ export default async function ServiceDetailPage({ params }: Props) {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

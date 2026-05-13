@@ -73,45 +73,69 @@ const ICON_MANIFEST: IconManifest = loadIconManifest();
  * Open follow-up: sync these entries into BDS, then delete this map.
  */
 const SERVICE_ICON_OVERRIDES: Record<string, string> = {
-  'Automated Workflow and AI Integration': 'back-office-automation-ai',
+  // ── Brand ────────────────────────────────────────────────────────────────
   'Brand Guidelines': 'brand-guidelines',
   'Brand Identity': 'brand-design',
   'Brand Identity Bundle': 'brand-design',
-  'CRM Setup and Data Cleanup': 'back-office-crm-data',
-  'Content Design': 'product-content-design',
-  'Customer Journey Mapping': 'back-office-journey-mapping',
-  'Design Systems': 'product-design-systems',
-  'Digital File Organization': 'back-office-digital-file-organization',
-  'Email Marketing': 'marketing-email',
   'Email Signature': 'brand-email-signature',
-  Infographics: 'info-infographics',
-  'Information Design': 'information-design',
-  'Intake Forms': 'info-intake-form',
-  'Landing Pages': 'marketing-landing-pages',
-  'Layout Design': 'info-layout-design',
   'Letterhead Stationary': 'brand-stationary',
   'Logo Design': 'brand-logo',
-  'Logo Update': 'brand-logo',
-  'Marketing Consulting': 'marketing-consulting',
-  'Mobile App Design': 'product-design',
+  'Logo Update': 'brand-logo',         // also in BDS canonical map
   'Online Business Listings': 'brand-listings',
+  'Premium Logo Design': 'brand-logo', // also in BDS canonical map
+  'Print Materials': 'info-print-design', // also in BDS canonical map
+  'Standard Logo Design': 'brand-logo', // also in BDS canonical map
+
+  // ── Marketing ────────────────────────────────────────────────────────────
+  // BDS canonical names (& variants) — both must be here for SSR prediction
+  // to match what BDS's getServiceIconPath() generates server-side.
+  'Comprehensive Marketing Audit & Consultation': 'marketing-consulting',
+  'Custom Large E-Commerce Web Development and Design': 'marketing-web-design',
+  'Custom Large Web Development and Design': 'marketing-web-design',
+  'Custom Standard E-Commerce Web Development and Design': 'marketing-web-design',
+  'Custom Standard Web Development and Design': 'marketing-web-design',
+  'Email Drip Campaign (Up to 6 Emails)': 'marketing-email',
+  'Email Marketing': 'marketing-email',
+  'Landing Pages': 'marketing-landing-pages',
+  'Marketing Consulting': 'marketing-consulting',
   'Patient Experience Mapping': 'patient-experience',
-  'Premium Logo Design': 'brand-logo',
+  'Social Media Graphic Designs': 'marketing-social-graphics',
+  'Social Media Graphics': 'marketing-social-graphics',
+  'Swag and Merchandise Design': 'marketing-swag',
+  'Swag & Merchandise Design': 'marketing-swag',
+  'Web Design and Development': 'marketing-web-design',
+  'Web Design & Development': 'marketing-web-design',
+  'Website Experience Mapping': 'website-experience',
+
+  // ── Information ──────────────────────────────────────────────────────────
+  'Information Design': 'information-design',
+  Infographics: 'info-infographics',
+  'Intake Forms': 'info-intake-form',
+  'Layout Design': 'info-layout-design',
   'Presentation Design': 'information-design',
-  'Print Materials': 'info-print-design',
-  'SaaS and Enterprise Design': 'product-enterprise-design',
   'Sales Resources': 'info-sales-materials',
   'Signage Design': 'info-signage',
-  'Social Media Graphic Designs': 'marketing-social-graphics',
+  'Welcome Onboarding Kit': 'info-welcome-kit',
+
+  // ── Product ──────────────────────────────────────────────────────────────
+  'Content Design': 'product-content-design',
+  'Design Systems': 'product-design-systems',
+  'Mobile App Design': 'product-design',
+  'SaaS and Enterprise Design': 'product-enterprise-design',
+
+  // ── Back Office (service) ────────────────────────────────────────────────
+  'Automated Workflow and AI Integration': 'back-office-automation-ai',
+  'Automated Workflow & AI Integration': 'back-office-automation-ai',
+  'CRM Setup and Data Cleanup': 'back-office-crm-data',
+  'CRM Setup & Data Cleanup': 'back-office-crm-data',
+  'Customer Journey Mapping': 'back-office-journey-mapping',
+  'Digital File Organization': 'back-office-digital-file-organization',
   'Software Automation Setup': 'back-office-automated-workflow',
   'Software and Subscription Audit': 'back-office-audit',
-  'Standard Logo Design': 'brand-logo',
+  'Software & Subscription Audit': 'back-office-audit',
+  'SOP Creation': 'back-office-sop-creation',
   'Standard Operating Procedures (SOP) Creation': 'back-office-sop-creation',
-  'Swag and Merchandise Design': 'marketing-swag',
   'Training Setup & Organization': 'back-office-training-setup',
-  'Web Design and Development': 'marketing-web-design',
-  'Website Experience Mapping': 'website-experience',
-  'Welcome Onboarding Kit': 'info-welcome-kit',
 };
 
 function predictedIconBasename(category: ServiceCategory, serviceName: string): string {
