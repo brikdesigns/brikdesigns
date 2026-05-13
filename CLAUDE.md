@@ -34,3 +34,4 @@ Next.js 16 marketing site for Brik Designs. Deployed on Netlify.
 - **Storybook MCP** (BDS component props) — see BDS CLAUDE.md § Storybook; autostarts via [`scripts/session-guard.sh`](scripts/session-guard.sh)
 - **Component map** → [`COMPONENT-MAP.md`](COMPONENT-MAP.md)
 - **CSS cascade rationale** — inline comments in [`src/app/globals.css`](src/app/globals.css)
+- **Meganav coverage** — `netlify dev:exec --context=branch-deploy -- npm run audit:meganav` diffs [`src/lib/meganav-columns.ts`](src/lib/meganav-columns.ts) against live Supabase `service_lines` + `services`. Run after CMS edits that touch service slugs.

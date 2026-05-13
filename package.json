@@ -10,6 +10,7 @@
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "test:lint:tokens": "node scripts/lint-tokens.test.mjs",
     "lint:service-urls": "node scripts/lint-service-urls.mjs",
+    "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "gen:types": "node scripts/gen-types.mjs",
     "check:schema": "node scripts/check-schema-parity.mjs",
     "test:a11y": "playwright test",
