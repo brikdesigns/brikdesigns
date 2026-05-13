@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
+import { getServiceCategories, resolveServiceTagCategory } from '@/lib/supabase/queries';
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
 import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
@@ -69,7 +69,7 @@ export default async function ServicesPage() {
                 key={cat.slug}
                 name={cat.name}
                 slug={cat.slug}
-                category={mapCategorySlug(cat.slug)}
+                category={resolveServiceTagCategory(cat)}
                 tagline={cat.tagline || cat.description || ''}
                 imageUrl={cat.card_image_url}
               />
@@ -85,7 +85,7 @@ export default async function ServicesPage() {
           <section
             key={cat.slug}
             className="content-section"
-            style={{ backgroundColor: serviceColor(mapCategorySlug(cat.slug)).surface }}
+            style={{ backgroundColor: serviceColor(resolveServiceTagCategory(cat)).surface }}
           >
             <div className="container-lg">
               {copy && (
@@ -97,7 +97,7 @@ export default async function ServicesPage() {
               <ServiceCallout
                 name={cat.name}
                 slug={cat.slug}
-                category={mapCategorySlug(cat.slug)}
+                category={resolveServiceTagCategory(cat)}
                 description={cat.description || cat.tagline || ''}
                 imageUrl={cat.card_image_url}
               />

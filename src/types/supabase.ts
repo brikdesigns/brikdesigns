@@ -2323,9 +2323,7 @@ export type Database = {
           intro_title: string | null
           is_public: boolean | null
           name: string
-          primary_badge_url: string | null
           rank: number | null
-          secondary_badge_url: string | null
           slug: string
           tagline: string | null
           updated_at: string
@@ -2339,9 +2337,7 @@ export type Database = {
           intro_title?: string | null
           is_public?: boolean | null
           name: string
-          primary_badge_url?: string | null
           rank?: number | null
-          secondary_badge_url?: string | null
           slug: string
           tagline?: string | null
           updated_at?: string
@@ -2355,9 +2351,7 @@ export type Database = {
           intro_title?: string | null
           is_public?: boolean | null
           name?: string
-          primary_badge_url?: string | null
           rank?: number | null
-          secondary_badge_url?: string | null
           slug?: string
           tagline?: string | null
           updated_at?: string
@@ -2644,12 +2638,10 @@ export type Database = {
           notion_page_id: string | null
           offering_structure: string | null
           operational_complexity: string | null
-          primary_badge_url: string | null
           projected_timeline: string | null
           proposal_copy: string | null
           rank: number | null
           related_service_slug: string | null
-          secondary_badge_url: string | null
           service_id: string | null
           service_line_id: string | null
           service_type: string
@@ -2688,12 +2680,10 @@ export type Database = {
           notion_page_id?: string | null
           offering_structure?: string | null
           operational_complexity?: string | null
-          primary_badge_url?: string | null
           projected_timeline?: string | null
           proposal_copy?: string | null
           rank?: number | null
           related_service_slug?: string | null
-          secondary_badge_url?: string | null
           service_id?: string | null
           service_line_id?: string | null
           service_type?: string
@@ -2732,12 +2722,10 @@ export type Database = {
           notion_page_id?: string | null
           offering_structure?: string | null
           operational_complexity?: string | null
-          primary_badge_url?: string | null
           projected_timeline?: string | null
           proposal_copy?: string | null
           rank?: number | null
           related_service_slug?: string | null
-          secondary_badge_url?: string | null
           service_id?: string | null
           service_line_id?: string | null
           service_type?: string
@@ -2754,7 +2742,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "services_capability_id_fkey"
+            foreignKeyName: "offerings_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
@@ -3885,9 +3873,8 @@ export type Database = {
           id: string
           is_public: boolean | null
           name: string
-          primary_badge_url: string | null
           rank: number | null
-          secondary_badge_url: string | null
+          service_tag_category: string | null
           slug: string
           sort_order: number
           support_plan_image_url: string | null
@@ -3911,9 +3898,8 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           name: string
-          primary_badge_url?: string | null
           rank?: number | null
-          secondary_badge_url?: string | null
+          service_tag_category?: string | null
           slug: string
           sort_order?: number
           support_plan_image_url?: string | null
@@ -3937,9 +3923,8 @@ export type Database = {
           id?: string
           is_public?: boolean | null
           name?: string
-          primary_badge_url?: string | null
           rank?: number | null
-          secondary_badge_url?: string | null
+          service_tag_category?: string | null
           slug?: string
           sort_order?: number
           support_plan_image_url?: string | null
@@ -4004,10 +3989,8 @@ export type Database = {
           image_url: string | null
           is_public: boolean
           name: string
-          primary_badge_url: string | null
           rank: number
           related_service_slug: string | null
-          secondary_badge_url: string | null
           service_line_id: string | null
           slug: string
           sort_order: number
@@ -4024,10 +4007,8 @@ export type Database = {
           image_url?: string | null
           is_public?: boolean
           name: string
-          primary_badge_url?: string | null
           rank?: number
           related_service_slug?: string | null
-          secondary_badge_url?: string | null
           service_line_id?: string | null
           slug: string
           sort_order?: number
@@ -4044,10 +4025,8 @@ export type Database = {
           image_url?: string | null
           is_public?: boolean
           name?: string
-          primary_badge_url?: string | null
           rank?: number
           related_service_slug?: string | null
-          secondary_badge_url?: string | null
           service_line_id?: string | null
           slug?: string
           sort_order?: number
