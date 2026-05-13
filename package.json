@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "lint:tokens": "node scripts/lint-tokens.mjs",
+    "test:lint:tokens": "node scripts/lint-tokens.test.mjs",
     "gen:types": "node scripts/gen-types.mjs",
     "check:schema": "node scripts/check-schema-parity.mjs",
     "test:a11y": "playwright test",

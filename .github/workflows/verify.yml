@@ -3,7 +3,9 @@ name: Verify (lint + token gate + schema parity)
 # Fast CI gates that don't need a deploy-preview. Catches:
 #  - ESLint errors (incl. brik-tokens/no-invented-tokens — inline `var(--*)`
 #    references that aren't canonical / declared / allowlisted)
-#  - Token-lint script: same check across .ts/.tsx/.css
+#  - Token-lint script: invented-token check + service-token family rule
+#    (brikdesigns#116) across .ts/.tsx/.css
+#  - Token-lint self-test: fixture-based regression tests for the family rule
 #  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
 #    src/app/(admin)/admin/services/_components/field-configs.ts
 #
@@ -49,6 +51,9 @@ jobs:
 
       - name: Token lint (.css + .ts + .tsx)
         run: npm run lint:tokens
+
+      - name: Token lint — self-test (family rule fixtures)
+        run: npm run test:lint:tokens
 
       - name: Schema parity (Row ↔ SCHEMA ↔ field-configs)
         run: npm run check:schema

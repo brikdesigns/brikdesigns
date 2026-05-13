@@ -1,0 +1,34 @@
+/* Fixture: wrong-family service-token usage. Expected violations: 6.
+ *
+ * Each numbered case below produces one violation. The test asserts both
+ * count and the specific (line, actualFamily, expectedFamily) tuples. */
+
+/* CASE 1 — background-* on a section selector */
+.hero-section {
+  background: var(--background-service-marketing);
+}
+
+/* CASE 2 — background-* on a callout */
+.audience-callout {
+  background-color: var(--background-service-product-on-light);
+}
+
+/* CASE 3 — surface-* on a tag */
+.service-tag {
+  background: var(--surface-service-marketing);
+}
+
+/* CASE 4 — surface-* on a badge */
+.audience-badge--brand {
+  background: var(--surface-service-brand);
+}
+
+/* CASE 5 — surface-* on a button */
+.cta-btn-primary {
+  background: var(--surface-service-information);
+}
+
+/* CASE 6 — background-* on a hero band */
+section.hero-band {
+  background-color: var(--background-service-brand-light);
+}
