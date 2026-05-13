@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { hasIconFor, SERVICE_LINE_ICON } from '@/lib/service-icons';
 import {
@@ -11,10 +10,17 @@ import {
   getSupportPlanBySlug,
   mapCategorySlug,
 } from '@/lib/supabase/queries';
-import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { LinkButton, HeroSplitImageCardOverlay, PricingCard, ServiceTag } from '@brikdesigns/bds';
+import {
+  Card,
+  CardGrid,
+  Frame,
+  Grid,
+  HeroSplitImageCardOverlay,
+  LinkButton,
+  PricingCard,
+  ServiceTag,
+} from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
-import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { text, heading, label } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
@@ -254,162 +260,161 @@ export default async function ServiceDetailPage({ params }: Props) {
 
       {/* ═══ Pricing / Offerings ═══ */}
       {sortedOfferings.length > 0 && (
-        <section id="pricing" className="content-section content-section--secondary">
-          <div className="container-lg">
-            <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-              Pricing Options
-            </h2>
-            <div className={`svc-detail-offerings ${sortedOfferings.length >= 3 ? 'svc-detail-offerings--grid' : ''}`}>
-              {sortedOfferings.map((off: {
-                slug: string;
-                name: string;
-                description: string | null;
-                base_price_cents: number | null;
-                billing_frequency: string | null;
-                included_scope: string | null;
-                is_featured: boolean | null;
-              }) => {
-                const priceDisplay = formatPrice(off.base_price_cents);
-                // No-price offerings show "Quote" in the price slot (single
-                // word, fits the heading-xl typography PricingCard renders).
-                // The action button below carries the actual "contact for a
-                // custom quote" CTA — the slot just needs to render *something*
-                // typographically appropriate so the card doesn't look broken.
-                return (
-                  <PricingCard
-                    key={off.slug}
-                    title={off.name}
-                    price={priceDisplay ?? 'Quote'}
-                    period={priceDisplay ? formatPeriod(off.billing_frequency) : undefined}
-                    description={off.description ?? undefined}
-                    features={parseFeatures(off.included_scope)}
-                    highlighted={!!off.is_featured}
-                    action={
-                      <LinkButton href="/contact" variant="primary" size="sm">
-                        Let&apos;s Talk
-                      </LinkButton>
-                    }
-                  />
-                );
-              })}
-            </div>
-          </div>
-        </section>
+        <CardGrid id="pricing" sectionKey="pricing" title="Pricing Options">
+          <Grid columns={sortedOfferings.length >= 3 ? 3 : (sortedOfferings.length as 1 | 2)} gap="lg">
+            {sortedOfferings.map((off: {
+              slug: string;
+              name: string;
+              description: string | null;
+              base_price_cents: number | null;
+              billing_frequency: string | null;
+              included_scope: string | null;
+              is_featured: boolean | null;
+            }) => {
+              const priceDisplay = formatPrice(off.base_price_cents);
+              // No-price offerings show "Quote" in the price slot — single
+              // word, fits PricingCard's heading-xl typography. The action
+              // button carries the actual "contact for a custom quote" CTA.
+              return (
+                <PricingCard
+                  key={off.slug}
+                  title={off.name}
+                  price={priceDisplay ?? 'Quote'}
+                  period={priceDisplay ? formatPeriod(off.billing_frequency) : undefined}
+                  description={off.description ?? undefined}
+                  features={parseFeatures(off.included_scope)}
+                  highlighted={!!off.is_featured}
+                  action={
+                    <LinkButton href="/contact" variant="primary" size="sm">
+                      Let&apos;s Talk
+                    </LinkButton>
+                  }
+                />
+              );
+            })}
+          </Grid>
+        </CardGrid>
       )}
 
       {/* ═══ Related Customer Story ═══ */}
       {relatedStory && (
-        <section className="content-section">
-          <div className="container-lg">
-            <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-              Related Customer Story
-            </h2>
-            <Link
-              href={`/customer-stories/${relatedStory.slug}`}
-              className={`svc-detail-story-card${relatedStory.hero_image_url ? ' svc-detail-story-card--with-image' : ''}`}
-            >
-              {relatedStory.hero_image_url && (
-                <div className="svc-detail-story-card__image">
+        <CardGrid sectionKey="story" title="Related Customer Story">
+          <Card
+            preset="display"
+            href={`/customer-stories/${relatedStory.slug}`}
+            image={
+              relatedStory.hero_image_url ? (
+                <Frame customRatio="3 / 2" fit="cover">
                   <Image
                     src={relatedStory.hero_image_url}
                     alt={relatedStory.name || relatedStory.client_name}
                     width={400}
                     height={267}
                   />
-                </div>
-              )}
-              <div className="svc-detail-story-content">
-                <p style={{ ...label.smBold, color: color.text.brand }}>
-                  We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.
-                </p>
-                <h3 style={heading.sm}>{relatedStory.name || relatedStory.client_name}</h3>
-                {relatedStory.short_description && (
-                  <p style={{ ...text.bodySm, color: color.text.secondary }}>{relatedStory.short_description}</p>
-                )}
-                <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })} style={{ alignSelf: 'flex-start' }}>
-                  Read Story
-                </span>
-              </div>
-            </Link>
-          </div>
-        </section>
+                </Frame>
+              ) : undefined
+            }
+            title={relatedStory.name || relatedStory.client_name}
+            description={relatedStory.short_description ?? undefined}
+          />
+        </CardGrid>
       )}
 
       {/* ═══ Recommended Add-On ═══ */}
       {relatedService && (
-        <section className="content-section content-section--accent">
-          <div className="container-lg">
-            <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-              Recommended Add-On Service
-            </h2>
-            <div className="svc-detail-addon-card">
-              {relatedService.image_url && (
-                <div className="svc-detail-addon-card__image">
+        <CardGrid sectionKey="addon" title="Recommended Add-On Service">
+          <Card
+            preset="display"
+            image={
+              relatedService.image_url ? (
+                <Frame ratio="square" fit="cover">
                   <Image
                     src={relatedService.image_url}
                     alt={relatedService.name}
                     width={400}
                     height={400}
                   />
-                </div>
-              )}
-              <div className="svc-detail-addon-card__content">
-                <ServiceTag
-                  category={mapCategorySlug(relatedCatSlug)}
-                  {...(hasIconFor(mapCategorySlug(relatedCatSlug), relatedService.name)
-                    ? { serviceName: relatedService.name }
-                    : {})}
-                  variant="icon-text"
-                  label={relatedService.name}
-                  size="md"
-                />
-                <h3 style={heading.sm}>{relatedService.name}</h3>
-                {(relatedService.description || relatedService.tagline) && (
-                  <p style={{ ...text.bodySm, color: color.text.secondary }}>
-                    {relatedService.description || relatedService.tagline}
-                  </p>
-                )}
-                <LinkButton
-                  href={`/services/${relatedCatSlug}/${relatedService.slug}`}
-                  variant="primary"
-                  size="sm"
-                >
-                  Learn More
-                </LinkButton>
-              </div>
-            </div>
-          </div>
-        </section>
+                </Frame>
+              ) : undefined
+            }
+            tag={
+              <ServiceTag
+                category={mapCategorySlug(relatedCatSlug)}
+                {...(hasIconFor(mapCategorySlug(relatedCatSlug), relatedService.name)
+                  ? { serviceName: relatedService.name }
+                  : {})}
+                variant="icon-text"
+                label={relatedService.name}
+                size="md"
+              />
+            }
+            title={relatedService.name}
+            description={
+              relatedService.description || relatedService.tagline || undefined
+            }
+            action={
+              <LinkButton
+                href={`/services/${relatedCatSlug}/${relatedService.slug}`}
+                variant="primary"
+                size="sm"
+              >
+                Learn More
+              </LinkButton>
+            }
+          />
+        </CardGrid>
       )}
 
       {/* ═══ Related Services ═══ */}
       {siblingServices.length > 0 && (
-        <section className="content-section content-section--secondary">
-          <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-              Other {category?.name || ''} Services
-            </h2>
-            <div className="grid-3">
-              {siblingServices.map((svc) => {
-                const cat = mapCategorySlug(category?.slug || categorySlug);
-                return (
-                  <ServiceCard
-                    key={svc.slug}
-                    name={svc.name}
-                    slug={svc.slug}
-                    categorySlug={categorySlug}
-                    category={cat}
-                    tagline={svc.tagline}
-                    description={svc.description}
-                    imageUrl={svc.image_url}
-                    iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
-                    showCta
-                  />
-                );
-              })}
-            </div>
-          </div>
-        </section>
+        <CardGrid
+          sectionKey="other-services"
+          title={`Other ${category?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
+        >
+          <Grid columns={3} gap="lg">
+            {siblingServices.map((svc) => {
+              const cat = mapCategorySlug(category?.slug || categorySlug);
+              return (
+                <Card
+                  key={svc.slug}
+                  preset="display"
+                  image={
+                    svc.image_url ? (
+                      <Frame customRatio="3 / 2" fit="cover">
+                        <Image
+                          src={svc.image_url}
+                          alt={svc.name}
+                          width={400}
+                          height={267}
+                        />
+                      </Frame>
+                    ) : undefined
+                  }
+                  tag={
+                    <ServiceTag
+                      category={cat}
+                      {...(hasIconFor(cat, svc.name) ? { serviceName: svc.name } : {})}
+                      variant="icon-text"
+                      label={svc.name}
+                      size="sm"
+                    />
+                  }
+                  title={svc.name}
+                  description={svc.description || svc.tagline || undefined}
+                  action={
+                    <LinkButton
+                      href={`/services/${categorySlug}/${svc.slug}`}
+                      variant="primary"
+                      size="sm"
+                    >
+                      Learn More
+                    </LinkButton>
+                  }
+                />
+              );
+            })}
+          </Grid>
+        </CardGrid>
       )}
 
       {/* ═══ Monthly Support CTA ═══ */}
