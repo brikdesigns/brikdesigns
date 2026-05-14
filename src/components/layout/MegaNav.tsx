@@ -33,7 +33,18 @@ interface SupportPlan {
   slug: string;
   price: string;
   description: string;
+  imageUrl: string | null;
 }
+
+// Fallback images for plans without an image_url in Supabase. Keys match
+// the canonical support plan slugs; new plans without an entry here will
+// render without a thumbnail. Long-term, all plans should have image_url
+// populated in Supabase.
+const PLAN_IMAGE_FALLBACK: Record<string, string> = {
+  'marketing-support': '/images/marketing_social_media_2x.webp',
+  'back-office-support': '/images/service_automated_workflow_2x.webp',
+  'product-support': '/images/product_mobile_app_2x.webp',
+};
 
 interface IndustryItem {
   name: string;
@@ -350,32 +361,23 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         Learn More
                       </Link>
                     </div>
-                    {/* Webflow: .layout-nav-support — 3 plan cards with images */}
+                    {/* Webflow: .layout-nav-support — plan cards from Supabase */}
                     <div className="mega-nav__plans-grid">
-                      <AboutNavCard
-                        href="/plans/marketing-support"
-                        image="/images/marketing_social_media_2x.webp"
-                        title="Marketing Support"
-                        desc="We act as your marketing department—handling everything from campaigns and emails to graphics and strategy. One monthly fee. No juggling freelancers or doing it yourself."
-                        cta="Learn More"
-                        onClick={() => setOpen(null)}
-                      />
-                      <AboutNavCard
-                        href="/plans/back-office-support"
-                        image="/images/service_automated_workflow_2x.webp"
-                        title="Back Office Support"
-                        desc="We streamline your behind-the-scenes operations—from workflows and automations to system cleanups and SOPs—so your team can focus on what matters."
-                        cta="Learn More"
-                        onClick={() => setOpen(null)}
-                      />
-                      <AboutNavCard
-                        href="/plans/product-support"
-                        image="/images/product_mobile_app_2x.webp"
-                        title="Product Support"
-                        desc="Whether you're launching new features or improving your UX, we handle your product interface design from end to end—without slowing down your dev team."
-                        cta="Learn More"
-                        onClick={() => setOpen(null)}
-                      />
+                      {supportPlans.map((plan) => {
+                        const image = plan.imageUrl ?? PLAN_IMAGE_FALLBACK[plan.slug] ?? null;
+                        if (!image) return null;
+                        return (
+                          <AboutNavCard
+                            key={plan.slug}
+                            href={`/plans/${plan.slug}`}
+                            image={image}
+                            title={plan.name}
+                            desc={plan.description}
+                            cta="Learn More"
+                            onClick={() => setOpen(null)}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

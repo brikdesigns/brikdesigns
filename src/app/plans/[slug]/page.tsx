@@ -1,10 +1,25 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getSupportPlanBySlug, getOtherSupportPlans, mapCategorySlug } from '@/lib/supabase/queries';
-import { Card, CardList, LinkButton, PricingCard } from '@brikdesigns/bds';
-import { parseFeatures } from '@/lib/parse-features';
-import { color, gap, serviceColor } from '@/lib/tokens';
+import Image from 'next/image';
+import {
+  getSupportPlanBySlug,
+  getOtherSupportPlans,
+  mapCategorySlug,
+} from '@/lib/supabase/queries';
+import {
+  Card,
+  CardGrid,
+  Frame,
+  Grid,
+  HeroSplitImageCardOverlay,
+  LinkButton,
+} from '@brikdesigns/bds';
+import type { BlueprintSection } from '@brikdesigns/bds';
+import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
+import { color, serviceColor } from '@/lib/tokens';
 import { heading, text, label } from '@/lib/styles';
+import { hasIconFor, SERVICE_LINE_ICON } from '@/lib/service-icons';
+import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
 import '../../shared-sections.css';
 import '../plans.css';
 
@@ -25,6 +40,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+interface PlanItemRow {
+  sort_order: number | null;
+  service: {
+    slug: string;
+    name: string;
+    description: string | null;
+    image_url: string | null;
+    service_lines: { slug: string; name: string } | null;
+  } | null;
+}
+
 export default async function PlanDetailPage({ params }: Props) {
   const { slug } = await params;
 
@@ -39,182 +65,186 @@ export default async function PlanDetailPage({ params }: Props) {
   const audience = mapCategorySlug(sl?.slug ?? '');
   const audienceTokens = serviceColor(audience);
 
-  const whatYouGet = parseFeatures(plan.what_you_get);
+  const items = (plan.plan_items ?? []) as PlanItemRow[];
+  const includedServices: IncludedService[] = items
+    .filter((i): i is PlanItemRow & { service: NonNullable<PlanItemRow['service']> } =>
+      i.service !== null,
+    )
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map((i) => {
+      const lineSlug = i.service.service_lines?.slug ?? '';
+      const category = mapCategorySlug(lineSlug);
+      return {
+        ...i.service,
+        category,
+        hasIcon: hasIconFor(category, i.service.name),
+      };
+    });
+
   const otherPlans = await getOtherSupportPlans(slug);
+
+  // Hero mirrors services/[slug] — split column with priceCard overlay
+  // driven by the same image source as the meganav + related-plans card.
+  // The hero's own CTA lives inside the priceCard, so cta is null at the
+  // section level (no duplicate "Get Started" buttons stacked).
+  const heroSection: BlueprintSection = {
+    sectionKey: `hero-${plan.slug}`,
+    sectionType: 'hero',
+    heading: plan.name,
+    subheading: null,
+    body: plan.description ?? null,
+    cta: null,
+    breadcrumb: [
+      { label: 'Support Plans', href: '/plans' },
+      { label: plan.name },
+    ],
+    audience,
+    iconUrl: SERVICE_LINE_ICON[audience],
+    iconAlt: `${sl?.name || audience} icon`,
+    priceCard: plan.image_url
+      ? {
+          imageUrl: plan.image_url,
+          imageAlt: plan.name,
+          ...(plan.monthly_price_display && {
+            priceLabel: 'Per month',
+            price: plan.monthly_price_display,
+          }),
+          cta: { label: 'Get Started', url: `/get-started?plan=${plan.slug}` },
+        }
+      : undefined,
+    visualNotes: {
+      blueprintKey: 'hero_split_image_card_overlay',
+      moodKeywords: [],
+      layoutBlueprint: 'hero_split_image_card_overlay',
+      imageOpportunity: null,
+      animationSuggestion: null,
+      illustrationOpportunity: null,
+    },
+    items: [],
+  };
 
   return (
     <div
       style={
         {
-          '--text-brand-primary': audienceTokens.text,
           '--background-inverse': audienceTokens.inverse,
+          '--text-brand-primary': audienceTokens.text,
         } as React.CSSProperties
       }
     >
-      {/* ─── Phase 1: Hero ─────────────────────────────────────── */}
-      <section
-        className="page-hero"
-        style={{ backgroundColor: audienceTokens.surface }}
+      {/* ═══ Hero ═══ */}
+      <div
+        style={
+          {
+            '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
+          } as React.CSSProperties
+        }
       >
-        <div className="page-hero__container">
-          <p className="page-hero__tagline">Support Plan</p>
-          <h1 className="page-hero__title">{plan.name}</h1>
-          {plan.description && (
-            <p className="page-hero__description">{plan.description}</p>
-          )}
-          {plan.monthly_price_display && (
-            <p
-              style={{
-                ...heading.md,
-                marginTop: gap.lg,
-                color: audienceTokens.text,
-              }}
-            >
-              {plan.monthly_price_display}
-              <span style={{ ...text.bodyLg, color: color.text.secondary }}>
-                {' '}
-                /month
-              </span>
-            </p>
-          )}
-          <div className="button-wrapper" style={{ marginTop: gap.xl }}>
-            <LinkButton
-              href={`/get-started?plan=${plan.slug}`}
-              variant="primary"
-              size="lg"
-            >
-              Get Started
-            </LinkButton>
-          </div>
-        </div>
-      </section>
+        <HeroSplitImageCardOverlay
+          section={heroSection}
+          clientFacts={defaultClientFacts}
+          theme={defaultMarketingTheme}
+        />
+      </div>
 
-      {/* ─── Phase 2: What You Get ──────────────────────────────── */}
-      {whatYouGet && (
-        <section className="content-section">
-          <div className="container-lg container-lg--comfortable">
-            <h2
-              style={{
-                ...heading.lg,
-                alignSelf: 'flex-start',
-                marginBottom: gap.xl,
-              }}
-            >
-              What You Get
-            </h2>
-            <CardList orientation="vertical" gap="sm" style={{ width: '100%' }}>
-              {whatYouGet.map((item) => (
-                <Card key={item} preset="control" title={item} />
-              ))}
-            </CardList>
-          </div>
-        </section>
+      {/* ═══ What You Get ═══ */}
+      {includedServices.length > 0 && (
+        <PlanIncludedServices services={includedServices} />
       )}
 
-      {/* ─── Phase 3: CTA ──────────────────────────────────────── */}
-      <section className="cta-section-brand">
-        <div
-          className="cta-card-brand"
-          style={{ backgroundColor: audienceTokens.surface }}
-        >
-          <h2 style={{ ...heading.lg, textAlign: 'center' }}>
-            Get {plan.name}
-          </h2>
-          {plan.monthly_price_display && (
-            <p
-              style={{
-                ...heading.md,
-                color: audienceTokens.text,
-                textAlign: 'center',
-              }}
-            >
-              {plan.monthly_price_display}
-              <span
+      {/* ═══ CTA ═══
+       * Webflow layout: eyebrow "Get" + plan name h2 + plan's own description
+       * + price + single Get Started button. Full-width tinted section, not a
+       * card. Tint is the service-line surface so the CTA stays visually tied
+       * to the audience cascade established at the page root.
+       */}
+      <section
+        className="content-section"
+        style={{ backgroundColor: audienceTokens.surface }}
+      >
+        <div className="container-lg container-lg--comfortable">
+          <div className="content-wrapper content-wrapper--center">
+            <p style={{ ...label.smBold, color: audienceTokens.text }}>Get</p>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
+            {plan.description && (
+              <p
                 style={{
-                  ...label.md,
+                  ...text.bodyLg,
                   color: color.text.secondary,
-                  fontFamily: undefined,
+                  textAlign: 'center',
+                  maxWidth: '560px',
                 }}
               >
-                {' '}
-                /month
-              </span>
-            </p>
-          )}
-          <p
-            style={{
-              ...text.bodyLg,
-              textAlign: 'center',
-              maxWidth: '560px',
-              color: color.text.secondary,
-            }}
-          >
-            Limited spots available — claim yours today.
-          </p>
-          <LinkButton
-            href={`/get-started?plan=${plan.slug}`}
-            variant="primary"
-            size="lg"
-          >
-            Get Started
-          </LinkButton>
+                {plan.description}
+              </p>
+            )}
+            {plan.monthly_price_display && (
+              <p
+                style={{
+                  ...heading.md,
+                  color: audienceTokens.text,
+                  textAlign: 'center',
+                }}
+              >
+                {plan.monthly_price_display}
+                <span style={{ ...text.bodyLg, color: color.text.secondary }}>
+                  {' '}
+                  /month
+                </span>
+              </p>
+            )}
+            <div className="button-wrapper button-wrapper--center">
+              <LinkButton
+                href={`/get-started?plan=${plan.slug}`}
+                variant="primary"
+                size="lg"
+              >
+                Get Started
+              </LinkButton>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ─── Phase 4: Related Plans ─────────────────────────────── */}
+      {/* ═══ Other Support Plans ═══
+       * Simple image + title + description + Learn More — matches Webflow.
+       * No price / no PricingCard chrome (those are reserved for the /plans
+       * list page where prices are part of the selling proposition).
+       */}
       {otherPlans.length > 0 && (
-        <section className="content-section content-section--secondary">
-          <div className="container-lg container-lg--comfortable">
-            <h2
-              style={{
-                ...heading.lg,
-                alignSelf: 'flex-start',
-                marginBottom: gap.xl,
-              }}
-            >
-              Other Support Plans
-            </h2>
-            <div className="grid-3" style={{ width: '100%' }}>
-              {otherPlans.map((other) => {
-                const otherSl = other.service_lines as unknown as { slug: string } | null;
-                const otherTokens = serviceColor(otherSl?.slug ?? '');
-                return (
-                  <div key={other.slug} className="plans-card-wrapper">
-                    {other.image_url && (
-                      <div
-                        className="plans-card-image"
-                        style={{ backgroundColor: otherTokens.surface }}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={other.image_url}
-                          alt={other.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      </div>
-                    )}
-                    <PricingCard
-                      title={other.name}
-                      price={other.monthly_price_display ?? 'Contact'}
-                      period="/month"
-                      description={other.description ?? undefined}
-                      action={
-                        <LinkButton
-                          href={`/plans/${other.slug}`}
-                          variant="primary"
-                          size="md"
-                          style={{ width: '100%' }}
-                        >
-                          Learn More
-                        </LinkButton>
-                      }
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+        <CardGrid sectionKey="other-plans" title="Other Support Plans">
+          <Grid columns={3} gap="lg">
+            {otherPlans.map((other) => (
+              <Card
+                key={other.slug}
+                preset="display"
+                image={
+                  other.image_url ? (
+                    <Frame customRatio="3 / 2" fit="cover">
+                      <Image
+                        src={other.image_url}
+                        alt={other.name}
+                        width={400}
+                        height={267}
+                      />
+                    </Frame>
+                  ) : undefined
+                }
+                title={other.name}
+                description={other.description ?? undefined}
+                action={
+                  <LinkButton
+                    href={`/plans/${other.slug}`}
+                    variant="primary"
+                    size="sm"
+                  >
+                    Learn More
+                  </LinkButton>
+                }
+              />
+            ))}
+          </Grid>
+        </CardGrid>
       )}
     </div>
   );

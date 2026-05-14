@@ -158,7 +158,20 @@ export async function getSupportPlanBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('plans')
-    .select('*, service_lines(slug, name)')
+    .select(
+      `*,
+       service_lines(slug, name),
+       plan_items(
+         sort_order,
+         service:services(
+           slug,
+           name,
+           description,
+           image_url,
+           service_lines(slug, name)
+         )
+       )`
+    )
     .eq('plan_type', 'support')
     .eq('slug', slug)
     .eq('is_public', true)
