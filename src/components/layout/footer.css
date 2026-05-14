@@ -12,6 +12,11 @@
   padding-inline: max(5%, calc((100% - 1280px) / 2));
 }
 
+/* Remove the border above the copyright/bottom bar. */
+.bds-footer.footer-site-width .bds-footer__bottom {
+  border-top: none;
+}
+
 /* ─── Dark mode — footer border overrides ─────────────────────── */
 /* BDS Footer uses --border-secondary for its internal dividers. In dark
    mode that token resolves to --grayscale--light which is too faint against

@@ -113,8 +113,6 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
       {/* Main nav — Webflow: .top-navigation → .container-nav → .nav-wrapper (space-between) */}
       <nav className="mega-nav__main">
         <div className="mega-nav__container mega-nav__main-inner">
-          {/* Logo + menu grouped so items pin left, adjacent to logo */}
-          <div className="mega-nav__left-group">
           <Link href="/" className="mega-nav__logo">
             <Image
               src="/images/Brik-logo_1.svg"
@@ -126,6 +124,8 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
             />
           </Link>
 
+          {/* Menu + CTA grouped right so items sit right-aligned */}
+          <div className="mega-nav__right-group">
           <div className="mega-nav__menu-wrapper">
             <div className="mega-nav__menu">
             {/* Design Services */}
@@ -383,7 +383,6 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
             </div>
             </div>
           </div>
-          </div>{/* end mega-nav__left-group */}
 
           {/* Webflow: .nav-button-wrapper — CTA + mobile toggle, far right */}
           <div className="mega-nav__actions">
@@ -398,6 +397,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               <span className={`mega-nav__hamburger ${mobileOpen ? 'mega-nav__hamburger--open' : ''}`} />
             </button>
           </div>
+          </div>{/* end mega-nav__right-group */}
         </div>
       </nav>
 

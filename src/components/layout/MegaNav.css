@@ -138,7 +138,7 @@
   font-size: var(--body-md);
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 }
 
 /* Webflow: .nav-wrapper — space-between pushes [logo + menu] left, [button] right */
@@ -168,15 +168,13 @@
   overflow: visible;
 }
 
-/* ─── Left group (logo + menu pinned left) ────────────────────── */
-/* Groups logo + menu-wrapper as a single flex item so items sit
-   adjacent to the logo rather than floating to the center. */
-.mega-nav__left-group {
+/* ─── Right group (menu + CTA grouped right) ──────────────────── */
+/* Groups menu-wrapper + actions so nav items sit right-aligned,
+   keeping logo on the far left with space-between on the outer row. */
+.mega-nav__right-group {
   display: flex;
   align-items: center;
   gap: 0;
-  flex: 1;
-  min-width: 0;
 }
 
 /* ─── Menu wrapper ────────────────────────────────────────────── */
