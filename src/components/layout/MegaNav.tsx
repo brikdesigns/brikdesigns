@@ -361,10 +361,18 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         Learn More
                       </Link>
                     </div>
-                    {/* Webflow: .layout-nav-support — plan cards from Supabase */}
+                    {/* Webflow: .layout-nav-support — plan cards.
+                        Reverted to hardcoded image paths after the Supabase
+                        image_url values turned out to be different illustrations
+                        than the established meganav look. Card metadata (title,
+                        href, copy) still drives off Supabase — only the image
+                        path is local. Long-term: update plans.image_url in
+                        Supabase to point at these same /images/*.webp paths,
+                        then this lookup can go away.
+                    */}
                     <div className="mega-nav__plans-grid">
                       {supportPlans.map((plan) => {
-                        const image = plan.imageUrl ?? PLAN_IMAGE_FALLBACK[plan.slug] ?? null;
+                        const image = PLAN_IMAGE_FALLBACK[plan.slug];
                         if (!image) return null;
                         return (
                           <AboutNavCard
