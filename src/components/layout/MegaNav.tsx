@@ -353,7 +353,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                     {/* Webflow: .layout-nav-support — 3 plan cards with images */}
                     <div className="mega-nav__plans-grid">
                       <AboutNavCard
-                        href="/plans#marketing-support"
+                        href="/plans/marketing-support"
                         image="/images/marketing_social_media_2x.webp"
                         title="Marketing Support"
                         desc="We act as your marketing department—handling everything from campaigns and emails to graphics and strategy. One monthly fee. No juggling freelancers or doing it yourself."
@@ -361,7 +361,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         onClick={() => setOpen(null)}
                       />
                       <AboutNavCard
-                        href="/plans#back-office-support"
+                        href="/plans/back-office-support"
                         image="/images/service_automated_workflow_2x.webp"
                         title="Back Office Support"
                         desc="We streamline your behind-the-scenes operations—from workflows and automations to system cleanups and SOPs—so your team can focus on what matters."
@@ -369,7 +369,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         onClick={() => setOpen(null)}
                       />
                       <AboutNavCard
-                        href="/plans#product-support"
+                        href="/plans/product-support"
                         image="/images/product_mobile_app_2x.webp"
                         title="Product Support"
                         desc="Whether you're launching new features or improving your UX, we handle your product interface design from end to end—without slowing down your dev team."

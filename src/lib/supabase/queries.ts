@@ -145,7 +145,7 @@ export async function getSupportPlans() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('plans')
-    .select('*')
+    .select('*, service_lines(slug)')
     .eq('plan_type', 'support')
     .eq('is_public', true)
     .order('rank', { ascending: true });
@@ -158,11 +158,25 @@ export async function getSupportPlanBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('plans')
-    .select('*')
+    .select('*, service_lines(slug, name)')
     .eq('plan_type', 'support')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getOtherSupportPlans(excludeSlug: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('plans')
+    .select('name, slug, monthly_price_display, description, image_url, discount_label, service_lines(slug)')
+    .eq('plan_type', 'support')
+    .eq('is_public', true)
+    .neq('slug', excludeSlug)
+    .order('rank', { ascending: true });
 
   if (error) throw error;
   return data;
