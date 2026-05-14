@@ -58,8 +58,25 @@ export default async function PlanDetailPage({ params }: Props) {
   let plan;
   try {
     plan = await getSupportPlanBySlug(slug);
-  } catch {
-    notFound();
+  } catch (err) {
+    // TEMP DIAGNOSTIC: surface the actual error so we can see why the
+    // plan_items join is making this throw. Remove once root cause is fixed
+    // and switch back to notFound().
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    return (
+      <div style={{ padding: '2rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+        <h1>Plan fetch diagnostic — slug: {slug}</h1>
+        <p><strong>Error message:</strong></p>
+        <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem' }}>{message}</pre>
+        {stack && (
+          <>
+            <p><strong>Stack:</strong></p>
+            <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem' }}>{stack}</pre>
+          </>
+        )}
+      </div>
+    );
   }
 
   const sl = plan.service_lines as { slug: string; name: string } | null;
