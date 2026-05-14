@@ -75,6 +75,13 @@ function eq(a: unknown, b: unknown): boolean {
 interface FieldMap {
   csv: string;
   sb: string;
+  /**
+   * When true, the audit skips field-level drift comparison for this field.
+   * Use for fields where Supabase holds a BDS-canonical value (e.g., a token
+   * string) that the legacy CSV cannot match by construction. See
+   * `.claude/references/data-canonical-fields.md` for the policy.
+   */
+  canonicalSupabase?: boolean;
 }
 
 interface AuditOpts {
@@ -166,6 +173,7 @@ async function auditCollection(opts: AuditOpts) {
     const sb = sbBySlug.get(slug)!;
     const diffs: string[] = [];
     for (const f of fields) {
+      if (f.canonicalSupabase) continue;
       const csvVal = csv[f.csv] ?? '';
       const sbVal = sb[f.sb] ?? '';
       if (!eq(csvVal, sbVal)) {
@@ -230,11 +238,13 @@ async function main() {
       { csv: 'Main Image', sb: 'card_image_url' },
       { csv: 'Support Plan', sb: 'support_plan_slug' },
       { csv: 'Support Plan Img', sb: 'support_plan_image_url' },
-      // Supabase-canonical: brand_color_* holds BDS token strings, not raw hex.
-      // See `.claude/references/data-canonical-fields.md` + #152 (Webflow back-port).
-      { csv: 'Light', sb: 'brand_color_light' },
-      { csv: 'Base', sb: 'brand_color_base' },
-      { csv: 'Dark', sb: 'brand_color_dark' },
+      // BDS-canonical: brand_color_* holds BDS design token strings. CSV holds
+      // legacy raw hex from the original Webflow build and will never be back-
+      // ported (Webflow is being decommissioned). See
+      // `.claude/references/data-canonical-fields.md`.
+      { csv: 'Light', sb: 'brand_color_light', canonicalSupabase: true },
+      { csv: 'Base', sb: 'brand_color_base', canonicalSupabase: true },
+      { csv: 'Dark', sb: 'brand_color_dark', canonicalSupabase: true },
     ],
   });
 
