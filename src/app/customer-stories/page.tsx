@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import { LinkButton } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
-import { getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
+import { getCustomerStories, getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
+import { ServiceLineCard } from '@/app/services/ServiceLineCard';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../shared-sections.css';
+import '../services/services.css';
 import './customer-stories.css';
 
 export const metadata: Metadata = {
@@ -17,7 +19,10 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function CustomerStoriesPage() {
-  const stories = await getCustomerStories();
+  const [stories, serviceLines] = await Promise.all([
+    getCustomerStories(),
+    getServiceCategories(),
+  ]);
 
   return (
     <>
@@ -67,6 +72,31 @@ export default async function CustomerStoriesPage() {
           )}
         </div>
       </section>
+
+      {serviceLines && serviceLines.length > 0 && (
+        <section className="content-section">
+          <div className="container-lg container-lg--comfortable">
+            <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
+              <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
+                We offer design services at every stage of your business growth — from brand to back office.
+              </p>
+            </div>
+            <div className="grid-3">
+              {serviceLines.map((cat) => (
+                <ServiceLineCard
+                  key={cat.slug}
+                  name={cat.name}
+                  slug={cat.slug}
+                  category={mapCategorySlug(cat.slug)}
+                  tagline={cat.tagline || cat.description || ''}
+                  imageUrl={cat.card_image_url}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="cta-section-brand">
         <div className="cta-card-brand">
