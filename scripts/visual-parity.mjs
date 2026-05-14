@@ -19,6 +19,8 @@ const ROUTES = [
   { netlify: '/', webflow: '/', name: 'home' },
   { netlify: '/about', webflow: '/about', name: 'about' },
   { netlify: '/services', webflow: '/services', name: 'services' },
+  { netlify: '/services/marketing', webflow: '/service-lines/marketing-design', name: 'services-category-marketing' },
+  { netlify: '/services/marketing/website-experience-mapping', webflow: '/service/website-experience-mapping', name: 'services-detail-website-experience-mapping' },
   { netlify: '/plans', webflow: '/plans', name: 'plans' },
   { netlify: '/customer-stories', webflow: '/customer-stories', name: 'customer-stories' },
   { netlify: '/customers', webflow: '/customers', name: 'customers' },
