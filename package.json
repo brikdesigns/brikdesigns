@@ -10,6 +10,7 @@
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "test:lint:tokens": "node scripts/lint-tokens.test.mjs",
     "lint:service-urls": "node scripts/lint-service-urls.mjs",
+    "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
     "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "audit:plan-data": "npx tsx scripts/audit-plan-data.ts",
     "audit:plan-routes": "npx tsx scripts/audit-plan-routes.ts",
