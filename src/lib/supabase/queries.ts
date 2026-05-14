@@ -176,7 +176,7 @@ export async function getCustomerStories() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('customer_stories')
-    .select('*')
+    .select('*, service_lines!customer_stories_primary_category_id_fkey(name, slug), offerings!customer_stories_primary_service_id_fkey(name)')
     .eq('is_public', true)
     .order('rank', { ascending: true });
 

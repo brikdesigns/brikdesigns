@@ -1,6 +1,5 @@
 /* ─── Customer stories — layout only ────────────────────── */
 
-/* Single-column list of horizontal cards (matches Webflow target) */
 .story-list {
   display: flex;
   flex-direction: column;
@@ -8,52 +7,84 @@
   width: 100%;
 }
 
-.story-list-card {
-  display: grid;
-  grid-template-columns: 280px 1fr auto;
-  align-items: center;
-  gap: var(--gap-lg);
-  padding: var(--padding-md);
-  border: 2px solid var(--border-secondary);
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-primary);
-  text-decoration: none;
-  transition: border-color 0.15s;
-}
-
-.story-list-card:hover {
-  border-color: var(--border-brand-primary);
-}
-
-.story-list-card__image {
-  aspect-ratio: 16/9;
-  border-radius: var(--border-radius-md);
+/* BDS Card handles border/background/hover — override padding so the inner
+   row can manage its own spacing and stretch the image into the card edge */
+.story-card.bds-card {
+  padding: 0;
   overflow: hidden;
+  text-decoration: none;
 }
 
-.story-list-card__content {
+.story-card__row {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  min-height: 260px;
+}
+
+.story-card__image-wrap {
+  background-color: var(--surface-secondary);
+  padding: var(--padding-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-card__image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  background-color: var(--surface-secondary);
+}
+
+.story-card__content {
   display: flex;
   flex-direction: column;
+  gap: var(--gap-sm);
+  padding: var(--padding-lg);
+}
+
+/* 2-column metadata grid */
+.story-card__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-sm) var(--gap-lg);
+}
+
+.story-meta__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.story-meta__value {
+  display: flex;
+  align-items: center;
   gap: var(--gap-xs);
 }
 
-.story-list-card__cta {
-  align-self: center;
-  margin-left: var(--gap-md);
+.story-meta__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-/* Responsive — stack image above content on narrow viewports */
+/* Responsive — stack vertically on narrow viewports */
 @media (max-width: 767px) {
-  .story-list-card {
+  .story-card__row {
     grid-template-columns: 1fr;
   }
 
-  .story-list-card__image {
-    width: 100%;
+  .story-card__image-wrap {
+    padding: var(--padding-sm);
   }
 
-  .story-list-card__cta {
-    align-self: flex-start;
-    margin-left: 0;
+  .story-card__image {
+    aspect-ratio: 16/9;
+  }
+
+  .story-card__meta {
+    grid-template-columns: 1fr;
   }
 }
