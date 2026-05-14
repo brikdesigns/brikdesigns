@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
-import Link from 'next/link';
 import { LinkButton } from '@brikdesigns/bds';
-import { composeButtonClasses } from '@/lib/bds-button-classes';
-import { getCustomerStories } from '@/lib/supabase/queries';
-import { text, heading, label } from '@/lib/styles';
+import type { ServiceCategory } from '@brikdesigns/bds';
+import { getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
+import { hasIconFor } from '@/lib/service-icons';
+import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
+import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './customer-stories.css';
@@ -34,21 +34,33 @@ export default async function CustomerStoriesPage() {
         <div className="container-lg">
           {stories && stories.length > 0 ? (
             <div className="story-list">
-              {stories.map((story) => (
-                <Link key={story.id} href={`/customer-stories/${story.slug}`} className="story-list-card">
-                  {story.hero_image_url && (
-                    <div className="story-list-card__image">
-                      <Image src={story.hero_image_url} alt={story.client_name || story.name} width={600} height={338} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                  )}
-                  <div className="story-list-card__content">
-                    <h3 style={heading.sm}>{story.name || story.client_name}</h3>
-                    {story.industry && <p style={{ ...label.smBold, color: color.text.brand }}>{story.industry}</p>}
-                    {story.short_description && <p style={{ ...text.bodySm, color: color.text.secondary }}>{story.short_description}</p>}
-                  </div>
-                  <span className={`${composeButtonClasses({ variant: 'primary', size: 'sm' })} story-list-card__cta`}>Read Story</span>
-                </Link>
-              ))}
+              {stories.map((story) => {
+                const serviceLineCategory = story.service_line_slug
+                  ? (mapCategorySlug(story.service_line_slug) as ServiceCategory)
+                  : null;
+                const serviceLineName = (story as { service_lines?: { name: string } | null }).service_lines?.name ?? null;
+                const serviceName = (story as { offerings?: { name: string } | null }).offerings?.name ?? null;
+                const iconServiceName = serviceLineCategory && serviceName && hasIconFor(serviceLineCategory, serviceName)
+                  ? serviceName
+                  : undefined;
+
+                return (
+                  <CustomerStoryCard
+                    key={story.id}
+                    slug={story.slug}
+                    name={story.name}
+                    clientName={story.client_name}
+                    industry={story.industry ?? null}
+                    launchDate={story.launch_date ?? null}
+                    serviceLineName={serviceLineName}
+                    serviceLineCategory={serviceLineCategory}
+                    serviceName={serviceName}
+                    shortDescription={story.short_description ?? null}
+                    imageUrl={story.thumbnail_url ?? story.hero_image_url ?? null}
+                    iconServiceName={iconServiceName}
+                  />
+                );
+              })}
             </div>
           ) : (
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>Customer stories coming soon.</p>
@@ -56,7 +68,6 @@ export default async function CustomerStoriesPage() {
         </div>
       </section>
 
-      {/* Bottom Get In Touch CTA — Webflow shows this on the customer-stories index */}
       <section className="cta-section-brand">
         <div className="cta-card-brand">
           <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>Get in Touch</h2>
