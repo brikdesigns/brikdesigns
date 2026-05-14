@@ -33,13 +33,6 @@ const nextConfig = {
   // of truth and how to add a new mapping.
   async redirects() {
     return [
-      // ── Service lines: /service-lines/{long-form} → /services/{short-form}
-      { source: '/service-lines/brand-design', destination: '/services/brand', permanent: true },
-      { source: '/service-lines/marketing-design', destination: '/services/marketing', permanent: true },
-      { source: '/service-lines/back-office-design', destination: '/services/service', permanent: true },
-      { source: '/service-lines/product-design', destination: '/services/product', permanent: true },
-      { source: '/service-lines/information-design', destination: '/services/information', permanent: true },
-
       // ── Customer story singular → plural
       { source: '/customer-story/:slug', destination: '/customer-stories/:slug', permanent: true },
 
