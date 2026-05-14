@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardTitle, CardDescription, CardFooter, Stack, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceCategory } from '@brikdesigns/bds';
-import { text, heading } from '@/lib/styles';
+import { text } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
 
 interface ServiceLineCardProps {
@@ -40,8 +40,11 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
           )}
         </div>
         <div className="services-card__content">
-          <ServiceTag category={category} variant="icon" size="md" />
-          <h3 style={heading.sm}>{name}</h3>
+          {/* Chip carries the service-line name (parity #157). The previous
+              icon-only ServiceTag + separate h3 produced a dot-accent name
+              that diverged from the Webflow "colored pill with text" target.
+           */}
+          <ServiceTag category={category} variant="icon-text" label={name} size="md" />
           <p style={{ ...text.bodySm, color: color.text.secondary }}>{tagline}</p>
         </div>
         <span
