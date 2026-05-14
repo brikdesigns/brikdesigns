@@ -11,3 +11,11 @@
 .bds-footer.footer-site-width {
   padding-inline: max(5%, calc((100% - 1280px) / 2));
 }
+
+/* ─── Dark mode — footer border overrides ─────────────────────── */
+/* BDS Footer uses --border-secondary for its internal dividers. In dark
+   mode that token resolves to --grayscale--light which is too faint against
+   the inverse (dark) footer surface. Override to --border-primary. */
+:root[data-theme="dark"] .bds-footer {
+  --border-secondary: var(--border-primary);
+}

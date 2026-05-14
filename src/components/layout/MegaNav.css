@@ -54,25 +54,23 @@
   border-left: 1px solid var(--border-secondary);
 }
 
-/* Webflow: .icon-xs — FA 6 Pro Solid 900 phone icon in utility bar.
-   Now rendered as inline SVG since FA webfont isn't loaded in Next.js. */
-.mega-nav__utility-icon {
+/* Phone icon container — sized to match the 12px icon, text-primary colour. */
+.mega-nav__utility-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 12px;
   height: 12px;
-  color: var(--text-brand-primary);
+  color: var(--text-primary);
   flex-shrink: 0;
 }
 
-/* Webflow: .text-label-xs — "Talk to sales:" label.
-   Color: --text-primary (12.6:1 on white) rather than --text-brand-primary
-   (3.78:1) so the label hits WCAG 2.1 AA at --body-xs. The phone icon
-   above keeps --text-brand-primary — icons are decorative and exempt
-   from text-contrast rules, preserving the brand pop in this section. */
+/* "Talk to sales:" label — brand-primary colour matches Webflow reference. */
 .mega-nav__utility-label {
   font-family: var(--font-family-label);
   font-size: var(--body-xs);
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-brand-primary);
 }
 
 .mega-nav__utility-link {
@@ -168,6 +166,17 @@
   max-width: 100%;
   display: block;
   overflow: visible;
+}
+
+/* ─── Left group (logo + menu pinned left) ────────────────────── */
+/* Groups logo + menu-wrapper as a single flex item so items sit
+   adjacent to the logo rather than floating to the center. */
+.mega-nav__left-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 /* ─── Menu wrapper ────────────────────────────────────────────── */
@@ -780,4 +789,29 @@
   .mega-nav__utility {
     display: none;
   }
+}
+
+/* ─── Dark mode — border overrides ───────────────────────────── */
+/* In dark mode --border-secondary resolves to --grayscale--light which is
+   too faint against the dark nav surface. Bump to --border-primary for
+   both the utility divider and the dropdown panel border. */
+
+:root[data-theme="dark"] .mega-nav__utility {
+  border-bottom-color: var(--border-primary);
+}
+
+:root[data-theme="dark"] .mega-nav__utility-group + .mega-nav__utility-group {
+  border-left-color: var(--border-primary);
+}
+
+:root[data-theme="dark"] .mega-nav__utility-toggle {
+  border-left-color: var(--border-primary);
+}
+
+:root[data-theme="dark"] .mega-nav__panel {
+  border-bottom-color: var(--border-primary);
+}
+
+:root[data-theme="dark"] .mega-nav__mobile-link {
+  border-bottom-color: var(--border-primary);
 }

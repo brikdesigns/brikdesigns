@@ -133,7 +133,7 @@ export function Footer() {
           >
             Enter your name, email, and subscribe for free right now.
           </p>
-          <div style={{ width: '100%', maxWidth: 400 }}>
+          <div style={{ width: '100%', maxWidth: 520 }}>
             <NewsletterForm />
           </div>
         </div>
