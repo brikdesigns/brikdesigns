@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import Image from 'next/image';
+import { Icon } from '@iconify/react';
+import { Card, CardTitle, CardDescription, CardFooter, LinkButton } from '@brikdesigns/bds';
 import { getAllPosts } from '@/lib/blog';
-import { text, heading, label } from '@/lib/styles';
+import { label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../shared-sections.css';
 import './blog.css';
@@ -30,29 +31,42 @@ export default async function BlogPage() {
 
       <section className="content-section">
         <div className="container-lg">
-          <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-            <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Latest Posts</h2>
-          </div>
           <div className="blog-grid">
             {posts.map((post) => (
-              <Link key={post.slug} href={`/blog/${post.slug}`} className="blog-card">
+              <Card key={post.slug} variant="outlined" padding="none" className="blog-card">
                 {post.image && (
                   <div className="blog-card__image">
-                    <Image src={post.image} alt={post.title} fill style={{ objectFit: 'cover' }} sizes="(max-width: 768px) 100vw, 400px" />
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      sizes="(max-width: 768px) 100vw, 400px"
+                    />
                   </div>
                 )}
-                <div className="blog-card__content">
-                  <h2 style={heading.sm}>{post.title}</h2>
+                <div className="blog-card__body">
+                  <CardTitle as="h2">{post.title}</CardTitle>
                   <div className="blog-card__meta">
-                    <span style={{ ...label.smBold, color: color.text.secondary }}>
-                      {new Date(post.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    <span className="blog-card__meta-item" style={{ ...label.sm, color: color.text.secondary }}>
+                      <Icon icon="ph:calendar-blank" width={16} height={16} aria-hidden />
+                      {new Date(post.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                     </span>
-                    {post.duration && <span style={{ ...label.smBold, color: color.text.secondary }}>{post.duration}</span>}
+                    {post.duration && (
+                      <span className="blog-card__meta-item" style={{ ...label.sm, color: color.text.secondary }}>
+                        <Icon icon="ph:clock" width={16} height={16} aria-hidden />
+                        {post.duration}
+                      </span>
+                    )}
                   </div>
-                  <p style={{ ...text.bodySm, color: color.text.secondary }}>{post.summary}</p>
-                  {post.category && <span style={{ ...label.smBold, color: color.text.brand }}>{post.category}</span>}
+                  <CardDescription>{post.summary}</CardDescription>
+                  <CardFooter>
+                    <LinkButton href={`/blog/${post.slug}`} variant="primary" size="md">
+                      Read Article
+                    </LinkButton>
+                  </CardFooter>
                 </div>
-              </Link>
+              </Card>
             ))}
           </div>
         </div>
