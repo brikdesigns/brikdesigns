@@ -230,6 +230,8 @@ async function main() {
       { csv: 'Main Image', sb: 'card_image_url' },
       { csv: 'Support Plan', sb: 'support_plan_slug' },
       { csv: 'Support Plan Img', sb: 'support_plan_image_url' },
+      // Supabase-canonical: brand_color_* holds BDS token strings, not raw hex.
+      // See `.claude/references/data-canonical-fields.md` + #152 (Webflow back-port).
       { csv: 'Light', sb: 'brand_color_light' },
       { csv: 'Base', sb: 'brand_color_base' },
       { csv: 'Dark', sb: 'brand_color_dark' },
