@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { Footer as BdsFooter, ServiceTag } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
+import { color } from '@/lib/tokens';
 import { NewsletterForm } from './NewsletterForm';
 import './footer.css';
 
@@ -117,7 +118,7 @@ export function Footer() {
               // so the variant="inverse" Footer's bds-footer__heading rule
               // doesn't catch it; without this, body's --text-primary
               // inherits = dark text on inverse surface = AA-fail.
-              color: 'var(--text-on-color-dark)',
+              color: color.text.inverse,
             }}
           >
             Join Brik by Brik Newsletter
@@ -127,7 +128,7 @@ export function Footer() {
               fontFamily: 'var(--font-family-body)',
               fontSize: 'var(--body-sm)',
               margin: 0,
-              color: 'var(--text-on-color-dark)',
+              color: color.text.inverse,
               opacity: 0.8,
             }}
           >
