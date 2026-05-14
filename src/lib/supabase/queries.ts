@@ -128,7 +128,7 @@ export async function getSupportPlans() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('plans')
-    .select('*')
+    .select('*, service_lines(slug)')
     .eq('plan_type', 'support')
     .eq('is_public', true)
     .order('rank', { ascending: true });
