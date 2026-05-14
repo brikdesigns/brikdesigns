@@ -15,16 +15,15 @@ import { createClient } from './server';
  *   service_lines → services → offerings → engagements
  */
 
-// Map category slugs to BDS ServiceTag category names.
-// Canonical slugs are the long form (brand-design, marketing-design, etc.).
-// Short slugs kept for backward URL compatibility only.
+// Map `service_lines.slug` → BDS ServiceTag category enum.
+//
+// Canonical slugs are the short form (brand / marketing / information /
+// product / service) — matches what's stored in Supabase and what the
+// Next.js dynamic route `/services/[categorySlug]` resolves. Webflow's
+// long-form URLs (`/services/brand-design`, etc.) are handled at the
+// edge: `/detail_service/*` → `/services/:splat` in netlify.toml. Long
+// form never reaches this map. See #113, #121, #132.
 const CATEGORY_MAP: Record<string, 'brand' | 'marketing' | 'information' | 'product' | 'service'> = {
-  'brand-design': 'brand',
-  'marketing-design': 'marketing',
-  'information-design': 'information',
-  'back-office-design': 'service',
-  'product-design': 'product',
-  // Legacy short slugs (backward compat for old URLs / portal color_token)
   brand: 'brand',
   marketing: 'marketing',
   information: 'information',
