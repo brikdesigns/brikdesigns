@@ -32,8 +32,23 @@ const CATEGORY_MAP: Record<string, 'brand' | 'marketing' | 'information' | 'prod
   product: 'product',
 };
 
-export function mapCategorySlug(slug: string) {
-  return CATEGORY_MAP[slug] || 'brand';
+export function mapCategorySlug(
+  slug: string,
+): 'brand' | 'marketing' | 'information' | 'product' | 'service' {
+  const mapped = CATEGORY_MAP[slug];
+  if (mapped) return mapped;
+  // Loud fallback: silent `|| 'brand'` hid 3 NULL service_line_id rows for
+  // weeks on the support-plan pages — every detail page rendered with the
+  // brand-yellow tint instead of its own service-line color until a
+  // screenshot caught it (PR #143 retrospective). Surfacing the input via
+  // console.warn means the next regression shows up in Netlify function
+  // logs and `npm run dev` output, not in a user report days later.
+  console.warn(
+    `[mapCategorySlug] Unknown service-line slug "${slug}" — falling back to 'brand'. ` +
+      `Check service_lines.slug and the upstream FK (plans.service_line_id, ` +
+      `services.service_line_id, etc.) in Supabase.`,
+  );
+  return 'brand';
 }
 
 /**
