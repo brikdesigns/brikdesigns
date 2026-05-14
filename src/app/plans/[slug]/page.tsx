@@ -59,22 +59,24 @@ export default async function PlanDetailPage({ params }: Props) {
   try {
     plan = await getSupportPlanBySlug(slug);
   } catch (err) {
-    // TEMP DIAGNOSTIC: surface the actual error so we can see why the
-    // plan_items join is making this throw. Remove once root cause is fixed
-    // and switch back to notFound().
-    const message = err instanceof Error ? err.message : String(err);
-    const stack = err instanceof Error ? err.stack : undefined;
+    // TEMP DIAGNOSTIC: Supabase errors are plain objects with message/details/
+    // hint/code fields, not Error subclasses — dump the whole thing.
+    const dump = JSON.stringify(
+      err,
+      Object.getOwnPropertyNames(err as object).concat([
+        'message',
+        'details',
+        'hint',
+        'code',
+        'name',
+        'stack',
+      ]),
+      2,
+    );
     return (
       <div style={{ padding: '2rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
         <h1>Plan fetch diagnostic — slug: {slug}</h1>
-        <p><strong>Error message:</strong></p>
-        <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem' }}>{message}</pre>
-        {stack && (
-          <>
-            <p><strong>Stack:</strong></p>
-            <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem' }}>{stack}</pre>
-          </>
-        )}
+        <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem' }}>{dump}</pre>
       </div>
     );
   }
