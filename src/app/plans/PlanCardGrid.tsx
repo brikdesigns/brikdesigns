@@ -79,7 +79,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
                 }
                 action={
                   <LinkButton
-                    href={`/get-started?plan=${plan.slug}`}
+                    href={`/plans/${plan.slug}`}
                     variant="primary"
                     size="md"
                     style={{ width: '100%' }}
