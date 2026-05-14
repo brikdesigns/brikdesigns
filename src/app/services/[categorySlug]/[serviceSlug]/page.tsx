@@ -166,16 +166,15 @@ export default async function ServiceDetailPage({ params }: Props) {
     }
   }
 
-  // Canonical service-line tokens drive the audience cascade for the hero
-  // blueprint. Inline CSS custom properties override BDS tokens within the
-  // hero subtree without hardcoding a `[data-audience='X']` rule set.
-  //
-  //   --page-brand-primary           ← --surface-service-{audience} (soft hero bg)
-  //   --text-brand-primary           ← --text-service-{audience}    (audience-dark, AA on the surface)
-  //   --bp-hero-img-card-headline-color, --background-inverse same as text
-  //
-  // Replaces raw `category.brand_color_light` / `brand_color_dark` hex
-  // (brikdesigns#99 — bypassed the BDS token system).
+  // Audience tokens drive two scoped cascades:
+  //   - Page-level: --text-brand-primary so eyebrows / breadcrumbs / accent
+  //     copy across every section inherit the service-line text color.
+  //   - Hero-only: --background-brand-primary so primary CTAs inside the
+  //     hero render in the audience inverse color (per brikdesigns#159).
+  //     Scoping to the hero keeps Brik poppy on every CTA below.
+  // BDS itself sets --bp-hero-img-card-* and --background-inverse on
+  // `.bp-hero-img-card[data-audience]`, so those aren't repeated here
+  // (brikdesigns#99 fix for the prior raw-hex bypass).
   const audience = mapCategorySlug(category?.slug || categorySlug);
   const audienceTokens = serviceColor(audience);
 
@@ -229,19 +228,13 @@ export default async function ServiceDetailPage({ params }: Props) {
   };
 
   return (
-    // Page-level audience cascade — CMS category (service_lines.slug) drives
-    // these CSS custom properties so every section inherits the right tokens:
-    //
-    //   --background-inverse   → audience-colored fill on <LinkButton variant="primary">
-    //   --text-brand-primary   → audience text (eyebrows, breadcrumbs, accent copy)
-    //
-    // Hero background + headline color come from [data-audience] CSS in BDS
-    // (bds-hero-img-card.css) and are set directly on .bp-hero-img-card — those
-    // don't need to be repeated here.
+    // Page-level cascade: audience-colored accent text (eyebrows, breadcrumbs,
+    // service tag copy). Stops short of --background-inverse on purpose —
+    // canonical dark `--background-inverse` is reused by the bottom support
+    // CTA band, and the hero's own CTA theming is scoped one level deeper.
     <div
       style={
         {
-          '--background-inverse': audienceTokens.inverse,
           '--text-brand-primary': audienceTokens.text,
         } as React.CSSProperties
       }
@@ -253,6 +246,11 @@ export default async function ServiceDetailPage({ params }: Props) {
             // Match Webflow's hero vertical rhythm — only override needed
             // beyond what [data-audience] already handles in BDS.
             '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
+            // Audience-colored primary CTAs inside the hero (View Details
+            // + priceCard "Let's Talk"). BDS .bds-button--primary reads from
+            // --background-brand-primary; scoping the override here keeps
+            // sections below the hero on Brik poppy.
+            '--background-brand-primary': audienceTokens.inverse,
           } as React.CSSProperties
         }
       >
@@ -263,8 +261,13 @@ export default async function ServiceDetailPage({ params }: Props) {
         />
       </div>
 
-      {/* ═══ Pricing / Offerings ═══ */}
-      {sortedOfferings.length > 0 && (
+      {/* ═══ Pricing / Offerings ═══
+       * Single-tier services already render the price inside the hero
+       * priceCard — showing a one-card Pricing Options section below
+       * duplicates the same number and diverges from the Webflow layout.
+       * Multi-tier services still get the comparison grid.
+       */}
+      {sortedOfferings.length > 1 && (
         <CardGrid id="pricing" sectionKey="pricing" title="Pricing Options">
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
@@ -344,8 +347,14 @@ export default async function ServiceDetailPage({ params }: Props) {
         </CardGrid>
       )}
 
-      {/* ═══ Recommended Add-On ═══ */}
+      {/* ═══ Recommended Add-On ═══
+       * Webflow wraps this section in a category-tinted band; reproduce that
+       * via the canonical `--surface-service-{audience}` token. Surface (not
+       * background) per the service-token decision tree — this is a section,
+       * not a small component.
+       */}
       {relatedService && (
+        <section style={{ background: audienceTokens.surface }}>
         <CardGrid sectionKey="addon" title="Recommended Add-On Service">
           <Card padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
@@ -391,6 +400,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             </Stack>
           </Card>
         </CardGrid>
+        </section>
       )}
 
       {/* ═══ Related Services ═══ */}
@@ -445,9 +455,18 @@ export default async function ServiceDetailPage({ params }: Props) {
         </CardGrid>
       )}
 
-      {/* ═══ Monthly Support CTA ═══ */}
+      {/* ═══ Monthly Support CTA — bottom CTA pattern (parity #159) ═══
+       * Webflow's bottom CTA is a single dark band carrying the support-plan
+       * card. The previous "Interested in {service}?" final CTA was a
+       * Netlify-only duplicate and has been retired. Services missing a
+       * support_plan_slug currently render no bottom CTA; backfill tracked
+       * in the brikdesigns CMS audit (#114 followup).
+       */}
       {supportPlan && (
-        <section className="content-section">
+        <section
+          className="content-section"
+          style={{ background: color.background.inverse }}
+        >
           <div className="container-lg">
             <div className="svc-detail-support-cta">
               <p style={{ ...label.smBold, color: color.text.brand }}>Want a partner to avoid the full-time hassle?</p>
@@ -458,20 +477,6 @@ export default async function ServiceDetailPage({ params }: Props) {
           </div>
         </section>
       )}
-
-      {/* ═══ Final CTA ═══ */}
-      <section className="content-section content-section--secondary">
-        <div className="container-lg">
-          <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Interested in {service.name}?</h2>
-            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>Let&apos;s talk about what you need.</p>
-            <div className="button-wrapper button-wrapper--center">
-              <LinkButton href="/get-started" variant="primary" size="lg">Get Started</LinkButton>
-              <LinkButton href="/contact" variant="outline" size="lg">Let&apos;s Talk</LinkButton>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
