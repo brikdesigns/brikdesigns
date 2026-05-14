@@ -7,6 +7,7 @@ import { Icon } from '@iconify/react';
 import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { planImage } from '@/lib/plan-images';
 import { ThemeToggle } from './ThemeToggle';
 
 import './MegaNav.css';
@@ -35,16 +36,6 @@ interface SupportPlan {
   description: string;
   imageUrl: string | null;
 }
-
-// Fallback images for plans without an image_url in Supabase. Keys match
-// the canonical support plan slugs; new plans without an entry here will
-// render without a thumbnail. Long-term, all plans should have image_url
-// populated in Supabase.
-const PLAN_IMAGE_FALLBACK: Record<string, string> = {
-  'marketing-support': '/images/marketing_social_media_2x.webp',
-  'back-office-support': '/images/service_automated_workflow_2x.webp',
-  'product-support': '/images/product_mobile_app_2x.webp',
-};
 
 interface IndustryItem {
   name: string;
@@ -361,18 +352,14 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         Learn More
                       </Link>
                     </div>
-                    {/* Webflow: .layout-nav-support — plan cards.
-                        Reverted to hardcoded image paths after the Supabase
-                        image_url values turned out to be different illustrations
-                        than the established meganav look. Card metadata (title,
-                        href, copy) still drives off Supabase — only the image
-                        path is local. Long-term: update plans.image_url in
-                        Supabase to point at these same /images/*.webp paths,
-                        then this lookup can go away.
+                    {/* Webflow: .layout-nav-support — plan cards. Card
+                        metadata (title, href, copy) drives off Supabase;
+                        image path comes from the shared planImage() lookup
+                        for parity with the plan detail hero + related cards.
                     */}
                     <div className="mega-nav__plans-grid">
                       {supportPlans.map((plan) => {
-                        const image = PLAN_IMAGE_FALLBACK[plan.slug];
+                        const image = planImage(plan.slug);
                         if (!image) return null;
                         return (
                           <AboutNavCard

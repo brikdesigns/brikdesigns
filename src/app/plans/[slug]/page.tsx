@@ -19,6 +19,7 @@ import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpe
 import { color, serviceColor } from '@/lib/tokens';
 import { heading, text, label } from '@/lib/styles';
 import { hasIconFor, SERVICE_LINE_ICON } from '@/lib/service-icons';
+import { planImage } from '@/lib/plan-images';
 import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
 import '../../shared-sections.css';
 import '../plans.css';
@@ -84,9 +85,11 @@ export default async function PlanDetailPage({ params }: Props) {
   const otherPlans = await getOtherSupportPlans(slug);
 
   // Hero mirrors services/[slug] — split column with priceCard overlay
-  // driven by the same image source as the meganav + related-plans card.
-  // The hero's own CTA lives inside the priceCard, so cta is null at the
-  // section level (no duplicate "Get Started" buttons stacked).
+  // driven by the same image source as the meganav + related-plans card
+  // (planImage lookup keyed by slug). The hero's own CTA lives inside the
+  // priceCard, so cta is null at the section level (no duplicate "Get Started"
+  // buttons stacked).
+  const heroImage = planImage(plan.slug);
   const heroSection: BlueprintSection = {
     sectionKey: `hero-${plan.slug}`,
     sectionType: 'hero',
@@ -101,9 +104,9 @@ export default async function PlanDetailPage({ params }: Props) {
     audience,
     iconUrl: SERVICE_LINE_ICON[audience],
     iconAlt: `${sl?.name || audience} icon`,
-    priceCard: plan.image_url
+    priceCard: heroImage
       ? {
-          imageUrl: plan.image_url,
+          imageUrl: heroImage,
           imageAlt: plan.name,
           ...(plan.monthly_price_display && {
             priceLabel: 'Per month',
@@ -214,15 +217,17 @@ export default async function PlanDetailPage({ params }: Props) {
       {otherPlans.length > 0 && (
         <CardGrid sectionKey="other-plans" title="Other Support Plans">
           <Grid columns={3} gap="lg">
-            {otherPlans.map((other) => (
+            {otherPlans.map((other) => {
+              const otherImage = planImage(other.slug);
+              return (
               <Card
                 key={other.slug}
                 preset="display"
                 image={
-                  other.image_url ? (
+                  otherImage ? (
                     <Frame customRatio="3 / 2" fit="cover">
                       <Image
-                        src={other.image_url}
+                        src={otherImage}
                         alt={other.name}
                         width={400}
                         height={267}
@@ -242,7 +247,8 @@ export default async function PlanDetailPage({ params }: Props) {
                   </LinkButton>
                 }
               />
-            ))}
+              );
+            })}
           </Grid>
         </CardGrid>
       )}
