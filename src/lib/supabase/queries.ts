@@ -156,6 +156,11 @@ export async function getSupportPlans() {
 
 export async function getSupportPlanBySlug(slug: string) {
   const supabase = await createClient();
+  // plan_items.service_id is an FK to offerings (not services) — services
+  // have many offerings (1:N), so we traverse plan_items → offerings →
+  // services → service_lines. The page dedupes by service.slug to show
+  // one card per service even when multiple offerings of the same service
+  // are included in the plan.
   const { data, error } = await supabase
     .from('plans')
     .select(
@@ -163,12 +168,14 @@ export async function getSupportPlanBySlug(slug: string) {
        service_lines(slug, name),
        plan_items(
          sort_order,
-         service:services(
-           slug,
-           name,
-           description,
-           image_url,
-           service_lines(slug, name)
+         offering:offerings(
+           service:services(
+             slug,
+             name,
+             description,
+             image_url,
+             service_lines(slug, name)
+           )
          )
        )`
     )

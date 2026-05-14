@@ -43,12 +43,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 interface PlanItemRow {
   sort_order: number | null;
-  service: {
-    slug: string;
-    name: string;
-    description: string | null;
-    image_url: string | null;
-    service_lines: { slug: string; name: string } | null;
+  offering: {
+    service: {
+      slug: string;
+      name: string;
+      description: string | null;
+      image_url: string | null;
+      service_lines: { slug: string; name: string } | null;
+    } | null;
   } | null;
 }
 
@@ -58,27 +60,8 @@ export default async function PlanDetailPage({ params }: Props) {
   let plan;
   try {
     plan = await getSupportPlanBySlug(slug);
-  } catch (err) {
-    // TEMP DIAGNOSTIC: Supabase errors are plain objects with message/details/
-    // hint/code fields, not Error subclasses — dump the whole thing.
-    const dump = JSON.stringify(
-      err,
-      Object.getOwnPropertyNames(err as object).concat([
-        'message',
-        'details',
-        'hint',
-        'code',
-        'name',
-        'stack',
-      ]),
-      2,
-    );
-    return (
-      <div style={{ padding: '2rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
-        <h1>Plan fetch diagnostic — slug: {slug}</h1>
-        <pre style={{ whiteSpace: 'pre-wrap', background: '#f5f5f5', padding: '1rem' }}>{dump}</pre>
-      </div>
-    );
+  } catch {
+    notFound();
   }
 
   const sl = plan.service_lines as { slug: string; name: string } | null;
@@ -86,20 +69,25 @@ export default async function PlanDetailPage({ params }: Props) {
   const audienceTokens = serviceColor(audience);
 
   const items = (plan.plan_items ?? []) as PlanItemRow[];
-  const includedServices: IncludedService[] = items
-    .filter((i): i is PlanItemRow & { service: NonNullable<PlanItemRow['service']> } =>
-      i.service !== null,
-    )
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
-    .map((i) => {
-      const lineSlug = i.service.service_lines?.slug ?? '';
-      const category = mapCategorySlug(lineSlug);
-      return {
-        ...i.service,
-        category,
-        hasIcon: hasIconFor(category, i.service.name),
-      };
+  // Dedupe by service.slug — plan_items references offerings, multiple
+  // offerings of the same service collapse to one "What You Get" card.
+  // Insertion order is sort_order-ordered, so first-seen wins.
+  const sortedItems = items
+    .slice()
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const seenServices = new Map<string, IncludedService>();
+  for (const item of sortedItems) {
+    const svc = item.offering?.service;
+    if (!svc || seenServices.has(svc.slug)) continue;
+    const lineSlug = svc.service_lines?.slug ?? '';
+    const category = mapCategorySlug(lineSlug);
+    seenServices.set(svc.slug, {
+      ...svc,
+      category,
+      hasIcon: hasIconFor(category, svc.name),
     });
+  }
+  const includedServices: IncludedService[] = Array.from(seenServices.values());
 
   const otherPlans = await getOtherSupportPlans(slug);
 
