@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getSupportPlanBySlug, getOtherSupportPlans } from '@/lib/supabase/queries';
+import { getSupportPlanBySlug, getOtherSupportPlans, mapCategorySlug } from '@/lib/supabase/queries';
 import { Card, CardList, LinkButton, PricingCard } from '@brikdesigns/bds';
 import { parseFeatures } from '@/lib/parse-features';
 import { color, gap, serviceColor } from '@/lib/tokens';
@@ -36,7 +36,7 @@ export default async function PlanDetailPage({ params }: Props) {
   }
 
   const sl = plan.service_lines as { slug: string; name: string } | null;
-  const audience = sl?.slug ?? '';
+  const audience = mapCategorySlug(sl?.slug ?? '');
   const audienceTokens = serviceColor(audience);
 
   const whatYouGet = parseFeatures(plan.what_you_get);
