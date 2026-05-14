@@ -203,7 +203,6 @@ export function Footer() {
       ]}
       copyright={`© ${new Date().getFullYear()} Brik Designs. All rights reserved.`}
       bottomLinks={[
-        { label: 'Terms', href: '/terms' },
         { label: 'Privacy policy', href: '/privacy-policy' },
       ]}
       socialLinks={<span>Made with ❤️ in Iowa</span>}
