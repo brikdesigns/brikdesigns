@@ -158,19 +158,24 @@ export default async function ServiceCategoryPage({ params }: Props) {
         </section>
       )}
 
-      {/* ═══ Other Service Lines ═══ */}
+      {/* ═══ Other Service Lines ═══
+       * Tile images use `card_image_url` (the 3D character illustration)
+       * to match `/services`. `hero_image_url` is the large hero artwork —
+       * scaled into a 3/2 tile slot it renders as a generic colored band
+       * (parity #158).
+       */}
       {otherCategories.length > 0 && (
         <section className="content-section content-section--accent">
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-              Other Design Services
+              Other Service Lines
             </h2>
             <div className="svc-category-others">
               {otherCategories.map((cat) => (
                 <Link key={cat.slug} href={`/services/${cat.slug}`} className="svc-category-other-card">
-                  {cat.hero_image_url && (
+                  {cat.card_image_url && (
                     <div className="svc-category-other-card__image">
-                      <Image src={cat.hero_image_url} alt={cat.name} width={300} height={200} />
+                      <Image src={cat.card_image_url} alt={cat.name} width={300} height={200} />
                     </div>
                   )}
                   <h3 style={heading.sm}>{cat.name}</h3>
