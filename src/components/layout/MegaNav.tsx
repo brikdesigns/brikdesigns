@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Icon } from '@iconify/react';
 import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
@@ -96,7 +97,9 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               Kept in markup for future portal integration but not rendered. */}
           {/* Webflow: .label-wrapper — phone icon + label + number */}
           <div className="mega-nav__utility-group">
-            <PhoneIcon />
+            <span className="mega-nav__utility-icon-wrap">
+              <Icon icon="ph:phone" width={12} height={12} aria-hidden={true} />
+            </span>
             <span className="mega-nav__utility-label">Talk to sales:</span>
             <a href="tel:+15614908714" className="mega-nav__utility-link">(561) 490-8714</a>
           </div>
@@ -110,7 +113,6 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
       {/* Main nav — Webflow: .top-navigation → .container-nav → .nav-wrapper (space-between) */}
       <nav className="mega-nav__main">
         <div className="mega-nav__container mega-nav__main-inner">
-          {/* Webflow: .logo-wrapper + .nav_menu-wrapper grouped together on the left */}
           <Link href="/" className="mega-nav__logo">
             <Image
               src="/images/Brik-logo_1.svg"
@@ -122,7 +124,8 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
             />
           </Link>
 
-          {/* Webflow: .nav_menu-wrapper → .nav_menu-list — sits right after logo, NOT centered */}
+          {/* Menu + CTA grouped right so items sit right-aligned */}
+          <div className="mega-nav__right-group">
           <div className="mega-nav__menu-wrapper">
             <div className="mega-nav__menu">
             {/* Design Services */}
@@ -394,6 +397,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               <span className={`mega-nav__hamburger ${mobileOpen ? 'mega-nav__hamburger--open' : ''}`} />
             </button>
           </div>
+          </div>{/* end mega-nav__right-group */}
         </div>
       </nav>
 
@@ -458,24 +462,6 @@ function ChevronDown() {
         <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </div>
-  );
-}
-
-/* Webflow: .icon-xs with text "user" — FA 6 Pro Solid user icon */
-function UserIcon() {
-  return (
-    <svg className="mega-nav__utility-icon" width="12" height="12" viewBox="0 0 448 512" fill="currentColor" aria-hidden="true">
-      <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
-    </svg>
-  );
-}
-
-/* Webflow: .icon-xs with text "phone" — FA 6 Pro Solid phone icon */
-function PhoneIcon() {
-  return (
-    <svg className="mega-nav__utility-icon" width="12" height="12" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true">
-      <path d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z" />
-    </svg>
   );
 }
 
