@@ -43,8 +43,10 @@ next-env.d.ts
 # Local Netlify folder
 .netlify
 
-# Local working data (Webflow CMS exports — re-download from Webflow as needed)
-/content/csv/
+# Local working data (Webflow CMS exports — re-download from Webflow as needed).
+# Matches both the directory on the primary worktree and the symlink that
+# `scripts/new-task.sh` creates inside task worktrees (no trailing slash).
+/content/csv
 
 # Supabase CLI internal state
 /supabase/.temp/
