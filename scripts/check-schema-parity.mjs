@@ -20,24 +20,41 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const TYPES = path.join(ROOT, 'src/types/supabase.ts');
+// Each admin-writable CMS table is covered. `configsFile` is per-entity
+// because the admin UI groups field-configs by area (services/, stories/,
+// blog/) — they're not all in one file.
 const ENTITIES = [
   {
     table: 'service_lines',
     schemaFile: 'src/lib/admin/service-lines.ts',
+    configsFile: 'src/app/(admin)/admin/services/_components/field-configs.ts',
     configFn: 'serviceLineFields',
   },
   {
     table: 'services',
     schemaFile: 'src/lib/admin/services.ts',
+    configsFile: 'src/app/(admin)/admin/services/_components/field-configs.ts',
     configFn: 'serviceFields',
   },
   {
     table: 'offerings',
     schemaFile: 'src/lib/admin/offerings.ts',
+    configsFile: 'src/app/(admin)/admin/services/_components/field-configs.ts',
     configFn: 'offeringFields',
   },
+  {
+    table: 'customer_stories',
+    schemaFile: 'src/lib/admin/customer-stories.ts',
+    configsFile: 'src/app/(admin)/admin/stories/_components/field-configs.ts',
+    configFn: 'customerStoryFields',
+  },
+  {
+    table: 'blog_posts',
+    schemaFile: 'src/lib/admin/blog-posts.ts',
+    configsFile: 'src/app/(admin)/admin/blog/_components/field-configs.ts',
+    configFn: 'blogPostFields',
+  },
 ];
-const CONFIGS = path.join(ROOT, 'src/app/(admin)/admin/services/_components/field-configs.ts');
 
 function read(file) {
   return fs.readFileSync(file, 'utf8');
@@ -104,15 +121,22 @@ function configFieldNamesFor(text, fnName) {
 }
 
 const typesText = read(TYPES);
-const configsText = read(CONFIGS);
+// Cache configs-file reads — multiple entities (service_lines / services /
+// offerings) share the same file, so reading it 3x is wasteful.
+const configsCache = new Map();
+function readConfigs(file) {
+  const abs = path.join(ROOT, file);
+  if (!configsCache.has(abs)) configsCache.set(abs, read(abs));
+  return configsCache.get(abs);
+}
 
 const failures = [];
 const rows = [];
 
-for (const { table, schemaFile, configFn } of ENTITIES) {
+for (const { table, schemaFile, configsFile, configFn } of ENTITIES) {
   const dbCols = rowColumnsFor(typesText, table);
   const schemaKeys = schemaKeysFor(path.join(ROOT, schemaFile));
-  const configNames = configFieldNamesFor(configsText, configFn);
+  const configNames = configFieldNamesFor(readConfigs(configsFile), configFn);
 
   if (!dbCols) {
     failures.push(`${table}: not found in src/types/supabase.ts (run \`npm run gen:types\`?)`);
@@ -123,7 +147,7 @@ for (const { table, schemaFile, configFn } of ENTITIES) {
     continue;
   }
   if (!configNames) {
-    failures.push(`${table}: function ${configFn}() not found in field-configs.ts`);
+    failures.push(`${table}: function ${configFn}() not found in ${configsFile}`);
     continue;
   }
 
@@ -151,11 +175,11 @@ for (const { table, schemaFile, configFn } of ENTITIES) {
   }
 }
 
-console.log('Entity         DB cols  SCHEMA  Form fields  Schema orphans  Config orphans');
-console.log('────────────  ────────  ──────  ───────────  ──────────────  ──────────────');
+console.log('Entity             DB cols  SCHEMA  Form fields  Schema orphans  Config orphans');
+console.log('────────────────  ────────  ──────  ───────────  ──────────────  ──────────────');
 for (const r of rows) {
   console.log(
-    `${r.table.padEnd(13)}${String(r.dbCols).padStart(9)}${String(r.schemaKeys).padStart(8)}${String(r.configNames).padStart(13)}${String(r.schemaOrphans.length).padStart(16)}${String(r.configOrphans.length).padStart(16)}`
+    `${r.table.padEnd(17)}${String(r.dbCols).padStart(9)}${String(r.schemaKeys).padStart(8)}${String(r.configNames).padStart(13)}${String(r.schemaOrphans.length).padStart(16)}${String(r.configOrphans.length).padStart(16)}`
   );
 }
 
