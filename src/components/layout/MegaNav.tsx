@@ -7,6 +7,7 @@ import { Icon } from '@iconify/react';
 import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { planImage } from '@/lib/plan-images';
 import { ThemeToggle } from './ThemeToggle';
 
 import './MegaNav.css';
@@ -33,6 +34,7 @@ interface SupportPlan {
   slug: string;
   price: string;
   description: string;
+  imageUrl: string | null;
 }
 
 interface IndustryItem {
@@ -350,32 +352,27 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         Learn More
                       </Link>
                     </div>
-                    {/* Webflow: .layout-nav-support — 3 plan cards with images */}
+                    {/* Webflow: .layout-nav-support — plan cards. Card
+                        metadata (title, href, copy) drives off Supabase;
+                        image path comes from the shared planImage() lookup
+                        for parity with the plan detail hero + related cards.
+                    */}
                     <div className="mega-nav__plans-grid">
-                      <AboutNavCard
-                        href="/plans/marketing-support"
-                        image="/images/marketing_social_media_2x.webp"
-                        title="Marketing Support"
-                        desc="We act as your marketing department—handling everything from campaigns and emails to graphics and strategy. One monthly fee. No juggling freelancers or doing it yourself."
-                        cta="Learn More"
-                        onClick={() => setOpen(null)}
-                      />
-                      <AboutNavCard
-                        href="/plans/back-office-support"
-                        image="/images/service_automated_workflow_2x.webp"
-                        title="Back Office Support"
-                        desc="We streamline your behind-the-scenes operations—from workflows and automations to system cleanups and SOPs—so your team can focus on what matters."
-                        cta="Learn More"
-                        onClick={() => setOpen(null)}
-                      />
-                      <AboutNavCard
-                        href="/plans/product-support"
-                        image="/images/product_mobile_app_2x.webp"
-                        title="Product Support"
-                        desc="Whether you're launching new features or improving your UX, we handle your product interface design from end to end—without slowing down your dev team."
-                        cta="Learn More"
-                        onClick={() => setOpen(null)}
-                      />
+                      {supportPlans.map((plan) => {
+                        const image = planImage(plan.slug);
+                        if (!image) return null;
+                        return (
+                          <AboutNavCard
+                            key={plan.slug}
+                            href={`/plans/${plan.slug}`}
+                            image={image}
+                            title={plan.name}
+                            desc={plan.description}
+                            cta="Learn More"
+                            onClick={() => setOpen(null)}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

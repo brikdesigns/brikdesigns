@@ -48,6 +48,7 @@ export async function MegaNavServer() {
     slug: plan.slug,
     price: plan.monthly_price_display || 'Contact',
     description: plan.home_description || plan.description || '',
+    imageUrl: plan.image_url || null,
   }));
 
   const industryItems = (industries || []).map((ind) => ({
