@@ -15,7 +15,7 @@ import {
 } from '@brikdesigns/bds';
 import {
   getCustomerStoryBySlug,
-  getCustomerStories,
+  getOtherCustomerStories,
   getServiceBySlug,
   mapCategorySlug,
 } from '@/lib/supabase/queries';
@@ -67,16 +67,18 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
     notFound();
   }
 
-  const [allStories, relatedService] = await Promise.all([
-    getCustomerStories().catch(() => []),
+  const [otherStories, relatedService] = await Promise.all([
+    // Prefer same-line stories for topical fit; fall back to next-ranked when
+    // the line pool is empty so the section never disappears on isolated lines.
+    getOtherCustomerStories({
+      excludeSlug: slug,
+      serviceLineSlug: story.service_line_slug ?? null,
+      limit: 3,
+    }).catch(() => []),
     story.service_slug
       ? getServiceBySlug(story.service_slug).catch(() => null)
       : Promise.resolve(null),
   ]);
-
-  const otherStories = (allStories || [])
-    .filter((s) => s.slug !== slug)
-    .slice(0, 3);
 
   // Resolve audience for the related service card. Prefer the joined
   // service_lines slug; fall back to the story's denormalized
