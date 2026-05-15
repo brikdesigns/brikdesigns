@@ -43,7 +43,7 @@ export default function ServiceNewMovedToPortalPage() {
         }}
       >
         Service catalog edits live in the portal admin (catalog tab + Stripe sync).
-        Create the new service there; it'll appear here automatically once it's
+        Create the new service there; it will appear here automatically once it is
         marked public.
       </p>
       <LinkButton href={PORTAL_SERVICES_ADMIN_URL} variant="primary" size="md">
