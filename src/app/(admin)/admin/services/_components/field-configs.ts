@@ -28,6 +28,24 @@ export function serviceLineFields(opts: ColorTokenInputs): FieldOrSection[] {
     { kind: 'color', name: 'brand_color_base', label: 'Brand color — base', groups, flat },
     { kind: 'color', name: 'brand_color_dark', label: 'Brand color — dark', groups, flat },
 
+    { sectionTitle: 'Service tag' },
+    {
+      kind: 'select',
+      name: 'service_tag_category',
+      label: 'BDS ServiceTag category',
+      // The 5 canonical BDS ServiceCategory values; matches the DB check
+      // constraint in portal migration 00182. Extending requires both a BDS
+      // upstream PR and a portal migration to widen the check.
+      options: [
+        { label: 'Brand', value: 'brand' },
+        { label: 'Marketing', value: 'marketing' },
+        { label: 'Information', value: 'information' },
+        { label: 'Product', value: 'product' },
+        { label: 'Back Office', value: 'service' },
+      ],
+      placeholder: 'Inherit from slug…',
+    },
+
     { sectionTitle: 'Linking' },
     { kind: 'text', name: 'support_plan_slug', label: 'Support plan slug' },
     { kind: 'media', name: 'support_plan_image_url', label: 'Support plan image', pathPrefix: `${prefix}/support-plan` },

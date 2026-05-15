@@ -2,14 +2,18 @@
 /**
  * Audit drift between Supabase rows and Webflow CSV exports.
  *
- * READ-ONLY — no mutations. Run before re-seeding to identify:
+ * READ-ONLY — no mutations. Run during the Webflow → Next.js rebuild to identify:
  *   1. Orphans — rows in Supabase that aren't in the CSV (manual edits / stale data)
- *   2. Missing — rows in the CSV that aren't in Supabase (will insert on seed)
+ *   2. Missing — rows in the CSV that aren't in Supabase (need import)
  *   3. Drift   — rows in both where field values differ
  *
+ * CSVs live in `content/csv/` (gitignored — they're Webflow exports refreshed
+ * out-of-band; commit the audit output, not the source data).
+ *
  * Run:
- *   npx tsx scripts/audit-supabase-drift.ts
- *   npx tsx scripts/audit-supabase-drift.ts > tmp/drift-report.md
+ *   set -a; source ~/.secrets/supabase-staging.env; set +a
+ *   npm run audit:cms-drift
+ *   npm run audit:cms-drift > tmp/drift-report.md
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -23,11 +27,19 @@ dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const CSV_DIR = path.join(__dirname, '../content/csv');
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Read-only audit — uses the anon (publishable) key + public RLS, not
+// service-role. Staging migrated to the new key system in 2026-05; the
+// legacy JWT service-role key is rejected by the API. Anon is sufficient
+// because every CMS table audited here has `is_public = true` rows that
+// satisfy the standard public-read policy.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  console.error(
+    'Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.\n' +
+    'Run: set -a; source ~/.secrets/supabase-staging.env; set +a',
+  );
   process.exit(1);
 }
 
@@ -63,6 +75,13 @@ function eq(a: unknown, b: unknown): boolean {
 interface FieldMap {
   csv: string;
   sb: string;
+  /**
+   * When true, the audit skips field-level drift comparison for this field.
+   * Use for fields where Supabase holds a BDS-canonical value (e.g., a token
+   * string) that the legacy CSV cannot match by construction. See
+   * `.claude/references/data-canonical-fields.md` for the policy.
+   */
+  canonicalSupabase?: boolean;
 }
 
 interface AuditOpts {
@@ -154,6 +173,7 @@ async function auditCollection(opts: AuditOpts) {
     const sb = sbBySlug.get(slug)!;
     const diffs: string[] = [];
     for (const f of fields) {
+      if (f.canonicalSupabase) continue;
       const csvVal = csv[f.csv] ?? '';
       const sbVal = sb[f.sb] ?? '';
       if (!eq(csvVal, sbVal)) {
@@ -218,9 +238,13 @@ async function main() {
       { csv: 'Main Image', sb: 'card_image_url' },
       { csv: 'Support Plan', sb: 'support_plan_slug' },
       { csv: 'Support Plan Img', sb: 'support_plan_image_url' },
-      { csv: 'Light', sb: 'brand_color_light' },
-      { csv: 'Base', sb: 'brand_color_base' },
-      { csv: 'Dark', sb: 'brand_color_dark' },
+      // BDS-canonical: brand_color_* holds BDS design token strings. CSV holds
+      // legacy raw hex from the original Webflow build and will never be back-
+      // ported (Webflow is being decommissioned). See
+      // `.claude/references/data-canonical-fields.md`.
+      { csv: 'Light', sb: 'brand_color_light', canonicalSupabase: true },
+      { csv: 'Base', sb: 'brand_color_base', canonicalSupabase: true },
+      { csv: 'Dark', sb: 'brand_color_dark', canonicalSupabase: true },
     ],
   });
 
@@ -267,6 +291,11 @@ async function main() {
     ],
   });
 
+  // industry_pages: badge URL columns (primary_badge_url / secondary_badge_url)
+  // were dropped from staging in 2026-05 — ServiceTag now drives badge
+  // rendering off category + service name. The Webflow CSV still carries
+  // "Primary Badge" / "Secondary Badge" columns from the old structure, but
+  // they have no Supabase destination and are intentionally omitted here.
   await auditCollection({
     title: 'Industry Pages (`industry_pages` ← Customers CSV)',
     csvFile: 'Customers',
@@ -277,8 +306,6 @@ async function main() {
       { csv: 'Intro Title', sb: 'intro_title' },
       { csv: 'Intro Description', sb: 'intro_description' },
       { csv: 'Image', sb: 'image_url' },
-      { csv: 'Primary Badge', sb: 'primary_badge_url' },
-      { csv: 'Secondary Badge', sb: 'secondary_badge_url' },
     ],
   });
 

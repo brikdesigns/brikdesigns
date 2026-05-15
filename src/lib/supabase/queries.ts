@@ -15,16 +15,15 @@ import { createClient } from './server';
  *   service_lines → services → offerings → engagements
  */
 
-// Map category slugs to BDS ServiceTag category names.
-// Canonical slugs are the long form (brand-design, marketing-design, etc.).
-// Short slugs kept for backward URL compatibility only.
+// Map `service_lines.slug` → BDS ServiceTag category enum.
+//
+// Canonical slugs are the short form (brand / marketing / information /
+// product / service) — matches what's stored in Supabase and what the
+// Next.js dynamic route `/services/[categorySlug]` resolves. Webflow's
+// long-form URLs (`/services/brand-design`, etc.) are handled at the
+// edge: `/detail_service/*` → `/services/:splat` in netlify.toml. Long
+// form never reaches this map. See #113, #121, #132.
 const CATEGORY_MAP: Record<string, 'brand' | 'marketing' | 'information' | 'product' | 'service'> = {
-  'brand-design': 'brand',
-  'marketing-design': 'marketing',
-  'information-design': 'information',
-  'back-office-design': 'service',
-  'product-design': 'product',
-  // Legacy short slugs (backward compat for old URLs / portal color_token)
   brand: 'brand',
   marketing: 'marketing',
   information: 'information',
@@ -32,8 +31,40 @@ const CATEGORY_MAP: Record<string, 'brand' | 'marketing' | 'information' | 'prod
   product: 'product',
 };
 
-export function mapCategorySlug(slug: string) {
-  return CATEGORY_MAP[slug] || 'brand';
+export function mapCategorySlug(
+  slug: string,
+): 'brand' | 'marketing' | 'information' | 'product' | 'service' {
+  const mapped = CATEGORY_MAP[slug];
+  if (mapped) return mapped;
+  // Loud fallback: silent `|| 'brand'` hid 3 NULL service_line_id rows for
+  // weeks on the support-plan pages — every detail page rendered with the
+  // brand-yellow tint instead of its own service-line color until a
+  // screenshot caught it (PR #143 retrospective). Surfacing the input via
+  // console.warn means the next regression shows up in Netlify function
+  // logs and `npm run dev` output, not in a user report days later.
+  console.warn(
+    `[mapCategorySlug] Unknown service-line slug "${slug}" — falling back to 'brand'. ` +
+      `Check service_lines.slug and the upstream FK (plans.service_line_id, ` +
+      `services.service_line_id, etc.) in Supabase.`,
+  );
+  return 'brand';
+}
+
+/**
+ * Resolve the BDS <ServiceTag> category for a service_lines row.
+ *
+ * Prefers the CMS-editable `service_tag_category` column (portal migration
+ * 00182, brikdesigns#129). Falls back to slug-derivation via mapCategorySlug
+ * when the column is NULL — preserves rendering for legacy rows during
+ * rollout. Cast is safe because the DB check constraint enforces the 5
+ * canonical BDS values.
+ */
+export function resolveServiceTagCategory(row: {
+  slug: string;
+  service_tag_category?: string | null;
+}): 'brand' | 'marketing' | 'information' | 'product' | 'service' {
+  return (row.service_tag_category ?? mapCategorySlug(row.slug)) as
+    'brand' | 'marketing' | 'information' | 'product' | 'service';
 }
 
 // ============================================================
@@ -128,7 +159,7 @@ export async function getSupportPlans() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('plans')
-    .select('*')
+    .select('*, service_lines(slug)')
     .eq('plan_type', 'support')
     .eq('is_public', true)
     .order('rank', { ascending: true });
@@ -139,13 +170,47 @@ export async function getSupportPlans() {
 
 export async function getSupportPlanBySlug(slug: string) {
   const supabase = await createClient();
+  // plan_items.service_id is an FK to offerings (not services) — services
+  // have many offerings (1:N), so we traverse plan_items → offerings →
+  // services → service_lines. The page dedupes by service.slug to show
+  // one card per service even when multiple offerings of the same service
+  // are included in the plan.
   const { data, error } = await supabase
     .from('plans')
-    .select('*')
+    .select(
+      `*,
+       service_lines(slug, name),
+       plan_items(
+         sort_order,
+         offering:offerings(
+           service:services(
+             slug,
+             name,
+             description,
+             image_url,
+             service_lines(slug, name)
+           )
+         )
+       )`
+    )
     .eq('plan_type', 'support')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getOtherSupportPlans(excludeSlug: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('plans')
+    .select('name, slug, monthly_price_display, description, image_url, discount_label, service_lines(slug)')
+    .eq('plan_type', 'support')
+    .eq('is_public', true)
+    .neq('slug', excludeSlug)
+    .order('rank', { ascending: true });
 
   if (error) throw error;
   return data;
@@ -159,7 +224,7 @@ export async function getCustomerStories() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('customer_stories')
-    .select('*')
+    .select('*, service_lines!customer_stories_primary_category_id_fkey(name, slug), offerings!customer_stories_primary_service_id_fkey(name)')
     .eq('is_public', true)
     .order('rank', { ascending: true });
 

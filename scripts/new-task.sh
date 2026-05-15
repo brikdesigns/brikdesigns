@@ -213,6 +213,16 @@ if [ -d "${PRIMARY_PATH}/content/csv" ]; then
   ln -sf "${PRIMARY_PATH}/content/csv" ./content/csv
   echo "    content/csv/ → primary"
 fi
+# .netlify/state.json carries the linked siteId. Symlink only that file —
+# never the whole .netlify/ dir, which netlify dev writes runtime artifacts
+# into (blobs-serve/, functions-internal/, v1/). Per-worktree runtime state,
+# shared siteId is the right split. Symlinking the whole dir also creates
+# ELOOP traps when netlify dev rewrites it. See #86.
+if [ -f "${PRIMARY_PATH}/.netlify/state.json" ]; then
+  mkdir -p .netlify
+  ln -sf "${PRIMARY_PATH}/.netlify/state.json" .netlify/state.json
+  echo "    .netlify/state.json → primary"
+fi
 
 # ── Install dependencies ──
 echo -e "${YELLOW}▸ Installing dependencies (npm ci --prefer-offline)...${NC}"

@@ -32,7 +32,7 @@ export function HomePlanCard({ name, slug, price, description, imageUrl }: HomeP
         <p className="plan-card__description">{description}</p>
       </div>
 
-      <LinkButton href={`/plans#${slug}`} variant="primary" size="md">
+      <LinkButton href={`/plans/${slug}`} variant="primary" size="md">
         Learn More
       </LinkButton>
     </div>

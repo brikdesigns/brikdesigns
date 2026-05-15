@@ -1,24 +1,23 @@
 /* ─── Services page — layout only ───────────────────────── */
 /* Typography, buttons, and colors come from BDS components. */
 
-/* Service line card (used in 3-col grid) */
+/* Service line card link wrapper — preserves Next.js Link navigation.
+ * Chrome (border, surface, hover affordance) lives on the inner BDS Card. */
+.services-card-link {
+  display: block;
+  text-decoration: none;
+  height: 100%;
+}
+
+/* Inner BDS Card — layout-only overrides; Card provides border / surface /
+ * padding / hover via `variant="outlined" padding="md" interactive`. */
 .services-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 16px;
-  border: 2px solid var(--border-primary);
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-primary);
-  text-decoration: none;
   height: 100%;
-  transition: border-color 0.15s;
-}
-
-.services-card:hover {
-  border-color: var(--border-brand-primary);
 }
 
 .services-card__image {
@@ -39,31 +38,22 @@
   width: 100%;
 }
 
-/* Callout section (image + text side by side) */
-.services-callout {
-  display: flex;
-  flex-flow: row;
-  gap: var(--gap-xl);
-  align-items: center;
-  width: 100%;
-}
-
-.services-callout__image {
-  flex: 0 0 45%;
-  aspect-ratio: 1;
-  border-radius: var(--border-radius-md);
+/* Service-line callout — row-card with image-left + content-right. Used for
+ * Product and Information on /services. Mirrors the service-detail Add-On
+ * pattern (Stack inside Card). See ServiceCallout in ServiceLineCard.tsx.
+ *
+ * Card chrome (border / surface / padding) comes from BDS Card props; these
+ * rules size the image slot and provide the responsive stack-on-mobile
+ * behavior that BDS Stack doesn't ship with. */
+.services-callout-card__image {
+  flex: 0 0 35%;
   background-color: var(--surface-accent);
+  border-radius: var(--border-radius-md);
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.services-callout__content {
+.services-callout-card__content {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
 /* Individual service card (badge + name + tagline) */
@@ -310,14 +300,17 @@
 /* ─── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 991px) {
-  .services-callout {
-    flex-flow: column;
+  /* Stack the row-card vertically. `.services-callout-card > *` targets the
+   * inner BDS Stack root; we override its `flex-direction: row` to column. */
+  .services-callout-card > * {
+    flex-direction: column;
   }
 
-  .services-callout__image {
+  .services-callout-card__image {
     flex: none;
     width: 100%;
     max-width: 400px;
+    align-self: center;
   }
 
   .svc-detail-hero {

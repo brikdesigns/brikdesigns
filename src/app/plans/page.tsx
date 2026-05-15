@@ -14,15 +14,20 @@ export const revalidate = 3600;
 export default async function PlansPage() {
   const rawPlans = await getSupportPlans();
 
-  const plans = rawPlans.map((plan) => ({
-    name: plan.name,
-    slug: plan.slug,
-    monthlyPrice: plan.monthly_price_display || 'Contact',
-    annualPrice: plan.annual_price_display || null,
-    description: plan.description || '',
-    imageUrl: plan.image_url || null,
-    features: plan.features || [],
-  }));
+  const plans = rawPlans.map((plan) => {
+    const sl = plan.service_lines as { slug: string } | null;
+    return {
+      name: plan.name,
+      slug: plan.slug,
+      monthlyPrice: plan.monthly_price_display || 'Contact',
+      annualPrice: plan.annual_price_display || null,
+      discountLabel: plan.discount_label || null,
+      description: plan.description || '',
+      imageUrl: plan.image_url || null,
+      features: [] as string[],
+      serviceLineSlug: sl?.slug ?? null,
+    };
+  });
 
   return (
     <>

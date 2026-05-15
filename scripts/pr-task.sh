@@ -79,6 +79,33 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# ── CMS data audit ──
+# If the diff touches a CMS-driven surface, validate the underlying Supabase
+# data before the PR opens. Catches the silent-fallback class of regression —
+# e.g. all 3 support plans shipped with NULL service_line_id, rendering with
+# the brand-yellow audience tint instead of their own service line until a
+# screenshot caught it (#143 retrospective).
+#
+# Trigger on changes under plans surfaces or the shared queries module. The
+# audit-plan-data.ts script self-reports if Supabase env vars aren't set.
+# Add new audits as new CMS surfaces ship (services, customer stories, etc.).
+PLANS_TOUCHED=$(
+  { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
+    | grep -E '^src/app/plans/|^src/lib/supabase/queries\.ts$|^scripts/audit-plan-' \
+    | head -1 || true
+)
+if [ -n "$PLANS_TOUCHED" ]; then
+  echo ""
+  echo -e "${YELLOW}▸ Plans surface touched — running CMS data audit...${NC}"
+  if ! npm run audit:plan-data --silent; then
+    echo ""
+    echo -e "${RED}✗ Plans CMS data audit failed.${NC}"
+    echo -e "${RED}   Fix the data in staging Supabase per the SQL above, then re-run.${NC}"
+    exit 1
+  fi
+  echo -e "${GREEN}✓ Plans CMS data audit passed.${NC}"
+fi
+
 # ── UI-verification gate ──
 # If the diff touches a user-facing .tsx / .css / .scss file, confirm the
 # agent actually exercised the change in a browser. Override with
