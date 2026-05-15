@@ -259,6 +259,42 @@ export async function getStoriesByService(serviceSlug: string) {
   return data || [];
 }
 
+/**
+ * Other stories shown at the bottom of a customer story detail page.
+ * Prefers same `service_line_slug` for topical fit; falls back to any
+ * next-ranked stories when the line pool is empty (e.g. only the current
+ * story exists in that line) so the section never disappears.
+ */
+export async function getOtherCustomerStories(opts: {
+  excludeSlug: string;
+  serviceLineSlug: string | null;
+  limit?: number;
+}) {
+  const supabase = await createClient();
+  const limit = opts.limit ?? 3;
+
+  if (opts.serviceLineSlug) {
+    const { data } = await supabase
+      .from('customer_stories')
+      .select('*')
+      .eq('service_line_slug', opts.serviceLineSlug)
+      .eq('is_public', true)
+      .neq('slug', opts.excludeSlug)
+      .order('rank', { ascending: true })
+      .limit(limit);
+    if (data && data.length > 0) return data;
+  }
+
+  const { data } = await supabase
+    .from('customer_stories')
+    .select('*')
+    .eq('is_public', true)
+    .neq('slug', opts.excludeSlug)
+    .order('rank', { ascending: true })
+    .limit(limit);
+  return data || [];
+}
+
 // ============================================================
 // Industry Pages
 // ============================================================
