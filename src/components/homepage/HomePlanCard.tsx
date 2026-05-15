@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 
 interface HomePlanCardProps {
   name: string;
@@ -32,9 +32,9 @@ export function HomePlanCard({ name, slug, price, description, imageUrl }: HomeP
         <p className="plan-card__description">{description}</p>
       </div>
 
-      <LinkButton href={`/plans/${slug}`} variant="primary" size="md">
+      <Button href={`/plans/${slug}`} variant="primary" size="md">
         Learn More
-      </LinkButton>
+      </Button>
     </div>
   );
 }

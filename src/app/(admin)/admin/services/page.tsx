@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { Badge } from '@brikdesigns/bds';
 import { ServicesTabs } from './_components/Tabs';
 import { EntityTable, type EntityTableColumn } from '../_components/EntityTable';
@@ -67,13 +67,13 @@ function NewButton({ tab }: { tab: TabId }) {
   // admin UIs for them.
   if (tab === 'services') {
     return (
-      <LinkButton
+      <Button
         href={PORTAL_SERVICES_ADMIN_URL}
         variant="secondary"
         size="md"
       >
         Manage in portal ↗
-      </LinkButton>
+      </Button>
     );
   }
   const map: Record<Exclude<TabId, 'services'>, { href: string; label: string }> = {
@@ -82,9 +82,9 @@ function NewButton({ tab }: { tab: TabId }) {
   };
   const cfg = map[tab];
   return (
-    <LinkButton href={cfg.href} variant="primary" size="md">
+    <Button href={cfg.href} variant="primary" size="md">
       {cfg.label}
-    </LinkButton>
+    </Button>
   );
 }
 

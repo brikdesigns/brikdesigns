@@ -7,7 +7,7 @@ import {
   CardGrid,
   Frame,
   Grid,
-  LinkButton,
+  Button,
   SegmentedControl,
   ServiceTag,
 } from '@brikdesigns/bds';
@@ -87,13 +87,13 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
               title={svc.name}
               description={svc.description ?? undefined}
               action={
-                <LinkButton
+                <Button
                   href={`/services/${lineSlug}/${svc.slug}`}
                   variant="primary"
                   size="sm"
                 >
                   Learn More
-                </LinkButton>
+                </Button>
               }
             />
           );

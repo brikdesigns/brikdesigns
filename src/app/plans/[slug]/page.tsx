@@ -12,7 +12,7 @@ import {
   Frame,
   Grid,
   HeroSplitImageCardOverlay,
-  LinkButton,
+  Button,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
@@ -204,13 +204,13 @@ export default async function PlanDetailPage({ params }: Props) {
               </p>
             )}
             <div className="button-wrapper button-wrapper--center">
-              <LinkButton
+              <Button
                 href={`/get-started?plan=${plan.slug}`}
                 variant="primary"
                 size="lg"
               >
                 Get Started
-              </LinkButton>
+              </Button>
             </div>
           </div>
         </div>
@@ -245,13 +245,13 @@ export default async function PlanDetailPage({ params }: Props) {
                 title={other.name}
                 description={other.description ?? undefined}
                 action={
-                  <LinkButton
+                  <Button
                     href={`/plans/${other.slug}`}
                     variant="primary"
                     size="sm"
                   >
                     Learn More
-                  </LinkButton>
+                  </Button>
                 }
               />
               );

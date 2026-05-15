@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
@@ -58,12 +58,12 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="button-wrapper">
-              <LinkButton href="/services" variant="inverse" size="lg">
+              <Button href="/services" variant="inverse" size="lg">
                 Explore Design Services
-              </LinkButton>
-              <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
+              </Button>
+              <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
                 Let&apos;s Talk
-              </LinkButton>
+              </Button>
             </div>
           </div>
         </div>
@@ -133,9 +133,9 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="button-wrapper button-wrapper--center">
-              <LinkButton href="/free-marketing-analysis" variant="primary" size="lg" target="_blank">
+              <Button href="/free-marketing-analysis" variant="primary" size="lg" target="_blank">
                 Get Started
-              </LinkButton>
+              </Button>
             </div>
           </div>
           <div className="audit-image">
@@ -194,9 +194,9 @@ export default async function HomePage() {
                   </p>
                 </div>
                 <div>
-                  <LinkButton href={`/customer-stories/${featuredStory.slug}`} variant="primary" size="md">
+                  <Button href={`/customer-stories/${featuredStory.slug}`} variant="primary" size="md">
                     Read Story
-                  </LinkButton>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -215,9 +215,9 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="button-wrapper button-wrapper--center">
-            <LinkButton href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
+            <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
               Let&apos;s Talk
-            </LinkButton>
+            </Button>
           </div>
         </div>
       </section>

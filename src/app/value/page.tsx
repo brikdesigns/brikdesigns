@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../shared-sections.css';
@@ -120,7 +120,7 @@ export default function ValuePage() {
               Let&apos;s make something amazing together.
             </p>
             <div className="button-wrapper button-wrapper--center">
-              <LinkButton href="/contact" variant="primary" size="lg">Let&apos;s Talk</LinkButton>
+              <Button href="/contact" variant="primary" size="lg">Let&apos;s Talk</Button>
             </div>
           </div>
         </div>

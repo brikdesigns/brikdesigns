@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { ServiceTag } from '@brikdesigns/bds';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 
 interface HomeServiceCardProps {
@@ -41,14 +41,14 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl, brand
         </div>
       </div>
 
-      <LinkButton
+      <Button
         href={`/services/${slug}`}
         variant="primary"
         size="md"
         style={brandColorBase ? { backgroundColor: brandColorBase, borderColor: brandColorBase } : undefined}
       >
         Learn more
-      </LinkButton>
+      </Button>
     </div>
   );
 }

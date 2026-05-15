@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
@@ -104,9 +104,9 @@ export default async function CustomerStoriesPage() {
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0, opacity: 0.9 }}>
             Starting a new project or want to collaborate with us?
           </p>
-          <LinkButton href="/contact" variant="inverse" size="lg">
+          <Button href="/contact" variant="inverse" size="lg">
             Let&apos;s Talk
-          </LinkButton>
+          </Button>
         </div>
       </section>
     </>

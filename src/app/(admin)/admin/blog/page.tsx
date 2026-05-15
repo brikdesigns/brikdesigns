@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { Badge } from '@brikdesigns/bds';
 import { EntityTable, type EntityTableColumn } from '../_components/EntityTable';
 import { listBlogPosts } from '@/lib/admin/blog-posts';
@@ -65,9 +65,9 @@ export default async function AdminBlogPage() {
             Blog
           </h1>
         </div>
-        <LinkButton href="/admin/blog/new" variant="primary" size="md">
+        <Button href="/admin/blog/new" variant="primary" size="md">
           New post
-        </LinkButton>
+        </Button>
       </div>
 
       <EntityTable
