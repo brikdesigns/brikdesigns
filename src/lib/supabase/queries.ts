@@ -259,6 +259,47 @@ export async function getStoriesByService(serviceSlug: string) {
   return data || [];
 }
 
+/**
+ * "Other customer stories" — populates the 3-col cross-promo grid on the
+ * customer-story detail page. Prefers same `service_line_slug` for topical
+ * fit; falls back to any next-ranked stories when the line pool would be
+ * empty (e.g. only one story exists in that line) so the section never
+ * disappears for isolated lines.
+ *
+ * Replaces the prior in-page `getCustomerStories().slice(0, 3)` pattern from
+ * #171 — that variant pulled the full public list and silently lost the
+ * line-fit selection criteria.
+ */
+export async function getOtherCustomerStories(opts: {
+  excludeSlug: string;
+  serviceLineSlug: string | null;
+  limit?: number;
+}) {
+  const supabase = await createClient();
+  const limit = opts.limit ?? 3;
+
+  if (opts.serviceLineSlug) {
+    const { data } = await supabase
+      .from('customer_stories')
+      .select('*')
+      .eq('service_line_slug', opts.serviceLineSlug)
+      .eq('is_public', true)
+      .neq('slug', opts.excludeSlug)
+      .order('rank', { ascending: true })
+      .limit(limit);
+    if (data && data.length > 0) return data;
+  }
+
+  const { data } = await supabase
+    .from('customer_stories')
+    .select('*')
+    .eq('is_public', true)
+    .neq('slug', opts.excludeSlug)
+    .order('rank', { ascending: true })
+    .limit(limit);
+  return data || [];
+}
+
 // ============================================================
 // Industry Pages
 // ============================================================
