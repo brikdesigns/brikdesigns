@@ -20,6 +20,11 @@
 
 set -euo pipefail
 
+# Prevent shells that sourced ~/.secrets/brik-packages.env from inheriting
+# PACKAGES_READ_TOKEN as GITHUB_TOKEN — gh CLI auths to that instead of the
+# user's PAT, using a wrong-scope (read:packages) token for arbitrary gh calls.
+unset GITHUB_TOKEN
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -104,6 +109,35 @@ if [ -n "$PLANS_TOUCHED" ]; then
     exit 1
   fi
   echo -e "${GREEN}✓ Plans CMS data audit passed.${NC}"
+fi
+
+# ── Supabase ↔ CSV drift audit ──
+# Companion to the plans-only audit above (brikdesigns#155, audit landed in
+# #148). When the diff touches a CMS-driven surface beyond plans, print the
+# Supabase ↔ Webflow-CSV drift state across all 5 CMS tables (service_lines,
+# services, offerings, customer_stories, industry_pages).
+#
+# Informational by design: the underlying script doesn't assert on drift,
+# only on script error (missing env, network). The report surfaces
+# unintended data churn so the author can sanity-check before merging.
+# Failing CI on every existing drift entry would block every CMS PR until
+# the offerings/services reconciliation in #149 closes — wrong default.
+CMS_TOUCHED=$(
+  { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
+    | grep -E '^src/app/(services|customer-stories|industries)/|^src/lib/supabase/queries\.ts$|^scripts/audit-supabase-drift\.ts$|^content/csv/' \
+    | head -1 || true
+)
+if [ -n "$CMS_TOUCHED" ]; then
+  echo ""
+  echo -e "${YELLOW}▸ CMS surface touched — running Supabase ↔ CSV drift audit...${NC}"
+  if ! npm run audit:cms-drift --silent; then
+    echo ""
+    echo -e "${RED}✗ CMS drift audit script failed (likely missing env vars or network).${NC}"
+    echo -e "${RED}   Source staging Supabase env, then re-run:${NC}"
+    echo "    set -a; source ~/.secrets/supabase-staging.env; set +a"
+    exit 1
+  fi
+  echo -e "${GREEN}✓ CMS drift audit ran — review report above for surprising changes.${NC}"
 fi
 
 # ── UI-verification gate ──
@@ -226,8 +260,20 @@ EOF
 )
 
 # ── Create PR ──
+# Don't capture stderr into PR_URL with `2>&1` — that hides the actual error
+# and, combined with `set -e`, exits the script silently after "Creating PR
+# targeting staging..." with no PR opened (brikdesigns#155, repro'd on PRs
+# #153 and #154). Let stderr flow to the terminal; check the exit code
+# explicitly so the user sees what failed and can act.
 echo -e "${YELLOW}~ Creating PR targeting ${BASE_BRANCH}...${NC}"
-PR_URL=$(gh pr create --base "${BASE_BRANCH}" --title "$PR_TITLE" --body "$PR_BODY" 2>&1)
+if ! PR_URL=$(gh pr create --base "${BASE_BRANCH}" --title "$PR_TITLE" --body "$PR_BODY"); then
+  echo ""
+  echo -e "${RED}✗ gh pr create failed (see error above).${NC}"
+  echo -e "${RED}  Branch has been pushed; resolve the failure and re-run pr-task.sh,${NC}"
+  echo -e "${RED}  or open the PR manually:${NC}"
+  echo "    gh pr create --base ${BASE_BRANCH} --head ${BRANCH} --title \"$PR_TITLE\""
+  exit 1
+fi
 
 echo ""
 echo -e "${GREEN}=========================================${NC}"
