@@ -24,6 +24,11 @@
 
 set -euo pipefail
 
+# Prevent shells that sourced ~/.secrets/brik-packages.env from inheriting
+# PACKAGES_READ_TOKEN as GITHUB_TOKEN — gh CLI auths to that instead of the
+# user's PAT, using a wrong-scope (read:packages) token for arbitrary gh calls.
+unset GITHUB_TOKEN
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
