@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -133,9 +133,9 @@ export default function CustomersPage() {
                     ))}
                   </ul>
                 </div>
-                <LinkButton href="/contact" variant="primary" size="sm">
+                <Button href="/contact" variant="primary" size="sm">
                   Let&apos;s Talk
-                </LinkButton>
+                </Button>
               </div>
             ))}
           </div>
@@ -186,7 +186,7 @@ export default function CustomersPage() {
               Starting a new project or want to collaborate with us?
             </p>
             <div className="button-wrapper button-wrapper--center">
-              <LinkButton href="/contact" variant="primary" size="lg">Let&apos;s Talk</LinkButton>
+              <Button href="/contact" variant="primary" size="lg">Let&apos;s Talk</Button>
             </div>
           </div>
         </div>

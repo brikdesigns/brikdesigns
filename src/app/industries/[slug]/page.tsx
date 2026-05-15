@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStories } from '@/lib/supabase/queries';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -171,9 +171,9 @@ export default async function IndustryDetailPage({ params }: Props) {
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
             Let&apos;s talk about how we can help your {page.name.toLowerCase()} business.
           </p>
-          <LinkButton href="/contact" variant="inverse" size="lg">
+          <Button href="/contact" variant="inverse" size="lg">
             Let&apos;s Talk
-          </LinkButton>
+          </Button>
         </div>
       </section>
     </>

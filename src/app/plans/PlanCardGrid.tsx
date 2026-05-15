@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { PricingCard, SegmentedControl, LinkButton } from '@brikdesigns/bds';
+import { PricingCard, SegmentedControl, Button } from '@brikdesigns/bds';
 import { color, font, gap, serviceColor } from '@/lib/tokens';
 
 interface Plan {
@@ -78,14 +78,14 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
                   ) : undefined
                 }
                 action={
-                  <LinkButton
+                  <Button
                     href={`/plans/${plan.slug}`}
                     variant="primary"
                     size="md"
                     style={{ width: '100%' }}
                   >
                     Learn More
-                  </LinkButton>
+                  </Button>
                 }
               />
             </div>

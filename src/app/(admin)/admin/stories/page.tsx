@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { Badge } from '@brikdesigns/bds';
 import { EntityTable, type EntityTableColumn } from '../_components/EntityTable';
 import { listCustomerStories } from '@/lib/admin/customer-stories';
@@ -50,9 +50,9 @@ export default async function AdminStoriesPage() {
             Customer stories
           </h1>
         </div>
-        <LinkButton href="/admin/stories/new" variant="primary" size="md">
+        <Button href="/admin/stories/new" variant="primary" size="md">
           New story
-        </LinkButton>
+        </Button>
       </div>
 
       <EntityTable

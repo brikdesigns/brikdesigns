@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { ContactForm } from '@/components/marketing/ContactForm';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -17,15 +17,15 @@ export default function ContactPage() {
         <div className="contact-hero-row">
           <h1 style={heading.lg}>Get in touch</h1>
           <div className="contact-cta-row">
-            <LinkButton href="https://calendly.com/brikdesigns" variant="secondary" size="md" target="_blank" rel="noopener noreferrer">
+            <Button href="https://calendly.com/brikdesigns" variant="secondary" size="md" target="_blank" rel="noopener noreferrer">
               Book a Call
-            </LinkButton>
-            <LinkButton href="mailto:hello@brikdesigns.com" variant="secondary" size="md">
+            </Button>
+            <Button href="mailto:hello@brikdesigns.com" variant="secondary" size="md">
               Send Email
-            </LinkButton>
-            <LinkButton href="tel:+15614908714" variant="secondary" size="md">
+            </Button>
+            <Button href="tel:+15614908714" variant="secondary" size="md">
               Click to Call
-            </LinkButton>
+            </Button>
           </div>
         </div>
 

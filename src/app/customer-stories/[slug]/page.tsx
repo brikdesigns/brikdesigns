@@ -9,7 +9,7 @@ import {
   CardFooter,
   CardTitle,
   Frame,
-  LinkButton,
+  Button,
   ServiceTag,
   Stack,
 } from '@brikdesigns/bds';
@@ -370,13 +370,13 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                         )}
                       </div>
                       <CardFooter>
-                        <LinkButton
+                        <Button
                           href={`/customer-stories/${s.slug}`}
                           variant="primary"
                           size="sm"
                         >
                           Read Story
-                        </LinkButton>
+                        </Button>
                       </CardFooter>
                     </Card>
                   </Link>
@@ -423,13 +423,13 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                     </CardDescription>
                   )}
                   <CardFooter>
-                    <LinkButton
+                    <Button
                       href={`/services/${relatedCatSlug}/${relatedService.slug}`}
                       variant="primary"
                       size="sm"
                     >
                       Learn More
-                    </LinkButton>
+                    </Button>
                   </CardFooter>
                 </Stack>
               </Stack>
@@ -462,9 +462,9 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
           >
             Starting a new project or want to collaborate with us?
           </p>
-          <LinkButton href="/contact" variant="inverse" size="lg">
+          <Button href="/contact" variant="inverse" size="lg">
             Let&apos;s Talk
-          </LinkButton>
+          </Button>
         </div>
       </section>
     </>

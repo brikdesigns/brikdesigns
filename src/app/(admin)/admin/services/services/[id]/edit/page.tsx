@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { getServiceById } from '@/lib/admin/services';
 import { portalServiceEditUrl, PORTAL_SERVICES_ADMIN_URL } from '@/lib/portal-url';
 
@@ -53,9 +53,9 @@ export default async function ServiceEditMovedToPortalPage({ params }: Props) {
         Service catalog edits live in the portal admin (catalog tab + Stripe sync).
         Open this service in the portal to update it.
       </p>
-      <LinkButton href={portalHref} variant="primary" size="md">
+      <Button href={portalHref} variant="primary" size="md">
         Open in portal ↗
-      </LinkButton>
+      </Button>
     </div>
   );
 }
