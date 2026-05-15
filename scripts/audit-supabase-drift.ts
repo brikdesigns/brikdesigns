@@ -221,8 +221,21 @@ async function main() {
     'back-office-design': 'service',
     'product-design': 'product',
   };
+  // Webflow CSV slug → Brik-canonical Supabase slug. Same framing as
+  // SERVICE_LINE_ALIASES: Supabase wins, the CSV is a legacy export of a
+  // soon-decommissioned Webflow site (see
+  // `.claude/references/data-canonical-fields.md`). Each pair below was
+  // verified by name match between the two sides. Without these, the audit
+  // reports 6 orphans + 6 missing for what are actually the same rows under
+  // different slugs (brikdesigns#149 reconciliation).
   const SERVICES_ALIASES: Record<string, string> = {
     stationary: 'business-stationery',
+    'journey-map': 'customer-journey-mapping',
+    infographic: 'infographics',
+    'landing-page': 'landing-pages',
+    'mobile-app': 'mobile-app-design',
+    'business-listings': 'online-business-listings',
+    'training-setup-organization': 'training-setup',
   };
 
   await auditCollection({

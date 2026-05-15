@@ -34,11 +34,31 @@ Default for content fields that have already been imported. After the import, th
 
 During the active rebuild, missing-in-Supabase rows (CSV has it, Supabase doesn't) and field drift in matched pairs both indicate "the CSV has content we haven't imported yet." Action: import into Supabase via admin UI. Once `audit:cms-drift` reads 0/0/0 across the board, CSV-canonical effectively retires — Supabase becomes the sole source.
 
+## Slug aliases (join-key reconciliation)
+
+Distinct from the field-level `canonicalSupabase` flag above: when Supabase and the CSV hold the **same row** but under **different slugs** (Webflow long-form vs Brik-canonical short-form), the audit's slug-based join can't recognize them as a pair and reports them as orphan + missing simultaneously. The fix is a per-table CSV-slug → SB-slug alias map (`csvToSbAliasMap`).
+
+Same framing applies: Supabase wins. The CSV is a legacy export.
+
+| Table           | Map name               | Pairs                                                                                         |
+|-----------------|------------------------|-----------------------------------------------------------------------------------------------|
+| `service_lines` | `SERVICE_LINE_ALIASES` | 5 (all line slugs — Webflow long-form `brand-design`/etc → canonical short-form `brand`/etc)  |
+| `services`      | `SERVICES_ALIASES`     | 7 (1 typo correction + 6 Webflow→Brik rename)                                                 |
+
+The maps live in `scripts/audit-supabase-drift.ts` near the top of `main()`. Each entry should be **verified by name match** between the two sides before adding — if the names don't match exactly, you're probably looking at two genuinely different rows, not an alias.
+
 ## How to add a new BDS-canonical entry
 
 1. Add a row to the table above (Table / Field(s) / Stored as).
 2. In `scripts/audit-supabase-drift.ts`, mark the field with `canonicalSupabase: true` so the audit skips it.
 3. Confirm the Supabase column already holds the canonical (token / BDS-derived) value. If not, populate it via the admin UI before flipping the flag — otherwise the audit silently passes over a real gap.
+
+## How to add a new slug alias
+
+1. Confirm CSV-slug and SB-slug refer to the same row by **exact name match** (and ideally one other corroborating field — description, image URL).
+2. Add the entry to the relevant `*_ALIASES` map in `scripts/audit-supabase-drift.ts`.
+3. Re-run `npm run audit:cms-drift`. The pair should drop from orphan+missing and reappear in the matched-rows section — possibly surfacing real field drift for the first time.
+4. Do NOT add an alias to mask real drift (different rows that happen to look similar). The alias is for the rename / canonicalization case only.
 
 ## What this doc explicitly is NOT
 
