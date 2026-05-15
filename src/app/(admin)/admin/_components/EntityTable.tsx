@@ -9,8 +9,10 @@ export interface EntityTableColumn<T> {
 export interface EntityTableProps<T> {
   rows: T[];
   columns: EntityTableColumn<T>[];
-  /** Function returning the edit URL for a given row. */
+  /** Function returning the action URL for a given row (typically edit). */
   editHref: (row: T) => string;
+  /** Action link label. Defaults to "Edit →". Override for read-only contexts (e.g. "View in portal →"). */
+  actionLabel?: string;
   /** Empty-state message. */
   emptyMessage?: string;
 }
@@ -19,6 +21,7 @@ export function EntityTable<T>({
   rows,
   columns,
   editHref,
+  actionLabel = 'Edit →',
   emptyMessage = 'No rows yet.',
 }: EntityTableProps<T>) {
   if (rows.length === 0) {
@@ -94,17 +97,25 @@ export function EntityTable<T>({
                 </td>
               ))}
               <td style={{ padding: 'var(--padding-sm) var(--padding-md)', textAlign: 'right' }}>
-                <Link
-                  href={editHref(row)}
-                  style={{
+                {(() => {
+                  const href = editHref(row);
+                  const isExternal = /^https?:\/\//.test(href);
+                  const linkStyle = {
                     fontFamily: 'var(--font-family-label)',
                     fontSize: 'var(--label-sm)',
                     color: 'var(--text-link)',
                     textDecoration: 'none',
-                  }}
-                >
-                  Edit →
-                </Link>
+                  };
+                  return isExternal ? (
+                    <a href={href} target="_blank" rel="noopener noreferrer" style={linkStyle}>
+                      {actionLabel}
+                    </a>
+                  ) : (
+                    <Link href={href} style={linkStyle}>
+                      {actionLabel}
+                    </Link>
+                  );
+                })()}
               </td>
             </tr>
           ))}

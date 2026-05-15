@@ -6,6 +6,7 @@ import { EntityTable, type EntityTableColumn } from '../_components/EntityTable'
 import { listServiceLines } from '@/lib/admin/service-lines';
 import { listServices } from '@/lib/admin/services';
 import { listOfferings } from '@/lib/admin/offerings';
+import { PORTAL_SERVICES_ADMIN_URL, portalServiceEditUrl } from '@/lib/portal-url';
 
 interface Props {
   searchParams: Promise<{ tab?: string }>;
@@ -60,9 +61,23 @@ export default async function AdminServicesPage({ searchParams }: Props) {
 }
 
 function NewButton({ tab }: { tab: TabId }) {
-  const map: Record<TabId, { href: string; label: string }> = {
+  // The `services` tab is read-only here — portal admin owns service catalog
+  // edits + Stripe sync (#178). Surface a portal link instead of a "New"
+  // button. The `lines` + `offerings` tabs stay writable until portal builds
+  // admin UIs for them.
+  if (tab === 'services') {
+    return (
+      <LinkButton
+        href={PORTAL_SERVICES_ADMIN_URL}
+        variant="secondary"
+        size="md"
+      >
+        Manage in portal ↗
+      </LinkButton>
+    );
+  }
+  const map: Record<Exclude<TabId, 'services'>, { href: string; label: string }> = {
     lines: { href: '/admin/services/lines/new', label: 'New service line' },
-    services: { href: '/admin/services/services/new', label: 'New service' },
     offerings: { href: '/admin/services/offerings/new', label: 'New offering' },
   };
   const cfg = map[tab];
@@ -102,7 +117,10 @@ async function ServiceLinesPanel() {
 
 async function ServicesPanel() {
   const rows = await listServices();
-  type Row = (typeof rows)[number] & { service_lines: { name: string; slug: string } | null };
+  type Row = (typeof rows)[number] & {
+    slug: string;
+    service_lines: { name: string; slug: string } | null;
+  };
   const columns: EntityTableColumn<Row>[] = [
     { header: 'Name', cell: (r) => r.name },
     { header: 'Slug', cell: (r) => r.slug },
@@ -110,13 +128,39 @@ async function ServicesPanel() {
     { header: 'Rank', cell: (r) => r.rank, width: '80px' },
     { header: 'Status', cell: (r) => <PublicBadge value={r.is_public} />, width: '120px' },
   ];
+  // Read-only: portal admin owns service-catalog edits (#178). Action column
+  // deep-links each row to the portal admin detail page by slug.
   return (
-    <EntityTable
-      rows={rows as Row[]}
-      columns={columns}
-      editHref={(r) => `/admin/services/services/${r.id}/edit`}
-      emptyMessage="No services yet."
-    />
+    <>
+      <ReadOnlyNotice />
+      <EntityTable
+        rows={rows as Row[]}
+        columns={columns}
+        editHref={(r) => portalServiceEditUrl(r.slug)}
+        actionLabel="View in portal ↗"
+        emptyMessage="No services yet."
+      />
+    </>
+  );
+}
+
+function ReadOnlyNotice() {
+  return (
+    <p
+      style={{
+        fontFamily: 'var(--font-family-body)',
+        fontSize: 'var(--body-sm)',
+        color: 'var(--text-secondary)',
+        margin: 0,
+        padding: 'var(--padding-sm) var(--padding-md)',
+        backgroundColor: 'var(--surface-secondary)',
+        borderRadius: 'var(--border-radius-md)',
+        border: 'var(--border-width-md) solid var(--border-primary)',
+      }}
+    >
+      Services are managed in the portal (catalog, pricing, Stripe sync). This
+      tab is read-only — use the per-row links to edit in the portal.
+    </p>
   );
 }
 
