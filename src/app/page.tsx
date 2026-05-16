@@ -88,7 +88,6 @@ export default async function HomePage() {
                 category={line.category}
                 tagline={line.tagline}
                 imageUrl={line.card_image_url}
-                brandColorBase={line.brand_color_base}
               />
             ))}
           </div>
