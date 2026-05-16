@@ -104,7 +104,7 @@ export default async function CustomerStoriesPage() {
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0, opacity: 0.9 }}>
             Starting a new project or want to collaborate with us?
           </p>
-          <Button href="/contact" variant="inverse" size="lg">
+          <Button href="/contact" variant="on-color" size="lg">
             Let&apos;s Talk
           </Button>
         </div>

@@ -462,7 +462,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
           >
             Starting a new project or want to collaborate with us?
           </p>
-          <Button href="/contact" variant="inverse" size="lg">
+          <Button href="/contact" variant="on-color" size="lg">
             Let&apos;s Talk
           </Button>
         </div>

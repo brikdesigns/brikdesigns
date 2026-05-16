@@ -47,7 +47,7 @@ export function BottomCta() {
   return (
     <div style={{ marginTop: 'var(--gap-lg)' }}>
       <Link href="/contact">
-        <Button variant="inverse" size="lg">
+        <Button variant="on-color" size="lg">
           Let&apos;s Talk
         </Button>
       </Link>

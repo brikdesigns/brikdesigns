@@ -58,7 +58,7 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="button-wrapper">
-              <Button href="/services" variant="inverse" size="lg">
+              <Button href="/services" variant="on-color" size="lg">
                 Explore Design Services
               </Button>
               <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
