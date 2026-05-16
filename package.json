@@ -15,6 +15,7 @@
     "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "audit:plan-data": "npx tsx scripts/audit-plan-data.ts",
     "audit:plan-routes": "npx tsx scripts/audit-plan-routes.ts",
+    "audit:icons": "npx tsx scripts/audit-icons.ts",
     "gen:types": "node scripts/gen-types.mjs",
     "check:schema": "node scripts/check-schema-parity.mjs",
     "test:a11y": "playwright test",

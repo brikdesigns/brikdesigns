@@ -54,3 +54,6 @@ next-env.d.ts
 # Playwright a11y outputs
 /playwright-report/
 /test-results/
+
+# Git worktrees managed by new-task.sh (tracked as untracked by primary)
+/.claude/worktrees/
