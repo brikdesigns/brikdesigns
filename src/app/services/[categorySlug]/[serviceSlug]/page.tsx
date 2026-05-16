@@ -418,7 +418,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   preset="display"
                   image={
                     svc.image_url ? (
-                      <Frame customRatio="3 / 2" fit="cover">
+                      <Frame customRatio="3 / 2" fit="contain" className="svc-sibling-card__image">
                         <Image
                           src={svc.image_url}
                           alt={svc.name}
