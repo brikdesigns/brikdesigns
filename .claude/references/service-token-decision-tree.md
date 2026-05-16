@@ -225,7 +225,7 @@ Always import from `@/lib/tokens`. Hand-rolled hex hardcodes a single mode, can 
 - **Component map** — [`COMPONENT-MAP.md`](../../COMPONENT-MAP.md)
 - **CSS layer order** — [`src/app/globals.css`](../../src/app/globals.css)
 - **Upstream canon docs** — `brik-bds#564` (5-layer composition model), `brik-bds#576` (`-inverse` modifier semantics), `brik-bds#563` (Figma ↔ canonical reconciliation)
-- **Enforcement** — `brikdesigns#116` (token-lint family rule) will fail CI on wrong-family usage; until it lands, this doc is the guardrail.
+- **Enforcement** — `npm run lint:tokens` enforces both invented-token and family-mismatch checks. Both gates are live as of brikdesigns#110.
 
 ---
 
