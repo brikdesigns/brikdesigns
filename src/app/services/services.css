@@ -95,7 +95,7 @@
 .svc-card__image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -293,8 +293,14 @@
 .svc-category-other-card__image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
+}
+
+/* Sibling-services image frame (BDS Frame component, customRatio="3 / 2", fit="contain").
+ * Sets the accent surface background that shows around contain-fitted illustrations. */
+.svc-sibling-card__image {
+  background-color: var(--surface-accent);
 }
 
 /* ─── Responsive ──────────────────────────────────────────── */

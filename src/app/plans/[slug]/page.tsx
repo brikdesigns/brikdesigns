@@ -232,7 +232,7 @@ export default async function PlanDetailPage({ params }: Props) {
                 preset="display"
                 image={
                   otherImage ? (
-                    <Frame customRatio="3 / 2" fit="cover">
+                    <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">
                       <Image
                         src={otherImage}
                         alt={other.name}
