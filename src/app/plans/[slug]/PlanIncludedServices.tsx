@@ -65,7 +65,7 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
               preset="display"
               image={
                 svc.image_url ? (
-                  <Frame customRatio="3 / 2" fit="cover">
+                  <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">
                     <Image
                       src={svc.image_url}
                       alt={svc.name}

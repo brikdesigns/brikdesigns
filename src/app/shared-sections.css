@@ -153,6 +153,14 @@
 
 .container-lg--comfortable { gap: 36px; }
 
+/* ─── Illustration image frame ───────────────────────────── */
+/* Apply to any Frame or image container holding a square illustration with a
+   transparent background. Provides the surface-accent fill that shows around
+   the contain-fitted image. */
+.illustration-media-bg {
+  background-color: var(--surface-accent);
+}
+
 /* ─── Responsive ─────────────────────────────────────────── */
 
 /* Cap all content containers at 1280px on large viewports */

@@ -181,7 +181,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
         <section className="content-section content-section--tight">
           <div className="container-lg">
             <div className="story-figure">
-              <Frame customRatio="16 / 9" fit="cover">
+              <Frame ratio="wide" fit="cover">
                 <Image
                   src={story.hero_image_url}
                   alt={`${story.client_name || story.name} hero`}
@@ -220,7 +220,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
         <section className="content-section content-section--tight">
           <div className="container-lg">
             <div className="story-figure">
-              <Frame customRatio="16 / 9" fit="cover">
+              <Frame ratio="wide" fit="cover">
                 <Image
                   src={story.after_photo_url}
                   alt={`${story.name || story.client_name} solution`}
@@ -258,7 +258,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
         <section className="content-section content-section--tight">
           <div className="container-lg">
             <div className="story-figure">
-              <Frame customRatio="16 / 9" fit="cover">
+              <Frame ratio="wide" fit="cover">
                 <Image
                   src={story.results_photo_url}
                   alt={`${story.name || story.client_name} results`}
@@ -396,7 +396,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
               <Stack direction="horizontal" gap="lg" align="center">
                 {relatedService.image_url && (
                   <div style={{ flex: '0 0 35%' }}>
-                    <Frame customRatio="3 / 2" fit="cover">
+                    <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">
                       <Image
                         src={relatedService.image_url}
                         alt={relatedService.name}
