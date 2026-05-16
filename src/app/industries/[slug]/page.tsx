@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStories } from '@/lib/supabase/queries';
-import { Button } from '@brikdesigns/bds';
+import { Button, Card, LinkButton } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -120,13 +120,17 @@ export default async function IndustryDetailPage({ params }: Props) {
             </div>
             <div className="industry-others-grid">
               {otherIndustries.map((ind: { slug: string; name: string; tagline: string | null }) => (
-                <Link key={ind.slug} href={`/industries/${ind.slug}`} className="industry-other-card">
-                  <h3 style={heading.sm}>{ind.name}</h3>
-                  {ind.tagline && (
-                    <p style={{ ...text.bodySm, color: color.text.secondary }}>{ind.tagline}</p>
-                  )}
-                  <span style={{ ...label.smBold, color: color.text.brand, marginTop: 'auto' }}>Learn more →</span>
-                </Link>
+                <Card
+                  key={ind.slug}
+                  preset="display"
+                  title={ind.name}
+                  description={ind.tagline ?? undefined}
+                  action={
+                    <LinkButton href={`/industries/${ind.slug}`} variant="primary" size="sm">
+                      Learn more
+                    </LinkButton>
+                  }
+                />
               ))}
             </div>
           </div>
