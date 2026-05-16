@@ -258,6 +258,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           section={heroSection}
           clientFacts={defaultClientFacts}
           theme={defaultMarketingTheme}
+          imageRatio="square"
         />
       </div>
 
