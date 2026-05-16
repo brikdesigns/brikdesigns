@@ -171,7 +171,7 @@ export default async function IndustryDetailPage({ params }: Props) {
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
             Let&apos;s talk about how we can help your {page.name.toLowerCase()} business.
           </p>
-          <Button href="/contact" variant="inverse" size="lg">
+          <Button href="/contact" variant="on-color" size="lg">
             Let&apos;s Talk
           </Button>
         </div>
