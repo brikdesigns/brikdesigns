@@ -320,11 +320,22 @@ export async function getIndustryPageBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('industry_pages')
-    .select('*, industry_page_topics(*)')
+    .select('*, industry_page_topics(id, topic_number, title, description, service_line_slug, image_url, sort_order)')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();
 
   if (error) throw error;
   return data;
+}
+
+export async function getCustomerStoriesByIndustry(industrySlug: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('customer_stories')
+    .select('*, service_lines!customer_stories_primary_category_id_fkey(name, slug), offerings!customer_stories_primary_service_id_fkey(name)')
+    .eq('industry_slug', industrySlug)
+    .eq('is_public', true)
+    .order('rank', { ascending: true });
+  return data || [];
 }
