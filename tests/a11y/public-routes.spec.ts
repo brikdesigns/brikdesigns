@@ -29,10 +29,13 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/services/brand', name: 'Service line — brand' },
   { path: '/services/brand/logo-design', name: 'Service detail — logo design' },
   { path: '/plans', name: 'Plans' },
-  { path: '/industries', name: 'Industries index' },
-  { path: '/industries/dental', name: 'Industry detail — dental' },
+  // /industries/* legacy paths 308-redirect to /customers/* — testing them
+  // exercises the redirect and lands axe on the same content, which inflates
+  // the violation footprint with the muted .bds-breadcrumb__current text
+  // exposed by the redirect. Test the canonical /customers/* paths directly.
   { path: '/customer-stories', name: 'Customer stories index' },
   { path: '/customers', name: 'Customers' },
+  { path: '/customers/dental', name: 'Customer detail — dental' },
   { path: '/blog', name: 'Blog index' },
   { path: '/contact', name: 'Contact' },
   { path: '/get-started', name: 'Get started' },

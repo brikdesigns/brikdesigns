@@ -114,6 +114,22 @@
   object-fit: contain;
 }
 
+/* Industry hero illustration — sits in the aside slot opposite the
+ * title/intro text. Matches the /services/[categorySlug] hero aside
+ * pattern. Webflow-CDN illustrations are square (.webp 2x); cap at
+ * 420px so the hero stays compact and the text column still gets
+ * comfortable line lengths. */
+.customer-detail-hero__aside {
+  flex-shrink: 0;
+}
+
+.customer-detail-hero__image {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  object-fit: contain;
+}
+
 /* Topic section with image: 50/50 split (unique layout).
  * Falls back to full-width text when no image_url is set. */
 .customer-topic {

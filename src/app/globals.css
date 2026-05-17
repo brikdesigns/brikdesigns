@@ -127,6 +127,9 @@ html {
   --background-brand-primary: var(--brand--primary);
   --background-primary: var(--grayscale--white);
   --background-secondary: var(--grayscale--lightest);
+  /* Re-pair the lightened --background-secondary with its state siblings; pressed stays dark for AA with Button's hardcoded white :active text. */
+  --background-secondary-hover: var(--grayscale--lighter);
+  --background-secondary-pressed: var(--color-grayscale-darker);
   --background-elevated: var(--grayscale--white);
   --background-inverse: var(--grayscale--white);
   --background-input: var(--grayscale--white);
@@ -272,6 +275,9 @@ html {
   --background-brand-primary: var(--brand--primary);  /* Brik override (Figma: theme.blue) */
   --background-primary: var(--grayscale--black);      /* Figma: grayscale.black — FIX from --darker */
   --background-secondary: var(--grayscale--light);    /* Figma: grayscale.light — FIX from --darkest */
+  /* State pair for dark mode — matches theme-brand-brik dark (grayscale-dark hover, grayscale-darker pressed). */
+  --background-secondary-hover: var(--grayscale--dark);
+  --background-secondary-pressed: var(--color-grayscale-darker);
   --background-elevated: var(--grayscale--darker);
   --background-inverse: var(--grayscale--black);      /* Figma: grayscale.black — FIX from --white */
   --background-input: var(--grayscale--black);        /* Figma: grayscale.black ✓ */
