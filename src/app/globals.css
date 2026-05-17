@@ -45,7 +45,18 @@ html {
    ================================================================ */
 :root {
   /* ---- Brand color primitives ---- */
-  --brand--primary: #e35335;
+  /* AA fix: was #e35335 (poppy-light). White text on poppy-light at body
+     size = 3.78:1 — fails WCAG 2.1 AA (4.5:1). Every `<Button variant=
+     "primary" size="sm">` on the site failed the new a11y gate, which
+     surfaced when the /services/* 404s in this same PR were lifted and
+     axe could finally reach those pages. Darkening the brand primitive
+     to poppy-dark gets white-on-poppy to 6.23:1 (AA pass). Cascade hits
+     every consumer of `--brand--primary`: --surface-brand-primary,
+     --background-brand-primary, --border-brand-primary,
+     --background-image-brand. Dark-theme --text-brand-primary needs an
+     explicit pin to poppy-light (see :root[data-theme="dark"] below) —
+     poppy-dark on the black page bg only hits 3.14:1. */
+  --brand--primary: #b0351b;
   --brand--secondary: #1b1b1b;
   --brand--accent: #f1f0ec;
 
@@ -95,13 +106,11 @@ html {
   --text-inverse: var(--grayscale--white);
   --text-on-color-dark: var(--grayscale--white);
   --text-on-color-light: var(--grayscale--black);
-  /* AA fix: `--brand--primary` (#e35335 poppy-light) used as text color fails
-     AA on white (3.78:1) and tan-lightest (3.31:1) at body sizes. Swap to
-     `--color-poppy-dark` (#b0351b): 7.04:1 on white, 5.27:1 on tan-lightest —
-     both AA pass. Visually still on-brand poppy; the lighter shade remains
-     available as `--background-brand-primary` for fills (where text contrast
-     comes from the inverse text color, not the brand color). Dark theme
-     keeps the lighter poppy — it has enough contrast against the dark bg. */
+  /* `--text-brand-primary` resolves to poppy-dark (#b0351b) in light mode.
+     Equals `--brand--primary` since the AA fix above darkened the brand
+     primitive, but kept as an explicit `--color-poppy-dark` reference so
+     a future re-lightening of --brand--primary wouldn't silently regress
+     text contrast. 7.04:1 on white, 5.27:1 on tan-lightest — AA pass. */
   --text-brand-primary: var(--color-poppy-dark);
   --text-negative: var(--color-system-red);
 
@@ -238,7 +247,12 @@ html {
   --text-primary: var(--grayscale--lightest);        /* Figma: grayscale.lightest ✓ */
   --text-secondary: var(--grayscale--light);          /* Figma: grayscale.light ✓ */
   --text-muted: var(--grayscale--dark);               /* Figma: grayscale.dark ✓ */
-  --text-brand-primary: var(--brand--primary);        /* Brik override (Figma: theme.blue) */
+  /* AA pin: --brand--primary is now poppy-dark (#b0351b) for white-on-
+     primary button contrast in light mode. On the dark-mode page bg
+     (#000), poppy-dark text is 3.14:1 — fails AA. Pin to poppy-light-base
+     (#e35335, the old brand primitive) for dark mode only — gives 4.79:1
+     against #000, AA pass. */
+  --text-brand-primary: var(--poppy--light-base);     /* Brik override (Figma: theme.blue) */
   --text-inverse: var(--grayscale--black);            /* Figma: grayscale.black — FIX from --darkest */
   --text-negative: #ff6b6b;
 
