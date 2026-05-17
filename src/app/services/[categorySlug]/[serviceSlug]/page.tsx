@@ -7,7 +7,7 @@ import {
   getServicesByCategory,
   getStoriesByService,
   getRelatedService,
-  getSupportPlanBySlug,
+  getSupportPlansByServiceId,
   mapCategorySlug,
 } from '@/lib/supabase/queries';
 import {
@@ -156,15 +156,9 @@ export default async function ServiceDetailPage({ params }: Props) {
     return (catData as { slug: string }).slug || categorySlug;
   })();
 
-  // Support plan — scoped to this service's plan
-  let supportPlan = null;
-  if (service.support_plan_slug) {
-    try {
-      supportPlan = await getSupportPlanBySlug(service.support_plan_slug);
-    } catch {
-      supportPlan = null;
-    }
-  }
+  // Support plan — M:N via service_supported_plans; replaces service.support_plan_slug (#206)
+  const supportPlans = await getSupportPlansByServiceId(service.id).catch(() => []);
+  const supportPlan = supportPlans[0] ?? null;
 
   // Audience tokens drive two scoped cascades:
   //   - Page-level: --text-brand-primary so eyebrows / breadcrumbs / accent

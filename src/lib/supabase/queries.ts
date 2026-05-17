@@ -152,15 +152,14 @@ export async function getRelatedService(slug: string) {
 }
 
 // ============================================================
-// Support Plans (was: queried as 'support_plans' view)
+// Support Plans — reads from service_plans + service_plan_items (#206)
 // ============================================================
 
 export async function getSupportPlans() {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('plans')
-    .select('*, service_lines(slug)')
-    .eq('plan_type', 'support')
+    .from('service_plans')
+    .select('*')
     .eq('is_public', true)
     .order('rank', { ascending: true });
 
@@ -170,30 +169,21 @@ export async function getSupportPlans() {
 
 export async function getSupportPlanBySlug(slug: string) {
   const supabase = await createClient();
-  // plan_items.service_id is an FK to offerings (not services) — services
-  // have many offerings (1:N), so we traverse plan_items → offerings →
-  // services → service_lines. The page dedupes by service.slug to show
-  // one card per service even when multiple offerings of the same service
-  // are included in the plan.
   const { data, error } = await supabase
-    .from('plans')
+    .from('service_plans')
     .select(
       `*,
-       service_lines(slug, name),
-       plan_items(
+       service_plan_items(
          sort_order,
-         offering:offerings(
-           service:services(
-             slug,
-             name,
-             description,
-             image_url,
-             service_lines(slug, name)
-           )
+         service:services(
+           slug,
+           name,
+           description,
+           image_url,
+           service_lines(slug, name)
          )
        )`
     )
-    .eq('plan_type', 'support')
     .eq('slug', slug)
     .eq('is_public', true)
     .single();
@@ -205,15 +195,29 @@ export async function getSupportPlanBySlug(slug: string) {
 export async function getOtherSupportPlans(excludeSlug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('plans')
-    .select('name, slug, monthly_price_display, description, image_url, discount_label, service_lines(slug)')
-    .eq('plan_type', 'support')
+    .from('service_plans')
+    .select('name, slug, monthly_price_display, description, image_url, discount_label')
     .eq('is_public', true)
     .neq('slug', excludeSlug)
     .order('rank', { ascending: true });
 
   if (error) throw error;
   return data;
+}
+
+// Reverse lookup: given a service UUID, return all public plans that include it.
+// Replaces the legacy service.support_plan_slug denorm column (#206).
+export async function getSupportPlansByServiceId(serviceId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('service_plans')
+    .select('*, service_plan_items!inner(service_id, sort_order)')
+    .eq('service_plan_items.service_id', serviceId)
+    .eq('is_public', true)
+    .order('rank', { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
 }
 
 // ============================================================
