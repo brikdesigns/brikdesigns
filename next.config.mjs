@@ -36,7 +36,8 @@ const nextConfig = {
       // ── Customer story singular → plural
       { source: '/customer-story/:slug', destination: '/customer-stories/:slug', permanent: true },
 
-      // ── /industries/:slug → /customers/:slug (canonical route)
+      // ── /industries/* → /customers/* (canonical route)
+      { source: '/industries', destination: '/customers', permanent: true },
       { source: '/industries/:slug', destination: '/customers/:slug', permanent: true },
 
       // ── Pricing alias → plans
