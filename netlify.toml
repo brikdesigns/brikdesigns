@@ -55,13 +55,8 @@
   status = 301
 
 [[redirects]]
-  from = "/customers/*"
-  to = "/industries/:splat"
-  status = 301
-
-[[redirects]]
   from = "/detail_customers/*"
-  to = "/industries/:splat"
+  to = "/customers/:splat"
   status = 301
 
 [[redirects]]
@@ -69,10 +64,82 @@
   to = "/templates/:splat"
   status = 301
 
-# Webflow service-lines URL structure → new structure
+# Legacy short-slug category URLs → canonical long slugs
 [[redirects]]
-  from = "/service-lines/*"
-  to = "/services/:splat"
+  from = "/services/brand"
+  to = "/services/brand-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/brand/*"
+  to = "/services/brand-design/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/services/marketing"
+  to = "/services/marketing-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/marketing/*"
+  to = "/services/marketing-design/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/services/information"
+  to = "/services/information-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/information/*"
+  to = "/services/information-design/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/services/service"
+  to = "/services/back-office-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/service/*"
+  to = "/services/back-office-design/:splat"
+  status = 301
+
+[[redirects]]
+  from = "/services/product"
+  to = "/services/product-design"
+  status = 301
+
+[[redirects]]
+  from = "/services/product/*"
+  to = "/services/product-design/:splat"
+  status = 301
+
+# Webflow service-lines URL structure → canonical short-form slugs
+# Wildcard avoided: splat passes long-form slugs through unchanged → 404
+[[redirects]]
+  from = "/service-lines/brand-design"
+  to = "/services/brand"
+  status = 301
+
+[[redirects]]
+  from = "/service-lines/marketing-design"
+  to = "/services/marketing"
+  status = 301
+
+[[redirects]]
+  from = "/service-lines/information-design"
+  to = "/services/information"
+  status = 301
+
+[[redirects]]
+  from = "/service-lines/product-design"
+  to = "/services/product"
+  status = 301
+
+[[redirects]]
+  from = "/service-lines/back-office-design"
+  to = "/services/service"
   status = 301
 
 # Security headers (supplement Next.js headers)

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
@@ -149,7 +149,7 @@ export default async function AboutPage() {
             <div className="about-value-text">
               <h2 style={heading.md}>The Value of Design</h2>
               <p style={{ ...text.body, color: color.text.secondary }}>Learn about the value of design in 4 steps.</p>
-              <LinkButton href="/value" variant="primary" size="md">Learn More</LinkButton>
+              <Button href="/value" variant="primary" size="md">Learn More</Button>
             </div>
             <div className="about-value-image">
               <Image

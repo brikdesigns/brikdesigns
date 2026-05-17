@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupportPlanBySlug, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
-import { LinkButton, Breadcrumb, ServiceTag } from '@brikdesigns/bds';
+import { Button, Breadcrumb, ServiceTag } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
@@ -87,7 +87,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
                 <p className="page-hero__description">{category.description}</p>
               )}
               <div className="button-wrapper">
-                <LinkButton href="#services" variant="primary" size="md">View Services</LinkButton>
+                <Button href="#services" variant="primary" size="md">View Services</Button>
               </div>
             </div>
 
@@ -152,7 +152,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
             <div className="svc-detail-support-cta">
               <h3 style={heading.sm}>{supportPlan.name}</h3>
               <p style={{ ...text.bodySm, color: color.text.secondary }}>{supportPlan.description}</p>
-              <LinkButton href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn more</LinkButton>
+              <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn more</Button>
             </div>
           </div>
         </section>

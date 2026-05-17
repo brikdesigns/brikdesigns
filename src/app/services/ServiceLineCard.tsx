@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardTitle, CardDescription, CardFooter, Stack, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
+import { Card, CardTitle, CardDescription, CardFooter, Stack, Frame, ServiceTag, Button } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { text } from '@/lib/styles';
@@ -96,14 +96,14 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
           <CardTitle>{name}</CardTitle>
           <CardDescription>{description}</CardDescription>
           <CardFooter>
-            <LinkButton
+            <Button
               href={`/services/${slug}`}
               variant="primary"
               size="md"
               style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}
             >
               Learn more
-            </LinkButton>
+            </Button>
           </CardFooter>
         </Stack>
       </Stack>

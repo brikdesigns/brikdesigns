@@ -2,13 +2,37 @@
 /**
  * Audit drift between Supabase rows and Webflow CSV exports.
  *
- * READ-ONLY — no mutations. Run during the Webflow → Next.js rebuild to identify:
- *   1. Orphans — rows in Supabase that aren't in the CSV (manual edits / stale data)
- *   2. Missing — rows in the CSV that aren't in Supabase (need import)
- *   3. Drift   — rows in both where field values differ
+ * READ-ONLY — no mutations.
  *
- * CSVs live in `content/csv/` (gitignored — they're Webflow exports refreshed
- * out-of-band; commit the audit output, not the source data).
+ * ## Framing (post-#178)
+ *
+ * **Supabase is canon for every table audited here.** The Webflow CSVs in
+ * `content/csv/` are a one-time migration source from the legacy Webflow
+ * site (being decommissioned); they are not an ongoing source of truth.
+ *
+ * Per `.claude/references/services-cms-ownership.md`:
+ *   - `services` — portal owns writes (brikdesigns admin is read-only post-#179)
+ *   - `service_lines`, `offerings` — interim-writable in brikdesigns until
+ *     portal #765 / #766 ship admin UIs, then read-only here too
+ *   - `customer_stories`, `industry_pages` — brikdesigns owns writes
+ *
+ * What drift findings mean now:
+ *   1. Orphans (in Supabase, not in CSV) — expected. Rows added since the
+ *      original Webflow import. NOT actionable.
+ *   2. Missing (in CSV, not in Supabase) — almost always legacy Webflow rows
+ *      intentionally not imported. Cross-check before "fixing"; usually NOT
+ *      actionable.
+ *   3. Field drift — Supabase wins. If values diverge, the CSV is stale.
+ *      Only investigate if you expect the CSV to be authoritative for that
+ *      field (rare — see `data-canonical-fields.md`).
+ *
+ * Real value of this audit now: catching ACCIDENTAL Supabase deletions of
+ * rows the Webflow CSV still has (regression detection), and confirming the
+ * legacy Webflow CSV has been fully absorbed. After the Webflow → Next.js
+ * public cutover lands, this audit can retire entirely.
+ *
+ * CSVs are gitignored — Webflow exports refreshed out-of-band; commit the
+ * audit output, not the source data.
  *
  * Run:
  *   set -a; source ~/.secrets/supabase-staging.env; set +a
@@ -93,6 +117,14 @@ interface AuditOpts {
   maxDiffsPerRow?: number;
   /** Optional CSV-slug → SB-slug aliases (e.g., service_lines short-form, services overrides) */
   csvToSbAliasMap?: Record<string, string>;
+  /**
+   * When true, this collection's findings are shown for historical reference
+   * but are NOT counted in the grand totals. Use for tables where portal
+   * Supabase is now the write authority and the Webflow CSV is a legacy
+   * snapshot that will naturally fall further behind over time. See
+   * `.claude/references/services-cms-ownership.md` (#178).
+   */
+  historical?: boolean;
 }
 
 const totals = {
@@ -104,7 +136,11 @@ const totals = {
 
 async function auditCollection(opts: AuditOpts) {
   const { title, csvFile, table, fields, maxDiffsPerRow = 12 } = opts;
-  console.log(`\n---\n\n## ${title}\n`);
+  const historical = opts.historical ?? false;
+  const historicalNote = historical
+    ? ' ⚠️ historical — portal Supabase is canon; findings below are legacy artifacts, not backlog (#178)'
+    : '';
+  console.log(`\n---\n\n## ${title}${historicalNote}\n`);
 
   // CSV side
   let csvRows: Record<string, string>[];
@@ -145,7 +181,7 @@ async function auditCollection(opts: AuditOpts) {
       console.log(`- \`${slug}\` — name: ${snippet(row?.name)}`);
     }
     console.log();
-    totals.orphans += orphans.length;
+    if (!historical) totals.orphans += orphans.length;
   }
 
   // Missing
@@ -159,7 +195,7 @@ async function auditCollection(opts: AuditOpts) {
       console.log(`- \`${slug}\` — name: ${snippet(row?.['Name'])}`);
     }
     console.log();
-    totals.missing += missing.length;
+    if (!historical) totals.missing += missing.length;
   }
 
   // Field-level drift
@@ -200,8 +236,10 @@ async function auditCollection(opts: AuditOpts) {
     console.log(`_All matched rows have field parity._\n`);
   } else {
     console.log(`**${driftRowCount} of ${inBoth.length} matched rows have drift.** Empty-in-Supabase cells: ${totalEmptyInSb}.\n`);
-    totals.driftRows += driftRowCount;
-    totals.emptyFields += totalEmptyInSb;
+    if (!historical) {
+      totals.driftRows += driftRowCount;
+      totals.emptyFields += totalEmptyInSb;
+    }
   }
 }
 
@@ -213,6 +251,14 @@ async function main() {
   console.log(`- Supabase URL: ${supabaseUrl}`);
   console.log(`- CSV dir: \`content/csv/\``);
   console.log(`- Mode: **read-only** (no mutations)\n`);
+  console.log(
+    '> **Supabase is canon.** Webflow CSVs are a one-time migration source ' +
+      '(Webflow is being decommissioned). Drift findings on `services` / ' +
+      '`service_lines` / `offerings` are legacy artifacts, not backlog — see ' +
+      '`.claude/references/services-cms-ownership.md` for ownership boundaries ' +
+      'and `audit-supabase-drift.ts` header comment for what each finding type ' +
+      'means now.\n',
+  );
 
   const SERVICE_LINE_ALIASES: Record<string, string> = {
     'brand-design': 'brand',
@@ -238,8 +284,11 @@ async function main() {
     'training-setup-organization': 'training-setup',
   };
 
+  // service_lines: portal owns the schema; brikdesigns is interim-writable
+  // until portal #765 ships an admin UI for this table. CSV ↔ Supabase drift
+  // is legacy migration artifact only — Supabase is canon.
   await auditCollection({
-    title: 'Service Lines (`service_lines`)',
+    title: 'Service Lines (`service_lines`) — _portal-owned schema, interim-writable here_',
     csvFile: 'Service Lines',
     table: 'service_lines',
     csvToSbAliasMap: SERVICE_LINE_ALIASES,
@@ -261,10 +310,13 @@ async function main() {
     ],
   });
 
+  // services: portal owns writes (brikdesigns admin is read-only post-#179).
+  // CSV ↔ Supabase drift is legacy migration artifact only — Supabase is canon.
   await auditCollection({
-    title: 'Services (`services`)',
+    title: 'Services (`services`) — _portal-owned, brikdesigns read-only_',
     csvFile: 'Services',
     table: 'services',
+    historical: true,
     csvToSbAliasMap: SERVICES_ALIASES,
     fields: [
       { csv: 'Name', sb: 'name' },
@@ -276,10 +328,14 @@ async function main() {
     ],
   });
 
+  // offerings: portal owns the schema; brikdesigns is interim-writable until
+  // portal #766 ships an admin UI for this table. CSV ↔ Supabase drift is
+  // legacy migration artifact only — Supabase is canon.
   await auditCollection({
-    title: 'Offerings (`offerings`)',
+    title: 'Offerings (`offerings`) — _portal-owned schema, interim-writable here_',
     csvFile: 'Offerings',
     table: 'offerings',
+    historical: true,
     fields: [
       { csv: 'Name', sb: 'name' },
       { csv: 'Description', sb: 'description' },
@@ -289,8 +345,11 @@ async function main() {
     ],
   });
 
+  // customer_stories: brikdesigns owns this table (no portal admin UI exists).
+  // Drift findings here ARE actionable — Supabase is still canon, but the CSV
+  // is the historical Webflow export and brikdesigns admin writes ongoing.
   await auditCollection({
-    title: 'Customer Stories (`customer_stories`)',
+    title: 'Customer Stories (`customer_stories`) — _brikdesigns-owned_',
     csvFile: 'Customer Stories',
     table: 'customer_stories',
     fields: [

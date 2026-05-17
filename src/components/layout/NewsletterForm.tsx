@@ -70,7 +70,7 @@ export function NewsletterForm() {
           Something went wrong. Try again.
         </p>
       )}
-      <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-xs)', color: color.text.inverse, opacity: 0.6, margin: 0, textAlign: 'center' }}>
+      <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-xs)', color: color.text.onColorDark, opacity: 0.6, margin: 0, textAlign: 'center' }}>
         We respect your privacy. Unsubscribe at any time.
       </p>
     </form>

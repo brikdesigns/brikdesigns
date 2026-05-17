@@ -33,18 +33,12 @@ const nextConfig = {
   // of truth and how to add a new mapping.
   async redirects() {
     return [
-      // ── Service lines: /service-lines/{long-form} → /services/{short-form}
-      { source: '/service-lines/brand-design', destination: '/services/brand', permanent: true },
-      { source: '/service-lines/marketing-design', destination: '/services/marketing', permanent: true },
-      { source: '/service-lines/back-office-design', destination: '/services/service', permanent: true },
-      { source: '/service-lines/product-design', destination: '/services/product', permanent: true },
-      { source: '/service-lines/information-design', destination: '/services/information', permanent: true },
-
       // ── Customer story singular → plural
       { source: '/customer-story/:slug', destination: '/customer-stories/:slug', permanent: true },
 
-      // ── Customers-by-industry → industries
-      { source: '/customers/:slug', destination: '/industries/:slug', permanent: true },
+      // ── /industries/* → /customers/* (canonical route)
+      { source: '/industries', destination: '/customers', permanent: true },
+      { source: '/industries/:slug', destination: '/customers/:slug', permanent: true },
 
       // ── Pricing alias → plans
       { source: '/pricing', destination: '/plans', permanent: true },

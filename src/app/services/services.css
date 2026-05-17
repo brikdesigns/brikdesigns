@@ -56,53 +56,6 @@
   flex: 1;
 }
 
-/* Individual service card (badge + name + tagline) */
-.svc-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background-color: var(--surface-primary);
-  border: 1px solid var(--border-secondary);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  transition: border-color 0.15s;
-}
-
-.svc-card:hover {
-  border-color: var(--border-brand-primary);
-}
-
-.svc-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-}
-
-/* Rich variant — vertical card with image */
-.svc-card--rich {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.svc-card__image {
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  aspect-ratio: 3 / 2;
-  background-color: var(--surface-accent);
-}
-
-.svc-card__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.svc-card--rich .svc-card__content {
-  gap: var(--gap-sm);
-}
-
 /* ─── Service detail page ─────────────────────────────────── */
 
 /* Hero section — brand-colored background, dynamic per category */
@@ -293,8 +246,14 @@
 .svc-category-other-card__image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
+}
+
+/* Sibling-services image frame (BDS Frame component, customRatio="3 / 2", fit="contain").
+ * Sets the accent surface background that shows around contain-fitted illustrations. */
+.svc-sibling-card__image {
+  background-color: var(--surface-accent);
 }
 
 /* ─── Responsive ──────────────────────────────────────────── */

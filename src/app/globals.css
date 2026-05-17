@@ -221,8 +221,8 @@ html {
 
   /* Service-line tokens (--surface-service-*, --background-service-*,
      --text-service-*) are owned by BDS canonical (`bds-tokens` layer).
-     Reconciled in brik-bds#575 — the orange line's canonical suffix is
-     `back-office` (renamed from the bug-named `service`). */
+     The orange line's canonical suffix is `back-office` — brik-bds#575
+     shipped this rename in BDS 0.68.1. No project-local service tokens needed. */
 }
 
 /* ================================================================

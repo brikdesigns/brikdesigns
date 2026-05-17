@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { PORTAL_SERVICES_ADMIN_URL } from '@/lib/portal-url';
 
 /**
@@ -46,9 +46,9 @@ export default function ServiceNewMovedToPortalPage() {
         Create the new service there; it will appear here automatically once it is
         marked public.
       </p>
-      <LinkButton href={PORTAL_SERVICES_ADMIN_URL} variant="primary" size="md">
+      <Button href={PORTAL_SERVICES_ADMIN_URL} variant="primary" size="md">
         Open portal admin ↗
-      </LinkButton>
+      </Button>
     </div>
   );
 }

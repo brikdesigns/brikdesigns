@@ -3,6 +3,7 @@ import { Icon } from '@iconify/react';
 import { Footer as BdsFooter, ServiceTag } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { color } from '@/lib/tokens';
+import { heading, text } from '@/lib/styles';
 import { NewsletterForm } from './NewsletterForm';
 import './footer.css';
 
@@ -110,25 +111,18 @@ export function Footer() {
         >
           <h3
             style={{
-              fontFamily: 'var(--font-family-heading)',
-              fontSize: 'var(--heading-md)',
-              fontWeight: 'var(--font-weight-bold)' as unknown as number,
-              margin: 0,
-              // Explicit because the inline-styled h3 isn't a BDS class,
-              // so the variant="inverse" Footer's bds-footer__heading rule
-              // doesn't catch it; without this, body's --text-primary
-              // inherits = dark text on inverse surface = AA-fail.
-              color: color.text.inverse,
+              // on-color-dark stays grayscale-white in both light and dark modes,
+              // ensuring legibility on the fixed-dark inverse footer surface.
+              ...heading.md,
+              color: color.text.onColorDark,
             }}
           >
             Join Brik by Brik Newsletter
           </h3>
           <p
             style={{
-              fontFamily: 'var(--font-family-body)',
-              fontSize: 'var(--body-sm)',
-              margin: 0,
-              color: color.text.inverse,
+              ...text.bodySm,
+              color: color.text.onColorDark,
               opacity: 0.8,
             }}
           >

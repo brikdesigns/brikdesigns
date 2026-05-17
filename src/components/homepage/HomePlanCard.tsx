@@ -1,7 +1,7 @@
-'use client';
-
 import Image from 'next/image';
-import { LinkButton } from '@brikdesigns/bds';
+import { Card, Frame, LinkButton } from '@brikdesigns/bds';
+import { heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 
 interface HomePlanCardProps {
   name: string;
@@ -11,30 +11,23 @@ interface HomePlanCardProps {
   imageUrl?: string | null;
 }
 
-/**
- * Homepage support plan card — Webflow: .cms-item.stacked
- * structure: image frame → price → name → description → CTA
- */
 export function HomePlanCard({ name, slug, price, description, imageUrl }: HomePlanCardProps) {
   return (
-    <div className="plan-card">
-      <div className="plan-card__image-frame">
-        {imageUrl ? (
-          <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-accent)' }} />
-        )}
-      </div>
-
-      <div className="plan-card__content">
-        <p className="plan-card__price">{price}</p>
-        <h3 className="plan-card__name">{name}</h3>
-        <p className="plan-card__description">{description}</p>
-      </div>
-
-      <LinkButton href={`/plans/${slug}`} variant="primary" size="md">
-        Learn More
-      </LinkButton>
-    </div>
+    <Card
+      preset="display"
+      title={name}
+      description={description}
+      image={
+        <Frame ratio="square" fit="cover">
+          {imageUrl ? (
+            <Image src={imageUrl} alt={name} width={400} height={400} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', backgroundColor: color.surface.secondary }} />
+          )}
+        </Frame>
+      }
+      tag={<span style={{ ...heading.lg, color: color.text.primary }}>{price}</span>}
+      action={<LinkButton href={`/plans/${slug}`} variant="primary" size="md">Learn More</LinkButton>}
+    />
   );
 }

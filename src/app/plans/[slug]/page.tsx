@@ -12,7 +12,7 @@ import {
   Frame,
   Grid,
   HeroSplitImageCardOverlay,
-  LinkButton,
+  Button,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
@@ -41,16 +41,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-interface PlanItemRow {
+interface ServicePlanItemRow {
   sort_order: number | null;
-  offering: {
-    service: {
-      slug: string;
-      name: string;
-      description: string | null;
-      image_url: string | null;
-      service_lines: { slug: string; name: string } | null;
-    } | null;
+  service: {
+    slug: string;
+    name: string;
+    description: string | null;
+    image_url: string | null;
+    service_lines: { slug: string; name: string } | null;
   } | null;
 }
 
@@ -64,20 +62,13 @@ export default async function PlanDetailPage({ params }: Props) {
     notFound();
   }
 
-  const sl = plan.service_lines as { slug: string; name: string } | null;
-  const audience = mapCategorySlug(sl?.slug ?? '');
-  const audienceTokens = serviceColor(audience);
-
-  const items = (plan.plan_items ?? []) as PlanItemRow[];
-  // Dedupe by service.slug — plan_items references offerings, multiple
-  // offerings of the same service collapse to one "What You Get" card.
-  // Insertion order is sort_order-ordered, so first-seen wins.
+  const items = (plan.service_plan_items ?? []) as ServicePlanItemRow[];
   const sortedItems = items
     .slice()
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   const seenServices = new Map<string, IncludedService>();
   for (const item of sortedItems) {
-    const svc = item.offering?.service;
+    const svc = item.service;
     if (!svc || seenServices.has(svc.slug)) continue;
     const lineSlug = svc.service_lines?.slug ?? '';
     const category = mapCategorySlug(lineSlug);
@@ -88,6 +79,13 @@ export default async function PlanDetailPage({ params }: Props) {
     });
   }
   const includedServices: IncludedService[] = Array.from(seenServices.values());
+
+  // Derive service-line audience from included services — service_plans has no
+  // service_line_id (plans span lines by design). First service's line wins.
+  const firstLineSlug = includedServices[0]?.service_lines?.slug ?? '';
+  const firstLineName = includedServices[0]?.service_lines?.name ?? '';
+  const audience = mapCategorySlug(firstLineSlug);
+  const audienceTokens = serviceColor(audience);
 
   const otherPlans = await getOtherSupportPlans(slug);
 
@@ -110,7 +108,7 @@ export default async function PlanDetailPage({ params }: Props) {
     ],
     audience,
     iconUrl: SERVICE_LINE_ICON[audience],
-    iconAlt: `${sl?.name || audience} icon`,
+    iconAlt: `${firstLineName || audience} icon`,
     priceCard: heroImage
       ? {
           imageUrl: heroImage,
@@ -204,13 +202,13 @@ export default async function PlanDetailPage({ params }: Props) {
               </p>
             )}
             <div className="button-wrapper button-wrapper--center">
-              <LinkButton
+              <Button
                 href={`/get-started?plan=${plan.slug}`}
                 variant="primary"
                 size="lg"
               >
                 Get Started
-              </LinkButton>
+              </Button>
             </div>
           </div>
         </div>
@@ -232,7 +230,7 @@ export default async function PlanDetailPage({ params }: Props) {
                 preset="display"
                 image={
                   otherImage ? (
-                    <Frame customRatio="3 / 2" fit="cover">
+                    <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">
                       <Image
                         src={otherImage}
                         alt={other.name}
@@ -245,13 +243,13 @@ export default async function PlanDetailPage({ params }: Props) {
                 title={other.name}
                 description={other.description ?? undefined}
                 action={
-                  <LinkButton
+                  <Button
                     href={`/plans/${other.slug}`}
                     variant="primary"
                     size="sm"
                   >
                     Learn More
-                  </LinkButton>
+                  </Button>
                 }
               />
               );

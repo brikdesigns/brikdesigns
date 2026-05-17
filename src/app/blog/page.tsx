@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
-import { Card, CardTitle, CardDescription, CardFooter, LinkButton } from '@brikdesigns/bds';
+import { Card, CardTitle, CardDescription, CardFooter, Button } from '@brikdesigns/bds';
 import { getAllPosts } from '@/lib/blog';
 import { label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -61,9 +61,9 @@ export default async function BlogPage() {
                   </div>
                   <CardDescription>{post.summary}</CardDescription>
                   <CardFooter>
-                    <LinkButton href={`/blog/${post.slug}`} variant="primary" size="md">
+                    <Button href={`/blog/${post.slug}`} variant="primary" size="md">
                       Read Article
-                    </LinkButton>
+                    </Button>
                   </CardFooter>
                 </div>
               </Card>

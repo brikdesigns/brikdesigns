@@ -7,7 +7,7 @@ import {
   getServicesByCategory,
   getStoriesByService,
   getRelatedService,
-  getSupportPlanBySlug,
+  getSupportPlansByServiceId,
   mapCategorySlug,
 } from '@/lib/supabase/queries';
 import {
@@ -19,7 +19,7 @@ import {
   Frame,
   Grid,
   HeroSplitImageCardOverlay,
-  LinkButton,
+  Button,
   PricingCard,
   ServiceTag,
   Stack,
@@ -156,15 +156,9 @@ export default async function ServiceDetailPage({ params }: Props) {
     return (catData as { slug: string }).slug || categorySlug;
   })();
 
-  // Support plan — scoped to this service's plan
-  let supportPlan = null;
-  if (service.support_plan_slug) {
-    try {
-      supportPlan = await getSupportPlanBySlug(service.support_plan_slug);
-    } catch {
-      supportPlan = null;
-    }
-  }
+  // Support plan — M:N via service_supported_plans; replaces service.support_plan_slug (#206)
+  const supportPlans = await getSupportPlansByServiceId(service.id).catch(() => []);
+  const supportPlan = supportPlans[0] ?? null;
 
   // Audience tokens drive two scoped cascades:
   //   - Page-level: --text-brand-primary so eyebrows / breadcrumbs / accent
@@ -258,6 +252,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           section={heroSection}
           clientFacts={defaultClientFacts}
           theme={defaultMarketingTheme}
+          imageRatio="square"
         />
       </div>
 
@@ -293,9 +288,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                   features={parseFeatures(off.included_scope)}
                   highlighted={!!off.is_featured}
                   action={
-                    <LinkButton href="/contact" variant="primary" size="sm">
+                    <Button href="/contact" variant="primary" size="sm">
                       Let&apos;s Talk
-                    </LinkButton>
+                    </Button>
                   }
                 />
               );
@@ -307,7 +302,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* ═══ Related Customer Story ═══
        * Pattern parity with the Recommended Add-On section below: the Card
        * itself is non-interactive (no `href`, no `interactive`); the only
-       * click target is the explicit <LinkButton> in the footer. Avoids the
+       * click target is the explicit <Button> in the footer. Avoids the
        * "whole card is the link" anti-pattern that prior agents shipped via
        * #105/#107 (asymmetric with the sibling Add-On block in the same file).
        */}
@@ -333,13 +328,13 @@ export default async function ServiceDetailPage({ params }: Props) {
                   <CardDescription>{relatedStory.short_description}</CardDescription>
                 )}
                 <CardFooter>
-                  <LinkButton
+                  <Button
                     href={`/customer-stories/${relatedStory.slug}`}
                     variant="primary"
                     size="sm"
                   >
                     Read Story
-                  </LinkButton>
+                  </Button>
                 </CardFooter>
               </Stack>
             </Stack>
@@ -388,13 +383,13 @@ export default async function ServiceDetailPage({ params }: Props) {
                   </CardDescription>
                 )}
                 <CardFooter>
-                  <LinkButton
+                  <Button
                     href={`/services/${relatedCatSlug}/${relatedService.slug}`}
                     variant="primary"
                     size="sm"
                   >
                     Learn More
-                  </LinkButton>
+                  </Button>
                 </CardFooter>
               </Stack>
             </Stack>
@@ -418,7 +413,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   preset="display"
                   image={
                     svc.image_url ? (
-                      <Frame customRatio="3 / 2" fit="cover">
+                      <Frame customRatio="3 / 2" fit="contain" className="svc-sibling-card__image">
                         <Image
                           src={svc.image_url}
                           alt={svc.name}
@@ -440,13 +435,13 @@ export default async function ServiceDetailPage({ params }: Props) {
                   title={svc.name}
                   description={svc.description || svc.tagline || undefined}
                   action={
-                    <LinkButton
+                    <Button
                       href={`/services/${categorySlug}/${svc.slug}`}
                       variant="primary"
                       size="sm"
                     >
                       Learn More
-                    </LinkButton>
+                    </Button>
                   }
                 />
               );
@@ -472,7 +467,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               <p style={{ ...label.smBold, color: color.text.brand }}>Want a partner to avoid the full-time hassle?</p>
               <h2 style={heading.md}>{supportPlan.name}</h2>
               <p style={{ ...text.bodySm, color: color.text.secondary }}>{supportPlan.description}</p>
-              <LinkButton href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn More</LinkButton>
+              <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn More</Button>
             </div>
           </div>
         </section>

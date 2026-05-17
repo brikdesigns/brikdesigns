@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { LinkButton } from '@brikdesigns/bds';
+import { Button } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../shared-sections.css';
@@ -55,13 +56,6 @@ const SEGMENTS = [
   },
 ];
 
-const INDUSTRY_CARDS = [
-  { name: 'SaaS', slug: 'product', tagline: 'Clarity from screen to system.' },
-  { name: 'Small Business', slug: 'small-business', tagline: 'Build smart, scale fast.' },
-  { name: 'Real Estate', slug: 'real-estate', tagline: 'Attract tenants, fill vacancies' },
-  { name: 'Dental', slug: 'dental', tagline: 'Build trust, grow referrals.' },
-];
-
 // Light tints matching the brikdesigns.com (Webflow) target \u2014 decorative pastels
 // per challenge card, in a fixed order. Text uses text.primary so contrast holds.
 const CHALLENGES = [
@@ -71,7 +65,11 @@ const CHALLENGES = [
   { text: 'We need high-quality design work, but can\u2019t wait weeks for an agency', bg: '#d8c5e8' },
 ];
 
-export default function CustomersPage() {
+export const revalidate = 86400;
+
+export default async function CustomersPage() {
+  const industryCards = await getIndustryPages();
+
   return (
     <>
       {/* Hero */}
@@ -133,29 +131,33 @@ export default function CustomersPage() {
                     ))}
                   </ul>
                 </div>
-                <LinkButton href="/contact" variant="primary" size="sm">
+                <Button href="/contact" variant="primary" size="sm">
                   Let&apos;s Talk
-                </LinkButton>
+                </Button>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Industry detail cards */}
-      <section className="content-section">
-        <div className="container-lg container-lg--comfortable">
-          <div className="customers-detail-grid">
-            {INDUSTRY_CARDS.map((ind) => (
-              <Link key={ind.slug} href={`/customers/${ind.slug}`} className="customers-detail-card">
-                <h3 style={heading.sm}>{ind.name}</h3>
-                <p style={{ ...text.bodySm, color: color.text.secondary }}>{ind.tagline}</p>
-                <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}>Learn More</span>
-              </Link>
-            ))}
+      {/* Industry detail cards — DB-driven */}
+      {industryCards.length > 0 && (
+        <section className="content-section">
+          <div className="container-lg container-lg--comfortable">
+            <div className="customers-detail-grid">
+              {industryCards.map((ind: { slug: string; name: string; tagline: string | null }) => (
+                <Link key={ind.slug} href={`/customers/${ind.slug}`} className="customers-detail-card">
+                  <h3 style={heading.sm}>{ind.name}</h3>
+                  {ind.tagline && (
+                    <p style={{ ...text.bodySm, color: color.text.secondary }}>{ind.tagline}</p>
+                  )}
+                  <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}>Learn More</span>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Common challenges */}
       <section className="content-section content-section--secondary">
@@ -186,7 +188,7 @@ export default function CustomersPage() {
               Starting a new project or want to collaborate with us?
             </p>
             <div className="button-wrapper button-wrapper--center">
-              <LinkButton href="/contact" variant="primary" size="lg">Let&apos;s Talk</LinkButton>
+              <Button href="/contact" variant="primary" size="lg">Let&apos;s Talk</Button>
             </div>
           </div>
         </div>
