@@ -1509,6 +1509,7 @@ export type Database = {
           id: string
           industry: string | null
           industry_badge_url: string | null
+          industry_slug: string | null
           is_public: boolean | null
           launch_date: string | null
           name: string
@@ -1548,6 +1549,7 @@ export type Database = {
           id?: string
           industry?: string | null
           industry_badge_url?: string | null
+          industry_slug?: string | null
           is_public?: boolean | null
           launch_date?: string | null
           name: string
@@ -1587,6 +1589,7 @@ export type Database = {
           id?: string
           industry?: string | null
           industry_badge_url?: string | null
+          industry_slug?: string | null
           is_public?: boolean | null
           launch_date?: string | null
           name?: string
@@ -2250,7 +2253,14 @@ export type Database = {
             foreignKeyName: "industry_page_topic_services_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
-            referencedRelation: "offerings"
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "industry_page_topic_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services_without_offerings"
             referencedColumns: ["id"]
           },
           {
@@ -2323,7 +2333,9 @@ export type Database = {
           intro_title: string | null
           is_public: boolean | null
           name: string
+          primary_badge_url: string | null
           rank: number | null
+          secondary_badge_url: string | null
           slug: string
           tagline: string | null
           updated_at: string
@@ -2337,7 +2349,9 @@ export type Database = {
           intro_title?: string | null
           is_public?: boolean | null
           name: string
+          primary_badge_url?: string | null
           rank?: number | null
+          secondary_badge_url?: string | null
           slug: string
           tagline?: string | null
           updated_at?: string
@@ -2351,7 +2365,9 @@ export type Database = {
           intro_title?: string | null
           is_public?: boolean | null
           name?: string
+          primary_badge_url?: string | null
           rank?: number | null
+          secondary_badge_url?: string | null
           slug?: string
           tagline?: string | null
           updated_at?: string
@@ -2642,7 +2658,7 @@ export type Database = {
           proposal_copy: string | null
           rank: number | null
           related_service_slug: string | null
-          service_id: string | null
+          service_id: string
           service_line_id: string | null
           service_type: string
           slug: string
@@ -2684,7 +2700,7 @@ export type Database = {
           proposal_copy?: string | null
           rank?: number | null
           related_service_slug?: string | null
-          service_id?: string | null
+          service_id: string
           service_line_id?: string | null
           service_type?: string
           slug: string
@@ -2726,7 +2742,7 @@ export type Database = {
           proposal_copy?: string | null
           rank?: number | null
           related_service_slug?: string | null
-          service_id?: string | null
+          service_id?: string
           service_line_id?: string | null
           service_type?: string
           slug?: string
@@ -2746,6 +2762,13 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offerings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services_without_offerings"
             referencedColumns: ["id"]
           },
           {
@@ -3934,6 +3957,134 @@ export type Database = {
         }
         Relationships: []
       }
+      service_plan_items: {
+        Row: {
+          created_at: string
+          id: string
+          service_id: string
+          service_plan_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          service_id: string
+          service_plan_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          service_id?: string
+          service_plan_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_plan_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_plan_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services_without_offerings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_plan_items_service_plan_id_fkey"
+            columns: ["service_plan_id"]
+            isOneToOne: false
+            referencedRelation: "service_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_plan_items_service_plan_id_fkey"
+            columns: ["service_plan_id"]
+            isOneToOne: false
+            referencedRelation: "service_supported_plans"
+            referencedColumns: ["service_plan_id"]
+          },
+        ]
+      }
+      service_plans: {
+        Row: {
+          annual_price_cents: number | null
+          annual_price_display: string | null
+          created_at: string
+          description: string | null
+          discount_label: string | null
+          home_description: string | null
+          icon_url: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean
+          is_public: boolean
+          monthly_price_cents: number | null
+          monthly_price_display: string | null
+          name: string
+          note: string | null
+          rank: number
+          slug: string
+          sort_order: number
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          updated_at: string
+          what_you_get: string | null
+        }
+        Insert: {
+          annual_price_cents?: number | null
+          annual_price_display?: string | null
+          created_at?: string
+          description?: string | null
+          discount_label?: string | null
+          home_description?: string | null
+          icon_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          is_public?: boolean
+          monthly_price_cents?: number | null
+          monthly_price_display?: string | null
+          name: string
+          note?: string | null
+          rank?: number
+          slug: string
+          sort_order?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+          what_you_get?: string | null
+        }
+        Update: {
+          annual_price_cents?: number | null
+          annual_price_display?: string | null
+          created_at?: string
+          description?: string | null
+          discount_label?: string | null
+          home_description?: string | null
+          icon_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean
+          is_public?: boolean
+          monthly_price_cents?: number | null
+          monthly_price_display?: string | null
+          name?: string
+          note?: string | null
+          rank?: number
+          slug?: string
+          sort_order?: number
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+          what_you_get?: string | null
+        }
+        Relationships: []
+      }
       service_relationships: {
         Row: {
           auto_suggest: boolean | null
@@ -3967,14 +4118,28 @@ export type Database = {
             foreignKeyName: "service_relationships_source_service_id_fkey"
             columns: ["source_service_id"]
             isOneToOne: false
-            referencedRelation: "offerings"
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_relationships_source_service_id_fkey"
+            columns: ["source_service_id"]
+            isOneToOne: false
+            referencedRelation: "services_without_offerings"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "service_relationships_target_service_id_fkey"
             columns: ["target_service_id"]
             isOneToOne: false
-            referencedRelation: "offerings"
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_relationships_target_service_id_fkey"
+            columns: ["target_service_id"]
+            isOneToOne: false
+            referencedRelation: "services_without_offerings"
             referencedColumns: ["id"]
           },
         ]
@@ -3991,7 +4156,7 @@ export type Database = {
           name: string
           rank: number
           related_service_slug: string | null
-          service_line_id: string | null
+          service_line_id: string
           slug: string
           sort_order: number
           support_plan_slug: string | null
@@ -4009,7 +4174,7 @@ export type Database = {
           name: string
           rank?: number
           related_service_slug?: string | null
-          service_line_id?: string | null
+          service_line_id: string
           slug: string
           sort_order?: number
           support_plan_slug?: string | null
@@ -4027,7 +4192,7 @@ export type Database = {
           name?: string
           rank?: number
           related_service_slug?: string | null
-          service_line_id?: string | null
+          service_line_id?: string
           slug?: string
           sort_order?: number
           support_plan_slug?: string | null
@@ -4625,6 +4790,39 @@ export type Database = {
           },
         ]
       }
+      service_supported_plans: {
+        Row: {
+          annual_price_cents: number | null
+          annual_price_display: string | null
+          discount_label: string | null
+          is_featured: boolean | null
+          monthly_price_cents: number | null
+          monthly_price_display: string | null
+          plan_name: string | null
+          plan_slug: string | null
+          rank: number | null
+          service_id: string | null
+          service_plan_id: string | null
+          service_sort_order: number | null
+          sort_order: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_plan_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_plan_items_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services_without_offerings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_tasks: {
         Row: {
           completed_at: string | null
@@ -4704,6 +4902,27 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services_without_offerings: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: string | null
+          is_public: boolean | null
+          name: string | null
+          service_line_id: string | null
+          slug: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_capabilities_service_line_id_fkey"
+            columns: ["service_line_id"]
+            isOneToOne: false
+            referencedRelation: "service_lines"
             referencedColumns: ["id"]
           },
         ]
