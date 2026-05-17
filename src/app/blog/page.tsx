@@ -31,7 +31,7 @@ export default async function BlogPage() {
 
       <section className="content-section">
         <div className="container-lg">
-          <Grid columns="auto-fit" minColumnWidth="280px" gap="lg">
+          <Grid columns={3} gap="lg">
             {posts.map((post) => (
               <Card key={post.slug} variant="outlined" padding="none" className="blog-card">
                 {post.image && (

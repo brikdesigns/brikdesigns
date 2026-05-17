@@ -117,7 +117,7 @@ export default async function CustomersPage() {
       {/* Company size segments */}
       <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
-          <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
+          <Grid columns={3} gap="md">
             {SEGMENTS.map((seg) => (
               <div key={seg.heading} className="customers-segment-card">
                 <h3 style={heading.sm}>{seg.heading}</h3>

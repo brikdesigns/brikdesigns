@@ -34,7 +34,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
         />
       </div>
 
-      <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
+      <Grid columns={3} gap="md">
         {plans.map((plan) => {
           const price =
             billing === 'annual' && plan.annualPrice ? plan.annualPrice : plan.monthlyPrice;

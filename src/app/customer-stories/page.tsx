@@ -82,7 +82,7 @@ export default async function CustomerStoriesPage() {
                 We offer design services at every stage of your business growth — from brand to back office.
               </p>
             </div>
-            <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
+            <Grid columns={3} gap="md">
               {serviceLines.map((cat) => (
                 <ServiceLineCard
                   key={cat.slug}

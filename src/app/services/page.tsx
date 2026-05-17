@@ -64,7 +64,7 @@ export default async function ServicesPage() {
               We offer design services at every stage of your business growth — from establishment to maturity.
             </p>
           </div>
-          <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
+          <Grid columns={3} gap="md">
             {mainLines.map((cat) => (
               <ServiceLineCard
                 key={cat.slug}

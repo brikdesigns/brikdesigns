@@ -117,7 +117,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {category.name} Services
           </h2>
-          <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
+          <Grid columns={3} gap="md">
             {services.map((svc) => {
               const cat = mapCategorySlug(category.slug);
               return (
