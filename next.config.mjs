@@ -40,6 +40,11 @@ const nextConfig = {
       { source: '/industries', destination: '/customers', permanent: true },
       { source: '/industries/:slug', destination: '/customers/:slug', permanent: true },
 
+      // ── SaaS industry slug rename: /customers/product → /customers/saas
+      // Companion to portal #798 (industry_pages slug rename). Catches
+      // cached/external links to the old URL.
+      { source: '/customers/product', destination: '/customers/saas', permanent: true },
+
       // ── Pricing alias → plans
       { source: '/pricing', destination: '/plans', permanent: true },
 
