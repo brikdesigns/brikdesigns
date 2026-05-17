@@ -324,7 +324,19 @@ export async function getIndustryPageBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('industry_pages')
-    .select('*, industry_page_topics(id, topic_number, title, description, service_line_slug, image_url, sort_order)')
+    .select(`
+      *,
+      industry_page_topics(
+        id, topic_number, title, description, service_line_slug, image_url, sort_order,
+        industry_page_topic_services(
+          sort_order,
+          services(
+            id, slug, name, tagline, description, image_url,
+            service_lines(slug, name)
+          )
+        )
+      )
+    `)
     .eq('slug', slug)
     .eq('is_public', true)
     .single();

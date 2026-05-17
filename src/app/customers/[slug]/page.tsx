@@ -2,14 +2,30 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry } from '@/lib/supabase/queries';
+import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapCategorySlug } from '@/lib/supabase/queries';
 import { Breadcrumb, LinkButton } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
+import { ServiceCard } from '@/components/marketing/ServiceCard';
+import { hasIconFor } from '@/lib/service-icons';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import '../../shared-sections.css';
 import '../customers.css';
+
+// Shape of one nested topic-service row from getIndustryPageBySlug.
+type TopicService = {
+  sort_order: number | null;
+  services: {
+    id: string;
+    slug: string;
+    name: string;
+    tagline: string | null;
+    description: string | null;
+    image_url: string | null;
+    service_lines: { slug: string; name: string } | null;
+  } | null;
+};
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -47,13 +63,18 @@ export default async function CustomerDetailPage({ params }: Props) {
     notFound();
   }
 
-  // Skip topics with no meaningful content (typically the "Other Services"
-  // placeholder Topic 4 — empty until per-topic related services land).
-  // When Track 2 adds related_service_slugs, this filter expands to also
-  // keep topics that have services even with no description.
+  // Skip topics that have no editorial content AND no related services.
+  // Webflow's empty "Other Services" placeholder collapses out; populated
+  // topics (even those with no description but with services) render.
   const topics = (page.industry_page_topics ?? [])
-    .filter((t: { description: string | null; image_url: string | null }) =>
-      Boolean(t.description) || Boolean(t.image_url),
+    .filter((t: {
+      description: string | null;
+      image_url: string | null;
+      industry_page_topic_services: TopicService[] | null;
+    }) =>
+      Boolean(t.description) ||
+      Boolean(t.image_url) ||
+      (t.industry_page_topic_services?.length ?? 0) > 0,
     )
     .sort((a: { topic_number: number }, b: { topic_number: number }) => a.topic_number - b.topic_number);
 
@@ -116,58 +137,103 @@ export default async function CustomerDetailPage({ params }: Props) {
         </div>
       </section>
 
-      {/* Topic sections — tinted bg per topic; split layout when image present */}
+      {/* Topic sections — tinted bg per topic; split layout when image
+       * present. Each topic carries title + description + a curated grid
+       * of related service cards (Webflow per-topic structure from
+       * portal #797). */}
       {topics.map((topic: {
         topic_number: number;
         title: string | null;
         description: string | null;
         image_url: string | null;
-      }) => (
-        <section
-          key={topic.topic_number}
-          className="content-section"
-          style={{ backgroundColor: TOPIC_TINTS[topic.topic_number] ?? 'var(--surface-secondary)' }}
-        >
-          <div className="container-lg">
-            {topic.image_url ? (
-              /* Split layout: image + content side by side (unique layout) */
-              <div className="customer-topic">
-                <div className="customer-topic__image">
-                  <Image
-                    src={topic.image_url}
-                    alt={topic.title ?? ''}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    sizes="(max-width: 991px) 100vw, 50vw"
-                  />
+        service_line_slug: string | null;
+        industry_page_topic_services: TopicService[] | null;
+      }) => {
+        // Order services by the topic-junction sort_order, drop any null
+        // service joins (shouldn't happen post-FK retarget, but defensive).
+        const services = (topic.industry_page_topic_services ?? [])
+          .filter((ts) => ts.services != null)
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+          .map((ts) => ts.services!);
+
+        return (
+          <section
+            key={topic.topic_number}
+            className="content-section"
+            style={{ backgroundColor: TOPIC_TINTS[topic.topic_number] ?? 'var(--surface-secondary)' }}
+          >
+            <div className="container-lg">
+              {topic.image_url ? (
+                /* Split layout: image + content side by side (unique layout) */
+                <div className="customer-topic">
+                  <div className="customer-topic__image">
+                    <Image
+                      src={topic.image_url}
+                      alt={topic.title ?? ''}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      sizes="(max-width: 991px) 100vw, 50vw"
+                    />
+                  </div>
+                  <div className="customer-topic__content">
+                    <span style={{ ...label.smBold, color: color.text.brand }}>
+                      {String(topic.topic_number).padStart(2, '0')}
+                    </span>
+                    {topic.title && <h3 style={heading.md}>{topic.title}</h3>}
+                    {topic.description && (
+                      <p style={{ ...text.body, color: color.text.primary }}>{topic.description}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="customer-topic__content">
-                  <span style={{ ...label.smBold, color: color.text.brand }}>
-                    {String(topic.topic_number).padStart(2, '0')}
-                  </span>
-                  {topic.title && <h3 style={heading.md}>{topic.title}</h3>}
-                  {topic.description && (
-                    <p style={{ ...text.body, color: color.text.primary }}>{topic.description}</p>
-                  )}
+              ) : (
+                /* Text-only layout */
+                <div className="industry-topic">
+                  <div className="industry-topic__container">
+                    <span style={{ ...label.smBold, color: color.text.brand }}>
+                      {String(topic.topic_number).padStart(2, '0')}
+                    </span>
+                    {topic.title && <h3 style={heading.md}>{topic.title}</h3>}
+                    {topic.description && (
+                      <p style={{ ...text.body, color: color.text.primary }}>{topic.description}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ) : (
-              /* Text-only layout (matches existing industries/[slug] pattern) */
-              <div className="industry-topic">
-                <div className="industry-topic__container">
-                  <span style={{ ...label.smBold, color: color.text.brand }}>
-                    {String(topic.topic_number).padStart(2, '0')}
-                  </span>
-                  {topic.title && <h3 style={heading.md}>{topic.title}</h3>}
-                  {topic.description && (
-                    <p style={{ ...text.body, color: color.text.primary }}>{topic.description}</p>
-                  )}
+              )}
+
+              {/* Related service cards for this topic. Each card routes
+               * /services/{line}/{slug}; categorySlug derived from the
+               * service's own service_lines join (not the topic's
+               * service_line_slug — they can diverge for "Other Services"
+               * topics that mix lines). */}
+              {services.length > 0 && (
+                <div
+                  className="grid-3"
+                  style={{ marginTop: 'var(--gap-xl)' }}
+                >
+                  {services.map((svc) => {
+                    const lineSlug = svc.service_lines?.slug ?? topic.service_line_slug ?? 'brand';
+                    const cat = mapCategorySlug(lineSlug);
+                    return (
+                      <ServiceCard
+                        key={svc.id}
+                        name={svc.name}
+                        slug={svc.slug}
+                        categorySlug={lineSlug}
+                        category={cat as ServiceCategory}
+                        tagline={svc.tagline}
+                        description={svc.description}
+                        imageUrl={svc.image_url}
+                        iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                        showCta
+                      />
+                    );
+                  })}
                 </div>
-              </div>
-            )}
-          </div>
-        </section>
-      ))}
+              )}
+            </div>
+          </section>
+        );
+      })}
 
       {/* Other industries — placed before customer story (Webflow order). */}
       {otherPages.length > 0 && (
