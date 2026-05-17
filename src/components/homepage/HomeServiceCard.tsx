@@ -1,8 +1,7 @@
-'use client';
-
 import Image from 'next/image';
-import { Card, ServiceTag, LinkButton } from '@brikdesigns/bds';
+import { Card, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
+import { color } from '@/lib/tokens';
 
 interface HomeServiceCardProps {
   name: string;
@@ -16,32 +15,21 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: Hom
   return (
     <Card
       preset="display"
-      image={
-        imageUrl ? (
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '1 / 1' }}>
-            <Image src={imageUrl} alt={name} fill style={{ objectFit: 'cover' }} />
-          </div>
-        ) : (
-          <div style={{
-            width: '100%',
-            aspectRatio: '1 / 1',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'var(--surface-secondary)',
-          }}>
-            <ServiceTag category={category} variant="icon" size="lg" />
-          </div>
-        )
-      }
-      tag={<ServiceTag category={category} variant="icon" size="md" />}
       title={name}
       description={tagline}
-      action={
-        <LinkButton href={`/services/${slug}`} variant="primary" size="md">
-          Learn more
-        </LinkButton>
+      image={
+        <Frame ratio="square" fit="cover">
+          {imageUrl ? (
+            <Image src={imageUrl} alt={name} width={400} height={400} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: color.surface.secondary }}>
+              <ServiceTag category={category} variant="icon" size="lg" />
+            </div>
+          )}
+        </Frame>
       }
+      tag={<ServiceTag category={category} variant="icon" size="md" />}
+      action={<LinkButton href={`/services/${slug}`} variant="primary" size="md">Learn more</LinkButton>}
     />
   );
 }

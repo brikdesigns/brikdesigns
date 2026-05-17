@@ -1,7 +1,7 @@
-'use client';
-
 import Image from 'next/image';
-import { Card, Badge, LinkButton } from '@brikdesigns/bds';
+import { Card, Frame, LinkButton } from '@brikdesigns/bds';
+import { heading } from '@/lib/styles';
+import { color } from '@/lib/tokens';
 
 interface HomePlanCardProps {
   name: string;
@@ -15,21 +15,19 @@ export function HomePlanCard({ name, slug, price, description, imageUrl }: HomeP
   return (
     <Card
       preset="display"
-      image={
-        imageUrl ? (
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 3' }}>
-            <Image src={imageUrl} alt={name} fill style={{ objectFit: 'cover' }} />
-          </div>
-        ) : undefined
-      }
-      tag={<Badge status="info" size="sm">{price}</Badge>}
       title={name}
       description={description}
-      action={
-        <LinkButton href={`/plans/${slug}`} variant="primary" size="md">
-          Learn More
-        </LinkButton>
+      image={
+        <Frame ratio="square" fit="cover">
+          {imageUrl ? (
+            <Image src={imageUrl} alt={name} width={400} height={400} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', backgroundColor: color.surface.secondary }} />
+          )}
+        </Frame>
       }
+      tag={<span style={{ ...heading.lg, color: color.text.primary }}>{price}</span>}
+      action={<LinkButton href={`/plans/${slug}`} variant="primary" size="md">Learn More</LinkButton>}
     />
   );
 }
