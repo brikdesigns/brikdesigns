@@ -3,9 +3,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry } from '@/lib/supabase/queries';
-import { LinkButton } from '@brikdesigns/bds';
+import { Breadcrumb, LinkButton } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
-import { color } from '@/lib/tokens';
+import { color, gap } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import '../../shared-sections.css';
@@ -47,7 +47,14 @@ export default async function CustomerDetailPage({ params }: Props) {
     notFound();
   }
 
+  // Skip topics with no meaningful content (typically the "Other Services"
+  // placeholder Topic 4 — empty until per-topic related services land).
+  // When Track 2 adds related_service_slugs, this filter expands to also
+  // keep topics that have services even with no description.
   const topics = (page.industry_page_topics ?? [])
+    .filter((t: { description: string | null; image_url: string | null }) =>
+      Boolean(t.description) || Boolean(t.image_url),
+    )
     .sort((a: { topic_number: number }, b: { topic_number: number }) => a.topic_number - b.topic_number);
 
   const [allPages, stories] = await Promise.all([
@@ -61,13 +68,27 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   return (
     <>
-      {/* Hero — accent bg with optional dual badge decoration (unique layout) */}
+      {/* Hero — breadcrumb + name + tagline + intro_description (Webflow parity).
+       * intro_description folded into the hero so the page leads with industry
+       * content, not the stories section. Optional dual-badge decoration on the
+       * aside slot. */}
       <section className="page-hero">
         <div className="page-hero__container">
+          <Breadcrumb
+            style={{ marginBottom: gap.sm, flexWrap: 'wrap' }}
+            items={[
+              { label: 'Home', href: '/' },
+              { label: 'Customers', href: '/customers' },
+              { label: page.name },
+            ]}
+          />
           <div className="customer-detail-hero">
             <div>
               <h1 className="page-hero__title">{page.name}</h1>
               {page.tagline && <p className="page-hero__tagline">{page.tagline}</p>}
+              {page.intro_description && (
+                <p className="page-hero__description">{page.intro_description}</p>
+              )}
             </div>
             {(page.primary_badge_url || page.secondary_badge_url) && (
               <div className="customer-detail-hero__badges" aria-hidden="true">
@@ -94,22 +115,6 @@ export default async function CustomerDetailPage({ params }: Props) {
           </div>
         </div>
       </section>
-
-      {/* Intro */}
-      {(page.intro_title || page.intro_description) && (
-        <section className="content-section">
-          <div className="container-lg">
-            <div className="industry-intro">
-              {page.intro_title && <h2 style={heading.md}>{page.intro_title}</h2>}
-              {page.intro_description && (
-                <p style={{ ...text.bodyLg, color: color.text.secondary, marginTop: 'var(--gap-md)', lineHeight: 1.7 }}>
-                  {page.intro_description}
-                </p>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Topic sections — tinted bg per topic; split layout when image present */}
       {topics.map((topic: {
@@ -164,15 +169,39 @@ export default async function CustomerDetailPage({ params }: Props) {
         </section>
       ))}
 
-      {/* Customer stories filtered by this industry */}
+      {/* Other industries — placed before customer story (Webflow order). */}
+      {otherPages.length > 0 && (
+        <section className="content-section">
+          <div className="container-lg container-lg--comfortable">
+            <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
+              <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Other Industries</h2>
+            </div>
+            <div className="customer-others-grid">
+              {otherPages.map((p: { slug: string; name: string; tagline: string | null }) => (
+                <Link key={p.slug} href={`/customers/${p.slug}`} className="customer-other-card">
+                  <h3 style={heading.sm}>{p.name}</h3>
+                  {p.tagline && (
+                    <p style={{ ...text.bodySm, color: color.text.secondary }}>{p.tagline}</p>
+                  )}
+                  <span style={{ ...label.smBold, color: color.text.brand, marginTop: 'auto' }}>
+                    Learn more →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Latest Customer Story — single related story (row layout). */}
       {stories.length > 0 && (
         <section className="content-section content-section--secondary">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-              <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Customer Stories</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Latest Customer Story</h2>
             </div>
             <div className="customer-stories-list">
-              {stories.map((story: {
+              {stories.slice(0, 1).map((story: {
                 id: string;
                 slug: string;
                 name: string | null;
@@ -197,30 +226,6 @@ export default async function CustomerDetailPage({ params }: Props) {
                   shortDescription={story.short_description}
                   imageUrl={story.hero_image_url}
                 />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Other industries */}
-      {otherPages.length > 0 && (
-        <section className="content-section">
-          <div className="container-lg container-lg--comfortable">
-            <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-              <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Other Industries</h2>
-            </div>
-            <div className="customer-others-grid">
-              {otherPages.map((p: { slug: string; name: string; tagline: string | null }) => (
-                <Link key={p.slug} href={`/customers/${p.slug}`} className="customer-other-card">
-                  <h3 style={heading.sm}>{p.name}</h3>
-                  {p.tagline && (
-                    <p style={{ ...text.bodySm, color: color.text.secondary }}>{p.tagline}</p>
-                  )}
-                  <span style={{ ...label.smBold, color: color.text.brand, marginTop: 'auto' }}>
-                    Learn more →
-                  </span>
-                </Link>
               ))}
             </div>
           </div>
