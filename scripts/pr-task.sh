@@ -70,7 +70,7 @@ if [[ ! "$BRANCH" =~ ^task/ ]]; then
 fi
 
 # ── Check for commits ahead of base ──
-COMMITS_AHEAD=$(git rev-list --count "${BASE_BRANCH}..HEAD" 2>/dev/null || echo "0")
+COMMITS_AHEAD=$(git rev-list --count "origin/${BASE_BRANCH}..HEAD" 2>/dev/null || echo "0")
 if [ "$COMMITS_AHEAD" -eq 0 ]; then
   echo -e "${RED}Error: No commits ahead of ${BASE_BRANCH}. Nothing to PR.${NC}"
   exit 1
