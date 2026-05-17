@@ -243,7 +243,7 @@ else
 fi
 
 # ── Build PR body from commit log ──
-COMMIT_LOG=$(git log --oneline "${BASE_BRANCH}..HEAD" --reverse)
+COMMIT_LOG=$(git log --oneline "origin/${BASE_BRANCH}..HEAD" --reverse)
 COMMIT_BULLETS=$(echo "$COMMIT_LOG" | sed 's/^[a-f0-9]* /- /')
 
 PR_BODY=$(cat <<EOF
