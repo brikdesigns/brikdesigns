@@ -55,13 +55,8 @@
   status = 301
 
 [[redirects]]
-  from = "/customers/*"
-  to = "/industries/:splat"
-  status = 301
-
-[[redirects]]
   from = "/detail_customers/*"
-  to = "/industries/:splat"
+  to = "/customers/:splat"
   status = 301
 
 [[redirects]]
