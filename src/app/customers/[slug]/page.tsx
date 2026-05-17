@@ -231,8 +231,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                * topics that mix lines). */}
               {services.length > 0 && (
                 <Grid
-                  columns="auto-fit"
-                  minColumnWidth="360px"
+                  columns={3}
                   gap="md"
                   style={{ marginTop: 'var(--gap-xl)' }}
                 >

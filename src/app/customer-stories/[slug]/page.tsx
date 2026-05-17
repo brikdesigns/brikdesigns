@@ -329,7 +329,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
             >
               We&apos;re more than a design studio — we&apos;re your strategic marketing partner.
             </p>
-            <Grid columns="auto-fit" minColumnWidth="360px" gap="md" style={{ marginTop: 'var(--gap-lg)' }}>
+            <Grid columns={3} gap="md" style={{ marginTop: 'var(--gap-lg)' }}>
               {otherStories.map((s) => {
                 const cat = mapCategorySlug(s.service_line_slug || 'service');
                 return (

@@ -103,7 +103,7 @@ export default async function AboutPage() {
       {/* Webflow: 2-col bordered cards, large circle headshots, social links, full bios */}
       <section className="content-section">
         <div className="container-lg">
-          <Grid columns="auto-fit" minColumnWidth="480px" gap="lg">
+          <Grid columns={2} gap="lg">
             {TEAM.map((member) => (
               <div key={member.name} className="about-team-card">
                 <div className="about-team-avatar">
@@ -191,7 +191,7 @@ export default async function AboutPage() {
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>
           </div>
-          <Grid columns="auto-fit" minColumnWidth="280px" gap="lg">
+          <Grid columns={3} gap="lg">
             {serviceLines.map((line) => (
               <Link key={line.slug} href={`/services/${line.slug}`} className="about-service-card">
                 <div className="about-service-image">
