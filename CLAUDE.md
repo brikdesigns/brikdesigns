@@ -28,7 +28,7 @@ Next.js 16 marketing site for Brik Designs. Deployed on Netlify.
 - **Pre-implementation** — READ [`COMPONENT-MAP.md`](COMPONENT-MAP.md) before building any section. Every visual element comes from BDS.
 - **Pre-push** — RUN `npm run build` locally before pushing. NEVER push to `staging` or `main` without user confirmation.
 - **Reasoning model** — DEFAULT to Sonnet 4.6 (`claude-sonnet-4-6`) for section / content / theming work. ESCALATE to Opus for IA / navigation taxonomy, cross-cutting refactors (>5 files), or launch-gate judgment.
-- **Brand** — Brik Designs company brand (not a numbered BDS template). Poppy red (`var(--color-poppy-light)` → #E35335), Poppins (300–700 weights), ThemeProvider `applyToBody={false}`.
+- **Brand** — Brik Designs company brand (not a numbered BDS template). Poppy red (`var(--color-poppy-dark)` → #B0351B), Poppins (300–700 weights), ThemeProvider `applyToBody={false}`. The brand primitive was darkened from poppy-light (#E35335) to poppy-dark in [#219](https://github.com/brikdesigns/brikdesigns/pull/219) so white text on the primary button surface clears WCAG 2.1 AA (3.78:1 → 6.23:1). The lighter shade still exists as `--color-poppy-light` / `--poppy--light-base` and is pinned for dark-mode text where the darker shade fails AA on the black page bg.
 
 ## Where deeper context lives
 
