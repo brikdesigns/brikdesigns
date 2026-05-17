@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupportPlanBySlug, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
-import { Button, Breadcrumb, ServiceTag } from '@brikdesigns/bds';
+import { Button, Breadcrumb, Grid, ServiceTag } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
@@ -117,7 +117,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {category.name} Services
           </h2>
-          <div className="grid-3">
+          <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
             {services.map((svc) => {
               const cat = mapCategorySlug(category.slug);
               return (
@@ -135,7 +135,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
                 />
               );
             })}
-          </div>
+          </Grid>
         </div>
       </section>
 

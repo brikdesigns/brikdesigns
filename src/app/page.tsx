@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
-import { Button } from '@brikdesigns/bds';
+import { Grid, Button } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
@@ -79,7 +79,7 @@ export default async function HomePage() {
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>
           </div>
-          <div className="grid-3-col">
+          <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
             {serviceLines.map((line) => (
               <HomeServiceCard
                 key={line.slug}
@@ -90,7 +90,7 @@ export default async function HomePage() {
                 imageUrl={line.card_image_url}
               />
             ))}
-          </div>
+          </Grid>
         </div>
       </section>
 
@@ -104,7 +104,7 @@ export default async function HomePage() {
               We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
             </p>
           </div>
-          <div className="grid-3-col">
+          <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
             {supportPlans.map((plan) => (
               <HomePlanCard
                 key={plan.slug}
@@ -115,7 +115,7 @@ export default async function HomePage() {
                 imageUrl={plan.image_url}
               />
             ))}
-          </div>
+          </Grid>
         </div>
       </section>
 

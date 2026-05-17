@@ -1,23 +1,5 @@
 /* ─── Blog — layout only ────────────────────────────────── */
 
-.blog-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--gap-lg);
-}
-
-@media (max-width: 991px) {
-  .blog-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 600px) {
-  .blog-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 .blog-card {
   overflow: hidden;
 }

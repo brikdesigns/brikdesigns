@@ -136,16 +136,6 @@
   max-width: 600px;
 }
 
-/* Webflow: .cms-layout-3-col — 12px gap, stretch items, 100% height */
-.grid-3-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  height: 100%;
-  place-items: stretch stretch;
-  width: 100%;
-}
-
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
 /* Webflow: .section_service — secondary bg, full-width, centered */
 .section-plans {
@@ -453,11 +443,6 @@
     gap: 12px; /* gap-md at tablet */
   }
 
-  /* Grids */
-  .grid-3-col {
-    grid-template-columns: 1fr 1fr;
-  }
-
   /* Audit — stack vertically */
   .audit-layout {
     flex-direction: column;
@@ -494,11 +479,6 @@
   .hero-heading {
     font-size: var(--heading-xl);
     width: auto;
-  }
-
-  /* Grids — single column */
-  .grid-3-col {
-    grid-template-columns: 1fr;
   }
 
   /* Sections — remove min-height */

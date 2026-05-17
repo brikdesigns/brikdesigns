@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Button } from '@brikdesigns/bds';
+import { Grid, Button } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
@@ -117,7 +117,7 @@ export default async function CustomersPage() {
       {/* Company size segments */}
       <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
-          <div className="grid-3">
+          <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
             {SEGMENTS.map((seg) => (
               <div key={seg.heading} className="customers-segment-card">
                 <h3 style={heading.sm}>{seg.heading}</h3>
@@ -136,7 +136,7 @@ export default async function CustomersPage() {
                 </Button>
               </div>
             ))}
-          </div>
+          </Grid>
         </div>
       </section>
 
