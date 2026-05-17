@@ -117,6 +117,14 @@ interface AuditOpts {
   maxDiffsPerRow?: number;
   /** Optional CSV-slug → SB-slug aliases (e.g., service_lines short-form, services overrides) */
   csvToSbAliasMap?: Record<string, string>;
+  /**
+   * When true, this collection's findings are shown for historical reference
+   * but are NOT counted in the grand totals. Use for tables where portal
+   * Supabase is now the write authority and the Webflow CSV is a legacy
+   * snapshot that will naturally fall further behind over time. See
+   * `.claude/references/services-cms-ownership.md` (#178).
+   */
+  historical?: boolean;
 }
 
 const totals = {
@@ -128,7 +136,11 @@ const totals = {
 
 async function auditCollection(opts: AuditOpts) {
   const { title, csvFile, table, fields, maxDiffsPerRow = 12 } = opts;
-  console.log(`\n---\n\n## ${title}\n`);
+  const historical = opts.historical ?? false;
+  const historicalNote = historical
+    ? ' ⚠️ historical — portal Supabase is canon; findings below are legacy artifacts, not backlog (#178)'
+    : '';
+  console.log(`\n---\n\n## ${title}${historicalNote}\n`);
 
   // CSV side
   let csvRows: Record<string, string>[];
@@ -169,7 +181,7 @@ async function auditCollection(opts: AuditOpts) {
       console.log(`- \`${slug}\` — name: ${snippet(row?.name)}`);
     }
     console.log();
-    totals.orphans += orphans.length;
+    if (!historical) totals.orphans += orphans.length;
   }
 
   // Missing
@@ -183,7 +195,7 @@ async function auditCollection(opts: AuditOpts) {
       console.log(`- \`${slug}\` — name: ${snippet(row?.['Name'])}`);
     }
     console.log();
-    totals.missing += missing.length;
+    if (!historical) totals.missing += missing.length;
   }
 
   // Field-level drift
@@ -224,8 +236,10 @@ async function auditCollection(opts: AuditOpts) {
     console.log(`_All matched rows have field parity._\n`);
   } else {
     console.log(`**${driftRowCount} of ${inBoth.length} matched rows have drift.** Empty-in-Supabase cells: ${totalEmptyInSb}.\n`);
-    totals.driftRows += driftRowCount;
-    totals.emptyFields += totalEmptyInSb;
+    if (!historical) {
+      totals.driftRows += driftRowCount;
+      totals.emptyFields += totalEmptyInSb;
+    }
   }
 }
 
@@ -302,6 +316,7 @@ async function main() {
     title: 'Services (`services`) — _portal-owned, brikdesigns read-only_',
     csvFile: 'Services',
     table: 'services',
+    historical: true,
     csvToSbAliasMap: SERVICES_ALIASES,
     fields: [
       { csv: 'Name', sb: 'name' },
@@ -320,6 +335,7 @@ async function main() {
     title: 'Offerings (`offerings`) — _portal-owned schema, interim-writable here_',
     csvFile: 'Offerings',
     table: 'offerings',
+    historical: true,
     fields: [
       { csv: 'Name', sb: 'name' },
       { csv: 'Description', sb: 'description' },
