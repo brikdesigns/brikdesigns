@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { PricingCard, SegmentedControl, Button } from '@brikdesigns/bds';
+import { Grid, PricingCard, SegmentedControl, Button } from '@brikdesigns/bds';
 import { color, font, gap, serviceColor } from '@/lib/tokens';
 
 interface Plan {
@@ -34,7 +34,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
         />
       </div>
 
-      <div className="grid-3">
+      <Grid columns="auto-fit" minColumnWidth="360px" gap="md">
         {plans.map((plan) => {
           const price =
             billing === 'annual' && plan.annualPrice ? plan.annualPrice : plan.monthlyPrice;
@@ -91,7 +91,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
             </div>
           );
         })}
-      </div>
+      </Grid>
     </>
   );
 }

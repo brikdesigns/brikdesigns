@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
-import { Card, CardTitle, CardDescription, CardFooter, Button } from '@brikdesigns/bds';
+import { Card, CardTitle, CardDescription, CardFooter, Grid, Button } from '@brikdesigns/bds';
 import { getAllPosts } from '@/lib/blog';
 import { label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -31,7 +31,7 @@ export default async function BlogPage() {
 
       <section className="content-section">
         <div className="container-lg">
-          <div className="blog-grid">
+          <Grid columns="auto-fit" minColumnWidth="280px" gap="lg">
             {posts.map((post) => (
               <Card key={post.slug} variant="outlined" padding="none" className="blog-card">
                 {post.image && (
@@ -68,7 +68,7 @@ export default async function BlogPage() {
                 </div>
               </Card>
             ))}
-          </div>
+          </Grid>
         </div>
       </section>
     </>
