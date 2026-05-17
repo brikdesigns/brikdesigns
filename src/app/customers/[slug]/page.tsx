@@ -12,6 +12,12 @@ import { hasIconFor } from '@/lib/service-icons';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import '../../shared-sections.css';
 import '../customers.css';
+// CustomerStoryCard's CSS lives under /customer-stories/ — must be imported
+// here so `.story-card__image { position: relative }` applies. Without it,
+// the <Image fill> inside the story card escapes its parent (position:
+// static) and overlays the page hero. Component-local CSS would be cleaner;
+// tracked as follow-up.
+import '../../customer-stories/customer-stories.css';
 
 // Shape of one nested topic-service row from getIndustryPageBySlug.
 type TopicService = {
@@ -131,6 +137,24 @@ export default async function CustomerDetailPage({ params }: Props) {
                     className="customer-detail-hero__badge"
                   />
                 )}
+              </div>
+            )}
+            {/* Industry hero illustration — same aside-image pattern as
+             * /services/[categorySlug]. Without it, the page hero is text-
+             * only and the (much heavier) customer-story image below
+             * visually dominates. Badges render INSTEAD of this when
+             * present (a decorated industry hero is more compact than a
+             * 560×560 illustration). */}
+            {!page.primary_badge_url && !page.secondary_badge_url && page.hero_image_url && (
+              <div className="customer-detail-hero__aside" aria-hidden="true">
+                <Image
+                  src={page.hero_image_url}
+                  alt=""
+                  width={560}
+                  height={560}
+                  className="customer-detail-hero__image"
+                  priority
+                />
               </div>
             )}
           </div>
