@@ -18,10 +18,9 @@
 
 .page-hero__container {
   width: 100%;
-  max-width: 90%;
-  margin: 0 auto;
-  padding-left: var(--padding-lg);
-  padding-right: var(--padding-lg);
+  max-width: var(--site-container-max);
+  margin-inline: auto;
+  padding-inline: var(--site-gutter);
 }
 
 .page-hero__title {
@@ -134,18 +133,19 @@
 }
 
 /* ─── Container ──────────────────────────────────────────── */
-/* Webflow: .container-lg — centered flex column, 90% max */
+/* Standard container: max-width (fixed px) + margin-inline: auto + fluid gutter.
+   Gold-standard pattern used by Bootstrap, Tailwind, Carbon, Backbase.
+   Token values defined in globals.css :root — single source of truth. */
 
 .container-lg {
   display: flex;
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
-  max-width: 90%;
   width: 100%;
-  margin: 0 auto;
-  padding-left: var(--padding-lg);
-  padding-right: var(--padding-lg);
+  max-width: var(--site-container-max);
+  margin-inline: auto;
+  padding-inline: var(--site-gutter);
 }
 
 .container-lg--comfortable { gap: 36px; }
@@ -159,14 +159,6 @@
 }
 
 /* ─── Responsive ─────────────────────────────────────────── */
-
-/* Cap all content containers at 1280px on large viewports */
-@media (min-width: 1280px) {
-  .page-hero__container,
-  .container-lg {
-    max-width: 1280px;
-  }
-}
 
 @media (max-width: 767px) {
   .page-hero__title {
