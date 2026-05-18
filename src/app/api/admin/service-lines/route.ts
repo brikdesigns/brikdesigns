@@ -1,9 +1,7 @@
-import {
-  adminRoute,
-  readJsonBody,
-  SERVICES_REVALIDATE_PATHS,
-} from '@/lib/admin/route-helpers';
-import { createServiceLine, listServiceLines } from '@/lib/admin/service-lines';
+import { NextResponse } from 'next/server';
+import { adminRoute } from '@/lib/admin/route-helpers';
+import { listServiceLines } from '@/lib/admin/service-lines';
+import { PORTAL_SERVICE_LINES_ADMIN_URL } from '@/lib/portal-url';
 
 export async function GET() {
   return adminRoute(async () => ({
@@ -11,11 +9,12 @@ export async function GET() {
   }));
 }
 
-export async function POST(request: Request) {
-  const body = await readJsonBody(request);
-  return adminRoute(async () => ({
-    status: 201,
-    body: await createServiceLine(body),
-    revalidate: SERVICES_REVALIDATE_PATHS,
-  }));
+export async function POST() {
+  return NextResponse.json(
+    {
+      error: 'Service line writes have moved to the portal.',
+      portalAdminUrl: PORTAL_SERVICE_LINES_ADMIN_URL,
+    },
+    { status: 410 },
+  );
 }
