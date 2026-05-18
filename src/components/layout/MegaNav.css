@@ -145,7 +145,6 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 100%;
   padding-top: 8px;  /* Webflow space-md */
   padding-bottom: 8px;
 }
