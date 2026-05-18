@@ -379,13 +379,13 @@
   padding: var(--padding-huge);
 }
 
-/* Webflow: .inner-wrapper._90.center.stacked → .content-wrapper.center — 90% width, gap-md = 12px */
+/* Webflow: .inner-wrapper._90.center.stacked → .content-wrapper.center */
 .cta-inner {
   display: flex;
   flex-flow: column;
   align-items: center;
   gap: 12px;
-  max-width: 90%;
+  max-width: var(--site-container-max);
   text-align: center;
 }
 
