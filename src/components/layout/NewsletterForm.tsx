@@ -46,6 +46,7 @@ export function NewsletterForm() {
       <TextInput
         size="lg"
         fullWidth
+        hideBorder
         type="text"
         placeholder="First Name"
         value={firstName}
@@ -55,6 +56,7 @@ export function NewsletterForm() {
       <TextInput
         size="lg"
         fullWidth
+        hideBorder
         type="email"
         placeholder="Email Address"
         value={email}
