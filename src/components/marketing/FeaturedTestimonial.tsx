@@ -1,6 +1,6 @@
 'use client';
 
-import { CardTestimonial } from '@brikdesigns/bds';
+import { Testimonial } from '@brikdesigns/bds';
 
 interface Props {
   quote: string;
@@ -11,7 +11,7 @@ interface Props {
 
 export function FeaturedTestimonial({ quote, authorName, authorRole, rating }: Props) {
   return (
-    <CardTestimonial
+    <Testimonial
       quote={quote}
       authorName={authorName}
       authorRole={authorRole}
@@ -19,3 +19,4 @@ export function FeaturedTestimonial({ quote, authorName, authorRole, rating }: P
     />
   );
 }
+
