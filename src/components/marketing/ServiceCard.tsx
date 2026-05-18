@@ -32,8 +32,8 @@ export function ServiceCard({
       title={name}
       description={tagline ?? description ?? undefined}
       image={imageUrl ? (
-        <Frame ratio="landscape" fit="cover">
-          <Image src={imageUrl} alt={name} width={400} height={267} />
+        <Frame ratio="square" fit="cover">
+          <Image src={imageUrl} alt={name} width={400} height={400} />
         </Frame>
       ) : undefined}
       tag={<ServiceTag category={category} variant="icon" size={imageUrl ? 'sm' : 'md'} {...tagProps} />}
