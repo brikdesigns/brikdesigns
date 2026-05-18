@@ -263,10 +263,8 @@ export default async function CustomerDetailPage({ params }: Props) {
       {otherPages.length > 0 && (
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
-            <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-              <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Other Industries</h2>
-            </div>
-            <Grid columns="auto-fill" minColumnWidth="280px">
+            <h2 style={heading.lg}>Other Industries</h2>
+            <Grid columns={3}>
               {otherPages.map((p: { slug: string; name: string; tagline: string | null }) => (
                 <Card
                   key={p.slug}
@@ -285,9 +283,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {stories.length > 0 && (
         <section className="content-section content-section--secondary">
           <div className="container-lg container-lg--comfortable">
-            <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-              <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Latest Customer Story</h2>
-            </div>
+            <h2 style={heading.lg}>Latest Customer Story</h2>
             <div className="customer-stories-list">
               {stories.slice(0, 1).map((story: {
                 id: string;

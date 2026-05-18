@@ -84,21 +84,19 @@ export default async function CustomersPage() {
       {/* Intro */}
       <section className="content-section">
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <p style={{ ...text.bodyLg, textAlign: 'center' }}>
-              You don&apos;t need to hire a full in-house team to move like one. Brik gives you access
-              to senior-level design and strategic support&mdash;without the full-time overhead.
-            </p>
-          </div>
+          <p style={text.bodyLg}>
+            You don&apos;t need to hire a full in-house team to move like one. Brik gives you access
+            to senior-level design and strategic support&mdash;without the full-time overhead.
+          </p>
         </div>
       </section>
 
       {/* Industries we know */}
       <section className="content-section content-section--accent">
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Know Inside-Out</h2>
-            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
+          <div className="content-wrapper" style={{ flexDirection: 'column' }}>
+            <h2 style={heading.lg}>Industries We Know Inside-Out</h2>
+            <p style={{ ...text.body, color: color.text.secondary }}>
               We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:
             </p>
           </div>
@@ -162,9 +160,7 @@ export default async function CustomersPage() {
       {/* Common challenges */}
       <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common Challenges We Solve</h2>
-          </div>
+          <h2 style={heading.lg}>Common Challenges We Solve</h2>
           <Grid columns={2}>
             {CHALLENGES.map((challenge) => (
               <Card
