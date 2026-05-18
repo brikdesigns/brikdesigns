@@ -1624,7 +1624,7 @@ export type Database = {
             foreignKeyName: "customer_stories_primary_service_id_fkey"
             columns: ["primary_service_id"]
             isOneToOne: false
-            referencedRelation: "offerings"
+            referencedRelation: "services"
             referencedColumns: ["id"]
           },
         ]

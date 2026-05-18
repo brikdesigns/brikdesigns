@@ -44,7 +44,7 @@ export default async function CustomerStoriesPage() {
                   ? (mapCategorySlug(story.service_line_slug) as ServiceCategory)
                   : null;
                 const serviceLineName = (story as { service_lines?: { name: string } | null }).service_lines?.name ?? null;
-                const serviceName = (story as { offerings?: { name: string } | null }).offerings?.name ?? null;
+                const serviceName = (story as { services?: { name: string } | null }).services?.name ?? null;
                 const iconServiceName = serviceLineCategory && serviceName && hasIconFor(serviceLineCategory, serviceName)
                   ? serviceName
                   : undefined;

@@ -1,42 +1,55 @@
-import { notFound } from 'next/navigation';
-import { EditPageShell } from '../../../../_components/EditPageShell';
-import { EntityForm } from '../../../../_components/EntityForm';
-import { serviceLineFields } from '../../../_components/field-configs';
+import Link from 'next/link';
+import { Button } from '@brikdesigns/bds';
 import { getServiceLineById } from '@/lib/admin/service-lines';
-import { getBdsColorTokens, getGroupedBdsColorTokens } from '@/lib/bds-color-tokens';
+import { PORTAL_SERVICE_LINES_ADMIN_URL } from '@/lib/portal-url';
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
-export default async function EditServiceLinePage({ params }: Props) {
+export default async function ServiceLineEditMovedToPortalPage({ params }: Props) {
   const { id } = await params;
-  let row;
-  try {
-    row = await getServiceLineById(id);
-  } catch {
-    notFound();
-  }
-  if (!row) notFound();
-
-  const flat = getBdsColorTokens();
-  const groups = getGroupedBdsColorTokens();
+  const row = await getServiceLineById(id).catch(() => null);
 
   return (
-    <EditPageShell
-      backHref="/admin/services?tab=lines"
-      backLabel="Service lines"
-      title={row.name}
-      subtitle={`Slug: ${row.slug}`}
-    >
-      <EntityForm
-        fields={serviceLineFields({ groups, flat })}
-        initial={row}
-        endpoint="/api/admin/service-lines"
-        mode="edit"
-        id={row.id}
-        successHref="/admin/services?tab=lines"
-      />
-    </EditPageShell>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-md)', maxWidth: '640px' }}>
+      <div>
+        <Link
+          href="/admin/services?tab=lines"
+          style={{
+            fontFamily: 'var(--font-family-label)',
+            fontSize: 'var(--label-sm)',
+            color: 'var(--text-secondary)',
+            textDecoration: 'none',
+          }}
+        >
+          ← Service lines
+        </Link>
+        <h1
+          style={{
+            fontFamily: 'var(--font-family-heading)',
+            fontSize: 'var(--heading-lg)',
+            color: 'var(--text-primary)',
+            margin: 'var(--gap-xs) 0 0',
+          }}
+        >
+          {row ? row.name : 'Edit service line'}
+        </h1>
+      </div>
+      <p
+        style={{
+          fontFamily: 'var(--font-family-body)',
+          fontSize: 'var(--body-md)',
+          color: 'var(--text-primary)',
+          margin: 0,
+        }}
+      >
+        Service line edits have moved to the portal admin. Open the portal to
+        update this service line.
+      </p>
+      <Button href={PORTAL_SERVICE_LINES_ADMIN_URL} variant="primary" size="md">
+        Open in portal ↗
+      </Button>
+    </div>
   );
 }

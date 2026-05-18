@@ -17,10 +17,16 @@ export function portalAdminUrl(path: string = '/admin'): string {
   return `${PORTAL_BASE_URL}${path}`;
 }
 
-/** Portal admin services list (catalog tab). */
-export const PORTAL_SERVICES_ADMIN_URL = `${PORTAL_BASE_URL}/admin/services?tab=catalog`;
+/** Portal settings: services list. */
+export const PORTAL_SERVICES_ADMIN_URL = `${PORTAL_BASE_URL}/settings/services`;
 
-/** Portal admin URL for a specific service by slug. */
-export function portalServiceEditUrl(slug: string): string {
-  return `${PORTAL_BASE_URL}/admin/services/${slug}`;
+/** Portal settings: service lines list. */
+export const PORTAL_SERVICE_LINES_ADMIN_URL = `${PORTAL_BASE_URL}/settings/service-lines`;
+
+/** Portal settings: offerings list. */
+export const PORTAL_OFFERINGS_ADMIN_URL = `${PORTAL_BASE_URL}/settings/offerings`;
+
+/** Portal settings URL for a specific service. Edit is a sheet off the list page. */
+export function portalServiceEditUrl(_slug: string): string {
+  return PORTAL_SERVICES_ADMIN_URL;
 }

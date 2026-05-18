@@ -228,7 +228,7 @@ export async function getCustomerStories() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from('customer_stories')
-    .select('*, service_lines!customer_stories_primary_category_id_fkey(name, slug), offerings!customer_stories_primary_service_id_fkey(name)')
+    .select('*, service_lines!customer_stories_primary_category_id_fkey(name, slug), services!customer_stories_primary_service_id_fkey(name)')
     .eq('is_public', true)
     .order('rank', { ascending: true });
 
@@ -349,7 +349,7 @@ export async function getCustomerStoriesByIndustry(industrySlug: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from('customer_stories')
-    .select('*, service_lines!customer_stories_primary_category_id_fkey(name, slug), offerings!customer_stories_primary_service_id_fkey(name)')
+    .select('*, service_lines!customer_stories_primary_category_id_fkey(name, slug), services!customer_stories_primary_service_id_fkey(name)')
     .eq('industry_slug', industrySlug)
     .eq('is_public', true)
     .order('rank', { ascending: true });

@@ -6,7 +6,12 @@ import { EntityTable, type EntityTableColumn } from '../_components/EntityTable'
 import { listServiceLines } from '@/lib/admin/service-lines';
 import { listServices } from '@/lib/admin/services';
 import { listOfferings } from '@/lib/admin/offerings';
-import { PORTAL_SERVICES_ADMIN_URL, portalServiceEditUrl } from '@/lib/portal-url';
+import {
+  PORTAL_SERVICES_ADMIN_URL,
+  PORTAL_SERVICE_LINES_ADMIN_URL,
+  PORTAL_OFFERINGS_ADMIN_URL,
+  portalServiceEditUrl,
+} from '@/lib/portal-url';
 
 interface Props {
   searchParams: Promise<{ tab?: string }>;
@@ -61,29 +66,16 @@ export default async function AdminServicesPage({ searchParams }: Props) {
 }
 
 function NewButton({ tab }: { tab: TabId }) {
-  // The `services` tab is read-only here — portal admin owns service catalog
-  // edits + Stripe sync (#178). Surface a portal link instead of a "New"
-  // button. The `lines` + `offerings` tabs stay writable until portal builds
-  // admin UIs for them.
-  if (tab === 'services') {
-    return (
-      <Button
-        href={PORTAL_SERVICES_ADMIN_URL}
-        variant="secondary"
-        size="md"
-      >
-        Manage in portal ↗
-      </Button>
-    );
-  }
-  const map: Record<Exclude<TabId, 'services'>, { href: string; label: string }> = {
-    lines: { href: '/admin/services/lines/new', label: 'New service line' },
-    offerings: { href: '/admin/services/offerings/new', label: 'New offering' },
+  // All three tabs are now read-only (#178, #188, #189). Portal /settings/* owns
+  // catalog writes. Surface a portal deep-link instead of a "New" button.
+  const portalMap: Record<TabId, string> = {
+    services: PORTAL_SERVICES_ADMIN_URL,
+    lines: PORTAL_SERVICE_LINES_ADMIN_URL,
+    offerings: PORTAL_OFFERINGS_ADMIN_URL,
   };
-  const cfg = map[tab];
   return (
-    <Button href={cfg.href} variant="primary" size="md">
-      {cfg.label}
+    <Button href={portalMap[tab]} variant="secondary" size="md">
+      Manage in portal ↗
     </Button>
   );
 }
@@ -106,12 +98,16 @@ async function ServiceLinesPanel() {
     { header: 'Status', cell: (r) => <PublicBadge value={r.is_public} />, width: '120px' },
   ];
   return (
-    <EntityTable
-      rows={rows}
-      columns={columns}
-      editHref={(r) => `/admin/services/lines/${r.id}/edit`}
-      emptyMessage="No service lines yet. Click 'New service line' to add one."
-    />
+    <>
+      <ReadOnlyNotice table="service lines" portalUrl={PORTAL_SERVICE_LINES_ADMIN_URL} />
+      <EntityTable
+        rows={rows}
+        columns={columns}
+        editHref={() => PORTAL_SERVICE_LINES_ADMIN_URL}
+        actionLabel="View in portal ↗"
+        emptyMessage="No service lines yet."
+      />
+    </>
   );
 }
 
@@ -128,11 +124,9 @@ async function ServicesPanel() {
     { header: 'Rank', cell: (r) => r.rank, width: '80px' },
     { header: 'Status', cell: (r) => <PublicBadge value={r.is_public} />, width: '120px' },
   ];
-  // Read-only: portal admin owns service-catalog edits (#178). Action column
-  // deep-links each row to the portal admin detail page by slug.
   return (
     <>
-      <ReadOnlyNotice />
+      <ReadOnlyNotice table="services" portalUrl={PORTAL_SERVICES_ADMIN_URL} />
       <EntityTable
         rows={rows as Row[]}
         columns={columns}
@@ -144,7 +138,7 @@ async function ServicesPanel() {
   );
 }
 
-function ReadOnlyNotice() {
+function ReadOnlyNotice({ table, portalUrl }: { table: string; portalUrl: string }) {
   return (
     <p
       style={{
@@ -158,8 +152,11 @@ function ReadOnlyNotice() {
         border: 'var(--border-width-md) solid var(--border-primary)',
       }}
     >
-      Services are managed in the portal (catalog, pricing, Stripe sync). This
-      tab is read-only — use the per-row links to edit in the portal.
+      {`${table.charAt(0).toUpperCase() + table.slice(1)} are managed in the `}
+      <a href={portalUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>
+        portal admin ↗
+      </a>
+      . This tab is read-only.
     </p>
   );
 }
@@ -175,11 +172,15 @@ async function OfferingsPanel() {
     { header: 'Status', cell: (r) => <PublicBadge value={r.is_public} />, width: '120px' },
   ];
   return (
-    <EntityTable
-      rows={rows as Row[]}
-      columns={columns}
-      editHref={(r) => `/admin/services/offerings/${r.id}/edit`}
-      emptyMessage="No offerings yet."
-    />
+    <>
+      <ReadOnlyNotice table="offerings" portalUrl={PORTAL_OFFERINGS_ADMIN_URL} />
+      <EntityTable
+        rows={rows as Row[]}
+        columns={columns}
+        editHref={() => PORTAL_OFFERINGS_ADMIN_URL}
+        actionLabel="View in portal ↗"
+        emptyMessage="No offerings yet."
+      />
+    </>
   );
 }

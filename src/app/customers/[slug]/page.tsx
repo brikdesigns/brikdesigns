@@ -310,7 +310,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                   launchDate={story.launch_date}
                   serviceLineName={story.service_lines?.name ?? null}
                   serviceLineCategory={(story.service_lines?.slug ?? null) as ServiceCategory | null}
-                  serviceName={story.offerings?.name ?? null}
+                  serviceName={(story as { services?: { name: string } | null }).services?.name ?? null}
                   shortDescription={story.short_description}
                   imageUrl={story.hero_image_url}
                 />
