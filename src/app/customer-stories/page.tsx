@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Button } from '@brikdesigns/bds';
+import { Grid, Button } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
@@ -44,7 +44,7 @@ export default async function CustomerStoriesPage() {
                   ? (mapCategorySlug(story.service_line_slug) as ServiceCategory)
                   : null;
                 const serviceLineName = (story as { service_lines?: { name: string } | null }).service_lines?.name ?? null;
-                const serviceName = (story as { offerings?: { name: string } | null }).offerings?.name ?? null;
+                const serviceName = (story as { services?: { name: string } | null }).services?.name ?? null;
                 const iconServiceName = serviceLineCategory && serviceName && hasIconFor(serviceLineCategory, serviceName)
                   ? serviceName
                   : undefined;
@@ -82,7 +82,7 @@ export default async function CustomerStoriesPage() {
                 We offer design services at every stage of your business growth — from brand to back office.
               </p>
             </div>
-            <div className="grid-3">
+            <Grid columns={3} gap="md">
               {serviceLines.map((cat) => (
                 <ServiceLineCard
                   key={cat.slug}
@@ -93,7 +93,7 @@ export default async function CustomerStoriesPage() {
                   imageUrl={cat.card_image_url}
                 />
               ))}
-            </div>
+            </Grid>
           </div>
         </section>
       )}

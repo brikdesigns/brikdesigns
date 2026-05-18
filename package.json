@@ -22,7 +22,7 @@
     "visual-parity": "node scripts/visual-parity.mjs"
   },
   "dependencies": {
-    "@brikdesigns/bds": "^0.68.2",
+    "@brikdesigns/bds": "^0.72.0",
     "@gsap/react": "^2.1.2",
     "@iconify/react": "^6.0.2",
     "@mdx-js/mdx": "^3.1.1",

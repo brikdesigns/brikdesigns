@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Grid } from '@brikdesigns/bds';
 import { getServiceCategories, resolveServiceTagCategory } from '@/lib/supabase/queries';
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
 import { text, heading } from '@/lib/styles';
@@ -63,7 +64,7 @@ export default async function ServicesPage() {
               We offer design services at every stage of your business growth — from establishment to maturity.
             </p>
           </div>
-          <div className="grid-3">
+          <Grid columns={3} gap="md">
             {mainLines.map((cat) => (
               <ServiceLineCard
                 key={cat.slug}
@@ -74,7 +75,7 @@ export default async function ServicesPage() {
                 imageUrl={cat.card_image_url}
               />
             ))}
-          </div>
+          </Grid>
         </div>
       </section>
 

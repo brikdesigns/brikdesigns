@@ -1,10 +1,7 @@
-import { NextRequest } from 'next/server';
-import {
-  adminRoute,
-  readJsonBody,
-  SERVICES_REVALIDATE_PATHS,
-} from '@/lib/admin/route-helpers';
-import { createOffering, listOfferings } from '@/lib/admin/offerings';
+import { NextRequest, NextResponse } from 'next/server';
+import { adminRoute } from '@/lib/admin/route-helpers';
+import { listOfferings } from '@/lib/admin/offerings';
+import { PORTAL_OFFERINGS_ADMIN_URL } from '@/lib/portal-url';
 
 export async function GET(request: NextRequest) {
   const service_id = request.nextUrl.searchParams.get('service_id') ?? undefined;
@@ -13,11 +10,12 @@ export async function GET(request: NextRequest) {
   }));
 }
 
-export async function POST(request: Request) {
-  const body = await readJsonBody(request);
-  return adminRoute(async () => ({
-    status: 201,
-    body: await createOffering(body),
-    revalidate: SERVICES_REVALIDATE_PATHS,
-  }));
+export async function POST() {
+  return NextResponse.json(
+    {
+      error: 'Offering writes have moved to the portal.',
+      portalAdminUrl: PORTAL_OFFERINGS_ADMIN_URL,
+    },
+    { status: 410 },
+  );
 }

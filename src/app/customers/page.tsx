@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { Button } from '@brikdesigns/bds';
-import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { Grid, Card, CardFooter, Button } from '@brikdesigns/bds';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -86,40 +84,38 @@ export default async function CustomersPage() {
       {/* Intro */}
       <section className="content-section">
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <p style={{ ...text.bodyLg, textAlign: 'center' }}>
-              You don&apos;t need to hire a full in-house team to move like one. Brik gives you access
-              to senior-level design and strategic support&mdash;without the full-time overhead.
-            </p>
-          </div>
+          <p style={text.bodyLg}>
+            You don&apos;t need to hire a full in-house team to move like one. Brik gives you access
+            to senior-level design and strategic support&mdash;without the full-time overhead.
+          </p>
         </div>
       </section>
 
       {/* Industries we know */}
       <section className="content-section content-section--accent">
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Know Inside-Out</h2>
-            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
+          <div className="content-wrapper" style={{ flexDirection: 'column' }}>
+            <h2 style={heading.lg}>Industries We Know Inside-Out</h2>
+            <p style={{ ...text.body, color: color.text.secondary }}>
               We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:
             </p>
           </div>
-          <div className="customers-industry-grid">
+          <Grid columns={3} gap="lg">
             {INDUSTRIES.map((name) => (
-              <div key={name} className="customers-industry-card">
-                <h3 style={{ ...heading.sm, textAlign: 'center' }}>{name}</h3>
-              </div>
+              <Card key={name} variant="elevated" padding="lg" style={{ textAlign: 'center' }}>
+                <h3 style={heading.sm}>{name}</h3>
+              </Card>
             ))}
-          </div>
+          </Grid>
         </div>
       </section>
 
       {/* Company size segments */}
       <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
-          <div className="grid-3">
+          <Grid columns={3} gap="md">
             {SEGMENTS.map((seg) => (
-              <div key={seg.heading} className="customers-segment-card">
+              <Card key={seg.heading} variant="outlined" padding="md">
                 <h3 style={heading.sm}>{seg.heading}</h3>
                 <p style={{ ...label.smBold, color: color.text.brand }}>{seg.subheading}</p>
                 <p style={{ ...text.bodySm, color: color.text.secondary }}>{seg.desc}</p>
@@ -131,12 +127,14 @@ export default async function CustomersPage() {
                     ))}
                   </ul>
                 </div>
-                <Button href="/contact" variant="primary" size="sm">
-                  Let&apos;s Talk
-                </Button>
-              </div>
+                <CardFooter>
+                  <Button href="/contact" variant="primary" size="sm">
+                    Let&apos;s Talk
+                  </Button>
+                </CardFooter>
+              </Card>
             ))}
-          </div>
+          </Grid>
         </div>
       </section>
 
@@ -144,17 +142,17 @@ export default async function CustomersPage() {
       {industryCards.length > 0 && (
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
-            <div className="customers-detail-grid">
+            <Grid columns={4}>
               {industryCards.map((ind: { slug: string; name: string; tagline: string | null }) => (
-                <Link key={ind.slug} href={`/customers/${ind.slug}`} className="customers-detail-card">
-                  <h3 style={heading.sm}>{ind.name}</h3>
-                  {ind.tagline && (
-                    <p style={{ ...text.bodySm, color: color.text.secondary }}>{ind.tagline}</p>
-                  )}
-                  <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}>Learn More</span>
-                </Link>
+                <Card
+                  key={ind.slug}
+                  preset="display"
+                  href={`/customers/${ind.slug}`}
+                  title={ind.name}
+                  description={ind.tagline ?? undefined}
+                />
               ))}
-            </div>
+            </Grid>
           </div>
         </section>
       )}
@@ -162,20 +160,19 @@ export default async function CustomersPage() {
       {/* Common challenges */}
       <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common Challenges We Solve</h2>
-          </div>
-          <div className="customers-challenges">
+          <h2 style={heading.lg}>Common Challenges We Solve</h2>
+          <Grid columns={2}>
             {CHALLENGES.map((challenge) => (
-              <div
+              <Card
                 key={challenge.text}
-                className="customers-challenge"
+                variant="outlined"
+                padding="md"
                 style={{ backgroundColor: challenge.bg }}
               >
                 <p style={text.body}>{challenge.text}</p>
-              </div>
+              </Card>
             ))}
-          </div>
+          </Grid>
         </div>
       </section>
 

@@ -1,9 +1,7 @@
-import {
-  adminRoute,
-  readJsonBody,
-  SERVICES_REVALIDATE_PATHS,
-} from '@/lib/admin/route-helpers';
-import { deleteOffering, getOfferingById, updateOffering } from '@/lib/admin/offerings';
+import { NextResponse } from 'next/server';
+import { adminRoute } from '@/lib/admin/route-helpers';
+import { getOfferingById } from '@/lib/admin/offerings';
+import { PORTAL_OFFERINGS_ADMIN_URL } from '@/lib/portal-url';
 
 interface Params {
   params: Promise<{ id: string }>;
@@ -16,19 +14,22 @@ export async function GET(_request: Request, { params }: Params) {
   }));
 }
 
-export async function PATCH(request: Request, { params }: Params) {
-  const { id } = await params;
-  const body = await readJsonBody(request);
-  return adminRoute(async () => ({
-    body: await updateOffering(id, body),
-    revalidate: SERVICES_REVALIDATE_PATHS,
-  }));
+export async function PATCH() {
+  return NextResponse.json(
+    {
+      error: 'Offering writes have moved to the portal.',
+      portalAdminUrl: PORTAL_OFFERINGS_ADMIN_URL,
+    },
+    { status: 410 },
+  );
 }
 
-export async function DELETE(_request: Request, { params }: Params) {
-  const { id } = await params;
-  return adminRoute(async () => {
-    await deleteOffering(id);
-    return { status: 204, body: null, revalidate: SERVICES_REVALIDATE_PATHS };
-  });
+export async function DELETE() {
+  return NextResponse.json(
+    {
+      error: 'Offering writes have moved to the portal.',
+      portalAdminUrl: PORTAL_OFFERINGS_ADMIN_URL,
+    },
+    { status: 410 },
+  );
 }

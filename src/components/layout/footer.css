@@ -1,15 +1,16 @@
 /* ─── Site-width constraint ────────────────────────────────────
-   BDS footer is full-width with its own background.  This override
-   mirrors the same effective content width as .mega-nav__container
-   and .content-section__container (90% → 1280px cap) using only
-   padding so the inverse background still spans the full viewport.
+   BDS Footer renders full-width (no inner container slot), so we
+   simulate the standard container pattern via padding-inline instead
+   of max-width + margin-inline: auto.
 
-   Formula: padding-inline = max(5%, (100% - 1280px) / 2)
-     < 1280px → 5% on each side  → content = 90% of viewport
-     ≥ 1280px → centered 1280px  → content = 1280px
+   Formula: max(--site-gutter, (100% - --site-container-max) / 2)
+     narrow  → --site-gutter provides minimum breathing room
+     ≥ 1280px → calc(...) takes over, centering 1280px of content
+
+   Workaround pending brik-bds#TBD (Footer containerMaxWidth prop).
    ─────────────────────────────────────────────────────────────── */
 .bds-footer.footer-site-width {
-  padding-inline: max(5%, calc((100% - 1280px) / 2));
+  padding-inline: max(var(--site-gutter), calc((100% - var(--site-container-max)) / 2));
 }
 
 /* Remove the border above the copyright/bottom bar. */

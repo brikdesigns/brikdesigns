@@ -129,7 +129,7 @@
 /* Full-width inline figure for hero / solution / results images */
 .story-figure {
   width: 100%;
-  max-width: 1280px;
+  max-width: var(--site-container-max);
   margin: 0 auto;
   border-radius: var(--border-radius-lg);
   overflow: hidden;

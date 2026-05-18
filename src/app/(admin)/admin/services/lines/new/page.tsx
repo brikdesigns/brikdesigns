@@ -1,26 +1,47 @@
-import { EditPageShell } from '../../../_components/EditPageShell';
-import { EntityForm } from '../../../_components/EntityForm';
-import { serviceLineFields } from '../../_components/field-configs';
-import { getBdsColorTokens, getGroupedBdsColorTokens } from '@/lib/bds-color-tokens';
+import Link from 'next/link';
+import { Button } from '@brikdesigns/bds';
+import { PORTAL_SERVICE_LINES_ADMIN_URL } from '@/lib/portal-url';
 
-export default function NewServiceLinePage() {
-  const flat = getBdsColorTokens();
-  const groups = getGroupedBdsColorTokens();
-
+export default function ServiceLineNewMovedToPortalPage() {
   return (
-    <EditPageShell
-      backHref="/admin/services?tab=lines"
-      backLabel="Service lines"
-      title="New service line"
-      subtitle="Top-level grouping shown on /services."
-    >
-      <EntityForm
-        fields={serviceLineFields({ groups, flat })}
-        initial={{}}
-        endpoint="/api/admin/service-lines"
-        mode="create"
-        successHref="/admin/services?tab=lines"
-      />
-    </EditPageShell>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-md)', maxWidth: '640px' }}>
+      <div>
+        <Link
+          href="/admin/services?tab=lines"
+          style={{
+            fontFamily: 'var(--font-family-label)',
+            fontSize: 'var(--label-sm)',
+            color: 'var(--text-secondary)',
+            textDecoration: 'none',
+          }}
+        >
+          ← Service lines
+        </Link>
+        <h1
+          style={{
+            fontFamily: 'var(--font-family-heading)',
+            fontSize: 'var(--heading-lg)',
+            color: 'var(--text-primary)',
+            margin: 'var(--gap-xs) 0 0',
+          }}
+        >
+          New service line
+        </h1>
+      </div>
+      <p
+        style={{
+          fontFamily: 'var(--font-family-body)',
+          fontSize: 'var(--body-md)',
+          color: 'var(--text-primary)',
+          margin: 0,
+        }}
+      >
+        Service line edits have moved to the portal admin. Create the new service
+        line there; it will appear here automatically once it is marked public.
+      </p>
+      <Button href={PORTAL_SERVICE_LINES_ADMIN_URL} variant="primary" size="md">
+        Open portal admin ↗
+      </Button>
+    </div>
   );
 }

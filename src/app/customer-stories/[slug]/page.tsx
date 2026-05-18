@@ -9,6 +9,7 @@ import {
   CardFooter,
   CardTitle,
   Frame,
+  Grid,
   Button,
   ServiceTag,
   Stack,
@@ -328,7 +329,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
             >
               We&apos;re more than a design studio — we&apos;re your strategic marketing partner.
             </p>
-            <div className="grid-3" style={{ marginTop: 'var(--gap-lg)' }}>
+            <Grid columns={3} gap="md" style={{ marginTop: 'var(--gap-lg)' }}>
               {otherStories.map((s) => {
                 const cat = mapCategorySlug(s.service_line_slug || 'service');
                 return (
@@ -382,7 +383,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                   </Link>
                 );
               })}
-            </div>
+            </Grid>
           </div>
         </section>
       )}

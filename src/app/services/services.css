@@ -212,44 +212,6 @@
   width: 100%;
 }
 
-/* Category page — other service lines */
-.svc-category-others {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: var(--gap-lg);
-  width: 100%;
-}
-
-.svc-category-other-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-  padding: var(--padding-lg);
-  background-color: var(--surface-primary);
-  border: 1px solid var(--border-secondary);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  transition: border-color 0.15s;
-}
-
-.svc-category-other-card:hover {
-  border-color: var(--border-brand-primary);
-}
-
-.svc-category-other-card__image {
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  aspect-ratio: 3 / 2;
-  background-color: var(--surface-accent);
-}
-
-.svc-category-other-card__image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
 /* Sibling-services image frame (BDS Frame component, customRatio="3 / 2", fit="contain").
  * Sets the accent surface background that shows around contain-fitted illustrations. */
 .svc-sibling-card__image {

@@ -16,7 +16,7 @@
   z-index: 0;
 }
 
-/* Webflow: .container-hero — column flex, left-aligned, capped width */
+/* Webflow: .container-hero — column flex, left-aligned */
 .hero-container {
   z-index: 100;
   display: flex;
@@ -24,9 +24,9 @@
   justify-content: flex-start;
   align-items: flex-start;
   width: 100%;
-  max-width: 90%;
-  padding-left: var(--padding-lg);
-  padding-right: var(--padding-lg);
+  max-width: var(--site-container-max);
+  margin-inline: auto;
+  padding-inline: var(--site-gutter);
 }
 
 /* Webflow: .layout-wrapper-hero.comfortable — gap-xl between text block and buttons */
@@ -93,17 +93,16 @@
   min-height: 100svh;
 }
 
-/* Webflow: .container-lg.center — column flex, centered items, 90% max */
+/* Webflow: .container-lg.center — column flex, centered items */
 .section-container {
   display: flex;
   flex-flow: column;
   justify-content: flex-start;
   align-items: center;
-  max-width: 90%;
   width: 100%;
-  margin: 0 auto;
-  padding-left: var(--padding-lg);
-  padding-right: var(--padding-lg);
+  max-width: var(--site-container-max);
+  margin-inline: auto;
+  padding-inline: var(--site-gutter);
   gap: 12px; /* Webflow gap--md = space-300 = 12px */
 }
 
@@ -134,16 +133,6 @@
   color: var(--text-secondary);
   margin: 0;
   max-width: 600px;
-}
-
-/* Webflow: .cms-layout-3-col — 12px gap, stretch items, 100% height */
-.grid-3-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-  height: 100%;
-  place-items: stretch stretch;
-  width: 100%;
 }
 
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
@@ -180,9 +169,9 @@
   justify-content: space-between;
   align-items: stretch;
   gap: 0;
-  max-width: 90%;
   width: 100%;
-  margin: 0 auto;
+  max-width: var(--site-container-max);
+  margin-inline: auto;
   background-color: var(--surface-primary);
   border-radius: 8px; /* Webflow: border-radius-md */
 }
@@ -250,13 +239,8 @@
 
 @media (min-width: 1280px) {
   .audit-layout {
-    max-width: 1280px;
     gap: var(--gap-xl);
     overflow: hidden;
-  }
-
-  .story-container {
-    max-width: 1280px;
   }
 }
 
@@ -280,9 +264,10 @@
   flex-flow: column;
   align-items: center;
   gap: 36px;
-  max-width: 90%;
   width: 100%;
-  margin: 0 auto;
+  max-width: var(--site-container-max);
+  margin-inline: auto;
+  padding-inline: var(--site-gutter);
 }
 
 /* Webflow: .cms-item-story — row, space-between, gap-lg (24px), white bg, sm radius */
@@ -394,13 +379,13 @@
   padding: var(--padding-huge);
 }
 
-/* Webflow: .inner-wrapper._90.center.stacked → .content-wrapper.center — 90% width, gap-md = 12px */
+/* Webflow: .inner-wrapper._90.center.stacked → .content-wrapper.center */
 .cta-inner {
   display: flex;
   flex-flow: column;
   align-items: center;
   gap: 12px;
-  max-width: 90%;
+  max-width: var(--site-container-max);
   text-align: center;
 }
 
@@ -426,14 +411,6 @@
 
 /* ─── Responsive ──────────────────────────────────────────── */
 
-/* Cap homepage containers at 1280px (matches shared-sections.css) */
-@media (min-width: 1280px) {
-  .hero-container,
-  .section-container {
-    max-width: 1280px;
-  }
-}
-
 /* Webflow: .section-header width 100% on mobile */
 @media (max-width: 767px) {
   .section-header {
@@ -443,19 +420,9 @@
 
 /* Webflow: tablet — 991px */
 @media (max-width: 991px) {
-  /* Hero */
-  .hero-container {
-    max-width: 90%;
-  }
-
   .hero-text {
     width: 100%;
     gap: 12px; /* gap-md at tablet */
-  }
-
-  /* Grids */
-  .grid-3-col {
-    grid-template-columns: 1fr 1fr;
   }
 
   /* Audit — stack vertically */
@@ -487,18 +454,12 @@
   }
 
   .hero-container {
-    max-width: 90%;
     padding: 0;
   }
 
   .hero-heading {
     font-size: var(--heading-xl);
     width: auto;
-  }
-
-  /* Grids — single column */
-  .grid-3-col {
-    grid-template-columns: 1fr;
   }
 
   /* Sections — remove min-height */

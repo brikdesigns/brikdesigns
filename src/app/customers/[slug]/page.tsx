@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapCategorySlug } from '@/lib/supabase/queries';
-import { Breadcrumb, LinkButton } from '@brikdesigns/bds';
+import { Breadcrumb, Card, Grid, LinkButton } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
@@ -230,8 +229,9 @@ export default async function CustomerDetailPage({ params }: Props) {
                * service_line_slug — they can diverge for "Other Services"
                * topics that mix lines). */}
               {services.length > 0 && (
-                <div
-                  className="grid-3"
+                <Grid
+                  columns={3}
+                  gap="md"
                   style={{ marginTop: 'var(--gap-xl)' }}
                 >
                   {services.map((svc) => {
@@ -252,7 +252,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                       />
                     );
                   })}
-                </div>
+                </Grid>
               )}
             </div>
           </section>
@@ -263,22 +263,18 @@ export default async function CustomerDetailPage({ params }: Props) {
       {otherPages.length > 0 && (
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
-            <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-              <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Other Industries</h2>
-            </div>
-            <div className="customer-others-grid">
+            <h2 style={heading.lg}>Other Industries</h2>
+            <Grid columns={3}>
               {otherPages.map((p: { slug: string; name: string; tagline: string | null }) => (
-                <Link key={p.slug} href={`/customers/${p.slug}`} className="customer-other-card">
-                  <h3 style={heading.sm}>{p.name}</h3>
-                  {p.tagline && (
-                    <p style={{ ...text.bodySm, color: color.text.secondary }}>{p.tagline}</p>
-                  )}
-                  <span style={{ ...label.smBold, color: color.text.brand, marginTop: 'auto' }}>
-                    Learn more →
-                  </span>
-                </Link>
+                <Card
+                  key={p.slug}
+                  preset="display"
+                  href={`/customers/${p.slug}`}
+                  title={p.name}
+                  description={p.tagline ?? undefined}
+                />
               ))}
-            </div>
+            </Grid>
           </div>
         </section>
       )}
@@ -287,9 +283,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {stories.length > 0 && (
         <section className="content-section content-section--secondary">
           <div className="container-lg container-lg--comfortable">
-            <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-              <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Latest Customer Story</h2>
-            </div>
+            <h2 style={heading.lg}>Latest Customer Story</h2>
             <div className="customer-stories-list">
               {stories.slice(0, 1).map((story: {
                 id: string;
@@ -312,7 +306,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                   launchDate={story.launch_date}
                   serviceLineName={story.service_lines?.name ?? null}
                   serviceLineCategory={(story.service_lines?.slug ?? null) as ServiceCategory | null}
-                  serviceName={story.offerings?.name ?? null}
+                  serviceName={(story as { services?: { name: string } | null }).services?.name ?? null}
                   shortDescription={story.short_description}
                   imageUrl={story.hero_image_url}
                 />
