@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapCategorySlug } from '@/lib/supabase/queries';
-import { Breadcrumb, Grid, LinkButton } from '@brikdesigns/bds';
+import { Breadcrumb, Card, Grid, LinkButton } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
@@ -267,19 +266,17 @@ export default async function CustomerDetailPage({ params }: Props) {
             <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
               <h2 style={{ ...heading.lg, textAlign: 'center', margin: 0 }}>Other Industries</h2>
             </div>
-            <div className="customer-others-grid">
+            <Grid columns="auto-fill" minColumnWidth="280px">
               {otherPages.map((p: { slug: string; name: string; tagline: string | null }) => (
-                <Link key={p.slug} href={`/customers/${p.slug}`} className="customer-other-card">
-                  <h3 style={heading.sm}>{p.name}</h3>
-                  {p.tagline && (
-                    <p style={{ ...text.bodySm, color: color.text.secondary }}>{p.tagline}</p>
-                  )}
-                  <span style={{ ...label.smBold, color: color.text.brand, marginTop: 'auto' }}>
-                    Learn more →
-                  </span>
-                </Link>
+                <Card
+                  key={p.slug}
+                  preset="display"
+                  href={`/customers/${p.slug}`}
+                  title={p.name}
+                  description={p.tagline ?? undefined}
+                />
               ))}
-            </div>
+            </Grid>
           </div>
         </section>
       )}
