@@ -7,7 +7,8 @@ Check this file BEFORE building any section.
 
 | Pattern | BDS Component | Import | Example |
 |---------|---------------|--------|---------|
-| Multi-col responsive grid | `Grid` | `@brikdesigns/bds` | `<Grid columns="auto-fit" minColumnWidth="360px" gap="md">` |
+| Multi-col responsive grid | `Grid` | `@brikdesigns/bds` | `<Grid columns={4} gap="lg">` or `<Grid columns="auto-fit" minColumnWidth="280px">` |
+| Section with header + card grid | `CardGrid` (blueprint) | `@brikdesigns/bds` | `<CardGrid sectionKey="services" title="..."><Grid columns={3}>...</Grid></CardGrid>` |
 | Flex row/column with gap | `Stack` | `@brikdesigns/bds` | `<Stack direction="horizontal" gap="lg" align="center">` |
 | Image/media with aspect ratio | `Frame` | `@brikdesigns/bds` | `<Frame ratio="wide" fit="cover">` |
 | Breadcrumb trail | `Breadcrumb` | `@brikdesigns/bds` | `<Breadcrumb items={[{label: 'Home', href: '/'}, {label: 'Page'}]} />` |

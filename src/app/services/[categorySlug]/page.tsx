@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupportPlanBySlug, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
-import { Button, Breadcrumb, Grid, ServiceTag } from '@brikdesigns/bds';
-import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { Button, Breadcrumb, Card, Frame, Grid, ServiceTag } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -170,22 +168,24 @@ export default async function ServiceCategoryPage({ params }: Props) {
             <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Other Service Lines
             </h2>
-            <div className="svc-category-others">
+            <Grid columns="auto-fill" minColumnWidth="250px">
               {otherCategories.map((cat) => (
-                <Link key={cat.slug} href={`/services/${cat.slug}`} className="svc-category-other-card">
-                  {cat.card_image_url && (
-                    <div className="svc-category-other-card__image">
-                      <Image src={cat.card_image_url} alt={cat.name} width={300} height={200} />
-                    </div>
-                  )}
-                  <h3 style={heading.sm}>{cat.name}</h3>
-                  {cat.tagline && <p style={{ ...text.bodySm, color: color.text.secondary }}>{cat.tagline}</p>}
-                  <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })} style={{ alignSelf: 'flex-start', marginTop: 'auto' }}>
-                    Learn more
-                  </span>
-                </Link>
+                <Card
+                  key={cat.slug}
+                  preset="display"
+                  href={`/services/${cat.slug}`}
+                  title={cat.name}
+                  description={cat.tagline ?? undefined}
+                  image={
+                    cat.card_image_url ? (
+                      <Frame customRatio="3 / 2" fit="contain">
+                        <Image src={cat.card_image_url} alt={cat.name} fill />
+                      </Frame>
+                    ) : undefined
+                  }
+                />
               ))}
-            </div>
+            </Grid>
           </div>
         </section>
       )}
