@@ -2,22 +2,36 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, install the gitleaks pre-commit hook (per-clone — once per machine). Requires `brew install gitleaks`:
+### Prerequisites
+
+- Node.js 20+ and npm
+- [`gitleaks`](https://github.com/gitleaks/gitleaks) (`brew install gitleaks`) for the pre-commit hook
+- [`op`](https://developer.1password.com/docs/cli/get-started/) (1Password CLI), signed in to a Brik account, for the install step
+
+### Install dependencies
+
+`@brikdesigns/*` packages come from GitHub Packages and need a read-scoped PAT. We resolve it from 1Password at install time via [`.env.op`](.env.op) so the token never has to live in shell env:
+
+```bash
+op run --env-file=.env.op -- npm install
+```
+
+`op run` injects `PACKAGES_READ_TOKEN` into the npm child process; [`.npmrc`](.npmrc) substitutes it into the GitHub Packages auth header for that one run. The token is gone again the moment npm exits. CI builds (GitHub Actions, Netlify) supply `PACKAGES_READ_TOKEN` directly as repo / site env — `op run` is a developer-machine concern only.
+
+If you previously had `PACKAGES_READ_TOKEN` exported from your shell (e.g. via `~/.zshenv` sourcing `~/.secrets/brik-packages.env`), you can leave that in place during the cross-repo cutover (see [`brik-llm#570`](https://github.com/brikdesigns/brik-llm/issues/570)) — `op run` will take precedence, and stripping the shell-env copy lands in a follow-up.
+
+### Install the pre-commit hook
+
+Once per clone, on each machine:
 
 ```bash
 ./scripts/install-hooks.sh
 ```
 
-Then run the development server:
+### Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

@@ -32,6 +32,10 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# .env.op is the 1Password env-file template (op:// URIs only, no secrets) —
+# see brikdesigns#253. Tracked so `op run --env-file=.env.op -- npm install`
+# works for every contributor without out-of-band coordination.
+!.env.op
 
 # vercel
 .vercel
