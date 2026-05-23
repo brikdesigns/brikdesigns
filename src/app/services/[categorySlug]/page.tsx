@@ -52,11 +52,16 @@ export default async function ServiceCategoryPage({ params }: Props) {
   // Other service lines (exclude current; top 3 by rank — rank drives display order in getServiceCategories)
   const otherCategories = allCategories.filter((c) => c.slug !== categorySlug).slice(0, 3);
 
-  // Service-line color tokens — surface for backgrounds, bg/text for button overrides
+  // Service-line color tokens.
+  // --background-brand-primary is overridden at page level so ALL primary
+  // buttons (hero, service cards, support CTA) inherit the service-line color
+  // without needing per-button inline style — mirrors the service detail page pattern.
   const svcColors = serviceColor(mapCategorySlug(category.slug));
 
   return (
-    <>
+    // Page-level cascade: service-line accent text + primary button color.
+    // Scoped to page content only — nav/footer live in the layout wrapper above this.
+    <div style={{ '--background-brand-primary': svcColors.inverse, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
       {/* ═══ Hero ═══ */}
       <section
         className="svc-detail-hero-section"
@@ -82,14 +87,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
                 <p className="page-hero__description">{category.description}</p>
               )}
               <div className="button-wrapper">
-                <Button
-                  href="#services"
-                  variant="primary"
-                  size="lg"
-                  style={{ backgroundColor: svcColors.bg, color: svcColors.text, borderColor: svcColors.bg }}
-                >
-                  View Services
-                </Button>
+                <Button href="#services" variant="primary" size="lg">View Services</Button>
               </div>
             </div>
 
@@ -102,8 +100,9 @@ export default async function ServiceCategoryPage({ params }: Props) {
                   <Image
                     src={category.hero_image_url}
                     alt={category.name}
-                    width={460}
-                    height={460}
+                    fill
+                    sizes="(max-width: 991px) 100vw, 45vw"
+                    style={{ objectFit: 'contain' }}
                     priority
                   />
                 </div>
@@ -141,7 +140,10 @@ export default async function ServiceCategoryPage({ params }: Props) {
         </div>
       </section>
 
-      {/* ═══ Monthly Support CTA ═══ */}
+      {/* ═══ Monthly Support CTA ═══
+       * Left: supportPlan.image_url (the plan's own promo illustration)
+       * Right card: category.card_image_url (the service-line character)
+       */}
       {supportPlan && (
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
@@ -152,39 +154,32 @@ export default async function ServiceCategoryPage({ params }: Props) {
               </p>
             </div>
             <div className="svc-detail-support-grid">
-              {category.hero_image_url && (
+              {supportPlan.image_url && (
                 <div className="svc-detail-support-grid__image">
                   <Image
-                    src={category.hero_image_url}
+                    src={supportPlan.image_url}
                     alt=""
-                    width={460}
-                    height={460}
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    fill
+                    sizes="(max-width: 991px) 100vw, 45vw"
+                    style={{ objectFit: 'contain' }}
                   />
                 </div>
               )}
               <div className="svc-detail-support-cta">
-                {supportPlan.image_url && (
+                {category.card_image_url && (
                   <div className="svc-detail-support-cta__image">
                     <Image
-                      src={supportPlan.image_url}
-                      alt={supportPlan.name}
-                      width={200}
-                      height={200}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      src={category.card_image_url}
+                      alt={category.name}
+                      fill
+                      sizes="180px"
+                      style={{ objectFit: 'contain' }}
                     />
                   </div>
                 )}
                 <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
                 <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
-                <Button
-                  href={`/plans#${supportPlan.slug}`}
-                  variant="primary"
-                  size="sm"
-                  style={{ backgroundColor: svcColors.bg, color: svcColors.text, borderColor: svcColors.bg }}
-                >
-                  Learn more
-                </Button>
+                <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn more</Button>
               </div>
             </div>
           </div>
@@ -224,6 +219,6 @@ export default async function ServiceCategoryPage({ params }: Props) {
           </div>
         </section>
       )}
-    </>
+    </div>
   );
 }
