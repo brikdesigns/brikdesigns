@@ -95,18 +95,8 @@
   overflow: hidden;
   background-color: var(--surface-accent);
   aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 360px;
+  position: relative;
   width: 100%;
-}
-
-.svc-detail-hero__image img {
-  width: 80%;
-  height: 80%;
-  object-fit: contain;
-  display: block;
 }
 
 /* Offerings — default vertical, grid for 3+ */
@@ -201,15 +191,40 @@
   gap: var(--gap-md);
 }
 
-/* Monthly support CTA */
+/* Monthly support — 2-col: category illustration left, plan card right */
+.svc-detail-support-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: center;
+  margin-top: var(--gap-lg);
+}
+
+.svc-detail-support-grid__image {
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background-color: var(--surface-accent);
+  aspect-ratio: 1;
+  position: relative;
+}
+
+/* Right column — support plan card */
 .svc-detail-support-cta {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--gap-md);
   padding: var(--padding-xl);
-  background-color: var(--surface-accent);
+  background-color: var(--surface-secondary);
   border-radius: var(--border-radius-lg);
-  width: 100%;
+  text-align: center;
+}
+
+.svc-detail-support-cta__image {
+  width: 180px;
+  height: 180px;
+  position: relative;
+  overflow: hidden;
 }
 
 /* Sibling-services image frame (BDS Frame component, customRatio="3 / 2", fit="contain").
@@ -236,6 +251,15 @@
 
   .svc-detail-hero {
     grid-template-columns: 1fr;
+  }
+
+  .svc-detail-support-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .svc-detail-support-grid__image {
+    max-width: 400px;
+    margin: 0 auto;
   }
 
   .svc-detail-offerings--grid {

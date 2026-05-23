@@ -403,7 +403,7 @@
   display: flex;
   align-items: center;
   gap: var(--gap-sm);
-  padding: var(--padding-tiny) var(--padding-xs);
+  padding: var(--padding-tiny) var(--padding-xs) var(--padding-tiny) 0;
   border-radius: 4px;
   text-decoration: none;
   font-family: var(--font-family-label);
