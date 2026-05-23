@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupportPlanBySlug, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
-import { Button, Breadcrumb, Card, Frame, Grid, ServiceTag } from '@brikdesigns/bds';
+import { Button, Breadcrumb, Card, Frame, Grid } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -49,20 +49,18 @@ export default async function ServiceCategoryPage({ params }: Props) {
     }
   }
 
-  // Other service lines (exclude current category)
-  const otherCategories = allCategories.filter((c) => c.slug !== categorySlug);
+  // Other service lines (exclude current; top 3 by rank — rank drives display order in getServiceCategories)
+  const otherCategories = allCategories.filter((c) => c.slug !== categorySlug).slice(0, 3);
 
-  // Service-line hero surface — canonical BDS `--surface-service-*` token
-  // resolved via the JS-side ServiceCategory key. Replaces the previous raw
-  // hex pulled from CMS `category.brand_color_light` (brikdesigns#99).
-  const heroSurface = serviceColor(mapCategorySlug(category.slug)).surface;
+  // Service-line color tokens — surface for backgrounds, bg/text for button overrides
+  const svcColors = serviceColor(mapCategorySlug(category.slug));
 
   return (
     <>
       {/* ═══ Hero ═══ */}
       <section
         className="svc-detail-hero-section"
-        style={{ backgroundColor: heroSurface }}
+        style={{ backgroundColor: svcColors.surface }}
       >
         <div className="page-hero__container">
           <Breadcrumb
@@ -76,7 +74,6 @@ export default async function ServiceCategoryPage({ params }: Props) {
 
           <div className="svc-detail-hero">
             <div className="svc-detail-hero__content">
-              <ServiceTag category={mapCategorySlug(category.slug)} variant="icon-text" label={category.name} size="md" />
               <h1 className="page-hero__title">{category.name}</h1>
               {category.tagline && (
                 <p className="page-hero__tagline">{category.tagline}</p>
@@ -85,7 +82,14 @@ export default async function ServiceCategoryPage({ params }: Props) {
                 <p className="page-hero__description">{category.description}</p>
               )}
               <div className="button-wrapper">
-                <Button href="#services" variant="primary" size="md">View Services</Button>
+                <Button
+                  href="#services"
+                  variant="primary"
+                  size="lg"
+                  style={{ backgroundColor: svcColors.bg, color: svcColors.text, borderColor: svcColors.bg }}
+                >
+                  View Services
+                </Button>
               </div>
             </div>
 
@@ -93,13 +97,13 @@ export default async function ServiceCategoryPage({ params }: Props) {
               <div className="svc-detail-hero__aside">
                 <div
                   className="svc-detail-hero__image"
-                  style={{ backgroundColor: heroSurface }}
+                  style={{ backgroundColor: svcColors.surface }}
                 >
                   <Image
                     src={category.hero_image_url}
                     alt={category.name}
-                    width={560}
-                    height={560}
+                    width={460}
+                    height={460}
                     priority
                   />
                 </div>
@@ -110,7 +114,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
       </section>
 
       {/* ═══ Service Cards ═══ */}
-      <section id="services" className="content-section content-section--secondary">
+      <section id="services" className="content-section" style={{ backgroundColor: svcColors.surface }}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {category.name} Services
@@ -147,10 +151,41 @@ export default async function ServiceCategoryPage({ params }: Props) {
                 Join our monthly support plan to get professional advice without the need for a team.
               </p>
             </div>
-            <div className="svc-detail-support-cta">
-              <h3 style={heading.sm}>{supportPlan.name}</h3>
-              <p style={{ ...text.bodySm, color: color.text.secondary }}>{supportPlan.description}</p>
-              <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn more</Button>
+            <div className="svc-detail-support-grid">
+              {category.hero_image_url && (
+                <div className="svc-detail-support-grid__image">
+                  <Image
+                    src={category.hero_image_url}
+                    alt=""
+                    width={460}
+                    height={460}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                </div>
+              )}
+              <div className="svc-detail-support-cta">
+                {supportPlan.image_url && (
+                  <div className="svc-detail-support-cta__image">
+                    <Image
+                      src={supportPlan.image_url}
+                      alt={supportPlan.name}
+                      width={200}
+                      height={200}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                  </div>
+                )}
+                <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
+                <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
+                <Button
+                  href={`/plans#${supportPlan.slug}`}
+                  variant="primary"
+                  size="sm"
+                  style={{ backgroundColor: svcColors.bg, color: svcColors.text, borderColor: svcColors.bg }}
+                >
+                  Learn more
+                </Button>
+              </div>
             </div>
           </div>
         </section>
@@ -168,7 +203,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
             <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Other Service Lines
             </h2>
-            <Grid columns="auto-fill" minColumnWidth="250px">
+            <Grid columns={3} gap="md">
               {otherCategories.map((cat) => (
                 <Card
                   key={cat.slug}
