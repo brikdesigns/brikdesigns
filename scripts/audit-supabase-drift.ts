@@ -11,9 +11,9 @@
  * site (being decommissioned); they are not an ongoing source of truth.
  *
  * Per `.claude/references/services-cms-ownership.md`:
- *   - `services` — portal owns writes (brikdesigns admin is read-only post-#179)
- *   - `service_lines`, `offerings` — interim-writable in brikdesigns until
- *     portal #765 / #766 ship admin UIs, then read-only here too
+ *   - `services` — portal owns writes (brikdesigns admin read-only post-#179)
+ *   - `service_lines` — portal owns writes (brikdesigns admin read-only post-#188)
+ *   - `offerings` — portal owns writes (brikdesigns admin read-only post-#189)
  *   - `customer_stories`, `industry_pages` — brikdesigns owns writes
  *
  * What drift findings mean now:
@@ -284,13 +284,14 @@ async function main() {
     'training-setup-organization': 'training-setup',
   };
 
-  // service_lines: portal owns the schema; brikdesigns is interim-writable
-  // until portal #765 ships an admin UI for this table. CSV ↔ Supabase drift
+  // service_lines: portal owns writes (brikdesigns admin flipped read-only via
+  // #188; portal `/settings/service-lines` is canonical). CSV ↔ Supabase drift
   // is legacy migration artifact only — Supabase is canon.
   await auditCollection({
-    title: 'Service Lines (`service_lines`) — _portal-owned schema, interim-writable here_',
+    title: 'Service Lines (`service_lines`) — _portal-owned, brikdesigns read-only_',
     csvFile: 'Service Lines',
     table: 'service_lines',
+    historical: true,
     csvToSbAliasMap: SERVICE_LINE_ALIASES,
     fields: [
       { csv: 'Name', sb: 'name' },
@@ -328,11 +329,11 @@ async function main() {
     ],
   });
 
-  // offerings: portal owns the schema; brikdesigns is interim-writable until
-  // portal #766 ships an admin UI for this table. CSV ↔ Supabase drift is
-  // legacy migration artifact only — Supabase is canon.
+  // offerings: portal owns writes (brikdesigns admin flipped read-only via
+  // #189; portal `/settings/offerings` is canonical). CSV ↔ Supabase drift
+  // is legacy migration artifact only — Supabase is canon.
   await auditCollection({
-    title: 'Offerings (`offerings`) — _portal-owned schema, interim-writable here_',
+    title: 'Offerings (`offerings`) — _portal-owned, brikdesigns read-only_',
     csvFile: 'Offerings',
     table: 'offerings',
     historical: true,
