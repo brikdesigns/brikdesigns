@@ -17,9 +17,9 @@ const aboutLinks: { label: string; href: string; icon: string }[] = [
 
 const customerLinks: { label: string; href: string; icon: string }[] = [
   { label: 'Who We Support', href: '/customers', icon: 'ph:users' },
-  { label: 'Dental', href: '/industries/dental', icon: 'ph:tooth' },
-  { label: 'Real Estate', href: '/industries/real-estate', icon: 'ph:house' },
-  { label: 'Small Business', href: '/industries/small-business', icon: 'ph:storefront' },
+  { label: 'Dental', href: '/customers/dental', icon: 'ph:tooth' },
+  { label: 'Real Estate', href: '/customers/real-estate', icon: 'ph:house' },
+  { label: 'Small Business', href: '/customers/small-business', icon: 'ph:storefront' },
 ];
 
 // Hrefs use Supabase `service_lines.slug` short-form (brand / marketing /
