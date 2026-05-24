@@ -165,7 +165,7 @@ export const getServiceBySlug = cache(
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('services')
-        .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
+        .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark, card_image_url), offerings(*)')
         .eq('slug', slug)
         .eq('is_public', true)
         .single();

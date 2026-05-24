@@ -205,6 +205,11 @@ html {
   --gap-lg: var(--space-400);
   --gap-xl: var(--space-600);
   --gap-huge: var(--space-800);
+  /* Project-level gap extensions — BDS canonical scale has no token at these sizes.
+     --gap-component: Webflow's gap-md (12px), used within card/component element stacks.
+     --gap-comfortable: section-block gap (36px), no exact BDS space primitive. */
+  --gap-component: var(--space-300);
+  --gap-comfortable: 36px;
 
   /* ---- Typography scale ---- */
   --body-tiny: var(--font-size-25);
@@ -242,6 +247,9 @@ html {
      two tokens so 1280px is defined once. Ref: brik-bds#TBD. */
   --site-container-max: 1280px;
   --site-gutter: clamp(1rem, 5vw, 2rem); /* fluid 16px → 32px, no breakpoints */
+  /* Character/plan image slot in support plan CTA cards. No BDS token exists
+     for component-specific image dimensions — project-local. */
+  --support-cta-image-size: 180px;
 }
 
 /* ================================================================
