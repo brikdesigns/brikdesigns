@@ -113,7 +113,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
       </section>
 
       {/* ═══ Service Cards ═══ */}
-      <section id="services" className="content-section" style={{ backgroundColor: svcColors.surface }}>
+      <section id="services" className="content-section" style={{ backgroundColor: svcColors.surfaceLight }}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {category.name} Services
@@ -165,22 +165,24 @@ export default async function ServiceCategoryPage({ params }: Props) {
                   />
                 </div>
               )}
-              <div className="svc-detail-support-cta">
-                {category.card_image_url && (
-                  <div className="svc-detail-support-cta__image">
-                    <Image
-                      src={category.card_image_url}
-                      alt={category.name}
-                      fill
-                      sizes="180px"
-                      style={{ objectFit: 'contain' }}
-                    />
-                  </div>
-                )}
-                <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
-                <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
-                <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn more</Button>
-              </div>
+              <Card variant="outlined" padding="lg">
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: gap.md, textAlign: 'center' }}>
+                  {category.card_image_url && (
+                    <div className="svc-detail-support-cta__image">
+                      <Image
+                        src={category.card_image_url}
+                        alt={category.name}
+                        fill
+                        sizes="180px"
+                        style={{ objectFit: 'contain' }}
+                      />
+                    </div>
+                  )}
+                  <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
+                  <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
+                  <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn more</Button>
+                </div>
+              </Card>
             </div>
           </div>
         </section>

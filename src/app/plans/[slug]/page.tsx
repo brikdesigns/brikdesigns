@@ -81,11 +81,23 @@ export default async function PlanDetailPage({ params }: Props) {
   const includedServices: IncludedService[] = Array.from(seenServices.values());
 
   // Derive service-line audience from included services — service_plans has no
-  // service_line_id (plans span lines by design). First service's line wins.
-  const firstLineSlug = includedServices[0]?.service_lines?.slug ?? '';
-  const firstLineName = includedServices[0]?.service_lines?.name ?? '';
-  const audience = mapCategorySlug(firstLineSlug);
+  // service_line_id (plans span lines by design). Most common line wins to avoid
+  // a single out-of-order item driving the wrong service-line color.
+  const lineCounts = new Map<string, number>();
+  for (const svc of includedServices) {
+    const slug = svc.service_lines?.slug ?? '';
+    lineCounts.set(slug, (lineCounts.get(slug) ?? 0) + 1);
+  }
+  let dominantLineSlug = includedServices[0]?.service_lines?.slug ?? '';
+  let maxCount = 0;
+  for (const [slug, count] of lineCounts) {
+    if (count > maxCount) { maxCount = count; dominantLineSlug = slug; }
+  }
+  const dominantLineName =
+    includedServices.find((s) => s.service_lines?.slug === dominantLineSlug)?.service_lines?.name ?? '';
+  const audience = mapCategorySlug(dominantLineSlug);
   const audienceTokens = serviceColor(audience);
+  const firstLineName = dominantLineName;
 
   const otherPlans = await getOtherSupportPlans(slug);
 
@@ -161,56 +173,57 @@ export default async function PlanDetailPage({ params }: Props) {
       )}
 
       {/* ═══ CTA ═══
-       * Webflow layout: eyebrow "Get" + plan name h2 + plan's own description
-       * + price + single Get Started button. Full-width tinted section, not a
-       * card. Tint is the service-line surface so the CTA stays visually tied
-       * to the audience cascade established at the page root.
+       * Tinted section (surfaceLight) with a Card inset — lighter background
+       * keeps the service-line palette tied to the audience while the Card
+       * provides a clear focal surface for the pricing call-to-action.
        */}
       <section
         className="content-section"
-        style={{ backgroundColor: audienceTokens.surface }}
+        style={{ backgroundColor: audienceTokens.surfaceLight }}
       >
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center">
-            <p style={{ ...label.smBold, color: audienceTokens.text }}>Get</p>
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
-            {plan.description && (
-              <p
-                style={{
-                  ...text.bodyLg,
-                  color: color.text.secondary,
-                  textAlign: 'center',
-                  maxWidth: '560px',
-                }}
-              >
-                {plan.description}
-              </p>
-            )}
-            {plan.monthly_price_display && (
-              <p
-                style={{
-                  ...heading.md,
-                  color: audienceTokens.text,
-                  textAlign: 'center',
-                }}
-              >
-                {plan.monthly_price_display}
-                <span style={{ ...text.bodyLg, color: color.text.secondary }}>
-                  {' '}
-                  /month
-                </span>
-              </p>
-            )}
-            <div className="button-wrapper button-wrapper--center">
-              <Button
-                href={`/get-started?plan=${plan.slug}`}
-                variant="primary"
-                size="lg"
-              >
-                Get Started
-              </Button>
+          <Card variant="outlined" padding="lg" style={{ maxWidth: '640px', margin: '0 auto' }}>
+            <div className="content-wrapper content-wrapper--center">
+              <p style={{ ...label.smBold, color: audienceTokens.text }}>Get</p>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
+              {plan.description && (
+                <p
+                  style={{
+                    ...text.bodyLg,
+                    color: color.text.secondary,
+                    textAlign: 'center',
+                    maxWidth: '560px',
+                  }}
+                >
+                  {plan.description}
+                </p>
+              )}
+              {plan.monthly_price_display && (
+                <p
+                  style={{
+                    ...heading.md,
+                    color: audienceTokens.text,
+                    textAlign: 'center',
+                  }}
+                >
+                  {plan.monthly_price_display}
+                  <span style={{ ...text.bodyLg, color: color.text.secondary }}>
+                    {' '}
+                    /month
+                  </span>
+                </p>
+              )}
+              <div className="button-wrapper button-wrapper--center">
+                <Button
+                  href={`/get-started?plan=${plan.slug}`}
+                  variant="primary"
+                  size="lg"
+                >
+                  Get Started
+                </Button>
+              </div>
             </div>
-          </div>
+          </Card>
         </div>
       </section>
 
