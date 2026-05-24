@@ -255,7 +255,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         {industries.map((ind) => (
                           <Link
                             key={ind.slug}
-                            href={`/industries/${ind.slug}`}
+                            href={`/customers/${ind.slug}`}
                             className="mega-nav__industry-card"
                             onClick={() => setOpen(null)}
                           >
