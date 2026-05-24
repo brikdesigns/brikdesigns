@@ -22,7 +22,7 @@ import {
 } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
 import { text, heading } from '@/lib/styles';
-import { color, gap } from '@/lib/tokens';
+import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../customer-stories.css';
 
@@ -102,7 +102,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
     <>
       {/* ═══ Header — breadcrumb + title + metadata ═══ */}
       <section className="content-section">
-        <div className="container-lg">
+        <div className="container-lg container-lg--story">
           <Breadcrumb
             style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
             items={[
@@ -120,7 +120,6 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                 ...text.bodyLg,
                 color: color.text.secondary,
                 marginTop: 'var(--gap-md)',
-                maxWidth: '70ch',
               }}
             >
               {story.short_description}
@@ -129,37 +128,37 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
           <dl className="story-detail-meta">
             {story.client_name && story.client_name !== story.name && (
-              <>
+              <div>
                 <dt className="story-detail-meta__label">Client</dt>
                 <dd className="story-detail-meta__value">{story.client_name}</dd>
-              </>
+              </div>
             )}
             {serviceLineName && (
-              <>
+              <div>
                 <dt className="story-detail-meta__label">Service Line</dt>
                 <dd className="story-detail-meta__value">{serviceLineName}</dd>
-              </>
+              </div>
             )}
             {relatedService?.name && (
-              <>
+              <div>
                 <dt className="story-detail-meta__label">Service</dt>
                 <dd className="story-detail-meta__value">{relatedService.name}</dd>
-              </>
+              </div>
             )}
             {story.industry && (
-              <>
+              <div>
                 <dt className="story-detail-meta__label">Industry</dt>
                 <dd className="story-detail-meta__value">{story.industry}</dd>
-              </>
+              </div>
             )}
             {completion && (
-              <>
+              <div>
                 <dt className="story-detail-meta__label">Completion Date</dt>
                 <dd className="story-detail-meta__value">{completion}</dd>
-              </>
+              </div>
             )}
             {story.client_website_url && (
-              <>
+              <div>
                 <dt className="story-detail-meta__label">Website</dt>
                 <dd className="story-detail-meta__value">
                   <a
@@ -171,7 +170,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                     View website
                   </a>
                 </dd>
-              </>
+              </div>
             )}
           </dl>
         </div>
@@ -198,8 +197,8 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
       {/* ═══ The Challenge ═══ */}
       {story.the_challenge && (
-        <section className="content-section content-section--tight">
-          <div className="container-lg">
+        <section className="content-section content-section--tight content-section--accent">
+          <div className="container-lg container-lg--story">
             <div className="story-narrative">
               <h2 style={heading.md}>The Challenge</h2>
               <div
@@ -218,7 +217,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
       {/* ═══ Inline solution image ═══ */}
       {story.after_photo_url && (
-        <section className="content-section content-section--tight">
+        <section className="content-section content-section--tight content-section--accent">
           <div className="container-lg">
             <div className="story-figure">
               <Frame ratio="wide" fit="cover">
@@ -236,8 +235,8 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
       {/* ═══ The Brik Solution ═══ */}
       {story.the_solution && (
-        <section className="content-section content-section--tight">
-          <div className="container-lg">
+        <section className="content-section content-section--tight content-section--accent">
+          <div className="container-lg container-lg--story">
             <div className="story-narrative">
               <h2 style={heading.md}>The Brik Solution</h2>
               <div
@@ -256,7 +255,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
       {/* ═══ Inline results image ═══ */}
       {story.results_photo_url && (
-        <section className="content-section content-section--tight">
+        <section className="content-section content-section--tight content-section--accent">
           <div className="container-lg">
             <div className="story-figure">
               <Frame ratio="wide" fit="cover">
@@ -274,8 +273,8 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
       {/* ═══ Results ═══ */}
       {story.results && (
-        <section className="content-section content-section--tight">
-          <div className="container-lg">
+        <section className="content-section content-section--tight content-section--accent">
+          <div className="container-lg container-lg--story">
             <div className="story-narrative">
               <h2 style={heading.md}>Results</h2>
               <div
@@ -292,17 +291,12 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
         </section>
       )}
 
-      {/* ═══ Block-quote testimonial ═══
-       * Local styled blockquote pending a BDS canonical block-quote
-       * component (filed upstream). The existing BDS CardTestimonial
-       * reads as a "card", not the inline quote treatment Webflow uses
-       * on these story pages.
-       */}
+      {/* ═══ Pull-quote ═══ */}
       {story.quote && (
-        <section className="content-section content-section--tight">
-          <div className="container-lg">
+        <section className="content-section content-section--tight content-section--accent">
+          <div className="container-lg container-lg--story">
             <blockquote className="story-quote">
-              <p className="story-quote__body">{story.quote}</p>
+              <p className="story-quote__description">{story.quote}</p>
               {(story.quote_attribution || story.client_name) && (
                 <footer className="story-quote__attribution">
                   — {story.quote_attribution || story.client_name}
@@ -315,7 +309,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
       {/* ═══ Other Customer Stories — 3-col grid ═══ */}
       {otherStories.length > 0 && (
-        <section className="content-section content-section--secondary">
+        <section className="content-section content-section--accent">
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Other Customer Stories</h2>
             <p
@@ -343,14 +337,15 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                       padding="md"
                       interactive
                       className="services-card"
+                      style={{ height: '100%' }}
                     >
                       {s.hero_image_url && (
-                        <div className="services-card__image">
+                        <div className="services-card__image services-card__image--landscape">
                           <Image
                             src={s.hero_image_url}
                             alt={s.client_name || s.name || ''}
                             width={400}
-                            height={400}
+                            height={225}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
                         </div>
@@ -363,6 +358,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                             variant="icon-text"
                             label={SERVICE_LINE_NAMES[cat] || cat}
                             size="sm"
+                            style={{ alignSelf: 'flex-start' }}
                           />
                         )}
                         <CardTitle>{s.name || s.client_name}</CardTitle>
@@ -390,10 +386,13 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
       {/* ═══ Related Services — single row card ═══ */}
       {relatedService && (
-        <section className="content-section">
+        <section
+          className="content-section"
+          style={{ backgroundColor: serviceColor(relatedAudience).surface }}
+        >
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Related Services</h2>
-            <Card padding="lg" style={{ marginTop: 'var(--gap-lg)' }}>
+            <Card variant="outlined" padding="lg" style={{ marginTop: 'var(--gap-lg)' }}>
               <Stack direction="horizontal" gap="lg" align="center">
                 {relatedService.image_url && (
                   <div style={{ flex: '0 0 35%' }}>
@@ -416,6 +415,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                     variant="icon-text"
                     label={relatedService.name}
                     size="md"
+                    style={{ alignSelf: 'flex-start' }}
                   />
                   <CardTitle>{relatedService.name}</CardTitle>
                   {(relatedService.description || relatedService.tagline) && (

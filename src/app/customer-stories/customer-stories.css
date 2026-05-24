@@ -90,25 +90,41 @@
 }
 
 /* ─── Customer story detail page ─────────────────────────── */
-/* Page rebuild covering hero image, body images, metadata block,
- * styled blockquote, related stories grid + related services card
- * (parity #169). */
+
+/* Reading container for the story detail page. Width is set to match
+ * the intended content width so margin-inline: auto (from container-lg)
+ * is the sole centering mechanism — no secondary max-width needed on
+ * individual children. Children fill the full container; left-alignment
+ * of breadcrumbs and headings follows from align-items: flex-start. */
+.container-lg--story {
+  max-width: 760px;
+  align-items: flex-start;
+}
 
 /* Tighter vertical rhythm for the image-narrative-image-narrative
- * cadence that runs from hero through Results. The Webflow target has
- * snug spacing between these adjacent blocks; the default
- * .content-section --padding-huge gap is too airy for that flow. */
+ * cadence that runs from hero through Results. */
 .content-section--tight {
   padding: var(--padding-xl) 0;
 }
 
-/* Project metadata — 2-column definition list under the title */
+/* Project metadata — 2-col grid, one field per cell.
+ * <dl> wraps each dt/dd pair in a <div> (valid HTML5) so the grid
+ * places label + value as a paired unit in each column slot. */
 .story-detail-meta {
   display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: var(--gap-sm) var(--gap-lg);
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
   margin: var(--gap-lg) 0 0;
-  max-width: 640px;
+  padding: var(--padding-md) var(--padding-lg);
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+  width: 100%;
+}
+
+.story-detail-meta > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
 }
 
 .story-detail-meta__label {
@@ -135,56 +151,52 @@
   overflow: hidden;
 }
 
-/* Narrow text block for narrative sections — keeps line length readable */
+/* Narrative text block — fills the story container width. The container
+ * max-width is already sized for comfortable reading so no secondary
+ * constraint is needed here. */
 .story-narrative {
-  max-width: 720px;
-  margin: 0 auto;
+  width: 100%;
 }
 
-/* ─── Block-quote testimonial ─────────────────────────────
- * Inline styled quote for the customer-story narrative arc. Distinct
- * from BDS CardTestimonial which reads as a discrete card. A BDS
- * canonical block-quote component is filed upstream as a follow-up;
- * once shipped, this local treatment should be swapped to consume
- * that. */
+/* ─── Pull-quote ───────────────────────────────────────────
+ * Inline blockquote treatment for the customer-story narrative arc.
+ * Left border in brand color; no background (inherits section accent).
+ * __description (not __body — body is a token scale, not a role). */
 .story-quote {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: var(--padding-md) var(--padding-lg);
-  border-left: var(--border-width-lg) solid var(--border-brand-primary);
-  background-color: var(--surface-accent);
-  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+  width: 100%;
+  margin: 0;
+  padding-block: var(--padding-md);
+  padding-inline-start: var(--padding-lg);
+  border-left: var(--border-width-huge) solid var(--border-brand-primary);
 }
 
-.story-quote__body {
+.story-quote__description {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: var(--heading-sm);
-  font-weight: 500;
+  font-size: var(--heading-md);
+  font-weight: 300;
   font-style: italic;
-  line-height: 1.45;
-  color: var(--text-primary);
+  line-height: 1.5;
+  color: var(--text-secondary);
 }
 
 .story-quote__attribution {
-  margin-top: var(--gap-md);
+  margin-top: var(--gap-sm);
   font-family: var(--font-family-label);
   font-size: var(--body-sm);
-  font-weight: 600;
+  font-weight: 400;
   color: var(--text-secondary);
+}
+
+/* ─── Other Customer Stories grid cards ────────────────────
+ * Hero images are landscape; override the square aspect ratio used on
+ * the /services pages to maintain consistent proportions here. */
+.services-card__image--landscape {
+  aspect-ratio: 16/9;
 }
 
 @media (max-width: 767px) {
   .story-detail-meta {
     grid-template-columns: 1fr;
-    gap: var(--gap-xs);
-  }
-
-  .story-detail-meta__label {
-    margin-top: var(--gap-sm);
-  }
-
-  .story-quote {
-    padding: var(--padding-sm) var(--padding-md);
   }
 }
