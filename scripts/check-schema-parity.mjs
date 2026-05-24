@@ -20,9 +20,9 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const TYPES = path.join(ROOT, 'src/types/supabase.ts');
-// Each admin-writable CMS table is covered. `configsFile` is per-entity
-// because the admin UI groups field-configs by area (services/, stories/,
-// blog/) — they're not all in one file.
+// Each admin-writable CMS table is covered. brikdesigns#252 retired blog_posts
+// and customer_stories admin writes (portal /settings/* owns those now), so
+// only the services-family entries remain here.
 const ENTITIES = [
   {
     table: 'service_lines',
@@ -41,18 +41,6 @@ const ENTITIES = [
     schemaFile: 'src/lib/admin/offerings.ts',
     configsFile: 'src/app/(admin)/admin/services/_components/field-configs.ts',
     configFn: 'offeringFields',
-  },
-  {
-    table: 'customer_stories',
-    schemaFile: 'src/lib/admin/customer-stories.ts',
-    configsFile: 'src/app/(admin)/admin/stories/_components/field-configs.ts',
-    configFn: 'customerStoryFields',
-  },
-  {
-    table: 'blog_posts',
-    schemaFile: 'src/lib/admin/blog-posts.ts',
-    configsFile: 'src/app/(admin)/admin/blog/_components/field-configs.ts',
-    configFn: 'blogPostFields',
   },
 ];
 

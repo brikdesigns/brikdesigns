@@ -33,6 +33,10 @@ const nextConfig = {
   // of truth and how to add a new mapping.
   async redirects() {
     return [
+      // ── Blog + customer-stories admin moved to portal /settings/* (brikdesigns#252)
+      { source: '/admin/blog/:path*', destination: 'https://portal.brikdesigns.com/settings/blog-posts', permanent: true },
+      { source: '/admin/stories/:path*', destination: 'https://portal.brikdesigns.com/settings/customer-stories', permanent: true },
+
       // ── Customer story singular → plural
       { source: '/customer-story/:slug', destination: '/customer-stories/:slug', permanent: true },
 

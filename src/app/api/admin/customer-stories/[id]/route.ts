@@ -1,38 +1,24 @@
-import {
-  adminRoute,
-  readJsonBody,
-  STORIES_REVALIDATE_PATHS,
-} from '@/lib/admin/route-helpers';
-import {
-  deleteCustomerStory,
-  getCustomerStoryById,
-  updateCustomerStory,
-} from '@/lib/admin/customer-stories';
+import { NextResponse } from 'next/server';
 
-interface Params {
-  params: Promise<{ id: string }>;
+const gone = () =>
+  NextResponse.json(
+    {
+      error: 'Gone',
+      message:
+        'Customer stories admin moved to brik-client-portal /settings/customer-stories.',
+      moved_to: 'https://portal.brikdesigns.com/settings/customer-stories',
+    },
+    { status: 410 },
+  );
+
+export async function GET() {
+  return gone();
 }
 
-export async function GET(_request: Request, { params }: Params) {
-  const { id } = await params;
-  return adminRoute(async () => ({
-    body: await getCustomerStoryById(id),
-  }));
+export async function PATCH() {
+  return gone();
 }
 
-export async function PATCH(request: Request, { params }: Params) {
-  const { id } = await params;
-  const body = await readJsonBody(request);
-  return adminRoute(async () => ({
-    body: await updateCustomerStory(id, body),
-    revalidate: STORIES_REVALIDATE_PATHS,
-  }));
-}
-
-export async function DELETE(_request: Request, { params }: Params) {
-  const { id } = await params;
-  return adminRoute(async () => {
-    await deleteCustomerStory(id);
-    return { status: 204, body: null, revalidate: STORIES_REVALIDATE_PATHS };
-  });
+export async function DELETE() {
+  return gone();
 }
