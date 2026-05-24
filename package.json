@@ -19,7 +19,8 @@
     "gen:types": "node scripts/gen-types.mjs",
     "check:schema": "node scripts/check-schema-parity.mjs",
     "test:a11y": "playwright test",
-    "visual-parity": "node scripts/visual-parity.mjs"
+    "visual-parity": "node scripts/visual-parity.mjs",
+    "prepare": "husky"
   },
   "dependencies": {
     "@brikdesigns/bds": "^0.72.0",
@@ -49,6 +50,7 @@
     "csv-parse": "^6.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "husky": "^9.1.7",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
