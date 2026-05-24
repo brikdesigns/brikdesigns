@@ -23,7 +23,7 @@ export default function AdminHomePage() {
             margin: 0,
           }}
         >
-          Manage services, customer stories, plans, and blog posts that publish to brikdesigns.com.
+          Manage services and plans that publish to brikdesigns.com. Blog posts and customer stories now live in the portal at /settings/blog-posts and /settings/customer-stories.
         </p>
       </div>
 
@@ -41,21 +41,9 @@ export default function AdminHomePage() {
           status="live"
         />
         <SectionCard
-          href="/admin/stories"
-          title="Customer stories"
-          description="Portfolio entries shown on /customer-stories."
-          status="live"
-        />
-        <SectionCard
           title="Plans"
           description="Support plans shown on /plans."
           status="coming-soon"
-        />
-        <SectionCard
-          href="/admin/blog"
-          title="Blog posts"
-          description="Articles shown on /blog. Markdown body, draft / published / archived status."
-          status="live"
         />
       </section>
     </div>

@@ -1,24 +1,20 @@
-import {
-  adminRoute,
-  readJsonBody,
-  STORIES_REVALIDATE_PATHS,
-} from '@/lib/admin/route-helpers';
-import {
-  createCustomerStory,
-  listCustomerStories,
-} from '@/lib/admin/customer-stories';
+import { NextResponse } from 'next/server';
+
+const gone = () =>
+  NextResponse.json(
+    {
+      error: 'Gone',
+      message:
+        'Customer stories admin moved to brik-client-portal /settings/customer-stories.',
+      moved_to: 'https://portal.brikdesigns.com/settings/customer-stories',
+    },
+    { status: 410 },
+  );
 
 export async function GET() {
-  return adminRoute(async () => ({
-    body: await listCustomerStories(),
-  }));
+  return gone();
 }
 
-export async function POST(request: Request) {
-  const body = await readJsonBody(request);
-  return adminRoute(async () => ({
-    status: 201,
-    body: await createCustomerStory(body),
-    revalidate: STORIES_REVALIDATE_PATHS,
-  }));
+export async function POST() {
+  return gone();
 }
