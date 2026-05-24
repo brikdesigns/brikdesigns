@@ -170,6 +170,7 @@ export default async function HomePage() {
                       alt={featuredStory.client_name || 'Customer story'}
                       width={600}
                       height={400}
+                      priority
                       style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
                     />
                   ) : (

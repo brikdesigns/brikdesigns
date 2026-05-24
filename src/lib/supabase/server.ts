@@ -27,6 +27,21 @@ export async function createClient() {
 }
 
 /**
+ * Cookie-free client for public CMS reads. Safe to use inside
+ * `unstable_cache` callbacks — those run outside request context on cache
+ * hits, so `cookies()` must not be called. All queries wrapped with
+ * `unstable_cache` in queries.ts use this client; auth-gated routes
+ * continue to use `createClient()`.
+ */
+export function createPublicClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => [], setAll: () => {} } }
+  );
+}
+
+/**
  * Service role client for server-side admin operations (lead creation, etc.).
  * Never expose this in client-side code.
  */

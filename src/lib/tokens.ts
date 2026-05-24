@@ -146,12 +146,6 @@ export const color = {
     input: 'var(--border-input)',
     inverse: 'var(--border-inverse)',
   },
-  brand: {
-    // brikdesigns: globals.css aliases --brand--primary (legacy double-dash)
-    // to the canonical --brand-primary; both resolve to poppy red. Reference
-    // the canonical name here.
-    primary: 'var(--brand-primary)',
-  },
   page: {
     primary: 'var(--page-primary)',
     secondary: 'var(--page-secondary)',

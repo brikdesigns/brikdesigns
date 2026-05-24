@@ -36,6 +36,11 @@ type Props = { params: Promise<{ slug: string }> };
 
 export const revalidate = 86400;
 
+export async function generateStaticParams() {
+  const pages = await getIndustryPages();
+  return pages.map((p: { slug: string }) => ({ slug: p.slug }));
+}
+
 // Fixed tinted backgrounds per topic_number — matches Webflow per-topic colored sections.
 // High-luminance values maintain text-primary 4.5:1+ contrast.
 const TOPIC_TINTS: Record<number, string> = {

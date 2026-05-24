@@ -68,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq('is_public', true);
 
   const industryPages: MetadataRoute.Sitemap = (industries || []).map((ind) => ({
-    url: `${BASE_URL}/industries/${ind.slug}`,
+    url: `${BASE_URL}/customers/${ind.slug}`,
     changeFrequency: 'monthly' as const,
     priority: 0.7,
   }));

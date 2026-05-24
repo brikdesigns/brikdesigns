@@ -21,8 +21,10 @@ export class HttpError extends Error {
  * On success, calls `revalidatePath` for the marketing surfaces that should
  * reflect the change, then returns the JSON payload.
  */
+type RevalidateEntry = string | readonly [string, 'page' | 'layout'];
+
 export async function adminRoute<T>(
-  handler: () => Promise<{ status?: number; body: T; revalidate?: string[] }>,
+  handler: () => Promise<{ status?: number; body: T; revalidate?: RevalidateEntry[] }>,
 ): Promise<NextResponse> {
   const authUser = await getAuthUser();
   if (!authUser) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -30,7 +32,13 @@ export async function adminRoute<T>(
 
   try {
     const { status = 200, body, revalidate } = await handler();
-    revalidate?.forEach((path) => revalidatePath(path));
+    revalidate?.forEach((entry) => {
+      if (Array.isArray(entry)) {
+        revalidatePath(entry[0] as string, entry[1] as 'page' | 'layout');
+      } else {
+        revalidatePath(entry as string);
+      }
+    });
     return NextResponse.json(body, { status });
   } catch (err) {
     if (err instanceof AdminInputError) {
@@ -59,9 +67,16 @@ export async function readJsonBody(request: Request): Promise<unknown> {
 /**
  * Marketing paths that depend on services/offerings/service_lines.
  * Every successful mutation revalidates this set so edits show up without
- * waiting on the 3600s ISR window.
+ * waiting on the 86400s ISR window.
+ *
+ * The tuple form passes a `type` arg to revalidatePath so the dynamic pattern
+ * busts ALL pre-rendered service detail pages, not just the index.
  */
-export const SERVICES_REVALIDATE_PATHS = ['/services', '/'];
+export const SERVICES_REVALIDATE_PATHS: RevalidateEntry[] = [
+  '/services',
+  ['/services/[categorySlug]/[serviceSlug]', 'page'],
+  '/',
+];
 
 /** Paths revalidated after customer_stories mutations. */
 export const STORIES_REVALIDATE_PATHS = ['/customer-stories', '/'];
