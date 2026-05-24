@@ -26,7 +26,7 @@ import {
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
-import { text, heading, label } from '@/lib/styles';
+import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
 import '../../../shared-sections.css';
 import '../../services.css';
@@ -457,16 +457,42 @@ export default async function ServiceDetailPage({ params }: Props) {
        * in the brikdesigns CMS audit (#114 followup).
        */}
       {supportPlan && (
-        <section
-          className="content-section"
-          style={{ background: color.background.inverse }}
-        >
-          <div className="container-lg">
-            <div className="svc-detail-support-cta">
-              <p style={{ ...label.smBold, color: color.text.brand }}>Want a partner to avoid the full-time hassle?</p>
-              <h2 style={heading.md}>{supportPlan.name}</h2>
-              <p style={{ ...text.bodySm, color: color.text.secondary }}>{supportPlan.description}</p>
-              <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn More</Button>
+        <section className="content-section">
+          <div className="container-lg container-lg--comfortable">
+            <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
+              <h2 style={{ ...heading.md, textAlign: 'center' }}>Want a partner to avoid the full-time hassle?</h2>
+              <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
+                We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
+              </p>
+            </div>
+            <div className="svc-detail-support-grid">
+              {supportPlan.image_url && (
+                <div className="svc-detail-support-grid__image">
+                  <Image
+                    src={supportPlan.image_url}
+                    alt=""
+                    fill
+                    sizes="(max-width: 991px) 100vw, 45vw"
+                    style={{ objectFit: 'contain' }}
+                  />
+                </div>
+              )}
+              <div className="svc-detail-support-cta">
+                {category?.card_image_url && (
+                  <div className="svc-detail-support-cta__image">
+                    <Image
+                      src={category.card_image_url}
+                      alt={category.name ?? ''}
+                      fill
+                      sizes="180px"
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </div>
+                )}
+                <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
+                <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
+                <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn More</Button>
+              </div>
             </div>
           </div>
         </section>

@@ -16,7 +16,7 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: var(--gap-component);
   height: 100%;
 }
 
@@ -122,7 +122,7 @@
 .svc-detail-story-card {
   display: flex;
   padding: var(--padding-lg);
-  border: 1px solid var(--border-secondary);
+  border: var(--border-width-sm) solid var(--border-secondary);
   border-radius: var(--border-radius-lg);
   text-decoration: none;
   transition: border-color 0.15s;
@@ -167,7 +167,7 @@
   align-items: center;
   padding: var(--padding-xl);
   background-color: var(--surface-primary);
-  border: 1px solid var(--border-secondary);
+  border: var(--border-width-sm) solid var(--border-secondary);
   border-radius: var(--border-radius-lg);
   width: 100%;
 }
@@ -221,8 +221,8 @@
 }
 
 .svc-detail-support-cta__image {
-  width: 180px;
-  height: 180px;
+  width: var(--support-cta-image-size);
+  height: var(--support-cta-image-size);
   position: relative;
   overflow: hidden;
 }

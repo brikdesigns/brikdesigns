@@ -90,7 +90,7 @@
 
 .content-wrapper {
   display: flex;
-  gap: 12px; /* Webflow: gap--md */
+  gap: var(--gap-component);
   width: 100%;
 }
 
@@ -148,7 +148,7 @@
   padding-inline: var(--site-gutter);
 }
 
-.container-lg--comfortable { gap: 36px; }
+.container-lg--comfortable { gap: var(--gap-comfortable); }
 
 /* ─── Illustration image frame ───────────────────────────── */
 /* Apply to any Frame or image container holding a square illustration with a
