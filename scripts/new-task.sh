@@ -230,8 +230,8 @@ if [ -f "${PRIMARY_PATH}/.netlify/state.json" ]; then
 fi
 
 # ── Install dependencies ──
-echo -e "${YELLOW}▸ Installing dependencies (npm ci --prefer-offline)...${NC}"
-npm ci --prefer-offline 2>&1 | tail -1
+echo -e "${YELLOW}▸ Installing dependencies (op run -- npm ci --prefer-offline)...${NC}"
+op run --env-file=.env.op -- npm ci --prefer-offline 2>&1 | tail -1
 
 # ── Summary ──
 echo ""
