@@ -23,3 +23,51 @@
   background: transparent;
   border-radius: 0;
 }
+
+/* ─── Plan detail — included services list ───────────────── */
+
+.plan-service-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.plan-service-list-item {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--gap-lg);
+  align-items: flex-start;
+}
+
+.plan-service-list-item__image {
+  aspect-ratio: 1;
+  background-color: var(--surface-accent);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.plan-service-list-item__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.plan-service-list-item__title {
+  font: var(--heading-sm);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.plan-service-list-item__description {
+  font: var(--body-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+@media (max-width: 479px) {
+  .plan-service-list-item {
+    grid-template-columns: 72px 1fr;
+    gap: var(--gap-md);
+  }
+}

@@ -208,18 +208,6 @@
   position: relative;
 }
 
-/* Right column — support plan card */
-.svc-detail-support-cta {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--gap-md);
-  padding: var(--padding-xl);
-  background-color: var(--surface-secondary);
-  border-radius: var(--border-radius-lg);
-  text-align: center;
-}
-
 .svc-detail-support-cta__image {
   width: var(--support-cta-image-size);
   height: var(--support-cta-image-size);

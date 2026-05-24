@@ -5,13 +5,12 @@ import Image from 'next/image';
 import {
   Card,
   CardGrid,
-  Frame,
-  Grid,
   Button,
   SegmentedControl,
   ServiceTag,
 } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
+import { gap } from '@/lib/tokens';
 
 // Category + icon resolution happen on the server (queries.ts pulls
 // next/headers and can't be imported here); page.tsx pre-resolves both
@@ -47,7 +46,7 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
   return (
     <CardGrid sectionKey="what-you-get" title="What You Get">
       {showSegments && (
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--gap-xl)' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: gap.xl }}>
           <SegmentedControl
             items={lines.map((l) => ({ label: l.name, value: l.slug }))}
             value={activeLine}
@@ -56,49 +55,50 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
           />
         </div>
       )}
-      <Grid columns={3} gap="lg">
+      <div className="plan-service-list">
         {visibleServices.map((svc) => {
           const lineSlug = svc.service_lines?.slug ?? '';
           return (
-            <Card
-              key={svc.slug}
-              preset="display"
-              image={
-                svc.image_url ? (
-                  <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">
+            <Card key={svc.slug} variant="outlined" padding="md">
+              <div className="plan-service-list-item">
+                {svc.image_url && (
+                  <div className="plan-service-list-item__image">
                     <Image
                       src={svc.image_url}
                       alt={svc.name}
-                      width={400}
-                      height={267}
+                      fill
+                      sizes="96px"
+                      style={{ objectFit: 'contain' }}
                     />
-                  </Frame>
-                ) : undefined
-              }
-              tag={
-                <ServiceTag
-                  category={svc.category}
-                  {...(svc.hasIcon ? { serviceName: svc.name } : {})}
-                  variant="icon-text"
-                  label={svc.name}
-                  size="sm"
-                />
-              }
-              title={svc.name}
-              description={svc.description ?? undefined}
-              action={
-                <Button
-                  href={`/services/${lineSlug}/${svc.slug}`}
-                  variant="primary"
-                  size="sm"
-                >
-                  Learn More
-                </Button>
-              }
-            />
+                  </div>
+                )}
+                <div className="plan-service-list-item__content">
+                  <ServiceTag
+                    category={svc.category}
+                    {...(svc.hasIcon ? { serviceName: svc.name } : {})}
+                    variant="icon-text"
+                    label={svc.service_lines?.name ?? svc.name}
+                    size="sm"
+                  />
+                  <h3 className="plan-service-list-item__title">{svc.name}</h3>
+                  {svc.description && (
+                    <p className="plan-service-list-item__description">{svc.description}</p>
+                  )}
+                  <div>
+                    <Button
+                      href={`/services/${lineSlug}/${svc.slug}`}
+                      variant="primary"
+                      size="sm"
+                    >
+                      Learn More
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
           );
         })}
-      </Grid>
+      </div>
     </CardGrid>
   );
 }
