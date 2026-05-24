@@ -1,21 +1,19 @@
-import {
-  adminRoute,
-  readJsonBody,
-  BLOG_REVALIDATE_PATHS,
-} from '@/lib/admin/route-helpers';
-import { createBlogPost, listBlogPosts } from '@/lib/admin/blog-posts';
+import { NextResponse } from 'next/server';
+
+const gone = () =>
+  NextResponse.json(
+    {
+      error: 'Gone',
+      message: 'Blog admin moved to brik-client-portal /settings/blog-posts.',
+      moved_to: 'https://portal.brikdesigns.com/settings/blog-posts',
+    },
+    { status: 410 },
+  );
 
 export async function GET() {
-  return adminRoute(async () => ({
-    body: await listBlogPosts(),
-  }));
+  return gone();
 }
 
-export async function POST(request: Request) {
-  const body = await readJsonBody(request);
-  return adminRoute(async () => ({
-    status: 201,
-    body: await createBlogPost(body),
-    revalidate: BLOG_REVALIDATE_PATHS,
-  }));
+export async function POST() {
+  return gone();
 }

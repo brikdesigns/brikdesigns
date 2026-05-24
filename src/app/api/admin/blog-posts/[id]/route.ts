@@ -1,38 +1,23 @@
-import {
-  adminRoute,
-  readJsonBody,
-  BLOG_REVALIDATE_PATHS,
-} from '@/lib/admin/route-helpers';
-import {
-  deleteBlogPost,
-  getBlogPostById,
-  updateBlogPost,
-} from '@/lib/admin/blog-posts';
+import { NextResponse } from 'next/server';
 
-interface Params {
-  params: Promise<{ id: string }>;
+const gone = () =>
+  NextResponse.json(
+    {
+      error: 'Gone',
+      message: 'Blog admin moved to brik-client-portal /settings/blog-posts.',
+      moved_to: 'https://portal.brikdesigns.com/settings/blog-posts',
+    },
+    { status: 410 },
+  );
+
+export async function GET() {
+  return gone();
 }
 
-export async function GET(_request: Request, { params }: Params) {
-  const { id } = await params;
-  return adminRoute(async () => ({
-    body: await getBlogPostById(id),
-  }));
+export async function PATCH() {
+  return gone();
 }
 
-export async function PATCH(request: Request, { params }: Params) {
-  const { id } = await params;
-  const body = await readJsonBody(request);
-  return adminRoute(async () => ({
-    body: await updateBlogPost(id, body),
-    revalidate: BLOG_REVALIDATE_PATHS,
-  }));
-}
-
-export async function DELETE(_request: Request, { params }: Params) {
-  const { id } = await params;
-  return adminRoute(async () => {
-    await deleteBlogPost(id);
-    return { status: 204, body: null, revalidate: BLOG_REVALIDATE_PATHS };
-  });
+export async function DELETE() {
+  return gone();
 }
