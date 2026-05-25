@@ -10,7 +10,7 @@ import {
   ServiceTag,
 } from '@brikdesigns/bds';
 import type { ServiceCategory } from '@brikdesigns/bds';
-import { gap } from '@/lib/tokens';
+import { gap, serviceColor } from '@/lib/tokens';
 
 // Category + icon resolution happen on the server (queries.ts pulls
 // next/headers and can't be imported here); page.tsx pre-resolves both
@@ -44,7 +44,7 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
     : services;
 
   return (
-    <CardGrid sectionKey="what-you-get" title="What You Get">
+    <CardGrid sectionKey="what-you-get" title="What You Get" className="plan-what-you-get">
       {showSegments && (
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: gap.xl }}>
           <SegmentedControl
@@ -58,6 +58,7 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
       <div className="plan-service-list">
         {visibleServices.map((svc) => {
           const lineSlug = svc.service_lines?.slug ?? '';
+          const svcTokens = serviceColor(svc.category);
           return (
             <Card key={svc.slug} variant="outlined" padding="md">
               <div className="plan-service-list-item">
@@ -84,7 +85,7 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
                   {svc.description && (
                     <p className="plan-service-list-item__description">{svc.description}</p>
                   )}
-                  <div>
+                  <div style={{ '--background-brand-primary': svcTokens.bg } as React.CSSProperties}>
                     <Button
                       href={`/services/${lineSlug}/${svc.slug}`}
                       variant="primary"
