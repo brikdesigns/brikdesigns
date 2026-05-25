@@ -52,6 +52,14 @@ export default async function ServiceCategoryPage({ params }: Props) {
   // Other service lines (exclude current; top 3 by rank — rank drives display order in getServiceCategories)
   const otherCategories = allCategories.filter((c) => c.slug !== categorySlug).slice(0, 3);
 
+  // Canonical plan owner: find the service line whose slug prefixes the plan slug
+  // (e.g. "marketing-support-plan" → marketing). Multiple lines can share a plan;
+  // this picks the right one so the card shows the correct image and colors.
+  const planOwnerLine = allCategories.find(
+    (c) => (category.support_plan_slug ?? '').startsWith(c.slug)
+  ) ?? category;
+  const planOwnerColors = serviceColor(mapCategorySlug(planOwnerLine.slug));
+
   // Service-line color tokens.
   // --background-brand-primary is overridden at page level so ALL primary
   // buttons (hero, service cards, support CTA) inherit the service-line color
@@ -142,7 +150,9 @@ export default async function ServiceCategoryPage({ params }: Props) {
 
       {/* ═══ Monthly Support CTA ═══
        * Left: supportPlan.image_url (the plan's own promo illustration)
-       * Right card: category.card_image_url (the service-line character)
+       * Right card: planOwnerLine.card_image_url — the service-line that owns
+       * this plan (e.g. marketing) so brand/information pages show the correct
+       * character and colors rather than inheriting the current page's line.
        */}
       {supportPlan && (
         <section className="content-section">
@@ -153,7 +163,10 @@ export default async function ServiceCategoryPage({ params }: Props) {
                 Join our monthly support plan to get professional advice without the need for a team.
               </p>
             </div>
-            <div className="svc-detail-support-grid">
+            <div
+              className="svc-detail-support-grid"
+              style={{ '--background-brand-primary': planOwnerColors.inverse, '--text-brand-primary': planOwnerColors.text } as React.CSSProperties}
+            >
               {supportPlan.image_url && (
                 <div className="svc-detail-support-grid__image">
                   <Image
@@ -166,12 +179,12 @@ export default async function ServiceCategoryPage({ params }: Props) {
                 </div>
               )}
               <Card variant="outlined" padding="lg">
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: gap.md, textAlign: 'center' }}>
-                  {category.card_image_url && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
+                  {planOwnerLine.card_image_url && (
                     <div className="svc-detail-support-cta__image">
                       <Image
-                        src={category.card_image_url}
-                        alt={category.name}
+                        src={planOwnerLine.card_image_url}
+                        alt={planOwnerLine.name}
                         fill
                         sizes="180px"
                         style={{ objectFit: 'contain' }}
@@ -179,7 +192,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
                     </div>
                   )}
                   <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
-                  <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
+                  <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
                   <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="md">Learn more</Button>
                 </div>
               </Card>
