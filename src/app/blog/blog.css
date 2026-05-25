@@ -60,5 +60,6 @@
 
 .blog-post__body {
   width: 100%;
+  max-width: var(--content-width-narrow);
   margin-top: var(--gap-xl);
 }
