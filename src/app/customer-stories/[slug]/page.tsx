@@ -18,7 +18,7 @@ import {
   getCustomerStoryBySlug,
   getOtherCustomerStories,
   getServiceBySlug,
-  mapCategorySlug,
+  mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
 import { text, heading } from '@/lib/styles';
@@ -90,12 +90,12 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
     if (Array.isArray(sl)) return sl[0]?.slug || 'service';
     return (sl as { slug: string }).slug || 'service';
   })();
-  const relatedCatSlug = mapCategorySlug(relatedCatRaw);
+  const relatedCatSlug = mapServiceLineSlug(relatedCatRaw);
   const relatedAudience = relatedCatSlug;
 
   const completion = formatDate(story.launch_date);
   const serviceLineName = story.service_line_slug
-    ? SERVICE_LINE_NAMES[mapCategorySlug(story.service_line_slug)] || null
+    ? SERVICE_LINE_NAMES[mapServiceLineSlug(story.service_line_slug)] || null
     : null;
 
   return (
@@ -325,7 +325,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
             </p>
             <Grid columns={3} gap="md" style={{ marginTop: 'var(--gap-lg)' }}>
               {otherStories.map((s) => {
-                const cat = mapCategorySlug(s.service_line_slug || 'service');
+                const cat = mapServiceLineSlug(s.service_line_slug || 'service');
                 return (
                   <Link
                     key={s.slug}

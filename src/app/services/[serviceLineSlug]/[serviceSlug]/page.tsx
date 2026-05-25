@@ -4,11 +4,11 @@ import Image from 'next/image';
 import { hasIconFor, SERVICE_LINE_ICON } from '@/lib/service-icons';
 import {
   getServiceBySlug,
-  getServicesByCategory,
+  getServicesByServiceLine,
   getStoriesByService,
   getRelatedService,
   getSupportPlansByServiceId,
-  mapCategorySlug,
+  mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import {
   Card,
@@ -83,7 +83,7 @@ function parseFeatures(includedScope: string | null | undefined): string[] | und
   return items.length > 0 ? items : undefined;
 }
 
-type Props = { params: Promise<{ categorySlug: string; serviceSlug: string }> };
+type Props = { params: Promise<{ serviceLineSlug: string; serviceSlug: string }> };
 
 export const revalidate = 86400;
 
@@ -101,7 +101,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ServiceDetailPage({ params }: Props) {
-  const { categorySlug, serviceSlug } = await params;
+  const { serviceLineSlug, serviceSlug } = await params;
 
   let service;
   try {
@@ -110,7 +110,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     notFound();
   }
 
-  const category = service.service_lines;
+  const serviceLine = service.service_lines;
   const offerings = service.offerings?.filter((o: { is_public: boolean }) => o.is_public) || [];
   // Cheapest first. base_price_cents is the canonical price column owned by
   // the portal admin (mirrors the Stripe price); marketing-display strings
@@ -132,9 +132,9 @@ export default async function ServiceDetailPage({ params }: Props) {
     ? formatPrice(sortedOfferings[0]?.base_price_cents)
     : null;
 
-  // Related services in same category (exclude current)
-  const siblingServices = category?.id
-    ? (await getServicesByCategory(category.id)).filter((s) => s.slug !== serviceSlug).slice(0, 3)
+  // Related services in same service line (exclude current)
+  const siblingServices = serviceLine?.id
+    ? (await getServicesByServiceLine(serviceLine.id)).filter((s) => s.slug !== serviceSlug).slice(0, 3)
     : [];
 
   // Customer story — scoped to this service
@@ -148,12 +148,12 @@ export default async function ServiceDetailPage({ params }: Props) {
     ? await getRelatedService(service.related_service_slug)
     : null;
 
-  // Resolve related service's category slug for URLs
-  const relatedCatSlug = (() => {
-    if (!relatedService?.service_lines) return categorySlug;
-    const catData = relatedService.service_lines;
-    if (Array.isArray(catData)) return catData[0]?.slug || categorySlug;
-    return (catData as { slug: string }).slug || categorySlug;
+  // Resolve related service's service-line slug for URLs
+  const relatedServiceLineSlug = (() => {
+    if (!relatedService?.service_lines) return serviceLineSlug;
+    const lineData = relatedService.service_lines;
+    if (Array.isArray(lineData)) return lineData[0]?.slug || serviceLineSlug;
+    return (lineData as { slug: string }).slug || serviceLineSlug;
   })();
 
   // Support plan — M:N via service_supported_plans; replaces service.support_plan_slug (#206)
@@ -169,7 +169,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   // BDS itself sets --bp-hero-img-card-* and --background-inverse on
   // `.bp-hero-img-card[data-audience]`, so those aren't repeated here
   // (brikdesigns#99 fix for the prior raw-hex bypass).
-  const audience = mapCategorySlug(category?.slug || categorySlug);
+  const audience = mapServiceLineSlug(serviceLine?.slug || serviceLineSlug);
   const audienceTokens = serviceColor(audience);
 
   const heroSection: BlueprintSection = {
@@ -191,7 +191,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         : null,
     breadcrumb: [
       { label: 'All Services', href: '/services' },
-      { label: category?.name || categorySlug, href: `/services/${categorySlug}` },
+      { label: serviceLine?.name || serviceLineSlug, href: `/services/${serviceLineSlug}` },
       { label: service.name },
     ],
     audience,
@@ -201,7 +201,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     // the icon set comes from the canonical BDS-shipped art (theme handling
     // happens at the surrounding hero level).
     iconUrl: SERVICE_LINE_ICON[audience],
-    iconAlt: `${category?.name || categorySlug} icon`,
+    iconAlt: `${serviceLine?.name || serviceLineSlug} icon`,
     priceCard: service.image_url
       ? {
           imageUrl: service.image_url,
@@ -366,8 +366,8 @@ export default async function ServiceDetailPage({ params }: Props) {
               )}
               <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
                 <ServiceTag
-                  category={mapCategorySlug(relatedCatSlug)}
-                  {...(hasIconFor(mapCategorySlug(relatedCatSlug), relatedService.name)
+                  category={mapServiceLineSlug(relatedServiceLineSlug)}
+                  {...(hasIconFor(mapServiceLineSlug(relatedServiceLineSlug), relatedService.name)
                     ? { serviceName: relatedService.name }
                     : {})}
                   variant="icon-text"
@@ -383,7 +383,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 )}
                 <CardFooter>
                   <Button
-                    href={`/services/${relatedCatSlug}/${relatedService.slug}`}
+                    href={`/services/${relatedServiceLineSlug}/${relatedService.slug}`}
                     variant="primary"
                     size="sm"
                   >
@@ -401,11 +401,11 @@ export default async function ServiceDetailPage({ params }: Props) {
       {siblingServices.length > 0 && (
         <CardGrid
           sectionKey="other-services"
-          title={`Other ${category?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
+          title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
-              const cat = mapCategorySlug(category?.slug || categorySlug);
+              const cat = mapServiceLineSlug(serviceLine?.slug || serviceLineSlug);
               return (
                 <Card
                   key={svc.slug}
@@ -435,7 +435,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   description={svc.description || svc.tagline || undefined}
                   action={
                     <Button
-                      href={`/services/${categorySlug}/${svc.slug}`}
+                      href={`/services/${serviceLineSlug}/${svc.slug}`}
                       variant="primary"
                       size="sm"
                     >
@@ -478,11 +478,11 @@ export default async function ServiceDetailPage({ params }: Props) {
                 </div>
               )}
               <div className="svc-detail-support-cta">
-                {category?.card_image_url && (
+                {serviceLine?.card_image_url && (
                   <div className="svc-detail-support-cta__image">
                     <Image
-                      src={category.card_image_url}
-                      alt={category.name ?? ''}
+                      src={serviceLine.card_image_url}
+                      alt={serviceLine.name ?? ''}
                       fill
                       sizes="180px"
                       style={{ objectFit: 'contain' }}

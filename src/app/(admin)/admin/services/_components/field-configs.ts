@@ -33,7 +33,7 @@ export function serviceLineFields(opts: ColorTokenInputs): FieldOrSection[] {
       kind: 'select',
       name: 'service_tag_category',
       label: 'BDS ServiceTag category',
-      // The 5 canonical BDS ServiceCategory values; matches the DB check
+      // The 5 canonical BDS ServiceLine values; matches the DB check
       // constraint in portal migration 00182. Extending requires both a BDS
       // upstream PR and a portal migration to widen the check.
       options: [

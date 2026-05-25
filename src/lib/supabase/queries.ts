@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
+import type { ServiceLine } from '@brikdesigns/bds';
 import { createPublicClient } from './server';
 
 /**
@@ -29,7 +30,7 @@ import { createPublicClient } from './server';
  *     session cookies — the anon key + is_public filter is sufficient.
  */
 
-// Map `service_lines.slug` → BDS ServiceTag category enum.
+// Map `service_lines.slug` → BDS ServiceLine enum.
 //
 // Canonical slugs are the short form (brand / marketing / information /
 // product / service) — matches what the Next.js dynamic route resolves.
@@ -38,7 +39,7 @@ import { createPublicClient } from './server';
 // Webflow URL redirects (`/detail_service/*` → `/services/:splat`) are
 // handled at the edge in netlify.toml and are separate from this map.
 // See #113, #121, #132.
-const CATEGORY_MAP: Record<string, 'brand' | 'marketing' | 'information' | 'product' | 'service'> = {
+const SERVICE_LINE_MAP: Record<string, ServiceLine> = {
   // Canonical short-form slugs (route and DB canonical)
   brand: 'brand',
   marketing: 'marketing',
@@ -54,10 +55,8 @@ const CATEGORY_MAP: Record<string, 'brand' | 'marketing' | 'information' | 'prod
   'back-office-design': 'service',
 };
 
-export function mapCategorySlug(
-  slug: string,
-): 'brand' | 'marketing' | 'information' | 'product' | 'service' {
-  const mapped = CATEGORY_MAP[slug];
+export function mapServiceLineSlug(slug: string): ServiceLine {
+  const mapped = SERVICE_LINE_MAP[slug];
   if (mapped) return mapped;
   // Loud fallback: silent `|| 'brand'` hid 3 NULL service_line_id rows for
   // weeks on the support-plan pages — every detail page rendered with the
@@ -66,7 +65,7 @@ export function mapCategorySlug(
   // console.warn means the next regression shows up in Netlify function
   // logs and `npm run dev` output, not in a user report days later.
   console.warn(
-    `[mapCategorySlug] Unknown service-line slug "${slug}" — falling back to 'brand'. ` +
+    `[mapServiceLineSlug] Unknown service-line slug "${slug}" — falling back to 'brand'. ` +
       `Check service_lines.slug and the upstream FK (plans.service_line_id, ` +
       `services.service_line_id, etc.) in Supabase.`,
   );
@@ -77,7 +76,7 @@ export function mapCategorySlug(
  * Resolve the BDS <ServiceTag> category for a service_lines row.
  *
  * Prefers the CMS-editable `service_tag_category` column (portal migration
- * 00182, brikdesigns#129). Falls back to slug-derivation via mapCategorySlug
+ * 00182, brikdesigns#129). Falls back to slug-derivation via mapServiceLineSlug
  * when the column is NULL — preserves rendering for legacy rows during
  * rollout. Cast is safe because the DB check constraint enforces the 5
  * canonical BDS values.
@@ -85,9 +84,8 @@ export function mapCategorySlug(
 export function resolveServiceTagCategory(row: {
   slug: string;
   service_tag_category?: string | null;
-}): 'brand' | 'marketing' | 'information' | 'product' | 'service' {
-  return (row.service_tag_category ?? mapCategorySlug(row.slug)) as
-    'brand' | 'marketing' | 'information' | 'product' | 'service';
+}): ServiceLine {
+  return (row.service_tag_category ?? mapServiceLineSlug(row.slug)) as ServiceLine;
 }
 
 // ============================================================
@@ -111,7 +109,7 @@ export const getServiceCategories = cache(
   )
 );
 
-export const getCategoryBySlug = cache(
+export const getServiceLineBySlug = cache(
   unstable_cache(
     async (slug: string) => {
       const supabase = createPublicClient();
@@ -124,7 +122,7 @@ export const getCategoryBySlug = cache(
       if (error) throw error;
       return data;
     },
-    ['category-by-slug'],
+    ['service-line-by-slug'],
     { revalidate: 86400, tags: ['cms-service-lines'] }
   )
 );
@@ -150,20 +148,20 @@ export const getServices = cache(
   )
 );
 
-export const getServicesByCategory = cache(
+export const getServicesByServiceLine = cache(
   unstable_cache(
-    async (categoryId: string) => {
+    async (serviceLineId: string) => {
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('services')
         .select('*')
-        .eq('service_line_id', categoryId)
+        .eq('service_line_id', serviceLineId)
         .eq('is_public', true)
         .order('rank', { ascending: true });
       if (error) throw error;
       return data;
     },
-    ['services-by-category'],
+    ['services-by-service-line'],
     { revalidate: 3600, tags: ['cms-services'] }
   )
 );

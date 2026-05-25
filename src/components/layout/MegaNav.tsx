@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { ServiceTag } from '@brikdesigns/bds';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { planImage } from '@/lib/plan-images';
 import { ThemeToggle } from './ThemeToggle';
@@ -21,10 +21,10 @@ interface ServiceItem {
   slug: string;
 }
 
-interface ServiceLine {
+interface NavServiceLine {
   name: string;
   slug: string;
-  category: ServiceCategory;
+  category: BdsServiceLine;
   tagline: string;
   services: ServiceItem[];
 }
@@ -45,7 +45,7 @@ interface IndustryItem {
 }
 
 export interface MegaNavProps {
-  serviceLines: ServiceLine[];
+  serviceLines: NavServiceLine[];
   supportPlans: SupportPlan[];
   industries: IndustryItem[];
 }

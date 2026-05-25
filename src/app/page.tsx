@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapCategorySlug } from '@/lib/supabase/queries';
+import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Grid, Button } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
@@ -22,7 +22,7 @@ export default async function HomePage() {
     id: cat.id,
     name: cat.name,
     slug: cat.slug,
-    category: mapCategorySlug(cat.slug),
+    category: mapServiceLineSlug(cat.slug),
     tagline: cat.tagline || '',
     description: cat.description || '',
     hero_image_url: cat.hero_image_url || null,

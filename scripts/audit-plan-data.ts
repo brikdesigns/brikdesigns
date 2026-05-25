@@ -4,7 +4,7 @@
  *
  * Read-only audit of the `plans` table on staging Supabase. Prints each
  * support plan's slug, name, service_line_id, joined service_lines.slug,
- * and what mapCategorySlug() would resolve to. Surfaces NULL/wrong
+ * and what mapServiceLineSlug() would resolve to. Surfaces NULL/wrong
  * service-line affinity so the audience cascade (--surface-service-*,
  * --background-inverse, etc.) doesn't silently fall back to 'brand'.
  *

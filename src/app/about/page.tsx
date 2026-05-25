@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Grid, Button } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
-import { getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
+import { getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import '../shared-sections.css';
@@ -70,7 +70,7 @@ export default async function AboutPage() {
     .map((cat) => ({
       name: cat.name,
       slug: cat.slug,
-      category: mapCategorySlug(cat.slug),
+      category: mapServiceLineSlug(cat.slug),
       description: cat.tagline || cat.description || '',
       imageUrl: cat.card_image_url || null,
     }));

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { Footer as BdsFooter, ServiceTag } from '@brikdesigns/bds';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 import { color } from '@/lib/tokens';
 import { heading, text } from '@/lib/styles';
 import { NewsletterForm } from './NewsletterForm';
@@ -25,8 +25,8 @@ const customerLinks: { label: string; href: string; icon: string }[] = [
 // Hrefs use Supabase `service_lines.slug` short-form (brand / marketing /
 // information / product / service). The long-form Webflow slugs
 // (brand-design, marketing-design, …) DO NOT resolve under the Next.js
-// dynamic route `/services/[categorySlug]` — they return 404. See #113.
-const serviceLines: { label: string; href: string; category: ServiceCategory }[] = [
+// dynamic route `/services/[serviceLineSlug]` — they return 404. See #113.
+const serviceLines: { label: string; href: string; category: ServiceLine }[] = [
   { label: 'Brand Design', href: '/services/brand', category: 'brand' },
   { label: 'Information Design', href: '/services/information', category: 'information' },
   { label: 'Marketing Design', href: '/services/marketing', category: 'marketing' },

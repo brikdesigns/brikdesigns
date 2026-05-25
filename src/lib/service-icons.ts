@@ -19,11 +19,11 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 
-type IconManifest = Record<ServiceCategory, Set<string>>;
+type IconManifest = Record<ServiceLine, Set<string>>;
 
-const CATEGORIES: readonly ServiceCategory[] = ['brand', 'marketing', 'information', 'product', 'service'];
+const CATEGORIES: readonly ServiceLine[] = ['brand', 'marketing', 'information', 'product', 'service'];
 
 function loadIconManifest(): IconManifest {
   const map = {} as IconManifest;
@@ -138,7 +138,7 @@ const SERVICE_ICON_OVERRIDES: Record<string, string> = {
   'Training Setup & Organization': 'back-office-training-setup',
 };
 
-function predictedIconBasename(category: ServiceCategory, serviceName: string): string {
+function predictedIconBasename(category: ServiceLine, serviceName: string): string {
   if (SERVICE_ICON_OVERRIDES[serviceName]) return SERVICE_ICON_OVERRIDES[serviceName];
   const normalized = serviceName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
   if (category === 'information') {
@@ -148,14 +148,14 @@ function predictedIconBasename(category: ServiceCategory, serviceName: string): 
 }
 
 /** True iff a matching icon file exists on disk for the predicted BDS path. */
-export function hasIconFor(category: ServiceCategory, serviceName: string): boolean {
+export function hasIconFor(category: ServiceLine, serviceName: string): boolean {
   return ICON_MANIFEST[category]?.has(predictedIconBasename(category, serviceName)) ?? false;
 }
 
 /** Service-line default icon (5 entries) — for places where BDS's per-service
  *  resolver can't run (e.g., a Server Component passing iconUrl to a blueprint).
  */
-export const SERVICE_LINE_ICON: Record<ServiceCategory, string> = {
+export const SERVICE_LINE_ICON: Record<ServiceLine, string> = {
   brand: '/icons/brand/brand-design.svg',
   marketing: '/icons/marketing/marketing-design.svg',
   information: '/icons/information/information-design.svg',

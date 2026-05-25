@@ -49,7 +49,7 @@
 }
 
 /* Industry hero illustration — sits in the aside slot opposite the
- * title/intro text. Matches the /services/[categorySlug] hero aside
+ * title/intro text. Matches the /services/[serviceLineSlug] hero aside
  * pattern. Webflow-CDN illustrations are square (.webp 2x); cap at
  * 420px so the hero stays compact and the text column still gets
  * comfortable line lengths. */

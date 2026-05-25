@@ -71,7 +71,7 @@ interface CollectionResult {
 }
 
 // Service lines have a known canonical short→long mapping baked into the
-// app's CATEGORY_MAP. Encode it here so we don't rely on name fuzzing.
+// app's SERVICE_LINE_MAP. Encode it here so we don't rely on name fuzzing.
 const SERVICE_LINE_SLUG_ALIASES: Record<string, string> = {
   'brand-design': 'brand',
   'marketing-design': 'marketing',
