@@ -58,15 +58,6 @@
 
 /* ─── Service detail page ─────────────────────────────────── */
 
-/* Hero section — brand-colored background, dynamic per category */
-.svc-detail-hero-section {
-  padding: var(--padding-huge) 0;
-  background-color: var(--surface-accent);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
 /* Hero — split layout: content left, image + price right */
 .svc-detail-hero {
   display: grid;
