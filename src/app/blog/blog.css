@@ -4,7 +4,7 @@
   overflow: hidden;
 }
 
-.blog-card__image {
+.blog-card__media {
   position: relative;
   width: 100%;
   aspect-ratio: 16/9;

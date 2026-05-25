@@ -12,7 +12,7 @@ import type { ServiceLine } from '@brikdesigns/bds';
 import '../../shared-sections.css';
 import '../customers.css';
 // CustomerStoryCard's CSS lives under /customer-stories/ — must be imported
-// here so `.story-card__image { position: relative }` applies. Without it,
+// here so `.story-card__media { position: relative }` applies. Without it,
 // the <Image fill> inside the story card escapes its parent (position:
 // static) and overlays the page hero. Component-local CSS would be cleaner;
 // tracked as follow-up.
@@ -156,7 +156,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                   alt=""
                   width={560}
                   height={560}
-                  className="customer-detail-hero__image"
+                  className="customer-detail-hero__media"
                   priority
                 />
               </div>
@@ -194,7 +194,7 @@ export default async function CustomerDetailPage({ params }: Props) {
               {topic.image_url ? (
                 /* Split layout: image + content side by side (unique layout) */
                 <div className="customer-topic">
-                  <div className="customer-topic__image">
+                  <div className="customer-topic__media">
                     <Image
                       src={topic.image_url}
                       alt={topic.title ?? ''}

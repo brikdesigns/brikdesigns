@@ -412,7 +412,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   preset="display"
                   image={
                     svc.image_url ? (
-                      <Frame customRatio="3 / 2" fit="contain" className="svc-sibling-card__image">
+                      <Frame customRatio="3 / 2" fit="contain" className="svc-sibling-card__media">
                         <Image
                           src={svc.image_url}
                           alt={svc.name}
@@ -467,7 +467,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             </div>
             <div className="svc-detail-support-grid">
               {supportPlan.image_url && (
-                <div className="svc-detail-support-grid__image">
+                <div className="svc-detail-support-grid__media">
                   <Image
                     src={supportPlan.image_url}
                     alt=""
@@ -479,7 +479,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               )}
               <div className="svc-detail-support-cta">
                 {serviceLine?.card_image_url && (
-                  <div className="svc-detail-support-cta__image">
+                  <div className="svc-detail-support-cta__media">
                     <Image
                       src={serviceLine.card_image_url}
                       alt={serviceLine.name ?? ''}

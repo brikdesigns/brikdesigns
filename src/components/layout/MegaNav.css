@@ -339,7 +339,7 @@
   border-radius: var(--border-radius-md);
 }
 
-.mega-nav__product-promo-img {
+.mega-nav__product-promo-media {
   aspect-ratio: 1;
   border-radius: var(--border-radius-md);
   overflow: hidden;
@@ -493,7 +493,7 @@
 }
 
 /* Webflow: .img-frame-service — square with accent bg */
-.mega-nav__industry-img {
+.mega-nav__industry-media {
   aspect-ratio: 1;
   border-radius: var(--border-radius-lg);
   background-color: var(--surface-accent);
@@ -588,7 +588,7 @@
 }
 
 /* Webflow: .img-frame-service */
-.mega-nav__about-card-img {
+.mega-nav__about-card-media {
   aspect-ratio: 1;
   border-radius: var(--border-radius-lg);
   background-color: var(--surface-accent);

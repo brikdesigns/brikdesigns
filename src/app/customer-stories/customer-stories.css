@@ -21,7 +21,7 @@
   min-height: 260px;
 }
 
-.story-card__image-wrap {
+.story-card__media-wrap {
   background-color: var(--surface-secondary);
   padding: var(--padding-md);
   display: flex;
@@ -29,7 +29,7 @@
   justify-content: center;
 }
 
-.story-card__image {
+.story-card__media {
   position: relative;
   width: 100%;
   aspect-ratio: 4/3;
@@ -76,11 +76,11 @@
     grid-template-columns: 1fr;
   }
 
-  .story-card__image-wrap {
+  .story-card__media-wrap {
     padding: var(--padding-sm);
   }
 
-  .story-card__image {
+  .story-card__media {
     aspect-ratio: 16/9;
   }
 
@@ -191,7 +191,7 @@
 /* ─── Other Customer Stories grid cards ────────────────────
  * Hero images are landscape; override the square aspect ratio used on
  * the /services pages to maintain consistent proportions here. */
-.services-card__image--landscape {
+.services-card__media--landscape {
   aspect-ratio: 16/9;
 }
 

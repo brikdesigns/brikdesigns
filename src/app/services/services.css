@@ -20,7 +20,7 @@
   height: 100%;
 }
 
-.services-card__image {
+.services-card__media {
   aspect-ratio: 1;
   border-radius: var(--border-radius-md);
   background-color: var(--surface-accent);
@@ -45,7 +45,7 @@
  * Card chrome (border / surface / padding) comes from BDS Card props; these
  * rules size the image slot and provide the responsive stack-on-mobile
  * behavior that BDS Stack doesn't ship with. */
-.services-callout-card__image {
+.services-callout-card__media {
   flex: 0 0 35%;
   background-color: var(--surface-accent);
   border-radius: var(--border-radius-md);
@@ -90,7 +90,7 @@
   gap: var(--gap-md);
 }
 
-.svc-detail-hero__image {
+.svc-detail-hero__media {
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   background-color: var(--surface-accent);
@@ -140,13 +140,13 @@
   border-color: var(--border-brand-primary);
 }
 
-.svc-detail-story-card__image {
+.svc-detail-story-card__media {
   border-radius: var(--border-radius-md);
   overflow: hidden;
   aspect-ratio: 3 / 2;
 }
 
-.svc-detail-story-card__image img {
+.svc-detail-story-card__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -172,13 +172,13 @@
   width: 100%;
 }
 
-.svc-detail-addon-card__image {
+.svc-detail-addon-card__media {
   border-radius: var(--border-radius-md);
   overflow: hidden;
   aspect-ratio: 1;
 }
 
-.svc-detail-addon-card__image img {
+.svc-detail-addon-card__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -200,7 +200,7 @@
   margin-top: var(--gap-lg);
 }
 
-.svc-detail-support-grid__image {
+.svc-detail-support-grid__media {
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   background-color: var(--surface-accent);
@@ -208,7 +208,7 @@
   position: relative;
 }
 
-.svc-detail-support-cta__image {
+.svc-detail-support-cta__media {
   width: var(--support-cta-image-size);
   height: var(--support-cta-image-size);
   position: relative;
@@ -217,7 +217,7 @@
 
 /* Sibling-services image frame (BDS Frame component, customRatio="3 / 2", fit="contain").
  * Sets the accent surface background that shows around contain-fitted illustrations. */
-.svc-sibling-card__image {
+.svc-sibling-card__media {
   background-color: var(--surface-accent);
 }
 
@@ -230,7 +230,7 @@
     flex-direction: column;
   }
 
-  .services-callout-card__image {
+  .services-callout-card__media {
     flex: none;
     width: 100%;
     max-width: 400px;
@@ -245,7 +245,7 @@
     grid-template-columns: 1fr;
   }
 
-  .svc-detail-support-grid__image {
+  .svc-detail-support-grid__media {
     max-width: 400px;
     margin: 0 auto;
   }

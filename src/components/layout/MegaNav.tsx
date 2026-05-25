@@ -192,7 +192,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                     {/* Webflow: .inner-wrapper.auto — Product promo card (5th column) */}
                     {serviceLines.find((l) => l.category === 'product') && (
                       <div className="mega-nav__product-promo">
-                        <div className="mega-nav__product-promo-img">
+                        <div className="mega-nav__product-promo-media">
                           <Image
                             src="/images/product_mobile_app_2x.webp"
                             alt="Product design"
@@ -259,7 +259,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             className="mega-nav__industry-card"
                             onClick={() => setOpen(null)}
                           >
-                            <div className="mega-nav__industry-img">
+                            <div className="mega-nav__industry-media">
                               {ind.imageUrl ? (
                                 <Image src={ind.imageUrl} alt={ind.name} width={200} height={200} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               ) : (
@@ -441,7 +441,7 @@ function AboutNavCard({ href, image, title, desc, cta, onClick }: {
 }) {
   return (
     <Link href={href} className="mega-nav__about-card" onClick={onClick}>
-      <div className="mega-nav__about-card-img">
+      <div className="mega-nav__about-card-media">
         <Image src={image} alt={title} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
       <span className="mega-nav__about-card-title">{title}</span>

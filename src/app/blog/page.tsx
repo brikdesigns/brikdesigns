@@ -35,7 +35,7 @@ export default async function BlogPage() {
             {posts.map((post) => (
               <Card key={post.slug} variant="outlined" padding="none" className="blog-card">
                 {post.image && (
-                  <div className="blog-card__image">
+                  <div className="blog-card__media">
                     <Image
                       src={post.image}
                       alt={post.title}

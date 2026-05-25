@@ -103,7 +103,7 @@ export default async function ServiceLinePage({ params }: Props) {
             {serviceLine.hero_image_url && (
               <div className="svc-detail-hero__aside">
                 <div
-                  className="svc-detail-hero__image"
+                  className="svc-detail-hero__media"
                   style={{ backgroundColor: svcColors.surface }}
                 >
                   <Image
@@ -169,7 +169,7 @@ export default async function ServiceLinePage({ params }: Props) {
               style={{ '--background-brand-primary': supportPlanServiceLineColors.inverse, '--text-brand-primary': supportPlanServiceLineColors.text } as React.CSSProperties}
             >
               {supportPlan.image_url && (
-                <div className="svc-detail-support-grid__image">
+                <div className="svc-detail-support-grid__media">
                   <Image
                     src={supportPlan.image_url}
                     alt=""
@@ -182,7 +182,7 @@ export default async function ServiceLinePage({ params }: Props) {
               <Card variant="outlined" padding="lg">
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
                   {supportPlanServiceLine.card_image_url && (
-                    <div className="svc-detail-support-cta__image">
+                    <div className="svc-detail-support-cta__media">
                       <Image
                         src={supportPlanServiceLine.card_image_url}
                         alt={supportPlanServiceLine.name}
