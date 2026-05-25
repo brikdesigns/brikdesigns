@@ -30,13 +30,24 @@ export default async function HomePage() {
     brand_color_base: cat.brand_color_base || null,
   }));
 
-  const supportPlans = plans.map((plan) => ({
-    name: plan.name,
-    slug: plan.slug,
-    price: plan.monthly_price_display || 'Contact',
-    description: plan.home_description || plan.description || '',
-    image_url: plan.image_url || null,
-  }));
+  // Subscription cards mirror the service-line grid above by rendering the
+  // owning service line's card_image_url (e.g. the marketing-line illustration
+  // on a Marketing Support Plan card). Joined client-side from the already-
+  // fetched `categories` because the `service_plans.service_line_id` column
+  // exists in the schema but lacks a PostgREST-visible FK constraint, so
+  // `.select('*, service_lines(...)')` 500s with PGRST200. Falls back to
+  // plan.image_url when a plan isn't linked.
+  const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
+  const supportPlans = plans.map((plan) => {
+    const line = plan.service_line_id ? serviceLineById.get(plan.service_line_id) : null;
+    return {
+      name: plan.name,
+      slug: plan.slug,
+      price: plan.monthly_price_display || 'Contact',
+      description: plan.home_description || plan.description || '',
+      image_url: line?.card_image_url ?? plan.image_url ?? null,
+    };
+  });
 
   const featuredStory = stories[0];
 

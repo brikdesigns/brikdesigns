@@ -287,7 +287,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   features={parseFeatures(off.included_scope)}
                   highlighted={!!off.is_featured}
                   action={
-                    <Button href="/contact" variant="primary" size="sm">
+                    <Button href="/contact" variant="primary" size="md">
                       Let&apos;s Talk
                     </Button>
                   }
@@ -330,7 +330,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   <Button
                     href={`/customer-stories/${relatedStory.slug}`}
                     variant="primary"
-                    size="sm"
+                    size="md"
                   >
                     Read Story
                   </Button>
@@ -385,7 +385,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   <Button
                     href={`/services/${relatedServiceLineSlug}/${relatedService.slug}`}
                     variant="primary"
-                    size="sm"
+                    size="md"
                   >
                     Learn More
                   </Button>
@@ -437,7 +437,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                     <Button
                       href={`/services/${serviceLineSlug}/${svc.slug}`}
                       variant="primary"
-                      size="sm"
+                      size="md"
                     >
                       Learn More
                     </Button>
@@ -491,7 +491,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 )}
                 <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
                 <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
-                <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn More</Button>
+                <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="md">Learn More</Button>
               </div>
             </div>
           </div>
