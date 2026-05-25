@@ -40,14 +40,17 @@ const socialLinks: { label: string; href: string; icon: string }[] = [
   { label: 'Instagram', href: 'https://www.instagram.com/designsbybrik/', icon: 'ph:instagram-logo' },
 ];
 
-function NavIcon({ name }: { name: string }) {
+// 16×16 follows the `footer_link` icon convention used by BDS Footer column
+// links + contact rows. One component so column adornments and contact
+// adornments share size, flex-shrink, and aria-hidden behavior.
+function FooterIcon({ name }: { name: string }) {
   return (
     <Icon
       icon={name}
       aria-hidden="true"
       style={{ flexShrink: 0 }}
-      width={20}
-      height={20}
+      width={16}
+      height={16}
     />
   );
 }
@@ -55,7 +58,7 @@ function NavIcon({ name }: { name: string }) {
 function ContactItem({ icon, children, href }: { icon: string; children: React.ReactNode; href?: string }) {
   const inner = (
     <>
-      <span aria-hidden="true" style={{ opacity: 0.6 }}>{icon}</span>
+      <FooterIcon name={icon} />
       <span>{children}</span>
     </>
   );
@@ -145,11 +148,11 @@ export function Footer() {
       tagline="We're a digital marketing and design agency."
       brandExtra={
         <>
-          <ContactItem icon="☎">Office: (561) 490-8714</ContactItem>
-          <ContactItem icon="✉" href="mailto:hello@brikdesigns.com">
+          <ContactItem icon="ph:phone">Office: (561) 490-8714</ContactItem>
+          <ContactItem icon="ph:envelope" href="mailto:hello@brikdesigns.com">
             hello@brikdesigns.com
           </ContactItem>
-          <ContactItem icon="✉" href="/contact">
+          <ContactItem icon="ph:paper-plane-tilt" href="/contact">
             Send us a message
           </ContactItem>
         </>
@@ -160,7 +163,7 @@ export function Footer() {
           links: socialLinks.map((link) => ({
             label: link.label,
             href: link.href,
-            adornment: <NavIcon name={link.icon} />,
+            adornment: <FooterIcon name={link.icon} />,
           })),
         },
         {
@@ -168,7 +171,7 @@ export function Footer() {
           links: aboutLinks.map((link) => ({
             label: link.label,
             href: link.href,
-            adornment: <NavIcon name={link.icon} />,
+            adornment: <FooterIcon name={link.icon} />,
           })),
         },
         {
@@ -176,7 +179,7 @@ export function Footer() {
           links: customerLinks.map((link) => ({
             label: link.label,
             href: link.href,
-            adornment: <NavIcon name={link.icon} />,
+            adornment: <FooterIcon name={link.icon} />,
           })),
         },
         {
