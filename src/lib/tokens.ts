@@ -239,6 +239,27 @@ export const space = {
   input: 'var(--padding-tiny)',
 } as const;
 
+// ─── Layout widths ──────────────────────────────────────────────────
+// Content column max-widths from BDS dist/tokens.css. Use these for
+// `max-width` on container elements — prose columns, body sections,
+// feature bands. Pair with `margin-inline: auto` (or `.container-lg`)
+// for centering. NOT screen breakpoints; constrain content within a
+// viewport. For @media values, use the `breakpoints` constant from
+// `@bds-tokens` — CSS custom properties can't go inside @media rules.
+
+export const width = {
+  /** 640px — prose, reading columns, focused forms (e.g. blog body) */
+  narrow: 'var(--content-width-narrow)',
+  /** 800px — standard body sections */
+  default: 'var(--content-width-default)',
+  /** 1024px — feature sections, grids */
+  wide: 'var(--content-width-wide)',
+  /** 1280px — hero bands, wide layouts (matches --site-container-max) */
+  xl: 'var(--content-width-xl)',
+  /** 100% — full-bleed (use sparingly; prefer explicit widths) */
+  full: 'var(--content-width-full)',
+} as const;
+
 // ─── Gap (between elements) ─────────────────────────────────────────
 
 export const gap = {
