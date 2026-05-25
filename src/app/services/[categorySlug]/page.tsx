@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupportPlanBySlug, mapCategorySlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
-import { Button, Breadcrumb, Card, Frame, Grid } from '@brikdesigns/bds';
+import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -113,7 +113,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
       </section>
 
       {/* ═══ Service Cards ═══ */}
-      <section id="services" className="content-section" style={{ backgroundColor: svcColors.surfaceLight }}>
+      <section id="services" className="content-section" style={{ backgroundColor: svcColors.surface }}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {category.name} Services
@@ -180,7 +180,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
                   )}
                   <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
                   <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
-                  <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="sm">Learn more</Button>
+                  <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="md">Learn more</Button>
                 </div>
               </Card>
             </div>
@@ -201,22 +201,26 @@ export default async function ServiceCategoryPage({ params }: Props) {
               Other Service Lines
             </h2>
             <Grid columns={3} gap="md">
-              {otherCategories.map((cat) => (
-                <Card
-                  key={cat.slug}
-                  preset="display"
-                  href={`/services/${cat.slug}`}
-                  title={cat.name}
-                  description={cat.tagline ?? undefined}
-                  image={
-                    cat.card_image_url ? (
-                      <Frame customRatio="3 / 2" fit="contain">
-                        <Image src={cat.card_image_url} alt={cat.name} fill />
-                      </Frame>
-                    ) : undefined
-                  }
-                />
-              ))}
+              {otherCategories.map((cat) => {
+                const catKey = mapCategorySlug(cat.slug);
+                return (
+                  <Card
+                    key={cat.slug}
+                    preset="display"
+                    title={cat.name}
+                    description={cat.tagline ?? undefined}
+                    image={
+                      cat.card_image_url ? (
+                        <Frame customRatio="3 / 2" fit="contain">
+                          <Image src={cat.card_image_url} alt={cat.name} fill />
+                        </Frame>
+                      ) : undefined
+                    }
+                    tag={<ServiceTag category={catKey} variant="icon" size="sm" />}
+                    action={<LinkButton href={`/services/${cat.slug}`} variant="primary" size="md">Learn More</LinkButton>}
+                  />
+                );
+              })}
             </Grid>
           </div>
         </section>
