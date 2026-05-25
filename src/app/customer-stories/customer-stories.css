@@ -90,16 +90,9 @@
 }
 
 /* ─── Customer story detail page ─────────────────────────── */
-
-/* Reading container for the story detail page. Width is set to match
- * the intended content width so margin-inline: auto (from container-lg)
- * is the sole centering mechanism — no secondary max-width needed on
- * individual children. Children fill the full container; left-alignment
- * of breadcrumbs and headings follows from align-items: flex-start. */
-.container-lg--story {
-  max-width: 760px;
-  align-items: flex-start;
-}
+/* .container-lg--story moved to shared-sections.css — it's now a shared
+ * narrow article-column modifier consumed by /customer-stories/[slug]
+ * and /blog/[slug]. */
 
 /* Tighter vertical rhythm for the image-narrative-image-narrative
  * cadence that runs from hero through Results. */
