@@ -30,3 +30,36 @@
   align-items: center;
   gap: 6px;
 }
+
+/* ─── Blog post detail — narrow article column ──────────── */
+/* Mirrors customer-stories/[slug] layout: container-lg + container-lg--story
+   constrains to 760px, align-items: flex-start for left-aligned breadcrumb
+   and headings. */
+
+.blog-post__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  margin-top: var(--gap-md);
+}
+
+.blog-post__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.blog-post__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  margin-top: var(--gap-xl);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+.blog-post__body {
+  width: 100%;
+  max-width: var(--content-width-narrow);
+  margin-top: var(--gap-xl);
+}

@@ -46,9 +46,7 @@ const components = {
       {...props}
     />
   ),
-  hr: () => (
-    <hr style={{ border: 'none', borderTop: '1px solid var(--border-secondary)', margin: 'var(--gap-xl) 0' }} />
-  ),
+  hr: () => null,
   img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
     <Image
       src={String(props.src || '')}
