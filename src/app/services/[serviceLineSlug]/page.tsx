@@ -73,7 +73,7 @@ export default async function ServiceLinePage({ params }: Props) {
     <div style={{ '--background-brand-primary': svcColors.inverse, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
       {/* ═══ Hero ═══ */}
       <section
-        className="svc-detail-hero-section"
+        className="page-hero"
         style={{ backgroundColor: svcColors.surface }}
       >
         <div className="page-hero__container">
