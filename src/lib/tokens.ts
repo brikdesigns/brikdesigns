@@ -170,7 +170,7 @@ export const color = {
   },
   // brikdesigns: Brik's marketing site IS the surface that introduces the
   // five service categories to the public, so service tokens belong here.
-  // The JS-side `service` key matches ServiceCategory's `'service'` member
+  // The JS-side `service` key matches ServiceLine's `'service'` member
   // (BDS export). The token suffix for the orange line is `back-office` —
   // brik-bds#575 shipped this rename in BDS 0.68.1.
   service: {

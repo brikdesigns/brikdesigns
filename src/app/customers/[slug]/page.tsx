@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapCategorySlug } from '@/lib/supabase/queries';
+import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Breadcrumb, Card, Grid, LinkButton } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 import '../../shared-sections.css';
 import '../customers.css';
 // CustomerStoryCard's CSS lives under /customer-stories/ — must be imported
@@ -144,7 +144,7 @@ export default async function CustomerDetailPage({ params }: Props) {
               </div>
             )}
             {/* Industry hero illustration — same aside-image pattern as
-             * /services/[categorySlug]. Without it, the page hero is text-
+             * /services/[serviceLineSlug]. Without it, the page hero is text-
              * only and the (much heavier) customer-story image below
              * visually dominates. Badges render INSTEAD of this when
              * present (a decorated industry hero is more compact than a
@@ -229,7 +229,7 @@ export default async function CustomerDetailPage({ params }: Props) {
               )}
 
               {/* Related service cards for this topic. Each card routes
-               * /services/{line}/{slug}; categorySlug derived from the
+               * /services/{line}/{slug}; serviceLineSlug derived from the
                * service's own service_lines join (not the topic's
                * service_line_slug — they can diverge for "Other Services"
                * topics that mix lines). */}
@@ -241,14 +241,14 @@ export default async function CustomerDetailPage({ params }: Props) {
                 >
                   {services.map((svc) => {
                     const lineSlug = svc.service_lines?.slug ?? topic.service_line_slug ?? 'brand';
-                    const cat = mapCategorySlug(lineSlug);
+                    const cat = mapServiceLineSlug(lineSlug);
                     return (
                       <ServiceCard
                         key={svc.id}
                         name={svc.name}
                         slug={svc.slug}
-                        categorySlug={lineSlug}
-                        category={cat as ServiceCategory}
+                        serviceLineSlug={lineSlug}
+                        category={cat as ServiceLine}
                         tagline={svc.tagline}
                         description={svc.description}
                         imageUrl={svc.image_url}
@@ -310,7 +310,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                   industry={story.industry}
                   launchDate={story.launch_date}
                   serviceLineName={story.service_lines?.name ?? null}
-                  serviceLineCategory={(story.service_lines?.slug ?? null) as ServiceCategory | null}
+                  serviceLineCategory={(story.service_lines?.slug ?? null) as ServiceLine | null}
                   serviceName={(story as { services?: { name: string } | null }).services?.name ?? null}
                   shortDescription={story.short_description}
                   imageUrl={story.hero_image_url}

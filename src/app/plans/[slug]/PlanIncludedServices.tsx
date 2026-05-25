@@ -9,7 +9,7 @@ import {
   SegmentedControl,
   ServiceTag,
 } from '@brikdesigns/bds';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 import { gap, serviceColor } from '@/lib/tokens';
 
 // Category + icon resolution happen on the server (queries.ts pulls
@@ -21,7 +21,7 @@ export interface IncludedService {
   description: string | null;
   image_url: string | null;
   service_lines: { slug: string; name: string } | null;
-  category: ServiceCategory;
+  category: ServiceLine;
   hasIcon: boolean;
 }
 

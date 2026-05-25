@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { Card, CardDescription, CardFooter, ServiceTag } from '@brikdesigns/bds';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { heading, label, text } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -46,7 +46,7 @@ export interface CustomerStoryCardProps {
   industry: string | null;
   launchDate: string | null;
   serviceLineName: string | null;
-  serviceLineCategory: ServiceCategory | null;
+  serviceLineCategory: ServiceLine | null;
   serviceName: string | null;
   shortDescription: string | null;
   imageUrl: string | null;

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // Static smoke check for hardcoded `/services/*` URLs.
 //
-// Fails CI when a hardcoded URL points at a non-canonical category slug —
+// Fails CI when a hardcoded URL points at a non-canonical service-line slug —
 // specifically the long-form Webflow slugs (brand-design / marketing-design /
 // information-design / product-design / back-office-design) that DO NOT
-// resolve under the Next.js dynamic route `/services/[categorySlug]`. The
+// resolve under the Next.js dynamic route `/services/[serviceLineSlug]`. The
 // Supabase `service_lines.slug` schema is short-form (brand / marketing /
 // information / product / service).
 //
@@ -60,18 +60,18 @@ for (const file of files) {
   const lines = text.split('\n');
   lines.forEach((line, idx) => {
     for (const m of line.matchAll(URL_RE)) {
-      const categorySlug = m[1];
+      const serviceLineSlug = m[1];
       const serviceSlug = m[2]; // may be undefined
-      const url = `/services/${categorySlug}${serviceSlug ? `/${serviceSlug}` : ''}`;
+      const url = `/services/${serviceLineSlug}${serviceSlug ? `/${serviceSlug}` : ''}`;
 
-      if (CANONICAL_SLUGS.has(categorySlug)) continue;
+      if (CANONICAL_SLUGS.has(serviceLineSlug)) continue;
 
-      const suggested = WEBFLOW_TO_CANONICAL[categorySlug];
+      const suggested = WEBFLOW_TO_CANONICAL[serviceLineSlug];
       violations.push({
         file,
         line: idx + 1,
         url,
-        categorySlug,
+        serviceLineSlug,
         suggested,
         snippet: line.trim().slice(0, 120),
       });
@@ -84,15 +84,15 @@ if (violations.length === 0) {
   process.exit(0);
 }
 
-console.error(`FAIL — ${violations.length} hardcoded /services/* URL(s) point at non-canonical category slugs:\n`);
+console.error(`FAIL — ${violations.length} hardcoded /services/* URL(s) point at non-canonical service-line slugs:\n`);
 for (const v of violations) {
   console.error(`  ${v.file}:${v.line}`);
   console.error(`    URL: ${v.url}`);
-  console.error(`    Category slug "${v.categorySlug}" is not a canonical Supabase service_lines.slug.`);
+  console.error(`    Service-line slug "${v.serviceLineSlug}" is not a canonical Supabase service_lines.slug.`);
   if (v.suggested) {
     console.error(`    Suggestion: use /services/${v.suggested} instead (this is the Webflow long-form → short-form rename).`);
   } else {
-    console.error(`    Canonical category slugs: ${[...CANONICAL_SLUGS].join(', ')}`);
+    console.error(`    Canonical service-line slugs: ${[...CANONICAL_SLUGS].join(', ')}`);
   }
   console.error(`    Source: ${v.snippet}`);
   console.error('');

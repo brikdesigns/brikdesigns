@@ -4,7 +4,7 @@ import Image from 'next/image';
 import {
   getSupportPlanBySlug,
   getOtherSupportPlans,
-  mapCategorySlug,
+  mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import {
   Card,
@@ -71,7 +71,7 @@ export default async function PlanDetailPage({ params }: Props) {
     const svc = item.service;
     if (!svc || seenServices.has(svc.slug)) continue;
     const lineSlug = svc.service_lines?.slug ?? '';
-    const category = mapCategorySlug(lineSlug);
+    const category = mapServiceLineSlug(lineSlug);
     seenServices.set(svc.slug, {
       ...svc,
       category,
@@ -95,7 +95,7 @@ export default async function PlanDetailPage({ params }: Props) {
   }
   const dominantLineName =
     includedServices.find((s) => s.service_lines?.slug === dominantLineSlug)?.service_lines?.name ?? '';
-  const audience = mapCategorySlug(dominantLineSlug);
+  const audience = mapServiceLineSlug(dominantLineSlug);
   const audienceTokens = serviceColor(audience);
   const firstLineName = dominantLineName;
 

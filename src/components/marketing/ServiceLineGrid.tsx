@@ -4,17 +4,16 @@ import Link from 'next/link';
 import { Card } from '@brikdesigns/bds';
 import { ServiceTag } from '@brikdesigns/bds';
 import { Button } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 
-type ServiceCategory = 'brand' | 'marketing' | 'information' | 'product' | 'service';
-
-interface ServiceLine {
+interface ServiceLineItem {
   name: string;
   slug: string;
-  category: ServiceCategory;
+  category: ServiceLine;
   tagline: string;
 }
 
-export function ServiceLineGrid({ items }: { items: ServiceLine[] }) {
+export function ServiceLineGrid({ items }: { items: ServiceLineItem[] }) {
   return (
     <div
       style={{

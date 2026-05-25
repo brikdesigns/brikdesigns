@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { getCategoryBySlug, getServicesByCategory, getServiceCategories, getSupportPlanBySlug, mapCategorySlug } from '@/lib/supabase/queries';
+import { getServiceLineBySlug, getServicesByServiceLine, getServiceCategories, getSupportPlanBySlug, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
 import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag } from '@brikdesigns/bds';
@@ -10,62 +10,62 @@ import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../services.css';
 
-type Props = { params: Promise<{ categorySlug: string }> };
+type Props = { params: Promise<{ serviceLineSlug: string }> };
 
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { categorySlug } = await params;
+  const { serviceLineSlug } = await params;
   try {
-    const cat = await getCategoryBySlug(categorySlug);
-    return { title: `${cat.name} | Design Services`, description: cat.tagline || cat.description || undefined };
+    const line = await getServiceLineBySlug(serviceLineSlug);
+    return { title: `${line.name} | Design Services`, description: line.tagline || line.description || undefined };
   } catch {
     return { title: 'Services' };
   }
 }
 
-export default async function ServiceCategoryPage({ params }: Props) {
-  const { categorySlug } = await params;
+export default async function ServiceLinePage({ params }: Props) {
+  const { serviceLineSlug } = await params;
 
-  let category;
+  let serviceLine;
   try {
-    category = await getCategoryBySlug(categorySlug);
+    serviceLine = await getServiceLineBySlug(serviceLineSlug);
   } catch {
     notFound();
   }
 
-  const [services, allCategories] = await Promise.all([
-    getServicesByCategory(category.id),
+  const [services, allServiceLines] = await Promise.all([
+    getServicesByServiceLine(serviceLine.id),
     getServiceCategories(),
   ]);
 
-  // Support plan — scoped to this category's plan
+  // Support plan — scoped to this service line's plan
   let supportPlan = null;
-  if (category.support_plan_slug) {
+  if (serviceLine.support_plan_slug) {
     try {
-      supportPlan = await getSupportPlanBySlug(category.support_plan_slug);
+      supportPlan = await getSupportPlanBySlug(serviceLine.support_plan_slug);
     } catch {
       supportPlan = null;
     }
   }
 
   // Other service lines (exclude current; top 3 by rank — rank drives display order in getServiceCategories)
-  const otherCategories = allCategories.filter((c) => c.slug !== categorySlug).slice(0, 3);
+  const otherServiceLines = allServiceLines.filter((c) => c.slug !== serviceLineSlug).slice(0, 3);
 
-  // Resolve the service category this support plan belongs to. A plan slug is
-  // prefixed with its category slug (e.g. "marketing-support-plan" → marketing).
-  // Multiple categories can reference the same plan; deriving from the slug
+  // Resolve the service line this support plan belongs to. A plan slug is
+  // prefixed with its line slug (e.g. "marketing-support-plan" → marketing).
+  // Multiple service lines can reference the same plan; deriving from the slug
   // ensures the card always shows the correct service-line image and colors.
-  const supportPlanCategory = allCategories.find(
-    (c) => (category.support_plan_slug ?? '').startsWith(c.slug)
-  ) ?? category;
-  const supportPlanCategoryColors = serviceColor(mapCategorySlug(supportPlanCategory.slug));
+  const supportPlanServiceLine = allServiceLines.find(
+    (c) => (serviceLine.support_plan_slug ?? '').startsWith(c.slug)
+  ) ?? serviceLine;
+  const supportPlanServiceLineColors = serviceColor(mapServiceLineSlug(supportPlanServiceLine.slug));
 
   // Service-line color tokens.
   // --background-brand-primary is overridden at page level so ALL primary
   // buttons (hero, service cards, support CTA) inherit the service-line color
   // without needing per-button inline style — mirrors the service detail page pattern.
-  const svcColors = serviceColor(mapCategorySlug(category.slug));
+  const svcColors = serviceColor(mapServiceLineSlug(serviceLine.slug));
 
   return (
     // Page-level cascade: service-line accent text + primary button color.
@@ -82,33 +82,33 @@ export default async function ServiceCategoryPage({ params }: Props) {
             items={[
               { label: 'Home', href: '/' },
               { label: 'Services', href: '/services' },
-              { label: category.name },
+              { label: serviceLine.name },
             ]}
           />
 
           <div className="svc-detail-hero">
             <div className="svc-detail-hero__content">
-              <h1 className="page-hero__title">{category.name}</h1>
-              {category.tagline && (
-                <p className="page-hero__tagline">{category.tagline}</p>
+              <h1 className="page-hero__title">{serviceLine.name}</h1>
+              {serviceLine.tagline && (
+                <p className="page-hero__tagline">{serviceLine.tagline}</p>
               )}
-              {category.description && (
-                <p className="page-hero__description">{category.description}</p>
+              {serviceLine.description && (
+                <p className="page-hero__description">{serviceLine.description}</p>
               )}
               <div className="button-wrapper">
                 <Button href="#services" variant="primary" size="lg">View Services</Button>
               </div>
             </div>
 
-            {category.hero_image_url && (
+            {serviceLine.hero_image_url && (
               <div className="svc-detail-hero__aside">
                 <div
                   className="svc-detail-hero__image"
                   style={{ backgroundColor: svcColors.surface }}
                 >
                   <Image
-                    src={category.hero_image_url}
-                    alt={category.name}
+                    src={serviceLine.hero_image_url}
+                    alt={serviceLine.name}
                     fill
                     sizes="(max-width: 991px) 100vw, 45vw"
                     style={{ objectFit: 'contain' }}
@@ -125,17 +125,17 @@ export default async function ServiceCategoryPage({ params }: Props) {
       <section id="services" className="content-section" style={{ backgroundColor: svcColors.surface }}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-            {category.name} Services
+            {serviceLine.name} Services
           </h2>
           <Grid columns={3} gap="md">
             {services.map((svc) => {
-              const cat = mapCategorySlug(category.slug);
+              const cat = mapServiceLineSlug(serviceLine.slug);
               return (
                 <ServiceCard
                   key={svc.slug}
                   name={svc.name}
                   slug={svc.slug}
-                  categorySlug={categorySlug}
+                  serviceLineSlug={serviceLineSlug}
                   category={cat}
                   tagline={svc.tagline}
                   description={svc.description}
@@ -151,7 +151,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
 
       {/* ═══ Monthly Support CTA ═══
        * Left: supportPlan.image_url (the plan's own promo illustration)
-       * Right card: supportPlanCategory.card_image_url — the service category
+       * Right card: supportPlanServiceLine.card_image_url — the service line
        * this plan belongs to (e.g. marketing) so brand/information pages show
        * the correct character and colors rather than inheriting the current line.
        */}
@@ -166,7 +166,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
             </div>
             <div
               className="svc-detail-support-grid"
-              style={{ '--background-brand-primary': supportPlanCategoryColors.inverse, '--text-brand-primary': supportPlanCategoryColors.text } as React.CSSProperties}
+              style={{ '--background-brand-primary': supportPlanServiceLineColors.inverse, '--text-brand-primary': supportPlanServiceLineColors.text } as React.CSSProperties}
             >
               {supportPlan.image_url && (
                 <div className="svc-detail-support-grid__image">
@@ -181,11 +181,11 @@ export default async function ServiceCategoryPage({ params }: Props) {
               )}
               <Card variant="outlined" padding="lg">
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
-                  {supportPlanCategory.card_image_url && (
+                  {supportPlanServiceLine.card_image_url && (
                     <div className="svc-detail-support-cta__image">
                       <Image
-                        src={supportPlanCategory.card_image_url}
-                        alt={supportPlanCategory.name}
+                        src={supportPlanServiceLine.card_image_url}
+                        alt={supportPlanServiceLine.name}
                         fill
                         sizes="180px"
                         style={{ objectFit: 'contain' }}
@@ -208,15 +208,15 @@ export default async function ServiceCategoryPage({ params }: Props) {
        * scaled into a 3/2 tile slot it renders as a generic colored band
        * (parity #158).
        */}
-      {otherCategories.length > 0 && (
+      {otherServiceLines.length > 0 && (
         <section className="content-section content-section--accent">
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Other Service Lines
             </h2>
             <Grid columns={3} gap="md">
-              {otherCategories.map((cat) => {
-                const catKey = mapCategorySlug(cat.slug);
+              {otherServiceLines.map((cat) => {
+                const catKey = mapServiceLineSlug(cat.slug);
                 const catColors = serviceColor(catKey);
                 return (
                   <div

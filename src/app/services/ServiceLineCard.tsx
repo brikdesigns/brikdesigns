@@ -4,14 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardTitle, CardDescription, CardFooter, Stack, Frame, ServiceTag, Button } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
 
 interface ServiceLineCardProps {
   name: string;
   slug: string;
-  category: ServiceCategory;
+  category: ServiceLine;
   tagline: string;
   imageUrl?: string | null;
 }
@@ -58,7 +58,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
 interface ServiceCalloutProps {
   name: string;
   slug: string;
-  category: ServiceCategory;
+  category: ServiceLine;
   description: string;
   imageUrl?: string | null;
 }

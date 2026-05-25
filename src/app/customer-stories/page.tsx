@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Grid, Button } from '@brikdesigns/bds';
-import type { ServiceCategory } from '@brikdesigns/bds';
-import { getCustomerStories, getServiceCategories, mapCategorySlug } from '@/lib/supabase/queries';
+import type { ServiceLine } from '@brikdesigns/bds';
+import { getCustomerStories, getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
 import { ServiceLineCard } from '@/app/services/ServiceLineCard';
@@ -41,7 +41,7 @@ export default async function CustomerStoriesPage() {
             <div className="story-list">
               {stories.map((story) => {
                 const serviceLineCategory = story.service_line_slug
-                  ? (mapCategorySlug(story.service_line_slug) as ServiceCategory)
+                  ? (mapServiceLineSlug(story.service_line_slug) as ServiceLine)
                   : null;
                 const serviceLineName = (story as { service_lines?: { name: string } | null }).service_lines?.name ?? null;
                 const serviceName = (story as { services?: { name: string } | null }).services?.name ?? null;
@@ -88,7 +88,7 @@ export default async function CustomerStoriesPage() {
                   key={cat.slug}
                   name={cat.name}
                   slug={cat.slug}
-                  category={mapCategorySlug(cat.slug)}
+                  category={mapServiceLineSlug(cat.slug)}
                   tagline={cat.tagline || cat.description || ''}
                   imageUrl={cat.card_image_url}
                 />

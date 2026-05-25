@@ -1,12 +1,12 @@
 import Image from 'next/image';
 import { Card, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 import { color } from '@/lib/tokens';
 
 interface HomeServiceCardProps {
   name: string;
   slug: string;
-  category: ServiceCategory;
+  category: ServiceLine;
   tagline: string;
   imageUrl?: string | null;
 }
