@@ -32,7 +32,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
   return (
     <Link href={`/services/${slug}`} className="services-card-link">
       <Card variant="outlined" padding="md" interactive className="services-card">
-        <div className="services-card__image">
+        <div className="services-card__media">
           {imageUrl ? (
             <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
@@ -79,7 +79,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
   return (
     <Card padding="lg" className="services-callout-card">
       <Stack direction="horizontal" gap="lg" align="center">
-        <div className="services-callout-card__image">
+        <div className="services-callout-card__media">
           <Frame ratio="square" fit="cover">
             {imageUrl ? (
               <Image src={imageUrl} alt={name} width={600} height={600} />

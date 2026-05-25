@@ -39,7 +39,7 @@
   align-items: flex-start;
 }
 
-.plan-service-list-item__image {
+.plan-service-list-item__media {
   aspect-ratio: 1;
   background-color: var(--surface-accent);
   border-radius: var(--border-radius-md);

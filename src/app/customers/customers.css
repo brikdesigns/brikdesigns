@@ -57,7 +57,7 @@
   flex-shrink: 0;
 }
 
-.customer-detail-hero__image {
+.customer-detail-hero__media {
   width: 100%;
   max-width: 420px;
   height: auto;
@@ -73,7 +73,7 @@
   align-items: center;
 }
 
-.customer-topic__image {
+.customer-topic__media {
   border-radius: var(--border-radius-md);
   overflow: hidden;
   aspect-ratio: 1;

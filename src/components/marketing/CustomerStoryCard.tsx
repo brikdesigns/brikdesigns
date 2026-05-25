@@ -65,8 +65,8 @@ export function CustomerStoryCard({
     <Card variant="outlined" interactive href={`/customer-stories/${slug}`} className="story-card">
       <div className="story-card__row">
         {imageUrl && (
-          <div className="story-card__image-wrap">
-            <div className="story-card__image">
+          <div className="story-card__media-wrap">
+            <div className="story-card__media">
               <Image
                 src={imageUrl}
                 alt={clientName || name}

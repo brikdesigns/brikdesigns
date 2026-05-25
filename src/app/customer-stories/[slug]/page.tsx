@@ -340,7 +340,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                       style={{ height: '100%' }}
                     >
                       {s.hero_image_url && (
-                        <div className="services-card__image services-card__image--landscape">
+                        <div className="services-card__media services-card__media--landscape">
                           <Image
                             src={s.hero_image_url}
                             alt={s.client_name || s.name || ''}

@@ -63,7 +63,7 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
             <Card key={svc.slug} variant="outlined" padding="md">
               <div className="plan-service-list-item">
                 {svc.image_url && (
-                  <div className="plan-service-list-item__image">
+                  <div className="plan-service-list-item__media">
                     <Image
                       src={svc.image_url}
                       alt={svc.name}
