@@ -52,13 +52,14 @@ export default async function ServiceCategoryPage({ params }: Props) {
   // Other service lines (exclude current; top 3 by rank — rank drives display order in getServiceCategories)
   const otherCategories = allCategories.filter((c) => c.slug !== categorySlug).slice(0, 3);
 
-  // Canonical plan owner: find the service line whose slug prefixes the plan slug
-  // (e.g. "marketing-support-plan" → marketing). Multiple lines can share a plan;
-  // this picks the right one so the card shows the correct image and colors.
-  const planOwnerLine = allCategories.find(
+  // Resolve the service category this support plan belongs to. A plan slug is
+  // prefixed with its category slug (e.g. "marketing-support-plan" → marketing).
+  // Multiple categories can reference the same plan; deriving from the slug
+  // ensures the card always shows the correct service-line image and colors.
+  const supportPlanCategory = allCategories.find(
     (c) => (category.support_plan_slug ?? '').startsWith(c.slug)
   ) ?? category;
-  const planOwnerColors = serviceColor(mapCategorySlug(planOwnerLine.slug));
+  const supportPlanCategoryColors = serviceColor(mapCategorySlug(supportPlanCategory.slug));
 
   // Service-line color tokens.
   // --background-brand-primary is overridden at page level so ALL primary
@@ -150,9 +151,9 @@ export default async function ServiceCategoryPage({ params }: Props) {
 
       {/* ═══ Monthly Support CTA ═══
        * Left: supportPlan.image_url (the plan's own promo illustration)
-       * Right card: planOwnerLine.card_image_url — the service-line that owns
-       * this plan (e.g. marketing) so brand/information pages show the correct
-       * character and colors rather than inheriting the current page's line.
+       * Right card: supportPlanCategory.card_image_url — the service category
+       * this plan belongs to (e.g. marketing) so brand/information pages show
+       * the correct character and colors rather than inheriting the current line.
        */}
       {supportPlan && (
         <section className="content-section">
@@ -165,7 +166,7 @@ export default async function ServiceCategoryPage({ params }: Props) {
             </div>
             <div
               className="svc-detail-support-grid"
-              style={{ '--background-brand-primary': planOwnerColors.inverse, '--text-brand-primary': planOwnerColors.text } as React.CSSProperties}
+              style={{ '--background-brand-primary': supportPlanCategoryColors.inverse, '--text-brand-primary': supportPlanCategoryColors.text } as React.CSSProperties}
             >
               {supportPlan.image_url && (
                 <div className="svc-detail-support-grid__image">
@@ -180,11 +181,11 @@ export default async function ServiceCategoryPage({ params }: Props) {
               )}
               <Card variant="outlined" padding="lg">
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
-                  {planOwnerLine.card_image_url && (
+                  {supportPlanCategory.card_image_url && (
                     <div className="svc-detail-support-cta__image">
                       <Image
-                        src={planOwnerLine.card_image_url}
-                        alt={planOwnerLine.name}
+                        src={supportPlanCategory.card_image_url}
+                        alt={supportPlanCategory.name}
                         fill
                         sizes="180px"
                         style={{ objectFit: 'contain' }}
@@ -216,22 +217,27 @@ export default async function ServiceCategoryPage({ params }: Props) {
             <Grid columns={3} gap="md">
               {otherCategories.map((cat) => {
                 const catKey = mapCategorySlug(cat.slug);
+                const catColors = serviceColor(catKey);
                 return (
-                  <Card
+                  <div
                     key={cat.slug}
-                    preset="display"
-                    title={cat.name}
-                    description={cat.tagline ?? undefined}
-                    image={
-                      cat.card_image_url ? (
-                        <Frame customRatio="3 / 2" fit="contain">
-                          <Image src={cat.card_image_url} alt={cat.name} fill />
-                        </Frame>
-                      ) : undefined
-                    }
-                    tag={<ServiceTag category={catKey} variant="icon" size="sm" />}
-                    action={<LinkButton href={`/services/${cat.slug}`} variant="primary" size="md">Learn More</LinkButton>}
-                  />
+                    style={{ '--background-brand-primary': catColors.inverse, '--text-brand-primary': catColors.text } as React.CSSProperties}
+                  >
+                    <Card
+                      preset="display"
+                      title={cat.name}
+                      description={cat.tagline ?? undefined}
+                      image={
+                        cat.card_image_url ? (
+                          <Frame customRatio="3 / 2" fit="contain">
+                            <Image src={cat.card_image_url} alt={cat.name} fill />
+                          </Frame>
+                        ) : undefined
+                      }
+                      tag={<ServiceTag category={catKey} variant="icon" size="sm" />}
+                      action={<LinkButton href={`/services/${cat.slug}`} variant="primary" size="md">Learn More</LinkButton>}
+                    />
+                  </div>
                 );
               })}
             </Grid>
