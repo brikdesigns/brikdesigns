@@ -29,6 +29,7 @@
 html {
   background-color: var(--page-primary);
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 :root[data-theme="dark"] {
   background-color: var(--grayscale--black);
