@@ -226,7 +226,12 @@ export default async function ServiceDetailPage({ params }: Props) {
     // service tag copy). Stops short of --background-inverse on purpose —
     // canonical dark `--background-inverse` is reused by the bottom support
     // CTA band, and the hero's own CTA theming is scoped one level deeper.
+    //
+    // `data-audience` activates BDS's `[data-audience='X'] .bds-breadcrumb`
+    // cascade (brik-bds#781), tinting the current page label + slash
+    // separators to match the service-line hue.
     <div
+      data-audience={audience}
       style={
         {
           '--text-brand-primary': audienceTokens.text,
