@@ -65,12 +65,17 @@ export default async function ServiceLinePage({ params }: Props) {
   // --background-brand-primary is overridden at page level so ALL primary
   // buttons (hero, service cards, support CTA) inherit the service-line color
   // without needing per-button inline style — mirrors the service detail page pattern.
-  const svcColors = serviceColor(mapServiceLineSlug(serviceLine.slug));
+  const audience = mapServiceLineSlug(serviceLine.slug);
+  const svcColors = serviceColor(audience);
 
   return (
     // Page-level cascade: service-line accent text + primary button color.
     // Scoped to page content only — nav/footer live in the layout wrapper above this.
-    <div style={{ '--background-brand-primary': svcColors.inverse, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
+    // `data-audience` activates BDS's `[data-audience='X'] .bds-breadcrumb`
+    // cascade (brik-bds#781) — currently no-op here (no breadcrumb on the
+    // service-line index), but stays consistent with the service-detail page
+    // pattern so a future breadcrumb addition picks up the audience tint.
+    <div data-audience={audience} style={{ '--background-brand-primary': svcColors.inverse, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
       {/* ═══ Hero ═══ */}
       <section
         className="page-hero"

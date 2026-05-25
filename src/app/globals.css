@@ -358,16 +358,20 @@ h1, h2, h3, h4, h5, h6 {
 
    The Webflow site renders the footer always-dark regardless of
    user OS preference. Match that here by pinning the inverse footer
-   to absolute black/white tokens that don't shift with theme.
-
-   Layered into `client-overrides` (the highest custom layer per
-   globals.css line 19), so it wins over `bds-components`.
+   bg to an absolute color via the BDS component-local slot
+   `--bds-footer-surface` (introduced in brik-bds#779), and pinning
+   the text colors via `client-overrides` so they win over BDS
+   defaults.
    ================================================================ */
-@layer client-overrides {
-  .bds-footer--inverse {
-    background-color: var(--color-grayscale-black);
-  }
+:root {
+  /* Component-local slot — overrides the default `var(--surface-inverse)`
+     for `.bds-footer--inverse` without re-declaring background-color
+     directly (which would force us to fight BDS specificity in the
+     client-overrides layer). */
+  --bds-footer-surface: var(--color-grayscale-black);
+}
 
+@layer client-overrides {
   .bds-footer--inverse .bds-footer__heading,
   .bds-footer--inverse .bds-footer__link,
   .bds-footer--inverse .bds-footer__tagline,
