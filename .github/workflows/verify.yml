@@ -19,6 +19,18 @@ on:
     branches:
       - main
       - staging
+    # Skip on doc-only / workflow-only changes. Any file that feeds lint,
+    # token-gate, or schema-parity must be listed here. Push-to-staging/main
+    # (merge commits) always runs — no paths filter on push.
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'supabase/**'
+      - 'eslint.config.mjs'
+      - 'next.config.*'
+      - 'tsconfig*.json'
+      - 'package.json'
+      - 'package-lock.json'
   push:
     branches:
       - main
