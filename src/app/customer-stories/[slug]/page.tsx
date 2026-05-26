@@ -23,6 +23,7 @@ import {
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -392,13 +393,15 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                         )}
                       </div>
                       <CardFooter>
-                        <Button
-                          href={`/customer-stories/${s.slug}`}
-                          variant="primary"
-                          size="sm"
-                        >
+                        {/* Presentational span — the wrapping <Link> owns
+                         * navigation. Rendering <Button href> here produces
+                         * <a> inside <a> (invalid HTML); browsers fall back
+                         * to a hard reload + scroll-to-top instead of
+                         * client-side navigation. Mirrors ServiceLineCard +
+                         * CustomerStoryCard. */}
+                        <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>
                           Read Story
-                        </Button>
+                        </span>
                       </CardFooter>
                     </Card>
                   </Link>
