@@ -1,22 +1,30 @@
 name: Secret scan
 
-# Why: defense-in-depth for the secret-leak prevention layer. Closes the
-# coverage gap surfaced in brik-llm#625 (security maturity roadmap):
-# brikdesigns was one of 3 Brik repos missing gitleaks CI as of 2026-05-23.
+# Brik canonical gitleaks CI — DO NOT EDIT IN PLACE.
+#
+# Source of truth:
+#   brik-llm/scripts/shared/security/templates/gitleaks.yml
+# Synced via:
+#   brik-llm/scripts/shared/security/sync.sh
+#
+# Why: defense-in-depth for the secret-leak prevention layer shipped 2026-05-04
+# (renew-pms#258 hooks + brik-llm#193 follow-up).
 #
 # Scope: scans the PR's diff against the base branch, not full history.
-# Historic leaks (if any) need rotation per brik-llm/operations/security/when-to-rotate.md;
-# blocking unrelated PRs on them is the wrong gate. New leaks introduced by a
-# PR are caught.
+# Historic leaks need rotation (separate work — see brik-llm#193 Phase 4
+# punch list); blocking unrelated PRs on them is the wrong gate. New leaks
+# introduced by a PR are caught.
 #
 # Implementation note: uses the gitleaks CLI binary directly. gitleaks-action@v2
 # requires a paid GITLEAKS_LICENSE for any GitHub organization (recent breaking
 # change); the CLI itself is MIT-licensed.
-#
-# Canonical template: brik-llm/.github/workflows/gitleaks.yml (kept in sync).
 
 on:
   pull_request:
+
+concurrency:
+  group: gitleaks-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   gitleaks:

@@ -1,0 +1,93 @@
+# Brik canonical gitleaks rules — DO NOT EDIT IN PLACE.
+#
+# Source of truth:
+#   brik-llm/scripts/shared/security/templates/.brik-gitleaks-rules.toml
+# Synced via:
+#   brik-llm/scripts/shared/security/sync.sh
+#
+# Edits made directly to a downstream copy will be clobbered on next sync.
+# To add or change a rule: edit the source, then run sync.sh to propagate.
+#
+# This file is consumed by each repo's .gitleaks.toml via:
+#   [extend]
+#   path = ".brik-gitleaks-rules.toml"
+#
+# The consuming file MUST NOT also set `useDefault = true` at that level —
+# gitleaks v8.30.1 errors at load: "unable to load config due to extend.path
+# and extend.useDefault being set". Instead, `useDefault = true` is declared
+# in this canonical file (below), and gitleaks chains it through
+# `[extend].path` so consuming configs inherit the bundled default ruleset.
+# This also lets the canonical work standalone (gitleaks-cli'd directly).
+
+[extend]
+useDefault = true
+
+# ── Anthropic ───────────────────────────────────────────────────────────────
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API key (sk-ant-api03-...)"
+regex = '''sk-ant-api(?:01|02|03)-[A-Za-z0-9_\-]{40,}'''
+keywords = ["sk-ant-api"]
+
+[[rules]]
+id = "anthropic-oauth-bearer"
+description = "Anthropic OAuth bearer (claude-cli)"
+regex = '''sk-ant-oat[0-9]{2}-[A-Za-z0-9_\-]{40,}'''
+keywords = ["sk-ant-oat"]
+
+# ── Notion ──────────────────────────────────────────────────────────────────
+
+[[rules]]
+id = "notion-integration-token"
+description = "Notion integration token (ntn_...)"
+regex = '''ntn_[A-Za-z0-9]{40,}'''
+keywords = ["ntn_"]
+
+# ── Slack ───────────────────────────────────────────────────────────────────
+
+[[rules]]
+id = "slack-bot-token"
+description = "Slack bot token (xoxb-...)"
+regex = '''xoxb-[0-9]{10,}-[0-9]{10,}-[A-Za-z0-9]{20,}'''
+keywords = ["xoxb-"]
+
+[[rules]]
+id = "slack-app-token"
+description = "Slack app-level token (xapp-...)"
+regex = '''xapp-[0-9]+-[A-Z0-9]+-[0-9]+-[a-f0-9]{40,}'''
+keywords = ["xapp-"]
+
+[[rules]]
+id = "slack-user-token"
+description = "Slack user/admin/refresh token (xoxp/xoxa/xoxr/xoxs)"
+regex = '''xox[apsr]-[0-9]{10,}-[0-9]{10,}-[0-9]{10,}-[A-Za-z0-9]{30,}'''
+keywords = ["xoxp-", "xoxa-", "xoxs-", "xoxr-"]
+
+# ── Helicone ────────────────────────────────────────────────────────────────
+
+[[rules]]
+id = "helicone-key"
+description = "Helicone API key (sk-helicone-...)"
+regex = '''sk-helicone-[A-Za-z0-9_\-]{20,}'''
+keywords = ["sk-helicone"]
+
+# ── Voyage ──────────────────────────────────────────────────────────────────
+
+[[rules]]
+id = "voyage-api-key"
+description = "Voyage AI API key (pa-...)"
+regex = '''pa-[A-Za-z0-9]{40,}'''
+keywords = ["pa-"]
+
+# ── Webflow ─────────────────────────────────────────────────────────────────
+# Catches the pattern that triggered the 2026-01-13 historical leak
+# (publish-webflow.js / publish-webflow-test.js) which slipped past GitHub
+# server-side scanning. Generic-api-key already catches this shape, but a
+# named rule produces a clearer finding in CI/hook output.
+
+[[rules]]
+id = "webflow-v1-api-token"
+description = "Webflow API v1 token assigned to a credential-shaped variable (64-char hex)"
+regex = '''(?i)(?:api[_-]?token|webflow[_-]?(?:api[_-]?)?(?:token|key))\s*=\s*['"`]([0-9a-f]{64})['"`]'''
+keywords = ["api_token", "API_TOKEN", "webflow"]
