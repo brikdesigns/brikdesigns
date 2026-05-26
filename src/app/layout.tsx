@@ -67,7 +67,7 @@ export default async function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={poppins.className}>
+      <body className={`${poppins.className} theme-brand-brik`}>
         <ThemeProvider>
           {!chromeless && <MegaNavServer />}
           <main>{children}</main>
