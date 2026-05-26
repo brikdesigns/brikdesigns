@@ -32,7 +32,7 @@ html {
   scroll-behavior: smooth;
 }
 :root[data-theme="dark"] {
-  background-color: var(--color-grayscale-black);
+  background-color: var(--background-primary);
 }
 
 /* ================================================================
@@ -100,7 +100,7 @@ html {
   --background-secondary: var(--color-grayscale-lightest);
   /* Re-pair the lightened --background-secondary with its state siblings; pressed stays dark for AA with Button's hardcoded white :active text. */
   --background-secondary-hover: var(--color-grayscale-lighter);
-  --background-secondary-pressed: var(--color-grayscale-darker); /* bds-lint-ignore token-family — :root token-definition block; --color-grayscale-darker is the correct value here; see #227 for migration to theme-brand-brik */
+  --background-secondary-pressed: var(--color-grayscale-darker);
   --background-elevated: var(--color-grayscale-white);
   --background-inverse: var(--color-grayscale-white);
   --background-input: var(--color-grayscale-white);
@@ -110,7 +110,7 @@ html {
   --border-secondary: var(--color-grayscale-lighter);
   --border-muted: var(--color-grayscale-lighter);
   --border-brand-primary: var(--brand-primary);
-  --border-negative: var(--color-system-red); /* bds-lint-ignore token-family — :root token-definition block; --color-system-red is the only available system red primitive; see #227 */
+  --border-negative: var(--color-system-red);
   --border-input: #bdbdbd;
   --border-inverse: var(--color-grayscale-white);
 
@@ -260,7 +260,7 @@ html {
   --background-secondary: #bdbdbd;                     /* Figma: grayscale.light (#bdbdbd) — FIX from --darkest */
   /* State pair for dark mode — matches theme-brand-brik dark (grayscale-dark hover, grayscale-darker pressed). */
   --background-secondary-hover: var(--color-grayscale-light);
-  --background-secondary-pressed: var(--color-grayscale-darker); /* bds-lint-ignore token-family — :root token-definition block; dark-mode value, same rationale as light-mode above; see #227 */
+  --background-secondary-pressed: var(--color-grayscale-darker);
   --background-elevated: var(--color-grayscale-darker);
   --background-inverse: var(--color-grayscale-black);      /* Figma: grayscale.black — FIX from --white */
   --background-input: var(--color-grayscale-black);        /* Figma: grayscale.black ✓ */

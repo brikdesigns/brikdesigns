@@ -170,7 +170,10 @@ export function tokenFamilyMatchesAllowlist(tokenName, allowed) {
   return allowed.includes(family);
 }
 
-export function checkTokenFamilyPairing(line, lineNum, file) {
+// options.skipShapeB — set true when the caller knows the current line is
+// inside a :root {} theme-definition block. Cross-family assignments there
+// are intentional (semantic token ← primitive mapping), not violations.
+export function checkTokenFamilyPairing(line, lineNum, file, { skipShapeB = false } = {}) {
   const violations = [];
 
   const trimmed = line.trim();
@@ -208,13 +211,17 @@ export function checkTokenFamilyPairing(line, lineNum, file) {
     }
 
     // Shape B: CSS custom-property declaration (--family-*: var(--other-family-*))
-    const declRegex = /(^|[\s;{])(--[\w-]+)\s*:\s*var\((--[\w-]+)(?:\s*,[^)]*)?\)/g;
-    while ((m = declRegex.exec(line)) !== null) {
-      const lhs = m[2];
-      if (lhs.startsWith('--bds-')) continue;
-      const ruleKey = Object.entries(CUSTOM_PROP_TO_RULE).find(([prefix]) => lhs.startsWith(prefix))?.[1];
-      if (!ruleKey) continue;
-      pushViolation(lhs, m[3], ruleKey);
+    // Skipped inside :root blocks — those are theme definitions where mapping
+    // a semantic slot (--background-*) to a color primitive (--color-*) is correct.
+    if (!skipShapeB) {
+      const declRegex = /(^|[\s;{])(--[\w-]+)\s*:\s*var\((--[\w-]+)(?:\s*,[^)]*)?\)/g;
+      while ((m = declRegex.exec(line)) !== null) {
+        const lhs = m[2];
+        if (lhs.startsWith('--bds-')) continue;
+        const ruleKey = Object.entries(CUSTOM_PROP_TO_RULE).find(([prefix]) => lhs.startsWith(prefix))?.[1];
+        if (!ruleKey) continue;
+        pushViolation(lhs, m[3], ruleKey);
+      }
     }
   }
 

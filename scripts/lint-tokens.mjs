@@ -57,7 +57,25 @@ const pairingViolations = [];
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
   const lines = text.split('\n');
-  lines.forEach((line, idx) => {
+
+  // Track :root {} block state so Shape B is skipped inside theme definitions.
+  let inRootBlock = false;
+  let rootBraceDepth = 0;
+
+  for (let idx = 0; idx < lines.length; idx++) {
+    const line = lines[idx];
+
+    if (file.endsWith('.css')) {
+      if (/^:root(\[.*?\])?\s*\{/.test(line.trim())) {
+        inRootBlock = true;
+        rootBraceDepth = 1;
+      } else if (inRootBlock) {
+        rootBraceDepth += (line.match(/\{/g) ?? []).length;
+        rootBraceDepth -= (line.match(/\}/g) ?? []).length;
+        if (rootBraceDepth <= 0) { inRootBlock = false; rootBraceDepth = 0; }
+      }
+    }
+
     for (const { name } of findVarRefs(line)) {
       if (isViolation(name, checkSets)) {
         inventedViolations.push({
@@ -69,8 +87,8 @@ for (const file of files) {
       }
     }
     // Rule 3: token-family ↔ property pairing (CSS + TSX/TS)
-    pairingViolations.push(...checkTokenFamilyPairing(line, idx + 1, file));
-  });
+    pairingViolations.push(...checkTokenFamilyPairing(line, idx + 1, file, { skipShapeB: inRootBlock }));
+  }
 
   // Rule 2: service-token family (CSS only — full-text walker)
   if (file.endsWith('.css')) {
