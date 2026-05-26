@@ -42,6 +42,7 @@ export const font = {
    * body/md (16/150)    → --body-md                → 16px
    * body/lg (18/150)    → --body-lg                → 18px
    * body/xl (20/150)    → --body-xl                → 20px
+   * body/huge           → --body-huge              → 25.3px
    * label/sm            → --label-sm               → 14px
    * label/md            → --label-md               → 16px
    * label/lg            → --label-lg               → 18px
@@ -59,6 +60,7 @@ export const font = {
       md: 'var(--body-md)',
       lg: 'var(--body-lg)',
       xl: 'var(--body-xl)',
+      huge: 'var(--body-huge)',
     },
     label: {
       tiny: 'var(--label-tiny)',

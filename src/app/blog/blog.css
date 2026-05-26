@@ -32,9 +32,9 @@
 }
 
 /* ─── Blog post detail — narrow article column ──────────── */
-/* Mirrors customer-stories/[slug] layout: container-lg + container-lg--story
+/* Mirrors customer-stories/[slug] layout: container-lg + container-lg--post
    constrains to 760px, align-items: flex-start for left-aligned breadcrumb
-   and headings. */
+   and headings. (Shared rule lives in shared-sections.css with --story.) */
 
 .blog-post__meta {
   display: flex;

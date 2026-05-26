@@ -46,7 +46,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <>
       <section className="content-section">
-        <div className="container-lg container-lg--story">
+        <div className="container-lg container-lg--post">
           <Breadcrumb
             style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
             items={[
@@ -57,12 +57,6 @@ export default async function BlogPostPage({ params }: Props) {
           />
 
           <h1 style={heading.lg}>{meta.title}</h1>
-
-          {meta.summary && (
-            <p style={{ ...text.bodyLg, color: color.text.secondary, marginTop: gap.md }}>
-              {meta.summary}
-            </p>
-          )}
 
           <div className="blog-post__meta">
             <span className="blog-post__meta-item" style={{ ...label.sm, color: color.text.secondary }}>
@@ -88,6 +82,12 @@ export default async function BlogPostPage({ params }: Props) {
                 priority
               />
             </div>
+          )}
+
+          {meta.summary && (
+            <p style={{ ...text.bodyHuge, color: color.text.secondary, marginTop: gap.xl }}>
+              {meta.summary}
+            </p>
           )}
 
           <article className="blog-post__content">
