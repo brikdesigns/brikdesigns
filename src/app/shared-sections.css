@@ -158,10 +158,12 @@
 .container-lg--comfortable { gap: var(--gap-comfortable); }
 
 /* Narrow article column — used by /customer-stories/[slug] (.container-lg--story)
- * and /blog/[slug]. Width matches the intended reading width so margin-inline:
- * auto (from container-lg) centers the column. Children left-align via
- * align-items: flex-start so breadcrumbs + headings sit flush at the column edge. */
-.container-lg--story {
+ * and /blog/[slug] (.container-lg--post). Width matches the intended reading
+ * width so margin-inline: auto (from container-lg) centers the column. Children
+ * left-align via align-items: flex-start so breadcrumbs + headings sit flush at
+ * the column edge. */
+.container-lg--story,
+.container-lg--post {
   max-width: 760px;
   align-items: flex-start;
 }

@@ -46,7 +46,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <>
       <section className="content-section">
-        <div className="container-lg container-lg--story">
+        <div className="container-lg container-lg--post">
           <Breadcrumb
             style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
             items={[
