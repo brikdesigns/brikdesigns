@@ -294,7 +294,7 @@
   flex: 0 0 240px;
 }
 
-.mega-nav__panel-heading {
+.mega-nav__panel-title {
   font-family: var(--font-family-heading);
   font-size: var(--heading-md);
   color: var(--text-primary);

@@ -90,7 +90,7 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
           )}
 
-          <article className="blog-post__body">
+          <article className="blog-post__content">
             <MDXRemote source={content} />
           </article>
         </div>

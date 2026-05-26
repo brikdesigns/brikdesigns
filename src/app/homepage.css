@@ -46,7 +46,7 @@
 }
 
 /* Webflow: .text_display-sm.on-color-dark */
-.hero-heading {
+.hero-title {
   font-family: var(--font-family-display);
   font-size: var(--heading-huge);
   font-weight: 700;
@@ -56,7 +56,7 @@
 }
 
 /* Webflow: .text_body-huge.on-color-dark */
-.hero-subtext {
+.hero-description {
   font-family: var(--font-family-body);
   font-size: var(--body-xl);
   font-weight: 400;
@@ -117,7 +117,7 @@
 }
 
 /* Webflow: .text_heading-lg.center */
-.section-heading {
+.section-title {
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
@@ -127,7 +127,7 @@
 }
 
 /* Webflow: .text_body-md.center */
-.section-subtext {
+.section-description {
   font-family: var(--font-family-body);
   font-size: var(--body-md);
   color: var(--text-secondary);
@@ -197,7 +197,7 @@
 }
 
 /* Webflow: .text_heading-lg */
-.audit-heading {
+.audit-title {
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
@@ -207,7 +207,7 @@
 }
 
 /* Webflow: .text_body-md.center */
-.audit-subtext {
+.audit-description {
   font-family: var(--font-family-body);
   font-size: var(--body-md);
   color: var(--text-secondary);
@@ -390,7 +390,7 @@
 }
 
 /* Webflow: .text_heading-lg.center.on-color-dark */
-.cta-heading {
+.cta-title {
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
@@ -400,7 +400,7 @@
 }
 
 /* Webflow: .text_body-lg.center.on-color-dark */
-.cta-subtext {
+.cta-description {
   font-family: var(--font-family-body);
   font-size: var(--body-lg);
   line-height: 150%;
@@ -457,7 +457,7 @@
     padding: 0;
   }
 
-  .hero-heading {
+  .hero-title {
     font-size: var(--heading-xl);
     width: auto;
   }
@@ -477,7 +477,7 @@
 
 /* Webflow: mobile portrait — 479px */
 @media (max-width: 479px) {
-  .hero-heading {
+  .hero-title {
     font-size: var(--heading-lg);
     line-height: 120%;
     width: 288px;

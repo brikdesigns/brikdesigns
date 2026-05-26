@@ -59,12 +59,12 @@ export default async function HomePage() {
         <div className="hero-container">
           <div className="hero-layout">
             <div className="hero-text">
-              <h1 className="hero-heading">
+              <h1 className="hero-title">
                 Marketing That Works.
                 <br />
                 Design That Builds.
               </h1>
-              <p className="hero-subtext">
+              <p className="hero-description">
                 We help small businesses show up better, work smarter, and grow faster—brik by brik.
               </p>
             </div>
@@ -85,8 +85,8 @@ export default async function HomePage() {
       <section className="section-services">
         <div className="section-container">
           <div className="section-header">
-            <h2 className="section-heading">What We Do</h2>
-            <p className="section-subtext">
+            <h2 className="section-title">What We Do</h2>
+            <p className="section-description">
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>
           </div>
@@ -110,8 +110,8 @@ export default async function HomePage() {
       <section className="section-plans">
         <div className="section-container">
           <div className="section-header">
-            <h2 className="section-heading">Monthly Subscription</h2>
-            <p className="section-subtext">
+            <h2 className="section-title">Monthly Subscription</h2>
+            <p className="section-description">
               We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
             </p>
           </div>
@@ -136,9 +136,9 @@ export default async function HomePage() {
         <div className="audit-layout">
           <div className="audit-content">
             <div className="audit-text">
-              <h3 className="audit-heading">Not sure what you need yet?</h3>
-              <h3 className="audit-heading">Start with a <strong><em>free</em></strong> marketing assessment.</h3>
-              <p className="audit-subtext">
+              <h3 className="audit-title">Not sure what you need yet?</h3>
+              <h3 className="audit-title">Start with a <strong><em>free</em></strong> marketing assessment.</h3>
+              <p className="audit-description">
                 We&apos;ll review your current marketing, systems, and tools — and send you a 3-part plan to fix what&apos;s holding you back.
               </p>
             </div>
@@ -170,7 +170,7 @@ export default async function HomePage() {
         <section className="section-story">
           <div className="story-container">
             <div className="section-header">
-              <h2 className="section-heading">Latest Customer Story</h2>
+              <h2 className="section-title">Latest Customer Story</h2>
             </div>
             <div className="story-card">
               <div className="story-image-wrapper">
@@ -220,8 +220,8 @@ export default async function HomePage() {
       <section className="section-cta">
         <div className="cta-card">
           <div className="cta-inner">
-            <h2 className="cta-heading">Get in Touch</h2>
-            <p className="cta-subtext">
+            <h2 className="cta-title">Get in Touch</h2>
+            <p className="cta-description">
               Starting a new project or want to collaborate with us?
             </p>
           </div>
