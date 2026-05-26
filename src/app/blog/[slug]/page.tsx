@@ -85,7 +85,7 @@ export default async function BlogPostPage({ params }: Props) {
           )}
 
           {meta.summary && (
-            <p style={{ ...text.bodyLg, color: color.text.secondary, marginTop: gap.xl }}>
+            <p style={{ ...text.bodyHuge, color: color.text.secondary, marginTop: gap.xl }}>
               {meta.summary}
             </p>
           )}

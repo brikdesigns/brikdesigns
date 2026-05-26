@@ -47,6 +47,16 @@ export const text = {
     margin: 0,
   } satisfies CSSProperties,
 
+  /** body/huge · 25.3/150 primary — editorial lede / oversized body text */
+  bodyHuge: {
+    fontFamily: font.family.body,
+    fontSize: font.size.body.huge,
+    fontWeight: font.weight.regular,
+    lineHeight: font.lineHeight.normal,
+    color: color.text.primary,
+    margin: 0,
+  } satisfies CSSProperties,
+
   /** body/sm · 14/150 primary — small body text (marketing). For secondary-color body, see `bodySmall`. */
   bodySm: {
     fontFamily: font.family.body,
