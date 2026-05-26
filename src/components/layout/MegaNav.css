@@ -686,7 +686,7 @@
   display: block;
   width: 20px;
   height: 2px;
-  background: var(--text-primary);
+  background: var(--text-primary); /* bds-lint-ignore token-family — hamburger bar tracks text color so it stays visible in both light/dark mode; --border-primary would fail in dark mode (stays dark while bg is dark) */
   position: relative;
   transition: background 0.2s;
 }
@@ -698,7 +698,7 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: var(--text-primary);
+  background: var(--text-primary); /* bds-lint-ignore token-family — same rationale as .mega-nav__hamburger above */
   transition: transform 0.2s;
 }
 

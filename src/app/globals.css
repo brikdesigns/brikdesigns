@@ -130,7 +130,7 @@ html {
   --background-secondary: var(--grayscale--lightest);
   /* Re-pair the lightened --background-secondary with its state siblings; pressed stays dark for AA with Button's hardcoded white :active text. */
   --background-secondary-hover: var(--grayscale--lighter);
-  --background-secondary-pressed: var(--color-grayscale-darker);
+  --background-secondary-pressed: var(--color-grayscale-darker); /* bds-lint-ignore token-family — :root token-definition block; --color-grayscale-darker is the correct value here; see #227 for migration to theme-brand-brik */
   --background-elevated: var(--grayscale--white);
   --background-inverse: var(--grayscale--white);
   --background-input: var(--grayscale--white);
@@ -140,7 +140,7 @@ html {
   --border-secondary: var(--grayscale--lighter);
   --border-muted: var(--grayscale--lighter);
   --border-brand-primary: var(--brand--primary);
-  --border-negative: var(--color-system-red);
+  --border-negative: var(--color-system-red); /* bds-lint-ignore token-family — :root token-definition block; --color-system-red is the only available system red primitive; see #227 */
   --border-input: var(--grayscale--light);
   --border-inverse: var(--grayscale--white);
 
@@ -293,7 +293,7 @@ html {
   --background-secondary: var(--grayscale--light);    /* Figma: grayscale.light — FIX from --darkest */
   /* State pair for dark mode — matches theme-brand-brik dark (grayscale-dark hover, grayscale-darker pressed). */
   --background-secondary-hover: var(--grayscale--dark);
-  --background-secondary-pressed: var(--color-grayscale-darker);
+  --background-secondary-pressed: var(--color-grayscale-darker); /* bds-lint-ignore token-family — :root token-definition block; dark-mode value, same rationale as light-mode above; see #227 */
   --background-elevated: var(--grayscale--darker);
   --background-inverse: var(--grayscale--black);      /* Figma: grayscale.black — FIX from --white */
   --background-input: var(--grayscale--black);        /* Figma: grayscale.black ✓ */

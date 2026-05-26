@@ -5,3 +5,12 @@
 #
 # Format: one bare token name per line. `#` starts a comment.
 
+# ── BDS 0.78.0 content-width tokens ──
+# Added in brik-bds#768 (v0.76.0). These are canonical BDS tokens but fail
+# against the installed 0.72.0. Will resolve when #227 bumps BDS to latest.
+content-width-narrow
+content-width-default
+content-width-wide
+content-width-xl
+content-width-full
+

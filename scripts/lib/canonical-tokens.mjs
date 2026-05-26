@@ -71,6 +71,168 @@ export function isViolation(name, { canonical, projectLocal, allowlist }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Rule 5: Token-family ↔ property pairing
+//
+// Flags `var(--TOKEN)` uses where the token's family doesn't match the
+// property's allowlist. Three shapes:
+//
+//   CSS property:           background-color: var(--text-foo);
+//   CSS custom-property:   --background-inverse: var(--text-foo);
+//   TSX inline-style:      style={{ backgroundColor: 'var(--text-foo)' }}
+//
+// Mirrors brik-bds/scripts/lint-tokens.js Rule 5 (brik-bds#578 / #778).
+// ─────────────────────────────────────────────────────────────────────────────
+
+const TOKEN_FAMILY_RULES = {
+  'background-color': {
+    allowed: ['--background-', '--surface-'],
+    label: 'background',
+    suggestion: 'use a --background-* or --surface-* token',
+  },
+  'background': {
+    allowed: ['--background-', '--surface-'],
+    label: 'background',
+    suggestion: 'use a --background-* or --surface-* token',
+  },
+  'color': {
+    allowed: ['--text-', '--color-'],
+    label: 'text',
+    suggestion: 'use a --text-* token or a --color-* primitive',
+  },
+  'border-color': {
+    allowed: ['--border-', '--background-'],
+    label: 'border',
+    suggestion: 'use a --border-* token (or matching --background-* for fill-style borders)',
+  },
+  'border-top-color': {
+    allowed: ['--border-', '--background-'],
+    label: 'border',
+    suggestion: 'use a --border-* token',
+  },
+  'border-bottom-color': {
+    allowed: ['--border-', '--background-'],
+    label: 'border',
+    suggestion: 'use a --border-* token',
+  },
+  'border-left-color': {
+    allowed: ['--border-', '--background-'],
+    label: 'border',
+    suggestion: 'use a --border-* token',
+  },
+  'border-right-color': {
+    allowed: ['--border-', '--background-'],
+    label: 'border',
+    suggestion: 'use a --border-* token',
+  },
+  'outline-color': {
+    allowed: ['--border-'],
+    label: 'outline',
+    suggestion: 'use a --border-* token',
+  },
+};
+
+const TSX_STYLE_PROP_TO_CSS = {
+  backgroundColor: 'background-color',
+  background: 'background',
+  color: 'color',
+  borderColor: 'border-color',
+  borderTopColor: 'border-top-color',
+  borderBottomColor: 'border-bottom-color',
+  borderLeftColor: 'border-left-color',
+  borderRightColor: 'border-right-color',
+  outlineColor: 'outline-color',
+};
+
+// CSS custom-property LHS prefixes that inherit a TOKEN_FAMILY_RULES allowlist.
+const CUSTOM_PROP_TO_RULE = {
+  '--background-': 'background-color',
+  '--surface-': 'background-color',
+  '--text-': 'color',
+  '--border-': 'border-color',
+};
+
+// Token value-side prefixes in scope for Rule 5.
+// Values pointing to other namespaces (--bds-*, --font-*, --space-*, etc.) are out of scope.
+const FAMILY_PREFIXES_FOR_VALUES = [
+  '--background-', '--surface-', '--text-', '--border-', '--color-',
+];
+
+export function classifyTokenFamily(tokenName) {
+  for (const prefix of FAMILY_PREFIXES_FOR_VALUES) {
+    if (tokenName.startsWith(prefix)) return prefix;
+  }
+  return null;
+}
+
+export function tokenFamilyMatchesAllowlist(tokenName, allowed) {
+  const family = classifyTokenFamily(tokenName);
+  if (family === null) return true; // out of scope — Rule 1 handles unknown tokens
+  return allowed.includes(family);
+}
+
+export function checkTokenFamilyPairing(line, lineNum, file) {
+  const violations = [];
+
+  const trimmed = line.trim();
+  if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) {
+    return violations;
+  }
+  if (line.includes('bds-lint-ignore')) return violations;
+
+  const isTsx = /\.tsx?$/.test(file);
+  const isCss = /\.css$/.test(file);
+
+  function pushViolation(prop, tokenName, ruleKey) {
+    const rule = TOKEN_FAMILY_RULES[ruleKey];
+    if (!rule) return;
+    if (tokenFamilyMatchesAllowlist(tokenName, rule.allowed)) return;
+    const family = classifyTokenFamily(tokenName);
+    violations.push({
+      file,
+      line: lineNum,
+      prop,
+      tokenName,
+      family: family ? family.slice(2, -1) : 'unknown',
+      label: rule.label,
+      suggestion: rule.suggestion,
+      snippet: line.trim().slice(0, 120),
+    });
+  }
+
+  if (isCss) {
+    // Shape A: standard CSS property declaration
+    const propRegex = /(^|[\s;{])(background-color|background|color|border-color|border-top-color|border-bottom-color|border-left-color|border-right-color|outline-color)\s*:\s*var\((--[\w-]+)(?:\s*,[^)]*)?\)/g;
+    let m;
+    while ((m = propRegex.exec(line)) !== null) {
+      pushViolation(m[2], m[3], m[2]);
+    }
+
+    // Shape B: CSS custom-property declaration (--family-*: var(--other-family-*))
+    const declRegex = /(^|[\s;{])(--[\w-]+)\s*:\s*var\((--[\w-]+)(?:\s*,[^)]*)?\)/g;
+    while ((m = declRegex.exec(line)) !== null) {
+      const lhs = m[2];
+      if (lhs.startsWith('--bds-')) continue;
+      const ruleKey = Object.entries(CUSTOM_PROP_TO_RULE).find(([prefix]) => lhs.startsWith(prefix))?.[1];
+      if (!ruleKey) continue;
+      pushViolation(lhs, m[3], ruleKey);
+    }
+  }
+
+  if (isTsx) {
+    // Shape C: TSX inline-style object (camelProp: 'var(--token)')
+    const tsxRegex = /\b(backgroundColor|background|color|borderColor|borderTopColor|borderBottomColor|borderLeftColor|borderRightColor|outlineColor)\s*:\s*['"]var\((--[\w-]+)(?:\s*,[^)]*)?\)['"]/g;
+    let m;
+    while ((m = tsxRegex.exec(line)) !== null) {
+      const cssProp = TSX_STYLE_PROP_TO_CSS[m[1]];
+      if (!cssProp) continue;
+      pushViolation(m[1], m[2], cssProp);
+    }
+  }
+
+  return violations;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Service-token family rule
 //
 // Canon (node_modules/@brikdesigns/bds/dist/tokens.css L980+):
