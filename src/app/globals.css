@@ -32,7 +32,7 @@ html {
   scroll-behavior: smooth;
 }
 :root[data-theme="dark"] {
-  background-color: var(--grayscale--black);
+  background-color: var(--background-primary);
 }
 
 /* ================================================================
@@ -45,57 +45,27 @@ html {
    Adapted from brik-client-portal globals.css.
    ================================================================ */
 :root {
-  /* ---- Brand color primitives ---- */
-  /* AA fix: was #e35335 (poppy-light). White text on poppy-light at body
-     size = 3.78:1 — fails WCAG 2.1 AA (4.5:1). Every `<Button variant=
-     "primary" size="sm">` on the site failed the new a11y gate, which
-     surfaced when the /services/* 404s in this same PR were lifted and
-     axe could finally reach those pages. Darkening the brand primitive
-     to poppy-dark gets white-on-poppy to 6.23:1 (AA pass). Cascade hits
-     every consumer of `--brand--primary`: --surface-brand-primary,
-     --background-brand-primary, --border-brand-primary,
-     --background-image-brand. Dark-theme --text-brand-primary needs an
-     explicit pin to poppy-light (see :root[data-theme="dark"] below) —
-     poppy-dark on the black page bg only hits 3.14:1. */
-  --brand--primary: #b0351b;
-  --brand--secondary: #1b1b1b;
-  --brand--accent: #f1f0ec;
-
-  /* Poppy scale */
-  --poppy--lightest: #ffefeb;
-  --poppy--lighter: #ffa693;
-  --poppy--light-base: #e35335;
-  --poppy--dark: #b0351b;
-  --poppy--darker: #7d1d09;
-  --poppy--darkest: #4a0d00;
-
-  /* Tan scale */
-  --tan--lightest: #f1f0ec;
-  --tan--lighter: #cfcdc5;
-  --tan--light: #adaaa0;
-  --tan--dark: #8b887d;
-  --tan--darker: #69665c;
-  --tan--darkest: #47453c;
-
-  /* Grayscale */
-  --grayscale--white: white;
-  --grayscale--lightest: #f2f2f2;
-  --grayscale--lighter: #e0e0e0;
-  --grayscale--light: #bdbdbd;
-  --grayscale--dark: #828282;
-  --grayscale--darker: #333;
-  --grayscale--darkest: #1b1b1b;
-  --grayscale--black: #000;
+  /* ---- Brand color override ---- */
+  /* AA fix: BDS canonical --brand-primary resolves to --color-poppy-light
+     (#e35335). White text on poppy-light at body size = 3.78:1 — fails
+     WCAG 2.1 AA (4.5:1). Override to poppy-dark (#b0351b) → 6.23:1 (AA
+     pass). Cascade hits every BDS consumer of --brand-primary:
+     --surface-brand-primary, --background-brand-primary,
+     --border-brand-primary, --background-image-brand.
+     Dark-theme --text-brand-primary needs an explicit pin to poppy-light
+     (see :root[data-theme="dark"] below) — poppy-dark on the black page
+     bg only hits 3.14:1. */
+  --brand-primary: #b0351b;
 
   /* ---- Semantic color tokens ---- */
 
   /* Page */
-  --page-primary: var(--grayscale--white);
-  --page-secondary: var(--grayscale--lightest);
-  --page-accent: var(--tan--lightest);
+  --page-primary: var(--color-grayscale-white);
+  --page-secondary: var(--color-grayscale-lightest);
+  --page-accent: var(--color-tan-lightest);
 
   /* Text */
-  --text-primary: var(--grayscale--darkest);
+  --text-primary: var(--color-grayscale-darkest);
   /* AA fix: BDS canonical comments document `--color-grayscale-darker` (#4f4f4f)
      as the intended Secondary Text token, but the canonical `--text-secondary`
      alias maps to `--color-grayscale-dark` (#828282 — Placeholder/Tertiary),
@@ -103,14 +73,14 @@ html {
      43+ `color.text.secondary` consumers + 51+ direct CSS readers all become
      AA-compliant (8.59:1 on white). Re-evaluate when BDS corrects the alias. */
   --text-secondary: var(--color-grayscale-darker);
-  --text-muted: var(--grayscale--light);
-  --text-inverse: var(--grayscale--white);
-  --text-on-color-dark: var(--grayscale--white);
-  --text-on-color-light: var(--grayscale--black);
+  --text-muted: #bdbdbd; /* project-local: between BDS lighter/light, no canonical equivalent */
+  --text-inverse: var(--color-grayscale-white);
+  --text-on-color-dark: var(--color-grayscale-white);
+  --text-on-color-light: var(--color-grayscale-black);
   /* `--text-brand-primary` resolves to poppy-dark (#b0351b) in light mode.
-     Equals `--brand--primary` since the AA fix above darkened the brand
+     Equals `--brand-primary` since the AA fix above darkened the brand
      primitive, but kept as an explicit `--color-poppy-dark` reference so
-     a future re-lightening of --brand--primary wouldn't silently regress
+     a future re-lightening of --brand-primary wouldn't silently regress
      text contrast. 7.04:1 on white, 5.27:1 on tan-lightest — AA pass. */
   --text-brand-primary: var(--color-poppy-dark);
   --text-negative: var(--color-system-red);
@@ -118,31 +88,31 @@ html {
   /* Surface — brand-specific shadows of canonical BDS tokens. Values diverge
      from BDS canonical (e.g., secondary uses tan-lightest, not grayscale-
      lighter) to carry the brikdesigns brand palette across the site. */
-  --surface-primary: var(--grayscale--white);
-  --surface-secondary: var(--tan--lightest);
+  --surface-primary: var(--color-grayscale-white);
+  --surface-secondary: var(--color-tan-lightest);
   --surface-negative: #fdeaea;
-  --surface-brand-primary: var(--brand--primary);
-  --surface-brand-secondary: var(--grayscale--white);
+  --surface-brand-primary: var(--brand-primary);
+  --surface-brand-secondary: var(--color-grayscale-white);
 
   /* Background */
-  --background-brand-primary: var(--brand--primary);
-  --background-primary: var(--grayscale--white);
-  --background-secondary: var(--grayscale--lightest);
+  --background-brand-primary: var(--brand-primary);
+  --background-primary: var(--color-grayscale-white);
+  --background-secondary: var(--color-grayscale-lightest);
   /* Re-pair the lightened --background-secondary with its state siblings; pressed stays dark for AA with Button's hardcoded white :active text. */
-  --background-secondary-hover: var(--grayscale--lighter);
-  --background-secondary-pressed: var(--color-grayscale-darker); /* bds-lint-ignore token-family — :root token-definition block; --color-grayscale-darker is the correct value here; see #227 for migration to theme-brand-brik */
-  --background-elevated: var(--grayscale--white);
-  --background-inverse: var(--grayscale--white);
-  --background-input: var(--grayscale--white);
+  --background-secondary-hover: var(--color-grayscale-lighter);
+  --background-secondary-pressed: var(--color-grayscale-darker);
+  --background-elevated: var(--color-grayscale-white);
+  --background-inverse: var(--color-grayscale-white);
+  --background-input: var(--color-grayscale-white);
 
   /* Border */
-  --border-primary: var(--grayscale--darkest);
-  --border-secondary: var(--grayscale--lighter);
-  --border-muted: var(--grayscale--lighter);
-  --border-brand-primary: var(--brand--primary);
-  --border-negative: var(--color-system-red); /* bds-lint-ignore token-family — :root token-definition block; --color-system-red is the only available system red primitive; see #227 */
-  --border-input: var(--grayscale--light);
-  --border-inverse: var(--grayscale--white);
+  --border-primary: var(--color-grayscale-darkest);
+  --border-secondary: var(--color-grayscale-lighter);
+  --border-muted: var(--color-grayscale-lighter);
+  --border-brand-primary: var(--brand-primary);
+  --border-negative: var(--color-system-red);
+  --border-input: #bdbdbd;
+  --border-inverse: var(--color-grayscale-white);
 
   /* Shadows */
   --box-shadow-none: none;
@@ -162,21 +132,19 @@ html {
      `--surface-accent` is brand-specific (tan-lightest, no canonical
      equivalent — BDS extension pending). Kept project-local until BDS
      ships a canonical accent surface. */
-  --surface-accent: var(--tan--lightest);
-  --text-on-footer: var(--grayscale--white);
-  --text-on-color-dark: var(--grayscale--white);
-  --text-on-color-light: var(--grayscale--black);
-  --background-image: var(--grayscale--lightest);
-  --background-image-brand: var(--brand--primary);
-  --background-brand-secondary: var(--grayscale--white);
+  --surface-accent: var(--color-tan-lightest);
+  --text-on-footer: var(--color-grayscale-white);
+  --text-on-color-dark: var(--color-grayscale-white);
+  --text-on-color-light: var(--color-grayscale-black);
+  --background-image: var(--color-grayscale-lightest);
+  --background-image-brand: var(--brand-primary);
+  --background-brand-secondary: var(--color-grayscale-white);
 
-  /* BDS component CSS compatibility aliases */
-  --system--red: var(--color-system-red);
   /* Override BDS canonical `--background-tertiary` (= --color-grayscale-lighter
      in light) to keep brikdesigns' grayscale-lighter alias direct — same value
      today, but lets us flex the dark-theme value below (BDS canonical has no
      dark-theme override for --background-tertiary, so we provide one). */
-  --background-tertiary: var(--grayscale--lighter);
+  --background-tertiary: var(--color-grayscale-lighter);
 
   /* ---- Typography (Poppins — Brik brand font) ---- */
   --font-family-body: Poppins, sans-serif;
@@ -263,67 +231,64 @@ html {
    ================================================================ */
 :root[data-theme="dark"] {
   /* Text — Figma color/dark mode values */
-  --text-primary: var(--grayscale--lightest);        /* Figma: grayscale.lightest ✓ */
-  --text-secondary: var(--grayscale--light);          /* Figma: grayscale.light ✓ */
-  --text-muted: var(--grayscale--dark);               /* Figma: grayscale.dark ✓ */
-  /* AA pin: --brand--primary is now poppy-dark (#b0351b) for white-on-
+  --text-primary: var(--color-grayscale-lightest);        /* Figma: grayscale.lightest ✓ */
+  --text-secondary: #bdbdbd;                           /* Figma: grayscale.light (#bdbdbd — no BDS canonical at this stop) */
+  --text-muted: var(--color-grayscale-light);               /* Figma: grayscale.dark (#828282 = --color-grayscale-light) */
+  /* AA pin: --brand-primary is now poppy-dark (#b0351b) for white-on-
      primary button contrast in light mode. On the dark-mode page bg
-     (#000), poppy-dark text is 3.14:1 — fails AA. Pin to poppy-light-base
-     (#e35335, the old brand primitive) for dark mode only — gives 4.79:1
-     against #000, AA pass. */
-  --text-brand-primary: var(--poppy--light-base);     /* Brik override (Figma: theme.blue) */
-  --text-inverse: var(--grayscale--black);            /* Figma: grayscale.black — FIX from --darkest */
+     (#000), poppy-dark text is 3.14:1 — fails AA. Pin to poppy-light
+     (#e35335) for dark mode only — gives 4.79:1 against #000, AA pass. */
+  --text-brand-primary: var(--color-poppy-light);     /* Brik override (Figma: theme.blue) */
+  --text-inverse: var(--color-grayscale-black);            /* Figma: grayscale.black — FIX from --darkest */
   --text-negative: #ff6b6b;
 
   /* Surface — Figma color/dark mode values */
-  --surface-primary: var(--grayscale--black);         /* Figma: grayscale.black ✓ */
-  --surface-secondary: var(--grayscale--darker);      /* Figma: grayscale.darker — FIX from --darkest */
+  --surface-primary: var(--color-grayscale-black);         /* Figma: grayscale.black ✓ */
+  --surface-secondary: var(--color-grayscale-darker);      /* Figma: grayscale.darker — FIX from --darkest */
   --surface-negative: #3d1a1a;
-  --surface-brand-primary: var(--brand--primary);     /* Brik override (Figma: theme.blue) */
-  --surface-brand-secondary: var(--grayscale--darkest);
+  --surface-brand-primary: var(--brand-primary);     /* Brik override (Figma: theme.blue) */
+  --surface-brand-secondary: var(--color-grayscale-darkest);
 
   /* Page — Figma color/dark mode values */
-  --page-primary: var(--grayscale--black);            /* Figma: grayscale.black ✓ */
-  --page-secondary: var(--grayscale--darker);         /* Figma: grayscale.darker ✓ */
-  --page-accent: var(--grayscale--darkest);
+  --page-primary: var(--color-grayscale-black);            /* Figma: grayscale.black ✓ */
+  --page-secondary: var(--color-grayscale-darker);         /* Figma: grayscale.darker ✓ */
+  --page-accent: var(--color-grayscale-darkest);
 
   /* Background — Figma color/dark mode values */
-  --background-brand-primary: var(--brand--primary);  /* Brik override (Figma: theme.blue) */
-  --background-primary: var(--grayscale--black);      /* Figma: grayscale.black — FIX from --darker */
-  --background-secondary: var(--grayscale--light);    /* Figma: grayscale.light — FIX from --darkest */
+  --background-brand-primary: var(--brand-primary);  /* Brik override (Figma: theme.blue) */
+  --background-primary: var(--color-grayscale-black);      /* Figma: grayscale.black — FIX from --darker */
+  --background-secondary: #bdbdbd;                     /* Figma: grayscale.light (#bdbdbd) — FIX from --darkest */
   /* State pair for dark mode — matches theme-brand-brik dark (grayscale-dark hover, grayscale-darker pressed). */
-  --background-secondary-hover: var(--grayscale--dark);
-  --background-secondary-pressed: var(--color-grayscale-darker); /* bds-lint-ignore token-family — :root token-definition block; dark-mode value, same rationale as light-mode above; see #227 */
-  --background-elevated: var(--grayscale--darker);
-  --background-inverse: var(--grayscale--black);      /* Figma: grayscale.black — FIX from --white */
-  --background-input: var(--grayscale--black);        /* Figma: grayscale.black ✓ */
+  --background-secondary-hover: var(--color-grayscale-light);
+  --background-secondary-pressed: var(--color-grayscale-darker);
+  --background-elevated: var(--color-grayscale-darker);
+  --background-inverse: var(--color-grayscale-black);      /* Figma: grayscale.black — FIX from --white */
+  --background-input: var(--color-grayscale-black);        /* Figma: grayscale.black ✓ */
 
   /* Border — Figma color/dark mode values */
-  --border-primary: var(--grayscale--darker);         /* Figma: grayscale.darker — FIX from --darkest */
-  --border-secondary: var(--grayscale--light);        /* Figma: grayscale.light — FIX from --darker */
-  --border-muted: var(--grayscale--dark);             /* Figma: grayscale.dark — FIX from --darker */
-  --border-brand-primary: var(--brand--primary);      /* Brik override (Figma: theme.blue) */
+  --border-primary: var(--color-grayscale-darker);         /* Figma: grayscale.darker — FIX from --darkest */
+  --border-secondary: #bdbdbd;                         /* Figma: grayscale.light (#bdbdbd) — FIX from --darker */
+  --border-muted: var(--color-grayscale-light);             /* Figma: grayscale.dark — FIX from --darker */
+  --border-brand-primary: var(--brand-primary);      /* Brik override (Figma: theme.blue) */
   --border-negative: #ff6b6b;
-  --border-input: var(--grayscale--dark);             /* Figma: grayscale.dark ✓ */
-  --border-inverse: var(--grayscale--black);          /* Figma: grayscale.black ✓ */
+  --border-input: var(--color-grayscale-light);             /* Figma: grayscale.dark ✓ */
+  --border-inverse: var(--color-grayscale-black);          /* Figma: grayscale.black ✓ */
 
   /* System */
   --color-system-link: #6b8aff;
 
   /* Webflow-parity tokens — dark mode. Same brand-customization rationale
      as light theme (see top of file). */
-  --surface-accent: var(--grayscale--darkest);
-  --text-on-footer: var(--grayscale--lightest);
-  --background-image: var(--grayscale--darker);
-  --background-image-brand: var(--brand--primary);
-  --background-brand-secondary: var(--grayscale--darkest);
+  --surface-accent: var(--color-grayscale-darkest);
+  --text-on-footer: var(--color-grayscale-lightest);
+  --background-image: var(--color-grayscale-darker);
+  --background-image-brand: var(--brand-primary);
+  --background-brand-secondary: var(--color-grayscale-darkest);
 
-  /* BDS compatibility aliases — dark mode */
-  --system--red: var(--color-system-red);
   /* Dark-theme value for --background-tertiary (BDS canonical has no dark
      override). Was previously routed through `--surface-tertiary`; inlined
      to remove that one-use private alias. */
-  --background-tertiary: var(--grayscale--dark);
+  --background-tertiary: var(--color-grayscale-light);
 
   /* Service-line dark-mode tokens are owned by BDS canonical (`bds-tokens`
      layer — see brik-bds#575 for the tone/context/inverse variants). */
