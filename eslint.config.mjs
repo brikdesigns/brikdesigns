@@ -19,8 +19,13 @@ const eslintConfig = defineConfig([
     "public/**",
   ]),
   {
-    // Typed token wrappers legitimately contain `var(--*)` strings — exempt.
-    ignores: ["src/lib/tokens.ts", "src/lib/styles.ts"],
+    // Typed token wrappers + token-lint test fixtures legitimately contain
+    // `var(--*)` strings with invented / out-of-scope names — exempt all three.
+    ignores: [
+      "src/lib/tokens.ts",
+      "src/lib/styles.ts",
+      "scripts/lint-tokens.test.mjs",
+    ],
     plugins: { "brik-tokens": brikTokens },
     rules: { "brik-tokens/no-invented-tokens": "error" },
   },
