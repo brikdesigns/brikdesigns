@@ -100,7 +100,14 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
   return (
     <>
-      {/* ═══ Header — breadcrumb + title + metadata ═══ */}
+      {/* ═══ Story arc — interior-hero + media + content + quote, single column ═══
+       * Anatomy mirrors /blog/[slug]: one content-section, narrow article
+       * column (container-lg--story = 760px), explicit per-element rhythm
+       * (gap-md inside the hero block, gap-xl between major regions, gap-sm
+       * heading→body). Breadcrumb intentionally drops the third (current-page)
+       * crumb — story titles are too long to wrap gracefully.
+       * Anatomy ref: design.brikdesigns.com/docs/getting-started/page-templates
+       */}
       <section className="content-section">
         <div className="container-lg container-lg--story">
           <Breadcrumb
@@ -108,23 +115,10 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
             items={[
               { label: 'Home', href: '/' },
               { label: 'Customer Stories', href: '/customer-stories' },
-              { label: story.name || story.client_name || slug },
             ]}
           />
 
-          <h1 className="page-hero__title">{story.name || story.client_name}</h1>
-
-          {story.short_description && (
-            <p
-              style={{
-                ...text.bodyLg,
-                color: color.text.secondary,
-                marginTop: 'var(--gap-md)',
-              }}
-            >
-              {story.short_description}
-            </p>
-          )}
+          <h1 style={heading.lg}>{story.name || story.client_name}</h1>
 
           <dl className="story-detail-meta">
             {story.client_name && story.client_name !== story.name && (
@@ -173,13 +167,8 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
               </div>
             )}
           </dl>
-        </div>
-      </section>
 
-      {/* ═══ Hero image ═══ */}
-      {story.hero_image_url && (
-        <section className="content-section content-section--tight">
-          <div className="container-lg">
+          {story.hero_image_url && (
             <div className="story-figure">
               <Frame ratio="wide" fit="cover">
                 <Image
@@ -191,34 +180,19 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                 />
               </Frame>
             </div>
-          </div>
-        </section>
-      )}
+          )}
 
-      {/* ═══ The Challenge ═══ */}
-      {story.the_challenge && (
-        <section className="content-section content-section--tight content-section--accent">
-          <div className="container-lg container-lg--story">
-            <div className="story-narrative">
+          {story.the_challenge && (
+            <div className="story-block">
               <h2 style={heading.md}>The Challenge</h2>
               <div
-                style={{
-                  ...text.body,
-                  color: color.text.primary,
-                  marginTop: 'var(--gap-sm)',
-                  lineHeight: 1.7,
-                }}
+                className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.the_challenge }}
               />
             </div>
-          </div>
-        </section>
-      )}
+          )}
 
-      {/* ═══ Inline solution image ═══ */}
-      {story.after_photo_url && (
-        <section className="content-section content-section--tight content-section--accent">
-          <div className="container-lg">
+          {story.after_photo_url && (
             <div className="story-figure">
               <Frame ratio="wide" fit="cover">
                 <Image
@@ -229,34 +203,19 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                 />
               </Frame>
             </div>
-          </div>
-        </section>
-      )}
+          )}
 
-      {/* ═══ The Brik Solution ═══ */}
-      {story.the_solution && (
-        <section className="content-section content-section--tight content-section--accent">
-          <div className="container-lg container-lg--story">
-            <div className="story-narrative">
+          {story.the_solution && (
+            <div className="story-block">
               <h2 style={heading.md}>The Brik Solution</h2>
               <div
-                style={{
-                  ...text.body,
-                  color: color.text.primary,
-                  marginTop: 'var(--gap-sm)',
-                  lineHeight: 1.7,
-                }}
+                className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.the_solution }}
               />
             </div>
-          </div>
-        </section>
-      )}
+          )}
 
-      {/* ═══ Inline results image ═══ */}
-      {story.results_photo_url && (
-        <section className="content-section content-section--tight content-section--accent">
-          <div className="container-lg">
+          {story.results_photo_url && (
             <div className="story-figure">
               <Frame ratio="wide" fit="cover">
                 <Image
@@ -267,34 +226,19 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                 />
               </Frame>
             </div>
-          </div>
-        </section>
-      )}
+          )}
 
-      {/* ═══ Results ═══ */}
-      {story.results && (
-        <section className="content-section content-section--tight content-section--accent">
-          <div className="container-lg container-lg--story">
-            <div className="story-narrative">
+          {story.results && (
+            <div className="story-block">
               <h2 style={heading.md}>Results</h2>
               <div
-                style={{
-                  ...text.body,
-                  color: color.text.primary,
-                  marginTop: 'var(--gap-sm)',
-                  lineHeight: 1.7,
-                }}
+                className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.results }}
               />
             </div>
-          </div>
-        </section>
-      )}
+          )}
 
-      {/* ═══ Pull-quote ═══ */}
-      {story.quote && (
-        <section className="content-section content-section--tight content-section--accent">
-          <div className="container-lg container-lg--story">
+          {story.quote && (
             <blockquote className="story-quote">
               <p className="story-quote__description">{story.quote}</p>
               {(story.quote_attribution || story.client_name) && (
@@ -303,9 +247,9 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                 </footer>
               )}
             </blockquote>
-          </div>
-        </section>
-      )}
+          )}
+        </div>
+      </section>
 
       {/* ═══ Other Customer Stories — 3-col grid ═══ */}
       {otherStories.length > 0 && (

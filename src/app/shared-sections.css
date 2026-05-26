@@ -157,11 +157,28 @@
 
 .container-lg--comfortable { gap: var(--gap-comfortable); }
 
-/* Narrow article column — used by /customer-stories/[slug] (.container-lg--story)
- * and /blog/[slug] (.container-lg--post). Width matches the intended reading
- * width so margin-inline: auto (from container-lg) centers the column. Children
- * left-align via align-items: flex-start so breadcrumbs + headings sit flush at
- * the column edge. */
+/* ─── Article column (interior-hero + media + content + quote anatomy) ───
+ * Narrow reading column used by long-form CMS templates whose anatomy follows
+ * /docs/getting-started/page-templates (interior-hero → media → content →
+ * quote). Both variants resolve to a 760px max-width — the same column hosts
+ * breadcrumbs, h1, meta, in-article media, body copy, and pull-quotes so
+ * vertical rhythm reads as one continuous arc instead of stacked sections.
+ *
+ * Variants exist for semantic clarity per page type — they aren't styled
+ * differently:
+ *   .container-lg--story → /customer-stories/[slug]  (Supabase CMS, sectioned)
+ *   .container-lg--post  → /blog/[slug]              (MDX, single article body)
+ *
+ * Vertical rhythm convention (applies to both):
+ *   – gap-md inside the interior-hero block (breadcrumb → h1 → meta)
+ *   – gap-xl between major regions (meta → media → content blocks → quote)
+ *   – gap-sm inside a content block (h2 → body)
+ * Apply via per-element margin-top in the page's CSS (story-block,
+ * blog-post__media, etc.) rather than container `gap`, because the hero block
+ * needs tighter rhythm than the body-to-body transitions.
+ *
+ * Children left-align (align-items: flex-start) so breadcrumbs + headings sit
+ * flush at the column edge. */
 .container-lg--story,
 .container-lg--post {
   max-width: 760px;

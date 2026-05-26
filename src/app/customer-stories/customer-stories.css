@@ -89,25 +89,22 @@
   }
 }
 
-/* ─── Customer story detail page ─────────────────────────── */
-/* .container-lg--story moved to shared-sections.css — it's now a shared
- * narrow article-column modifier consumed by /customer-stories/[slug]
- * and /blog/[slug]. */
-
-/* Tighter vertical rhythm for the image-narrative-image-narrative
- * cadence that runs from hero through Results. */
-.content-section--tight {
-  padding: var(--padding-xl) 0;
-}
+/* ─── Customer story detail page — narrow article column ──
+ * Anatomy follows /blog/[slug]: one content-section, .container-lg--story
+ * (760px, defined in shared-sections.css) wraps interior-hero → media →
+ * content → quote. Rhythm: gap-md inside the hero block (h1 → meta), gap-xl
+ * between major regions (meta → media → content blocks → quote), gap-sm
+ * inside a block (h2 → body). Matches blog explicit-margin pattern. */
 
 /* Project metadata — 2-col grid, one field per cell.
  * <dl> wraps each dt/dd pair in a <div> (valid HTML5) so the grid
- * places label + value as a paired unit in each column slot. */
+ * places label + value as a paired unit in each column slot.
+ * gap-md top margin keeps the meta card tight to the title (blog parity). */
 .story-detail-meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--gap-md);
-  margin: var(--gap-lg) 0 0;
+  margin: var(--gap-md) 0 0;
   padding: var(--padding-md) var(--padding-lg);
   background-color: var(--surface-secondary);
   border-radius: var(--border-radius-md);
@@ -135,29 +132,43 @@
   margin: 0;
 }
 
-/* Full-width inline figure for hero / solution / results images */
+/* Inline figure for hero / solution / results images. Constrained to the
+ * article column by its parent — no max-width here. gap-xl top margin
+ * separates from the preceding block. */
 .story-figure {
   width: 100%;
-  max-width: var(--site-container-max);
-  margin: 0 auto;
+  margin-top: var(--gap-xl);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
 }
 
-/* Narrative text block — fills the story container width. The container
- * max-width is already sized for comfortable reading so no secondary
- * constraint is needed here. */
-.story-narrative {
+/* Narrative content block — h2 + body. h2 sits flush at the top, body
+ * follows at gap-sm. gap-xl above separates from the preceding figure or
+ * block. */
+.story-block {
   width: 100%;
+  margin-top: var(--gap-xl);
+}
+
+.story-block > h2 {
+  margin: 0;
+}
+
+.story-block__body {
+  margin-top: var(--gap-sm);
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-primary);
+  line-height: 1.7;
 }
 
 /* ─── Pull-quote ───────────────────────────────────────────
  * Inline blockquote treatment for the customer-story narrative arc.
- * Left border in brand color; no background (inherits section accent).
+ * Left border in brand color; no background (inherits section).
  * __description (not __body — body is a token scale, not a role). */
 .story-quote {
   width: 100%;
-  margin: 0;
+  margin: var(--gap-xl) 0 0;
   padding-block: var(--padding-md);
   padding-inline-start: var(--padding-lg);
   border-left: var(--border-width-huge) solid var(--border-brand-primary);
