@@ -22,8 +22,8 @@ const INDUSTRIES = [
 
 const SEGMENTS = [
   {
-    heading: 'Small Business & Startup Support',
-    subheading: 'Smart external support that doesn\u2019t slow you down',
+    title: 'Small Business & Startup Support',
+    subtitle: 'Smart external support that doesn\u2019t slow you down',
     desc: 'You\u2019re wearing a lot of hats. You need results, not runaround. With Brik, you get a high-performing creative and operations team that delivers like a full-time department\u2014at a fraction of the cost.',
     fits: [
       'Founders scaling quickly',
@@ -33,8 +33,8 @@ const SEGMENTS = [
     ],
   },
   {
-    heading: 'Mid-Sized & Growing Companies',
-    subheading: 'Your internal team is busy. Let\u2019s lighten the load',
+    title: 'Mid-Sized & Growing Companies',
+    subtitle: 'Your internal team is busy. Let\u2019s lighten the load',
     desc: 'Need fresh perspective or bandwidth to finally get that backlog tackled? We jump in fast, think like your business, and bring clarity to your chaos.',
     fits: [
       'Marketing or ops leads who need execution',
@@ -43,8 +43,8 @@ const SEGMENTS = [
     ],
   },
   {
-    heading: 'Enterprise & Corporate Teams',
-    subheading: 'Smart external support that doesn\u2019t slow you down',
+    title: 'Enterprise & Corporate Teams',
+    subtitle: 'Smart external support that doesn\u2019t slow you down',
     desc: 'You need a partner who can plug in with minimal lift and deliver like they\u2019ve been on your team for years. We\u2019re the fast-moving, no-handholding kind of partner execs love.',
     fits: [
       'Department heads with limited internal resources',
@@ -115,9 +115,9 @@ export default async function CustomersPage() {
         <div className="container-lg container-lg--comfortable">
           <Grid columns={3} gap="md">
             {SEGMENTS.map((seg) => (
-              <Card key={seg.heading} variant="outlined" padding="md">
-                <h3 style={heading.sm}>{seg.heading}</h3>
-                <p style={{ ...label.smBold, color: color.text.brand }}>{seg.subheading}</p>
+              <Card key={seg.title} variant="outlined" padding="md">
+                <h3 style={heading.sm}>{seg.title}</h3>
+                <p style={{ ...label.smBold, color: color.text.brand }}>{seg.subtitle}</p>
                 <p style={{ ...text.bodySm, color: color.text.secondary }}>{seg.desc}</p>
                 <div className="customers-segment-fits">
                   <p style={label.smBold}>Great fit for:</p>

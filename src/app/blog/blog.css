@@ -11,7 +11,7 @@
   background-color: var(--surface-secondary);
 }
 
-.blog-card__body {
+.blog-card__content {
   padding: var(--padding-md);
   flex: 1;
   display: flex;
@@ -58,7 +58,7 @@
   overflow: hidden;
 }
 
-.blog-post__body {
+.blog-post__content {
   width: 100%;
   max-width: var(--content-width-narrow);
   margin-top: var(--gap-xl);

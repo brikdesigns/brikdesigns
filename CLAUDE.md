@@ -16,6 +16,10 @@ Use surface-web or surface-shared. surface-product is product-app scope.
 
 Import tokens from `@/lib/tokens` and `@/lib/styles`. No raw `var(--...)` strings.
 
+## When naming CSS classes or TS data-object keys for text roles
+
+Read `.claude/references/naming-conventions.md`. Short form: `__title` and `__description` are canonical; `__heading`, `__subtext`, and `__body` are banned. `heading` is a typography token scale — correct as an import from `styles.ts`, wrong as a class name or data-object key.
+
 ## When modifying `src/app/globals.css`
 
 Declare `@layer bds-tokens, bds-components, client-theme, client-overrides;` before any imports.

@@ -238,7 +238,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
                     {/* Webflow: .inner-wrapper.narrow — left intro */}
                     <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-heading">Who We Support</h3>
+                      <h3 className="mega-nav__panel-title">Who We Support</h3>
                       <p className="mega-nav__panel-desc">
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
@@ -307,7 +307,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
                     {/* Webflow: .inner-wrapper.narrow — left intro */}
                     <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-heading">About</h3>
+                      <h3 className="mega-nav__panel-title">About</h3>
                       <p className="mega-nav__panel-desc">
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
@@ -343,7 +343,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
                     {/* Webflow: .inner-wrapper.narrow.stacked — left intro */}
                     <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-heading">Support Plans</h3>
+                      <h3 className="mega-nav__panel-title">Support Plans</h3>
                       <p className="mega-nav__panel-desc">
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.

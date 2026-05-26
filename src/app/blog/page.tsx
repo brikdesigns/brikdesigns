@@ -45,7 +45,7 @@ export default async function BlogPage() {
                     />
                   </div>
                 )}
-                <div className="blog-card__body">
+                <div className="blog-card__content">
                   <CardTitle as="h2">{post.title}</CardTitle>
                   <div className="blog-card__meta">
                     <span className="blog-card__meta-item" style={{ ...label.sm, color: color.text.secondary }}>

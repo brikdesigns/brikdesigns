@@ -20,15 +20,15 @@ const MAIN_LINES = ['brand', 'marketing', 'service'];
 /** Service lines shown as callout sections (image + text) */
 const CALLOUT_LINES = ['product', 'information'];
 
-/** Custom headings/subheadings for callout sections (from live Webflow site) */
-const CALLOUT_COPY: Record<string, { heading: string; subheading: string }> = {
+/** Custom titles/subtitles for callout sections (from live Webflow site) */
+const CALLOUT_COPY: Record<string, { title: string; subtitle: string }> = {
   product: {
-    heading: 'Have a product to refresh or idea in mind?',
-    subheading: 'We can help with product design. Please reach out for project ideas.',
+    title: 'Have a product to refresh or idea in mind?',
+    subtitle: 'We can help with product design. Please reach out for project ideas.',
   },
   information: {
-    heading: 'Need in-house design services?',
-    subheading: 'We can help handle additional marketing needs including presentations and sales resources.',
+    title: 'Need in-house design services?',
+    subtitle: 'We can help handle additional marketing needs including presentations and sales resources.',
   },
 };
 
@@ -91,8 +91,8 @@ export default async function ServicesPage() {
             <div className="container-lg">
               {copy && (
                 <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-                  <h2 style={{ ...heading.lg, textAlign: 'center' }}>{copy.heading}</h2>
-                  <p style={{ ...text.body, color: color.text.primary, textAlign: 'center' }}>{copy.subheading}</p>
+                  <h2 style={{ ...heading.lg, textAlign: 'center' }}>{copy.title}</h2>
+                  <p style={{ ...text.body, color: color.text.primary, textAlign: 'center' }}>{copy.subtitle}</p>
                 </div>
               )}
               <ServiceCallout
