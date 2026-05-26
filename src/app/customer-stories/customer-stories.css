@@ -52,6 +52,9 @@
   gap: var(--gap-sm) var(--gap-lg);
 }
 
+/* Shared by /customer-stories index cards AND /customer-stories/[slug] detail
+ * meta row, so the visual vocabulary stays consistent across both surfaces.
+ * Stack the field label above the icon-prefixed value. */
 .story-meta__item {
   display: flex;
   flex-direction: column;
@@ -89,71 +92,80 @@
   }
 }
 
-/* ─── Customer story detail page ─────────────────────────── */
-/* .container-lg--story moved to shared-sections.css — it's now a shared
- * narrow article-column modifier consumed by /customer-stories/[slug]
- * and /blog/[slug]. */
+/* ─── Customer story detail page ──────────────────────────
+ * Anatomy: /blog/[slug] rhythm with image rows breaking out to the wide
+ * 1280px column. Alternating .container-lg--story (760px) and .container-lg
+ * (1280px) rows compose the arc — see [slug]/page.tsx header comment.
+ *
+ * Inter-row rhythm is owned by .story-arc (the <section>) so each row sits
+ * gap-xl below the previous. Per-element rhythm inside a row (h1 → meta,
+ * h2 → body) is owned by the row's children. */
 
-/* Tighter vertical rhythm for the image-narrative-image-narrative
- * cadence that runs from hero through Results. */
-.content-section--tight {
-  padding: var(--padding-xl) 0;
+/* Section-level rhythm: gap-xl between every direct child container after
+ * the first. Section top/bottom padding (from .content-section) handles the
+ * outer margins. */
+.story-arc > .container-lg + .container-lg {
+  margin-top: var(--gap-xl);
 }
 
-/* Project metadata — 2-col grid, one field per cell.
- * <dl> wraps each dt/dd pair in a <div> (valid HTML5) so the grid
- * places label + value as a paired unit in each column slot. */
+/* Hide the breadcrumb's last (current-page) item so "Customer Stories"
+ * renders as an active link without us having to fork BDS Breadcrumb.
+ * BDS wraps every item in a <span style="display:contents"> with the
+ * separator + label inside. Hiding the wrapper itself loses to the inline
+ * `display: contents`, so target the wrapper's children (the separator and
+ * the .bds-breadcrumb__current span) — both have class-level display rules
+ * we can override without !important. Title stays in the DOM via items[]
+ * for SEO/structured-data integrity. */
+.story-breadcrumb > span:last-child > * {
+  display: none;
+}
+
+/* Project metadata — 2-col grid, one field per cell, no background or
+ * inset padding so the meta sits flush in the article column (matches the
+ * blog post meta strip). <dl> wraps each dt/dd pair in a <div> (valid
+ * HTML5) so the grid places label + value as a paired unit. */
 .story-detail-meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--gap-md);
-  margin: var(--gap-lg) 0 0;
-  padding: var(--padding-md) var(--padding-lg);
-  background-color: var(--surface-secondary);
-  border-radius: var(--border-radius-md);
+  gap: var(--gap-md) var(--gap-lg);
+  margin: var(--gap-md) 0 0;
+  padding: 0;
   width: 100%;
 }
 
-.story-detail-meta > div {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-}
-
-.story-detail-meta__label {
-  font-family: var(--font-family-label);
-  font-size: var(--label-md);
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.story-detail-meta__value {
-  font-family: var(--font-family-body);
-  font-size: var(--body-md);
-  color: var(--text-primary);
-  margin: 0;
-}
-
-/* Full-width inline figure for hero / solution / results images */
+/* Inline figure for hero / solution / results images. Lives inside a
+ * .container-lg (1280px) row so it can break out of the 760px article
+ * column for visual impact. Rhythm vs adjacent rows is owned by the
+ * parent (.story-arc) — no margin-top here. */
 .story-figure {
   width: 100%;
-  max-width: var(--site-container-max);
-  margin: 0 auto;
   border-radius: var(--border-radius-lg);
   overflow: hidden;
 }
 
-/* Narrative text block — fills the story container width. The container
- * max-width is already sized for comfortable reading so no secondary
- * constraint is needed here. */
-.story-narrative {
+/* Narrative content block — h2 + body. h2 sits flush at the top of its
+ * row container; body follows at gap-sm. Inter-row rhythm is owned by
+ * .story-arc — no margin-top here. */
+.story-block {
   width: 100%;
+}
+
+.story-block > h2 {
+  margin: 0;
+}
+
+.story-block__body {
+  margin-top: var(--gap-sm);
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-primary);
+  line-height: 1.7;
 }
 
 /* ─── Pull-quote ───────────────────────────────────────────
  * Inline blockquote treatment for the customer-story narrative arc.
- * Left border in brand color; no background (inherits section accent).
+ * Left border in brand color; no background (inherits section). Lives in
+ * a .container-lg--story (narrow) row — rhythm owned by .story-arc.
  * __description (not __body — body is a token scale, not a role). */
 .story-quote {
   width: 100%;

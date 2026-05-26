@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Icon } from '@iconify/react';
 import {
   Breadcrumb,
   Card,
@@ -14,6 +15,7 @@ import {
   ServiceTag,
   Stack,
 } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 import {
   getCustomerStoryBySlug,
   getOtherCustomerStories,
@@ -21,10 +23,20 @@ import {
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
-import { text, heading } from '@/lib/styles';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { text, heading, label } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../customer-stories.css';
+
+// Industry → Phosphor icon. Mirrors CustomerStoryCard's INDUSTRY_ICONS so the
+// detail-page meta row matches the index-card visual vocabulary. Fallback
+// (ph:buildings) handles industries not in the map.
+const INDUSTRY_ICONS: Record<string, string> = {
+  'Small Business': 'ph:storefront',
+  'Dental': 'ph:tooth',
+  'Real Estate': 'ph:house',
+};
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -94,73 +106,123 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
   const relatedAudience = relatedCatSlug;
 
   const completion = formatDate(story.launch_date);
-  const serviceLineName = story.service_line_slug
-    ? SERVICE_LINE_NAMES[mapServiceLineSlug(story.service_line_slug)] || null
+  const serviceLineSlug = story.service_line_slug
+    ? mapServiceLineSlug(story.service_line_slug)
     : null;
+  const serviceLineName = serviceLineSlug
+    ? SERVICE_LINE_NAMES[serviceLineSlug] || null
+    : null;
+  const serviceLineCategory = serviceLineSlug as ServiceLine | null;
+  const industryIcon = story.industry
+    ? INDUSTRY_ICONS[story.industry] ?? 'ph:buildings'
+    : null;
+  const serviceIconName = relatedService?.name && serviceLineCategory && hasIconFor(serviceLineCategory, relatedService.name)
+    ? relatedService.name
+    : undefined;
+  const storyTitle = story.name || story.client_name;
 
   return (
     <>
-      {/* ═══ Header — breadcrumb + title + metadata ═══ */}
-      <section className="content-section">
+      {/* ═══ Story arc — interior-hero + media + content + quote ═══
+       * Anatomy follows /blog/[slug]'s rhythm but with image rows breaking out
+       * to the wide 1280px column for visual impact. One content-section hosts
+       * alternating containers:
+       *   - .container-lg--story  (760px) → breadcrumb, h1, meta, narrative,
+       *                                     quote
+       *   - .container-lg         (1280px) → hero / inline media figures
+       * Inter-row spacing of gap-xl is owned by the section via .story-arc
+       * so the narrative reads as one continuous flow instead of stacked
+       * sub-sections.
+       *
+       * The third breadcrumb item (story title) is restored but hidden via CSS
+       * (.story-breadcrumb > span:last-child). Result: "Customer Stories"
+       * stops being the last item and renders as a link — without us having
+       * to render a custom breadcrumb component.
+       *
+       * Anatomy ref: design.brikdesigns.com/docs/getting-started/page-templates
+       */}
+      <section className="content-section story-arc">
         <div className="container-lg container-lg--story">
           <Breadcrumb
+            className="story-breadcrumb"
             style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
             items={[
               { label: 'Home', href: '/' },
               { label: 'Customer Stories', href: '/customer-stories' },
-              { label: story.name || story.client_name || slug },
+              { label: storyTitle },
             ]}
           />
 
-          <h1 className="page-hero__title">{story.name || story.client_name}</h1>
-
-          {story.short_description && (
-            <p
-              style={{
-                ...text.bodyLg,
-                color: color.text.secondary,
-                marginTop: 'var(--gap-md)',
-              }}
-            >
-              {story.short_description}
-            </p>
-          )}
+          <h1 style={heading.lg}>{storyTitle}</h1>
 
           <dl className="story-detail-meta">
             {story.client_name && story.client_name !== story.name && (
-              <div>
-                <dt className="story-detail-meta__label">Client</dt>
-                <dd className="story-detail-meta__value">{story.client_name}</dd>
+              <div className="story-meta__item">
+                <span style={{ ...label.smBold, color: color.text.primary }}>Client</span>
+                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
+                  <span className="story-meta__icon">
+                    <Icon icon="ph:buildings" width={16} height={16} aria-hidden />
+                  </span>
+                  {story.client_name}
+                </span>
               </div>
             )}
-            {serviceLineName && (
-              <div>
-                <dt className="story-detail-meta__label">Service Line</dt>
-                <dd className="story-detail-meta__value">{serviceLineName}</dd>
+            {serviceLineCategory && serviceLineName && (
+              <div className="story-meta__item">
+                <span style={{ ...label.smBold, color: color.text.primary }}>Service Line</span>
+                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
+                  <span className="story-meta__icon">
+                    <ServiceTag category={serviceLineCategory} variant="icon" size="sm" />
+                  </span>
+                  {serviceLineName}
+                </span>
               </div>
             )}
-            {relatedService?.name && (
-              <div>
-                <dt className="story-detail-meta__label">Service</dt>
-                <dd className="story-detail-meta__value">{relatedService.name}</dd>
+            {serviceLineCategory && relatedService?.name && (
+              <div className="story-meta__item">
+                <span style={{ ...label.smBold, color: color.text.primary }}>Service</span>
+                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
+                  <span className="story-meta__icon">
+                    <ServiceTag
+                      category={serviceLineCategory}
+                      variant="icon"
+                      size="sm"
+                      {...(serviceIconName ? { serviceName: serviceIconName } : {})}
+                    />
+                  </span>
+                  {relatedService.name}
+                </span>
               </div>
             )}
-            {story.industry && (
-              <div>
-                <dt className="story-detail-meta__label">Industry</dt>
-                <dd className="story-detail-meta__value">{story.industry}</dd>
+            {story.industry && industryIcon && (
+              <div className="story-meta__item">
+                <span style={{ ...label.smBold, color: color.text.primary }}>Industry</span>
+                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
+                  <span className="story-meta__icon">
+                    <Icon icon={industryIcon} width={16} height={16} aria-hidden />
+                  </span>
+                  {story.industry}
+                </span>
               </div>
             )}
             {completion && (
-              <div>
-                <dt className="story-detail-meta__label">Completion Date</dt>
-                <dd className="story-detail-meta__value">{completion}</dd>
+              <div className="story-meta__item">
+                <span style={{ ...label.smBold, color: color.text.primary }}>Completion Date</span>
+                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
+                  <span className="story-meta__icon">
+                    <Icon icon="ph:calendar-blank" width={16} height={16} aria-hidden />
+                  </span>
+                  {completion}
+                </span>
               </div>
             )}
             {story.client_website_url && (
-              <div>
-                <dt className="story-detail-meta__label">Website</dt>
-                <dd className="story-detail-meta__value">
+              <div className="story-meta__item">
+                <span style={{ ...label.smBold, color: color.text.primary }}>Website</span>
+                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
+                  <span className="story-meta__icon">
+                    <Icon icon="ph:globe" width={16} height={16} aria-hidden />
+                  </span>
                   <a
                     href={story.client_website_url}
                     target="_blank"
@@ -169,16 +231,13 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                   >
                     View website
                   </a>
-                </dd>
+                </span>
               </div>
             )}
           </dl>
         </div>
-      </section>
 
-      {/* ═══ Hero image ═══ */}
-      {story.hero_image_url && (
-        <section className="content-section content-section--tight">
+        {story.hero_image_url && (
           <div className="container-lg">
             <div className="story-figure">
               <Frame ratio="wide" fit="cover">
@@ -192,32 +251,21 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
               </Frame>
             </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {/* ═══ The Challenge ═══ */}
-      {story.the_challenge && (
-        <section className="content-section content-section--tight content-section--accent">
+        {story.the_challenge && (
           <div className="container-lg container-lg--story">
-            <div className="story-narrative">
+            <div className="story-block">
               <h2 style={heading.md}>The Challenge</h2>
               <div
-                style={{
-                  ...text.body,
-                  color: color.text.primary,
-                  marginTop: 'var(--gap-sm)',
-                  lineHeight: 1.7,
-                }}
+                className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.the_challenge }}
               />
             </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {/* ═══ Inline solution image ═══ */}
-      {story.after_photo_url && (
-        <section className="content-section content-section--tight content-section--accent">
+        {story.after_photo_url && (
           <div className="container-lg">
             <div className="story-figure">
               <Frame ratio="wide" fit="cover">
@@ -230,32 +278,21 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
               </Frame>
             </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {/* ═══ The Brik Solution ═══ */}
-      {story.the_solution && (
-        <section className="content-section content-section--tight content-section--accent">
+        {story.the_solution && (
           <div className="container-lg container-lg--story">
-            <div className="story-narrative">
+            <div className="story-block">
               <h2 style={heading.md}>The Brik Solution</h2>
               <div
-                style={{
-                  ...text.body,
-                  color: color.text.primary,
-                  marginTop: 'var(--gap-sm)',
-                  lineHeight: 1.7,
-                }}
+                className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.the_solution }}
               />
             </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {/* ═══ Inline results image ═══ */}
-      {story.results_photo_url && (
-        <section className="content-section content-section--tight content-section--accent">
+        {story.results_photo_url && (
           <div className="container-lg">
             <div className="story-figure">
               <Frame ratio="wide" fit="cover">
@@ -268,32 +305,21 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
               </Frame>
             </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {/* ═══ Results ═══ */}
-      {story.results && (
-        <section className="content-section content-section--tight content-section--accent">
+        {story.results && (
           <div className="container-lg container-lg--story">
-            <div className="story-narrative">
+            <div className="story-block">
               <h2 style={heading.md}>Results</h2>
               <div
-                style={{
-                  ...text.body,
-                  color: color.text.primary,
-                  marginTop: 'var(--gap-sm)',
-                  lineHeight: 1.7,
-                }}
+                className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.results }}
               />
             </div>
           </div>
-        </section>
-      )}
+        )}
 
-      {/* ═══ Pull-quote ═══ */}
-      {story.quote && (
-        <section className="content-section content-section--tight content-section--accent">
+        {story.quote && (
           <div className="container-lg container-lg--story">
             <blockquote className="story-quote">
               <p className="story-quote__description">{story.quote}</p>
@@ -304,8 +330,8 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
               )}
             </blockquote>
           </div>
-        </section>
-      )}
+        )}
+      </section>
 
       {/* ═══ Other Customer Stories — 3-col grid ═══ */}
       {otherStories.length > 0 && (
@@ -367,13 +393,15 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                         )}
                       </div>
                       <CardFooter>
-                        <Button
-                          href={`/customer-stories/${s.slug}`}
-                          variant="primary"
-                          size="sm"
-                        >
+                        {/* Presentational span — the wrapping <Link> owns
+                         * navigation. Rendering <Button href> here produces
+                         * <a> inside <a> (invalid HTML); browsers fall back
+                         * to a hard reload + scroll-to-top instead of
+                         * client-side navigation. Mirrors ServiceLineCard +
+                         * CustomerStoryCard. */}
+                        <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>
                           Read Story
-                        </Button>
+                        </span>
                       </CardFooter>
                     </Card>
                   </Link>
