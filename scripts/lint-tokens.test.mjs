@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Test runner for the service-token family rule.
+// Test runner for the service-token family rule and Rule 5 (token-family pairing).
 //
 // Exercises scripts/lib/canonical-tokens.mjs against fixtures in
 // scripts/lint-tokens-fixtures/. Asserts violation counts and shape so the
@@ -15,6 +15,9 @@ import {
   findFamilyViolations,
   classifySelector,
   lastSimpleSelectors,
+  checkTokenFamilyPairing,
+  classifyTokenFamily,
+  tokenFamilyMatchesAllowlist,
 } from './lib/canonical-tokens.mjs';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -258,6 +261,206 @@ test('line numbers: violations report the line of the var() ref', () => {
     case1.snippet.includes('var(--background-service-marketing)'),
     `Expected snippet to include the var() ref, got: ${case1.snippet}`
   );
+});
+
+// ── classifyTokenFamily ─────────────────────────────────────────────────────
+
+test('classifyTokenFamily: --background-primary → --background-', () => {
+  assert.equal(classifyTokenFamily('--background-primary'), '--background-');
+});
+
+test('classifyTokenFamily: --surface-brand-primary → --surface-', () => {
+  assert.equal(classifyTokenFamily('--surface-brand-primary'), '--surface-');
+});
+
+test('classifyTokenFamily: --text-primary → --text-', () => {
+  assert.equal(classifyTokenFamily('--text-primary'), '--text-');
+});
+
+test('classifyTokenFamily: --border-primary → --border-', () => {
+  assert.equal(classifyTokenFamily('--border-primary'), '--border-');
+});
+
+test('classifyTokenFamily: --color-poppy-dark → --color-', () => {
+  assert.equal(classifyTokenFamily('--color-poppy-dark'), '--color-');
+});
+
+test('classifyTokenFamily: --grayscale--darkest → null (not in scope)', () => {
+  assert.equal(classifyTokenFamily('--grayscale--darkest'), null);
+});
+
+test('classifyTokenFamily: --brand--primary → null (not in scope)', () => {
+  assert.equal(classifyTokenFamily('--brand--primary'), null);
+});
+
+test('classifyTokenFamily: --font-family-body → null (not in scope)', () => {
+  assert.equal(classifyTokenFamily('--font-family-body'), null);
+});
+
+// ── tokenFamilyMatchesAllowlist ─────────────────────────────────────────────
+
+test('tokenFamilyMatchesAllowlist: null family always passes', () => {
+  assert.equal(tokenFamilyMatchesAllowlist('--grayscale--darkest', ['--background-']), true);
+});
+
+test('tokenFamilyMatchesAllowlist: --background- matches background slot', () => {
+  assert.equal(tokenFamilyMatchesAllowlist('--background-primary', ['--background-', '--surface-']), true);
+});
+
+test('tokenFamilyMatchesAllowlist: --text- fails background slot', () => {
+  assert.equal(tokenFamilyMatchesAllowlist('--text-primary', ['--background-', '--surface-']), false);
+});
+
+test('tokenFamilyMatchesAllowlist: --color- passes color slot', () => {
+  assert.equal(tokenFamilyMatchesAllowlist('--color-poppy-dark', ['--text-', '--color-']), true);
+});
+
+// ── checkTokenFamilyPairing: CSS Shape A ────────────────────────────────────
+
+test('CSS Shape A: background-color using --text-* fires', () => {
+  const v = checkTokenFamilyPairing('  background-color: var(--text-primary);', 1, 'test.css');
+  assert.equal(v.length, 1);
+  assert.equal(v[0].tokenName, '--text-primary');
+  assert.equal(v[0].label, 'background');
+});
+
+test('CSS Shape A: background-color using --surface-* passes', () => {
+  const v = checkTokenFamilyPairing('  background-color: var(--surface-primary);', 1, 'test.css');
+  assert.equal(v.length, 0);
+});
+
+test('CSS Shape A: color using --background-* fires', () => {
+  const v = checkTokenFamilyPairing('  color: var(--background-primary);', 1, 'test.css');
+  assert.equal(v.length, 1);
+  assert.equal(v[0].label, 'text');
+});
+
+test('CSS Shape A: color using --text-* passes', () => {
+  const v = checkTokenFamilyPairing('  color: var(--text-primary);', 1, 'test.css');
+  assert.equal(v.length, 0);
+});
+
+test('CSS Shape A: color using --color-* passes', () => {
+  const v = checkTokenFamilyPairing('  color: var(--color-poppy-dark);', 1, 'test.css');
+  assert.equal(v.length, 0);
+});
+
+test('CSS Shape A: border-color using --text-* fires', () => {
+  const v = checkTokenFamilyPairing('  border-color: var(--text-primary);', 1, 'test.css');
+  assert.equal(v.length, 1);
+  assert.equal(v[0].label, 'border');
+});
+
+test('CSS Shape A: border-color using --border-* passes', () => {
+  const v = checkTokenFamilyPairing('  border-color: var(--border-primary);', 1, 'test.css');
+  assert.equal(v.length, 0);
+});
+
+test('CSS Shape A: bds-lint-ignore suppresses', () => {
+  const v = checkTokenFamilyPairing(
+    '  background-color: var(--text-primary); /* bds-lint-ignore token-family — intentional */',
+    1, 'test.css'
+  );
+  assert.equal(v.length, 0);
+});
+
+test('CSS Shape A: comment line skipped', () => {
+  const v = checkTokenFamilyPairing('  /* background-color: var(--text-primary); */', 1, 'test.css');
+  assert.equal(v.length, 0);
+});
+
+// ── checkTokenFamilyPairing: CSS Shape B (custom-property declarations) ─────
+
+test('CSS Shape B: --background-foo: var(--text-bar) fires', () => {
+  const v = checkTokenFamilyPairing('  --background-inverse: var(--text-primary);', 1, 'test.css');
+  assert.equal(v.length, 1);
+  assert.equal(v[0].prop, '--background-inverse');
+  assert.equal(v[0].tokenName, '--text-primary');
+});
+
+test('CSS Shape B: --background-foo: var(--background-bar) passes', () => {
+  const v = checkTokenFamilyPairing('  --background-inverse: var(--background-primary);', 1, 'test.css');
+  assert.equal(v.length, 0);
+});
+
+test('CSS Shape B: --text-foo: var(--background-bar) fires', () => {
+  const v = checkTokenFamilyPairing('  --text-inverse: var(--background-primary);', 1, 'test.css');
+  assert.equal(v.length, 1);
+  assert.equal(v[0].label, 'text');
+});
+
+test('CSS Shape B: --text-foo: var(--color-poppy) passes', () => {
+  const v = checkTokenFamilyPairing('  --text-brand-primary: var(--color-poppy-dark);', 1, 'test.css');
+  assert.equal(v.length, 0);
+});
+
+test('CSS Shape B: --bds-* LHS is always skipped', () => {
+  const v = checkTokenFamilyPairing('  --bds-footer-surface: var(--text-primary);', 1, 'test.css');
+  assert.equal(v.length, 0);
+});
+
+test('CSS Shape B: unscoped LHS prefix is skipped', () => {
+  const v = checkTokenFamilyPairing('  --gap-md: var(--text-primary);', 1, 'test.css');
+  assert.equal(v.length, 0);
+});
+
+// ── checkTokenFamilyPairing: TSX Shape C ────────────────────────────────────
+
+test('TSX Shape C: backgroundColor using --text-* fires', () => {
+  const v = checkTokenFamilyPairing(
+    "  style={{ backgroundColor: 'var(--text-primary)' }}",
+    1, 'test.tsx'
+  );
+  assert.equal(v.length, 1);
+  assert.equal(v[0].tokenName, '--text-primary');
+  assert.equal(v[0].label, 'background');
+});
+
+test('TSX Shape C: backgroundColor using --surface-* passes', () => {
+  const v = checkTokenFamilyPairing(
+    "  style={{ backgroundColor: 'var(--surface-primary)' }}",
+    1, 'test.tsx'
+  );
+  assert.equal(v.length, 0);
+});
+
+test('TSX Shape C: color using --background-* fires', () => {
+  const v = checkTokenFamilyPairing(
+    "  style={{ color: 'var(--background-primary)' }}",
+    1, 'test.tsx'
+  );
+  assert.equal(v.length, 1);
+  assert.equal(v[0].label, 'text');
+});
+
+test('TSX Shape C: canonical failure example from acceptance criteria', () => {
+  // Acceptance criterion: `<span style={{ backgroundColor: var(--text-service-marketing) }} />`
+  const v = checkTokenFamilyPairing(
+    "  <span style={{ backgroundColor: 'var(--text-service-marketing)' }} />",
+    1, 'test.tsx'
+  );
+  assert.equal(v.length, 1);
+  assert.equal(v[0].tokenName, '--text-service-marketing');
+  assert.equal(v[0].label, 'background');
+});
+
+test('TSX Shape C: bds-lint-ignore suppresses', () => {
+  const v = checkTokenFamilyPairing(
+    "  backgroundColor: 'var(--text-primary)' /* bds-lint-ignore token-family — reason */",
+    1, 'test.tsx'
+  );
+  assert.equal(v.length, 0);
+});
+
+test('TSX Shape C: non-TSX file does not match TSX shapes', () => {
+  const v = checkTokenFamilyPairing(
+    "  backgroundColor: 'var(--text-primary)'",
+    1, 'test.css'
+  );
+  // CSS file: this matches Shape B (--backgroundColor is not a valid CSS prop, no --bds- skip)
+  // but 'backgroundColor' doesn't start with '--', so Shape B declRegex won't match.
+  // Shape A won't match either (not a CSS property name). So no violations.
+  assert.equal(v.length, 0);
 });
 
 run();
