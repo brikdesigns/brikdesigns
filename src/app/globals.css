@@ -25,7 +25,10 @@
 /* Tailwind layers */
 @import "tailwindcss";
 
-/* Match overscroll background to page color */
+/* Match overscroll background to page color. html-level vars resolve from
+   the bds-tokens layer (figma-tokens.css :root sets --page-primary +
+   --background-primary for both themes). The body-scoped .theme-brand-brik
+   block below shadows these with the same values for body's subtree. */
 html {
   background-color: var(--page-primary);
   overflow-x: hidden;
@@ -36,262 +39,174 @@ html {
 }
 
 /* ================================================================
-   Brik Designs brand tokens — light mode (default)
+   Brik brand-theme overrides — divergences from canonical
+   `.theme-brand-brik` (BDS dist/tokens.css). Everything not listed
+   here is inherited from the upstream theme.
 
-   BDS figma-tokens.css provides template defaults (blue-green, Open Sans).
-   This block overrides with Brik Designs identity:
-   poppy red, Poppins, custom grayscale.
+   Selector contract: BDS theme-brand-brik is applied to <body> in
+   layout.tsx. Light-mode tokens live on `.theme-brand-brik`; dark-mode
+   tokens on `:root[data-theme="dark"] .theme-brand-brik` to match the
+   upstream selector pattern.
 
-   Adapted from brik-client-portal globals.css.
+   Placed in `client-theme` layer so this `.theme-brand-brik` block wins
+   over the canonical one in `bds-tokens`.
    ================================================================ */
-:root {
-  /* ---- Brand color override ---- */
-  /* AA fix: BDS canonical --brand-primary resolves to --color-poppy-light
-     (#e35335). White text on poppy-light at body size = 3.78:1 — fails
-     WCAG 2.1 AA (4.5:1). Override to poppy-dark (#b0351b) → 6.23:1 (AA
-     pass). Cascade hits every BDS consumer of --brand-primary:
-     --surface-brand-primary, --background-brand-primary,
-     --border-brand-primary, --background-image-brand.
-     Dark-theme --text-brand-primary needs an explicit pin to poppy-light
-     (see :root[data-theme="dark"] below) — poppy-dark on the black page
-     bg only hits 3.14:1. */
-  --brand-primary: #b0351b;
+@layer client-theme {
+  /* ── Light mode divergences ─────────────────────────────────── */
+  .theme-brand-brik {
+    /* Stronger AA contrast than upstream (--color-grayscale-dark at 5a5a5a
+       passes AA, but brand prefers 8.59:1 via grayscale-darker). Used by
+       43+ TS consumers via color.text.secondary + 51+ direct CSS readers. */
+    --text-secondary: var(--color-grayscale-darker);
 
-  /* ---- Semantic color tokens ---- */
+    /* Project-local stop between BDS lighter (#e0e0e0) and light (#828282).
+       No canonical primitive at #bdbdbd yet. */
+    --text-muted: #bdbdbd;
 
-  /* Page */
-  --page-primary: var(--color-grayscale-white);
-  --page-secondary: var(--color-grayscale-lightest);
-  --page-accent: var(--color-tan-lightest);
+    /* Brand: secondary surfaces use tan-lightest. Upstream uses
+       grayscale-lightest for the unbranded baseline. */
+    --surface-secondary: var(--color-tan-lightest);
 
-  /* Text */
-  --text-primary: var(--color-grayscale-darkest);
-  /* AA fix: BDS canonical comments document `--color-grayscale-darker` (#4f4f4f)
-     as the intended Secondary Text token, but the canonical `--text-secondary`
-     alias maps to `--color-grayscale-dark` (#828282 — Placeholder/Tertiary),
-     which fails AA at body sizes (3.84:1 on white). Override locally so the
-     43+ `color.text.secondary` consumers + 51+ direct CSS readers all become
-     AA-compliant (8.59:1 on white). Re-evaluate when BDS corrects the alias. */
-  --text-secondary: var(--color-grayscale-darker);
-  --text-muted: #bdbdbd; /* project-local: between BDS lighter/light, no canonical equivalent */
-  --text-inverse: var(--color-grayscale-white);
-  --text-on-color-dark: var(--color-grayscale-white);
-  --text-on-color-light: var(--color-grayscale-black);
-  /* `--text-brand-primary` resolves to poppy-dark (#b0351b) in light mode.
-     Equals `--brand-primary` since the AA fix above darkened the brand
-     primitive, but kept as an explicit `--color-poppy-dark` reference so
-     a future re-lightening of --brand-primary wouldn't silently regress
-     text contrast. 7.04:1 on white, 5.27:1 on tan-lightest — AA pass. */
-  --text-brand-primary: var(--color-poppy-dark);
-  --text-negative: var(--color-system-red);
+    /* Brand: brand-secondary surface is white, not the upstream #f1f0ec
+       (raw tan-lightest). Used on the hero / mega-nav surfaces. */
+    --surface-brand-secondary: var(--color-grayscale-white);
+    --background-brand-secondary: var(--color-grayscale-white);
 
-  /* Surface — brand-specific shadows of canonical BDS tokens. Values diverge
-     from BDS canonical (e.g., secondary uses tan-lightest, not grayscale-
-     lighter) to carry the brikdesigns brand palette across the site. */
-  --surface-primary: var(--color-grayscale-white);
-  --surface-secondary: var(--color-tan-lightest);
-  --surface-negative: #fdeaea;
-  --surface-brand-primary: var(--brand-primary);
-  --surface-brand-secondary: var(--color-grayscale-white);
+    /* Brand: softer red than --color-system-red-light for negative surfaces. */
+    --surface-negative: #fdeaea;
 
-  /* Background */
-  --background-brand-primary: var(--brand-primary);
-  --background-primary: var(--color-grayscale-white);
-  --background-secondary: var(--color-grayscale-lightest);
-  /* Re-pair the lightened --background-secondary with its state siblings; pressed stays dark for AA with Button's hardcoded white :active text. */
-  --background-secondary-hover: var(--color-grayscale-lighter);
-  --background-secondary-pressed: var(--color-grayscale-darker);
-  --background-elevated: var(--color-grayscale-white);
-  --background-inverse: var(--color-grayscale-white);
-  --background-input: var(--color-grayscale-white);
+    /* Brand: deeper poppy on borders + brand image backgrounds. Upstream
+       uses poppy-light for higher hover-on-light contrast; brand identity
+       calls for stronger weight here. */
+    --border-brand-primary: var(--color-poppy-dark);
+    --background-image-brand: var(--color-poppy-dark);
 
-  /* Border */
-  --border-primary: var(--color-grayscale-darkest);
-  --border-secondary: var(--color-grayscale-lighter);
-  --border-muted: var(--color-grayscale-lighter);
-  --border-brand-primary: var(--brand-primary);
-  --border-negative: var(--color-system-red);
-  --border-input: #bdbdbd;
-  --border-inverse: var(--color-grayscale-white);
+    /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
+    --page-accent: var(--color-tan-lightest);
+    --surface-accent: var(--color-tan-lightest);
+    --background-elevated: var(--color-grayscale-white);
+    --background-inverse: var(--color-grayscale-white);
+    --text-on-footer: var(--color-grayscale-white);
+    --background-image: var(--color-grayscale-lightest);
+  }
 
-  /* Shadows */
-  --box-shadow-none: none;
-  --box-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
-  --box-shadow-md: 0 2px 6px 0 rgba(0, 0, 0, 0.08);
-  --box-shadow-lg: 0 4px 12px 0 rgba(0, 0, 0, 0.12);
+  /* ── Dark mode divergences ──────────────────────────────────── */
+  /* `data-theme` lives on :root (html); .theme-brand-brik on body. Descendant
+     combinator matches the upstream pattern in BDS tokens.css.
 
-  /* System */
-  --color-system-link: #0034ea;
-  --color-system-red: #eb5757;
-  --color-system-green: #27ae60;
-  --color-system-yellow: #f2c94c;
-  --color-system-blue: #2f80ed;
-  --color-system-orange: #f2994a;
+     Cascade note: because this `client-theme` layer is later than `bds-tokens`,
+     EVERY light-mode override above also needs a dark-mode counterpart here —
+     otherwise the light value leaks into dark via layer precedence beating
+     the upstream `:root[data-theme="dark"] .theme-brand-brik` selector. */
+  :root[data-theme="dark"] .theme-brand-brik {
+    /* Brand: brighter dark-mode body-text + secondary surfaces than upstream
+       (which uses grayscale-light / grayscale-dark). Project-local stop #bdbdbd
+       has no BDS primitive but matches Figma dark-mode spec. */
+    --text-secondary: #bdbdbd;
+    --text-muted: var(--color-grayscale-light);
+    --background-secondary: #bdbdbd;
+    --border-secondary: #bdbdbd;
+    --border-muted: var(--color-grayscale-light);
+    --border-input: var(--color-grayscale-light);
+    --background-secondary-hover: var(--color-grayscale-light);
 
-  /* Webflow-parity tokens (used by BDS components + mega nav).
-     `--surface-accent` is brand-specific (tan-lightest, no canonical
-     equivalent — BDS extension pending). Kept project-local until BDS
-     ships a canonical accent surface. */
-  --surface-accent: var(--color-tan-lightest);
-  --text-on-footer: var(--color-grayscale-white);
-  --text-on-color-dark: var(--color-grayscale-white);
-  --text-on-color-light: var(--color-grayscale-black);
-  --background-image: var(--color-grayscale-lightest);
-  --background-image-brand: var(--brand-primary);
-  --background-brand-secondary: var(--color-grayscale-white);
+    /* Cascade resets: my light-mode override of these tokens leaks past
+       upstream's dark-mode reset because client-theme layer > bds-tokens.
+       Restate the desired dark value explicitly. */
+    --surface-secondary: var(--color-grayscale-darker);
+    --surface-brand-secondary: var(--color-grayscale-darkest);
+    --background-brand-secondary: var(--color-grayscale-darkest);
+    --background-inverse: var(--color-grayscale-black);
 
-  /* Override BDS canonical `--background-tertiary` (= --color-grayscale-lighter
-     in light) to keep brikdesigns' grayscale-lighter alias direct — same value
-     today, but lets us flex the dark-theme value below (BDS canonical has no
-     dark-theme override for --background-tertiary, so we provide one). */
-  --background-tertiary: var(--color-grayscale-lighter);
+    /* Brand: dark-mode negatives use warmer red than --color-system-red. */
+    --text-negative: #ff6b6b;
+    --surface-negative: #3d1a1a;
+    --border-negative: #ff6b6b;
 
-  /* ---- Typography (Poppins — Brik brand font) ---- */
-  --font-family-body: Poppins, sans-serif;
-  --font-family-label: Poppins, sans-serif;
-  --font-family-heading: Poppins, sans-serif;
-  --font-family-display: Poppins, sans-serif;
+    /* Brand: deeper poppy on borders + brand image backgrounds. */
+    --border-brand-primary: var(--color-poppy-dark);
+    --background-image-brand: var(--color-poppy-dark);
 
-  --font-weight--bold: var(--font-weight-bold);
-  --font-weight--semi-bold: 500;
-  --font-line-height--100: var(--font-line-height-tight);
+    /* Brand: dark-mode link tone (system-link is too saturated on black). */
+    --color-system-link: #6b8aff;
 
-  /* ---- Spacing (Base mode) ---- */
-  --padding-none: var(--space-0);
-  --padding-tiny: var(--space-200);
-  --padding-xs: var(--space-250);
-  --padding-sm: var(--space-300);
-  --padding-md: var(--space-400);
-  --padding-lg: var(--space-600);
-  --padding-xl: var(--space-800);
-  --padding-huge: var(--space-1200);
-
-  --gap-none: var(--space-0);
-  --gap-tiny: var(--space-50);
-  --gap-xs: var(--space-100);
-  --gap-sm: var(--space-150);
-  --gap-md: var(--space-200);
-  --gap-lg: var(--space-400);
-  --gap-xl: var(--space-600);
-  --gap-huge: var(--space-800);
-  /* Project-level gap extensions — BDS canonical scale has no token at these sizes.
-     --gap-component: Webflow's gap-md (12px), used within card/component element stacks.
-     --gap-comfortable: section-block gap (36px), no exact BDS space primitive. */
-  --gap-component: var(--space-300);
-  --gap-comfortable: 36px;
-
-  /* ---- Typography scale ---- */
-  --body-tiny: var(--font-size-25);
-  --body-xs: var(--font-size-50);
-  --body-sm: var(--font-size-75);
-  --body-md: var(--font-size-100);
-  --body-lg: var(--font-size-200);
-  --body-xl: var(--font-size-300);
-
-  --label-sm: var(--font-size-75);
-  --label-md: var(--font-size-100);
-  --label-lg: var(--font-size-200);
-  --label-xl: var(--font-size-300);
-
-  --heading-tiny: var(--font-size-100);
-  --heading-sm: var(--font-size-300);
-  --heading-md: var(--font-size-500);
-  --heading-lg: var(--font-size-700);
-  --heading-xl: var(--font-size-900);
-  --heading-xxl: var(--font-size-1000);
-  --heading-huge: var(--font-size-1200);
-
-  --icon-sm: var(--font-size-75);
-  --icon-md: var(--font-size-100);
-  --icon-lg: var(--font-size-200);
-
-  /* Service-line tokens (--surface-service-*, --background-service-*,
-     --text-service-*) are owned by BDS canonical (`bds-tokens` layer).
-     The orange line's canonical suffix is `back-office` — brik-bds#575
-     shipped this rename in BDS 0.68.1. No project-local service tokens needed. */
-
-  /* ---- Layout ---- */
-  /* Standard container pattern: max-width (fixed px) + margin-inline: auto +
-     padding-inline (fluid gutter). Every site container and the nav share these
-     two tokens so 1280px is defined once. Ref: brik-bds#TBD. */
-  --site-container-max: 1280px;
-  --site-gutter: clamp(1rem, 5vw, 2rem); /* fluid 16px → 32px, no breakpoints */
-  /* Character/plan image slot in support plan CTA cards. No BDS token exists
-     for component-specific image dimensions — project-local. */
-  --support-cta-image-size: 180px;
+    /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
+    --page-accent: var(--color-grayscale-darkest);
+    --surface-accent: var(--color-grayscale-darkest);
+    --background-elevated: var(--color-grayscale-darker);
+    --text-on-footer: var(--color-grayscale-lightest);
+    --background-image: var(--color-grayscale-darker);
+    /* BDS canonical sets --background-tertiary in light only — provide a
+       dark-mode value here so consumers don't fall through to the light value. */
+    --background-tertiary: var(--color-grayscale-light);
+  }
 }
 
 /* ================================================================
-   Dark mode overrides
-
-   Activated by data-theme="dark" on <html>, set via:
-     1. localStorage('theme') — user's explicit choice
-     2. prefers-color-scheme: dark — OS preference fallback
-     3. Anti-FOUC script in layout.tsx prevents flash on load
+   Project-local globals — not brand-theme-scoped, just brikdesigns
+   conveniences and Webflow-parity defaults that aren't a function
+   of light/dark mode.
    ================================================================ */
-:root[data-theme="dark"] {
-  /* Text — Figma color/dark mode values */
-  --text-primary: var(--color-grayscale-lightest);        /* Figma: grayscale.lightest ✓ */
-  --text-secondary: #bdbdbd;                           /* Figma: grayscale.light (#bdbdbd — no BDS canonical at this stop) */
-  --text-muted: var(--color-grayscale-light);               /* Figma: grayscale.dark (#828282 = --color-grayscale-light) */
-  /* AA pin: --brand-primary is now poppy-dark (#b0351b) for white-on-
-     primary button contrast in light mode. On the dark-mode page bg
-     (#000), poppy-dark text is 3.14:1 — fails AA. Pin to poppy-light
-     (#e35335) for dark mode only — gives 4.79:1 against #000, AA pass. */
-  --text-brand-primary: var(--color-poppy-light);     /* Brik override (Figma: theme.blue) */
-  --text-inverse: var(--color-grayscale-black);            /* Figma: grayscale.black — FIX from --darkest */
-  --text-negative: #ff6b6b;
+@layer client-theme {
+  :root {
+    /* System palette — Figma values. Diverge from BDS canon (which sources
+       from a different system color set). */
+    --color-system-link: #0034ea;
+    --color-system-red: #eb5757;
+    --color-system-green: #27ae60;
+    --color-system-yellow: #f2c94c;
+    --color-system-blue: #2f80ed;
+    --color-system-orange: #f2994a;
 
-  /* Surface — Figma color/dark mode values */
-  --surface-primary: var(--color-grayscale-black);         /* Figma: grayscale.black ✓ */
-  --surface-secondary: var(--color-grayscale-darker);      /* Figma: grayscale.darker — FIX from --darkest */
-  --surface-negative: #3d1a1a;
-  --surface-brand-primary: var(--brand-primary);     /* Brik override (Figma: theme.blue) */
-  --surface-brand-secondary: var(--color-grayscale-darkest);
+    /* BDS bridge alias — kept for component CSS that still references the
+       double-hyphen Webflow form. */
+    --system--red: var(--color-system-red);
 
-  /* Page — Figma color/dark mode values */
-  --page-primary: var(--color-grayscale-black);            /* Figma: grayscale.black ✓ */
-  --page-secondary: var(--color-grayscale-darker);         /* Figma: grayscale.darker ✓ */
-  --page-accent: var(--color-grayscale-darkest);
+    /* Provide a light-mode --background-tertiary at the same value BDS canon
+       already exports (gap-fills); declared here too so the dark-mode override
+       above has a symmetric light pairing in this file. */
+    --background-tertiary: var(--color-grayscale-lighter);
 
-  /* Background — Figma color/dark mode values */
-  --background-brand-primary: var(--brand-primary);  /* Brik override (Figma: theme.blue) */
-  --background-primary: var(--color-grayscale-black);      /* Figma: grayscale.black — FIX from --darker */
-  --background-secondary: #bdbdbd;                     /* Figma: grayscale.light (#bdbdbd) — FIX from --darkest */
-  /* State pair for dark mode — matches theme-brand-brik dark (grayscale-dark hover, grayscale-darker pressed). */
-  --background-secondary-hover: var(--color-grayscale-light);
-  --background-secondary-pressed: var(--color-grayscale-darker);
-  --background-elevated: var(--color-grayscale-darker);
-  --background-inverse: var(--color-grayscale-black);      /* Figma: grayscale.black — FIX from --white */
-  --background-input: var(--color-grayscale-black);        /* Figma: grayscale.black ✓ */
+    /* ---- Project-local heading scale (one step larger than BDS canon) ---- */
+    --heading-tiny: var(--font-size-100);
+    --heading-sm: var(--font-size-300);
+    --heading-md: var(--font-size-500);
+    --heading-lg: var(--font-size-700);
+    --heading-xl: var(--font-size-900);
+    --heading-xxl: var(--font-size-1000);
+    --heading-huge: var(--font-size-1200);
 
-  /* Border — Figma color/dark mode values */
-  --border-primary: var(--color-grayscale-darker);         /* Figma: grayscale.darker — FIX from --darkest */
-  --border-secondary: #bdbdbd;                         /* Figma: grayscale.light (#bdbdbd) — FIX from --darker */
-  --border-muted: var(--color-grayscale-light);             /* Figma: grayscale.dark — FIX from --darker */
-  --border-brand-primary: var(--brand-primary);      /* Brik override (Figma: theme.blue) */
-  --border-negative: #ff6b6b;
-  --border-input: var(--color-grayscale-light);             /* Figma: grayscale.dark ✓ */
-  --border-inverse: var(--color-grayscale-black);          /* Figma: grayscale.black ✓ */
+    /* ---- Project-local icon scale (one step smaller than BDS canon) ---- */
+    --icon-sm: var(--font-size-75);
+    --icon-md: var(--font-size-100);
+    --icon-lg: var(--font-size-200);
 
-  /* System */
-  --color-system-link: #6b8aff;
+    /* ---- Font-weight bridge aliases (double-hyphen form used by Webflow-
+       lifted component CSS that hasn't migrated to canonical single-hyphen). ---- */
+    --font-weight--bold: var(--font-weight-bold);
+    --font-weight--semi-bold: 500;
+    --font-line-height--100: var(--font-line-height-tight);
 
-  /* Webflow-parity tokens — dark mode. Same brand-customization rationale
-     as light theme (see top of file). */
-  --surface-accent: var(--color-grayscale-darkest);
-  --text-on-footer: var(--color-grayscale-lightest);
-  --background-image: var(--color-grayscale-darker);
-  --background-image-brand: var(--brand-primary);
-  --background-brand-secondary: var(--color-grayscale-darkest);
+    /* ---- Project-local gap extensions (no BDS primitive at these stops) ---- */
+    /* --gap-component: Webflow's gap-md (12px) for in-card stacks.
+       --gap-comfortable: section-block gap (36px), no exact space primitive. */
+    --gap-component: var(--space-300);
+    --gap-comfortable: 36px;
 
-  /* Dark-theme value for --background-tertiary (BDS canonical has no dark
-     override). Was previously routed through `--surface-tertiary`; inlined
-     to remove that one-use private alias. */
-  --background-tertiary: var(--color-grayscale-light);
+    /* ---- Project-local box-shadow scale (custom alpha values; BDS exports
+       raw blur radii only). ---- */
+    --box-shadow-none: none;
+    --box-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+    --box-shadow-md: 0 2px 6px 0 rgba(0, 0, 0, 0.08);
+    --box-shadow-lg: 0 4px 12px 0 rgba(0, 0, 0, 0.12);
 
-  /* Service-line dark-mode tokens are owned by BDS canonical (`bds-tokens`
-     layer — see brik-bds#575 for the tone/context/inverse variants). */
+    /* ---- Standard container pattern shared across the site + nav.
+       max-width (fixed px) + margin-inline: auto + padding-inline (fluid). ---- */
+    --site-container-max: 1280px;
+    --site-gutter: clamp(1rem, 5vw, 2rem);
+    /* Character/plan image slot in support plan CTA cards. */
+    --support-cta-image-size: 180px;
+  }
 }
 
 /* ---- Base element styles ---- */

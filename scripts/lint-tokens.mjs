@@ -58,15 +58,23 @@ for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
   const lines = text.split('\n');
 
-  // Track :root {} block state so Shape B is skipped inside theme definitions.
+  // Track theme-definition block state so Shape B is skipped inside them.
+  // Two canonical shapes:
+  //   1. `:root { ... }` and `:root[data-theme="..."] { ... }` (root-scoped themes)
+  //   2. `.theme-* { ... }` and `:root[data-theme="..."] .theme-* { ... }`
+  //      (body-scoped theme classes — the BDS canonical pattern for brand themes
+  //       like .theme-brand-brik, see node_modules/@brikdesigns/bds/dist/tokens.css)
+  // Both shapes are legitimate token-definition contexts where the LHS is a
+  // semantic token and the RHS is a primitive --color-*; Shape B doesn't apply.
   let inRootBlock = false;
   let rootBraceDepth = 0;
+  const themeBlockOpenRe = /^(?::root(?:\[[^\]]*\])?\s+)?(?::root(?:\[[^\]]*\])?|\.theme-[a-z0-9-]+)\s*\{/i;
 
   for (let idx = 0; idx < lines.length; idx++) {
     const line = lines[idx];
 
     if (file.endsWith('.css')) {
-      if (/^:root(\[.*?\])?\s*\{/.test(line.trim())) {
+      if (themeBlockOpenRe.test(line.trim())) {
         inRootBlock = true;
         rootBraceDepth = 1;
       } else if (inRootBlock) {
