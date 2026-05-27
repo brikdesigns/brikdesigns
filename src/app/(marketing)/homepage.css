@@ -4,25 +4,32 @@
    ──────────────────────────────────────────────────────────── */
 
 /* ─── Hero ─────────────────────────────────────────────────── */
-/* Webflow: .section_hero.brand — row flex centers the container */
+/* Webflow: .section_hero.brand — column flex; container centers vertically,
+   ScrollDownCta anchors at the bottom of the section (same pattern as
+   .page-hero on interior pages). min-height subtracts --nav-height so the
+   sticky header doesn't push the trailing ScrollDownCta below the fold. */
 .section-hero {
   background-color: var(--surface-brand-primary);
   display: flex;
-  flex-flow: row;
+  flex-flow: column;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  align-items: stretch;
+  min-height: calc(100vh - var(--nav-height));
+  min-height: calc(100svh - var(--nav-height));
   position: relative;
   z-index: 0;
 }
 
-/* Webflow: .container-hero — column flex, left-aligned */
+/* Webflow: .container-hero — column flex, left-aligned. flex:1 reserves the
+   container's natural vertical share so the trailing ScrollDownCta doesn't
+   push hero content up off-center. */
 .hero-container {
   z-index: 100;
   display: flex;
   flex-flow: column;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: flex-start;
+  flex: 1;
   width: 100%;
   max-width: var(--site-container-max);
   margin-inline: auto;
@@ -78,6 +85,23 @@
   background-color: var(--surface-primary);
   color: var(--text-primary);
   filter: none;
+}
+
+/* Scoped overrides for the ScrollDownCta inside the brand hero — the default
+   --text-secondary label is dark grey on brand-yellow (low contrast). The
+   ≤767px hide rule still applies via the global cascade. */
+.section-hero .scroll-down-cta__label {
+  color: var(--text-on-color-dark);
+}
+
+/* Hero button row keeps row flow at all breakpoints where it would otherwise
+   collapse — overrides the global .button-wrapper { flex-flow: column } rule
+   applied at ≤767px for interior pages. Selector specificity is raised with
+   `.section-hero` so the override beats the later-imported shared-sections.css
+   rule (both single-class otherwise). Falls back to column only at the
+   smallest viewport when the on-color and outline lg buttons can't both fit. */
+.section-hero .hero-button-wrapper {
+  flex-wrap: wrap;
 }
 
 /* ─── Services ("What We Do") ──────────────────────────────── */
@@ -425,6 +449,13 @@
     gap: 12px; /* gap-md at tablet */
   }
 
+  /* --heading-huge (57.5px) overruns the tablet viewport with the hardcoded
+     mid-title <br/>. Drop to --heading-xl (40.5px) so both lines clear the
+     gutter cleanly. */
+  .hero-title {
+    font-size: var(--heading-xl);
+  }
+
   /* Audit — stack vertically */
   .audit-layout {
     flex-direction: column;
@@ -447,19 +478,19 @@
 
 /* Webflow: mobile landscape — 767px */
 @media (max-width: 767px) {
-  /* Hero */
+  /* Hero — keeps --site-gutter padding-inline at every breakpoint so content
+     never runs flush to the viewport edge (was: padding: 0 → edge-to-edge). */
   .section-hero {
     padding: var(--padding-huge) 0;
-    min-height: 100vh;
+    min-height: calc(100vh - var(--nav-height));
+    min-height: calc(100svh - var(--nav-height));
   }
 
-  .hero-container {
-    padding: 0;
-  }
-
-  .hero-title {
-    font-size: var(--heading-xl);
-    width: auto;
+  /* Override the global .button-wrapper { flex-flow: column } rule that the
+     interior-page cascade applies at ≤767px — the hero needs to stay row
+     down to 480px so the two lg buttons sit side-by-side. */
+  .section-hero .hero-button-wrapper {
+    flex-flow: row;
   }
 
   /* Sections — remove min-height */
@@ -480,16 +511,18 @@
   .hero-title {
     font-size: var(--heading-lg);
     line-height: 120%;
-    width: 288px;
-  }
-
-  .hero-container {
-    padding: 0;
-    align-items: flex-start;
+    /* No fixed width: let the title flow within the gutter. */
   }
 
   .hero-layout {
     gap: 36px; /* gap-xl at mobile */
+  }
+
+  /* On the smallest viewport, an outline lg button alongside an on-color lg
+     button overflows. Stack them. */
+  .section-hero .hero-button-wrapper {
+    flex-flow: column;
+    align-items: stretch;
   }
 
   .audit-layout {

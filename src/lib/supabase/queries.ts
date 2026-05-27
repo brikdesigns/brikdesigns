@@ -210,6 +210,10 @@ export const getSupportPlans = cache(
   unstable_cache(
     async () => {
       const supabase = createPublicClient();
+      // service_plans.marketing_line_id (portal migration 00196) is the primary
+      // marketing line; brikdesigns joins it client-side against the already-
+      // fetched service_lines in the home page (avoiding a PostgREST embed
+      // means this query is schema-tolerant before the migration lands).
       const { data, error } = await supabase
         .from('service_plans')
         .select('*')
