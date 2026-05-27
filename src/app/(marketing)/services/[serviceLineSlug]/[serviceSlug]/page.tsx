@@ -299,9 +299,20 @@ export default async function ServiceDetailPage({ params }: Props) {
        * priceCard — showing a one-card Pricing Options section below
        * duplicates the same number and diverges from the Webflow layout.
        * Multi-tier services still get the comparison grid.
+       *
+       * Tinted with `--surface-service-{service-line}` so the page reads as
+       * one continuous service-line band between hero and the dark support
+       * CTA at the bottom (same pattern as Customer Story / Add-On / Other
+       * Services below). BDS CardGrid spreads ...rest onto its <section>
+       * root, so `style` lands on the actual section element.
        */}
       {sortedOfferings.length > 1 && (
-        <CardGrid id="pricing" sectionKey="pricing" title="Pricing Options">
+        <CardGrid
+          id="pricing"
+          sectionKey="pricing"
+          title="Pricing Options"
+          style={{ background: serviceTokens.surface }}
+        >
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
               slug: string;
@@ -345,7 +356,11 @@ export default async function ServiceDetailPage({ params }: Props) {
        * #105/#107 (asymmetric with the sibling Add-On block in the same file).
        */}
       {relatedStory && (
-        <CardGrid sectionKey="story" title="Related Customer Story">
+        <CardGrid
+          sectionKey="story"
+          title="Related Customer Story"
+          style={{ background: serviceTokens.surface }}
+        >
           <Card padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedStory.hero_image_url && (
@@ -381,14 +396,16 @@ export default async function ServiceDetailPage({ params }: Props) {
       )}
 
       {/* ═══ Recommended Add-On ═══
-       * Webflow wraps this section in a category-tinted band; reproduce that
-       * via the canonical `--surface-service-{service-line}` token. Surface
-       * (not background) per the service-token decision tree — this is a
-       * section, not a small component.
+       * Service-line tinted (same continuous band as Pricing + Customer
+       * Story above, Other Services below). BDS CardGrid spreads ...rest
+       * onto its <section> root — no extra wrapper needed.
        */}
       {relatedService && (
-        <section style={{ background: serviceTokens.surface }}>
-        <CardGrid sectionKey="addon" title="Recommended Add-On Service">
+        <CardGrid
+          sectionKey="addon"
+          title="Recommended Add-On Service"
+          style={{ background: serviceTokens.surface }}
+        >
           <Card padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedService.image_url && (
@@ -433,7 +450,6 @@ export default async function ServiceDetailPage({ params }: Props) {
             </Stack>
           </Card>
         </CardGrid>
-        </section>
       )}
 
       {/* ═══ Related Services ═══ */}
@@ -441,6 +457,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
+          style={{ background: serviceTokens.surface }}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
@@ -451,7 +468,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   preset="display"
                   image={
                     svc.image_url ? (
-                      <Frame customRatio="3 / 2" fit="contain" className="svc-sibling-card__media">
+                      <Frame customRatio="3 / 2" fit="contain" className="service-sibling-card__media">
                         <Image
                           src={svc.image_url}
                           alt={svc.name}
@@ -504,9 +521,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                 We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
               </p>
             </div>
-            <div className="svc-detail-support-grid">
+            <div className="service-detail-support-grid">
               {supportPlan.image_url && (
-                <div className="svc-detail-support-grid__media">
+                <div className="service-detail-support-grid__media">
                   <Image
                     src={supportPlan.image_url}
                     alt=""
@@ -516,9 +533,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                   />
                 </div>
               )}
-              <div className="svc-detail-support-cta">
+              <div className="service-detail-support-cta">
                 {supportPlanMarketingLine?.card_image_url && (
-                  <div className="svc-detail-support-cta__media">
+                  <div className="service-detail-support-cta__media">
                     <Image
                       src={supportPlanMarketingLine.card_image_url}
                       alt={supportPlanMarketingLine.name ?? ''}

@@ -82,8 +82,8 @@ export default async function ServiceLinePage({ params }: Props) {
         style={{ backgroundColor: svcColors.surface }}
       >
         <div className="page-hero__container">
-          <div className="svc-detail-hero">
-            <div className="svc-detail-hero__content">
+          <div className="service-detail-hero">
+            <div className="service-detail-hero__content">
               <Breadcrumb
                 style={{ flexWrap: 'wrap' }}
                 items={[
@@ -105,9 +105,9 @@ export default async function ServiceLinePage({ params }: Props) {
             </div>
 
             {serviceLine.hero_image_url && (
-              <div className="svc-detail-hero__aside">
+              <div className="service-detail-hero__aside">
                 <div
-                  className="svc-detail-hero__media"
+                  className="service-detail-hero__media"
                   style={{ backgroundColor: svcColors.surface }}
                 >
                   <Image
@@ -169,11 +169,11 @@ export default async function ServiceLinePage({ params }: Props) {
               </p>
             </div>
             <div
-              className="svc-detail-support-grid"
+              className="service-detail-support-grid"
               style={{ '--background-brand-primary': supportPlanServiceLineColors.inverse, '--text-brand-primary': supportPlanServiceLineColors.text } as React.CSSProperties}
             >
               {supportPlan.image_url && (
-                <div className="svc-detail-support-grid__media">
+                <div className="service-detail-support-grid__media">
                   <Image
                     src={supportPlan.image_url}
                     alt=""
@@ -186,7 +186,7 @@ export default async function ServiceLinePage({ params }: Props) {
               <Card variant="outlined" padding="lg">
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
                   {supportPlanServiceLine.card_image_url && (
-                    <div className="svc-detail-support-cta__media">
+                    <div className="service-detail-support-cta__media">
                       <Image
                         src={supportPlanServiceLine.card_image_url}
                         alt={supportPlanServiceLine.name}
