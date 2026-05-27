@@ -4,7 +4,7 @@ import type { ServiceLine } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
-import { ServiceLineCard } from '@/app/services/ServiceLineCard';
+import { ServiceLineCard } from '../services/ServiceLineCard';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
