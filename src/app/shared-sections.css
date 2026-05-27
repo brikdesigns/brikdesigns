@@ -13,13 +13,9 @@
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - var(--nav-height));
-  min-height: calc(100svh - var(--nav-height));
-  position: relative;
 }
 
 .page-hero__container {
-  flex: 1;
   width: 100%;
   max-width: var(--site-container-max);
   margin-inline: auto;
@@ -195,7 +191,7 @@
 }
 
 /* ─── Scroll-down CTA ─────────────────────────────────────── */
-/* Floating element anchored to the bottom of a .page-hero section.
+/* In-flow element at the bottom of every interior hero.
    Fades in on load, then arrow bounces 3× to signal scrollability. */
 
 .scroll-down-cta {
@@ -247,18 +243,13 @@
 
 /* ─── Blueprint hero wrapper ─────────────────────────────── */
 /* Wraps HeroSplitImageCardOverlay on L3 interior pages (services detail,
-   plans detail) to match the full-screen rhythm of .page-hero, preventing
-   vertical position shifts when navigating between L2 and L3 pages. */
+   plans detail). Matches .page-hero padding rhythm so nav-to-breadcrumb
+   distance is identical across all interior hero variants. */
 
 .page-hero-blueprint {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - var(--nav-height));
-  min-height: calc(100svh - var(--nav-height));
-}
-
-.page-hero-blueprint > .bp-hero-img-card {
-  flex: 1;
+  padding-bottom: var(--padding-huge);
 }
 
 /* ─── Responsive ─────────────────────────────────────────── */
