@@ -4,6 +4,7 @@ import { getServiceCategories, resolveServiceTagCategory } from '@/lib/supabase/
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
 import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './services.css';
 
@@ -53,6 +54,7 @@ export default async function ServicesPage() {
             business that looks good <em>and</em> works better.
           </p>
         </div>
+        <ScrollDownCta />
       </section>
 
       {/* ═══ Main service lines (3-col grid) ═══ */}

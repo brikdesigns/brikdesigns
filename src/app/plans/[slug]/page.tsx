@@ -21,6 +21,7 @@ import { heading, text, label } from '@/lib/styles';
 import { hasIconFor, SERVICE_LINE_ICON } from '@/lib/service-icons';
 import { planImage } from '@/lib/plan-images';
 import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../../shared-sections.css';
 import '../plans.css';
 
@@ -154,9 +155,12 @@ export default async function PlanDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
+        className="page-hero-blueprint"
+        data-scroll-hero
         style={
           {
-            '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
+            '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
+            backgroundColor: audienceTokens.bg,
           } as React.CSSProperties
         }
       >
@@ -165,6 +169,7 @@ export default async function PlanDetailPage({ params }: Props) {
           clientFacts={defaultClientFacts}
           theme={defaultMarketingTheme}
         />
+        <ScrollDownCta />
       </div>
 
       {/* ═══ What You Get ═══ */}

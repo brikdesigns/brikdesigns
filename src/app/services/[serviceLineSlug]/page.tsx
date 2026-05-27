@@ -82,17 +82,16 @@ export default async function ServiceLinePage({ params }: Props) {
         style={{ backgroundColor: svcColors.surface }}
       >
         <div className="page-hero__container">
-          <Breadcrumb
-            style={{ marginBottom: gap.sm, flexWrap: 'wrap' }}
-            items={[
-              { label: 'Home', href: '/' },
-              { label: 'Services', href: '/services' },
-              { label: serviceLine.name },
-            ]}
-          />
-
           <div className="svc-detail-hero">
             <div className="svc-detail-hero__content">
+              <Breadcrumb
+                style={{ flexWrap: 'wrap' }}
+                items={[
+                  { label: 'Home', href: '/' },
+                  { label: 'Services', href: '/services' },
+                  { label: serviceLine.name },
+                ]}
+              />
               <h1 className="page-hero__title">{serviceLine.name}</h1>
               {serviceLine.tagline && (
                 <p className="page-hero__tagline">{serviceLine.tagline}</p>

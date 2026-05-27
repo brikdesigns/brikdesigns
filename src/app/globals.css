@@ -204,6 +204,9 @@ html {
        max-width (fixed px) + margin-inline: auto + padding-inline (fluid). ---- */
     --site-container-max: 1280px;
     --site-gutter: clamp(1rem, 5vw, 2rem);
+    /* Height of the sticky nav — used to offset hero min-height so the
+       scroll-down CTA stays within the viewport on initial load. */
+    --nav-height: 6rem;
     /* Character/plan image slot in support plan CTA cards. */
     --support-cta-image-size: 180px;
   }

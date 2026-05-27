@@ -8,15 +8,11 @@
 
 .about-hero {
   background-color: var(--surface-primary);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .about-hero__intro {
   font-family: var(--font-family-body);
-  font-size: var(--body-md);
+  font-size: var(--body-lg);
   color: var(--text-secondary);
   line-height: 150%;
   margin: var(--gap-md) 0 0;
@@ -198,7 +194,6 @@
 
 @media (max-width: 767px) {
   .about-hero {
-    min-height: auto;
     padding: var(--padding-xl) 0;
   }
 }

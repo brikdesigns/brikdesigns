@@ -5,6 +5,7 @@ import { Card, CardTitle, CardDescription, CardFooter, Grid, Button } from '@bri
 import { getAllPosts } from '@/lib/blog';
 import { label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './blog.css';
 
@@ -27,6 +28,7 @@ export default async function BlogPage() {
             Practical tips on branding, marketing, and running a small business — brik by brik.
           </p>
         </div>
+        <ScrollDownCta />
       </section>
 
       <section className="content-section">

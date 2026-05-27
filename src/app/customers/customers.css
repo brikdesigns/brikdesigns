@@ -25,6 +25,14 @@
 
 /* ─── Customer detail page ────────────────────────────────── */
 
+/* Left content column inside the detail hero grid.
+ * Breadcrumb, h1, tagline, and intro text stack with gap-md. */
+.customer-detail-hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
 /* Hero: content left, decorative badge pair right.
  * Unique layout — no BDS component for dual-SVG badge decoration. */
 .customer-detail-hero {
