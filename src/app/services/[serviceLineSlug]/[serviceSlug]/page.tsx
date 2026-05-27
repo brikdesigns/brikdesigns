@@ -245,10 +245,8 @@ export default async function ServiceDetailPage({ params }: Props) {
         data-scroll-hero
         style={
           {
-            backgroundColor: audienceTokens.surface,
-            // Match Webflow's hero vertical rhythm — only override needed
-            // beyond what [data-audience] already handles in BDS.
-            '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
+            backgroundColor: audienceTokens.bg,
+            '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
             // Audience-colored primary CTAs inside the hero (View Details
             // + priceCard "Let's Talk"). BDS .bds-button--primary reads from
             // --background-brand-primary; scoping the override here keeps

@@ -159,8 +159,8 @@ export default async function PlanDetailPage({ params }: Props) {
         data-scroll-hero
         style={
           {
-            '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
-            backgroundColor: audienceTokens.surface,
+            '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
+            backgroundColor: audienceTokens.bg,
           } as React.CSSProperties
         }
       >
