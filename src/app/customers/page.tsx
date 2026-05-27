@@ -3,6 +3,7 @@ import { Grid, Card, CardFooter, Button } from '@brikdesigns/bds';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './customers.css';
 
@@ -79,6 +80,7 @@ export default async function CustomersPage() {
             here to help you make it real, effective, and beautifully executed.
           </p>
         </div>
+        <ScrollDownCta />
       </section>
 
       {/* Intro */}

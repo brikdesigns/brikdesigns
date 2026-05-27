@@ -65,7 +65,7 @@
   gap: var(--gap-xl);
   align-items: center;
   width: 100%;
-  margin-top: var(--gap-lg);
+  margin-top: var(--gap-md);
 }
 
 .svc-detail-hero__content {

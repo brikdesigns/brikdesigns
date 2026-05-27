@@ -240,6 +240,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
+        className="page-hero-blueprint"
         style={
           {
             // Match Webflow's hero vertical rhythm — only override needed

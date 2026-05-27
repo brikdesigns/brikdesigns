@@ -154,6 +154,7 @@ export default async function PlanDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
+        className="page-hero-blueprint"
         style={
           {
             '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',

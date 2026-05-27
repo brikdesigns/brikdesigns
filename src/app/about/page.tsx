@@ -6,6 +6,7 @@ import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './about.css';
 
@@ -93,10 +94,8 @@ export default async function AboutPage() {
             At the core of their work is a focus on people&mdash;whether it&apos;s their customers or their
             customers&apos; customers&mdash;creating designs and strategies that work for everyone.
           </p>
-          <div className="about-hero__scroll">
-            <span style={{ ...label.smBold, color: color.text.secondary }}>Scroll down</span>
-          </div>
         </div>
+        <ScrollDownCta />
       </section>
 
       {/* ═══ Team ═══ */}

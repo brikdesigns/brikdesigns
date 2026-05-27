@@ -7,6 +7,7 @@ import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
 import { ServiceLineCard } from '@/app/services/ServiceLineCard';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import '../services/services.css';
 import './customer-stories.css';
@@ -33,6 +34,7 @@ export default async function CustomerStoriesPage() {
             Real results from real businesses. See how we help our clients build stronger brands and grow faster — brik by brik.
           </p>
         </div>
+        <ScrollDownCta />
       </section>
 
       <section className="content-section">
