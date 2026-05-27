@@ -9,7 +9,7 @@ name: Verify (lint + token gate + schema parity)
 #  - Service-URL lint: hardcoded /services/<slug> URLs must use the canonical
 #    Supabase short-form slugs (brikdesigns#113)
 #  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
-#    src/app/(admin)/admin/services/_components/field-configs.ts
+#    src/app/(chromeless)/admin/services/_components/field-configs.ts
 #
 # Sibling to a11y.yml (which waits for Netlify) and visual-parity.yml
 # (which also waits for Netlify). This one runs on every push and PR.
