@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Breadcrumb, Card, Grid, LinkButton } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
-import { color, gap } from '@/lib/tokens';
+import { color } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
@@ -105,16 +105,16 @@ export default async function CustomerDetailPage({ params }: Props) {
        * aside slot. */}
       <section className="page-hero">
         <div className="page-hero__container">
-          <Breadcrumb
-            style={{ marginBottom: gap.sm, flexWrap: 'wrap' }}
-            items={[
-              { label: 'Home', href: '/' },
-              { label: 'Customers', href: '/customers' },
-              { label: page.name },
-            ]}
-          />
           <div className="customer-detail-hero">
-            <div>
+            <div className="customer-detail-hero__content">
+              <Breadcrumb
+                style={{ flexWrap: 'wrap' }}
+                items={[
+                  { label: 'Home', href: '/' },
+                  { label: 'Customers', href: '/customers' },
+                  { label: page.name },
+                ]}
+              />
               <h1 className="page-hero__title">{page.name}</h1>
               {page.tagline && <p className="page-hero__tagline">{page.tagline}</p>}
               {page.intro_description && (

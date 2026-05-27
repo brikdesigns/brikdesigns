@@ -11,8 +11,8 @@ export function ScrollDownCta({ label = 'Scroll' }: Props) {
   const ref = useRef<HTMLButtonElement>(null);
 
   const handleClick = () => {
-    const section = ref.current?.closest('section');
-    const next = section?.nextElementSibling as HTMLElement | null;
+    const hero = ref.current?.closest('[data-scroll-hero]') ?? ref.current?.closest('section');
+    const next = hero?.nextElementSibling as HTMLElement | null;
     next?.scrollIntoView({ behavior: 'smooth' });
   };
 

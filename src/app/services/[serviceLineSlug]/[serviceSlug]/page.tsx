@@ -28,6 +28,7 @@ import type { BlueprintSection } from '@brikdesigns/bds';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../../../shared-sections.css';
 import '../../services.css';
 
@@ -241,8 +242,10 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* ═══ Hero ═══ */}
       <div
         className="page-hero-blueprint"
+        data-scroll-hero
         style={
           {
+            backgroundColor: audienceTokens.surface,
             // Match Webflow's hero vertical rhythm — only override needed
             // beyond what [data-audience] already handles in BDS.
             '--bp-hero-img-card-padding-y': 'clamp(5rem, 8vw, 8rem)',
@@ -259,6 +262,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           clientFacts={defaultClientFacts}
           theme={defaultMarketingTheme}
         />
+        <ScrollDownCta />
       </div>
 
       {/* ═══ Pricing / Offerings ═══
