@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { hasIconFor, SERVICE_LINE_ICON } from '@/lib/service-icons';
+import { hasIconFor } from '@/lib/service-icons';
 import {
   getServiceBySlug,
   getServicesByServiceLine,
@@ -157,21 +157,45 @@ export default async function ServiceDetailPage({ params }: Props) {
     return (lineData as { slug: string }).slug || serviceLineSlug;
   })();
 
-  // Support plan — M:N via service_supported_plans; replaces service.support_plan_slug (#206)
+  // Support plan — a service can belong to multiple plans (1:M plan→service via
+  // service_plan_items); we render the highest-ranked one. Replaces the legacy
+  // service.support_plan_slug denorm column (#206).
   const supportPlans = await getSupportPlansByServiceId(service.id).catch(() => []);
   const supportPlan = supportPlans[0] ?? null;
 
-  // Audience tokens drive two scoped cascades:
+  // Resolve the support plan's *primary* service line for the bottom-CTA
+  // illustration — distinct from this page's `serviceLine`. A plan can span
+  // multiple lines (e.g. Marketing Support → Marketing + Information + Brand
+  // services), so the CTA image must come from `service_plans.marketing_line_id`
+  // (portal migration 00196), not the page's current line. PostgREST may
+  // return the embed as object or array — defensive normalization mirrors
+  // the relatedServiceLineSlug pattern above.
+  const supportPlanMarketingLine = (() => {
+    if (!supportPlan) return null;
+    const raw = (supportPlan as { marketing_line?: unknown }).marketing_line;
+    if (!raw) return null;
+    if (Array.isArray(raw)) return (raw[0] as { card_image_url: string | null; name: string | null } | undefined) ?? null;
+    return raw as { card_image_url: string | null; name: string | null };
+  })();
+
+  // Service-line tokens drive two scoped cascades:
   //   - Page-level: --text-brand-primary so eyebrows / breadcrumbs / accent
   //     copy across every section inherit the service-line text color.
   //   - Hero-only: --background-brand-primary so primary CTAs inside the
-  //     hero render in the audience inverse color (per brikdesigns#159).
+  //     hero render in the service-line inverse color (per brikdesigns#159).
   //     Scoping to the hero keeps Brik poppy on every CTA below.
   // BDS itself sets --bp-hero-img-card-* and --background-inverse on
   // `.bp-hero-img-card[data-audience]`, so those aren't repeated here
   // (brikdesigns#99 fix for the prior raw-hex bypass).
-  const audience = mapServiceLineSlug(serviceLine?.slug || serviceLineSlug);
-  const audienceTokens = serviceColor(audience);
+  //
+  // `serviceLineKey` is the canonical BDS `ServiceLine` enum value
+  // ('marketing' | 'brand' | 'information' | 'product' | 'back-office') —
+  // distinct from `serviceLine` (the DB row above). It feeds `serviceColor()`
+  // for `--{family}-service-{service-line}` token lookup and the BDS
+  // `audience` prop / `data-audience` attribute (BDS-side naming; rename
+  // to `service-line` tracked separately).
+  const serviceLineKey = mapServiceLineSlug(serviceLine?.slug || serviceLineSlug);
+  const serviceTokens = serviceColor(serviceLineKey);
 
   const heroSection: BlueprintSection = {
     sectionKey: `hero-${service.slug}`,
@@ -195,14 +219,14 @@ export default async function ServiceDetailPage({ params }: Props) {
       { label: serviceLine?.name || serviceLineSlug, href: `/services/${serviceLineSlug}` },
       { label: service.name },
     ],
-    audience,
-    // Audience badge icon — Webflow shows a small SVG icon between the
-    // breadcrumb and h1. Resolved from the static service-line icon set in
-    // /public/icons/{category}/, so no per-record URL upload is needed and
-    // the icon set comes from the canonical BDS-shipped art (theme handling
-    // happens at the surrounding hero level).
-    iconUrl: SERVICE_LINE_ICON[audience],
-    iconAlt: `${serviceLine?.name || serviceLineSlug} icon`,
+    audience: serviceLineKey,
+    // Eyebrow icon — the BDS HeroSplitImageCardOverlay renders the canonical
+    // `<ServiceTag variant="icon">` from the design system when `audience`
+    // (BDS prop) is set and no `iconUrl` override is provided. That path
+    // keeps the icon in sync with the rest of the site (ServiceTag uses the
+    // same canonical art), so no per-record URL or static `/public/icons/`
+    // lookup is needed. Per-service icon overrides remain a separate
+    // discussion (would require a `services.service_tag_override` column).
     priceCard: service.image_url
       ? {
           imageUrl: service.image_url,
@@ -223,19 +247,21 @@ export default async function ServiceDetailPage({ params }: Props) {
   };
 
   return (
-    // Page-level cascade: audience-colored accent text (eyebrows, breadcrumbs,
-    // service tag copy). Stops short of --background-inverse on purpose —
-    // canonical dark `--background-inverse` is reused by the bottom support
-    // CTA band, and the hero's own CTA theming is scoped one level deeper.
+    // Page-level cascade: service-line-colored accent text (eyebrows,
+    // breadcrumbs, service tag copy). Stops short of --background-inverse on
+    // purpose — canonical dark `--background-inverse` is reused by the
+    // bottom support CTA band, and the hero's own CTA theming is scoped one
+    // level deeper.
     //
     // `data-audience` activates BDS's `[data-audience='X'] .bds-breadcrumb`
     // cascade (brik-bds#781), tinting the current page label + slash
-    // separators to match the service-line hue.
+    // separators to match the service-line hue. (BDS-side rename of the
+    // attribute name to `data-service-line` is tracked separately.)
     <div
-      data-audience={audience}
+      data-audience={serviceLineKey}
       style={
         {
-          '--text-brand-primary': audienceTokens.text,
+          '--text-brand-primary': serviceTokens.text,
         } as React.CSSProperties
       }
     >
@@ -245,13 +271,18 @@ export default async function ServiceDetailPage({ params }: Props) {
         data-scroll-hero
         style={
           {
-            backgroundColor: audienceTokens.bg,
+            // Section-level service-line tint — use the `surface` family per
+            // service-token-decision-tree.md (hero is a broad container, not
+            // a small bounded component). Matches the `--surface-service-*`
+            // ramp used by the Recommended Add-On section below so the page
+            // reads as one tinted band, not two near-miss shades.
+            backgroundColor: serviceTokens.surface,
             '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
-            // Audience-colored primary CTAs inside the hero (View Details
+            // Service-line-colored primary CTAs inside the hero (View Details
             // + priceCard "Let's Talk"). BDS .bds-button--primary reads from
             // --background-brand-primary; scoping the override here keeps
             // sections below the hero on Brik poppy.
-            '--background-brand-primary': audienceTokens.inverse,
+            '--background-brand-primary': serviceTokens.inverse,
           } as React.CSSProperties
         }
       >
@@ -268,9 +299,20 @@ export default async function ServiceDetailPage({ params }: Props) {
        * priceCard — showing a one-card Pricing Options section below
        * duplicates the same number and diverges from the Webflow layout.
        * Multi-tier services still get the comparison grid.
+       *
+       * Tinted with `--surface-service-{service-line}` so the page reads as
+       * one continuous service-line band between hero and the dark support
+       * CTA at the bottom (same pattern as Customer Story / Add-On / Other
+       * Services below). BDS CardGrid spreads ...rest onto its <section>
+       * root, so `style` lands on the actual section element.
        */}
       {sortedOfferings.length > 1 && (
-        <CardGrid id="pricing" sectionKey="pricing" title="Pricing Options">
+        <CardGrid
+          id="pricing"
+          sectionKey="pricing"
+          title="Pricing Options"
+          style={{ background: serviceTokens.surface }}
+        >
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
               slug: string;
@@ -314,7 +356,11 @@ export default async function ServiceDetailPage({ params }: Props) {
        * #105/#107 (asymmetric with the sibling Add-On block in the same file).
        */}
       {relatedStory && (
-        <CardGrid sectionKey="story" title="Related Customer Story">
+        <CardGrid
+          sectionKey="story"
+          title="Related Customer Story"
+          style={{ background: serviceTokens.surface }}
+        >
           <Card padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedStory.hero_image_url && (
@@ -350,14 +396,16 @@ export default async function ServiceDetailPage({ params }: Props) {
       )}
 
       {/* ═══ Recommended Add-On ═══
-       * Webflow wraps this section in a category-tinted band; reproduce that
-       * via the canonical `--surface-service-{audience}` token. Surface (not
-       * background) per the service-token decision tree — this is a section,
-       * not a small component.
+       * Service-line tinted (same continuous band as Pricing + Customer
+       * Story above, Other Services below). BDS CardGrid spreads ...rest
+       * onto its <section> root — no extra wrapper needed.
        */}
       {relatedService && (
-        <section style={{ background: audienceTokens.surface }}>
-        <CardGrid sectionKey="addon" title="Recommended Add-On Service">
+        <CardGrid
+          sectionKey="addon"
+          title="Recommended Add-On Service"
+          style={{ background: serviceTokens.surface }}
+        >
           <Card padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedService.image_url && (
@@ -402,7 +450,6 @@ export default async function ServiceDetailPage({ params }: Props) {
             </Stack>
           </Card>
         </CardGrid>
-        </section>
       )}
 
       {/* ═══ Related Services ═══ */}
@@ -410,6 +457,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
+          style={{ background: serviceTokens.surface }}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
@@ -420,7 +468,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   preset="display"
                   image={
                     svc.image_url ? (
-                      <Frame customRatio="3 / 2" fit="contain" className="svc-sibling-card__media">
+                      <Frame customRatio="3 / 2" fit="contain" className="service-sibling-card__media">
                         <Image
                           src={svc.image_url}
                           alt={svc.name}
@@ -460,9 +508,9 @@ export default async function ServiceDetailPage({ params }: Props) {
       {/* ═══ Monthly Support CTA — bottom CTA pattern (parity #159) ═══
        * Webflow's bottom CTA is a single dark band carrying the support-plan
        * card. The previous "Interested in {service}?" final CTA was a
-       * Netlify-only duplicate and has been retired. Services missing a
-       * support_plan_slug currently render no bottom CTA; backfill tracked
-       * in the brikdesigns CMS audit (#114 followup).
+       * Netlify-only duplicate and has been retired. Services with no row in
+       * service_plan_items currently render no bottom CTA; backfill is a
+       * portal /settings/plans data task.
        */}
       {supportPlan && (
         <section className="content-section">
@@ -473,9 +521,9 @@ export default async function ServiceDetailPage({ params }: Props) {
                 We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
               </p>
             </div>
-            <div className="svc-detail-support-grid">
+            <div className="service-detail-support-grid">
               {supportPlan.image_url && (
-                <div className="svc-detail-support-grid__media">
+                <div className="service-detail-support-grid__media">
                   <Image
                     src={supportPlan.image_url}
                     alt=""
@@ -485,12 +533,12 @@ export default async function ServiceDetailPage({ params }: Props) {
                   />
                 </div>
               )}
-              <div className="svc-detail-support-cta">
-                {serviceLine?.card_image_url && (
-                  <div className="svc-detail-support-cta__media">
+              <div className="service-detail-support-cta">
+                {supportPlanMarketingLine?.card_image_url && (
+                  <div className="service-detail-support-cta__media">
                     <Image
-                      src={serviceLine.card_image_url}
-                      alt={serviceLine.name ?? ''}
+                      src={supportPlanMarketingLine.card_image_url}
+                      alt={supportPlanMarketingLine.name ?? ''}
                       fill
                       sizes="180px"
                       style={{ objectFit: 'contain' }}

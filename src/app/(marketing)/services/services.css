@@ -59,7 +59,7 @@
 /* ─── Service detail page ─────────────────────────────────── */
 
 /* Hero — split layout: content left, image + price right */
-.svc-detail-hero {
+.service-detail-hero {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--gap-xl);
@@ -67,20 +67,20 @@
   width: 100%;
 }
 
-.svc-detail-hero__content {
+.service-detail-hero__content {
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
 }
 
-.svc-detail-hero__aside {
+.service-detail-hero__aside {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--gap-md);
 }
 
-.svc-detail-hero__media {
+.service-detail-hero__media {
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   background-color: var(--surface-accent);
@@ -90,14 +90,14 @@
 }
 
 /* Offerings — default vertical, grid for 3+ */
-.svc-detail-offerings {
+.service-detail-offerings {
   display: flex;
   flex-direction: column;
   gap: var(--gap-lg);
   width: 100%;
 }
 
-.svc-detail-offerings--grid {
+.service-detail-offerings--grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-lg);
@@ -105,11 +105,11 @@
 
 /* Individual offering cards are now BDS `<PricingCard>` — see
    src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx. This file only
-   keeps the grid/flex wrapper (`.svc-detail-offerings[--grid]`) for layout
+   keeps the grid/flex wrapper (`.service-detail-offerings[--grid]`) for layout
    of N cards on the detail page. */
 
 /* Related customer story card */
-.svc-detail-story-card {
+.service-detail-story-card {
   display: flex;
   padding: var(--padding-lg);
   border: var(--border-width-sm) solid var(--border-secondary);
@@ -119,38 +119,38 @@
   width: 100%;
 }
 
-.svc-detail-story-card--with-image {
+.service-detail-story-card--with-image {
   display: grid;
   grid-template-columns: 2fr 3fr;
   gap: var(--gap-lg);
   align-items: center;
 }
 
-.svc-detail-story-card:hover {
+.service-detail-story-card:hover {
   border-color: var(--border-brand-primary);
 }
 
-.svc-detail-story-card__media {
+.service-detail-story-card__media {
   border-radius: var(--border-radius-md);
   overflow: hidden;
   aspect-ratio: 3 / 2;
 }
 
-.svc-detail-story-card__media img {
+.service-detail-story-card__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.svc-detail-story-content {
+.service-detail-story-content {
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
 }
 
 /* Recommended add-on card */
-.svc-detail-addon-card {
+.service-detail-addon-card {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: var(--gap-xl);
@@ -162,27 +162,27 @@
   width: 100%;
 }
 
-.svc-detail-addon-card__media {
+.service-detail-addon-card__media {
   border-radius: var(--border-radius-md);
   overflow: hidden;
   aspect-ratio: 1;
 }
 
-.svc-detail-addon-card__media img {
+.service-detail-addon-card__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.svc-detail-addon-card__content {
+.service-detail-addon-card__content {
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
 }
 
 /* Monthly support — 2-col: category illustration left, plan card right */
-.svc-detail-support-grid {
+.service-detail-support-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--gap-xl);
@@ -190,7 +190,7 @@
   margin-top: var(--gap-lg);
 }
 
-.svc-detail-support-grid__media {
+.service-detail-support-grid__media {
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   background-color: var(--surface-accent);
@@ -198,7 +198,22 @@
   position: relative;
 }
 
-.svc-detail-support-cta__media {
+/* Bottom support-CTA card — the right-hand column of .service-detail-support-grid.
+ * Holds (top→bottom): plan illustration, plan name (h3), plan description (p),
+ * Learn More button. Each child sets its own text-align: center via inline
+ * styles in the page; this rule owns the flex column + cross-axis centering
+ * + vertical centering against the matched-height .service-detail-support-grid
+ * row. */
+.service-detail-support-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-md);
+  text-align: center;
+}
+
+.service-detail-support-cta__media {
   width: var(--support-cta-image-size);
   height: var(--support-cta-image-size);
   position: relative;
@@ -207,7 +222,7 @@
 
 /* Sibling-services image frame (BDS Frame component, customRatio="3 / 2", fit="contain").
  * Sets the accent surface background that shows around contain-fitted illustrations. */
-.svc-sibling-card__media {
+.service-sibling-card__media {
   background-color: var(--surface-accent);
 }
 
@@ -227,34 +242,34 @@
     align-self: center;
   }
 
-  .svc-detail-hero {
+  .service-detail-hero {
     grid-template-columns: 1fr;
   }
 
-  .svc-detail-support-grid {
+  .service-detail-support-grid {
     grid-template-columns: 1fr;
   }
 
-  .svc-detail-support-grid__media {
+  .service-detail-support-grid__media {
     max-width: 400px;
     margin: 0 auto;
   }
 
-  .svc-detail-offerings--grid {
+  .service-detail-offerings--grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 767px) {
-  .svc-detail-story-card--with-image {
+  .service-detail-story-card--with-image {
     grid-template-columns: 1fr;
   }
 
-  .svc-detail-addon-card {
+  .service-detail-addon-card {
     grid-template-columns: 1fr;
   }
 
-  .svc-detail-offerings--grid {
+  .service-detail-offerings--grid {
     grid-template-columns: 1fr;
   }
 }
