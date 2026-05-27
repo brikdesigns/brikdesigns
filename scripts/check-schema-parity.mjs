@@ -6,7 +6,7 @@
 //
 //   1. supabase Row interface   — src/types/supabase.ts (DB-authoritative)
 //   2. write-side SCHEMA        — src/lib/admin/<entity>.ts (validation)
-//   3. admin field-configs      — src/app/(admin)/admin/services/_components/field-configs.ts (UI)
+//   3. admin field-configs      — src/app/(chromeless)/admin/services/_components/field-configs.ts (UI)
 //
 // SCHEMA keys MUST be a subset of Row keys; field-config names MUST be a
 // subset of SCHEMA keys. A violation means a column was dropped, renamed, or
@@ -27,19 +27,19 @@ const ENTITIES = [
   {
     table: 'service_lines',
     schemaFile: 'src/lib/admin/service-lines.ts',
-    configsFile: 'src/app/(admin)/admin/services/_components/field-configs.ts',
+    configsFile: 'src/app/(chromeless)/admin/services/_components/field-configs.ts',
     configFn: 'serviceLineFields',
   },
   {
     table: 'services',
     schemaFile: 'src/lib/admin/services.ts',
-    configsFile: 'src/app/(admin)/admin/services/_components/field-configs.ts',
+    configsFile: 'src/app/(chromeless)/admin/services/_components/field-configs.ts',
     configFn: 'serviceFields',
   },
   {
     table: 'offerings',
     schemaFile: 'src/lib/admin/offerings.ts',
-    configsFile: 'src/app/(admin)/admin/services/_components/field-configs.ts',
+    configsFile: 'src/app/(chromeless)/admin/services/_components/field-configs.ts',
     configFn: 'offeringFields',
   },
 ];
