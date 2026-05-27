@@ -277,13 +277,29 @@ export const getOtherSupportPlans = cache(
 
 // Reverse lookup: given a service UUID, return all public plans that include it.
 // Replaces the legacy service.support_plan_slug denorm column (#206).
+//
+// Embeds `marketing_line` — the *primary* service line for visual identity
+// (portal migration 00196). A plan's services can span multiple lines (e.g.
+// Marketing Support pulls services from Marketing + Information + Brand
+// lines), so the bottom-CTA illustration can't be inferred from the current
+// page's service line — it has to come from the plan's own `marketing_line_id`
+// pointer. Falls back to plan.image_url client-side when null (legacy
+// Webflow-imported plans).
 export const getSupportPlansByServiceId = cache(
   unstable_cache(
     async (serviceId: string) => {
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('service_plans')
-        .select('*, service_plan_items!inner(service_id, sort_order)')
+        .select(
+          `*,
+           service_plan_items!inner(service_id, sort_order),
+           marketing_line:service_lines!service_plans_marketing_line_id_fkey(
+             slug,
+             name,
+             card_image_url
+           )`
+        )
         .eq('service_plan_items.service_id', serviceId)
         .eq('is_public', true)
         .order('rank', { ascending: true });
