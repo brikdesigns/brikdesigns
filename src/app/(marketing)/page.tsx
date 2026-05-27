@@ -5,6 +5,7 @@ import { Grid, Button } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
 import './shared-sections.css';
 
@@ -30,16 +31,15 @@ export default async function HomePage() {
     brand_color_base: cat.brand_color_base || null,
   }));
 
-  // Subscription cards mirror the service-line grid above by rendering the
-  // owning service line's card_image_url (e.g. the marketing-line illustration
-  // on a Marketing Support Plan card). Joined client-side from the already-
-  // fetched `categories` because the `service_plans.service_line_id` column
-  // exists in the schema but lacks a PostgREST-visible FK constraint, so
-  // `.select('*, service_lines(...)')` 500s with PGRST200. Falls back to
-  // plan.image_url when a plan isn't linked.
+  // Plan cards render the marketing-line illustration (e.g. the Marketing
+  // Design line's card_image_url on the Marketing Support plan card). Joined
+  // client-side against the already-fetched `categories` via the
+  // service_plans.marketing_line_id FK introduced in portal migration 00196.
+  // Falls back to plan.image_url when marketing_line_id is null/absent.
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
   const supportPlans = plans.map((plan) => {
-    const line = plan.service_line_id ? serviceLineById.get(plan.service_line_id) : null;
+    const marketingLineId = (plan as { marketing_line_id?: string | null }).marketing_line_id;
+    const line = marketingLineId ? serviceLineById.get(marketingLineId) : null;
     return {
       name: plan.name,
       slug: plan.slug,
@@ -68,7 +68,7 @@ export default async function HomePage() {
                 We help small businesses show up better, work smarter, and grow faster—brik by brik.
               </p>
             </div>
-            <div className="button-wrapper">
+            <div className="button-wrapper hero-button-wrapper">
               <Button href="/services" variant="on-color" size="lg">
                 Explore Design Services
               </Button>
@@ -78,6 +78,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
+        <ScrollDownCta />
       </section>
 
       {/* ═══ Services ("What We Do") ═══ */}
