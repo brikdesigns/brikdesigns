@@ -10,6 +10,17 @@ const nextConfig = {
       { hostname: '*.supabase.co' },
       { hostname: 'cdn.prod.website-files.com' }, // Webflow CDN (during migration)
     ],
+    // CMS-uploaded industry icons (industry_pages.image_url) ship as SVG;
+    // without dangerouslyAllowSVG the Image Optimization API rejects them and
+    // the <Image> rendered in MegaNav / customers/[slug] returns broken.
+    // Locked down: SVGs are served with a Content-Disposition: attachment
+    // header (browsers will download instead of execute) and a strict CSP
+    // that blocks all scripts + sandbox-isolates the document. Portal-side
+    // upload pipeline (brik-client-portal#909) sanitizes `<script>` + on*=
+    // handlers via DOMPurify before storage as defense-in-depth.
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   async headers() {
     const baseHeaders = [
