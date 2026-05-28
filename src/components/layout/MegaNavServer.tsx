@@ -55,7 +55,7 @@ export async function MegaNavServer() {
     name: ind.name,
     slug: ind.slug,
     tagline: ind.tagline || '',
-    imageUrl: ind.card_image_url || ind.hero_image_url || null,
+    imageUrl: ind.image_url || null,
   }));
 
   return <MegaNav serviceLines={serviceLines} supportPlans={supportPlans} industries={industryItems} />;

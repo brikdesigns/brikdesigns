@@ -26,7 +26,7 @@
 /* ─── Customer detail page ────────────────────────────────── */
 
 /* Left content column inside the detail hero grid.
- * Breadcrumb, h1, tagline, and intro text stack with gap-md. */
+ * Icon tag, breadcrumb, h1, and intro text stack with gap-md. */
 .customer-detail-hero__content {
   display: flex;
   flex-direction: column;
@@ -43,6 +43,27 @@
   width: 100%;
 }
 
+/* Icon-lg service tag — square accent block holding the CMS-supplied
+ * industry icon (SVG or raster). Single image_url field drives both this
+ * tag and the meganav industry card; the legacy hero_image_url 560×560
+ * illustration was retired here in favor of an icon-led hero. */
+.customer-detail-hero__tag {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--border-radius-lg);
+  background-color: var(--surface-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.customer-detail-hero__tag-icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .customer-detail-hero__badges {
   display: flex;
   gap: var(--gap-md);
@@ -56,42 +77,37 @@
   object-fit: contain;
 }
 
-/* Industry hero illustration — sits in the aside slot opposite the
- * title/intro text. Matches the /services/[serviceLineSlug] hero aside
- * pattern. Webflow-CDN illustrations are square (.webp 2x); cap at
- * 420px so the hero stays compact and the text column still gets
- * comfortable line lengths. */
-.customer-detail-hero__aside {
-  flex-shrink: 0;
-}
-
-.customer-detail-hero__media {
-  width: 100%;
-  max-width: 420px;
-  height: auto;
-  object-fit: contain;
-}
-
-/* Topic section with image: 50/50 split (unique layout).
- * Falls back to full-width text when no image_url is set. */
-.customer-topic {
+/* Topic grid — 4 equal columns inside container-lg (1280 max-width).
+ * Col 1 = topic content (number/title/description/optional image).
+ * Cols 2–4 = up to 3 service card slots. Empty slots render as
+ * placeholder cells so cards keep a consistent column width even when
+ * fewer than 3 services are attached. */
+.customer-topic-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap-xl);
-  align-items: center;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap-lg);
+  align-items: start;
+  width: 100%;
 }
 
-.customer-topic__media {
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  aspect-ratio: 1;
-  position: relative;
-}
-
-.customer-topic__content {
+.customer-topic-grid__content {
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
+}
+
+.customer-topic-grid__media {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  margin-top: var(--gap-sm);
+}
+
+/* Card slot — wraps a ServiceCard so empty slots can preserve column
+ * width via the same wrapper element. */
+.customer-topic-grid__slot {
+  min-width: 0;
 }
 
 /* Customer stories — vertical list */
@@ -102,17 +118,6 @@
   width: 100%;
 }
 
-/* Text-only topic layout (no image). Needs width: 100% so it fills the
- * flex container-lg (which has align-items: center, causing unstyled divs
- * to shrink-wrap to content width and appear narrower than image-topic
- * sections). */
-.industry-topic {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
 /* ─── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 991px) {
@@ -120,8 +125,28 @@
     grid-template-columns: 1fr;
   }
 
-  .customer-topic {
+  /* Collapse 4-col → 2-col on tablet so content stays on top and cards
+   * pair below. */
+  .customer-topic-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .customer-topic-grid__content {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .customer-topic-grid {
     grid-template-columns: 1fr;
+  }
+
+  .customer-topic-grid__content {
+    grid-column: auto;
+  }
+
+  .customer-topic-grid__slot:empty {
+    display: none;
   }
 }
 

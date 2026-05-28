@@ -30,7 +30,7 @@ export function ServiceCard({
     <Card
       preset="display"
       title={name}
-      description={tagline ?? description ?? undefined}
+      description={description ?? tagline ?? undefined}
       image={imageUrl ? (
         <Frame ratio="square" fit="cover">
           <Image src={imageUrl} alt={name} width={400} height={400} />
