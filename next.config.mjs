@@ -1,5 +1,6 @@
 import createMDX from '@next/mdx';
 import { withSentryConfig } from '@sentry/nextjs';
+import withBundleAnalyzer from '@next/bundle-analyzer';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -98,12 +99,15 @@ const nextConfig = {
 };
 
 const withMDX = createMDX({});
+const analyze = withBundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
 
-export default withMDX(
-  withSentryConfig(nextConfig, {
-    silent: !process.env.SENTRY_AUTH_TOKEN,
-    widenClientFileUpload: false,
-    disableServerWebpackPlugin: !process.env.SENTRY_AUTH_TOKEN,
-    disableClientWebpackPlugin: !process.env.SENTRY_AUTH_TOKEN,
-  })
+export default analyze(
+  withMDX(
+    withSentryConfig(nextConfig, {
+      silent: !process.env.SENTRY_AUTH_TOKEN,
+      widenClientFileUpload: false,
+      disableServerWebpackPlugin: !process.env.SENTRY_AUTH_TOKEN,
+      disableClientWebpackPlugin: !process.env.SENTRY_AUTH_TOKEN,
+    })
+  )
 );
