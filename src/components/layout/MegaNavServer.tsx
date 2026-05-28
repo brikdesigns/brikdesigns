@@ -1,4 +1,4 @@
-import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapCategorySlug } from '@/lib/supabase/queries';
+import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { NAV_COLUMNS } from '@/lib/meganav-columns';
 import { MegaNav } from './MegaNav';
 
@@ -21,7 +21,7 @@ export async function MegaNavServer() {
       return {
         name: cat.name,
         slug: cat.slug,
-        category: mapCategorySlug(cat.slug),
+        category: mapServiceLineSlug(cat.slug),
         tagline: '',
         services: [],
       };
@@ -37,7 +37,7 @@ export async function MegaNavServer() {
     return {
       name: cat.name,
       slug: cat.slug,
-      category: mapCategorySlug(cat.slug),
+      category: mapServiceLineSlug(cat.slug),
       tagline: col.tagline,
       services: catServices,
     };

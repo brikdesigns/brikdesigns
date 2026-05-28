@@ -1,0 +1,275 @@
+/* ─── Services page — layout only ───────────────────────── */
+/* Typography, buttons, and colors come from BDS components. */
+
+/* Service line card link wrapper — preserves Next.js Link navigation.
+ * Chrome (border, surface, hover affordance) lives on the inner BDS Card. */
+.services-card-link {
+  display: block;
+  text-decoration: none;
+  height: 100%;
+}
+
+/* Inner BDS Card — layout-only overrides; Card provides border / surface /
+ * padding / hover via `variant="outlined" padding="md" interactive`. */
+.services-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--gap-component);
+  height: 100%;
+}
+
+.services-card__media {
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-accent);
+  overflow: hidden;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.services-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  width: 100%;
+}
+
+/* Service-line callout — row-card with image-left + content-right. Used for
+ * Product and Information on /services. Mirrors the service-detail Add-On
+ * pattern (Stack inside Card). See ServiceCallout in ServiceLineCard.tsx.
+ *
+ * Card chrome (border / surface / padding) comes from BDS Card props; these
+ * rules size the image slot and provide the responsive stack-on-mobile
+ * behavior that BDS Stack doesn't ship with. */
+.services-callout-card__media {
+  flex: 0 0 35%;
+  background-color: var(--surface-accent);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+.services-callout-card__content {
+  flex: 1;
+}
+
+/* ─── Service detail page ─────────────────────────────────── */
+
+/* Hero — split layout: content left, image + price right */
+.service-detail-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: center;
+  width: 100%;
+}
+
+.service-detail-hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.service-detail-hero__aside {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-md);
+}
+
+.service-detail-hero__media {
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background-color: var(--surface-accent);
+  aspect-ratio: 1;
+  position: relative;
+  width: 100%;
+}
+
+/* Offerings — default vertical, grid for 3+ */
+.service-detail-offerings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+.service-detail-offerings--grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-lg);
+}
+
+/* Individual offering cards are now BDS `<PricingCard>` — see
+   src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx. This file only
+   keeps the grid/flex wrapper (`.service-detail-offerings[--grid]`) for layout
+   of N cards on the detail page. */
+
+/* Related customer story card */
+.service-detail-story-card {
+  display: flex;
+  padding: var(--padding-lg);
+  border: var(--border-width-sm) solid var(--border-secondary);
+  border-radius: var(--border-radius-lg);
+  text-decoration: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.service-detail-story-card--with-image {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: var(--gap-lg);
+  align-items: center;
+}
+
+.service-detail-story-card:hover {
+  border-color: var(--border-brand-primary);
+}
+
+.service-detail-story-card__media {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+}
+
+.service-detail-story-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.service-detail-story-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Recommended add-on card */
+.service-detail-addon-card {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--gap-xl);
+  align-items: center;
+  padding: var(--padding-xl);
+  background-color: var(--surface-primary);
+  border: var(--border-width-sm) solid var(--border-secondary);
+  border-radius: var(--border-radius-lg);
+  width: 100%;
+}
+
+.service-detail-addon-card__media {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  aspect-ratio: 1;
+}
+
+.service-detail-addon-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.service-detail-addon-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+/* Monthly support — 2-col: category illustration left, plan card right */
+.service-detail-support-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: stretch;
+  margin-top: var(--gap-lg);
+}
+
+.service-detail-support-grid__media {
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background-color: var(--surface-accent);
+  aspect-ratio: 1;
+  position: relative;
+}
+
+/* Bottom support-CTA card — the right-hand column of .service-detail-support-grid.
+ * Holds (top→bottom): plan illustration, plan name (h3), plan description (p),
+ * Learn More button. Each child sets its own text-align: center via inline
+ * styles in the page; this rule owns the flex column + cross-axis centering
+ * + vertical centering against the matched-height .service-detail-support-grid
+ * row. */
+.service-detail-support-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-md);
+  text-align: center;
+}
+
+.service-detail-support-cta__media {
+  width: var(--support-cta-image-size);
+  height: var(--support-cta-image-size);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Sibling-services image frame (BDS Frame component, customRatio="3 / 2", fit="contain").
+ * Sets the accent surface background that shows around contain-fitted illustrations. */
+.service-sibling-card__media {
+  background-color: var(--surface-accent);
+}
+
+/* ─── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 991px) {
+  /* Stack the row-card vertically. `.services-callout-card > *` targets the
+   * inner BDS Stack root; we override its `flex-direction: row` to column. */
+  .services-callout-card > * {
+    flex-direction: column;
+  }
+
+  .services-callout-card__media {
+    flex: none;
+    width: 100%;
+    max-width: 400px;
+    align-self: center;
+  }
+
+  .service-detail-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .service-detail-support-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .service-detail-support-grid__media {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .service-detail-offerings--grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .service-detail-story-card--with-image {
+    grid-template-columns: 1fr;
+  }
+
+  .service-detail-addon-card {
+    grid-template-columns: 1fr;
+  }
+
+  .service-detail-offerings--grid {
+    grid-template-columns: 1fr;
+  }
+}

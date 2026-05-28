@@ -28,7 +28,7 @@
   background-color: var(--surface-service-back-office);
 }
 
-/* ── src/app/services/[categorySlug]/page.tsx:60,67,98 ────────────────────
+/* ── src/app/services/[serviceLineSlug]/page.tsx:60,67,98 ────────────────────
  * Service-line hero section + image card both use the surface token. */
 .svc-detail-hero-section {
   background-color: var(--surface-service-marketing);
@@ -38,7 +38,7 @@
   background-color: var(--surface-service-marketing);
 }
 
-/* ── src/app/services/[categorySlug]/[serviceSlug]/page.tsx:238 ──────────
+/* ── src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx:238 ──────────
  * Audience cascade — the wrapping div sets --page-brand-primary FROM the
  * audience surface token so the BDS hero blueprint picks it up. The fixture
  * mirrors the resolved value rather than the indirection. */

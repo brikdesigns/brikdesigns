@@ -42,6 +42,7 @@ export const font = {
    * body/md (16/150)    → --body-md                → 16px
    * body/lg (18/150)    → --body-lg                → 18px
    * body/xl (20/150)    → --body-xl                → 20px
+   * body/huge           → --body-huge              → 25.3px
    * label/sm            → --label-sm               → 14px
    * label/md            → --label-md               → 16px
    * label/lg            → --label-lg               → 18px
@@ -59,6 +60,7 @@ export const font = {
       md: 'var(--body-md)',
       lg: 'var(--body-lg)',
       xl: 'var(--body-xl)',
+      huge: 'var(--body-huge)',
     },
     label: {
       tiny: 'var(--label-tiny)',
@@ -170,7 +172,7 @@ export const color = {
   },
   // brikdesigns: Brik's marketing site IS the surface that introduces the
   // five service categories to the public, so service tokens belong here.
-  // The JS-side `service` key matches ServiceCategory's `'service'` member
+  // The JS-side `service` key matches ServiceLine's `'service'` member
   // (BDS export). The token suffix for the orange line is `back-office` —
   // brik-bds#575 shipped this rename in BDS 0.68.1.
   service: {
@@ -178,30 +180,40 @@ export const color = {
       bg: 'var(--background-service-brand)',
       text: 'var(--text-service-brand)',
       surface: 'var(--surface-service-brand)',
+      surfaceLight: 'var(--surface-service-brand-light)',
+      surfaceDark: 'var(--surface-service-brand-dark)',
       inverse: 'var(--background-service-brand-inverse)',
     },
     marketing: {
       bg: 'var(--background-service-marketing)',
       text: 'var(--text-service-marketing)',
       surface: 'var(--surface-service-marketing)',
+      surfaceLight: 'var(--surface-service-marketing-light)',
+      surfaceDark: 'var(--surface-service-marketing-dark)',
       inverse: 'var(--background-service-marketing-inverse)',
     },
     information: {
       bg: 'var(--background-service-information)',
       text: 'var(--text-service-information)',
       surface: 'var(--surface-service-information)',
+      surfaceLight: 'var(--surface-service-information-light)',
+      surfaceDark: 'var(--surface-service-information-dark)',
       inverse: 'var(--background-service-information-inverse)',
     },
     product: {
       bg: 'var(--background-service-product)',
       text: 'var(--text-service-product)',
       surface: 'var(--surface-service-product)',
+      surfaceLight: 'var(--surface-service-product-light)',
+      surfaceDark: 'var(--surface-service-product-dark)',
       inverse: 'var(--background-service-product-inverse)',
     },
     service: {
       bg: 'var(--background-service-back-office)',
       text: 'var(--text-service-back-office)',
       surface: 'var(--surface-service-back-office)',
+      surfaceLight: 'var(--surface-service-back-office-light)',
+      surfaceDark: 'var(--surface-service-back-office-dark)',
       inverse: 'var(--background-service-back-office-inverse)',
     },
   },
@@ -227,6 +239,27 @@ export const space = {
   huge: 'var(--padding-huge)',
   button: 'var(--padding-tiny)',
   input: 'var(--padding-tiny)',
+} as const;
+
+// ─── Layout widths ──────────────────────────────────────────────────
+// Content column max-widths from BDS dist/tokens.css. Use these for
+// `max-width` on container elements — prose columns, body sections,
+// feature bands. Pair with `margin-inline: auto` (or `.container-lg`)
+// for centering. NOT screen breakpoints; constrain content within a
+// viewport. For @media values, use the `breakpoints` constant from
+// `@bds-tokens` — CSS custom properties can't go inside @media rules.
+
+export const width = {
+  /** 640px — prose, reading columns, focused forms (e.g. blog body) */
+  narrow: 'var(--content-width-narrow)',
+  /** 800px — standard body sections */
+  default: 'var(--content-width-default)',
+  /** 1024px — feature sections, grids */
+  wide: 'var(--content-width-wide)',
+  /** 1280px — hero bands, wide layouts (matches --site-container-max) */
+  xl: 'var(--content-width-xl)',
+  /** 100% — full-bleed (use sparingly; prefer explicit widths) */
+  full: 'var(--content-width-full)',
 } as const;
 
 // ─── Gap (between elements) ─────────────────────────────────────────

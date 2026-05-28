@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { ServiceTag } from '@brikdesigns/bds';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { planImage } from '@/lib/plan-images';
 import { ThemeToggle } from './ThemeToggle';
@@ -21,10 +21,10 @@ interface ServiceItem {
   slug: string;
 }
 
-interface ServiceLine {
+interface NavServiceLine {
   name: string;
   slug: string;
-  category: ServiceCategory;
+  category: BdsServiceLine;
   tagline: string;
   services: ServiceItem[];
 }
@@ -45,7 +45,7 @@ interface IndustryItem {
 }
 
 export interface MegaNavProps {
-  serviceLines: ServiceLine[];
+  serviceLines: NavServiceLine[];
   supportPlans: SupportPlan[];
   industries: IndustryItem[];
 }
@@ -192,7 +192,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                     {/* Webflow: .inner-wrapper.auto — Product promo card (5th column) */}
                     {serviceLines.find((l) => l.category === 'product') && (
                       <div className="mega-nav__product-promo">
-                        <div className="mega-nav__product-promo-img">
+                        <div className="mega-nav__product-promo-media">
                           <Image
                             src="/images/product_mobile_app_2x.webp"
                             alt="Product design"
@@ -238,7 +238,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
                     {/* Webflow: .inner-wrapper.narrow — left intro */}
                     <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-heading">Who We Support</h3>
+                      <h3 className="mega-nav__panel-title">Who We Support</h3>
                       <p className="mega-nav__panel-desc">
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
@@ -259,7 +259,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             className="mega-nav__industry-card"
                             onClick={() => setOpen(null)}
                           >
-                            <div className="mega-nav__industry-img">
+                            <div className="mega-nav__industry-media">
                               {ind.imageUrl ? (
                                 <Image src={ind.imageUrl} alt={ind.name} width={200} height={200} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                               ) : (
@@ -307,7 +307,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
                     {/* Webflow: .inner-wrapper.narrow — left intro */}
                     <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-heading">About</h3>
+                      <h3 className="mega-nav__panel-title">About</h3>
                       <p className="mega-nav__panel-desc">
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
@@ -343,7 +343,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
                     {/* Webflow: .inner-wrapper.narrow.stacked — left intro */}
                     <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-heading">Support Plans</h3>
+                      <h3 className="mega-nav__panel-title">Support Plans</h3>
                       <p className="mega-nav__panel-desc">
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
@@ -441,7 +441,7 @@ function AboutNavCard({ href, image, title, desc, cta, onClick }: {
 }) {
   return (
     <Link href={href} className="mega-nav__about-card" onClick={onClick}>
-      <div className="mega-nav__about-card-img">
+      <div className="mega-nav__about-card-media">
         <Image src={image} alt={title} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
       <span className="mega-nav__about-card-title">{title}</span>

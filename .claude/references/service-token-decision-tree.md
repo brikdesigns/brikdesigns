@@ -106,7 +106,7 @@ There is **no** `--surface-service-{slug}-inverse` / `--text-service-{slug}-inve
 
 ### Section-level service tint (hero, callout) — use `surface`
 
-The service detail page at [`src/app/services/[categorySlug]/[serviceSlug]/page.tsx`](../../src/app/services/[categorySlug]/[serviceSlug]/page.tsx) resolves the hero background through `--page-brand-primary`, which is locally aliased to `--surface-service-{audience}` per the inline comment at line 163. This is correct: the hero is a broad page-level surface.
+The service detail page at [`src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx`](../../src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx) resolves the hero background through `--page-brand-primary`, which is locally aliased to `--surface-service-{audience}` per the inline comment at line 163. This is correct: the hero is a broad page-level surface.
 
 ```css
 /* Right — hero band is a surface */

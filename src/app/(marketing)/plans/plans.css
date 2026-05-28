@@ -1,0 +1,87 @@
+/* ─── Plans page — layout only ──────────────────────────── */
+
+.plans-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--surface-primary);
+  border: var(--border-width-md) solid var(--border-secondary);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+.plans-card-image {
+  aspect-ratio: 1;
+  background-color: var(--surface-accent);
+  overflow: hidden;
+}
+
+/* Wrapper is the card — strip duplicate chrome from PricingCard */
+.plans-card-wrapper .bds-pricing-card {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}
+
+/* ─── Plan detail — included services list ───────────────── */
+
+.plan-service-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.plan-service-list-item {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: var(--gap-lg);
+  align-items: flex-start;
+}
+
+.plan-service-list-item__media {
+  aspect-ratio: 1;
+  background-color: var(--surface-accent);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.plan-service-list-item__content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-xs);
+}
+
+/* font: var(--heading-sm) is invalid (shorthand needs size/family minimum) —
+   use explicit properties so the heading token actually applies. */
+.plan-service-list-item__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-sm);
+  font-weight: var(--font-weight-semi-bold);
+  line-height: var(--font-line-height-tight);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.plan-service-list-item__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ─── What You Get — narrow content width ────────────────── */
+/* Constrain the CardGrid container to a focused reading width.
+   640px matches the BDS narrow content-width primitive. */
+.plan-what-you-get .bds-card-grid__container {
+  max-width: 640px;
+}
+
+@media (max-width: 479px) {
+  .plan-service-list-item {
+    grid-template-columns: 72px 1fr;
+    gap: var(--gap-md);
+  }
+}

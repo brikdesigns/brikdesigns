@@ -1,12 +1,12 @@
 import Image from 'next/image';
 import { Card, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
-import type { ServiceCategory } from '@brikdesigns/bds';
+import type { ServiceLine } from '@brikdesigns/bds';
 
 interface ServiceCardProps {
   name: string;
   slug: string;
-  categorySlug: string;
-  category: ServiceCategory;
+  serviceLineSlug: string;
+  category: ServiceLine;
   tagline?: string | null;
   imageUrl?: string | null;
   description?: string | null;
@@ -21,9 +21,9 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({
-  name, slug, categorySlug, category, tagline, imageUrl, description, showCta, iconServiceName,
+  name, slug, serviceLineSlug, category, tagline, imageUrl, description, showCta, iconServiceName,
 }: ServiceCardProps) {
-  const href = `/services/${categorySlug}/${slug}`;
+  const href = `/services/${serviceLineSlug}/${slug}`;
   const tagProps = iconServiceName ? { serviceName: iconServiceName } : {};
 
   return (
@@ -37,7 +37,7 @@ export function ServiceCard({
         </Frame>
       ) : undefined}
       tag={<ServiceTag category={category} variant="icon" size={imageUrl ? 'sm' : 'md'} {...tagProps} />}
-      action={showCta ? <LinkButton href={href} variant="primary" size="sm">Learn More</LinkButton> : undefined}
+      action={showCta ? <LinkButton href={href} variant="primary" size="md">Learn More</LinkButton> : undefined}
       href={!showCta ? href : undefined}
     />
   );

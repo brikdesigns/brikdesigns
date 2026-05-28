@@ -74,7 +74,7 @@ export async function readJsonBody(request: Request): Promise<unknown> {
  */
 export const SERVICES_REVALIDATE_PATHS: RevalidateEntry[] = [
   '/services',
-  ['/services/[categorySlug]/[serviceSlug]', 'page'],
+  ['/services/[serviceLineSlug]/[serviceSlug]', 'page'],
   '/',
 ];
 

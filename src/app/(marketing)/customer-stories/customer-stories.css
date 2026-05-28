@@ -1,0 +1,207 @@
+/* ─── Customer stories — layout only ────────────────────── */
+
+.story-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  width: 100%;
+}
+
+/* BDS Card handles border/background/hover — override padding so the inner
+   row can manage its own spacing and stretch the image into the card edge */
+.story-card.bds-card {
+  padding: 0;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.story-card__row {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  min-height: 260px;
+}
+
+.story-card__media-wrap {
+  background-color: var(--surface-secondary);
+  padding: var(--padding-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-card__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  background-color: var(--surface-secondary);
+}
+
+.story-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding: var(--padding-lg);
+}
+
+/* 2-column metadata grid */
+.story-card__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-sm) var(--gap-lg);
+}
+
+/* Shared by /customer-stories index cards AND /customer-stories/[slug] detail
+ * meta row, so the visual vocabulary stays consistent across both surfaces.
+ * Stack the field label above the icon-prefixed value. */
+.story-meta__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.story-meta__value {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+}
+
+.story-meta__icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Responsive — stack vertically on narrow viewports */
+@media (max-width: 767px) {
+  .story-card__row {
+    grid-template-columns: 1fr;
+  }
+
+  .story-card__media-wrap {
+    padding: var(--padding-sm);
+  }
+
+  .story-card__media {
+    aspect-ratio: 16/9;
+  }
+
+  .story-card__meta {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Customer story detail page ──────────────────────────
+ * Anatomy: /blog/[slug] rhythm with image rows breaking out to the wide
+ * 1280px column. Alternating .container-lg--story (760px) and .container-lg
+ * (1280px) rows compose the arc — see [slug]/page.tsx header comment.
+ *
+ * Inter-row rhythm is owned by .story-arc (the <section>) so each row sits
+ * gap-xl below the previous. Per-element rhythm inside a row (h1 → meta,
+ * h2 → body) is owned by the row's children. */
+
+/* Section-level rhythm: gap-xl between every direct child container after
+ * the first. Section top/bottom padding (from .content-section) handles the
+ * outer margins. */
+.story-arc > .container-lg + .container-lg {
+  margin-top: var(--gap-xl);
+}
+
+/* Hide the breadcrumb's last (current-page) item so "Customer Stories"
+ * renders as an active link without us having to fork BDS Breadcrumb.
+ * BDS wraps every item in a <span style="display:contents"> with the
+ * separator + label inside. Hiding the wrapper itself loses to the inline
+ * `display: contents`, so target the wrapper's children (the separator and
+ * the .bds-breadcrumb__current span) — both have class-level display rules
+ * we can override without !important. Title stays in the DOM via items[]
+ * for SEO/structured-data integrity. */
+.story-breadcrumb > span:last-child > * {
+  display: none;
+}
+
+/* Project metadata — 2-col grid, one field per cell, no background or
+ * inset padding so the meta sits flush in the article column (matches the
+ * blog post meta strip). <dl> wraps each dt/dd pair in a <div> (valid
+ * HTML5) so the grid places label + value as a paired unit. */
+.story-detail-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md) var(--gap-lg);
+  margin: var(--gap-md) 0 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* Inline figure for hero / solution / results images. Lives inside a
+ * .container-lg (1280px) row so it can break out of the 760px article
+ * column for visual impact. Rhythm vs adjacent rows is owned by the
+ * parent (.story-arc) — no margin-top here. */
+.story-figure {
+  width: 100%;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+/* Narrative content block — h2 + body. h2 sits flush at the top of its
+ * row container; body follows at gap-sm. Inter-row rhythm is owned by
+ * .story-arc — no margin-top here. */
+.story-block {
+  width: 100%;
+}
+
+.story-block > h2 {
+  margin: 0;
+}
+
+.story-block__body {
+  margin-top: var(--gap-sm);
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+/* ─── Pull-quote ───────────────────────────────────────────
+ * Inline blockquote treatment for the customer-story narrative arc.
+ * Left border in brand color; no background (inherits section). Lives in
+ * a .container-lg--story (narrow) row — rhythm owned by .story-arc.
+ * __description (not __body — body is a token scale, not a role). */
+.story-quote {
+  width: 100%;
+  margin: 0;
+  padding-block: var(--padding-md);
+  padding-inline-start: var(--padding-lg);
+  border-left: var(--border-width-huge) solid var(--border-brand-primary);
+}
+
+.story-quote__description {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-md);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.story-quote__attribution {
+  margin-top: var(--gap-sm);
+  font-family: var(--font-family-label);
+  font-size: var(--body-sm);
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* ─── Other Customer Stories grid cards ────────────────────
+ * Hero images are landscape; override the square aspect ratio used on
+ * the /services pages to maintain consistent proportions here. */
+.services-card__media--landscape {
+  aspect-ratio: 16/9;
+}
+
+@media (max-width: 767px) {
+  .story-detail-meta {
+    grid-template-columns: 1fr;
+  }
+}

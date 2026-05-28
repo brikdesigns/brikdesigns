@@ -1,18 +1,8 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
-import { MegaNavServer } from '@/components/layout/MegaNavServer';
-import { Footer } from '@/components/layout/Footer';
 import { DevTools } from '@/components/DevTools';
 import { poppins } from '@/lib/fonts';
 import './globals.css';
-
-const CHROMELESS_PREFIXES = ['/admin', '/login'];
-
-function isChromelessPath(pathname: string | null): boolean {
-  if (!pathname) return false;
-  return CHROMELESS_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
-}
 
 export const metadata: Metadata = {
   title: {
@@ -54,24 +44,19 @@ const themeScript = `
 })();
 `;
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = (await headers()).get('x-pathname');
-  const chromeless = isChromelessPath(pathname);
-
   return (
     <html lang="en" className={poppins.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={poppins.className}>
+      <body className={`${poppins.className} theme-brand-brik`}>
         <ThemeProvider>
-          {!chromeless && <MegaNavServer />}
-          <main>{children}</main>
-          {!chromeless && <Footer />}
+          {children}
           <DevTools />
         </ThemeProvider>
       </body>

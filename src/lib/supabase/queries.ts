@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
+import type { ServiceLine } from '@brikdesigns/bds';
 import { createPublicClient } from './server';
 
 /**
@@ -29,26 +30,33 @@ import { createPublicClient } from './server';
  *     session cookies — the anon key + is_public filter is sufficient.
  */
 
-// Map `service_lines.slug` → BDS ServiceTag category enum.
+// Map `service_lines.slug` → BDS ServiceLine enum.
 //
 // Canonical slugs are the short form (brand / marketing / information /
-// product / service) — matches what's stored in Supabase and what the
-// Next.js dynamic route `/services/[categorySlug]` resolves. Webflow's
-// long-form URLs (`/services/brand-design`, etc.) are handled at the
-// edge: `/detail_service/*` → `/services/:splat` in netlify.toml. Long
-// form never reaches this map. See #113, #121, #132.
-const CATEGORY_MAP: Record<string, 'brand' | 'marketing' | 'information' | 'product' | 'service'> = {
+// product / service) — matches what the Next.js dynamic route resolves.
+// Long-form slugs (e.g. `marketing-design`) still appear in some
+// service_lines.slug DB rows, so both forms are mapped here.
+// Webflow URL redirects (`/detail_service/*` → `/services/:splat`) are
+// handled at the edge in netlify.toml and are separate from this map.
+// See #113, #121, #132.
+const SERVICE_LINE_MAP: Record<string, ServiceLine> = {
+  // Canonical short-form slugs (route and DB canonical)
   brand: 'brand',
   marketing: 'marketing',
   information: 'information',
   service: 'service',
   product: 'product',
+  // Long-form slugs still present in service_lines.slug for some DB rows
+  'brand-design': 'brand',
+  'marketing-design': 'marketing',
+  'information-design': 'information',
+  'product-design': 'product',
+  'back-office': 'service',
+  'back-office-design': 'service',
 };
 
-export function mapCategorySlug(
-  slug: string,
-): 'brand' | 'marketing' | 'information' | 'product' | 'service' {
-  const mapped = CATEGORY_MAP[slug];
+export function mapServiceLineSlug(slug: string): ServiceLine {
+  const mapped = SERVICE_LINE_MAP[slug];
   if (mapped) return mapped;
   // Loud fallback: silent `|| 'brand'` hid 3 NULL service_line_id rows for
   // weeks on the support-plan pages — every detail page rendered with the
@@ -57,7 +65,7 @@ export function mapCategorySlug(
   // console.warn means the next regression shows up in Netlify function
   // logs and `npm run dev` output, not in a user report days later.
   console.warn(
-    `[mapCategorySlug] Unknown service-line slug "${slug}" — falling back to 'brand'. ` +
+    `[mapServiceLineSlug] Unknown service-line slug "${slug}" — falling back to 'brand'. ` +
       `Check service_lines.slug and the upstream FK (plans.service_line_id, ` +
       `services.service_line_id, etc.) in Supabase.`,
   );
@@ -68,7 +76,7 @@ export function mapCategorySlug(
  * Resolve the BDS <ServiceTag> category for a service_lines row.
  *
  * Prefers the CMS-editable `service_tag_category` column (portal migration
- * 00182, brikdesigns#129). Falls back to slug-derivation via mapCategorySlug
+ * 00182, brikdesigns#129). Falls back to slug-derivation via mapServiceLineSlug
  * when the column is NULL — preserves rendering for legacy rows during
  * rollout. Cast is safe because the DB check constraint enforces the 5
  * canonical BDS values.
@@ -76,9 +84,8 @@ export function mapCategorySlug(
 export function resolveServiceTagCategory(row: {
   slug: string;
   service_tag_category?: string | null;
-}): 'brand' | 'marketing' | 'information' | 'product' | 'service' {
-  return (row.service_tag_category ?? mapCategorySlug(row.slug)) as
-    'brand' | 'marketing' | 'information' | 'product' | 'service';
+}): ServiceLine {
+  return (row.service_tag_category ?? mapServiceLineSlug(row.slug)) as ServiceLine;
 }
 
 // ============================================================
@@ -102,7 +109,7 @@ export const getServiceCategories = cache(
   )
 );
 
-export const getCategoryBySlug = cache(
+export const getServiceLineBySlug = cache(
   unstable_cache(
     async (slug: string) => {
       const supabase = createPublicClient();
@@ -115,7 +122,7 @@ export const getCategoryBySlug = cache(
       if (error) throw error;
       return data;
     },
-    ['category-by-slug'],
+    ['service-line-by-slug'],
     { revalidate: 86400, tags: ['cms-service-lines'] }
   )
 );
@@ -141,20 +148,20 @@ export const getServices = cache(
   )
 );
 
-export const getServicesByCategory = cache(
+export const getServicesByServiceLine = cache(
   unstable_cache(
-    async (categoryId: string) => {
+    async (serviceLineId: string) => {
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('services')
         .select('*')
-        .eq('service_line_id', categoryId)
+        .eq('service_line_id', serviceLineId)
         .eq('is_public', true)
         .order('rank', { ascending: true });
       if (error) throw error;
       return data;
     },
-    ['services-by-category'],
+    ['services-by-service-line'],
     { revalidate: 3600, tags: ['cms-services'] }
   )
 );
@@ -165,7 +172,7 @@ export const getServiceBySlug = cache(
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('services')
-        .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark), offerings(*)')
+        .select('*, service_lines(id, slug, name, brand_color_light, brand_color_base, brand_color_dark, card_image_url), offerings(*)')
         .eq('slug', slug)
         .eq('is_public', true)
         .single();
@@ -203,6 +210,10 @@ export const getSupportPlans = cache(
   unstable_cache(
     async () => {
       const supabase = createPublicClient();
+      // service_plans.marketing_line_id (portal migration 00196) is the primary
+      // marketing line; brikdesigns joins it client-side against the already-
+      // fetched service_lines in the home page (avoiding a PostgREST embed
+      // means this query is schema-tolerant before the migration lands).
       const { data, error } = await supabase
         .from('service_plans')
         .select('*')
@@ -266,13 +277,29 @@ export const getOtherSupportPlans = cache(
 
 // Reverse lookup: given a service UUID, return all public plans that include it.
 // Replaces the legacy service.support_plan_slug denorm column (#206).
+//
+// Embeds `marketing_line` — the *primary* service line for visual identity
+// (portal migration 00196). A plan's services can span multiple lines (e.g.
+// Marketing Support pulls services from Marketing + Information + Brand
+// lines), so the bottom-CTA illustration can't be inferred from the current
+// page's service line — it has to come from the plan's own `marketing_line_id`
+// pointer. Falls back to plan.image_url client-side when null (legacy
+// Webflow-imported plans).
 export const getSupportPlansByServiceId = cache(
   unstable_cache(
     async (serviceId: string) => {
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('service_plans')
-        .select('*, service_plan_items!inner(service_id, sort_order)')
+        .select(
+          `*,
+           service_plan_items!inner(service_id, sort_order),
+           marketing_line:service_lines!service_plans_marketing_line_id_fkey(
+             slug,
+             name,
+             card_image_url
+           )`
+        )
         .eq('service_plan_items.service_id', serviceId)
         .eq('is_public', true)
         .order('rank', { ascending: true });

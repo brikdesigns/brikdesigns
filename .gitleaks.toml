@@ -1,83 +1,37 @@
 # Gitleaks config for brikdesigns (PUBLIC marketing site repo).
-# Extends the default ruleset with patterns for secrets Brik actually uses,
-# because the default rules miss Anthropic, Notion, and Helicone shapes.
+# Extends the Brik canonical rule set (sync-managed) with this repo's allowlist.
 #
-# Kept in sync with brik-llm/.gitleaks.toml and brik-bds/.gitleaks.toml —
-# when one changes the others should too. Allowlist paths are
-# brikdesigns-specific.
+# Canonical rules live in .brik-gitleaks-rules.toml — that file is synced from
+# brik-llm/scripts/shared/security/templates/.brik-gitleaks-rules.toml via
+# brik-llm/scripts/shared/security/sync.sh. Do not edit .brik-gitleaks-rules.toml
+# in this repo — edits will be clobbered on next sync.
+#
+# This file (.gitleaks.toml) is hand-managed by each repo. Add repo-specific
+# allowlist paths or rule overrides here.
 #
 # See https://github.com/gitleaks/gitleaks#configuration for syntax.
-# Use via: gitleaks protect --staged --redact --config /path/to/.gitleaks.toml
 
 [extend]
-# Inherit gitleaks' bundled rules (GitHub PAT, generic API key, etc.)
-useDefault = true
-
-[[rules]]
-id = "anthropic-api-key"
-description = "Anthropic API key (sk-ant-api03-...)"
-regex = '''sk-ant-api(?:01|02|03)-[A-Za-z0-9_\-]{40,}'''
-keywords = ["sk-ant-api"]
-
-[[rules]]
-id = "anthropic-oauth-bearer"
-description = "Anthropic OAuth bearer (claude-cli)"
-regex = '''sk-ant-oat[0-9]{2}-[A-Za-z0-9_\-]{40,}'''
-keywords = ["sk-ant-oat"]
-
-[[rules]]
-id = "notion-integration-token"
-description = "Notion integration token (ntn_...)"
-regex = '''ntn_[A-Za-z0-9]{40,}'''
-keywords = ["ntn_"]
-
-[[rules]]
-id = "slack-bot-token"
-description = "Slack bot token (xoxb-...)"
-regex = '''xoxb-[0-9]{10,}-[0-9]{10,}-[A-Za-z0-9]{20,}'''
-keywords = ["xoxb-"]
-
-[[rules]]
-id = "slack-app-token"
-description = "Slack app-level token (xapp-...)"
-regex = '''xapp-[0-9]+-[A-Z0-9]+-[0-9]+-[a-f0-9]{40,}'''
-keywords = ["xapp-"]
-
-[[rules]]
-id = "slack-user-token"
-description = "Slack user/admin/refresh token (xoxp/xoxa/xoxr/xoxs)"
-regex = '''xox[apsr]-[0-9]{10,}-[0-9]{10,}-[0-9]{10,}-[A-Za-z0-9]{30,}'''
-keywords = ["xoxp-", "xoxa-", "xoxs-", "xoxr-"]
-
-[[rules]]
-id = "helicone-key"
-description = "Helicone API key (sk-helicone-...)"
-regex = '''sk-helicone-[A-Za-z0-9_\-]{20,}'''
-keywords = ["sk-helicone"]
-
-[[rules]]
-id = "voyage-api-key"
-description = "Voyage AI API key (pa-...)"
-regex = '''pa-[A-Za-z0-9]{40,}'''
-keywords = ["pa-"]
-
-[[rules]]
-id = "webflow-v1-api-token"
-description = "Webflow API v1 token assigned to a credential-shaped variable (64-char hex)"
-regex = '''(?i)(?:api[_-]?token|webflow[_-]?(?:api[_-]?)?(?:token|key))\s*=\s*['"`]([0-9a-f]{64})['"`]'''
-keywords = ["api_token", "API_TOKEN", "webflow"]
+# Only `path` is declared here. The canonical file (.brik-gitleaks-rules.toml)
+# itself declares `useDefault = true`, and gitleaks v8.30.1 chains that through
+# `[extend].path`, so the bundled default ruleset is inherited automatically.
+# Setting both `useDefault` and `path` at the same level is a gitleaks load
+# error: "unable to load config due to extend.path and extend.useDefault being
+# set". If you ever consume a canonical that lacks `useDefault`, declare it here
+# instead of path-chaining.
+path = ".brik-gitleaks-rules.toml"
 
 # ── Allowlist ───────────────────────────────────────────────────────────────
-# Files known to contain placeholder/test values or secret-shape regexes
-# that are not real secrets.
+# Files known to contain placeholder/test values, not real secrets.
 
 [allowlist]
-description = "Globally allowlisted paths"
+description = "brikdesigns allowlist — universal baseline + repo-local"
 paths = [
   '''(.*/)?\.env\.example$''',
   '''(.*/)?\.env\.template$''',
   '''(.*/)?CLAUDE\.md$''',
   '''(.*/)?\.gitleaks\.toml$''',
+  # ── brikdesigns-specific ────────────────────────────────────────────────
   # npm dependency manifest — version pins occasionally match generic-api-key
   # entropy thresholds.
   '''(.*/)?package\.json$''',

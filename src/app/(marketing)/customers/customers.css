@@ -1,0 +1,127 @@
+/* ─── Customers page — layout only ──────────────────────── */
+
+.customers-segment-fits {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  margin-top: var(--gap-sm);
+}
+
+.customers-segment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.customers-segment-list li::before {
+  content: '✓ ';
+  color: var(--text-brand-primary);
+  font-weight: 600;
+}
+
+/* ─── Customer detail page ────────────────────────────────── */
+
+/* Left content column inside the detail hero grid.
+ * Breadcrumb, h1, tagline, and intro text stack with gap-md. */
+.customer-detail-hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+/* Hero: content left, decorative badge pair right.
+ * Unique layout — no BDS component for dual-SVG badge decoration. */
+.customer-detail-hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--gap-xl);
+  align-items: center;
+  width: 100%;
+}
+
+.customer-detail-hero__badges {
+  display: flex;
+  gap: var(--gap-md);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.customer-detail-hero__badge {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+/* Industry hero illustration — sits in the aside slot opposite the
+ * title/intro text. Matches the /services/[serviceLineSlug] hero aside
+ * pattern. Webflow-CDN illustrations are square (.webp 2x); cap at
+ * 420px so the hero stays compact and the text column still gets
+ * comfortable line lengths. */
+.customer-detail-hero__aside {
+  flex-shrink: 0;
+}
+
+.customer-detail-hero__media {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Topic section with image: 50/50 split (unique layout).
+ * Falls back to full-width text when no image_url is set. */
+.customer-topic {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: center;
+}
+
+.customer-topic__media {
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  aspect-ratio: 1;
+  position: relative;
+}
+
+.customer-topic__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Customer stories — vertical list */
+.customer-stories-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+/* Text-only topic layout (no image). Needs width: 100% so it fills the
+ * flex container-lg (which has align-items: center, causing unstyled divs
+ * to shrink-wrap to content width and appear narrower than image-topic
+ * sections). */
+.industry-topic {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* ─── Responsive ──────────────────────────────────────────── */
+
+@media (max-width: 991px) {
+  .customer-detail-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-topic {
+    grid-template-columns: 1fr;
+  }
+}
+

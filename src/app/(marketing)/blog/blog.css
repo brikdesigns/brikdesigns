@@ -1,0 +1,65 @@
+/* ─── Blog — layout only ────────────────────────────────── */
+
+.blog-card {
+  overflow: hidden;
+}
+
+.blog-card__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background-color: var(--surface-secondary);
+}
+
+.blog-card__content {
+  padding: var(--padding-md);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.blog-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.blog-card__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─── Blog post detail — narrow article column ──────────── */
+/* Mirrors customer-stories/[slug] layout: container-lg + container-lg--post
+   constrains to 760px, align-items: flex-start for left-aligned breadcrumb
+   and headings. (Shared rule lives in shared-sections.css with --story.) */
+
+.blog-post__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  margin-top: var(--gap-md);
+}
+
+.blog-post__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.blog-post__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  margin-top: var(--gap-xl);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+.blog-post__content {
+  width: 100%;
+  max-width: var(--content-width-narrow);
+  margin-top: var(--gap-xl);
+}

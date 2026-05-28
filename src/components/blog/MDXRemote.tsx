@@ -19,10 +19,10 @@ const components = {
     <p style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 'var(--gap-md)' }} {...props} />
   ),
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', lineHeight: 1.7, paddingLeft: 'var(--padding-lg)', marginBottom: 'var(--gap-md)' }} {...props} />
+    <ul style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', lineHeight: 1.7, listStyleType: 'disc', paddingLeft: 'var(--padding-lg)', marginBottom: 'var(--gap-md)' }} {...props} />
   ),
   ol: (props: React.HTMLAttributes<HTMLOListElement>) => (
-    <ol style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', lineHeight: 1.7, paddingLeft: 'var(--padding-lg)', marginBottom: 'var(--gap-md)' }} {...props} />
+    <ol style={{ fontFamily: 'var(--font-family-body)', fontSize: 'var(--body-md)', color: 'var(--text-secondary)', lineHeight: 1.7, listStyleType: 'decimal', paddingLeft: 'var(--padding-lg)', marginBottom: 'var(--gap-md)' }} {...props} />
   ),
   li: (props: React.HTMLAttributes<HTMLLIElement>) => (
     <li style={{ marginBottom: 'var(--gap-xs)' }} {...props} />
@@ -46,9 +46,7 @@ const components = {
       {...props}
     />
   ),
-  hr: () => (
-    <hr style={{ border: 'none', borderTop: '1px solid var(--border-secondary)', margin: 'var(--gap-xl) 0' }} />
-  ),
+  hr: () => null,
   img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
     <Image
       src={String(props.src || '')}

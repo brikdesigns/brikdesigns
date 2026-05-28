@@ -56,10 +56,44 @@ Sizes: `sm`, `md`, `lg`, `xl`
 - Animation/scroll effects
 - CMS-specific data layouts
 
+## CSS naming conventions
+
+### Media-container frames — `[block]__media`
+
+Image / illustration / video frames use the BEM element `__media`. The frame owns `aspect-ratio`, `overflow: hidden`, and `border-radius`; the inner `<img>` / `<Image>` inherits `object-fit` (apply via descendant selector when needed). Example:
+
+```css
+.svc-detail-hero__media {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--border-radius-lg);
+}
+.svc-detail-hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+```
+
+Prefer BDS `<Frame ratio="…" fit="…">` for new sections (lives in [Layout Components](#layout-components) above). Hand-rolled `[block]__media` is the fallback for sections that need behaviour `<Frame>` doesn't yet cover — pinned by [brik-bds#486](https://github.com/brikdesigns/brik-bds/issues/486) (canonical aspect-ratio tokens) and [brik-bds#681](https://github.com/brikdesigns/brik-bds/issues/681) (Media category umbrella).
+
+### Known follow-up: Webflow-flat media names
+
+Several pre-BEM frame classes survive from the Webflow port and need block-name decisions before they can be renamed to `__media`. Tracked under [brikdesigns#197](https://github.com/brikdesigns/brikdesigns/issues/197):
+
+| File | Class | Suggested block |
+|---|---|---|
+| `src/app/homepage.css` | `.audit-image-frame`, `.audit-image` | `.audit-card` (new block) |
+| `src/app/homepage.css` | `.story-image-frame`, `.story-image-wrapper` | Conflicts with `.story-card` already in `customer-stories.css` — needs disambiguation pass (`.section-story__media`?) |
+| `src/app/about/about.css` | `.about-value-image` | `.about-value-row__media` |
+| `src/app/about/about.css` | `.about-service-image` | `.about-service-card__media` |
+| `src/app/plans/plans.css` | `.plans-card-image` | `.plans-card__media` |
+
 ## Pre-Build Checklist
 
 Before writing ANY new CSS class:
 1. Is there a BDS component for this? → Use it
 2. Is it a multi-col grid? → Use `<Grid>`. Is it a flex row/column? → Use `<Stack>`. Both from `@brikdesigns/bds`.
 3. Is it a layout wrapper/button row? → Use `.button-wrapper`, `.content-wrapper` from shared-sections.css
-4. Only if none of the above → Write section-specific CSS
+4. Is it an image/illustration frame? → Use BDS `<Frame>` (or fall back to `[block]__media` per [CSS naming conventions](#css-naming-conventions))
+5. Only if none of the above → Write section-specific CSS

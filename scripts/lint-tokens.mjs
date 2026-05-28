@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Token-lint gate for brikdesigns.com.
 //
-// Two checks, both fatal:
+// Three checks, all fatal:
 //   1. Invented tokens — fails CI when src/**/*.{ts,tsx,css} reference a CSS
 //      custom property that is neither (a) declared in BDS `dist/tokens.css`,
 //      nor (b) declared project-locally in `src/app/globals.css`, nor (c)
@@ -12,12 +12,18 @@
 //      `--surface-service-*` on a tag/badge/pill/button selector. See
 //      .claude/references/service-token-decision-tree.md for the rule.
 //
-// Why: brikdesigns#93 enforcement-gates (invented check) + brikdesigns#116
-// (family check) — keeps invented shapes and wrong-family usage from creeping
-// back in. CLAUDE.md non-negotiable.
+//   3. Token-family ↔ property pairing — fails CI when a token's family
+//      doesn't match the CSS property it's applied to (e.g. --text-* on
+//      background-color). Mirrors brik-bds Rule 5 (brik-bds#578/#778).
+//      Escape hatch: add `/* bds-lint-ignore token-family — <reason> */`
+//      on the same line.
+//
+// Why: brikdesigns#93 (invented check) + brikdesigns#116 (service-family)
+// + brikdesigns#284 (property-family) — all three keep wrong-token usage
+// from creeping in silently.
 //
 // Usage:
-//   npm run lint:tokens                  # both checks
+//   npm run lint:tokens                  # all checks
 //   npm run lint:tokens -- --write-allowlist   # regenerate allowlist from
 //                                              # current invented-token
 //                                              # violations (transitional)
@@ -30,6 +36,7 @@ import {
   findVarRefs,
   isViolation,
   findFamilyViolations,
+  checkTokenFamilyPairing,
   PATHS,
 } from './lib/canonical-tokens.mjs';
 
@@ -45,11 +52,38 @@ const files = await glob('src/**/*.{ts,tsx,css}', {
 
 const inventedViolations = [];
 const familyViolations = [];
+const pairingViolations = [];
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
   const lines = text.split('\n');
-  lines.forEach((line, idx) => {
+
+  // Track theme-definition block state so Shape B is skipped inside them.
+  // Two canonical shapes:
+  //   1. `:root { ... }` and `:root[data-theme="..."] { ... }` (root-scoped themes)
+  //   2. `.theme-* { ... }` and `:root[data-theme="..."] .theme-* { ... }`
+  //      (body-scoped theme classes — the BDS canonical pattern for brand themes
+  //       like .theme-brand-brik, see node_modules/@brikdesigns/bds/dist/tokens.css)
+  // Both shapes are legitimate token-definition contexts where the LHS is a
+  // semantic token and the RHS is a primitive --color-*; Shape B doesn't apply.
+  let inRootBlock = false;
+  let rootBraceDepth = 0;
+  const themeBlockOpenRe = /^(?::root(?:\[[^\]]*\])?\s+)?(?::root(?:\[[^\]]*\])?|\.theme-[a-z0-9-]+)\s*\{/i;
+
+  for (let idx = 0; idx < lines.length; idx++) {
+    const line = lines[idx];
+
+    if (file.endsWith('.css')) {
+      if (themeBlockOpenRe.test(line.trim())) {
+        inRootBlock = true;
+        rootBraceDepth = 1;
+      } else if (inRootBlock) {
+        rootBraceDepth += (line.match(/\{/g) ?? []).length;
+        rootBraceDepth -= (line.match(/\}/g) ?? []).length;
+        if (rootBraceDepth <= 0) { inRootBlock = false; rootBraceDepth = 0; }
+      }
+    }
+
     for (const { name } of findVarRefs(line)) {
       if (isViolation(name, checkSets)) {
         inventedViolations.push({
@@ -60,10 +94,11 @@ for (const file of files) {
         });
       }
     }
-  });
+    // Rule 3: token-family ↔ property pairing (CSS + TSX/TS)
+    pairingViolations.push(...checkTokenFamilyPairing(line, idx + 1, file, { skipShapeB: inRootBlock }));
+  }
 
-  // Family check applies to CSS files only — TS/TSX use the typed wrapper
-  // (src/lib/tokens.ts) which encodes the family choice in its key names.
+  // Rule 2: service-token family (CSS only — full-text walker)
   if (file.endsWith('.css')) {
     familyViolations.push(...findFamilyViolations(file, text));
   }
@@ -89,11 +124,11 @@ if (WRITE_ALLOWLIST) {
   process.exit(0);
 }
 
-const totalViolations = inventedViolations.length + familyViolations.length;
+const totalViolations = inventedViolations.length + familyViolations.length + pairingViolations.length;
 
 if (totalViolations === 0) {
   console.log(
-    `OK — ${files.length} files scanned, no invented tokens, no family mismatches.`
+    `OK — ${files.length} files scanned, no invented tokens, no family mismatches, no pairing violations.`
   );
   process.exit(0);
 }
@@ -151,6 +186,29 @@ if (familyViolations.length > 0) {
   );
   console.error(
     'Escape hatch (rare): add `/* lint-tokens-ignore-family */` on the same line as the var().'
+  );
+}
+
+// ── Token-family ↔ property pairing ─────────────────────────────────────────
+if (pairingViolations.length > 0) {
+  if (inventedViolations.length > 0 || familyViolations.length > 0) console.error('');
+  console.error(
+    `FAIL — ${pairingViolations.length} token-family pairing violation(s):\n`
+  );
+  for (const v of pairingViolations) {
+    console.error(`  ${v.file}:${v.line}  ${v.snippet}`);
+    console.error(
+      `    "${v.prop}: var(${v.tokenName})" — ${v.family}-family token in ${v.label} slot.`
+    );
+    console.error(`    Fix: ${v.suggestion}.`);
+    console.error('');
+  }
+  console.error('Rule: token family must match the CSS property slot.');
+  console.error('  --background-*/--surface-*  →  background / background-color');
+  console.error('  --text-*/--color-*          →  color');
+  console.error('  --border-*/--background-*   →  border-color / border-*-color / outline-color');
+  console.error(
+    'Escape hatch: add `/* bds-lint-ignore token-family — <reason> */` on the same line.'
   );
 }
 

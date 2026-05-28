@@ -25,6 +25,14 @@
     "storybook-mcp": {
       "type": "http",
       "url": "http://localhost:6006/mcp"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--headless"]
+    },
+    "notion-brik": {
+      "command": "bash",
+      "args": ["-c", "set -a; source ~/.secrets/notion.env; set +a; NOTION_API_TOKEN=$NOTION_TOKEN exec npx --yes @notionhq/notion-mcp-server@latest"]
     }
   }
 }

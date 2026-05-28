@@ -1,0 +1,37 @@
+# ── Token lint (invented tokens + service-family + property-family pairing) ──
+# Mirrors brik-bds Rule 5 gate (brik-bds#578). Fails fast on wrong-family usage
+# before the change reaches CI. Graceful skip if node_modules not installed.
+if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+  if [ -f scripts/lint-tokens.mjs ]; then
+    echo "🔎 Running token lint..."
+    if ! node scripts/lint-tokens.mjs; then
+      echo ""
+      echo "   Fix token violations above before committing."
+      echo "   Escape hatch: add \`/* bds-lint-ignore token-family — <reason> */\` on the same line."
+      exit 1
+    fi
+  fi
+fi
+
+# ── Secret scan (gitleaks) ──
+# Defense-in-depth for the secret-leak prevention layer. Mirrors the pattern
+# used in brik-bds, brik-client-portal, renew-pms. Runs gitleaks on the staged
+# diff; blocks commits containing patterns that match its built-in rules + any
+# local .gitleaks.toml allowlist. Graceful skip if gitleaks isn't installed
+# (CI / fresh machine).
+#
+# Canonical template: brik-bds/.husky/pre-commit. Layer-4 entry in
+# brik-llm/operations/security/security-layers.md.
+if command -v gitleaks >/dev/null 2>&1; then
+  echo "🔍 Running gitleaks secret scan..."
+  config_arg=""
+  if [ -f .gitleaks.toml ]; then
+    config_arg="--config .gitleaks.toml"
+  fi
+  if ! gitleaks protect --staged --redact --no-banner --verbose $config_arg; then
+    echo ""
+    echo "   Secret detected in staged changes. Move the value to ~/.secrets/<name>.env"
+    echo "   and reference it via process.env.<NAME>. If false positive, add to .gitleaks.toml."
+    exit 1
+  fi
+fi
