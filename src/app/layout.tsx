@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { DevTools } from '@/components/DevTools';
+import { WebVitalsReporter } from '@/components/observability/WebVitalsReporter';
 import { poppins } from '@/lib/fonts';
 import './globals.css';
 
@@ -56,6 +57,7 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.className} theme-brand-brik`}>
         <ThemeProvider>
+          <WebVitalsReporter />
           {children}
           <DevTools />
         </ThemeProvider>
