@@ -23,11 +23,10 @@
   color: var(--text-brand-primary);
 }
 
-/* ─── Company segments — horizontal layout ──────────────── */
-/* Vertical list of horizontal cards. TODO: migrate each card to
- * <Card preset="display-row"> when brik-bds#592 ships. The lead/content
- * split below mirrors the proposed preset shape (image-left ~30%,
- * content-right ~70%, responsive collapse) so the migration is mechanical. */
+/* ─── Company segments — Card preset="display-row" ─────── */
+/* Vertical list of horizontal preset="display-row" cards. The preset
+ * owns the image-left / content-right grid + ≤640px responsive collapse;
+ * the consumer only owns the eyebrow content rendered into the image slot. */
 .customers-segments {
   display: flex;
   flex-direction: column;
@@ -35,26 +34,13 @@
   width: 100%;
 }
 
-.segment-card {
-  display: grid;
-  grid-template-columns: minmax(220px, 30%) 1fr;
-  gap: var(--gap-xl);
-  align-items: start;
-}
-
-.segment-card__lead {
+/* Eyebrow content (number + subtitle) rendered into the preset's image
+ * slot. Vertical stack with brand-color treatment so the lead reads as
+ * a unit rather than two separate text runs. */
+.segment-card__eyebrow {
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
-  border-right: 1px solid var(--border-secondary);
-  padding-right: var(--gap-lg);
-}
-
-.segment-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  min-width: 0;
 }
 
 /* ─── Industries CMS card — label-sized title ───────────── */
@@ -88,14 +74,10 @@
   margin: 0;
 }
 
-.customers-segment-fits {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-  margin-top: var(--gap-sm);
-}
-
+/* Checkmark-led list used by the segment-card extras slot. Lives here
+ * (not in BDS) because the bullet glyph and brand-color treatment are
+ * a brikdesigns editorial choice; BDS's preset="display-row" extras
+ * wrapper is intentionally style-free so the consumer owns this. */
 .customers-segment-list {
   list-style: none;
   margin: 0;
@@ -221,20 +203,6 @@
 
   .customer-topic-grid__content {
     grid-column: 1 / -1;
-  }
-
-  /* Segment cards collapse to a vertical stack on tablet — lead block
-   * sits above content with the divider rotating to a bottom border. */
-  .segment-card {
-    grid-template-columns: 1fr;
-    gap: var(--gap-md);
-  }
-
-  .segment-card__lead {
-    border-right: none;
-    border-bottom: 1px solid var(--border-secondary);
-    padding-right: 0;
-    padding-bottom: var(--gap-md);
   }
 }
 
