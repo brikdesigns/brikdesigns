@@ -3,14 +3,14 @@
    simulate the standard container pattern via padding-inline instead
    of max-width + margin-inline: auto.
 
-   Formula: max(--site-gutter, (100% - --site-container-max) / 2)
+   Formula: max(--site-gutter, (100% - --content-width-xl) / 2)
      narrow  → --site-gutter provides minimum breathing room
      ≥ 1280px → calc(...) takes over, centering 1280px of content
 
    Workaround pending brik-bds#TBD (Footer containerMaxWidth prop).
    ─────────────────────────────────────────────────────────────── */
 .bds-footer.footer-site-width {
-  padding-inline: max(var(--site-gutter), calc((100% - var(--site-container-max)) / 2));
+  padding-inline: max(var(--site-gutter), calc((100% - var(--content-width-xl)) / 2));
 }
 
 /* Remove the border above the copyright/bottom bar. */

@@ -17,7 +17,7 @@
 
 .page-hero__container {
   width: 100%;
-  max-width: var(--site-container-max);
+  max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--site-gutter);
 }
@@ -147,7 +147,7 @@
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  max-width: var(--site-container-max);
+  max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--site-gutter);
 }

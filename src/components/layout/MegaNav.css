@@ -117,11 +117,11 @@
 
 /* ─── Container ───────────────────────────────────────────────── */
 
-/* Standard container — shares --site-container-max / --site-gutter with all
+/* Standard container — shares --content-width-xl / --site-gutter with all
    page sections so nav logo aligns flush with section content edges. */
 .mega-nav__container {
   width: 100%;
-  max-width: var(--site-container-max);
+  max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--site-gutter);
 }
@@ -279,7 +279,7 @@
 
 .mega-nav__panel-inner {
   width: 100%;
-  max-width: var(--site-container-max);
+  max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--site-gutter);
 }
