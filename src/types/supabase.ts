@@ -2326,7 +2326,6 @@ export type Database = {
       industry_pages: {
         Row: {
           created_at: string
-          hero_image_url: string | null
           id: string
           image_url: string | null
           intro_description: string | null
@@ -2342,7 +2341,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          hero_image_url?: string | null
           id?: string
           image_url?: string | null
           intro_description?: string | null
@@ -2358,7 +2356,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          hero_image_url?: string | null
           id?: string
           image_url?: string | null
           intro_description?: string | null
