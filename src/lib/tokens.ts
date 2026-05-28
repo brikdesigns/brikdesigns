@@ -256,7 +256,8 @@ export const width = {
   default: 'var(--content-width-default)',
   /** 1024px — feature sections, grids */
   wide: 'var(--content-width-wide)',
-  /** 1280px — hero bands, wide layouts (matches --site-container-max) */
+  /** 1280px — hero bands, wide layouts. Canonical site-wide container max
+   *  (replaces the retired project-local --site-container-max). */
   xl: 'var(--content-width-xl)',
   /** 100% — full-bleed (use sparingly; prefer explicit widths) */
   full: 'var(--content-width-full)',

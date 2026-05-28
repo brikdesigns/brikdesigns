@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Breadcrumb, Card, Grid, LinkButton } from '@brikdesigns/bds';
+import { Breadcrumb, Card, Frame, Grid, LinkButton } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
@@ -99,14 +99,28 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   return (
     <>
-      {/* Hero — breadcrumb + name + tagline + intro_description (Webflow parity).
-       * intro_description folded into the hero so the page leads with industry
-       * content, not the stories section. Optional dual-badge decoration on the
-       * aside slot. */}
+      {/* Hero — icon-lg service tag, breadcrumb, name, intro_description.
+       * Tagline is reserved for service-plan promotion cards (per design canon)
+       * and is intentionally omitted here. The icon-lg block uses
+       * page.image_url, which now drives both the meganav card and this hero
+       * tag (collapsed from the legacy hero_image_url + image_url pair).
+       * Decorative badge pair still supported on the aside when present. */}
       <section className="page-hero">
         <div className="page-hero__container">
           <div className="customer-detail-hero">
             <div className="customer-detail-hero__content">
+              {page.image_url && (
+                <div className="customer-detail-hero__tag" aria-hidden="true">
+                  <Image
+                    src={page.image_url}
+                    alt=""
+                    width={96}
+                    height={96}
+                    className="customer-detail-hero__tag-icon"
+                    priority
+                  />
+                </div>
+              )}
               <Breadcrumb
                 style={{ flexWrap: 'wrap' }}
                 items={[
@@ -116,7 +130,6 @@ export default async function CustomerDetailPage({ params }: Props) {
                 ]}
               />
               <h1 className="page-hero__title">{page.name}</h1>
-              {page.tagline && <p className="page-hero__tagline">{page.tagline}</p>}
               {page.intro_description && (
                 <p className="page-hero__description">{page.intro_description}</p>
               )}
@@ -143,32 +156,15 @@ export default async function CustomerDetailPage({ params }: Props) {
                 )}
               </div>
             )}
-            {/* Industry hero illustration — same aside-image pattern as
-             * /services/[serviceLineSlug]. Without it, the page hero is text-
-             * only and the (much heavier) customer-story image below
-             * visually dominates. Badges render INSTEAD of this when
-             * present (a decorated industry hero is more compact than a
-             * 560×560 illustration). */}
-            {!page.primary_badge_url && !page.secondary_badge_url && page.hero_image_url && (
-              <div className="customer-detail-hero__aside" aria-hidden="true">
-                <Image
-                  src={page.hero_image_url}
-                  alt=""
-                  width={560}
-                  height={560}
-                  className="customer-detail-hero__media"
-                  priority
-                />
-              </div>
-            )}
           </div>
         </div>
       </section>
 
-      {/* Topic sections — tinted bg per topic; split layout when image
-       * present. Each topic carries title + description + a curated grid
-       * of related service cards (Webflow per-topic structure from
-       * portal #797). */}
+      {/* Topic sections — tinted bg per topic. Single 4-col grid spans the
+       * container: col-1 = topic content (number + title + description +
+       * optional image), cols 2–4 = up to 3 related service cards. Card slots
+       * are preserved when fewer than 3 services exist so the cards remain a
+       * consistent width across topics. */}
       {topics.map((topic: {
         topic_number: number;
         title: string | null;
@@ -177,12 +173,13 @@ export default async function CustomerDetailPage({ params }: Props) {
         service_line_slug: string | null;
         industry_page_topic_services: TopicService[] | null;
       }) => {
-        // Order services by the topic-junction sort_order, drop any null
-        // service joins (shouldn't happen post-FK retarget, but defensive).
         const services = (topic.industry_page_topic_services ?? [])
           .filter((ts) => ts.services != null)
           .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
           .map((ts) => ts.services!);
+
+        const CARD_SLOTS = 3;
+        const slots = Array.from({ length: CARD_SLOTS }, (_, i) => services[i] ?? null);
 
         return (
           <section
@@ -191,60 +188,36 @@ export default async function CustomerDetailPage({ params }: Props) {
             style={{ backgroundColor: TOPIC_TINTS[topic.topic_number] ?? 'var(--surface-secondary)' }}
           >
             <div className="container-lg">
-              {topic.image_url ? (
-                /* Split layout: image + content side by side (unique layout) */
-                <div className="customer-topic">
-                  <div className="customer-topic__media">
-                    <Image
-                      src={topic.image_url}
-                      alt={topic.title ?? ''}
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      sizes="(max-width: 991px) 100vw, 50vw"
-                    />
-                  </div>
-                  <div className="customer-topic__content">
-                    <span style={{ ...label.smBold, color: color.text.brand }}>
-                      {String(topic.topic_number).padStart(2, '0')}
-                    </span>
-                    {topic.title && <h3 style={heading.md}>{topic.title}</h3>}
-                    {topic.description && (
-                      <p style={{ ...text.body, color: color.text.primary }}>{topic.description}</p>
-                    )}
-                  </div>
+              <div className="customer-topic-grid">
+                <div className="customer-topic-grid__content">
+                  <span style={{ ...label.smBold, color: color.text.brand }}>
+                    {String(topic.topic_number).padStart(2, '0')}
+                  </span>
+                  {topic.title && <h3 style={heading.md}>{topic.title}</h3>}
+                  {topic.description && (
+                    <p style={{ ...text.body, color: color.text.primary }}>{topic.description}</p>
+                  )}
+                  {topic.image_url && (
+                    <div className="customer-topic-grid__media">
+                      <Image
+                        src={topic.image_url}
+                        alt={topic.title ?? ''}
+                        fill
+                        style={{ objectFit: 'cover' }}
+                        sizes="(max-width: 991px) 100vw, 25vw"
+                      />
+                    </div>
+                  )}
                 </div>
-              ) : (
-                /* Text-only layout */
-                <div className="industry-topic">
-                  <div className="industry-topic__container">
-                    <span style={{ ...label.smBold, color: color.text.brand }}>
-                      {String(topic.topic_number).padStart(2, '0')}
-                    </span>
-                    {topic.title && <h3 style={heading.md}>{topic.title}</h3>}
-                    {topic.description && (
-                      <p style={{ ...text.body, color: color.text.primary }}>{topic.description}</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Related service cards for this topic. Each card routes
-               * /services/{line}/{slug}; serviceLineSlug derived from the
-               * service's own service_lines join (not the topic's
-               * service_line_slug — they can diverge for "Other Services"
-               * topics that mix lines). */}
-              {services.length > 0 && (
-                <Grid
-                  columns={3}
-                  gap="md"
-                  style={{ marginTop: 'var(--gap-xl)' }}
-                >
-                  {services.map((svc) => {
-                    const lineSlug = svc.service_lines?.slug ?? topic.service_line_slug ?? 'brand';
-                    const cat = mapServiceLineSlug(lineSlug);
-                    return (
+                {slots.map((svc, idx) => {
+                  if (!svc) {
+                    return <div key={`empty-${idx}`} className="customer-topic-grid__slot" aria-hidden="true" />;
+                  }
+                  const lineSlug = svc.service_lines?.slug ?? topic.service_line_slug ?? 'brand';
+                  const cat = mapServiceLineSlug(lineSlug);
+                  return (
+                    <div key={svc.id} className="customer-topic-grid__slot">
                       <ServiceCard
-                        key={svc.id}
                         name={svc.name}
                         slug={svc.slug}
                         serviceLineSlug={lineSlug}
@@ -255,28 +228,34 @@ export default async function CustomerDetailPage({ params }: Props) {
                         iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
                         showCta
                       />
-                    );
-                  })}
-                </Grid>
-              )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </section>
         );
       })}
 
-      {/* Other industries — placed before customer story (Webflow order). */}
+      {/* Other industries — 3-col display cards. Card uses 1:1 image, title,
+       * description (from tagline copy), and a md "Learn More" button. */}
       {otherPages.length > 0 && (
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
             <h2 style={heading.lg}>Other Industries</h2>
             <Grid columns={3}>
-              {otherPages.map((p: { slug: string; name: string; tagline: string | null }) => (
+              {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
                   key={p.slug}
                   preset="display"
-                  href={`/customers/${p.slug}`}
                   title={p.name}
                   description={p.tagline ?? undefined}
+                  image={p.image_url ? (
+                    <Frame ratio="square" fit="cover">
+                      <Image src={p.image_url} alt={p.name} width={400} height={400} />
+                    </Frame>
+                  ) : undefined}
+                  action={<LinkButton href={`/customers/${p.slug}`} variant="primary" size="md">Learn More</LinkButton>}
                 />
               ))}
             </Grid>
@@ -289,6 +268,9 @@ export default async function CustomerDetailPage({ params }: Props) {
         <section className="content-section content-section--secondary">
           <div className="container-lg container-lg--comfortable">
             <h2 style={heading.lg}>Latest Customer Story</h2>
+            <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>
+              We&rsquo;re more than a design studio&mdash;we&rsquo;re your strategic marketing partner.
+            </p>
             <div className="customer-stories-list">
               {stories.slice(0, 1).map((story: {
                 id: string;
@@ -330,7 +312,7 @@ export default async function CustomerDetailPage({ params }: Props) {
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
             Let&apos;s talk about how we can help your {page.name.toLowerCase()} business.
           </p>
-          <LinkButton href="/contact" variant="inverse" size="lg">
+          <LinkButton href="/contact" variant="on-color" size="lg">
             Let&apos;s Talk
           </LinkButton>
         </div>

@@ -15,9 +15,25 @@
   flex-direction: column;
 }
 
+/* Full-viewport variant — hero fills the initial viewport so the scroll-down
+ * affordance sits at the fold. Grid (rather than flex) gives us a 1fr top
+ * row for the centered container plus an auto bottom row that pins the
+ * scroll CTA to the fold edge — `justify-content: center` + `margin-top:
+ * auto` is the alternative but doesn't compose cleanly. */
+.page-hero--full-viewport {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
+.page-hero--full-viewport .page-hero__container {
+  align-self: center;
+}
+
 .page-hero__container {
   width: 100%;
-  max-width: var(--site-container-max);
+  max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--site-gutter);
 }
@@ -147,7 +163,7 @@
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  max-width: var(--site-container-max);
+  max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--site-gutter);
 }
