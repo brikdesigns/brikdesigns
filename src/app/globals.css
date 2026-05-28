@@ -81,6 +81,14 @@ html {
     --border-brand-primary: var(--color-poppy-dark);
     --background-image-brand: var(--color-poppy-dark);
 
+    /* Brand: inline body links use poppy-dark (#b0351b → ~7.95:1 on white,
+       AAA) instead of upstream's --color-poppy-light (#e35335 → 3.78:1, AA
+       fail at body-md / body-sm). The "poppy-light" token name is
+       misleading — it's the brand base, not a tinted variant. Caught by
+       axe on /privacy-policy + /terms when those routes first entered the
+       public-routes a11y suite via #302's chromeless/marketing split. */
+    --text-link: var(--color-poppy-dark);
+
     /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
     --page-accent: var(--color-tan-lightest);
     --surface-accent: var(--color-tan-lightest);
@@ -126,6 +134,12 @@ html {
     /* Brand: deeper poppy on borders + brand image backgrounds. */
     --border-brand-primary: var(--color-poppy-dark);
     --background-image-brand: var(--color-poppy-dark);
+
+    /* Brand: inline body links use poppy-lighter (#ffa693 → ~8.5:1 on
+       grayscale-darkest, AAA) instead of the light-mode poppy-dark, which
+       drops to ~2.2:1 on dark surfaces. Poppy-lighter is the canonical
+       lighter shade — readable on dark, recognizably brand. */
+    --text-link: var(--color-poppy-lighter);
 
     /* Brand: dark-mode link tone (system-link is too saturated on black). */
     --color-system-link: #6b8aff;
