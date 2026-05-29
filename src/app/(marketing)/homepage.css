@@ -57,7 +57,7 @@
   font-family: var(--font-family-display);
   font-size: var(--heading-huge);
   font-weight: 700;
-  line-height: 110%;
+  line-height: var(--font-line-height-tight);
   color: var(--text-on-color-dark);
   margin: 0;
 }
@@ -67,7 +67,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-xl);
   font-weight: 400;
-  line-height: 150%;
+  line-height: var(--font-line-height-normal);
   color: var(--text-on-color-dark);
   margin: 0;
 }
@@ -145,7 +145,7 @@
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
-  line-height: 110%;
+  line-height: var(--font-line-height-tight);
   color: var(--text-primary);
   margin: 0;
 }
@@ -225,7 +225,7 @@
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
-  line-height: 110%;
+  line-height: var(--font-line-height-tight);
   color: var(--text-primary);
   margin: 0;
 }
@@ -237,7 +237,7 @@
   color: var(--text-secondary);
   text-align: center;
   margin: 0;
-  line-height: 150%;
+  line-height: var(--font-line-height-normal);
 }
 
 /* Webflow: .inner-wrapper — right column with image */
@@ -361,7 +361,7 @@
   font-family: var(--font-family-heading);
   font-size: var(--heading-md);
   font-weight: 700;
-  line-height: 125%;
+  line-height: var(--font-line-height-snug);
   color: var(--text-primary);
   margin: 0;
 }
@@ -371,7 +371,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-md);
   color: var(--text-secondary);
-  line-height: 150%;
+  line-height: var(--font-line-height-normal);
   margin: 0;
 }
 
@@ -418,7 +418,7 @@
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
   font-weight: 700;
-  line-height: 110%;
+  line-height: var(--font-line-height-tight);
   color: var(--text-on-color-dark);
   margin: 0;
 }
@@ -427,7 +427,7 @@
 .cta-description {
   font-family: var(--font-family-body);
   font-size: var(--body-lg);
-  line-height: 150%;
+  line-height: var(--font-line-height-normal);
   color: var(--text-on-color-dark);
   margin: 0;
 }

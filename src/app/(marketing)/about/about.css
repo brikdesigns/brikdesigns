@@ -14,7 +14,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-lg);
   color: var(--text-secondary);
-  line-height: 150%;
+  line-height: var(--font-line-height-normal);
   margin: var(--gap-md) 0 0;
   max-width: 700px;
 }

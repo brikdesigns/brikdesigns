@@ -217,7 +217,7 @@
   font-family: var(--font-family-label);
   font-size: var(--label-sm); /* 14px = Webflow font-size-75 */
   font-weight: 600;
-  line-height: 125%;
+  line-height: var(--font-line-height-snug);
   color: var(--text-primary);
   background: none;
   border: none;
@@ -358,7 +358,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-xs);
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: var(--font-line-height-normal);
   margin: 0;
 }
 
@@ -373,7 +373,7 @@
   font-family: var(--font-family-label);
   font-size: var(--label-md);
   font-weight: 600;
-  line-height: 125%;
+  line-height: var(--font-line-height-snug);
   color: var(--text-primary);
   text-decoration: none;
   display: block;
