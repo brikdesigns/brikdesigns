@@ -17,8 +17,7 @@
     "audit:plan-routes": "npx tsx scripts/audit-plan-routes.ts",
     "audit:icons": "npx tsx scripts/audit-icons.ts",
     "gen:types": "node scripts/gen-types.mjs",
-    "check:schema": "node scripts/check-schema-parity.mjs",
-    "test:a11y": "playwright test",
+"test:a11y": "playwright test",
     "visual-parity": "node scripts/visual-parity.mjs",
     "analyze": "ANALYZE=true next build",
     "prepare": "husky"

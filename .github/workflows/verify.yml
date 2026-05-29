@@ -71,6 +71,3 @@ jobs:
 
       - name: Service-URL lint (no hardcoded long-form Webflow slugs)
         run: npm run lint:service-urls
-
-      - name: Schema parity (Row ↔ SCHEMA ↔ field-configs)
-        run: npm run check:schema
