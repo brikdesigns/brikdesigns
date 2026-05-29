@@ -21,15 +21,18 @@
 import fs from 'node:fs';
 import { glob } from 'glob';
 
-// Canonical Supabase `service_lines.slug` values. Source of truth:
-// `service_lines` table in the shared Supabase project (mirrored in
-// scripts/audit-supabase-drift.ts SERVICE_LINE_ALIASES values).
+// Canonical `/services/{slug}` route segments. Mostly equal to the Supabase
+// `service_lines.slug` values, except Back Office Design: its DB slug is
+// `service` (FK-stable — see src/lib/service-line-routes.ts) while its public
+// route is `/services/back-office`. Both resolve (`/services/service`
+// 308-redirects to `/services/back-office`), so both are accepted here.
 const CANONICAL_SLUGS = new Set([
   'brand',
   'marketing',
   'information',
   'product',
   'service',
+  'back-office',
 ]);
 
 // Long-form Webflow slugs — explicitly named so the error message can suggest

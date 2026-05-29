@@ -10,6 +10,7 @@ import {
   ServiceTag,
 } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { gap, serviceColor } from '@/lib/tokens';
 
 // Category + icon resolution happen on the server (queries.ts pulls
@@ -87,7 +88,7 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
                   )}
                   <div style={{ '--background-brand-primary': svcTokens.bg } as React.CSSProperties}>
                     <Button
-                      href={`/services/${lineSlug}/${svc.slug}`}
+                      href={`/services/${routeSlugForServiceLine(lineSlug)}/${svc.slug}`}
                       variant="primary"
                       size="sm"
                     >

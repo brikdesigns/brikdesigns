@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getServiceLineBySlug, getServicesByServiceLine, getServiceCategories, getSupportPlanBySlug, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
 import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag } from '@brikdesigns/bds';
@@ -49,8 +50,11 @@ export default async function ServiceLinePage({ params }: Props) {
     }
   }
 
-  // Other service lines (exclude current; top 3 by rank — rank drives display order in getServiceCategories)
-  const otherServiceLines = allServiceLines.filter((c) => c.slug !== serviceLineSlug).slice(0, 3);
+  // Other service lines (exclude current; top 3 by rank — rank drives display order in getServiceCategories).
+  // Compare against the resolved row's DB slug, not the route param: the
+  // back-office route slug ('back-office') differs from its DB slug ('service'),
+  // so filtering on serviceLineSlug would fail to exclude the current line.
+  const otherServiceLines = allServiceLines.filter((c) => c.slug !== serviceLine.slug).slice(0, 3);
 
   // Resolve the service line this support plan belongs to. A plan slug is
   // prefixed with its line slug (e.g. "marketing-support-plan" → marketing).
@@ -93,9 +97,6 @@ export default async function ServiceLinePage({ params }: Props) {
                 ]}
               />
               <h1 className="page-hero__title">{serviceLine.name}</h1>
-              {serviceLine.tagline && (
-                <p className="page-hero__tagline">{serviceLine.tagline}</p>
-              )}
               {serviceLine.description && (
                 <p className="page-hero__description">{serviceLine.description}</p>
               )}
@@ -163,7 +164,7 @@ export default async function ServiceLinePage({ params }: Props) {
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-              <h2 style={{ ...heading.md, textAlign: 'center' }}>Monthly support services</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Monthly support services</h2>
               <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 Join our monthly support plan to get professional advice without the need for a team.
               </p>
@@ -215,7 +216,7 @@ export default async function ServiceLinePage({ params }: Props) {
       {otherServiceLines.length > 0 && (
         <section className="content-section content-section--accent">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.md, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
+            <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Other Service Lines
             </h2>
             <Grid columns={3} gap="md">
@@ -239,7 +240,7 @@ export default async function ServiceLinePage({ params }: Props) {
                         ) : undefined
                       }
                       tag={<ServiceTag category={catKey} variant="icon" size="sm" />}
-                      action={<LinkButton href={`/services/${cat.slug}`} variant="primary" size="md">Learn More</LinkButton>}
+                      action={<LinkButton href={`/services/${routeSlugForServiceLine(cat.slug)}`} variant="primary" size="md">Learn More</LinkButton>}
                     />
                   </div>
                 );

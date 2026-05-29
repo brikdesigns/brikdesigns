@@ -10,21 +10,22 @@ The recurring agent trip in this repo: Webflow uses long-form, flat URLs (`/serv
 
 ## TL;DR
 
-- **Routes:** `/services/{short-form-line}/{service-slug}` (nested, short-form). Five canonical line slugs only: `brand`, `marketing`, `information`, `product`, `service`.
-- **Webflow legacy:** `/service-lines/{long-form}` and `/service/{slug}` (flat) preserved via 30+ explicit redirects in [`next.config.mjs`](../../next.config.mjs).
-- **DB:** `service_lines.slug` may hold long-form. Never construct a route from a raw DB slug — always pass through [`mapServiceLineSlug()`](../../src/lib/supabase/queries.ts).
+- **Routes:** `/services/{route-line}/{service-slug}` (nested). Five canonical line route slugs only: `brand`, `marketing`, `information`, `product`, `back-office`.
+- **Route ≠ DB for back-office:** the public route is `/services/back-office`, but the DB `service_lines.slug` is `service` (FK-stable). Translate at the boundary via [`service-line-routes.ts`](../../src/lib/service-line-routes.ts) — `routeSlugForServiceLine()` (DB→route, link construction) and `dbSlugForServiceLineRoute()` (route→DB, lookups). All other lines: route slug == DB slug.
+- **Webflow legacy:** `/service-lines/{long-form}` and `/service/{slug}` (flat) preserved via 30+ explicit redirects in [`next.config.mjs`](../../next.config.mjs). `/services/service` + `/services/service/*` also 308-redirect to the `back-office` route.
+- **DB:** `service_lines.slug` may hold long-form. Never construct a route from a raw DB slug — pass line slugs through `routeSlugForServiceLine()`; pass slug→BDS-enum through [`mapServiceLineSlug()`](../../src/lib/supabase/queries.ts).
 
 ## The five canonical service-line slugs
 
-| Short-form (route, code) | Long-form (Webflow, DB-historical) | BDS `ServiceLine` value | Display label |
-| --- | --- | --- | --- |
-| `brand` | `brand-design` | `brand` | Brand Design |
-| `marketing` | `marketing-design` | `marketing` | Marketing Design |
-| `information` | `information-design` | `information` | Information Design |
-| `product` | `product-design` | `product` | Product Design |
-| `service` | `back-office-design` | `service` | Back Office Design |
+| Route slug | DB `service_lines.slug` | Long-form (Webflow, DB-historical) | BDS `ServiceLine` value | Display label |
+| --- | --- | --- | --- | --- |
+| `brand` | `brand` | `brand-design` | `brand` | Brand Design |
+| `marketing` | `marketing` | `marketing-design` | `marketing` | Marketing Design |
+| `information` | `information` | `information-design` | `information` | Information Design |
+| `product` | `product` | `product-design` | `product` | Product Design |
+| `back-office` | `service` | `back-office-design` | `service` | Back Office Design |
 
-`service` is the historical internal slug for Back Office Design — kept for FK stability across portal + renew-pms. Don't rename without a coordinated cross-repo migration.
+`service` is the historical internal DB slug for Back Office Design — kept for FK stability across portal + renew-pms and to match BDS component CSS class names (brik-client-portal migration 00042). It is **not** renamed in the DB; the nicer `/services/back-office` URL is delivered entirely at the route/link layer (`service-line-routes.ts` + redirects). A true DB rename remains a coordinated cross-repo migration.
 
 ## URL conventions
 
@@ -33,8 +34,8 @@ The recurring agent trip in this repo: Webflow uses long-form, flat URLs (`/serv
 | Pattern | Example | Source file |
 | --- | --- | --- |
 | `/services` | `/services` | [src/app/services/page.tsx](../../src/app/services/page.tsx) |
-| `/services/{short-form-line}` | `/services/marketing` | [src/app/services/[serviceLineSlug]/page.tsx](../../src/app/services/[serviceLineSlug]/page.tsx) |
-| `/services/{short-form-line}/{service-slug}` | `/services/marketing/web-design` | [src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx](../../src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx) |
+| `/services/{route-line}` | `/services/marketing`, `/services/back-office` | [src/app/services/[serviceLineSlug]/page.tsx](../../src/app/services/[serviceLineSlug]/page.tsx) |
+| `/services/{route-line}/{service-slug}` | `/services/marketing/web-design` | [src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx](../../src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx) |
 
 ### Webflow legacy URLs (preserved via redirects)
 
@@ -51,14 +52,15 @@ The recurring agent trip in this repo: Webflow uses long-form, flat URLs (`/serv
 | --- | --- | --- |
 | Footer service-line links | [src/components/layout/Footer.tsx](../../src/components/layout/Footer.tsx) | Hard-coded short-form `href` values + label + BDS category |
 | MegaNav columns | [src/lib/meganav-columns.ts](../../src/lib/meganav-columns.ts) | Hand-curated, keyed by short-form line slug; service slugs filtered against live `services.is_public` |
-| Route → category | [src/lib/supabase/queries.ts](../../src/lib/supabase/queries.ts) — `mapServiceLineSlug` | Short-form-only map (5 entries). Unknown input → `console.warn` + fallback to `'brand'`. Loud failure (PR #143 retrospective). |
+| Line slug ↔ route segment | [src/lib/service-line-routes.ts](../../src/lib/service-line-routes.ts) — `routeSlugForServiceLine` / `dbSlugForServiceLineRoute` | Only back-office differs (DB `service` ↔ route `back-office`). Pure + client-safe; `getServiceLineBySlug` uses it for lookups, link emitters for `href`s. |
+| Route → category | [src/lib/supabase/queries.ts](../../src/lib/supabase/queries.ts) — `mapServiceLineSlug` | slug → BDS `ServiceLine` enum (accepts short + long + back-office). Unknown input → `console.warn` + fallback to `'brand'`. Loud failure (PR #143 retrospective). |
 | `ServiceTag` color | [src/lib/supabase/queries.ts](../../src/lib/supabase/queries.ts) — `resolveServiceTagCategory` | Prefers CMS-editable `service_lines.service_tag_category` column; falls back to `mapServiceLineSlug(slug)` for legacy rows |
 | Webflow → Next routing | [next.config.mjs](../../next.config.mjs) `redirects()` | 5 line + ~25 service explicit rules. SEO continuity. |
 | Edge legacy | [netlify.toml](../../netlify.toml) `[[redirects]]` | `/service-lines/*`, `/detail_service/*`, `/detail_service-lines/*` wildcards. Processed before `next.config.mjs` — order-sensitive. |
 
 ## Rules for new code
 
-1. **Never construct a `/services/{x}` route from a raw `service_lines.slug` column.** Always pass through `mapServiceLineSlug()` (or hard-code the short-form when you have a static list, like Footer does).
+1. **Never construct a `/services/{x}` route from a raw `service_lines.slug` column.** Pass line slugs through `routeSlugForServiceLine()` (so the back-office DB slug `service` emits as `/services/back-office`), or hard-code the route slug when you have a static list, like Footer does.
 2. **Never add a sixth short-form line slug.** The set is closed by the FK across portal + renew-pms and by the BDS `ServiceLine` enum. Adding one is a coordinated cross-repo schema migration.
 3. **When adding a Webflow → Next redirect**, put the rule in [`next.config.mjs`](../../next.config.mjs), not [`netlify.toml`](../../netlify.toml). The latter's wildcards preempt the former's specific rules — that's the bug #133 surfaced.
 4. **When a slug is unknown**, `console.warn` + fall back loudly. Silent fallback hid 3 NULL FKs for weeks before PR #143 caught it via screenshot diff.

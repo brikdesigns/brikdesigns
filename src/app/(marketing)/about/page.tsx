@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Grid, Button } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
@@ -192,7 +193,7 @@ export default async function AboutPage() {
           </div>
           <Grid columns={3} gap="lg">
             {serviceLines.map((line) => (
-              <Link key={line.slug} href={`/services/${line.slug}`} className="about-service-card">
+              <Link key={line.slug} href={`/services/${routeSlugForServiceLine(line.slug)}`} className="about-service-card">
                 <div className="about-service-image">
                   {line.imageUrl ? (
                     <Image

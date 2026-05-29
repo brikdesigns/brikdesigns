@@ -2,6 +2,7 @@ import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { createPublicClient } from './server';
+import { dbSlugForServiceLineRoute } from '@/lib/service-line-routes';
 
 /**
  * Typed Supabase queries for marketing content.
@@ -112,11 +113,15 @@ export const getServiceCategories = cache(
 export const getServiceLineBySlug = cache(
   unstable_cache(
     async (slug: string) => {
+      // The public `/services/back-office` route maps to the FK-stable DB
+      // slug `service` (see service-line-routes.ts). Every other route slug
+      // equals its DB slug, so this is a no-op for them.
+      const dbSlug = dbSlugForServiceLineRoute(slug);
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('service_lines')
         .select('*')
-        .eq('slug', slug)
+        .eq('slug', dbSlug)
         .eq('is_public', true)
         .single();
       if (error) throw error;

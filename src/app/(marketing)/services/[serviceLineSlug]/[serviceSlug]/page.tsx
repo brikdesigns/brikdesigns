@@ -10,6 +10,7 @@ import {
   getSupportPlansByServiceId,
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import {
   Card,
   CardDescription,
@@ -439,7 +440,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 )}
                 <CardFooter>
                   <Button
-                    href={`/services/${relatedServiceLineSlug}/${relatedService.slug}`}
+                    href={`/services/${routeSlugForServiceLine(relatedServiceLineSlug)}/${relatedService.slug}`}
                     variant="primary"
                     size="md"
                   >

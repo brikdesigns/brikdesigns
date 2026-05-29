@@ -8,6 +8,7 @@ import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { planImage } from '@/lib/plan-images';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ThemeToggle } from './ThemeToggle';
 
 import './MegaNav.css';
@@ -154,7 +155,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         .map((line) => (
                           <div key={line.slug} className="mega-nav__service-col">
                             {/* Webflow: .text_label-md.link + .text_body-sm.secondary (NO badge on header) */}
-                            <Link href={`/services/${line.slug}`} className="mega-nav__service-title" onClick={() => setOpen(null)}>
+                            <Link href={`/services/${routeSlugForServiceLine(line.slug)}`} className="mega-nav__service-title" onClick={() => setOpen(null)}>
                               {line.name}
                             </Link>
                             <p className="mega-nav__service-tagline">{line.tagline}</p>
@@ -162,7 +163,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                               {line.services.map((svc) => (
                                 <li key={svc.slug}>
                                   <Link
-                                    href={`/services/${line.slug}/${svc.slug}`}
+                                    href={`/services/${routeSlugForServiceLine(line.slug)}/${svc.slug}`}
                                     className="mega-nav__service-link"
                                     onClick={() => setOpen(null)}
                                   >
@@ -179,7 +180,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             </ul>
                             {/* Webflow: .nav-view-all — "View All" link at bottom of each column */}
                             <Link
-                              href={`/services/${line.slug}`}
+                              href={`/services/${routeSlugForServiceLine(line.slug)}`}
                               className="mega-nav__view-all"
                               onClick={() => setOpen(null)}
                             >
@@ -405,7 +406,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
           {serviceLines.map((line) => (
             <Link
               key={line.slug}
-              href={`/services/${line.slug}`}
+              href={`/services/${routeSlugForServiceLine(line.slug)}`}
               className="mega-nav__mobile-link mega-nav__mobile-link--indent"
               onClick={() => setMobileOpen(false)}
             >
