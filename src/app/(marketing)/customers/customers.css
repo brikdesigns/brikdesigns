@@ -69,7 +69,7 @@
 .challenge-card__quote-mark {
   font-family: var(--font-family-heading);
   font-size: 4rem;
-  line-height: 1;
+  line-height: var(--font-line-height-tight);
   color: var(--text-brand-primary);
   margin: 0;
 }

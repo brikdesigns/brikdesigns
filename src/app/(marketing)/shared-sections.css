@@ -68,7 +68,7 @@
   color: var(--text-primary);
   margin: var(--gap-md) 0 0;
   max-width: 700px;
-  line-height: 1.7;
+  line-height: var(--font-line-height-relaxed);
 }
 
 /* ─── Standard content section ───────────────────────────── */
