@@ -7,6 +7,7 @@ import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 
 interface ServiceLineCardProps {
   name: string;
@@ -30,7 +31,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
   // Replaces raw `cat.brand_color_base` hex (brikdesigns#99).
   const tokens = serviceColor(category);
   return (
-    <Link href={`/services/${slug}`} className="services-card-link">
+    <Link href={`/services/${routeSlugForServiceLine(slug)}`} className="services-card-link">
       <Card variant="outlined" padding="md" interactive className="services-card">
         <div className="services-card__media">
           {imageUrl ? (
@@ -94,7 +95,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
           <CardDescription>{description}</CardDescription>
           <CardFooter>
             <Button
-              href={`/services/${slug}`}
+              href={`/services/${routeSlugForServiceLine(slug)}`}
               variant="primary"
               size="md"
               style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}

@@ -75,7 +75,7 @@ export default async function CustomersPage() {
     <>
       {/* Hero — full-viewport interior hero. The intro paragraph (formerly its
        * own section) now lives inside the hero block alongside the title. */}
-      <section className="page-hero page-hero--full-viewport">
+      <section className="page-hero">
         <div className="page-hero__container">
           <h1 className="page-hero__title">Customers</h1>
           <p className="page-hero__description">

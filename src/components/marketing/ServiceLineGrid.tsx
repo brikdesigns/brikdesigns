@@ -5,6 +5,7 @@ import { Card } from '@brikdesigns/bds';
 import { ServiceTag } from '@brikdesigns/bds';
 import { Button } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 
 interface ServiceLineItem {
   name: string;
@@ -62,7 +63,7 @@ export function ServiceLineGrid({ items }: { items: ServiceLineItem[] }) {
               </p>
             </div>
             <div style={{ marginTop: 'auto', paddingTop: 'var(--gap-md)' }}>
-              <Link href={`/services/${line.slug}`}>
+              <Link href={`/services/${routeSlugForServiceLine(line.slug)}`}>
                 <Button variant="ghost" size="sm">
                   Learn more
                 </Button>

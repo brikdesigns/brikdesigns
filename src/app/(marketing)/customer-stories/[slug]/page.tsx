@@ -23,6 +23,7 @@ import {
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
@@ -453,7 +454,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                   )}
                   <CardFooter>
                     <Button
-                      href={`/services/${relatedCatSlug}/${relatedService.slug}`}
+                      href={`/services/${routeSlugForServiceLine(relatedCatSlug)}/${relatedService.slug}`}
                       variant="primary"
                       size="sm"
                     >

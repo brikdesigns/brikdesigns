@@ -72,21 +72,29 @@ const nextConfig = {
       { source: '/category/marketing-support', destination: '/plans', permanent: true },
       { source: '/category/product-support', destination: '/plans', permanent: true },
 
+      // ── Back Office Design route slug: the DB `service_lines.slug` stays
+      // `service` (FK-stable across portal + renew-pms — see
+      // src/lib/service-line-routes.ts and brik-client-portal migration 00042),
+      // while the public route is /services/back-office. Redirect the old
+      // route slug for SEO continuity + bookmarked links.
+      { source: '/services/service', destination: '/services/back-office', permanent: true },
+      { source: '/services/service/:serviceSlug', destination: '/services/back-office/:serviceSlug', permanent: true },
+
       // ── Per-service redirects: /service/{webflow-slug} → /services/{line}/{netlify-slug}
       // Order: hand-curated mapping. Where a Webflow service has no exact
       // Netlify match (e.g. business-card, email-signature, stationary all
       // merged into business-stationery), redirect to the closest equivalent.
-      { source: '/service/automated-workflow-and-ai-integration', destination: '/services/service/ai-workflow-integration', permanent: true },
+      { source: '/service/automated-workflow-and-ai-integration', destination: '/services/back-office/ai-workflow-integration', permanent: true },
       { source: '/service/brand-guidelines', destination: '/services/brand/brand-guidelines', permanent: true },
       { source: '/service/business-card', destination: '/services/brand/business-stationery', permanent: true },
       { source: '/service/business-listings', destination: '/services/brand/online-business-listings', permanent: true },
-      { source: '/service/crm-setup-and-data-cleanup', destination: '/services/service/crm-setup', permanent: true },
-      { source: '/service/digital-file-organization', destination: '/services/service/digital-file-organization', permanent: true },
+      { source: '/service/crm-setup-and-data-cleanup', destination: '/services/back-office/crm-setup', permanent: true },
+      { source: '/service/digital-file-organization', destination: '/services/back-office/digital-file-organization', permanent: true },
       { source: '/service/email-marketing', destination: '/services/marketing/email-marketing', permanent: true },
       { source: '/service/email-signature', destination: '/services/brand/business-stationery', permanent: true },
       { source: '/service/infographic', destination: '/services/information/infographics', permanent: true },
       { source: '/service/intake-forms', destination: '/services/information/intake-forms', permanent: true },
-      { source: '/service/journey-map', destination: '/services/service/customer-journey-mapping', permanent: true },
+      { source: '/service/journey-map', destination: '/services/back-office/customer-journey-mapping', permanent: true },
       { source: '/service/landing-page', destination: '/services/marketing/landing-pages', permanent: true },
       { source: '/service/layout-design', destination: '/services/information/layout-design', permanent: true },
       { source: '/service/logo-design', destination: '/services/brand/logo-design', permanent: true },
@@ -96,12 +104,12 @@ const nextConfig = {
       { source: '/service/sales-resources', destination: '/services/information/sales-resources', permanent: true },
       { source: '/service/signage-design', destination: '/services/information/signage-design', permanent: true },
       { source: '/service/social', destination: '/services/marketing/social-media-graphics', permanent: true },
-      { source: '/service/software-automation-setup', destination: '/services/service/software-automation-setup', permanent: true },
-      { source: '/service/software-subscription-audit', destination: '/services/service/software-subscription-audit', permanent: true },
-      { source: '/service/sop-creation', destination: '/services/service/sop-creation', permanent: true },
+      { source: '/service/software-automation-setup', destination: '/services/back-office/software-automation-setup', permanent: true },
+      { source: '/service/software-subscription-audit', destination: '/services/back-office/software-subscription-audit', permanent: true },
+      { source: '/service/sop-creation', destination: '/services/back-office/sop-creation', permanent: true },
       { source: '/service/stationary', destination: '/services/brand/business-stationery', permanent: true },
       { source: '/service/swag', destination: '/services/marketing/swag-merchandise-design', permanent: true },
-      { source: '/service/training-setup-organization', destination: '/services/service/training-setup', permanent: true },
+      { source: '/service/training-setup-organization', destination: '/services/back-office/training-setup', permanent: true },
       { source: '/service/web-design', destination: '/services/marketing/web-design-development', permanent: true },
       { source: '/service/website-experience-mapping', destination: '/services/marketing/website-experience-mapping', permanent: true },
       { source: '/service/welcome-onboarding-kit', destination: '/services/information/welcome-onboarding-kit', permanent: true },
