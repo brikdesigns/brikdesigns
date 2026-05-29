@@ -32,7 +32,7 @@ const serviceLines: { label: string; href: string; category: ServiceLine }[] = [
   { label: 'Information Design', href: '/services/information', category: 'information' },
   { label: 'Marketing Design', href: '/services/marketing', category: 'marketing' },
   { label: 'Product Design', href: '/services/product', category: 'product' },
-  { label: 'Back Office Design', href: '/services/back-office', category: 'service' },
+  { label: 'Back Office Design', href: '/services/back-office', category: 'back-office' },
 ];
 
 const socialLinks: { label: string; href: string; icon: string }[] = [
