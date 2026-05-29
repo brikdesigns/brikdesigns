@@ -16,7 +16,10 @@
  * Exit code 1 if any plan has missing or non-canonical service_line.
  */
 
-const CANONICAL = new Set(['brand', 'marketing', 'information', 'product', 'service']);
+// `back-office` is the canonical back-office slug post-00199; `service` is the
+// legacy alias retained so this audit passes against both migrated (staging)
+// and not-yet-migrated (prod) environments during the rename transition.
+const CANONICAL = new Set(['brand', 'marketing', 'information', 'product', 'back-office', 'service']);
 
 interface PlanRow {
   slug: string;

@@ -11,7 +11,7 @@ The recurring agent trip in this repo: Webflow uses long-form, flat URLs (`/serv
 ## TL;DR
 
 - **Routes:** `/services/{route-line}/{service-slug}` (nested). Five canonical line route slugs only: `brand`, `marketing`, `information`, `product`, `back-office`.
-- **Route ≠ DB for back-office:** the public route is `/services/back-office`, but the DB `service_lines.slug` is `service` (FK-stable). Translate at the boundary via [`service-line-routes.ts`](../../src/lib/service-line-routes.ts) — `routeSlugForServiceLine()` (DB→route, link construction) and `dbSlugForServiceLineRoute()` (route→DB, lookups). All other lines: route slug == DB slug.
+- **Back-office is fully renamed** (portal migration `00199`): `service_lines.slug` and `service_tag_category` are now `back-office`, BDS 0.81.0 made `back-office` the canonical `ServiceLine` (`service` is a `@deprecated` alias), and route == DB == `back-office`. The `service-line-routes.ts` helpers + the `getServiceLineBySlug` tolerant lookup (`slug IN ('back-office','service')`) remain as a transition cushion until `00199` is applied to **prod** (staging is done); they collapse to identities afterward. **Status: staging migrated; prod pending.**
 - **Webflow legacy:** `/service-lines/{long-form}` and `/service/{slug}` (flat) preserved via 30+ explicit redirects in [`next.config.mjs`](../../next.config.mjs). `/services/service` + `/services/service/*` also 308-redirect to the `back-office` route.
 - **DB:** `service_lines.slug` may hold long-form. Never construct a route from a raw DB slug — pass line slugs through `routeSlugForServiceLine()`; pass slug→BDS-enum through [`mapServiceLineSlug()`](../../src/lib/supabase/queries.ts).
 
@@ -23,9 +23,9 @@ The recurring agent trip in this repo: Webflow uses long-form, flat URLs (`/serv
 | `marketing` | `marketing` | `marketing-design` | `marketing` | Marketing Design |
 | `information` | `information` | `information-design` | `information` | Information Design |
 | `product` | `product` | `product-design` | `product` | Product Design |
-| `back-office` | `service` | `back-office-design` | `service` | Back Office Design |
+| `back-office` | `back-office` | `back-office-design` | `back-office` | Back Office Design |
 
-`service` is the historical internal DB slug for Back Office Design — kept for FK stability across portal + renew-pms and to match BDS component CSS class names (brik-client-portal migration 00042). It is **not** renamed in the DB; the nicer `/services/back-office` URL is delivered entirely at the route/link layer (`service-line-routes.ts` + redirects). A true DB rename remains a coordinated cross-repo migration.
+`service` was the historical internal DB slug for Back Office Design (kept by migration `00042` to match BDS CSS-class names). Migration `00199` retired it: the DB slug + `service_tag_category` are now `back-office`, matching BDS 0.81.0's canonical `ServiceLine`. `service` survives only as a `@deprecated` BDS alias and a legacy input key in `mapServiceLineSlug` / `dbSlugForServiceLineRoute`, retained until `00199` reaches prod and the transition shims are removed.
 
 ## URL conventions
 

@@ -45,15 +45,16 @@ const SERVICE_LINE_MAP: Record<string, ServiceLine> = {
   brand: 'brand',
   marketing: 'marketing',
   information: 'information',
-  service: 'service',
+  'back-office': 'back-office',
   product: 'product',
-  // Long-form slugs still present in service_lines.slug for some DB rows
+  // Legacy / long-form slugs still possible in service_lines.slug or denorm
+  // columns (pre-00199 prod rows, historical data). All collapse to canonical.
   'brand-design': 'brand',
   'marketing-design': 'marketing',
   'information-design': 'information',
   'product-design': 'product',
-  'back-office': 'service',
-  'back-office-design': 'service',
+  service: 'back-office',
+  'back-office-design': 'back-office',
 };
 
 export function mapServiceLineSlug(slug: string): ServiceLine {

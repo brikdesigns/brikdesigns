@@ -172,9 +172,10 @@ export const color = {
   },
   // brikdesigns: Brik's marketing site IS the surface that introduces the
   // five service categories to the public, so service tokens belong here.
-  // The JS-side `service` key matches ServiceLine's `'service'` member
-  // (BDS export). The token suffix for the orange line is `back-office` —
-  // brik-bds#575 shipped this rename in BDS 0.68.1.
+  // (`service` is the token *namespace*, not the back-office line.) The
+  // back-office line's sub-key is `back-office` to match BDS 0.81.0's
+  // canonical ServiceLine member; the legacy `service` line slug falls
+  // through to it in serviceColor(). Token suffix is `back-office` (#797).
   service: {
     brand: {
       bg: 'var(--background-service-brand)',
@@ -208,7 +209,7 @@ export const color = {
       surfaceDark: 'var(--surface-service-product-dark)',
       inverse: 'var(--background-service-product-inverse)',
     },
-    service: {
+    'back-office': {
       bg: 'var(--background-service-back-office)',
       text: 'var(--text-service-back-office)',
       surface: 'var(--surface-service-back-office)',
@@ -219,10 +220,11 @@ export const color = {
   },
 } as const;
 
-/** Look up service color tokens by category slug */
+/** Look up service color tokens by category slug. Unknown / legacy `service`
+ *  inputs fall through to the back-office (orange) entry. */
 export function serviceColor(category: string) {
   const key = category as keyof typeof color.service;
-  return color.service[key] ?? color.service.service;
+  return color.service[key] ?? color.service['back-office'];
 }
 
 // ─── Spacing (Padding) ──────────────────────────────────────────────
