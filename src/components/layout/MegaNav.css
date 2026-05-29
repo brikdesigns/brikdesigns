@@ -306,7 +306,7 @@
   font-size: var(--body-sm);
   color: var(--text-secondary);
   margin: var(--gap-sm) 0 var(--gap-lg);
-  line-height: 1.6;
+  line-height: var(--font-line-height-relaxed);
 }
 
 /* Panel buttons now use BDS <LinkButton variant="primary" size="sm"> */
@@ -511,7 +511,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-xs);
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: var(--font-line-height-moderate);
 }
 
 /* Industry card CTAs now use BDS .bds-button--secondary.bds-button--sm */
@@ -606,7 +606,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-xs);
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: var(--font-line-height-moderate);
 }
 
 /* About card CTAs now use BDS .bds-button--secondary.bds-button--sm */

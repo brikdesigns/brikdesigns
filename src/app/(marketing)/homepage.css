@@ -510,7 +510,7 @@
 @media (max-width: 479px) {
   .hero-title {
     font-size: var(--heading-lg);
-    line-height: 120%;
+    line-height: var(--font-line-height-snug);
     /* No fixed width: let the title flow within the gutter. */
   }
 
