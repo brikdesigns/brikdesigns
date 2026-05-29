@@ -113,16 +113,24 @@ export const getServiceCategories = cache(
 export const getServiceLineBySlug = cache(
   unstable_cache(
     async (slug: string) => {
-      // The public `/services/back-office` route maps to the FK-stable DB
-      // slug `service` (see service-line-routes.ts). Every other route slug
-      // equals its DB slug, so this is a no-op for them.
-      const dbSlug = dbSlugForServiceLineRoute(slug);
+      // Transition-tolerant lookup for the back-office rename. The back-office
+      // line's DB slug is migrating `service` → `back-office` (portal migration
+      // 00199) on the SHARED Supabase, so a given environment may have either
+      // value depending on whether the migration has applied. Query for both
+      // the route slug and its legacy alias so `/services/back-office` resolves
+      // regardless of deploy/migration order (gate #3, see
+      // service-url-slug-convention.md). Collapses to a single slug for every
+      // other line. Simplify to a direct match once 00199 is live everywhere.
+      const candidates = Array.from(
+        new Set([slug, dbSlugForServiceLineRoute(slug)]),
+      );
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('service_lines')
         .select('*')
-        .eq('slug', dbSlug)
+        .in('slug', candidates)
         .eq('is_public', true)
+        .limit(1)
         .single();
       if (error) throw error;
       return data;
