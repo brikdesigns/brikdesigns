@@ -4,19 +4,21 @@ import { getAuthUser, isBrikAdmin } from '@/lib/auth';
 const NOTION_API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
 const BACKLOG_DATABASE_ID = '32097d34-ed28-8051-8225-eb6800c2e05a';
-const PRODUCT_NAME = 'Brikdesigns';
+const PRODUCT_NAME = 'Website';
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://staging--brikdesigns.netlify.app';
 
-const SCOPE_MAP: Record<string, string> = {
-  bug: 'Critical',
-  ui: 'Normal',
+/** Map widget feedback types to Backlog Severity values (triage adjusts after intake) */
+const SEVERITY_MAP: Record<string, string> = {
+  bug: 'High',
+  ui: 'Low',
   suggestion: 'Low',
   question: 'Low',
 };
 
-const FEEDBACK_TYPE_MAP: Record<string, string> = {
+/** Map widget types to Backlog Type select values */
+const TYPE_MAP: Record<string, string> = {
   bug: 'Bug',
-  ui: 'UI Issue',
+  ui: 'Enhancement',
   suggestion: 'Suggestion',
   question: 'Question',
 };
@@ -34,9 +36,7 @@ const EMOJI_MAP: Record<string, string> = {
  * Phase 3 of brikdesigns/brik-llm#352 (issue brikdesigns/brikdesigns#54).
  * Mirrors product/renew-pms/src/app/api/feedback/route.ts; the same Notion DB
  * (32097d34-...) tracks feedback across Brik products via the Product select.
- *
- * Pre-requisites (one-time, manual in Notion):
- *   - Add "Brikdesigns" to the Product select on the Backlog database.
+ * Filed under the existing "Website" Product option (brik-llm#794).
  *
  * Required env vars (Netlify staging context):
  *   - NOTION_TOKEN          — Notion integration token with write access to
@@ -91,11 +91,11 @@ export async function POST(request: Request) {
         Name: { title: [{ text: { content: title } }] },
         Description: { rich_text: [{ text: { content: description.trim() } }] },
         Submitter: { rich_text: [{ text: { content: `${submitter} (${email})` } }] },
-        'Feedback Type': { select: { name: FEEDBACK_TYPE_MAP[type] ?? 'Bug' } },
-        Role: { select: { name: 'admin' } },
+        Type: { select: { name: TYPE_MAP[type] ?? 'Bug' } },
+        Role: { multi_select: [{ name: 'Brik Admin' }] },
         Product: { select: { name: PRODUCT_NAME } },
-        Status: { status: { name: 'Not Started' } },
-        Scope: { select: { name: SCOPE_MAP[type] ?? 'Normal' } },
+        Triage: { select: { name: 'Not Triaged' } },
+        Severity: { select: { name: SEVERITY_MAP[type] ?? 'Medium' } },
         URL: { url: `${BASE_URL}${page_url ?? ''}` },
       },
     }),
@@ -104,7 +104,12 @@ export async function POST(request: Request) {
   if (!res.ok) {
     const errBody = await res.json().catch(() => ({}));
     console.error('[feedback] Notion API error:', res.status, JSON.stringify(errBody));
-    return NextResponse.json({ error: 'Failed to submit feedback' }, { status: 500 });
+    // Surface the upstream Notion status + message so the widget shows an
+    // actionable error instead of a generic string (see brik-llm#791).
+    return NextResponse.json(
+      { error: 'Failed to submit feedback', notion_status: res.status, details: errBody },
+      { status: 502 },
+    );
   }
 
   const page = await res.json();
