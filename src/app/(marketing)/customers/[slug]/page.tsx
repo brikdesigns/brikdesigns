@@ -3,10 +3,11 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Breadcrumb, Card, Frame, Grid, LinkButton } from '@brikdesigns/bds';
-import { text, heading, label } from '@/lib/styles';
-import { color } from '@/lib/tokens';
+import { text, heading } from '@/lib/styles';
+import { color, font, serviceColor } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import { hasIconFor } from '@/lib/service-icons';
 import type { ServiceLine } from '@brikdesigns/bds';
 import '../../shared-sections.css';
@@ -40,15 +41,6 @@ export async function generateStaticParams() {
   const pages = await getIndustryPages();
   return pages.map((p: { slug: string }) => ({ slug: p.slug }));
 }
-
-// Fixed tinted backgrounds per topic_number — matches Webflow per-topic colored sections.
-// High-luminance values maintain text-primary 4.5:1+ contrast.
-const TOPIC_TINTS: Record<number, string> = {
-  1: '#fff4ad',
-  2: '#fcd7d3',
-  3: '#c8e6c9',
-  4: '#d8c5e8',
-};
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -99,26 +91,46 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   return (
     <>
-      {/* Hero — icon-lg service tag, breadcrumb, name, intro_description.
+      {/* Hero — split layout mirroring /services/[serviceLine]: content left
+       * (badge tag, breadcrumb, name, intro_description), industry icon right.
        * Tagline is reserved for service-plan promotion cards (per design canon)
-       * and is intentionally omitted here. The icon-lg block uses
-       * page.image_url, which now drives both the meganav card and this hero
-       * tag (collapsed from the legacy hero_image_url + image_url pair).
-       * Decorative badge pair still supported on the aside when present. */}
+       * and is intentionally omitted here.
+       *
+       * The tag-icon now holds the award/primary badge (not the industry icon).
+       * primary_badge_url and secondary_badge_url are a theme pair — primary is
+       * the light-mode artwork, secondary the dark-mode one — swapped purely in
+       * CSS via the `:root[data-theme="dark"]` selector so only one shows at a
+       * time. The industry icon (page.image_url) moves to the 2nd column media,
+       * matching the service-line hero aside.
+       *
+       * Fills the viewport with a scroll-down affordance pinned to the fold
+       * via .page-hero's `grid-template-rows: 1fr auto`. */}
       <section className="page-hero">
         <div className="page-hero__container">
           <div className="customer-detail-hero">
             <div className="customer-detail-hero__content">
-              {page.image_url && (
+              {(page.primary_badge_url || page.secondary_badge_url) && (
                 <div className="customer-detail-hero__tag" aria-hidden="true">
-                  <Image
-                    src={page.image_url}
-                    alt=""
-                    width={96}
-                    height={96}
-                    className="customer-detail-hero__tag-icon"
-                    priority
-                  />
+                  {page.primary_badge_url && (
+                    <Image
+                      src={page.primary_badge_url}
+                      alt=""
+                      width={96}
+                      height={96}
+                      className="customer-detail-hero__tag-icon customer-detail-hero__badge--primary"
+                      priority
+                    />
+                  )}
+                  {page.secondary_badge_url && (
+                    <Image
+                      src={page.secondary_badge_url}
+                      alt=""
+                      width={96}
+                      height={96}
+                      className="customer-detail-hero__tag-icon customer-detail-hero__badge--secondary"
+                      priority
+                    />
+                  )}
                 </div>
               )}
               <Breadcrumb
@@ -134,30 +146,23 @@ export default async function CustomerDetailPage({ params }: Props) {
                 <p className="page-hero__description">{page.intro_description}</p>
               )}
             </div>
-            {(page.primary_badge_url || page.secondary_badge_url) && (
-              <div className="customer-detail-hero__badges" aria-hidden="true">
-                {page.primary_badge_url && (
+            {page.image_url && (
+              <div className="customer-detail-hero__aside">
+                <div className="customer-detail-hero__media">
                   <Image
-                    src={page.primary_badge_url}
-                    alt=""
-                    width={120}
-                    height={120}
-                    className="customer-detail-hero__badge"
+                    src={page.image_url}
+                    alt={page.name}
+                    fill
+                    sizes="(max-width: 991px) 100vw, 45vw"
+                    style={{ objectFit: 'contain' }}
+                    priority
                   />
-                )}
-                {page.secondary_badge_url && (
-                  <Image
-                    src={page.secondary_badge_url}
-                    alt=""
-                    width={120}
-                    height={120}
-                    className="customer-detail-hero__badge"
-                  />
-                )}
+                </div>
               </div>
             )}
           </div>
         </div>
+        <ScrollDownCta />
       </section>
 
       {/* Topic sections — tinted bg per topic. Single 4-col grid spans the
@@ -181,16 +186,31 @@ export default async function CustomerDetailPage({ params }: Props) {
         const CARD_SLOTS = 3;
         const slots = Array.from({ length: CARD_SLOTS }, (_, i) => services[i] ?? null);
 
+        // Section tint follows the topic's service line via the canonical
+        // theme-aware surface token (`--surface-service-{slug}`), replacing the
+        // legacy per-topic_number hex map. Falls back to a neutral surface when
+        // the topic has no service line assigned.
+        const sectionSurface = topic.service_line_slug
+          ? serviceColor(mapServiceLineSlug(topic.service_line_slug)).surface
+          : color.surface.secondary;
+
         return (
           <section
             key={topic.topic_number}
             className="content-section"
-            style={{ backgroundColor: TOPIC_TINTS[topic.topic_number] ?? 'var(--surface-secondary)' }}
+            style={{ backgroundColor: sectionSurface }}
           >
             <div className="container-lg">
               <div className="customer-topic-grid">
                 <div className="customer-topic-grid__content">
-                  <span style={{ ...label.smBold, color: color.text.brand }}>
+                  <span style={{
+                    fontFamily: font.family.display,
+                    fontSize: font.size.display.md,
+                    fontWeight: font.weight.bold,
+                    lineHeight: font.lineHeight.tight,
+                    color: color.text.primary,
+                    margin: 0,
+                  }}>
                     {String(topic.topic_number).padStart(2, '0')}
                   </span>
                   {topic.title && <h3 style={heading.md}>{topic.title}</h3>}

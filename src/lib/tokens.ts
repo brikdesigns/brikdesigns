@@ -83,6 +83,12 @@ export const font = {
       md: 'var(--icon-md)',
       lg: 'var(--icon-lg)',
     },
+    display: {
+      sm: 'var(--display-sm)',
+      md: 'var(--display-md)',
+      lg: 'var(--display-lg)',
+      xl: 'var(--display-xl)',
+    },
   },
 
   lineHeight: {
