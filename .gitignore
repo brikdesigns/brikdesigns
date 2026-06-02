@@ -59,5 +59,8 @@ next-env.d.ts
 /playwright-report/
 /test-results/
 
+# Playwright MCP scratch output (console logs, page snapshots) — never commit
+.playwright-mcp/
+
 # Git worktrees managed by new-task.sh (tracked as untracked by primary)
 /.claude/worktrees/
