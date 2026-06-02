@@ -34,17 +34,16 @@
 
 .plan-service-list-item {
   display: grid;
-  grid-template-columns: 96px 1fr;
+  grid-template-columns: 72px 1fr;
   gap: var(--gap-lg);
   align-items: flex-start;
 }
 
+/* Square illustration thumbnail. Aspect-ratio + position are owned by the
+   BDS <Frame> wrapper (.bds-frame); this rule adds the radius and the
+   accent fill comes from `.illustration-media-bg`. */
 .plan-service-list-item__media {
-  aspect-ratio: 1;
-  background-color: var(--surface-accent);
   border-radius: var(--border-radius-md);
-  overflow: hidden;
-  position: relative;
 }
 
 .plan-service-list-item__content {
@@ -52,6 +51,22 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--gap-xs);
+}
+
+/* Service title (left) + service-line tag (right) on one row. Title takes the
+   remaining width; the tag holds its intrinsic size and wraps below only when
+   the row can't fit both. */
+.plan-service-list-item__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap-sm);
+  width: 100%;
+}
+
+.plan-service-list-item__header .plan-service-list-item__title {
+  flex: 1 1 auto;
 }
 
 /* font: var(--heading-sm) is invalid (shorthand needs size/family minimum) —
@@ -72,16 +87,63 @@
   margin: 0;
 }
 
-/* ─── What You Get — narrow content width ────────────────── */
-/* Constrain the CardGrid container to a focused reading width.
-   640px matches the BDS narrow content-width primitive. */
+/* ─── What You Get — content width ───────────────────────── */
+/* Wider than the default reading column so the service title and the
+   service-line tag sit on one row inside each card without crowding. */
 .plan-what-you-get .bds-card-grid__container {
-  max-width: 640px;
+  max-width: 768px;
+}
+
+/* ─── Bottom CTA — two-column support-plan panel ─────────── */
+/* Surface-service-tinted panel: plan illustration left, price/CTA card right.
+   Mirrors the .service-detail-support-grid pattern used on the service-detail
+   pages so the two support CTAs read as one system. */
+.plan-cta-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: center;
+  padding: var(--padding-xl);
+  border-radius: var(--border-radius-lg);
+}
+
+.plan-cta-panel__media {
+  position: relative;
+  aspect-ratio: 1;
+  align-self: stretch;
+}
+
+.plan-cta-panel__card {
+  width: 100%;
+}
+
+/* Price sits in a subtle inset block so it reads as the focal figure. */
+.plan-cta-panel__price {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-tiny);
+  width: 100%;
+  padding: var(--padding-md);
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+@media (max-width: 991px) {
+  .plan-cta-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-cta-panel__media {
+    max-width: 360px;
+    margin-inline: auto;
+    width: 100%;
+  }
 }
 
 @media (max-width: 479px) {
   .plan-service-list-item {
-    grid-template-columns: 72px 1fr;
+    grid-template-columns: 56px 1fr;
     gap: var(--gap-md);
   }
 }

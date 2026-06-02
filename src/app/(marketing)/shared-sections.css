@@ -262,6 +262,16 @@
   padding-bottom: var(--padding-huge);
 }
 
+/* Single service-line surface tone across the whole hero band.
+   BDS paints `--background-service-*` directly on `.bp-hero-img-card[data-audience]`,
+   which differs from the canonical `--surface-service-*` tint the wrapper carries —
+   the two shades read as a layered seam. Deferring the card to `transparent` lets
+   the wrapper's surface tone be the single visible background. The `[data-audience]`
+   selector matches BDS's specificity (0,2,0) and wins on source order. */
+.page-hero-blueprint .bp-hero-img-card[data-audience] {
+  background: transparent;
+}
+
 /* ─── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 767px) {
