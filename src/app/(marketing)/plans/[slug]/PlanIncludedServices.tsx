@@ -6,6 +6,7 @@ import {
   Card,
   CardGrid,
   Button,
+  Frame,
   SegmentedControl,
   ServiceTag,
 } from '@brikdesigns/bds';
@@ -45,7 +46,12 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
     : services;
 
   return (
-    <CardGrid sectionKey="what-you-get" title="What You Get" className="plan-what-you-get">
+    <CardGrid
+      sectionKey="what-you-get"
+      title="What You Get"
+      description="Here are a list of services you get when you sign up for monthly support"
+      className="plan-what-you-get"
+    >
       {showSegments && (
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: gap.xl }}>
           <SegmentedControl
@@ -64,25 +70,31 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
             <Card key={svc.slug} variant="outlined" padding="md">
               <div className="plan-service-list-item">
                 {svc.image_url && (
-                  <div className="plan-service-list-item__media">
+                  <Frame
+                    ratio="square"
+                    fit="contain"
+                    className="plan-service-list-item__media illustration-media-bg"
+                  >
                     <Image
                       src={svc.image_url}
                       alt={svc.name}
                       fill
-                      sizes="96px"
+                      sizes="72px"
                       style={{ objectFit: 'contain' }}
                     />
-                  </div>
+                  </Frame>
                 )}
                 <div className="plan-service-list-item__content">
-                  <ServiceTag
-                    category={svc.category}
-                    {...(svc.hasIcon ? { serviceName: svc.name } : {})}
-                    variant="icon-text"
-                    label={svc.service_lines?.name ?? svc.name}
-                    size="sm"
-                  />
-                  <h3 className="plan-service-list-item__title">{svc.name}</h3>
+                  <div className="plan-service-list-item__header">
+                    <h3 className="plan-service-list-item__title">{svc.name}</h3>
+                    <ServiceTag
+                      category={svc.category}
+                      {...(svc.hasIcon ? { serviceName: svc.name } : {})}
+                      variant="icon-text"
+                      label={svc.service_lines?.name ?? svc.name}
+                      size="sm"
+                    />
+                  </div>
                   {svc.description && (
                     <p className="plan-service-list-item__description">{svc.description}</p>
                   )}
