@@ -239,7 +239,7 @@ export default async function ServiceLinePage({ params }: Props) {
                           </Frame>
                         ) : undefined
                       }
-                      tag={<ServiceTag category={catKey} variant="icon" size="sm" />}
+                      tag={<ServiceTag category={catKey} variant="icon" size="md" />}
                       action={<LinkButton href={`/services/${routeSlugForServiceLine(cat.slug)}`} variant="primary" size="md">Learn More</LinkButton>}
                     />
                   </div>

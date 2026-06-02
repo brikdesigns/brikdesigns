@@ -41,7 +41,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
           )}
         </div>
         <div className="services-card__content">
-          <ServiceTag category={category} variant="icon" size="sm" serviceName={name} />
+          <ServiceTag category={category} variant="icon" size="md" serviceName={name} />
           <h3 style={{ ...heading.card }}>{name}</h3>
           <p style={{ ...text.bodySm, color: color.text.secondary }}>{tagline}</p>
         </div>
