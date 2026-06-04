@@ -37,6 +37,7 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/customers', name: 'Customers' },
   { path: '/customers/dental', name: 'Customer detail — dental' },
   { path: '/blog', name: 'Blog index' },
+  { path: '/events/demo-spring-webinar', name: 'Event detail — demo webinar' },
   { path: '/contact', name: 'Contact' },
   { path: '/get-started', name: 'Get started' },
   { path: '/free-marketing-analysis', name: 'Free marketing analysis' },

@@ -493,3 +493,40 @@ export const getCustomerStoriesByIndustry = cache(
     { revalidate: 3600, tags: ['cms-customer-stories', 'cms-industry-pages'] }
   )
 );
+
+// ── Events / newsletter landing pages (portal#950, brikdesigns#335/#336) ──
+// RLS ("Public read live events") restricts the anon client to active + ended
+// rows, so draft events surface as `null` here → the template notFound()s.
+
+export const getEventBySlug = cache(
+  unstable_cache(
+    async (slug: string) => {
+      const supabase = createPublicClient();
+      const { data } = await supabase
+        .from('events')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle();
+      return data;
+    },
+    ['event-by-slug'],
+    { revalidate: 3600, tags: ['cms-events'] }
+  )
+);
+
+export const getPublicEventSlugs = cache(
+  unstable_cache(
+    async (template: 'event' | 'newsletter') => {
+      const supabase = createPublicClient();
+      const { data } = await supabase
+        .from('events')
+        .select('slug')
+        .eq('template', template);
+      return (data ?? []) as { slug: string }[];
+    },
+    // unstable_cache appends the serialized `template` arg to this key, so the
+    // 'event' and 'newsletter' calls get distinct cache entries automatically.
+    ['public-event-slugs'],
+    { revalidate: 3600, tags: ['cms-events'] }
+  )
+);
