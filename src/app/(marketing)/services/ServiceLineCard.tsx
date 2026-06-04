@@ -25,9 +25,11 @@ interface ServiceLineCardProps {
  * would render a plain `<a>` and regress both).
  */
 export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: ServiceLineCardProps) {
-  // Audience-tinted CTA — same canonical pairing as BDS ServiceTag:
-  // `--background-service-{slug}` + `--text-service-{slug}`. BDS designs
-  // these to flip together across themes, so AA holds in light + dark.
+  // Audience-tinted CTA. Uses the accessible fill pairing — the dark
+  // `--background-service-{slug}-on-light` background with light
+  // `--text-service-{slug}-on-dark` text. The light-tint `bg` + darkest
+  // `text` pairing fell short of WCAG AA for orange/purple (4.32:1 / 4.26:1)
+  // under the BDS 0.90.0 token model. See brikdesigns #346.
   // Replaces raw `cat.brand_color_base` hex (brikdesigns#99).
   const tokens = serviceColor(category);
   return (
@@ -47,7 +49,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
         </div>
         <span
           className={composeButtonClasses({ variant: 'primary', size: 'md' })}
-          style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}
+          style={{ backgroundColor: tokens.ctaBg, color: tokens.ctaText, borderColor: tokens.ctaBg }}
         >
           Learn more
         </span>
@@ -98,7 +100,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
               href={`/services/${routeSlugForServiceLine(slug)}`}
               variant="primary"
               size="md"
-              style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}
+              style={{ backgroundColor: tokens.ctaBg, color: tokens.ctaText, borderColor: tokens.ctaBg }}
             >
               Learn more
             </Button>
