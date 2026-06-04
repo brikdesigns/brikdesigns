@@ -6,6 +6,20 @@ import { checkHoneypot, verifyRecaptcha } from '@/lib/spam-protection';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
+ * Derive a display name from an email local part for name-optional newsletter
+ * signups (brikdesigns#336): "jane.doe@x.com" → "Jane Doe". Keeps
+ * contacts.first_name + companies.name populated when no name is given.
+ */
+function emailToName(email: string): string {
+  const local = String(email).split('@')[0] ?? '';
+  const cleaned = local
+    .replace(/[._-]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    .trim();
+  return cleaned || 'Subscriber';
+}
+
+/**
  * Lead capture endpoint.
  * Called from the Get Started and Free Marketing Analysis forms.
  * Creates a company (type: 'lead') and contact in Supabase.
@@ -15,9 +29,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email, company_name, phone, plan, service, message, source, event_id } = body;
 
-    // Basic validation. company_name is optional for event registrations —
-    // not every attendee has a practice; we derive one from the name below.
-    if (!name || !email || (!company_name && !event_id)) {
+    // Basic validation. With an event_id, name + company_name are both
+    // optional — event attendees may have no practice, and newsletter signups
+    // (brikdesigns#336) capture email only; both are derived below. Without an
+    // event_id (the Get Started / analysis forms) all three stay required.
+    if (!email || (!name && !event_id) || (!company_name && !event_id)) {
       return NextResponse.json(
         { error: 'Name, email, and company name are required.' },
         { status: 400 }
@@ -53,10 +69,15 @@ export async function POST(request: Request) {
 
     const supabase = createServiceClient();
 
-    // company_name is optional for event signups; fall back to the person's
-    // name so the companies row (slug + name, both NOT NULL) still has a value.
+    // Name may be absent for newsletter signups — derive one from the email so
+    // contacts.first_name + companies.name stay populated (brikdesigns#336).
+    const displayName = String(name || '').trim() || emailToName(email);
+
+    // company_name is optional for event/newsletter signups; fall back to the
+    // person's (derived) name so the companies row (slug + name, both NOT NULL)
+    // still has a value.
     const effectiveCompanyName =
-      (company_name ? String(company_name).trim() : '') || String(name).trim();
+      (company_name ? String(company_name).trim() : '') || displayName;
 
     // companies.slug is NOT NULL; derive from the company name + a 6-char
     // suffix for uniqueness when two leads share a company name.
@@ -92,7 +113,7 @@ export async function POST(request: Request) {
 
     // Create primary contact. `full_name` is a generated column on this
     // table — split into first/last instead of writing to it directly.
-    const trimmed = String(name).trim();
+    const trimmed = displayName;
     const firstSpace = trimmed.indexOf(' ');
     const firstName = firstSpace === -1 ? trimmed : trimmed.slice(0, firstSpace);
     const lastName = firstSpace === -1 ? '' : trimmed.slice(firstSpace + 1).trim();
