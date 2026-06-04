@@ -44,9 +44,14 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/privacy-policy', name: 'Privacy policy' },
 ];
 
-// WCAG 2.1 AA tags — locked to the standard. Don't silently bump to 2.2 or
-// AAA without a per-rule review.
-const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
+// WCAG 2.1 AA tags — locked to the standard. Don't silently bump the
+// conformance level to 2.2 or AAA without a per-rule review.
+// 'best-practice' is added (not a conformance-level bump) to enable axe's
+// landmark rules — region, landmark-one-main, landmark-unique, heading-order —
+// which carry no WCAG tag and otherwise never run. This is the
+// build-standards/page-structure landmark gate (brik-bds #824); it mirrors
+// brik-client-portal #961. All are moderate impact → advisory, never block.
+const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 
@@ -89,10 +94,17 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
       // paint contrast / alt-text rules.
       await page.goto(route.path, { waitUntil: 'load' });
 
-      // Exclude Netlify deploy-preview admin overlays.
+      // Exclude Netlify deploy-preview admin overlays and the Brik Dev Bar
+      // (`.bdb-bar`) — a dev/staging-only toolbar injected client-side when
+      // NEXT_PUBLIC_ENABLE_DEV_TOOLS=true (see src/components/DevTools.tsx). It
+      // is absent in production, so its findings (white-on-poppy logo
+      // color-contrast, out-of-landmark `region`) are environment noise, not
+      // real debt — and its post-load injection made them flaky. .bdb-logo is
+      // inside .bdb-bar, so the single exclude covers the whole subtree.
       const results = await new AxeBuilder({ page })
         .withTags(AXE_TAGS)
         .exclude('iframe[title="Netlify Drawer"]')
+        .exclude('.bdb-bar')
         .analyze();
 
       type FlatFinding = {
@@ -120,11 +132,20 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
       );
       const nonBlocking = flatFindings.filter((f) => !BLOCKING_IMPACTS.has(f.impact));
 
-      // Attach the full report so failures are debuggable from CI.
-      await testInfo.attach(`axe-report-${route.path.replace(/\//g, '_') || 'home'}.json`, {
-        body: JSON.stringify({ blocking, baselined, nonBlocking, total: flatFindings.length }, null, 2),
-        contentType: 'application/json',
-      });
+      // Write the report to the test output dir (test-results/**) so the CI
+      // `playwright-report` artifact carries a greppable per-route JSON. An
+      // inline testInfo.attach body is embedded in index.html only — fine for
+      // a failing run you open by hand, but the landmark/region findings are
+      // advisory (they pass) and need to be reviewable without clicking
+      // through the HTML report. See brik-bds #824 / brik-client-portal #961.
+      fs.writeFileSync(
+        testInfo.outputPath('axe-report.json'),
+        JSON.stringify(
+          { route: route.path, url: page.url(), blocking, baselined, nonBlocking, total: flatFindings.length },
+          null,
+          2,
+        ),
+      );
 
       if (blocking.length > 0) {
         const summary = blocking

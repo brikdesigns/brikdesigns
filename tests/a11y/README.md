@@ -5,8 +5,14 @@ PR's Netlify deploy-preview, and locally via `npm run test:a11y`.
 
 ## Hard rules (per cross-repo CLAUDE.md § Accessibility)
 
-1. **Locked to WCAG 2.1 AA tags** (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`).
-   Don't silently bump to 2.2 or AAA without a decisions-log entry.
+1. **Conformance level locked to WCAG 2.1 AA** (`wcag2a`, `wcag2aa`, `wcag21a`,
+   `wcag21aa`). Don't silently bump the level to 2.2 or AAA without a
+   decisions-log entry. The tag set also includes **`best-practice`** — not a
+   level bump, but the only way to enable axe's landmark rules (`region`,
+   `landmark-one-main`, `landmark-unique`, `heading-order`), which carry no WCAG
+   tag. These are `moderate` impact → advisory, never block. This is the
+   `build-standards/page-structure` landmark gate (brik-bds #824), mirroring
+   brik-client-portal #961.
 2. **Per-selector baseline only.** Never `disableRules` whole-app — partial
    disable weakens the ADA defense story ("we run WCAG 2.1 AA").
 3. **CI runs against the Netlify deploy-preview**, not a CI-side rebuild.
@@ -67,6 +73,41 @@ not five. Write baseline entries in the canonical (un-indexed) form:
 …not `:nth-child(1)`, `:nth-child(2)`, etc. Axe will emit the indexed
 form at audit time, but the matcher absorbs it. See issue #40 for the
 underlying motivation.
+
+## Excluded from the audit
+
+The axe run excludes two environment-only overlays that aren't production
+content:
+
+- `iframe[title="Netlify Drawer"]` — Netlify deploy-preview admin UI.
+- `.bdb-bar` — the **Brik Dev Bar** (`BrikDevBar`), injected client-side when
+  `NEXT_PUBLIC_ENABLE_DEV_TOOLS=true` (see `src/components/DevTools.tsx`). It's
+  absent in production. Before it was excluded it produced a **flaky blocking**
+  white-on-poppy `color-contrast` finding (`.bdb-logo`, 3.78:1) and a spurious
+  `region` finding — flaky because it mounts after `load`. `.bdb-logo` is inside
+  `.bdb-bar`, so the one exclude covers the whole subtree.
+
+## Landmark audit findings (captured 2026-06-04, staging)
+
+Surfaced once the landmark rules were enabled (brik-bds #824). All `moderate`
+→ advisory, never block; none baselined (baseline is serious/critical only).
+Captured against `staging--brikdesigns.netlify.app` — the Next.js rebuild.
+(`www.brikdesigns.com` is still the legacy Webflow site and is **not** a valid
+target for this gate.)
+
+| Rule | Selector | Routes | Owner |
+|------|----------|--------|-------|
+| `heading-order` | `.bds-footer__column > h6` | all standard-layout routes | BDS Footer — `h6` follows higher headings |
+| `heading-order` | card headings (`.story-card`, `.about-team-name`, `.bds-pricing-card__title`, `.customer-topic-grid h3`) | /customer-stories, /about, /plans, /customers/dental | brikdesigns page components |
+| `landmark-complementary-is-top-level` | `aside` | /services/brand/logo-design | `aside` nested inside another landmark |
+| `landmark-unique` | `.mega-nav__main` | /value | nav landmark needs a distinct accessible name |
+
+**Needs in-browser investigation (not yet triaged):** `/value`, `/get-started`,
+`/contact`, `/free-marketing-analysis`, `/privacy-policy` *intermittently*
+report no `<main>` + loose `region` findings (`.branding`, `.footer`), but their
+**server-rendered HTML has a proper `<main>`** — pointing to a client-side error
+boundary on staging (flaky CMS call), not a real structure violation. Confirm in
+a headed browser before baselining or filing.
 
 ## Healthcare clients
 
