@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
-import { notifyOnLead } from '@/lib/notifications';
+import { notifyOnLead, notifyOnEventRegistration } from '@/lib/notifications';
 import { checkHoneypot, verifyRecaptcha } from '@/lib/spam-protection';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
     if (event_id) {
       const { data: eventRow, error: eventLookupError } = await supabase
         .from('events')
-        .select('title')
+        .select('title, template, event_date, event_time, description_html')
         .eq('id', event_id)
         .maybeSingle();
       if (eventLookupError) {
@@ -141,6 +141,23 @@ export async function POST(request: Request) {
         });
 
       if (registrationError) throw registrationError;
+
+      // Confirmation email to the registrant — event template only
+      // (newsletter welcome is a separate Phase 2 flow). Best-effort: the
+      // helper swallows its own errors so it never blocks the success
+      // response (brikdesigns#337).
+      if (eventRow?.template === 'event') {
+        await notifyOnEventRegistration({
+          email,
+          firstName,
+          event: {
+            title: eventRow.title,
+            event_date: eventRow.event_date ?? null,
+            event_time: eventRow.event_time ?? null,
+            description_html: eventRow.description_html ?? null,
+          },
+        });
+      }
     }
 
     // Fan out notifications to email + Slack. Best-effort; failures here

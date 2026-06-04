@@ -161,3 +161,107 @@ export async function notifyOnLead(lead: LeadNotification): Promise<void> {
   // Fan out in parallel; both are best-effort.
   await Promise.allSettled([sendEmail(lead), sendSlack(lead)]);
 }
+
+// ── Event registration confirmation email (brikdesigns#337) ──────────────
+// Sent to the registrant after a successful event_registrations insert.
+// Best-effort, same as notifyOnLead — never blocks the API response. Only
+// fired for template='event' signups (the route guards this); newsletter
+// welcome emails are a separate Phase 2 flow.
+
+export interface EventConfirmation {
+  /** Registrant email — the recipient. */
+  email: string;
+  /** Registrant first name for the greeting; '' falls back to "there". */
+  firstName: string;
+  event: {
+    title: string;
+    event_date: string | null;
+    event_time: string | null;
+    description_html: string | null;
+  };
+}
+
+/** Format a yyyy-mm-dd DATE for the email; '' for null. Plain-date parse,
+ *  no timezone shift. */
+function formatConfirmationDate(date: string | null): string {
+  if (!date) return '';
+  const [y, m, d] = date.split('-').map(Number);
+  if (!y || !m || !d) return date;
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+function stripTags(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function confirmationWhen(event: EventConfirmation['event']): string {
+  return [formatConfirmationDate(event.event_date), event.event_time ?? '']
+    .filter(Boolean)
+    .join(' · ');
+}
+
+function confirmationText(c: EventConfirmation): string {
+  const when = confirmationWhen(c.event);
+  const details = c.event.description_html ? stripTags(c.event.description_html) : '';
+  return [
+    `Hi ${c.firstName || 'there'},`,
+    ``,
+    `You're registered for ${c.event.title}.`,
+    when ? `\nWhen: ${when}` : null,
+    details ? `\n${details}` : null,
+    ``,
+    `See you there,`,
+    `Brik Designs`,
+  ]
+    .filter((l) => l !== null)
+    .join('\n');
+}
+
+function confirmationHtml(c: EventConfirmation): string {
+  const when = confirmationWhen(c.event);
+  // description_html is admin-authored and sanitized on write by the portal
+  // CMS uploader; embedded as-is for the "what to expect" section (mail
+  // clients sandbox HTML). Title/name/when are escaped.
+  return `<div style="font-family:system-ui,sans-serif;max-width:560px">
+    <h2>You're registered!</h2>
+    <p>Hi ${escapeHtml(c.firstName || 'there')},</p>
+    <p>Thanks for registering for <strong>${escapeHtml(c.event.title)}</strong>.</p>
+    ${when ? `<p><strong>When:</strong> ${escapeHtml(when)}</p>` : ''}
+    ${c.event.description_html ? `<div>${c.event.description_html}</div>` : ''}
+    <p>See you there,<br />Brik Designs</p>
+  </div>`;
+}
+
+export async function notifyOnEventRegistration(c: EventConfirmation): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn('[event-confirm] RESEND_API_KEY missing — skipping confirmation email');
+    return;
+  }
+  const resend = new Resend(apiKey);
+  try {
+    const { error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: c.email,
+      replyTo: 'hello@brikdesigns.com',
+      subject: `You're registered — ${c.event.title}`,
+      text: confirmationText(c),
+      html: confirmationHtml(c),
+    });
+    if (error) {
+      console.error('[event-confirm] Resend error:', error);
+    }
+  } catch (err) {
+    console.error('[event-confirm] Resend threw:', err);
+  }
+}
