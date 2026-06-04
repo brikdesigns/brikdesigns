@@ -517,7 +517,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-              <h2 style={{ ...heading.md, textAlign: 'center' }}>Want a partner to avoid the full-time hassle?</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a partner to avoid the full-time hassle?</h2>
               <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
               </p>
