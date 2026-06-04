@@ -272,6 +272,31 @@
   background: transparent;
 }
 
+/* Pin the hero content + media card to the top of the band so the breadcrumb
+   sits at a stable vertical position regardless of how many lines the H1 wraps
+   to. BDS defaults `.bp-hero-img-card__container` to `align-items: center`,
+   which re-centers the whole block when the title grows — shifting the
+   breadcrumb between pages. Scoped to `.page-hero-blueprint` (specificity 0,2,0
+   > BDS's 0,1,0) per the override pattern above; upstream fix tracked for
+   brik-bds. (#354) */
+.page-hero-blueprint .bp-hero-img-card__container {
+  align-items: start;
+}
+
+/* Tighten the hero content rhythm to gap-sm (breadcrumb → eyebrow → H1 → lead).
+   BDS hardcodes `__content` to gap-md with no component-var hook, and the
+   breadcrumb adds its own gap-sm margin-bottom on top — so set the flex gap to
+   gap-sm and drop the redundant margin so every step is a uniform gap-sm.
+   A component-level spacing-variable ("space mode") in BDS would remove the
+   need for this raw-class override — tracked in brik-bds#828. (#354) */
+.page-hero-blueprint .bp-hero-img-card__content {
+  gap: var(--gap-sm);
+}
+
+.page-hero-blueprint .bp-hero-img-card__breadcrumb {
+  margin-bottom: 0;
+}
+
 /* ─── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 767px) {
