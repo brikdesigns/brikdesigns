@@ -10,6 +10,9 @@ import { Resend } from 'resend';
  *   RESEND_API_KEY           — Resend account key (shared with portal)
  *   LEADS_NOTIFICATION_EMAIL — destination address; defaults to hello@brikdesigns.com
  *   SLACK_LEADS_WEBHOOK_URL  — Slack incoming-webhook URL for #leads (or wherever)
+ *   SLACK_EVENTS_WEBHOOK_URL — Slack incoming-webhook URL for #events; used when
+ *                              the lead is an event registration. Falls back to
+ *                              SLACK_LEADS_WEBHOOK_URL if unset (brikdesigns#334).
  */
 
 export interface LeadNotification {
@@ -21,6 +24,8 @@ export interface LeadNotification {
   service?: string;
   message?: string;
   source: string;
+  /** Set for event/newsletter registrations — routes Slack to #events. */
+  eventTitle?: string;
 }
 
 const FROM_EMAIL = 'Brik Designs <hello@brikdesigns.com>';
@@ -30,12 +35,19 @@ function field(label: string, value: string | undefined): string | null {
   return `${label}: ${value}`;
 }
 
+function headline(lead: LeadNotification): string {
+  return lead.eventTitle
+    ? 'New event registration from brikdesigns.com'
+    : 'New lead from brikdesigns.com';
+}
+
 function plainTextBody(lead: LeadNotification): string {
   return [
-    `New lead from brikdesigns.com`,
+    headline(lead),
     ``,
     field('Name', lead.name),
     field('Email', lead.email),
+    field('Event', lead.eventTitle),
     field('Company', lead.company_name),
     field('Phone', lead.phone),
     field('Source', lead.source),
@@ -51,6 +63,7 @@ function htmlBody(lead: LeadNotification): string {
   const rows = [
     ['Name', lead.name],
     ['Email', `<a href="mailto:${lead.email}">${lead.email}</a>`],
+    ['Event', lead.eventTitle ? escapeHtml(lead.eventTitle) : undefined],
     ['Company', lead.company_name],
     ['Phone', lead.phone],
     ['Source', lead.source],
@@ -66,7 +79,7 @@ function htmlBody(lead: LeadNotification): string {
     : '';
 
   return `<div style="font-family:system-ui,sans-serif;max-width:560px">
-    <h2>New lead from brikdesigns.com</h2>
+    <h2>${headline(lead)}</h2>
     <table style="border-collapse:collapse">${rows}</table>
     ${message}
   </div>`;
@@ -93,7 +106,9 @@ async function sendEmail(lead: LeadNotification): Promise<void> {
       from: FROM_EMAIL,
       to,
       replyTo: lead.email,
-      subject: `New lead — ${lead.name} (${lead.company_name})`,
+      subject: lead.eventTitle
+        ? `New event registration — ${lead.name} (${lead.eventTitle})`
+        : `New lead — ${lead.name} (${lead.company_name})`,
       text: plainTextBody(lead),
       html: htmlBody(lead),
     });
@@ -106,13 +121,19 @@ async function sendEmail(lead: LeadNotification): Promise<void> {
 }
 
 async function sendSlack(lead: LeadNotification): Promise<void> {
-  const url = process.env.SLACK_LEADS_WEBHOOK_URL;
+  // Event registrations route to #events; fall back to #leads if the events
+  // webhook isn't configured yet (brikdesigns#334).
+  const url = lead.eventTitle
+    ? process.env.SLACK_EVENTS_WEBHOOK_URL ?? process.env.SLACK_LEADS_WEBHOOK_URL
+    : process.env.SLACK_LEADS_WEBHOOK_URL;
   if (!url) {
-    console.warn('[lead-notify] SLACK_LEADS_WEBHOOK_URL missing — skipping slack');
+    console.warn('[lead-notify] no Slack webhook configured — skipping slack');
     return;
   }
 
-  const summary = `🎯 New lead: ${lead.name} (${lead.email}) at ${lead.company_name} — source: ${lead.source}`;
+  const summary = lead.eventTitle
+    ? `📅 New event registration: ${lead.name} (${lead.email}) for *${lead.eventTitle}* — source: ${lead.source}`
+    : `🎯 New lead: ${lead.name} (${lead.email}) at ${lead.company_name} — source: ${lead.source}`;
   const detailLines = [
     field('Phone', lead.phone),
     field('Plan', lead.plan),
