@@ -106,8 +106,8 @@ target for this gate.)
 `/contact`, `/free-marketing-analysis`, `/privacy-policy` *intermittently*
 report no `<main>` + loose `region` findings (`.branding`, `.footer`), but their
 **server-rendered HTML has a proper `<main>`** — pointing to a client-side error
-boundary on staging (flaky CMS call), not a real structure violation. Confirm in
-a headed browser before baselining or filing.
+boundary on staging (flaky CMS call), not a real structure violation. Tracked in
+**#341** (confirm in a headed browser before baselining; don't silence).
 
 ## Healthcare clients
 
