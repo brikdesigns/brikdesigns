@@ -40,6 +40,15 @@ const data = { heading: 'Title', subheading: 'Subtitle' };
 const data = { title: 'Title', subtitle: 'Subtitle' };
 ```
 
+## Heading scale by structural role
+
+`heading.lg` and `heading.md` are token scales — pick by the heading's place in the document, not by eye. Canonical rule for `<h2>`:
+
+- **Section heading** — heads a top-level page `<section>` → `heading.lg`. Examples: "Our Services", "The Value of Design", the service-page CTA.
+- **Sub-head** — a form-panel title or in-article sub-heading nested *inside* a section → `heading.md`. Examples: "Send us a message" (contact form), "The Challenge / Results" (story body).
+
+When in doubt: if the heading introduces a full page section it is `heading.lg`; if it labels a widget or block *within* a section it is `heading.md`. Standardized site-wide in #318.
+
 ## TypeScript data objects
 
 When defining a local array or record that feeds into rendered text, use canonical role names as property keys:
