@@ -79,8 +79,12 @@ jobs:
           PLAYWRIGHT_BASE_URL: ${{ steps.deploy.outputs.url }}
         run: npm run test:a11y
 
-      - name: Upload Playwright report on failure
-        if: failure()
+      # Always upload — not just on failure. The landmark/region rules
+      # (best-practice tag) surface advisory findings that pass the gate but
+      # are the burn-down queue; the report must persist on green runs so the
+      # per-route axe-report attachments are reviewable. See brik-bds #824.
+      - name: Upload Playwright report
+        if: always()
         uses: actions/upload-artifact@v5
         with:
           name: playwright-report
