@@ -11,15 +11,22 @@ name: Accessibility (axe + Playwright)
 
 on:
   pull_request:
+    # `staging` is the pre-launch integration branch — task PRs target it, so
+    # the gate must run there, not only on staging->main promotes. (Takes
+    # effect once this change is on staging; pull_request filters are read from
+    # the base branch.)
     branches:
       - main
-    # Only run the Playwright a11y audit when something rendered could change.
+      - staging
+    # Run when something rendered could change, or when the gate itself changes.
     paths:
       - 'src/**'
       - 'public/**'
       - 'next.config.*'
       - 'package.json'
       - 'package-lock.json'
+      - 'tests/a11y/**'
+      - '.github/workflows/a11y.yml'
 
 concurrency:
   group: a11y-${{ github.ref }}
