@@ -80,7 +80,7 @@ interface ServiceCalloutProps {
 export function ServiceCallout({ name, slug, category, description, imageUrl }: ServiceCalloutProps) {
   const tokens = serviceColor(category);
   return (
-    <Card padding="lg" className="services-callout-card">
+    <Card variant="borderless" padding="lg" className="services-callout-card">
       <Stack direction="horizontal" gap="lg" align="center">
         <div className="services-callout-card__media">
           <Frame ratio="square" fit="cover">

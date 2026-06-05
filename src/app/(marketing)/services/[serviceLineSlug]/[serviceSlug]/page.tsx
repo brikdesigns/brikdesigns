@@ -362,7 +362,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           title="Related Customer Story"
           style={{ background: serviceTokens.surface }}
         >
-          <Card padding="lg">
+          <Card variant="borderless" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedStory.hero_image_url && (
                 <div style={{ flex: '0 0 40%' }}>
@@ -407,7 +407,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           title="Recommended Add-On Service"
           style={{ background: serviceTokens.surface }}
         >
-          <Card padding="lg">
+          <Card variant="borderless" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedService.image_url && (
                 <div style={{ flex: '0 0 35%' }}>
