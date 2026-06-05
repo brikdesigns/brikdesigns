@@ -44,7 +44,7 @@ export function NewsletterForm() {
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-sm)', width: '100%' }}>
       <TextInput
-        size="lg"
+        size="md"
         fullWidth
         hideBorder
         type="text"
@@ -54,7 +54,7 @@ export function NewsletterForm() {
         autoComplete="given-name"
       />
       <TextInput
-        size="lg"
+        size="md"
         fullWidth
         hideBorder
         type="email"

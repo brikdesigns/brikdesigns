@@ -87,10 +87,13 @@
   filter: none;
 }
 
-/* Scoped overrides for the ScrollDownCta inside the brand hero — the default
-   --text-secondary label is dark grey on brand-yellow (low contrast). The
-   ≤767px hide rule still applies via the global cascade. */
-.section-hero .scroll-down-cta__label {
+/* Scoped overrides for the ScrollDownCta inside the brand hero — on the poppy
+   --surface-brand-primary backdrop the default --text-secondary label and
+   --text-brand-primary icon are both low-contrast. Invert both to white
+   (--text-on-color-dark stays white in either theme). #356. The ≤767px hide
+   rule still applies via the global cascade. */
+.section-hero .scroll-down-cta__label,
+.section-hero .scroll-down-cta__icon {
   color: var(--text-on-color-dark);
 }
 
