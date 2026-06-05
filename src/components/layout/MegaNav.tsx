@@ -60,12 +60,43 @@ type DropdownId = 'services' | 'customers' | 'about' | 'plans' | null;
 export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps) {
   const [open, setOpen] = useState<DropdownId>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const navRef = useRef<HTMLElement>(null);
+  const lastYRef = useRef(0);
 
   // Click-only toggle (matches Webflow data-hover="false")
   const toggle = useCallback((id: DropdownId) => {
     setOpen((prev) => (prev === id ? null : id));
   }, []);
+
+  // Hide-on-scroll-down / reveal-on-scroll-up + subtle shadow once scrolled.
+  // rAF-throttled; never hides while a dropdown or the mobile menu is open so
+  // the open panel (anchored to the nav) can't be scrolled off-screen.
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const navH = navRef.current?.offsetHeight ?? 0;
+        setScrolled(y > 8);
+        const last = lastYRef.current;
+        if (open !== null || mobileOpen) {
+          setHidden(false);
+        } else if (y > navH && y > last) {
+          setHidden(true);
+        } else if (y < last) {
+          setHidden(false);
+        }
+        lastYRef.current = y;
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [open, mobileOpen]);
 
   // Close on outside click
   useEffect(() => {
@@ -92,7 +123,10 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
   }, []);
 
   return (
-    <header className="mega-nav" ref={navRef}>
+    <header
+      className={`mega-nav${scrolled ? ' mega-nav--scrolled' : ''}${hidden ? ' mega-nav--hidden' : ''}`}
+      ref={navRef}
+    >
       {/* Utility bar — Webflow: .utility-navigation → .layout-utility-nav.right → .top-nav-item */}
       <div className="mega-nav__utility">
         <div className="mega-nav__container mega-nav__utility-inner">
