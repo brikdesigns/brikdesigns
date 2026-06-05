@@ -147,7 +147,7 @@ export default async function CustomersPage() {
                   </>
                 }
                 action={
-                  <Button href="/contact" variant="primary" size="sm">
+                  <Button href="/contact" variant="primary" size="md">
                     Let&apos;s Talk
                   </Button>
                 }
