@@ -302,4 +302,18 @@ h1, h2, h3, h4, h5, h6 {
     font-size: var(--heading-md);
     text-align: center;
   }
+
+  /* Borderless cards (#360) sit transparently on service-tinted sections, whose
+     --surface-service-* tokens are FIXED-LIGHT in both themes. The card text
+     therefore loses its former white-fill backdrop and lands directly on the
+     light tint. The theme-responsive --text-primary/-secondary flip light in
+     dark mode → illegible (light-on-light); --text-secondary also fails AA on
+     the product (4.17:1) and back-office (3.70:1) tints even in light mode.
+     Pin the card content to a theme-invariant dark primitive — ≥5.05:1 on every
+     service tint in both themes (same fixed-on-fixed pattern as .bds-footer--inverse
+     above, mirrored for a light surface). */
+  .bds-card--borderless .bds-card-title,
+  .bds-card--borderless .bds-card-description {
+    color: var(--color-grayscale-darkest);
+  }
 }
