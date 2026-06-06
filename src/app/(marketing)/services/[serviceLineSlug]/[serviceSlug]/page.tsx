@@ -268,7 +268,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
-        className="page-hero-blueprint service-themed"
+        className="page-hero-blueprint service-themed service-surface"
         data-scroll-hero
         style={
           {
@@ -312,7 +312,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           id="pricing"
           sectionKey="pricing"
           title="Pricing Options"
-          className="service-themed"
+          className="service-themed service-surface"
           style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
@@ -361,7 +361,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="story"
           title="Related Customer Story"
-          className="service-themed"
+          className="service-themed service-surface"
           style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Card variant="borderless" padding="lg">
@@ -407,7 +407,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="addon"
           title="Recommended Add-On Service"
-          className="service-themed"
+          className="service-themed service-surface"
           style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Card variant="borderless" padding="lg">
@@ -461,7 +461,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
-          className="service-themed"
+          className="service-themed service-surface"
           style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">

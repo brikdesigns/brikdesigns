@@ -82,7 +82,7 @@ export default async function ServiceLinePage({ params }: Props) {
     <div data-audience={audience} className="service-themed" style={{ '--background-brand-primary': svcColors.inverse, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
       {/* ═══ Hero ═══ */}
       <section
-        className="page-hero"
+        className="page-hero service-surface"
         style={{ backgroundColor: svcColors.surface }}
       >
         <div className="page-hero__container">
@@ -127,7 +127,7 @@ export default async function ServiceLinePage({ params }: Props) {
       </section>
 
       {/* ═══ Service Cards ═══ */}
-      <section id="services" className="content-section" style={{ backgroundColor: svcColors.surface }}>
+      <section id="services" className="content-section service-surface" style={{ backgroundColor: svcColors.surface }}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {serviceLine.name} Services

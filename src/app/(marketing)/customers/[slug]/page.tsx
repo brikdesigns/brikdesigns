@@ -197,7 +197,10 @@ export default async function CustomerDetailPage({ params }: Props) {
         return (
           <section
             key={topic.topic_number}
-            className="content-section"
+            // `service-surface` only when the section carries a fixed-light service
+            // tint — a service-line-less topic falls back to the theme-responsive
+            // neutral surface, where the light dark-mode text is already correct.
+            className={`content-section${topic.service_line_slug ? ' service-surface' : ''}`}
             style={{ backgroundColor: sectionSurface }}
           >
             <div className="container-lg">
