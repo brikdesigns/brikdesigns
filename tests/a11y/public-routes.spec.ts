@@ -56,9 +56,18 @@ const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 
+type RouteBaseline = Record<string, Record<string, string[]>>;
+
 interface BaselineFile {
-  routes: Record<string, Record<string, string[]>>;
+  // Light-theme baseline (the original, default project).
+  routes: RouteBaseline;
+  // Dark-theme baseline (`chromium-desktop-dark` project). The two themes
+  // resolve different tokens, so a finding allowed in one is NOT automatically
+  // allowed in the other — each theme keeps its own debt list. #359 follow-up.
+  routesDark?: RouteBaseline;
 }
+
+type Theme = 'light' | 'dark';
 
 const BASELINE_PATH = path.join(process.cwd(), 'tests/a11y/baseline.json');
 const baseline: BaselineFile = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
@@ -74,21 +83,36 @@ function normalizeSelector(selector: string): string {
     .replace(/:nth-of-type\(\d+\)/g, '');
 }
 
-const normalizedBaseline: Record<string, Record<string, Set<string>>> = {};
-for (const [route, rules] of Object.entries(baseline.routes)) {
-  normalizedBaseline[route] = {};
-  for (const [ruleId, selectors] of Object.entries(rules)) {
-    normalizedBaseline[route][ruleId] = new Set(selectors.map(normalizeSelector));
+function normalize(routeBaseline: RouteBaseline): Record<string, Record<string, Set<string>>> {
+  const out: Record<string, Record<string, Set<string>>> = {};
+  for (const [route, rules] of Object.entries(routeBaseline)) {
+    out[route] = {};
+    for (const [ruleId, selectors] of Object.entries(rules)) {
+      out[route][ruleId] = new Set(selectors.map(normalizeSelector));
+    }
   }
+  return out;
 }
 
-function isBaselined(routePath: string, ruleId: string, selector: string): boolean {
-  return normalizedBaseline[routePath]?.[ruleId]?.has(normalizeSelector(selector)) ?? false;
+const normalizedBaseline: Record<Theme, Record<string, Record<string, Set<string>>>> = {
+  light: normalize(baseline.routes),
+  dark: normalize(baseline.routesDark ?? {}),
+};
+
+function isBaselined(theme: Theme, routePath: string, ruleId: string, selector: string): boolean {
+  return normalizedBaseline[theme][routePath]?.[ruleId]?.has(normalizeSelector(selector)) ?? false;
+}
+
+// The dark project (`chromium-desktop-dark`) sets colorScheme:'dark'; everything
+// else runs light. Keying off the project name keeps the two baselines distinct.
+function themeFor(projectName: string): Theme {
+  return projectName.endsWith('-dark') ? 'dark' : 'light';
 }
 
 test.describe('Public routes — WCAG 2.1 AA audit', () => {
   for (const route of PUBLIC_ROUTES) {
     test(`${route.name} (${route.path}) has no new serious or critical violations`, async ({ page }, testInfo) => {
+      const theme = themeFor(testInfo.project.name);
       // 'load' rather than 'networkidle' — networkidle is fragile on modern
       // sites with continuous network activity (lazy images, analytics).
       // 'load' waits for CSS + images, which is what axe needs for first-
@@ -140,10 +164,10 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
       );
 
       const blocking = flatFindings.filter(
-        (f) => BLOCKING_IMPACTS.has(f.impact) && !isBaselined(route.path, f.ruleId, f.selector),
+        (f) => BLOCKING_IMPACTS.has(f.impact) && !isBaselined(theme, route.path, f.ruleId, f.selector),
       );
       const baselined = flatFindings.filter(
-        (f) => BLOCKING_IMPACTS.has(f.impact) && isBaselined(route.path, f.ruleId, f.selector),
+        (f) => BLOCKING_IMPACTS.has(f.impact) && isBaselined(theme, route.path, f.ruleId, f.selector),
       );
       const nonBlocking = flatFindings.filter((f) => !BLOCKING_IMPACTS.has(f.impact));
 
@@ -156,7 +180,7 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
       fs.writeFileSync(
         testInfo.outputPath('axe-report.json'),
         JSON.stringify(
-          { route: route.path, url: page.url(), blocking, baselined, nonBlocking, total: flatFindings.length },
+          { route: route.path, theme, url: page.url(), blocking, baselined, nonBlocking, total: flatFindings.length },
           null,
           2,
         ),
@@ -166,7 +190,7 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
         const summary = blocking
           .map((f) => `  [${f.impact}] ${f.ruleId} → ${f.selector}\n    ${f.help}`)
           .join('\n');
-        expect(blocking, `New serious/critical violations on ${route.path}:\n${summary}`).toHaveLength(0);
+        expect(blocking, `New serious/critical violations on ${route.path} (${theme} theme):\n${summary}`).toHaveLength(0);
       }
     });
   }
