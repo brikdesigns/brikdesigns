@@ -378,4 +378,24 @@ h1, h2, h3, h4, h5, h6 {
   .service-themed .bds-button--primary:focus-visible {
     outline-color: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — every --border-* token is theme-responsive (flips light in the dark root), but the service surfaces are fixed-light in BOTH themes, so only a mode-invariant primitive clears 3:1 in both. Same fixed-on-fixed-light primitive the #360 borderless-card fix uses. */
   }
+
+  /* #369 — Dark-theme secondary button label fails AA.
+     The dark brand-kit block (globals.css `:root[data-theme="dark"]
+     .theme-brand-brik`) sets a light muted-grey --background-secondary (#bdbdbd)
+     for muted TEXT/BORDERS, but BDS's `.bds-button--secondary` reuses that token
+     as its FILL while the label stays the near-white --text-primary (#f2f2f2):
+     1.68:1 at rest, 3.43:1 on hover (--background-secondary-hover = #828282) —
+     both sub-AA. The button's own :active state already pairs this family with a
+     dark fill (--background-secondary-pressed = #333 + white label, ~11:1).
+     Re-point only the rest + hover secondary-background tokens to dark grayscale
+     tiers, scoped to the button element so the global --background-secondary stays
+     #bdbdbd for the chip/menu/table consumers and --text-secondary/-border-secondary
+     are untouched. Overriding the --background-* custom props (not background-color)
+     mirrors the brand-kit block above and lets BDS's own button rules consume the
+     darker fills. Subsumed by #227 if globals.css migrates to consume
+     theme-brand-brik from BDS. */
+  :root[data-theme="dark"] .theme-brand-brik .bds-button--secondary {
+    --background-secondary: var(--color-grayscale-dark); /* bds-lint-ignore token-family — re-points the secondary-bg token for the button scope only, using the same grayscale primitive family the brand-kit dark block uses for --background-secondary* (lines ~115/119); the Shape-B pairing check fires solely because the selector is component-scoped (.bds-button--secondary), not a bare theme-def block. rest: #5a5a5a → 6.16:1 vs --text-primary #f2f2f2 */
+    --background-secondary-hover: var(--color-grayscale-darker); /* bds-lint-ignore token-family — see above; hover: #333 → 11.29:1 */
+  }
 }

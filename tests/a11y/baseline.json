@@ -25,15 +25,8 @@
       ]
     }
   },
-  "_commentDark": "Dark-theme baseline (chromium-desktop-dark project, colorScheme:dark). Added 2026-06-06 (#359 follow-up) when the axe suite gained a dark-mode pass — the suite had only ever rendered light, so dark-only contrast debt was invisible (the #366 dark service-button failure shipped unseen). Captured against local `next dev` at staging-equivalent state. Same format/normalization as routes. Burn-down tracked alongside the light baseline (#40); the service-button entries here are the dark-theme face of brik-bds#827 (medium `-darker` service fills under white labels — marketing 2.87:1, brand 4.36:1).",
+  "_commentDark": "Dark-theme baseline (chromium-desktop-dark project, colorScheme:dark). Added 2026-06-06 (#359 follow-up) when the axe suite gained a dark-mode pass — the suite had only ever rendered light, so dark-only contrast debt was invisible (the #366 dark service-button failure shipped unseen). Captured against local `next dev` at staging-equivalent state. Same format/normalization as routes. Burn-down tracked alongside the light baseline (#40); the service-button entries here are the dark-theme face of brik-bds#827 (medium `-darker` service fills under white labels — marketing 2.87:1, brand 4.36:1). BURN-DOWN 2026-06-06 (#369): removed the 3 /contact secondary-button entries (the mailto / tel / Calendly a[target=_blank] CTAs). globals.css client-overrides now re-fills the dark .bds-button--secondary (rest --color-grayscale-dark #5a5a5a 6.16:1, hover --color-grayscale-darker #333 11.29:1) against the near-white --text-primary label, matching the button's own dark :active fill. Verified 0 color-contrast on /contact dark against local next dev. First routesDark burn-down; remaining dark debt is the brik-bds#827 service-CTA cluster + breadcrumb/hero text.",
   "routesDark": {
-    "/contact": {
-      "color-contrast": [
-        ".bds-button--secondary.bds-button--md[href=\"mailto:hello@brikdesigns.com\"] > .bds-button__content",
-        ".bds-button--secondary.bds-button--md[href=\"tel:+15614908714\"] > .bds-button__content",
-        "a[target=\"_blank\"] > .bds-button__content"
-      ]
-    },
     "/customer-stories": {
       "color-contrast": [
         ".services-card-link[href$=\"brand\"] > .services-card.bds-card.bds-card--outlined > .bds-button--md.bds-button--primary.bds-button",
