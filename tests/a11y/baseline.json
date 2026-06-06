@@ -26,5 +26,88 @@
     }
   },
   "_commentDark": "Dark-theme baseline (chromium-desktop-dark project, colorScheme:dark). Added 2026-06-06 (#359 follow-up) when the axe suite gained a dark-mode pass — the suite had only ever rendered light, so dark-only contrast debt was invisible (the #366 dark service-button failure shipped unseen). Captured against local `next dev` at staging-equivalent state. Same format/normalization as routes. Burn-down tracked alongside the light baseline (#40); the service-button entries here are the dark-theme face of brik-bds#827 (medium `-darker` service fills under white labels — marketing 2.87:1, brand 4.36:1).",
-  "routesDark": {}
+  "routesDark": {
+    "/contact": {
+      "color-contrast": [
+        ".bds-button--secondary.bds-button--md[href=\"mailto:hello@brikdesigns.com\"] > .bds-button__content",
+        ".bds-button--secondary.bds-button--md[href=\"tel:+15614908714\"] > .bds-button__content",
+        "a[target=\"_blank\"] > .bds-button__content"
+      ]
+    },
+    "/customer-stories": {
+      "color-contrast": [
+        ".services-card-link[href$=\"brand\"] > .services-card.bds-card.bds-card--outlined > .bds-button--md.bds-button--primary.bds-button",
+        ".services-card-link[href$=\"information\"] > .services-card.bds-card.bds-card--outlined > .bds-button--md.bds-button--primary.bds-button",
+        ".services-card-link[href$=\"marketing\"] > .services-card.bds-card.bds-card--outlined > .bds-button--md.bds-button--primary.bds-button",
+        ".services-card-link[href$=\"product\"] > .services-card.bds-card.bds-card--outlined > .bds-button--md.bds-button--primary.bds-button"
+      ]
+    },
+    "/customers": {
+      "color-contrast": [
+        ".bds-card--outlined.challenge-card.bds-card--padding-lg > p"
+      ]
+    },
+    "/customers/dental": {
+      "color-contrast": [
+        ".content-section > .container-lg > .customer-topic-grid > .customer-topic-grid__content > h3",
+        ".content-section > .container-lg > .customer-topic-grid > .customer-topic-grid__content > p",
+        ".content-section > .container-lg > .customer-topic-grid > .customer-topic-grid__content > span"
+      ]
+    },
+    "/events/demo-spring-webinar": {
+      "color-contrast": [
+        ".event-page__description > p",
+        ".event-page__meta-item",
+        "h1"
+      ]
+    },
+    "/services": {
+      "color-contrast": [
+        ".bds-button--md.bds-button[href$=\"information\"] > .bds-button__content",
+        ".bds-button--md.bds-button[href$=\"product\"] > .bds-button__content",
+        ".content-section > .container-lg > .content-wrapper.content-wrapper--center > h2",
+        ".content-section > .container-lg > .content-wrapper.content-wrapper--center > p",
+        ".services-card-link[href$=\"brand\"] > .bds-card--outlined.bds-card--padding-md.bds-card--interactive > .bds-button--md.bds-button.bds-button--primary",
+        ".services-card-link[href$=\"marketing\"] > .bds-card--outlined.bds-card--padding-md.bds-card--interactive > .bds-button--md.bds-button.bds-button--primary"
+      ]
+    },
+    "/services/brand": {
+      "color-contrast": [
+        "#services > .container-lg.container-lg--comfortable > h2",
+        ".bds-breadcrumb__current",
+        ".bds-breadcrumb__link[href$=\"services\"]",
+        ".bds-breadcrumb__link[href=\"/\"]",
+        ".bds-button--md.bds-button[href$=\"marketing\"] > .bds-button__content",
+        ".bds-card--preset-display.bds-card > .bds-card__preset-display-body > .bds-card__preset-display-action > .bds-button--md.bds-button.bds-button--primary > .bds-button__content",
+        ".page-hero__description",
+        "a[href$=\"#services\"] > .bds-button__content",
+        "a[href$=\"business-card\"] > .bds-button__content",
+        "a[href$=\"logo-design\"] > .bds-button__content",
+        "a[href$=\"plans#marketing-support\"] > .bds-button__content",
+        "h1"
+      ]
+    },
+    "/services/brand/logo-design": {
+      "color-contrast": [
+        "#addon-title",
+        "#hero-logo-design-title",
+        "#other-services-title",
+        "#pricing-title",
+        "#story-title",
+        ".bds-breadcrumb__current",
+        ".bds-breadcrumb__link[href$=\"brand\"]",
+        ".bds-breadcrumb__link[href$=\"services\"]",
+        ".bds-button--sm.bds-button--primary[href$=\"contact\"] > .bds-button__content",
+        ".bds-card--preset-display.bds-card > .bds-card__preset-display-body > .bds-card__preset-display-action > .bds-button--md.bds-button--primary.bds-button > .bds-button__content",
+        ".bds-card--preset-display.bds-card > .bds-card__preset-display-body > .bds-card__preset-display-tag > .bds-service-tag--sm.bds-service-tag--has-icon.bds-service-tag--brand",
+        ".bds-pricing-card > .bds-pricing-card__action > .bds-button--md.bds-button--primary[href$=\"contact\"] > .bds-button__content",
+        ".bds-service-tag--md",
+        ".bp-hero-img-card__lead",
+        ".scroll-down-cta__label",
+        "a[href$=\"business-card\"] > .bds-button__content",
+        "section[aria-labelledby=\"addon-title\"] > .bds-card-grid__container > .bds-card--borderless.bds-card--padding-lg.bds-card > .bds-stack--horizontal.bds-stack--gap-lg.bds-stack--align-center > .bds-stack--vertical.bds-stack--gap-sm.bds-stack > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button > .bds-button__content",
+        "section[aria-labelledby=\"story-title\"] > .bds-card-grid__container > .bds-card--borderless.bds-card--padding-lg.bds-card > .bds-stack--horizontal.bds-stack--gap-lg.bds-stack--align-center > .bds-stack--vertical.bds-stack--gap-sm.bds-stack > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button > .bds-button__content"
+      ]
+    }
+  }
 }
