@@ -51,6 +51,22 @@ export default defineConfig({
         contextOptions: { reducedMotion: 'reduce' },
       },
     },
+    {
+      // Dark-theme pass. The site's themes are light/dark; the suite only ever
+      // rendered light, so dark-only contrast regressions were invisible to CI
+      // (e.g. the #366 dark-mode service-button failure shipped unseen). The
+      // anti-FOUC script in layout.tsx falls back to prefers-color-scheme when
+      // no theme is saved, so colorScheme:'dark' drives data-theme=dark before
+      // hydration — no per-test toggling needed. The spec keys its baseline on
+      // the project name (`*-dark` → routesDark), so pre-existing dark debt is
+      // baselined separately from light. brikdesigns #359 follow-up.
+      name: 'chromium-desktop-dark',
+      use: {
+        ...devices['Desktop Chrome'],
+        colorScheme: 'dark',
+        contextOptions: { reducedMotion: 'reduce' },
+      },
+    },
   ],
   ...(USE_LOCAL_SERVER
     ? {

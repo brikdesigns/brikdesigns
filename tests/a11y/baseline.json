@@ -24,5 +24,7 @@
         ".bds-breadcrumb__current"
       ]
     }
-  }
+  },
+  "_commentDark": "Dark-theme baseline (chromium-desktop-dark project, colorScheme:dark). Added 2026-06-06 (#359 follow-up) when the axe suite gained a dark-mode pass — the suite had only ever rendered light, so dark-only contrast debt was invisible (the #366 dark service-button failure shipped unseen). Captured against local `next dev` at staging-equivalent state. Same format/normalization as routes. Burn-down tracked alongside the light baseline (#40); the service-button entries here are the dark-theme face of brik-bds#827 (medium `-darker` service fills under white labels — marketing 2.87:1, brand 4.36:1).",
+  "routesDark": {}
 }
