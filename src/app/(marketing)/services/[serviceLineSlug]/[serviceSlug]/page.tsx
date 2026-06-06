@@ -274,10 +274,10 @@ export default async function ServiceDetailPage({ params }: Props) {
           {
             // Section-level service-line tint — use the `surface` family per
             // service-token-decision-tree.md (hero is a broad container, not
-            // a small bounded component). Matches the `--surface-service-*`
-            // ramp used by the Recommended Add-On section below so the page
-            // reads as one tinted band, not two near-miss shades.
-            backgroundColor: serviceTokens.surface,
+            // a small bounded component). The interior (service-detail) hero
+            // uses the lighter `surfaceLight` ramp so it reads as one band with
+            // the body sections below (#389 — interior hero matches body).
+            backgroundColor: serviceTokens.surfaceLight,
             '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
             // Service-line-colored primary CTAs inside the hero (View Details
             // + priceCard "Let's Talk"). BDS .bds-button--primary reads from
@@ -301,10 +301,10 @@ export default async function ServiceDetailPage({ params }: Props) {
        * duplicates the same number and diverges from the Webflow layout.
        * Multi-tier services still get the comparison grid.
        *
-       * Tinted with `--surface-service-{service-line}` so the page reads as
-       * one continuous service-line band between hero and the dark support
-       * CTA at the bottom (same pattern as Customer Story / Add-On / Other
-       * Services below). BDS CardGrid spreads ...rest onto its <section>
+       * Tinted with the lighter `--surface-service-{line}-light` ramp so the
+       * body reads as a paler band beneath the base-tint hero ("hero darker /
+       * body lighter", MAY26 audit #389) — shared with Customer Story / Add-On
+       * / Other Services below. BDS CardGrid spreads ...rest onto its <section>
        * root, so `style` lands on the actual section element.
        */}
       {sortedOfferings.length > 1 && (
@@ -313,7 +313,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="pricing"
           title="Pricing Options"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
@@ -362,7 +362,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="story"
           title="Related Customer Story"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Card variant="borderless" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
@@ -408,7 +408,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="addon"
           title="Recommended Add-On Service"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Card variant="borderless" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
@@ -462,7 +462,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
