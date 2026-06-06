@@ -79,7 +79,7 @@ export default async function ServiceLinePage({ params }: Props) {
     // cascade (brik-bds#781) — currently no-op here (no breadcrumb on the
     // service-line index), but stays consistent with the service-detail page
     // pattern so a future breadcrumb addition picks up the audience tint.
-    <div data-audience={audience} style={{ '--background-brand-primary': svcColors.inverse, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
+    <div data-audience={audience} className="service-themed" style={{ '--background-brand-primary': svcColors.inverse, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
       {/* ═══ Hero ═══ */}
       <section
         className="page-hero"

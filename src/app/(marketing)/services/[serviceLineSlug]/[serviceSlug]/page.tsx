@@ -268,7 +268,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
-        className="page-hero-blueprint"
+        className="page-hero-blueprint service-themed"
         data-scroll-hero
         style={
           {
@@ -312,7 +312,8 @@ export default async function ServiceDetailPage({ params }: Props) {
           id="pricing"
           sectionKey="pricing"
           title="Pricing Options"
-          style={{ background: serviceTokens.surface }}
+          className="service-themed"
+          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
@@ -360,7 +361,8 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="story"
           title="Related Customer Story"
-          style={{ background: serviceTokens.surface }}
+          className="service-themed"
+          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Card variant="borderless" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
@@ -405,7 +407,8 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="addon"
           title="Recommended Add-On Service"
-          style={{ background: serviceTokens.surface }}
+          className="service-themed"
+          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Card variant="borderless" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
@@ -458,7 +461,8 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
-          style={{ background: serviceTokens.surface }}
+          className="service-themed"
+          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
