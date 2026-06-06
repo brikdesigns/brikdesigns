@@ -83,7 +83,7 @@ export default async function ServiceLinePage({ params }: Props) {
       {/* ═══ Hero ═══ */}
       <section
         className="page-hero service-surface"
-        style={{ backgroundColor: svcColors.surface }}
+        style={{ backgroundColor: svcColors.surfaceLight }}
       >
         <div className="page-hero__container">
           <div className="service-detail-hero">
@@ -109,7 +109,7 @@ export default async function ServiceLinePage({ params }: Props) {
               <div className="service-detail-hero__aside">
                 <div
                   className="service-detail-hero__media"
-                  style={{ backgroundColor: svcColors.surface }}
+                  style={{ backgroundColor: svcColors.surfaceLight }}
                 >
                   <Image
                     src={serviceLine.hero_image_url}
@@ -126,8 +126,12 @@ export default async function ServiceLinePage({ params }: Props) {
         </div>
       </section>
 
-      {/* ═══ Service Cards ═══ */}
-      <section id="services" className="content-section service-surface" style={{ backgroundColor: svcColors.surface }}>
+      {/* ═══ Service Cards ═══
+       * Hero and body both use the lighter `surfaceLight` ramp so the service-line
+       * page reads as one uniform tinted band — matching the interior service-detail
+       * page (#389). Dark `--text-primary` copy gains contrast on the paler surface,
+       * so AA is preserved in both themes. */}
+      <section id="services" className="content-section service-surface" style={{ backgroundColor: svcColors.surfaceLight }}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {serviceLine.name} Services
