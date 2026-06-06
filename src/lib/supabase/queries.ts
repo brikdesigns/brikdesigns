@@ -2,6 +2,7 @@ import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { createPublicClient } from './server';
+import { dbSlugForServiceLineRoute } from '@/lib/service-line-routes';
 
 /**
  * Typed Supabase queries for marketing content.
@@ -44,15 +45,16 @@ const SERVICE_LINE_MAP: Record<string, ServiceLine> = {
   brand: 'brand',
   marketing: 'marketing',
   information: 'information',
-  service: 'service',
+  'back-office': 'back-office',
   product: 'product',
-  // Long-form slugs still present in service_lines.slug for some DB rows
+  // Legacy / long-form slugs still possible in service_lines.slug or denorm
+  // columns (pre-00199 prod rows, historical data). All collapse to canonical.
   'brand-design': 'brand',
   'marketing-design': 'marketing',
   'information-design': 'information',
   'product-design': 'product',
-  'back-office': 'service',
-  'back-office-design': 'service',
+  service: 'back-office',
+  'back-office-design': 'back-office',
 };
 
 export function mapServiceLineSlug(slug: string): ServiceLine {
@@ -112,12 +114,24 @@ export const getServiceCategories = cache(
 export const getServiceLineBySlug = cache(
   unstable_cache(
     async (slug: string) => {
+      // Transition-tolerant lookup for the back-office rename. The back-office
+      // line's DB slug is migrating `service` → `back-office` (portal migration
+      // 00199) on the SHARED Supabase, so a given environment may have either
+      // value depending on whether the migration has applied. Query for both
+      // the route slug and its legacy alias so `/services/back-office` resolves
+      // regardless of deploy/migration order (gate #3, see
+      // service-url-slug-convention.md). Collapses to a single slug for every
+      // other line. Simplify to a direct match once 00199 is live everywhere.
+      const candidates = Array.from(
+        new Set([slug, dbSlugForServiceLineRoute(slug)]),
+      );
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('service_lines')
         .select('*')
-        .eq('slug', slug)
+        .in('slug', candidates)
         .eq('is_public', true)
+        .limit(1)
         .single();
       if (error) throw error;
       return data;
@@ -477,5 +491,42 @@ export const getCustomerStoriesByIndustry = cache(
     },
     ['customer-stories-by-industry'],
     { revalidate: 3600, tags: ['cms-customer-stories', 'cms-industry-pages'] }
+  )
+);
+
+// ── Events / newsletter landing pages (portal#950, brikdesigns#335/#336) ──
+// RLS ("Public read live events") restricts the anon client to active + ended
+// rows, so draft events surface as `null` here → the template notFound()s.
+
+export const getEventBySlug = cache(
+  unstable_cache(
+    async (slug: string) => {
+      const supabase = createPublicClient();
+      const { data } = await supabase
+        .from('events')
+        .select('*')
+        .eq('slug', slug)
+        .maybeSingle();
+      return data;
+    },
+    ['event-by-slug'],
+    { revalidate: 3600, tags: ['cms-events'] }
+  )
+);
+
+export const getPublicEventSlugs = cache(
+  unstable_cache(
+    async (template: 'event' | 'newsletter') => {
+      const supabase = createPublicClient();
+      const { data } = await supabase
+        .from('events')
+        .select('slug')
+        .eq('template', template);
+      return (data ?? []) as { slug: string }[];
+    },
+    // unstable_cache appends the serialized `template` arg to this key, so the
+    // 'event' and 'newsletter' calls get distinct cache entries automatically.
+    ['public-event-slugs'],
+    { revalidate: 3600, tags: ['cms-events'] }
   )
 );

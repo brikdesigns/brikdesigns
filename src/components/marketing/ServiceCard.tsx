@@ -36,7 +36,7 @@ export function ServiceCard({
           <Image src={imageUrl} alt={name} width={400} height={400} />
         </Frame>
       ) : undefined}
-      tag={<ServiceTag category={category} variant="icon" size={imageUrl ? 'sm' : 'md'} {...tagProps} />}
+      tag={<ServiceTag category={category} variant="icon" size="md" {...tagProps} />}
       action={showCta ? <LinkButton href={href} variant="primary" size="md">Learn More</LinkButton> : undefined}
       href={!showCta ? href : undefined}
     />

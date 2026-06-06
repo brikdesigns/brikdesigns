@@ -7,6 +7,7 @@ import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 
 interface ServiceLineCardProps {
   name: string;
@@ -24,13 +25,15 @@ interface ServiceLineCardProps {
  * would render a plain `<a>` and regress both).
  */
 export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: ServiceLineCardProps) {
-  // Audience-tinted CTA — same canonical pairing as BDS ServiceTag:
-  // `--background-service-{slug}` + `--text-service-{slug}`. BDS designs
-  // these to flip together across themes, so AA holds in light + dark.
+  // Audience-tinted CTA. Uses the accessible fill pairing — the dark
+  // `--background-service-{slug}-on-light` background with light
+  // `--text-service-{slug}-on-dark` text. The light-tint `bg` + darkest
+  // `text` pairing fell short of WCAG AA for orange/purple (4.32:1 / 4.26:1)
+  // under the BDS 0.90.0 token model. See brikdesigns #346.
   // Replaces raw `cat.brand_color_base` hex (brikdesigns#99).
   const tokens = serviceColor(category);
   return (
-    <Link href={`/services/${slug}`} className="services-card-link">
+    <Link href={`/services/${routeSlugForServiceLine(slug)}`} className="services-card-link">
       <Card variant="outlined" padding="md" interactive className="services-card">
         <div className="services-card__media">
           {imageUrl ? (
@@ -40,13 +43,13 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
           )}
         </div>
         <div className="services-card__content">
-          <ServiceTag category={category} variant="icon" size="sm" serviceName={name} />
+          <ServiceTag category={category} variant="icon" size="md" serviceName={name} />
           <h3 style={{ ...heading.card }}>{name}</h3>
           <p style={{ ...text.bodySm, color: color.text.secondary }}>{tagline}</p>
         </div>
         <span
           className={composeButtonClasses({ variant: 'primary', size: 'md' })}
-          style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}
+          style={{ backgroundColor: tokens.ctaBg, color: tokens.ctaText, borderColor: tokens.ctaBg }}
         >
           Learn more
         </span>
@@ -77,7 +80,7 @@ interface ServiceCalloutProps {
 export function ServiceCallout({ name, slug, category, description, imageUrl }: ServiceCalloutProps) {
   const tokens = serviceColor(category);
   return (
-    <Card padding="lg" className="services-callout-card">
+    <Card variant="borderless" padding="lg" className="services-callout-card">
       <Stack direction="horizontal" gap="lg" align="center">
         <div className="services-callout-card__media">
           <Frame ratio="square" fit="cover">
@@ -94,10 +97,10 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
           <CardDescription>{description}</CardDescription>
           <CardFooter>
             <Button
-              href={`/services/${slug}`}
+              href={`/services/${routeSlugForServiceLine(slug)}`}
               variant="primary"
               size="md"
-              style={{ backgroundColor: tokens.bg, color: tokens.text, borderColor: tokens.bg }}
+              style={{ backgroundColor: tokens.ctaBg, color: tokens.ctaText, borderColor: tokens.ctaBg }}
             >
               Learn more
             </Button>

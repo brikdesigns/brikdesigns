@@ -23,6 +23,7 @@ import {
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
@@ -420,7 +421,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
         >
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Related Services</h2>
-            <Card variant="outlined" padding="lg" style={{ marginTop: 'var(--gap-lg)' }}>
+            <Card variant="borderless" padding="lg" style={{ marginTop: 'var(--gap-lg)' }}>
               <Stack direction="horizontal" gap="lg" align="center">
                 {relatedService.image_url && (
                   <div style={{ flex: '0 0 35%' }}>
@@ -453,7 +454,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                   )}
                   <CardFooter>
                     <Button
-                      href={`/services/${relatedCatSlug}/${relatedService.slug}`}
+                      href={`/services/${routeSlugForServiceLine(relatedCatSlug)}/${relatedService.slug}`}
                       variant="primary"
                       size="sm"
                     >

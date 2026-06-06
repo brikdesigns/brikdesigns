@@ -8,6 +8,7 @@ import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { planImage } from '@/lib/plan-images';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ThemeToggle } from './ThemeToggle';
 
 import './MegaNav.css';
@@ -59,12 +60,43 @@ type DropdownId = 'services' | 'customers' | 'about' | 'plans' | null;
 export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps) {
   const [open, setOpen] = useState<DropdownId>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const navRef = useRef<HTMLElement>(null);
+  const lastYRef = useRef(0);
 
   // Click-only toggle (matches Webflow data-hover="false")
   const toggle = useCallback((id: DropdownId) => {
     setOpen((prev) => (prev === id ? null : id));
   }, []);
+
+  // Hide-on-scroll-down / reveal-on-scroll-up + subtle shadow once scrolled.
+  // rAF-throttled; never hides while a dropdown or the mobile menu is open so
+  // the open panel (anchored to the nav) can't be scrolled off-screen.
+  useEffect(() => {
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const navH = navRef.current?.offsetHeight ?? 0;
+        setScrolled(y > 8);
+        const last = lastYRef.current;
+        if (open !== null || mobileOpen) {
+          setHidden(false);
+        } else if (y > navH && y > last) {
+          setHidden(true);
+        } else if (y < last) {
+          setHidden(false);
+        }
+        lastYRef.current = y;
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [open, mobileOpen]);
 
   // Close on outside click
   useEffect(() => {
@@ -91,7 +123,10 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
   }, []);
 
   return (
-    <header className="mega-nav" ref={navRef}>
+    <header
+      className={`mega-nav${scrolled ? ' mega-nav--scrolled' : ''}${hidden ? ' mega-nav--hidden' : ''}`}
+      ref={navRef}
+    >
       {/* Utility bar — Webflow: .utility-navigation → .layout-utility-nav.right → .top-nav-item */}
       <div className="mega-nav__utility">
         <div className="mega-nav__container mega-nav__utility-inner">
@@ -123,6 +158,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               height={50}
               className="site-logo"
               priority
+              style={{ width: 'auto', height: 'auto' }}
             />
           </Link>
 
@@ -154,7 +190,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         .map((line) => (
                           <div key={line.slug} className="mega-nav__service-col">
                             {/* Webflow: .text_label-md.link + .text_body-sm.secondary (NO badge on header) */}
-                            <Link href={`/services/${line.slug}`} className="mega-nav__service-title" onClick={() => setOpen(null)}>
+                            <Link href={`/services/${routeSlugForServiceLine(line.slug)}`} className="mega-nav__service-title" onClick={() => setOpen(null)}>
                               {line.name}
                             </Link>
                             <p className="mega-nav__service-tagline">{line.tagline}</p>
@@ -162,7 +198,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                               {line.services.map((svc) => (
                                 <li key={svc.slug}>
                                   <Link
-                                    href={`/services/${line.slug}/${svc.slug}`}
+                                    href={`/services/${routeSlugForServiceLine(line.slug)}/${svc.slug}`}
                                     className="mega-nav__service-link"
                                     onClick={() => setOpen(null)}
                                   >
@@ -179,7 +215,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             </ul>
                             {/* Webflow: .nav-view-all — "View All" link at bottom of each column */}
                             <Link
-                              href={`/services/${line.slug}`}
+                              href={`/services/${routeSlugForServiceLine(line.slug)}`}
                               className="mega-nav__view-all"
                               onClick={() => setOpen(null)}
                             >
@@ -405,7 +441,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
           {serviceLines.map((line) => (
             <Link
               key={line.slug}
-              href={`/services/${line.slug}`}
+              href={`/services/${routeSlugForServiceLine(line.slug)}`}
               className="mega-nav__mobile-link mega-nav__mobile-link--indent"
               onClick={() => setMobileOpen(false)}
             >

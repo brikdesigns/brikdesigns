@@ -23,13 +23,18 @@ import type { ServiceLine } from '@brikdesigns/bds';
 
 type IconManifest = Record<ServiceLine, Set<string>>;
 
-const CATEGORIES: readonly ServiceLine[] = ['brand', 'marketing', 'information', 'product', 'service'];
+const CATEGORIES: readonly ServiceLine[] = ['brand', 'marketing', 'information', 'product', 'back-office'];
+
+// On-disk icon directory per category. The back-office line's icons still live
+// under `public/icons/service/` (filenames are already `back-office-*`); the
+// physical dir rename is a deferred follow-up (mirrors BDS getServiceIconPath).
+const ICON_DIR: Partial<Record<ServiceLine, string>> = { 'back-office': 'service' };
 
 function loadIconManifest(): IconManifest {
   const map = {} as IconManifest;
   for (const cat of CATEGORIES) {
     try {
-      const files = fs.readdirSync(path.join(process.cwd(), 'public/icons', cat));
+      const files = fs.readdirSync(path.join(process.cwd(), 'public/icons', ICON_DIR[cat] ?? cat));
       map[cat] = new Set(files.filter((f) => f.endsWith('.svg')).map((f) => f.replace(/\.svg$/, '')));
     } catch (err) {
       // Empty manifest = `hasIconFor()` returns false for every name in this
@@ -160,5 +165,8 @@ export const SERVICE_LINE_ICON: Record<ServiceLine, string> = {
   marketing: '/icons/marketing/marketing-design.svg',
   information: '/icons/information/information-design.svg',
   product: '/icons/product/product-design.svg',
+  'back-office': '/icons/service/back-office-design.svg',
+  // @deprecated alias of 'back-office'. Icon dir is still `service/` until the
+  // icon-asset dir rename follow-up.
   service: '/icons/service/back-office-design.svg',
 };

@@ -5,6 +5,20 @@
   top: 0;
   z-index: 102;
   background-color: var(--surface-primary);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform;
+}
+
+/* Hidden on scroll-down (revealed again on scroll-up via the --hidden toggle
+   in MegaNav.tsx). transform-only so there is no layout shift. The fixed
+   dropdown panels are children, so they travel with the bar. #355 */
+.mega-nav--hidden {
+  transform: translateY(-100%);
+}
+
+/* Subtle drop-shadow once the page has scrolled, lifting the bar off content. */
+.mega-nav--scrolled {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* Override BDS button hover effects inside nav — filter/transform cause visual jitter */
@@ -217,7 +231,7 @@
   font-family: var(--font-family-label);
   font-size: var(--label-sm); /* 14px = Webflow font-size-75 */
   font-weight: 600;
-  line-height: 125%;
+  line-height: var(--font-line-height-snug);
   color: var(--text-primary);
   background: none;
   border: none;
@@ -306,7 +320,7 @@
   font-size: var(--body-sm);
   color: var(--text-secondary);
   margin: var(--gap-sm) 0 var(--gap-lg);
-  line-height: 1.6;
+  line-height: var(--font-line-height-relaxed);
 }
 
 /* Panel buttons now use BDS <LinkButton variant="primary" size="sm"> */
@@ -358,7 +372,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-xs);
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: var(--font-line-height-normal);
   margin: 0;
 }
 
@@ -373,7 +387,7 @@
   font-family: var(--font-family-label);
   font-size: var(--label-md);
   font-weight: 600;
-  line-height: 125%;
+  line-height: var(--font-line-height-snug);
   color: var(--text-primary);
   text-decoration: none;
   display: block;
@@ -385,7 +399,7 @@
 
 .mega-nav__service-tagline {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm); /* #355: xs → sm to match live Webflow (.text_body-sm) */
   color: var(--text-secondary);
   margin: 0;
 }
@@ -403,7 +417,9 @@
   display: flex;
   align-items: center;
   gap: var(--gap-sm);
-  padding: var(--padding-tiny) var(--padding-xs) var(--padding-tiny) 0;
+  /* #355: drop the L/R item padding (live Webflow .mega-nav-link is 0) — keep a
+     little vertical room so the hover surface still reads as a row. */
+  padding: var(--padding-tiny) 0;
   border-radius: 4px;
   text-decoration: none;
   font-family: var(--font-family-label);
@@ -511,7 +527,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-xs);
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: var(--font-line-height-moderate);
 }
 
 /* Industry card CTAs now use BDS .bds-button--secondary.bds-button--sm */
@@ -606,7 +622,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-xs);
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: var(--font-line-height-moderate);
 }
 
 /* About card CTAs now use BDS .bds-button--secondary.bds-button--sm */

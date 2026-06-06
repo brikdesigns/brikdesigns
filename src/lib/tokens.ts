@@ -83,6 +83,12 @@ export const font = {
       md: 'var(--icon-md)',
       lg: 'var(--icon-lg)',
     },
+    display: {
+      sm: 'var(--display-sm)',
+      md: 'var(--display-md)',
+      lg: 'var(--display-lg)',
+      xl: 'var(--display-xl)',
+    },
   },
 
   lineHeight: {
@@ -172,57 +178,73 @@ export const color = {
   },
   // brikdesigns: Brik's marketing site IS the surface that introduces the
   // five service categories to the public, so service tokens belong here.
-  // The JS-side `service` key matches ServiceLine's `'service'` member
-  // (BDS export). The token suffix for the orange line is `back-office` —
-  // brik-bds#575 shipped this rename in BDS 0.68.1.
+  // (`service` is the token *namespace*, not the back-office line.) The
+  // back-office line's sub-key is `back-office` to match BDS 0.81.0's
+  // canonical ServiceLine member; the legacy `service` line slug falls
+  // through to it in serviceColor(). Token suffix is `back-office` (#797).
   service: {
     brand: {
       bg: 'var(--background-service-brand)',
-      text: 'var(--text-service-brand)',
+      text: 'var(--text-service-brand-on-light)',
+      // Accessible CTA fill for a light surface: the dark `*-on-light`
+      // background paired with the light `*-on-dark` text. The `bg`/`text`
+      // pairing above (light tint + darkest text) falls short of WCAG AA for
+      // orange/purple service lines (4.32:1 / 4.26:1) — see brikdesigns #346.
+      ctaBg: 'var(--background-service-brand-on-light)',
+      ctaText: 'var(--text-service-brand-on-dark)',
       surface: 'var(--surface-service-brand)',
       surfaceLight: 'var(--surface-service-brand-light)',
       surfaceDark: 'var(--surface-service-brand-dark)',
-      inverse: 'var(--background-service-brand-inverse)',
+      inverse: 'var(--surface-service-brand-dark)',
     },
     marketing: {
       bg: 'var(--background-service-marketing)',
-      text: 'var(--text-service-marketing)',
+      text: 'var(--text-service-marketing-on-light)',
+      ctaBg: 'var(--background-service-marketing-on-light)',
+      ctaText: 'var(--text-service-marketing-on-dark)',
       surface: 'var(--surface-service-marketing)',
       surfaceLight: 'var(--surface-service-marketing-light)',
       surfaceDark: 'var(--surface-service-marketing-dark)',
-      inverse: 'var(--background-service-marketing-inverse)',
+      inverse: 'var(--surface-service-marketing-dark)',
     },
     information: {
       bg: 'var(--background-service-information)',
-      text: 'var(--text-service-information)',
+      text: 'var(--text-service-information-on-light)',
+      ctaBg: 'var(--background-service-information-on-light)',
+      ctaText: 'var(--text-service-information-on-dark)',
       surface: 'var(--surface-service-information)',
       surfaceLight: 'var(--surface-service-information-light)',
       surfaceDark: 'var(--surface-service-information-dark)',
-      inverse: 'var(--background-service-information-inverse)',
+      inverse: 'var(--surface-service-information-dark)',
     },
     product: {
       bg: 'var(--background-service-product)',
-      text: 'var(--text-service-product)',
+      text: 'var(--text-service-product-on-light)',
+      ctaBg: 'var(--background-service-product-on-light)',
+      ctaText: 'var(--text-service-product-on-dark)',
       surface: 'var(--surface-service-product)',
       surfaceLight: 'var(--surface-service-product-light)',
       surfaceDark: 'var(--surface-service-product-dark)',
-      inverse: 'var(--background-service-product-inverse)',
+      inverse: 'var(--surface-service-product-dark)',
     },
-    service: {
+    'back-office': {
       bg: 'var(--background-service-back-office)',
-      text: 'var(--text-service-back-office)',
+      text: 'var(--text-service-back-office-on-light)',
+      ctaBg: 'var(--background-service-back-office-on-light)',
+      ctaText: 'var(--text-service-back-office-on-dark)',
       surface: 'var(--surface-service-back-office)',
       surfaceLight: 'var(--surface-service-back-office-light)',
       surfaceDark: 'var(--surface-service-back-office-dark)',
-      inverse: 'var(--background-service-back-office-inverse)',
+      inverse: 'var(--surface-service-back-office-dark)',
     },
   },
 } as const;
 
-/** Look up service color tokens by category slug */
+/** Look up service color tokens by category slug. Unknown / legacy `service`
+ *  inputs fall through to the back-office (orange) entry. */
 export function serviceColor(category: string) {
   const key = category as keyof typeof color.service;
-  return color.service[key] ?? color.service.service;
+  return color.service[key] ?? color.service['back-office'];
 }
 
 // ─── Spacing (Padding) ──────────────────────────────────────────────

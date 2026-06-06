@@ -17,3 +17,17 @@
 .bds-footer.footer-site-width .bds-footer__bottom {
   border-top: none;
 }
+
+/* ─── Overscroll skirt ─────────────────────────────────────────
+   The footer is always-dark (--bds-footer-surface, pinned in globals.css)
+   but html/body background is --page-primary (light). On macOS the
+   rubber-band overscroll past the footer reveals that light canvas as a
+   white flash beneath the footer.
+
+   A box-shadow extends the footer's dark paint downward into the
+   overscroll region without affecting layout or scroll height (shadows
+   are ink, never trigger scrollbars). offset-y == spread keeps the shadow
+   flush with the footer's bottom edge (no poke above, no gap). #356. */
+.bds-footer.footer-site-width {
+  box-shadow: 0 100vh 0 100vh var(--bds-footer-surface);
+}

@@ -37,6 +37,7 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/customers', name: 'Customers' },
   { path: '/customers/dental', name: 'Customer detail — dental' },
   { path: '/blog', name: 'Blog index' },
+  { path: '/events/demo-spring-webinar', name: 'Event detail — demo webinar' },
   { path: '/contact', name: 'Contact' },
   { path: '/get-started', name: 'Get started' },
   { path: '/free-marketing-analysis', name: 'Free marketing analysis' },
@@ -44,15 +45,29 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/privacy-policy', name: 'Privacy policy' },
 ];
 
-// WCAG 2.1 AA tags — locked to the standard. Don't silently bump to 2.2 or
-// AAA without a per-rule review.
-const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
+// WCAG 2.1 AA tags — locked to the standard. Don't silently bump the
+// conformance level to 2.2 or AAA without a per-rule review.
+// 'best-practice' is added (not a conformance-level bump) to enable axe's
+// landmark rules — region, landmark-one-main, landmark-unique, heading-order —
+// which carry no WCAG tag and otherwise never run. This is the
+// build-standards/page-structure landmark gate (brik-bds #824); it mirrors
+// brik-client-portal #961. All are moderate impact → advisory, never block.
+const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 
+type RouteBaseline = Record<string, Record<string, string[]>>;
+
 interface BaselineFile {
-  routes: Record<string, Record<string, string[]>>;
+  // Light-theme baseline (the original, default project).
+  routes: RouteBaseline;
+  // Dark-theme baseline (`chromium-desktop-dark` project). The two themes
+  // resolve different tokens, so a finding allowed in one is NOT automatically
+  // allowed in the other — each theme keeps its own debt list. #359 follow-up.
+  routesDark?: RouteBaseline;
 }
+
+type Theme = 'light' | 'dark';
 
 const BASELINE_PATH = path.join(process.cwd(), 'tests/a11y/baseline.json');
 const baseline: BaselineFile = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
@@ -68,31 +83,67 @@ function normalizeSelector(selector: string): string {
     .replace(/:nth-of-type\(\d+\)/g, '');
 }
 
-const normalizedBaseline: Record<string, Record<string, Set<string>>> = {};
-for (const [route, rules] of Object.entries(baseline.routes)) {
-  normalizedBaseline[route] = {};
-  for (const [ruleId, selectors] of Object.entries(rules)) {
-    normalizedBaseline[route][ruleId] = new Set(selectors.map(normalizeSelector));
+function normalize(routeBaseline: RouteBaseline): Record<string, Record<string, Set<string>>> {
+  const out: Record<string, Record<string, Set<string>>> = {};
+  for (const [route, rules] of Object.entries(routeBaseline)) {
+    out[route] = {};
+    for (const [ruleId, selectors] of Object.entries(rules)) {
+      out[route][ruleId] = new Set(selectors.map(normalizeSelector));
+    }
   }
+  return out;
 }
 
-function isBaselined(routePath: string, ruleId: string, selector: string): boolean {
-  return normalizedBaseline[routePath]?.[ruleId]?.has(normalizeSelector(selector)) ?? false;
+const normalizedBaseline: Record<Theme, Record<string, Record<string, Set<string>>>> = {
+  light: normalize(baseline.routes),
+  dark: normalize(baseline.routesDark ?? {}),
+};
+
+function isBaselined(theme: Theme, routePath: string, ruleId: string, selector: string): boolean {
+  return normalizedBaseline[theme][routePath]?.[ruleId]?.has(normalizeSelector(selector)) ?? false;
+}
+
+// The dark project (`chromium-desktop-dark`) sets colorScheme:'dark'; everything
+// else runs light. Keying off the project name keeps the two baselines distinct.
+function themeFor(projectName: string): Theme {
+  return projectName.endsWith('-dark') ? 'dark' : 'light';
 }
 
 test.describe('Public routes — WCAG 2.1 AA audit', () => {
   for (const route of PUBLIC_ROUTES) {
     test(`${route.name} (${route.path}) has no new serious or critical violations`, async ({ page }, testInfo) => {
+      const theme = themeFor(testInfo.project.name);
       // 'load' rather than 'networkidle' — networkidle is fragile on modern
       // sites with continuous network activity (lazy images, analytics).
       // 'load' waits for CSS + images, which is what axe needs for first-
       // paint contrast / alt-text rules.
       await page.goto(route.path, { waitUntil: 'load' });
 
-      // Exclude Netlify deploy-preview admin overlays.
+      // Render guard (#341). Every public route renders exactly one <main>.
+      // If it's absent, the document is NOT the app's page — it's a transient
+      // infra/blank state (e.g. a Netlify function cold-start/error page, which
+      // has its own `.branding`/`.footer` chrome and no <main>). Running axe
+      // against that emits confusing `landmark-one-main` / `region` findings
+      // that look like real structure debt but aren't. The toHaveCount assertion
+      // auto-retries until the page renders (covering a hydration-timing flush)
+      // and otherwise fails loudly here — "route didn't render" — instead of
+      // leaking landmark noise into the report. See brikdesigns #341.
+      await expect(
+        page.locator('main'),
+        `${route.path} did not render a <main> within timeout — the page is in a transient/error state (infra cold-start or blank flash), not real a11y debt. See #341.`,
+      ).toHaveCount(1);
+
+      // Exclude Netlify deploy-preview admin overlays and the Brik Dev Bar
+      // (`.bdb-bar`) — a dev/staging-only toolbar injected client-side when
+      // NEXT_PUBLIC_ENABLE_DEV_TOOLS=true (see src/components/DevTools.tsx). It
+      // is absent in production, so its findings (white-on-poppy logo
+      // color-contrast, out-of-landmark `region`) are environment noise, not
+      // real debt — and its post-load injection made them flaky. .bdb-logo is
+      // inside .bdb-bar, so the single exclude covers the whole subtree.
       const results = await new AxeBuilder({ page })
         .withTags(AXE_TAGS)
         .exclude('iframe[title="Netlify Drawer"]')
+        .exclude('.bdb-bar')
         .analyze();
 
       type FlatFinding = {
@@ -113,24 +164,33 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
       );
 
       const blocking = flatFindings.filter(
-        (f) => BLOCKING_IMPACTS.has(f.impact) && !isBaselined(route.path, f.ruleId, f.selector),
+        (f) => BLOCKING_IMPACTS.has(f.impact) && !isBaselined(theme, route.path, f.ruleId, f.selector),
       );
       const baselined = flatFindings.filter(
-        (f) => BLOCKING_IMPACTS.has(f.impact) && isBaselined(route.path, f.ruleId, f.selector),
+        (f) => BLOCKING_IMPACTS.has(f.impact) && isBaselined(theme, route.path, f.ruleId, f.selector),
       );
       const nonBlocking = flatFindings.filter((f) => !BLOCKING_IMPACTS.has(f.impact));
 
-      // Attach the full report so failures are debuggable from CI.
-      await testInfo.attach(`axe-report-${route.path.replace(/\//g, '_') || 'home'}.json`, {
-        body: JSON.stringify({ blocking, baselined, nonBlocking, total: flatFindings.length }, null, 2),
-        contentType: 'application/json',
-      });
+      // Write the report to the test output dir (test-results/**) so the CI
+      // `playwright-report` artifact carries a greppable per-route JSON. An
+      // inline testInfo.attach body is embedded in index.html only — fine for
+      // a failing run you open by hand, but the landmark/region findings are
+      // advisory (they pass) and need to be reviewable without clicking
+      // through the HTML report. See brik-bds #824 / brik-client-portal #961.
+      fs.writeFileSync(
+        testInfo.outputPath('axe-report.json'),
+        JSON.stringify(
+          { route: route.path, theme, url: page.url(), blocking, baselined, nonBlocking, total: flatFindings.length },
+          null,
+          2,
+        ),
+      );
 
       if (blocking.length > 0) {
         const summary = blocking
           .map((f) => `  [${f.impact}] ${f.ruleId} → ${f.selector}\n    ${f.help}`)
           .join('\n');
-        expect(blocking, `New serious/critical violations on ${route.path}:\n${summary}`).toHaveLength(0);
+        expect(blocking, `New serious/critical violations on ${route.path} (${theme} theme):\n${summary}`).toHaveLength(0);
       }
     });
   }

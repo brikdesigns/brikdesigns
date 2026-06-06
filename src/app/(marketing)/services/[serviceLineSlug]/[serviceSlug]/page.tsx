@@ -10,6 +10,7 @@ import {
   getSupportPlansByServiceId,
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import {
   Card,
   CardDescription,
@@ -267,7 +268,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
-        className="page-hero-blueprint"
+        className="page-hero-blueprint service-themed"
         data-scroll-hero
         style={
           {
@@ -311,7 +312,8 @@ export default async function ServiceDetailPage({ params }: Props) {
           id="pricing"
           sectionKey="pricing"
           title="Pricing Options"
-          style={{ background: serviceTokens.surface }}
+          className="service-themed"
+          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
@@ -359,9 +361,10 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="story"
           title="Related Customer Story"
-          style={{ background: serviceTokens.surface }}
+          className="service-themed"
+          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
-          <Card padding="lg">
+          <Card variant="borderless" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedStory.hero_image_url && (
                 <div style={{ flex: '0 0 40%' }}>
@@ -404,9 +407,10 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="addon"
           title="Recommended Add-On Service"
-          style={{ background: serviceTokens.surface }}
+          className="service-themed"
+          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
-          <Card padding="lg">
+          <Card variant="borderless" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedService.image_url && (
                 <div style={{ flex: '0 0 35%' }}>
@@ -439,7 +443,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 )}
                 <CardFooter>
                   <Button
-                    href={`/services/${relatedServiceLineSlug}/${relatedService.slug}`}
+                    href={`/services/${routeSlugForServiceLine(relatedServiceLineSlug)}/${relatedService.slug}`}
                     variant="primary"
                     size="md"
                   >
@@ -457,7 +461,8 @@ export default async function ServiceDetailPage({ params }: Props) {
         <CardGrid
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
-          style={{ background: serviceTokens.surface }}
+          className="service-themed"
+          style={{ background: serviceTokens.surface, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
@@ -516,7 +521,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-              <h2 style={{ ...heading.md, textAlign: 'center' }}>Want a partner to avoid the full-time hassle?</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a partner to avoid the full-time hassle?</h2>
               <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
               </p>

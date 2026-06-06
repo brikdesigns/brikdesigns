@@ -159,7 +159,7 @@
   font-family: var(--font-family-body);
   font-size: var(--body-md);
   color: var(--text-primary);
-  line-height: 1.7;
+  line-height: var(--font-line-height-relaxed);
 }
 
 /* ─── Pull-quote ───────────────────────────────────────────
@@ -181,7 +181,7 @@
   font-size: var(--heading-md);
   font-weight: 300;
   font-style: italic;
-  line-height: 1.5;
+  line-height: var(--font-line-height-normal);
   color: var(--text-secondary);
 }
 

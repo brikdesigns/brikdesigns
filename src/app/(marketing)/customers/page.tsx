@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { Grid, Card, CardFooter, Button, LinkButton, Frame } from '@brikdesigns/bds';
+import { Grid, Card, Button, LinkButton, Frame } from '@brikdesigns/bds';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -75,7 +75,7 @@ export default async function CustomersPage() {
     <>
       {/* Hero — full-viewport interior hero. The intro paragraph (formerly its
        * own section) now lives inside the hero block alongside the title. */}
-      <section className="page-hero page-hero--full-viewport">
+      <section className="page-hero">
         <div className="page-hero__container">
           <h1 className="page-hero__title">Customers</h1>
           <p className="page-hero__description">
@@ -112,41 +112,46 @@ export default async function CustomersPage() {
         </div>
       </section>
 
-      {/* Company size segments — horizontal cards.
-       *
-       * Composed locally pending brik-bds#592 (`Card preset="display-row"`).
-       * When that BDS preset ships, swap this block to use it. The current
-       * compose mirrors the proposed preset shape (image-left ~30%, content-
-       * right ~70%, responsive collapse) so the migration is mechanical. */}
+      {/* Company size segments — horizontal cards via Card preset="display-row".
+       * The eyebrow (number + subtitle) sits in the image slot; the fits-list
+       * sits in the extras slot between description and action. */}
       <section className="content-section content-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="customers-segments">
             {SEGMENTS.map((seg, idx) => (
-              <Card key={seg.title} variant="outlined" padding="md" className="segment-card">
-                <div className="segment-card__lead">
-                  <span style={{ ...heading.lg, color: color.text.brand, lineHeight: 1 }}>
-                    {String(idx + 1).padStart(2, '0')}
-                  </span>
-                  <p style={{ ...label.smBold, color: color.text.brand }}>{seg.subtitle}</p>
-                </div>
-                <div className="segment-card__content">
-                  <h3 style={heading.sm}>{seg.title}</h3>
-                  <p style={{ ...text.bodySm, color: color.text.secondary }}>{seg.desc}</p>
-                  <div className="customers-segment-fits">
+              <Card
+                key={seg.title}
+                preset="display-row"
+                imageWidth="narrow"
+                image={
+                  <div className="segment-card__eyebrow">
+                    <span style={{ ...heading.lg, color: color.text.brand, lineHeight: 1 }}>
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                    {/* label.smBold bakes in white-space: nowrap (intended for
+                     * chip-style labels). Override here so the subtitle wraps
+                     * inside the narrow image column. */}
+                    <p style={{ ...label.smBold, color: color.text.brand, whiteSpace: 'normal' }}>{seg.subtitle}</p>
+                  </div>
+                }
+                title={seg.title}
+                description={seg.desc}
+                extras={
+                  <>
                     <p style={label.smBold}>Great fit for:</p>
                     <ul className="customers-segment-list">
                       {seg.fits.map((fit) => (
                         <li key={fit} style={{ ...text.bodySm, color: color.text.secondary }}>{fit}</li>
                       ))}
                     </ul>
-                  </div>
-                  <CardFooter>
-                    <Button href="/contact" variant="primary" size="sm">
-                      Let&apos;s Talk
-                    </Button>
-                  </CardFooter>
-                </div>
-              </Card>
+                  </>
+                }
+                action={
+                  <Button href="/contact" variant="primary" size="md">
+                    Let&apos;s Talk
+                  </Button>
+                }
+              />
             ))}
           </div>
         </div>

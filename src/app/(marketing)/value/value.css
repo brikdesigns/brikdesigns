@@ -44,7 +44,7 @@
   font-size: var(--heading-huge);
   font-weight: 700;
   color: var(--text-brand-primary);
-  line-height: 1;
+  line-height: var(--font-line-height-tight);
 }
 
 /* Stats grid */
@@ -71,7 +71,7 @@
   font-size: var(--heading-xl);
   font-weight: 700;
   color: var(--text-brand-primary);
-  line-height: 1;
+  line-height: var(--font-line-height-tight);
 }
 
 /* ─── Responsive ──────────────────────────────────────────── */

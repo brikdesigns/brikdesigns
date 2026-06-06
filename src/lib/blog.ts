@@ -7,9 +7,9 @@ import { createClient } from '@/lib/supabase/server';
  * where `status = 'published'`, so unpublished drafts are invisible to the
  * marketing site automatically.
  *
- * Authoring happens in /admin/blog. The legacy MDX files in content/blog/
- * have been ingested via scripts/seed-blog-from-mdx.ts and are no longer
- * read at runtime — pending a follow-up cleanup PR to delete them.
+ * Authoring happens in portal.brikdesigns.com/settings/blog-posts. The legacy
+ * MDX files in content/blog/ have been ingested via scripts/seed-blog-from-mdx.ts
+ * and are no longer read at runtime — pending a follow-up cleanup PR to delete them.
  */
 export interface BlogPost {
   slug: string;

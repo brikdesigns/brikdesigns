@@ -302,4 +302,80 @@ h1, h2, h3, h4, h5, h6 {
     font-size: var(--heading-md);
     text-align: center;
   }
+
+  /* Borderless cards (#360) sit transparently on service-tinted sections, whose
+     --surface-service-* tokens are FIXED-LIGHT in both themes. The card text
+     therefore loses its former white-fill backdrop and lands directly on the
+     light tint. The theme-responsive --text-primary/-secondary flip light in
+     dark mode → illegible (light-on-light); --text-secondary also fails AA on
+     the product (4.17:1) and back-office (3.70:1) tints even in light mode.
+     Pin the card content to a theme-invariant dark primitive — ≥5.05:1 on every
+     service tint in both themes (same fixed-on-fixed pattern as .bds-footer--inverse
+     above, mirrored for a light surface). */
+  .bds-card--borderless .bds-card-title,
+  .bds-card--borderless .bds-card-description {
+    color: var(--color-grayscale-darkest);
+  }
+
+  /* #359 — Service-tinted primary buttons.
+     The service pages override --background-brand-primary to the service color
+     at page/section scope, but BDS's :hover/:active rules read
+     --background-brand-primary-{hover,pressed}, which still resolve to the
+     default Brik-poppy ramp — the brand-kit-override leak documented in the
+     interaction-states canon (the same class brik-bds#710 retired): override
+     the base without pairing the state siblings and the default ramp shows
+     through on interaction. So a purple button flashes rust-red on hover and a
+     poppy focus ring.
+
+     The service ramp has no -hover/-pressed solid token (tone is surface-only),
+     so we hold the service base and layer a composable overlay for the state
+     shift. The shipped --state-*-overlay token darkens in BOTH themes, which is
+     wrong here: the service fill is NOT theme-following — it is the very-dark
+     `-darkest` step in light theme but the medium `-darker` step in dark theme
+     (BDS tokens.css :root vs :root[data-theme=dark]). Darkening an already-dark
+     light-theme fill is invisible, and lightening a medium dark-theme fill
+     erodes the white label's contrast. So the overlay is theme-directional:
+       • light theme  → lighten (fill is dark; white text stays AA, shift reads)
+       • dark theme   → darken  (fill is medium; darkening also lifts label AA)
+     Raw rgba matches the precedent for interaction overlays in this file
+     (.bds-footer--inverse above) and in BDS's own --state-*-overlay tokens.
+
+     NB: the green/yellow `-darker` dark-theme bases are marginal for white text
+     at REST already (brik-bds#827, pre-existing) — darkening on interaction
+     only helps; this rule does not regress it. Focus ring is retinted to the
+     service color so it stops flashing poppy on a non-poppy page. Scoped via
+     `.service-themed` so the bottom support band (intentionally left on the
+     default treatment) is untouched. */
+  .service-themed .bds-button--primary:hover:not(:disabled):not(.bds-button--loading) {
+    background-color: var(--background-brand-primary);
+    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.12);
+  }
+
+  .service-themed .bds-button--primary:active:not(:disabled) {
+    background-color: var(--background-brand-primary);
+    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.2);
+  }
+
+  :root[data-theme="dark"] .service-themed .bds-button--primary:hover:not(:disabled):not(.bds-button--loading) {
+    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.14);
+  }
+
+  :root[data-theme="dark"] .service-themed .bds-button--primary:active:not(:disabled) {
+    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.22);
+  }
+
+  /* Focus ring: pin to the fixed dark grayscale primitive, NOT a service token.
+     The service surfaces are fixed-light in both themes (see borderless-card
+     note above), but BOTH candidate service tokens drift light in dark theme —
+     --background-brand-primary (base) and --text-brand-primary (the `*-on-light`
+     text) each resolve to the medium `-darker` step there, so a ring built from
+     either fails WCAG 2.4.11 (3:1) against the fixed-light tint in dark mode
+     (measured 2.4–3.0:1). --color-grayscale-darkest is mode-invariant and clears
+     3:1 on every service tint in both themes — the same fixed-on-fixed-light
+     pattern the #360 borderless-card text fix uses for these surfaces. Trades a
+     service-hued ring for one that is reliably visible; the leak this kills is
+     the off-brand poppy ring on a non-poppy page. */
+  .service-themed .bds-button--primary:focus-visible {
+    outline-color: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — every --border-* token is theme-responsive (flips light in the dark root), but the service surfaces are fixed-light in BOTH themes, so only a mode-invariant primitive clears 3:1 in both. Same fixed-on-fixed-light primitive the #360 borderless-card fix uses. */
+  }
 }

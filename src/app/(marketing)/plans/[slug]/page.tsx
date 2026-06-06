@@ -160,7 +160,13 @@ export default async function PlanDetailPage({ params }: Props) {
         style={
           {
             '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
-            backgroundColor: audienceTokens.bg,
+            // Section-level service-line tint — `surface` family per
+            // service-token-decision-tree.md (the hero is a broad container).
+            // Mirrors the services/[slug] hero so all interior heros read as
+            // one continuous surface band; the BDS blueprint card defers to
+            // this via the `.page-hero-blueprint .bp-hero-img-card` override
+            // in shared-sections.css (no two-tone seam).
+            backgroundColor: audienceTokens.surface,
           } as React.CSSProperties
         }
       >
@@ -177,58 +183,67 @@ export default async function PlanDetailPage({ params }: Props) {
         <PlanIncludedServices services={includedServices} />
       )}
 
-      {/* ═══ CTA ═══
-       * Tinted section (surfaceLight) with a Card inset — lighter background
-       * keeps the service-line palette tied to the audience while the Card
-       * provides a clear focal surface for the pricing call-to-action.
+      {/* ═══ CTA — two-column support-plan panel (Webflow parity) ═══
+       * Surface-service-tinted panel carrying the plan's marketing
+       * illustration on the left and a neutral price/CTA card on the right.
+       * Panel tone is the dominant service-line `surface` token; the inner
+       * elevated card stays neutral so the price + button read as the focal
+       * element (mirrors the live Webflow support-plan CTA).
        */}
-      <section
-        className="content-section"
-        style={{ backgroundColor: audienceTokens.surfaceLight }}
-      >
+      <section className="content-section">
         <div className="container-lg container-lg--comfortable">
-          <Card variant="outlined" padding="lg" style={{ maxWidth: '640px', margin: '0 auto' }}>
-            <div className="content-wrapper content-wrapper--center">
-              <p style={{ ...label.smBold, color: audienceTokens.text }}>Get</p>
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
-              {plan.description && (
-                <p
-                  style={{
-                    ...text.bodyLg,
-                    color: color.text.secondary,
-                    textAlign: 'center',
-                    maxWidth: '560px',
-                  }}
-                >
-                  {plan.description}
-                </p>
-              )}
-              {plan.monthly_price_display && (
-                <p
-                  style={{
-                    ...heading.md,
-                    color: audienceTokens.text,
-                    textAlign: 'center',
-                  }}
-                >
-                  {plan.monthly_price_display}
-                  <span style={{ ...text.bodyLg, color: color.text.secondary }}>
-                    {' '}
-                    /month
-                  </span>
-                </p>
-              )}
-              <div className="button-wrapper button-wrapper--center">
-                <Button
-                  href={`/get-started?plan=${plan.slug}`}
-                  variant="primary"
-                  size="lg"
-                >
-                  Get Started
-                </Button>
+          <div
+            className="plan-cta-panel"
+            style={{ backgroundColor: audienceTokens.surface }}
+          >
+            {heroImage && (
+              <div className="plan-cta-panel__media">
+                <Image
+                  src={heroImage}
+                  alt=""
+                  fill
+                  sizes="(max-width: 991px) 100vw, 45vw"
+                  style={{ objectFit: 'contain' }}
+                />
               </div>
-            </div>
-          </Card>
+            )}
+            <Card variant="elevated" padding="lg" className="plan-cta-panel__card">
+              <div className="content-wrapper content-wrapper--center">
+                <p style={{ ...label.smBold, color: audienceTokens.text }}>Get</p>
+                <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
+                {plan.description && (
+                  <p
+                    style={{
+                      ...text.body,
+                      color: color.text.secondary,
+                      textAlign: 'center',
+                    }}
+                  >
+                    {plan.description}
+                  </p>
+                )}
+                {plan.monthly_price_display && (
+                  <div className="plan-cta-panel__price">
+                    <p style={{ ...heading.md, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>
+                      {plan.monthly_price_display}
+                    </p>
+                    <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center', margin: 0 }}>
+                      per month
+                    </p>
+                  </div>
+                )}
+                <div className="button-wrapper button-wrapper--center">
+                  <Button
+                    href={`/get-started?plan=${plan.slug}`}
+                    variant="primary"
+                    size="lg"
+                  >
+                    Get Started
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
       </section>
 

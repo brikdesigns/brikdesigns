@@ -8,27 +8,18 @@
    industries, services, services/[cat], customer-stories, value,
    get-started). Used in 11 pages — keep this pattern DRY here rather than
    per-page CSS. */
+/* Interior hero fills the initial viewport so the scroll-down affordance sits
+ * at the fold. Grid (rather than flex) gives us a 1fr top row for the centered
+ * container plus an auto bottom row that pins the scroll CTA to the fold edge —
+ * `justify-content: center` + `margin-top: auto` is the alternative but doesn't
+ * compose cleanly. */
 .page-hero {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-primary);
-  display: flex;
-  flex-direction: column;
-}
-
-/* Full-viewport variant — hero fills the initial viewport so the scroll-down
- * affordance sits at the fold. Grid (rather than flex) gives us a 1fr top
- * row for the centered container plus an auto bottom row that pins the
- * scroll CTA to the fold edge — `justify-content: center` + `margin-top:
- * auto` is the alternative but doesn't compose cleanly. */
-.page-hero--full-viewport {
   display: grid;
   grid-template-rows: 1fr auto;
   min-height: 100vh;
   min-height: 100svh;
-}
-
-.page-hero--full-viewport .page-hero__container {
-  align-self: center;
 }
 
 .page-hero__container {
@@ -36,6 +27,7 @@
   max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--site-gutter);
+  align-self: center;
 }
 
 .page-hero__title {
@@ -68,7 +60,7 @@
   color: var(--text-primary);
   margin: var(--gap-md) 0 0;
   max-width: 700px;
-  line-height: 1.7;
+  line-height: var(--font-line-height-relaxed);
 }
 
 /* ─── Standard content section ───────────────────────────── */
@@ -142,6 +134,7 @@
 .cta-card-brand {
   width: 100%;
   max-width: 1080px;
+  min-height: 230px;
   margin: 0 var(--padding-lg);
   padding: var(--padding-huge) var(--padding-xl);
   background-color: var(--surface-brand-primary);
@@ -149,6 +142,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: var(--gap-md);
 }
 
@@ -266,6 +260,41 @@
   display: flex;
   flex-direction: column;
   padding-bottom: var(--padding-huge);
+}
+
+/* Single service-line surface tone across the whole hero band.
+   BDS paints `--background-service-*` directly on `.bp-hero-img-card[data-audience]`,
+   which differs from the canonical `--surface-service-*` tint the wrapper carries —
+   the two shades read as a layered seam. Deferring the card to `transparent` lets
+   the wrapper's surface tone be the single visible background. The `[data-audience]`
+   selector matches BDS's specificity (0,2,0) and wins on source order. */
+.page-hero-blueprint .bp-hero-img-card[data-audience] {
+  background: transparent;
+}
+
+/* Pin the hero content + media card to the top of the band so the breadcrumb
+   sits at a stable vertical position regardless of how many lines the H1 wraps
+   to. BDS defaults `.bp-hero-img-card__container` to `align-items: center`,
+   which re-centers the whole block when the title grows — shifting the
+   breadcrumb between pages. Scoped to `.page-hero-blueprint` (specificity 0,2,0
+   > BDS's 0,1,0) per the override pattern above; upstream fix tracked for
+   brik-bds. (#354) */
+.page-hero-blueprint .bp-hero-img-card__container {
+  align-items: start;
+}
+
+/* Tighten the hero content rhythm to gap-sm (breadcrumb → eyebrow → H1 → lead).
+   BDS hardcodes `__content` to gap-md with no component-var hook, and the
+   breadcrumb adds its own gap-sm margin-bottom on top — so set the flex gap to
+   gap-sm and drop the redundant margin so every step is a uniform gap-sm.
+   A component-level spacing-variable ("space mode") in BDS would remove the
+   need for this raw-class override — tracked in brik-bds#828. (#354) */
+.page-hero-blueprint .bp-hero-img-card__content {
+  gap: var(--gap-sm);
+}
+
+.page-hero-blueprint .bp-hero-img-card__breadcrumb {
+  margin-bottom: 0;
 }
 
 /* ─── Responsive ─────────────────────────────────────────── */

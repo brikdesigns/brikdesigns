@@ -22,16 +22,17 @@ const customerLinks: { label: string; href: string; icon: string }[] = [
   { label: 'Small Business', href: '/customers/small-business', icon: 'ph:storefront' },
 ];
 
-// Hrefs use Supabase `service_lines.slug` short-form (brand / marketing /
-// information / product / service). The long-form Webflow slugs
-// (brand-design, marketing-design, …) DO NOT resolve under the Next.js
-// dynamic route `/services/[serviceLineSlug]` — they return 404. See #113.
+// Hrefs use the canonical `/services/{route-slug}` segments: brand / marketing
+// / information / product / back-office. The back-office route slug differs
+// from its FK-stable DB slug `service` (see service-line-routes.ts). The
+// long-form Webflow slugs (brand-design, marketing-design, …) DO NOT resolve
+// under the Next.js dynamic route `/services/[serviceLineSlug]` — see #113.
 const serviceLines: { label: string; href: string; category: ServiceLine }[] = [
   { label: 'Brand Design', href: '/services/brand', category: 'brand' },
   { label: 'Information Design', href: '/services/information', category: 'information' },
   { label: 'Marketing Design', href: '/services/marketing', category: 'marketing' },
   { label: 'Product Design', href: '/services/product', category: 'product' },
-  { label: 'Back Office Design', href: '/services/service', category: 'service' },
+  { label: 'Back Office Design', href: '/services/back-office', category: 'back-office' },
 ];
 
 const socialLinks: { label: string; href: string; icon: string }[] = [

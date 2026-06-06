@@ -102,11 +102,9 @@ export default async function BlogPostPage({ params }: Props) {
             <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center' }}>
               {meta.ctaTitle}
             </h2>
-            {meta.ctaDescription && (
-              <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', opacity: 0.9 }}>
-                {meta.ctaDescription}
-              </p>
-            )}
+            <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', opacity: 0.9 }}>
+              {meta.ctaDescription ?? 'Starting a new project or want to collaborate with us?'}
+            </p>
             <Button href="/contact" variant="on-color" size="md">
               Let&apos;s Talk
             </Button>

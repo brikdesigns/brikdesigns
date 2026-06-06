@@ -1,0 +1,109 @@
+/* Event + newsletter landing page layout (brikdesigns#335 / #336).
+   Two-column on desktop (content left, form right); single column on mobile.
+   The per-event accent (section tint + form-card top border) is applied
+   inline in page.tsx using canonical serviceColor() token values — see the
+   `backgroundColor` / `borderTopColor` inline styles there. */
+
+.event-page {
+  padding-block: var(--padding-huge);
+  background-color: var(--surface-primary);
+}
+
+.event-page__grid {
+  max-width: var(--content-width-xl);
+  margin-inline: auto;
+  padding-inline: var(--padding-lg);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-xl);
+}
+
+@media (min-width: 992px) {
+  .event-page__grid {
+    grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr);
+    gap: var(--gap-huge);
+    align-items: start;
+  }
+}
+
+.event-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  min-width: 0;
+}
+
+.event-page__hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background-color: var(--surface-secondary);
+}
+
+.event-page__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+}
+
+.event-page__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs);
+}
+
+/* Sanitized description HTML — basic prose rhythm. */
+.event-page__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  line-height: var(--font-line-height-relaxed);
+  color: var(--text-primary);
+}
+.event-page__description > * + * {
+  margin-top: var(--gap-md);
+}
+.event-page__description a {
+  color: var(--text-link);
+}
+.event-page__description :is(h2, h3) {
+  font-family: var(--font-family-heading);
+  color: var(--text-primary);
+}
+
+.event-page__speaker {
+  padding: var(--padding-lg);
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.event-page__sponsors {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-lg);
+}
+
+/* Form column — sticky alongside the scrolling content on desktop. */
+.event-page__form-col {
+  position: relative;
+}
+
+@media (min-width: 992px) {
+  .event-page__form-col {
+    position: sticky;
+    top: var(--gap-xl);
+  }
+}
+
+.event-page__form-card {
+  padding: var(--padding-xl);
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-muted);
+  /* top accent color set inline per-event (page.tsx); width/style here. */
+  border-top-width: 3px;
+  border-top-style: solid;
+  border-top-color: var(--border-brand-primary);
+  border-radius: var(--border-radius-lg);
+}

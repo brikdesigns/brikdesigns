@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getAllPosts } from '@/lib/blog';
 import { createClient } from '@/lib/supabase/server';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 
 const BASE_URL = 'https://www.brikdesigns.com';
 
@@ -40,7 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq('is_public', true);
 
   const categoryPages: MetadataRoute.Sitemap = (categories || []).map((cat) => ({
-    url: `${BASE_URL}/services/${cat.slug}`,
+    url: `${BASE_URL}/services/${routeSlugForServiceLine(cat.slug)}`,
     changeFrequency: 'weekly' as const,
     priority: 0.8,
   }));
@@ -55,7 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const cats = svc.service_lines as unknown as { slug: string }[] | { slug: string } | null;
     const catSlug = Array.isArray(cats) ? cats[0]?.slug : cats?.slug || '';
     return {
-      url: `${BASE_URL}/services/${catSlug}/${svc.slug}`,
+      url: `${BASE_URL}/services/${routeSlugForServiceLine(catSlug)}/${svc.slug}`,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     };
