@@ -398,4 +398,107 @@ h1, h2, h3, h4, h5, h6 {
     --background-secondary: var(--color-grayscale-dark); /* bds-lint-ignore token-family — re-points the secondary-bg token for the button scope only, using the same grayscale primitive family the brand-kit dark block uses for --background-secondary* (lines ~115/119); the Shape-B pairing check fires solely because the selector is component-scoped (.bds-button--secondary), not a bare theme-def block. rest: #5a5a5a → 6.16:1 vs --text-primary #f2f2f2 */
     --background-secondary-hover: var(--color-grayscale-darker); /* bds-lint-ignore token-family — see above; hover: #333 → 11.29:1 */
   }
+
+  /* ═══ routesDark burn-down (#827, dark-theme face) ═══
+     The service surfaces are fixed-light in BOTH themes (see the #360 borderless
+     and #359 focus-ring notes above). But BDS's dark root shifts THREE service
+     token families one step lighter — `-darkest` → `-darker` — even though every
+     one of them is contractually paired with those fixed-light surfaces:
+       • --background-service-*-on-light  (the accessible card-CTA fill, #346/#347)
+       • --surface-service-*-dark         (= svcColors.inverse → --background-brand-primary,
+                                            the service primary-button fill)
+       • --text-service-*-on-light        (breadcrumb / ServiceTag / hero-lead text,
+                                            via the [data-audience] cascade brik-bds#781)
+     Lightening a token that sits on a fixed-light tint erodes contrast in dark mode:
+       white button labels 2.86–4.35:1 · index card CTAs 2.59–4.10:1 · on-light text 2.97:1
+     (all measured against the dark axe pass). Re-point the three families back to their
+     mode-invariant `-darkest` primitives — the exact values light mode already clears AA
+     with — so each pairing keeps its light-theme contrast in dark mode. No value is
+     invented: every token is aimed at the existing primitive its light sibling uses.
+     The proper home is the BDS dark service ramp (brik-bds#827); this consumer override
+     holds the AA line until that lands. */
+  :root[data-theme="dark"] {
+    /* bds-lint-ignore token-family — re-points service `*-on-light` / `*-dark` tokens
+       (which pair with fixed-light surfaces) to their mode-invariant `-darkest` primitives;
+       a bare theme-def block is intentional here because the consumers (BDS buttons,
+       breadcrumb, ServiceTag, ServiceLineCard CTAs) live across many routes with no
+       shared element scope — see brik-bds#827. */
+    --background-service-brand-on-light: var(--color-yellow-darkest);
+    --background-service-marketing-on-light: var(--color-green-darkest);
+    --background-service-information-on-light: var(--color-blue-darkest);
+    --background-service-product-on-light: var(--color-purple-darkest);
+    --background-service-back-office-on-light: var(--color-orange-darkest);
+
+    --surface-service-brand-dark: var(--color-yellow-darkest);
+    --surface-service-marketing-dark: var(--color-green-darkest);
+    --surface-service-information-dark: var(--color-blue-darkest);
+    --surface-service-product-dark: var(--color-purple-darkest);
+    --surface-service-back-office-dark: var(--color-orange-darkest);
+
+    --text-service-brand-on-light: var(--color-yellow-darkest);
+    --text-service-marketing-on-light: var(--color-green-darkest);
+    --text-service-information-on-light: var(--color-blue-darkest);
+    --text-service-product-on-light: var(--color-purple-darkest);
+    --text-service-back-office-on-light: var(--color-orange-darkest);
+  }
+
+  /* Inverse (dark-label) buttons share the `--surface-service-*-dark` source the
+     re-pin above just deepened. The hero price button (`.bds-button--inverse`,
+     rendered by BDS bp-hero-img-card with `--background-inverse` pointed at the
+     service dark surface) carries a DARK label, so the darkest fill drops it to
+     2.44:1. White-label primaries want the darkest step; dark-label inverses want
+     the medium one. Restore `--background-inverse` to the `-darker` step for the
+     inverse variant only — its pre-burn-down value, which clears AA against the
+     dark label (#000 on -darker ≈ 4.6:1). Keyed off the page's [data-audience]. */
+  :root[data-theme="dark"] [data-audience="brand"] .bds-button--inverse {
+    --background-inverse: var(--color-yellow-darker); /* bds-lint-ignore token-family — undoes the darkest re-pin for the dark-label inverse variant; see comment */
+  }
+  :root[data-theme="dark"] [data-audience="marketing"] .bds-button--inverse {
+    --background-inverse: var(--color-green-darker); /* bds-lint-ignore token-family — see above */
+  }
+  :root[data-theme="dark"] [data-audience="information"] .bds-button--inverse {
+    --background-inverse: var(--color-blue-darker); /* bds-lint-ignore token-family — see above */
+  }
+  :root[data-theme="dark"] [data-audience="product"] .bds-button--inverse {
+    --background-inverse: var(--color-purple-darker); /* bds-lint-ignore token-family — see above */
+  }
+  :root[data-theme="dark"] [data-audience="back-office"] .bds-button--inverse {
+    --background-inverse: var(--color-orange-darker); /* bds-lint-ignore token-family — see above */
+  }
+
+  /* Grayscale heading/body copy that sits directly on a fixed-light service tint.
+     `.service-surface` marks the sections whose background is an inline
+     `--surface-service-*` / `serviceColor().surface` tint (fixed-light in both
+     themes). The theme-responsive --text-primary/-secondary flip near-white in
+     dark mode (#f2f2f2 / #bdbdbd) → 1.05–3.04:1 on the light tints. Re-point the
+     two text tokens to the mode-invariant darkest grayscale primitive for the
+     tinted subtree only — same fixed-on-fixed-light pattern as the #360 borderless
+     card text fix, but applied at the section scope rather than per-element.
+     Scoped to `.service-surface` (NOT `.service-themed`) because the service-line
+     page's `.service-themed` wrapper also contains non-tinted dark sections whose
+     light text is correct. */
+  :root[data-theme="dark"] .service-surface {
+    --text-primary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see comment; pins inherited heading/body color dark on a fixed-light tint */
+    --text-secondary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above */
+  }
+
+  /* …but nested components that establish their OWN (dark) surface inside the tint
+     — surfaced Cards, PricingCard, the event form card / speaker panel, the hero
+     image-card price block — must keep their light text; the section-level pin
+     above would otherwise cascade dark-on-dark (#1b1b1b on #000). Borderless cards
+     are transparent (they sit on the tint) so they're EXCLUDED — their dark text is
+     correct and already handled by the #360 rule. Restore the dark-brand text colors
+     explicitly (`revert-layer` can't help — --text-* is inherited, so it would just
+     re-inherit the darkest value the section sets above): primary → grayscale-lightest,
+     secondary → the #bdbdbd brand stop the dark brand-kit block sets (globals ~L113). */
+  :root[data-theme="dark"] .service-surface :is(
+    .bds-card:not(.bds-card--borderless),
+    .bds-pricing-card,
+    .bp-hero-img-card,
+    .event-page__form-card,
+    .event-page__speaker
+  ) {
+    --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — restores the dark-brand body text the section pin above darkened; #f2f2f2 on the card's own dark surface */
+    --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals ~L113); no BDS primitive exists for it */
+  }
 }

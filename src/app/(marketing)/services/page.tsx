@@ -87,7 +87,7 @@ export default async function ServicesPage() {
         return (
           <section
             key={cat.slug}
-            className="content-section"
+            className="content-section service-surface"
             style={{ backgroundColor: serviceColor(resolveServiceTagCategory(cat)).surface }}
           >
             <div className="container-lg">

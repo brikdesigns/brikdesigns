@@ -62,7 +62,7 @@ export default async function EventPage({ params }: Props) {
   const sponsors = Array.isArray(event.sponsor_logos) ? event.sponsor_logos : [];
 
   return (
-    <section className="event-page" style={{ backgroundColor: accent.surfaceLight }}>
+    <section className="event-page service-surface" style={{ backgroundColor: accent.surfaceLight }}>
       <div className="event-page__grid">
         <div className="event-page__content">
           {event.hero_image_url && (
