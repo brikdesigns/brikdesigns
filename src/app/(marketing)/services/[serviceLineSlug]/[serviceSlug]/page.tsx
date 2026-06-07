@@ -211,10 +211,9 @@ export default async function ServiceDetailPage({ params }: Props) {
     // `service.tagline` is the mega-menu hover string (3-5 words);
     // not the right field for the hero body.
     body: service.description ?? null,
-    cta:
-      sortedOfferings.length > 0
-        ? { label: 'View Details', url: '#pricing' }
-        : null,
+    // Interior hero has no CTA — the "View Details"/#pricing scroll link was
+    // removed (#384); pricing sits directly below the hero on the same page.
+    cta: null,
     breadcrumb: [
       { label: 'All Services', href: '/services' },
       { label: serviceLine?.name || serviceLineSlug, href: `/services/${serviceLineSlug}` },

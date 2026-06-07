@@ -109,6 +109,14 @@ export default async function CustomerDetailPage({ params }: Props) {
         <div className="page-hero__container">
           <div className="customer-detail-hero">
             <div className="customer-detail-hero__content">
+              <Breadcrumb
+                style={{ flexWrap: 'wrap' }}
+                items={[
+                  { label: 'Home', href: '/' },
+                  { label: 'Customers', href: '/customers' },
+                  { label: page.name },
+                ]}
+              />
               {(page.primary_badge_url || page.secondary_badge_url) && (
                 <div className="customer-detail-hero__tag" aria-hidden="true">
                   {page.primary_badge_url && (
@@ -133,14 +141,6 @@ export default async function CustomerDetailPage({ params }: Props) {
                   )}
                 </div>
               )}
-              <Breadcrumb
-                style={{ flexWrap: 'wrap' }}
-                items={[
-                  { label: 'Home', href: '/' },
-                  { label: 'Customers', href: '/customers' },
-                  { label: page.name },
-                ]}
-              />
               <h1 className="page-hero__title">{page.name}</h1>
               {page.intro_description && (
                 <p className="page-hero__description">{page.intro_description}</p>

@@ -68,7 +68,6 @@ export default async function AboutPage() {
   const categories = await getServiceCategories();
 
   const serviceLines = categories
-    .filter((cat) => cat.slug !== 'product')
     .map((cat) => ({
       name: cat.name,
       slug: cat.slug,
