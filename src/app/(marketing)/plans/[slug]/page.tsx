@@ -13,6 +13,7 @@ import {
   Grid,
   HeroSplitImageCardOverlay,
   Button,
+  TextLink,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
@@ -276,13 +277,9 @@ export default async function PlanDetailPage({ params }: Props) {
                 title={other.name}
                 description={other.description ?? undefined}
                 action={
-                  <Button
-                    href={`/plans/${other.slug}`}
-                    variant="primary"
-                    size="sm"
-                  >
+                  <TextLink href={`/plans/${other.slug}`}>
                     Learn More
-                  </Button>
+                  </TextLink>
                 }
               />
               );
