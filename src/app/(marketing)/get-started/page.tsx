@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
+import { getSupportPlans } from '@/lib/supabase/queries';
 import '../shared-sections.css';
 
 export const metadata: Metadata = {
@@ -8,7 +9,20 @@ export const metadata: Metadata = {
   description: 'Start your project with Brik Designs. Tell us about your business, your goals, and what you need — and we\'ll take it from there.',
 };
 
-export default function GetStartedPage() {
+type Props = { searchParams: Promise<{ plan?: string }> };
+
+export default async function GetStartedPage({ searchParams }: Props) {
+  // Resolve the real plan name from its slug at this single chokepoint so the
+  // form's "Selected plan" chip never has to humanize the slug — humanizing
+  // drops words when the display name diverges from the slug (e.g.
+  // `product-support` → "Product Design Support", not "Product Support"). #400.
+  const { plan: planSlug } = await searchParams;
+  let planName = '';
+  if (planSlug) {
+    const plans = await getSupportPlans();
+    planName = plans.find((p) => p.slug === planSlug)?.name ?? '';
+  }
+
   return (
     <>
       <section className="page-hero">
@@ -24,7 +38,7 @@ export default function GetStartedPage() {
       <section className="content-section">
         <div className="container-lg" style={{ maxWidth: 600, alignItems: 'flex-start' }}>
           <Suspense>
-            <LeadCaptureForm source="get_started" />
+            <LeadCaptureForm source="get_started" planName={planName} />
           </Suspense>
         </div>
       </section>
