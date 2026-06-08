@@ -12,10 +12,10 @@ import {
   Frame,
   Grid,
   HeroSplitImageCardOverlay,
-  Button,
   TextLink,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
+import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { color, serviceColor } from '@/lib/tokens';
 import { heading, text, label } from '@/lib/styles';
@@ -131,6 +131,11 @@ export default async function PlanDetailPage({ params }: Props) {
             priceLabel: 'Per month',
             price: plan.monthly_price_display,
           }),
+          // Hero CTA stays a nav link: the BDS hero blueprint's `priceCard.cta`
+          // is url-only (no onClick), so it can't open the modal the cta-panel
+          // button does (#401). Tracked in brik-bds#843 — swap to the modal once
+          // the blueprint gains an action affordance. The standalone route is
+          // the fallback target regardless.
           cta: { label: 'Get Started', url: `/get-started?plan=${plan.slug}` },
         }
       : undefined,
@@ -234,13 +239,7 @@ export default async function PlanDetailPage({ params }: Props) {
                   </div>
                 )}
                 <div className="button-wrapper button-wrapper--center">
-                  <Button
-                    href={`/get-started?plan=${plan.slug}`}
-                    variant="primary"
-                    size="lg"
-                  >
-                    Get Started
-                  </Button>
+                  <GetStartedModalButton plan={plan.slug} planName={plan.name} />
                 </div>
               </div>
             </Card>

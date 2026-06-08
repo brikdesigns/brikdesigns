@@ -8,10 +8,13 @@ import { FormSuccessCard } from '@/components/marketing/forms/FormSuccessCard';
 
 export function LeadCaptureForm({
   source = 'get_started',
+  plan: planProp,
   planName = '',
-}: { source?: string; planName?: string }) {
+}: { source?: string; plan?: string; planName?: string }) {
   const searchParams = useSearchParams();
-  const plan = searchParams.get('plan') || '';
+  // In the modal there is no `?plan=` in the URL — take the slug as a prop and
+  // fall back to the query param for the standalone /get-started route. #401.
+  const plan = planProp ?? searchParams.get('plan') ?? '';
   const service = searchParams.get('service') || '';
 
   const { isSubmitting, isSuccess, isError, error, submit } = useFormSubmit({
