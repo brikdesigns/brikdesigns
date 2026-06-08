@@ -1,5 +1,16 @@
 /* ─── Plans page — layout only ──────────────────────────── */
 
+/* Other Support Plans cards carry each linked plan's own service tint (#397).
+   --surface-service-* tokens are FIXED-LIGHT in both themes, so the display
+   preset's theme-responsive --text-primary flips light → light-on-light in
+   dark mode (illegible). Pin title + description to the theme-invariant dark
+   primitive — the same fixed-on-fixed pattern #360 used for borderless cards
+   (≥5.05:1 on every service tint, both themes). */
+.plan-other-card--tinted .bds-card__preset-display-title,
+.plan-other-card--tinted .bds-card__preset-display-description {
+  color: var(--color-grayscale-darkest);
+}
+
 .plans-card-wrapper {
   display: flex;
   flex-direction: column;

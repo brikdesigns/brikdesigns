@@ -277,7 +277,10 @@ export const getOtherSupportPlans = cache(
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('service_plans')
-        .select('name, slug, monthly_price_display, description, image_url, discount_label')
+        .select(
+          `name, slug, monthly_price_display, description, image_url, discount_label,
+           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name)`
+        )
         .eq('is_public', true)
         .neq('slug', excludeSlug)
         .order('rank', { ascending: true });
