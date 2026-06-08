@@ -501,4 +501,19 @@ h1, h2, h3, h4, h5, h6 {
     --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — restores the dark-brand body text the section pin above darkened; #f2f2f2 on the card's own dark surface */
     --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals ~L113); no BDS primitive exists for it */
   }
+
+  /* Current-page breadcrumb: de-emphasize it relative to the navigable link
+     trail (#391). On the service heroes the trail links and the current page
+     render identically — same colour (the BDS audience cascade, brik-bds#781,
+     rebinds --text-secondary onto the link's --text-brand-primary service hue)
+     AND same weight (both --font-weight-semi-bold). Colour can't carry the
+     distinction here: the hero band is a mid-tone tint (--surface-service-*, e.g.
+     product #9e8bc2) on which the link is already at the AA floor (4.26:1), so any
+     *lighter* colour would fail AA. Distinguish by WEIGHT instead — drop the
+     current crumb to regular so it reads as the recessive "you are here" without
+     touching contrast. Applied to the component (all breadcrumbs), not per-page.
+     Proper home is BDS Breadcrumb.css — tracked in brik-bds#835. */
+  .bds-breadcrumb__current {
+    font-weight: var(--font-weight-regular);
+  }
 }
