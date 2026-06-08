@@ -162,7 +162,7 @@ export default async function AboutPage() {
         <div className="container-lg">
           <div className="about-value-card">
             <div className="about-value-text">
-              <h2 style={heading.lg}>The Value of Design</h2>
+              <h2 style={heading.lg}>The value of design</h2>
               <p style={{ ...text.body, color: color.text.secondary }}>Learn about the value of design in 4 steps.</p>
               <Button href="/value" variant="primary" size="md">Learn More</Button>
             </div>
@@ -202,7 +202,7 @@ export default async function AboutPage() {
       <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our services</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>

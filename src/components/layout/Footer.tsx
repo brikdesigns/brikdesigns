@@ -160,7 +160,7 @@ export function Footer() {
       }
       columns={[
         {
-          heading: 'Follow Us Online',
+          heading: 'Follow us online',
           links: socialLinks.map((link) => ({
             label: link.label,
             href: link.href,

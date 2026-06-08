@@ -61,7 +61,7 @@ export default async function ServicesPage() {
       <section className="content-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our services</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               We offer design services at every stage of your business growth — from establishment to maturity.
             </p>

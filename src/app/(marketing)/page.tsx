@@ -86,7 +86,7 @@ export default async function HomePage() {
       <section className="section-services">
         <div className="section-container">
           <div className="section-header">
-            <h2 className="section-title">What We Do</h2>
+            <h2 className="section-title">What we do</h2>
             <p className="section-description">
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>
@@ -111,7 +111,7 @@ export default async function HomePage() {
       <section className="section-plans">
         <div className="section-container">
           <div className="section-header">
-            <h2 className="section-title">Monthly Subscription</h2>
+            <h2 className="section-title">Monthly subscription</h2>
             <p className="section-description">
               We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
             </p>
@@ -171,7 +171,7 @@ export default async function HomePage() {
         <section className="section-story">
           <div className="story-container">
             <div className="section-header">
-              <h2 className="section-title">Latest Customer Story</h2>
+              <h2 className="section-title">Latest customer story</h2>
             </div>
             <div className="story-card">
               <div className="story-image-wrapper">
@@ -221,7 +221,7 @@ export default async function HomePage() {
       <section className="section-cta">
         <div className="cta-card">
           <div className="cta-inner">
-            <h2 className="cta-title">Get in Touch</h2>
+            <h2 className="cta-title">Get in touch</h2>
             <p className="cta-description">
               Starting a new project or want to collaborate with us?
             </p>
