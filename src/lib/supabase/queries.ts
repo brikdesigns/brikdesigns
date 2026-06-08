@@ -249,6 +249,7 @@ export const getSupportPlanBySlug = cache(
         .from('service_plans')
         .select(
           `*,
+           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name),
            service_plan_items(
              sort_order,
              service:services(
