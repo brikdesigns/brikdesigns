@@ -85,7 +85,7 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
                 )}
                 <div className="plan-service-list-item__content">
                   <div className="plan-service-list-item__header">
-                    <h4 className="plan-service-list-item__title">{svc.name}</h4>
+                    <h3 className="plan-service-list-item__title">{svc.name}</h3>
                     <ServiceTag
                       category={svc.category}
                       {...(svc.hasIcon ? { serviceName: svc.name } : {})}
