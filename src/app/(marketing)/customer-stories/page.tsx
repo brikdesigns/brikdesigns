@@ -79,7 +79,7 @@ export default async function CustomerStoriesPage() {
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our services</h2>
               <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 We offer design services at every stage of your business growth — from brand to back office.
               </p>
@@ -102,7 +102,7 @@ export default async function CustomerStoriesPage() {
 
       <section className="cta-section-brand">
         <div className="cta-card-brand">
-          <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>Get in Touch</h2>
+          <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>Get in touch</h2>
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0, opacity: 0.9 }}>
             Starting a new project or want to collaborate with us?
           </p>

@@ -257,7 +257,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
         {story.the_challenge && (
           <div className="container-lg container-lg--story">
             <div className="story-block">
-              <h2 style={heading.md}>The Challenge</h2>
+              <h2 style={heading.md}>The challenge</h2>
               <div
                 className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.the_challenge }}
@@ -284,7 +284,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
         {story.the_solution && (
           <div className="container-lg container-lg--story">
             <div className="story-block">
-              <h2 style={heading.md}>The Brik Solution</h2>
+              <h2 style={heading.md}>The Brik solution</h2>
               <div
                 className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.the_solution }}
@@ -338,7 +338,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
       {otherStories.length > 0 && (
         <section className="content-section content-section--accent">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Other Customer Stories</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Other customer stories</h2>
             <p
               style={{
                 ...text.body,
@@ -420,7 +420,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
           style={{ backgroundColor: serviceColor(relatedAudience).surface }}
         >
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Related Services</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Related services</h2>
             <Card variant="borderless" padding="lg" style={{ marginTop: 'var(--gap-lg)' }}>
               <Stack direction="horizontal" gap="lg" align="center">
                 {relatedService.image_url && (
@@ -479,7 +479,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
               margin: 0,
             }}
           >
-            Get in Touch
+            Get in touch
           </h2>
           <p
             style={{

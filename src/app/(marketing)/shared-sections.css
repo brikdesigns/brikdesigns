@@ -242,6 +242,15 @@
   animation: scroll-cta-bounce 0.8s ease-in-out 1.2s 3;
 }
 
+/* --surface-service-* tokens are fixed-light in both themes. Pin label + icon
+   to grayscale-darkest so they stay readable in dark mode (where --text-secondary
+   and --text-brand-primary resolve to lighter values). Mirrors the homepage
+   .section-hero override that pins to --text-on-color-dark on the Brik-orange hero. */
+.service-surface .scroll-down-cta__label,
+.service-surface .scroll-down-cta__icon {
+  color: var(--color-grayscale-darkest);
+}
+
 @keyframes scroll-cta-appear {
   to { opacity: 1; }
 }

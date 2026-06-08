@@ -265,7 +265,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {otherPages.length > 0 && (
         <section className="content-section">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Other Industries</h2>
+            <h2 style={heading.lg}>Other industries</h2>
             <Grid columns={3}>
               {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
@@ -290,7 +290,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {stories.length > 0 && (
         <section className="content-section content-section--secondary">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Latest Customer Story</h2>
+            <h2 style={heading.lg}>Latest customer story</h2>
             <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>
               We&rsquo;re more than a design studio&mdash;we&rsquo;re your strategic marketing partner.
             </p>
@@ -330,7 +330,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       <section className="cta-section-brand">
         <div className="cta-card-brand">
           <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
-            Get in Touch
+            Get in touch
           </h2>
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
             Let&apos;s talk about how we can help your {page.name.toLowerCase()} business.
