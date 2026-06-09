@@ -363,7 +363,9 @@ export default async function ServiceDetailPage({ params }: Props) {
           className="service-themed service-surface"
           style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
-          <Card variant="borderless" padding="lg">
+          {/* elevated (not borderless): surface-primary fill + shadow keeps the
+              row-card contained on the service tint — #427 (regression from #360). */}
+          <Card variant="elevated" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedStory.hero_image_url && (
                 <div style={{ flex: '0 0 40%' }}>
@@ -409,7 +411,9 @@ export default async function ServiceDetailPage({ params }: Props) {
           className="service-themed service-surface"
           style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
         >
-          <Card variant="borderless" padding="lg">
+          {/* elevated (not borderless): surface-primary fill + shadow keeps the
+              row-card contained on the service tint — #427 (regression from #360). */}
+          <Card variant="elevated" padding="lg">
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedService.image_url && (
                 <div style={{ flex: '0 0 35%' }}>
