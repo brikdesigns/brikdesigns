@@ -7,14 +7,6 @@ const BACKLOG_DATABASE_ID = '32097d34-ed28-8051-8225-eb6800c2e05a';
 const PRODUCT_NAME = 'Website';
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://staging--brikdesigns.netlify.app';
 
-/** Map widget feedback types to Backlog Severity values (triage adjusts after intake) */
-const SEVERITY_MAP: Record<string, string> = {
-  bug: 'High',
-  ui: 'Low',
-  suggestion: 'Low',
-  question: 'Low',
-};
-
 /** Map widget types to Backlog Type select values */
 const TYPE_MAP: Record<string, string> = {
   bug: 'Bug',
@@ -91,11 +83,13 @@ export async function POST(request: Request) {
         Name: { title: [{ text: { content: title } }] },
         Description: { rich_text: [{ text: { content: description.trim() } }] },
         Submitter: { rich_text: [{ text: { content: `${submitter} (${email})` } }] },
-        Type: { select: { name: TYPE_MAP[type] ?? 'Bug' } },
+        // Post-OPE-29 Backlog schema: Type/Severity are now relations (not
+        // writable by name), Triage was renamed to "Triage Status". Intake
+        // writes the surviving select properties; triage assigns the relations.
+        'Type [legacy]': { select: { name: TYPE_MAP[type] ?? 'Bug' } },
         Role: { multi_select: [{ name: 'Brik Admin' }] },
         Product: { select: { name: PRODUCT_NAME } },
-        Triage: { select: { name: 'Not Triaged' } },
-        Severity: { select: { name: SEVERITY_MAP[type] ?? 'Medium' } },
+        'Triage Status': { select: { name: 'Not Triaged' } },
         URL: { url: `${BASE_URL}${page_url ?? ''}` },
       },
     }),
