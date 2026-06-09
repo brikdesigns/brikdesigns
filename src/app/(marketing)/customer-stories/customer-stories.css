@@ -102,7 +102,7 @@
  * h2 → body) is owned by the row's children. */
 
 /* Section-level rhythm: gap-xl between every direct child container after
- * the first. Section top/bottom padding (from .content-section) handles the
+ * the first. Section top/bottom padding (from .page-section) handles the
  * outer margins. */
 .story-arc > .container-lg + .container-lg {
   margin-top: var(--gap-xl);

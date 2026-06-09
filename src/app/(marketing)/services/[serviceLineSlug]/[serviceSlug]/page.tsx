@@ -517,7 +517,7 @@ export default async function ServiceDetailPage({ params }: Props) {
        * portal /settings/plans data task.
        */}
       {supportPlan && (
-        <section className="content-section">
+        <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
               <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a partner to avoid the full-time hassle?</h2>

@@ -203,7 +203,7 @@ export default async function PlanDetailPage({ params }: Props) {
        * elevated card stays neutral so the price + button read as the focal
        * element (mirrors the live Webflow support-plan CTA).
        */}
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg container-lg--comfortable">
           <div
             className="plan-cta-panel"

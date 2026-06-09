@@ -91,7 +91,7 @@ export default async function CustomersPage() {
 
       {/* Industries we know — hardcoded list of verticals with experience.
        * Icons drive recognition; the name reads as a label below. */}
-      <section className="content-section content-section--accent">
+      <section className="page-section page-section--accent">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries we know inside-out</h2>
@@ -115,7 +115,7 @@ export default async function CustomersPage() {
       {/* Company size segments — horizontal cards via Card preset="display-row".
        * The eyebrow (number + subtitle) sits in the image slot; the fits-list
        * sits in the extras slot between description and action. */}
-      <section className="content-section content-section--secondary">
+      <section className="page-section page-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="customers-segments">
             {SEGMENTS.map((seg, idx) => (
@@ -160,7 +160,7 @@ export default async function CustomersPage() {
       {/* Industry detail cards — DB-driven. Image from industry_pages.image_url
        * drives the card icon (same field used by the detail hero + meganav). */}
       {industryCards.length > 0 && (
-        <section className="content-section">
+        <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center">
               <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries we serve</h2>
@@ -192,7 +192,7 @@ export default async function CustomersPage() {
       {/* Common challenges — pull-quote cards using --background-service-{name}
        * tokens. Quotation mark and primary color treatment match the Webflow
        * source. */}
-      <section className="content-section content-section--secondary">
+      <section className="page-section page-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common challenges we solve</h2>

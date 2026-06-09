@@ -35,7 +35,7 @@ export default async function GetStartedPage({ searchParams }: Props) {
         </div>
       </section>
 
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg" style={{ maxWidth: 600, alignItems: 'flex-start' }}>
           <Suspense>
             <LeadCaptureForm source="get_started" planName={planName} />

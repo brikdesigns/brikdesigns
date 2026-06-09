@@ -131,7 +131,7 @@ export default async function ServiceLinePage({ params }: Props) {
        * page reads as one uniform tinted band — matching the interior service-detail
        * page (#389). Dark `--text-primary` copy gains contrast on the paler surface,
        * so AA is preserved in both themes. */}
-      <section id="services" className="content-section service-surface" style={{ backgroundColor: svcColors.surfaceLight }}>
+      <section id="services" className="page-section service-surface" style={{ backgroundColor: svcColors.surfaceLight }}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {serviceLine.name} services
@@ -165,7 +165,7 @@ export default async function ServiceLinePage({ params }: Props) {
        * the correct character and colors rather than inheriting the current line.
        */}
       {supportPlan && (
-        <section className="content-section">
+        <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
               <h2 style={{ ...heading.lg, textAlign: 'center' }}>Monthly support services</h2>
@@ -218,7 +218,7 @@ export default async function ServiceLinePage({ params }: Props) {
        * (parity #158).
        */}
       {otherServiceLines.length > 0 && (
-        <section className="content-section content-section--accent">
+        <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Other service lines
