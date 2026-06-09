@@ -37,7 +37,7 @@ export default async function CustomerStoriesPage() {
         <ScrollDownCta />
       </section>
 
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg">
           {stories && stories.length > 0 ? (
             <div className="story-list">
@@ -76,7 +76,7 @@ export default async function CustomerStoriesPage() {
       </section>
 
       {serviceLines && serviceLines.length > 0 && (
-        <section className="content-section">
+        <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
               <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our services</h2>

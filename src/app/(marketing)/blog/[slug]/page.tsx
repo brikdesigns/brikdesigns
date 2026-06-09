@@ -63,7 +63,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <>
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg container-lg--post">
           <Breadcrumb
             style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
@@ -116,7 +116,7 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* ═══ Related blogs ═══ */}
       {relatedPosts.length > 0 && (
-        <section className="content-section content-section--accent">
+        <section className="page-section page-section--accent">
           <div className="container-lg">
             <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: gap.lg }}>
               Keep reading
@@ -170,7 +170,7 @@ export default async function BlogPostPage({ params }: Props) {
        * service-line landing page.
        */}
       {serviceLines.length > 0 && (
-        <section className="content-section">
+        <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: gap.lg }}>
               Explore our services

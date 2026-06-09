@@ -200,7 +200,7 @@ export default async function CustomerDetailPage({ params }: Props) {
             // `service-surface` only when the section carries a fixed-light service
             // tint — a service-line-less topic falls back to the theme-responsive
             // neutral surface, where the light dark-mode text is already correct.
-            className={`content-section${topic.service_line_slug ? ' service-surface' : ''}`}
+            className={`page-section${topic.service_line_slug ? ' service-surface' : ''}`}
             style={{ backgroundColor: sectionSurface }}
           >
             <div className="container-lg">
@@ -263,7 +263,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {/* Other industries — 3-col display cards. Card uses 1:1 image, title,
        * description (from tagline copy), and a md "Learn More" button. */}
       {otherPages.length > 0 && (
-        <section className="content-section">
+        <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <h2 style={heading.lg}>Other industries</h2>
             <Grid columns={3}>
@@ -288,7 +288,7 @@ export default async function CustomerDetailPage({ params }: Props) {
 
       {/* Latest Customer Story — single related story (row layout). */}
       {stories.length > 0 && (
-        <section className="content-section content-section--secondary">
+        <section className="page-section page-section--secondary">
           <div className="container-lg container-lg--comfortable">
             <h2 style={heading.lg}>Latest customer story</h2>
             <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>

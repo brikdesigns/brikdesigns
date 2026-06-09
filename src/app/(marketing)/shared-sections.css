@@ -64,7 +64,7 @@
 }
 
 /* ─── Standard content section ───────────────────────────── */
-.content-section {
+.page-section {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-primary);
   display: flex;
@@ -74,11 +74,11 @@
   min-height: 100svh;
 }
 
-.content-section--secondary {
+.page-section--secondary {
   background-color: var(--surface-secondary);
 }
 
-.content-section--accent {
+.page-section--accent {
   background-color: var(--surface-accent);
 }
 
@@ -318,7 +318,7 @@
   }
 
   .page-hero,
-  .content-section {
+  .page-section {
     padding: var(--padding-xl) 0;
   }
 

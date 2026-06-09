@@ -126,7 +126,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
     <>
       {/* ═══ Story arc — interior-hero + media + content + quote ═══
        * Anatomy follows /blog/[slug]'s rhythm but with image rows breaking out
-       * to the wide 1280px column for visual impact. One content-section hosts
+       * to the wide 1280px column for visual impact. One page-section hosts
        * alternating containers:
        *   - .container-lg--story  (760px) → breadcrumb, h1, meta, narrative,
        *                                     quote
@@ -142,7 +142,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
        *
        * Anatomy ref: design.brikdesigns.com/docs/getting-started/page-templates
        */}
-      <section className="content-section story-arc">
+      <section className="page-section story-arc">
         <div className="container-lg container-lg--story">
           <Breadcrumb
             className="story-breadcrumb"
@@ -336,7 +336,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
       {/* ═══ Other Customer Stories — 3-col grid ═══ */}
       {otherStories.length > 0 && (
-        <section className="content-section content-section--accent">
+        <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Other customer stories</h2>
             <p
@@ -416,7 +416,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
       {/* ═══ Related Services — single row card ═══ */}
       {relatedService && (
         <section
-          className="content-section"
+          className="page-section"
           style={{ backgroundColor: serviceColor(relatedAudience).surface }}
         >
           <div className="container-lg container-lg--comfortable">
