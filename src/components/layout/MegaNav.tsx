@@ -237,7 +237,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
                         </div>
-                        <h5 className="mega-nav__product-promo-title">Need product design support?</h5>
+                        <p className="mega-nav__product-promo-title">Need product design support?</p>
                         <p className="mega-nav__product-promo-desc">
                           From mobile apps to enterprise solutions, we create experiences that are
                           well-crafted, intuitive, and aligned with your business goals.
@@ -490,11 +490,11 @@ function AboutNavCard({ href, image, title, desc, cta, onClick }: {
 /* Webflow: .dropdown-icon — exact SVG from source: 20x20 viewBox, strokeWidth 2.5 */
 function ChevronDown() {
   return (
-    <div className="mega-nav__chevron">
+    <span className="mega-nav__chevron">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
-    </div>
+    </span>
   );
 }
 

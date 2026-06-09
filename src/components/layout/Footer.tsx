@@ -75,7 +75,7 @@ function ContactItem({ icon, children, href }: { icon: string; children: React.R
   if (href) {
     return <a href={href} style={baseStyle}>{inner}</a>;
   }
-  return <div style={baseStyle}>{inner}</div>;
+  return <p style={{ ...baseStyle, margin: 0 }}>{inner}</p>;
 }
 
 /**
