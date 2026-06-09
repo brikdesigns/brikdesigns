@@ -45,15 +45,27 @@ Field surface for the live templates today: `EventRow` in `src/lib/events.ts`.
 | `logo-strip` | Sponsor / partner logos | `logos[]{url, alt, href?}` | `Stack` + `Frame fit="contain"` | – |
 | `stats` | Metric / proof row | `items[]{value, label}` | `Grid columns="auto-fit"` + `Card` | – |
 | `form` | Registration / lead / newsletter capture | `variant`(`registration`\|`lead`\|`newsletter`), `fields` (see Form variants), `submit_label?`, `source` | BDS form container ([Storybook › Containers/Form](https://storybook.brikdesigns.com/?path=/docs/containers-form--overview)) + `TextInput` + `Button` | ✅ (CTA) |
-| `alert-banner` | "Event ended" + arbitrary contextual banner | `variant`(`ended`\|`info`\|`custom`), `message`, `action?{label,href}` | `Banner` — generalizes the bespoke `EventEndedBanner` (`src/components/marketing/EventStatusBanner.tsx`) | – |
+| `alert-banner` | Contextual notice on any page | `message`, `tone`(`info`\|`warning`\|`success`\|`neutral`) | `Banner` (tone → BDS banner appearance). The "event ended" notice stays **status-driven** (status=`ended` → `EventEndedBanner` in `src/components/marketing/EventStatusBanner.tsx`), *not* a banner variant | – |
 | `cta` | Heading + body + button(s) | `heading`, `body?`, `buttons[]{label, href, variant}` | `Button` / `LinkButton`; section background = section CSS | ✅ (CTA) |
 | `cross-reference` | Related stories / services + "past newsletters" list | `source`(`customer_stories`\|`services`\|`newsletters`), `limit?`, `layout?` | `CardGrid` + `Grid` + `Card preset="display"` / `CardTestimonial` | – |
 
 The BDS **form container** + `TextInput` are real BDS exports (`import { Button, TextInput } from '@brikdesigns/bds'`) but are **not yet rows in `COMPONENT-MAP.md`** — add them when #423 builds the `form` block, so the map stays the single source of truth.
 
-**Composition fields** (stored by portal cluster A, rendered by #423):
-ordered `blocks[]` + a retained **`layout`** field — the schema seam for the future
-layout switcher ([#424](https://github.com/brikdesigns/brikdesigns/issues/424)), kept now so the switcher is a UI addition, not a migration.
+**Composition fields** — the data model that stores this vocabulary is **shipped**:
+migration `00207_events_landing_page_block_model.sql` in `brik-client-portal`
+([portal#1042](https://github.com/brikdesigns/brik-client-portal/issues/1042)) is the
+**source of truth for column shapes**. Each `events` row carries:
+
+- **`blocks jsonb`** — ordered array `[{ "type": …, "props": { … } }]`. Each block's
+  `props` object holds the fields in the **Structured props** column above. Empty `[]`
+  = render from the legacy columns (the #423 fallback).
+- **`layout text`** (nullable) — `NULL` = renderer default; the seam for the layout
+  switcher ([#424](https://github.com/brikdesigns/brikdesigns/issues/424)), kept now so it's a UI addition, not a migration.
+- **`alert_banner jsonb`** — `{ message, tone }` (see the `alert-banner` row). Empty `{}`
+  = no banner.
+
+> The block `type` vocabulary + per-block `props` here are the contract; the column
+> shapes above are fixed by 00207. Keep the two in sync — this section is the seam.
 
 ### Form variants — field shapes
 
@@ -83,15 +95,15 @@ Zero gaps: each section of all four sources resolves to a `type` above.
 
 | Page | Section (top → bottom) | Block `type` |
 |---|---|---|
-| `event` | hero image → title → date/time/fee → description → speaker → sponsors → register form / ended banner | `hero` → `event-meta` → `rich-content` → `speaker` → `logo-strip` → `form`(`registration`) / `alert-banner`(`ended`) |
-| `newsletter` | hero → title → description → sign-up form / ended banner | `hero` → `rich-content` → `form`(`newsletter`) / `alert-banner`(`ended`) |
+| `event` | hero image → title → date/time/fee → description → speaker → sponsors → register form / ended banner | `hero` → `event-meta` → `rich-content` → `speaker` → `logo-strip` → `form`(`registration`); *ended banner = status-driven* |
+| `newsletter` | hero → title → description → sign-up form / ended banner | `hero` → `rich-content` → `form`(`newsletter`); *ended banner = status-driven* |
 | `free-marketing-analysis` | headline + lead → body → "we'll review" checklist → benefit line → lead form | `hero` → `rich-content` (checklist + benefit are prose) → `form`(`lead`) |
 | `brikdown-analysis` (Webflow) | logo hero → value-prop headline+body → review checklist → benefit statement → contact form | `hero` → `rich-content` → `form`(`lead`) |
 | `/newsletter` (Webflow) | logo hero → description → **past-newsletters list** | `hero` → `rich-content` → `cross-reference`(`newsletters`) |
 
-`stats` and the contextual (`info`/`custom`) `alert-banner` aren't present in the four
-pages but are named in the Notion content-structure / open-questions list — included so
-the vocabulary is forward-covering without a later migration.
+`stats` and the contextual `alert-banner` (a `{message, tone}` notice) aren't present in
+the four pages but are named in the Notion content-structure / open-questions list —
+included so the vocabulary is forward-covering without a later migration.
 
 ---
 
