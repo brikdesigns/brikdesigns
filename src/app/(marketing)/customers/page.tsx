@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { Icon } from '@iconify/react';
 import { Grid, Card, Button, LinkButton, Frame } from '@brikdesigns/bds';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
@@ -141,7 +142,10 @@ export default async function CustomersPage() {
                     <p style={label.smBold}>Great fit for:</p>
                     <ul className="customers-segment-list">
                       {seg.fits.map((fit) => (
-                        <li key={fit} style={{ ...text.bodySm, color: color.text.secondary }}>{fit}</li>
+                        <li key={fit} className="customers-segment-list__item" style={{ ...text.bodySm, color: color.text.secondary }}>
+                          <Icon icon="ph:check" className="customers-segment-list__check" aria-hidden="true" />
+                          {fit}
+                        </li>
                       ))}
                     </ul>
                   </>
