@@ -234,6 +234,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   >
                     <Card
                       preset="display"
+                      variant="borderless"
                       title={cat.name}
                       description={cat.tagline ?? undefined}
                       image={
