@@ -78,7 +78,7 @@
 /* Webflow: .button-tertiary-md on dark hero — override BDS outline colors for dark bg */
 .hero-btn-on-dark.bds-button--outline {
   color: var(--text-on-color-dark);
-  border-color: var(--border-inverse);
+  border-color: var(--text-on-color-dark); /* bds-lint-ignore token-family — --border-inverse flips to black in dark mode (--color-grayscale-black), making the border invisible on the fixed-dark hero surface. --text-on-color-dark is invariantly white in both themes. #393 */
 }
 
 .hero-btn-on-dark.bds-button--outline:hover:not(:disabled) {
