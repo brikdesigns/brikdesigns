@@ -15,8 +15,10 @@ import {
   ServiceTag,
 } from '@brikdesigns/bds';
 import { getPostBySlug, getRelatedPosts } from '@/lib/blog';
-import { getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { getServiceCategories, getRelatedServicesForPost, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
+import { hasIconFor } from '@/lib/service-icons';
+import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { MDXRemote } from '@/components/blog/MDXRemote';
 import { heading, text, label } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
@@ -56,9 +58,10 @@ export default async function BlogPostPage({ params }: Props) {
 
   const { meta, content } = post;
 
-  const [relatedPosts, serviceLines] = await Promise.all([
+  const [relatedPosts, serviceLines, relatedServices] = await Promise.all([
     getRelatedPosts(slug, meta.category),
     getServiceCategories(),
+    getRelatedServicesForPost(slug),
   ]);
 
   return (
@@ -164,12 +167,43 @@ export default async function BlogPostPage({ params }: Props) {
       )}
 
       {/* ═══ Related services ═══
-       * Generic "explore our services" band — there is no blog→service FK, so
-       * this shows the public service lines rather than a per-post match.
-       * Reuses the "Other Service Lines" display-card pattern from the
-       * service-line landing page.
+       * Per-post match when an editor has associated services with this post
+       * via the portal CMS (blog_post_services junction, #405) — renders those
+       * specific services. Falls back to the generic "explore our services"
+       * band (all public service lines) when none are set, so the section is
+       * never empty. The generic band reuses the "Other Service Lines"
+       * display-card pattern from the service-line landing page.
        */}
-      {serviceLines.length > 0 && (
+      {relatedServices.length > 0 ? (
+        <section className="page-section">
+          <div className="container-lg container-lg--comfortable">
+            <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: gap.lg }}>
+              Related services
+            </h2>
+            <Grid columns={3} gap="md">
+              {relatedServices.map((svc) => {
+                const lineSlug = svc.service_lines?.slug;
+                if (!lineSlug) return null;
+                const cat = mapServiceLineSlug(lineSlug);
+                return (
+                  <ServiceCard
+                    key={svc.slug}
+                    name={svc.name}
+                    slug={svc.slug}
+                    serviceLineSlug={routeSlugForServiceLine(lineSlug)}
+                    category={cat}
+                    tagline={svc.tagline}
+                    description={svc.description}
+                    imageUrl={svc.image_url}
+                    iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                    showCta
+                  />
+                );
+              })}
+            </Grid>
+          </div>
+        </section>
+      ) : serviceLines.length > 0 ? (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: gap.lg }}>
@@ -204,7 +238,7 @@ export default async function BlogPostPage({ params }: Props) {
             </Grid>
           </div>
         </section>
-      )}
+      ) : null}
 
       {meta.ctaTitle && (
         <section className="cta-section-brand">
