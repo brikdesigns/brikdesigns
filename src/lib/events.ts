@@ -30,6 +30,13 @@ export interface EventRow {
   hero_image_url: string | null;
   sponsor_logos: SponsorLogo[];
   form_config: Record<string, unknown>;
+  // Block model (portal migration 00207). The public client is untyped, so
+  // these arrive as raw jsonb — normalize with parseBlocks() / parseAlertBanner()
+  // from '@/lib/blocks' before rendering. An empty `blocks` array means
+  // "render from the legacy columns" (the 00207 fallback contract, #423).
+  blocks: unknown;
+  layout: string | null;
+  alert_banner: unknown;
   created_at: string;
   updated_at: string;
 }
