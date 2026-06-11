@@ -5,12 +5,14 @@ import {
   parseEventMetaProps,
   parseSpeakerProps,
   parseLogoStripProps,
+  parseCrossReferenceProps,
 } from '@/lib/blocks';
 import { RichContentBlock } from './RichContentBlock';
 import { EventMetaBlock } from './EventMetaBlock';
 import { SpeakerBlock } from './SpeakerBlock';
 import { LogoStripBlock } from './LogoStripBlock';
 import { AlertBannerBlock } from './AlertBannerBlock';
+import { CrossReferenceBlock } from './CrossReferenceBlock';
 import './blocks.css';
 
 /**
@@ -18,12 +20,12 @@ import './blocks.css';
  * (author-supplied, composer-validated, sanitized downstream); each arm casts
  * to its typed interface at this boundary.
  *
- * Only the **non-accent** blocks are handled (the #423 foundation slice).
- * Accent-bearing blocks (hero / form / cta — gated on brik-bds#827) and
- * `cross-reference` (built with #422) have no arm yet, so the `default` skips
- * them: there are no live rows authoring those types until their gates clear,
- * and the dev warning surfaces any premature authoring. This is intentional
- * gated coverage, not a silent drop — the arm is added with the gate.
+ * Non-accent blocks are handled (the #423 foundation slice + `cross-reference`,
+ * #422). The accent-bearing blocks (hero / form / cta — gated on brik-bds#827)
+ * have no arm yet, so the `default` skips them: there are no live rows authoring
+ * those types until their gate clears, and the dev warning surfaces any
+ * premature authoring. This is intentional gated coverage, not a silent drop —
+ * each arm is added with its gate.
  */
 function renderBlock(block: RawBlock, key: number) {
   const { props } = block;
@@ -42,11 +44,15 @@ function renderBlock(block: RawBlock, key: number) {
       const data = parseAlertBanner(props);
       return data ? <AlertBannerBlock key={key} {...data} /> : null;
     }
+    case 'cross-reference': {
+      const data = parseCrossReferenceProps(props);
+      return data ? <CrossReferenceBlock key={key} {...data} /> : null;
+    }
     default:
       if (process.env.NODE_ENV !== 'production') {
         console.warn(
           `[BlockRenderer] No renderer for block type "${block.type}". Accent blocks ` +
-            `(hero/form/cta) are gated on brik-bds#827; cross-reference ships with #422. Block skipped.`,
+            `(hero/form/cta) are gated on brik-bds#827. Block skipped.`,
         );
       }
       return null;

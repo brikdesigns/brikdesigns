@@ -87,6 +87,20 @@ The `cross-reference` block's data picker is the **same** picker needed by
 [#405](https://github.com/brikdesigns/brikdesigns/issues/405) (related services on blog). **Build once** — do not duplicate.
 The "Past Newsletters" list on the Webflow `/newsletter` page is the `source="newsletters"` case.
 
+**Renderer shipped (#422, render-first).** `src/components/blocks/CrossReferenceBlock.tsx`
+handles `source` ∈ `customer_stories` | `services`, resolving rows **live** from the cached
+`is_public`-filtered collection queries and rendering neutral `CardGrid + Grid + Card preset="display"`
+(non-accent). Beyond the base `source` / `limit?` / `layout?` contract it reads two
+forward-compatible props the shared picker will write:
+
+- **`items?: string[]`** — curated, ordered row slugs. Omitted ⇒ auto-pull top-`limit` by rank.
+  An `items` slug that is later unpublished/deleted drops out of the live list (dangling-ref omit).
+- **`title?: string`** — section heading override (defaults: "Related Customer Stories" / "Related Services").
+
+`source="newsletters"` is **not yet rendered** — it ships with the newsletter-page migration,
+not #422 (the parser returns `null` + dev-warns). The portal authoring half (the shared picker
+that writes `items`) is the #422 fast-follow.
+
 ---
 
 ## Traceability — every inventoried section maps to a block

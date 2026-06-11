@@ -185,3 +185,72 @@ export function parseLogoStripProps(props: Record<string, unknown>): LogoStripPr
   }
   return { logos };
 }
+
+// ─── cross-reference (related stories / services) ────────────────────
+
+/**
+ * Live collection a cross-reference block pulls from. The catalogue vocabulary
+ * also lists `newsletters` (the Webflow `/newsletter` past-issues list), but
+ * that ships with the newsletter-page migration — not #422 — so it is not a
+ * handled source here.
+ */
+export type CrossReferenceSource = 'customer_stories' | 'services';
+
+/**
+ * cross-reference block — a section of related rows resolved **live** from a
+ * CMS collection (#422), rendered as neutral display cards (a non-accent block
+ * per the catalogue — no service-tint surface).
+ *
+ * Catalogue contract is `source` + `limit?` + `layout?`. `items?` (curated,
+ * ordered slugs) and `title?` are forward-compatible extensions the shared CMS
+ * picker writes (the #405/#422 portal half); when `items` is omitted the block
+ * auto-pulls the top `limit` rows by rank.
+ */
+export interface CrossReferenceProps {
+  source: CrossReferenceSource;
+  /** Curated, ordered row slugs. Omitted ⇒ auto-pull top-`limit` by rank. */
+  items?: string[];
+  /** Auto-pull cap when `items` is omitted. Default 3. */
+  limit?: number;
+  /** `grid` (default) = responsive card grid; `row` = stacked display rows. */
+  layout?: 'grid' | 'row';
+  /** Section heading override; defaults per source. */
+  title?: string;
+}
+
+function isCrossReferenceSource(value: unknown): value is CrossReferenceSource {
+  return value === 'customer_stories' || value === 'services';
+}
+
+/**
+ * Normalize a cross-reference block's props. Returns `null` (renderer skips)
+ * when `source` is missing/invalid — including the catalogue's `newsletters`
+ * source, which is out of scope for #422. A dev warning surfaces premature
+ * authoring rather than silently dropping the block.
+ */
+export function parseCrossReferenceProps(
+  props: Record<string, unknown>,
+): CrossReferenceProps | null {
+  const source = props.source;
+  if (!isCrossReferenceSource(source)) {
+    if (process.env.NODE_ENV !== 'production' && typeof source === 'string') {
+      console.warn(
+        `[blocks] cross-reference source "${source}" is not handled by #422 ` +
+          `(customer_stories | services). Block skipped.`,
+      );
+    }
+    return null;
+  }
+  const out: CrossReferenceProps = { source };
+  if (Array.isArray(props.items)) {
+    const items = props.items.filter(
+      (s): s is string => typeof s === 'string' && !!s.trim(),
+    );
+    if (items.length) out.items = items;
+  }
+  if (typeof props.limit === 'number' && props.limit > 0) out.limit = Math.floor(props.limit);
+  if (props.layout === 'row' || props.layout === 'grid') out.layout = props.layout;
+  const title = str(props.title);
+  if (title) out.title = title;
+  return out;
+}
