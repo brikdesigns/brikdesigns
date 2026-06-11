@@ -4,3 +4,4 @@ export { RichContentBlock } from './RichContentBlock';
 export { EventMetaBlock } from './EventMetaBlock';
 export { SpeakerBlock } from './SpeakerBlock';
 export { LogoStripBlock } from './LogoStripBlock';
+export { CrossReferenceBlock } from './CrossReferenceBlock';

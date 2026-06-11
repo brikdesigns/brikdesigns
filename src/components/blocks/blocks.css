@@ -43,3 +43,11 @@
 .logo-strip__item {
   width: 120px;
 }
+
+/* cross-reference (layout="row") — vertical stack of display-row cards. The
+   Card/CardGrid primitives own all chrome; this only sets the inter-row gap. */
+.xref-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
