@@ -30,11 +30,18 @@ const nextConfig = {
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
     ];
 
-    // Block crawlers on every non-production deploy. NEXT_PUBLIC_ENV is
-    // set by netlify.toml: production=production, branch-deploy=staging,
-    // deploy-preview=preview. Netlify's per-context [[headers]] blocks are
-    // silently ignored, so we set this from Next.js where env is reliable.
-    if (process.env.NEXT_PUBLIC_ENV !== 'production') {
+    // Block crawlers unless this is production AND indexing is explicitly
+    // switched on. NEXT_PUBLIC_ENV is set by netlify.toml (production=production,
+    // branch-deploy=staging, deploy-preview=preview); NEXT_PUBLIC_ALLOW_INDEXING
+    // gates the production deploy too, so brikdesigns.netlify.app stays
+    // noindexed until the #371 DNS cutover flips the flag (the canonical public
+    // site is still Webflow at www.brikdesigns.com). Netlify's per-context
+    // [[headers]] blocks are silently ignored, so we set this from Next.js where
+    // env is reliable. Keep in sync with src/app/robots.ts.
+    const indexingAllowed =
+      process.env.NEXT_PUBLIC_ENV === 'production' &&
+      process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true';
+    if (!indexingAllowed) {
       baseHeaders.push({ key: 'X-Robots-Tag', value: 'noindex, nofollow' });
     }
 
