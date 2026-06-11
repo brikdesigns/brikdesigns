@@ -13,9 +13,11 @@ name: Feedback widget health
 # property of the deployed environment, not of the diff. Sibling to verify.yml
 # (PR-time lint/token gates) and a11y.yml (deploy-preview audit).
 #
-# Requires the NOTION_TOKEN repo secret (read access to the Backlog DB is enough
-# for the schema check). Without it, check B is skipped and only the deployed
-# 500/404 probe runs — still catches the env-binding regression.
+# Repo secrets: NOTION_TOKEN (read access to the Backlog DB, for the schema
+# check B) and STAGING_SITE_PASSWORD (the Netlify visitor-access password, so
+# check A can authenticate through the edge gate). Each check skips
+# independently if its secret is absent; the unauthenticated gate-up check (C)
+# always runs and catches the password protection being turned off.
 
 on:
   schedule:
@@ -42,6 +44,10 @@ jobs:
     env:
       PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+      # Netlify visitor-access password — lets check A authenticate through the
+      # edge gate to probe the real staging route. Without it, check A is
+      # skipped and only the gate-up + schema checks run.
+      STAGING_SITE_PASSWORD: ${{ secrets.STAGING_SITE_PASSWORD }}
     steps:
       - uses: actions/checkout@v5
 
