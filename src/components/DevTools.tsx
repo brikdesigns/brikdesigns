@@ -8,7 +8,10 @@ import { useEffect } from 'react';
  *
  * Phase 3 of brikdesigns/brik-llm#352 (issue brikdesigns/brikdesigns#54).
  * Mounts the unified vanilla devbar widgets (canonical in BDS, served from
- * /public on this app) for logged-in admin reviewers on staging.
+ * /public on this app) for reviewers on the password-gated staging deploy.
+ * Feedback submission is no longer session-gated (this marketing site has no
+ * login); the Netlify edge password is the access boundary — see
+ * src/app/api/feedback/route.ts and brik-llm#352.
  *
  *   NEXT_PUBLIC_ENABLE_DEV_TOOLS=true → DevBar shell + inspect (auto-loaded
  *                                       by BrikDevBar) + feedback widget in

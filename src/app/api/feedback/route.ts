@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { getAuthUser, isBrikAdmin } from '@/lib/auth';
 
 const NOTION_API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
@@ -35,8 +34,13 @@ const EMOJI_MAP: Record<string, string> = {
  *                             the Backlog DB
  *   - NEXT_PUBLIC_SITE_URL  — base URL the page_url field is prefixed with
  *
- * Auth: only Brik super_admins can submit. Anonymous or client-role logins
- * are rejected to prevent Notion-DB spam from the staging URL leaking.
+ * Auth: this site has no login (it's the marketing rebuild, not an app), so a
+ * super_admin session can never exist here — the old session gate rejected
+ * everyone and blocked all feedback (brik-llm#352). The staging deploy is now
+ * password-protected at the Netlify edge (non-production contexts), so reaching
+ * this route already means an authorized reviewer. The route therefore trusts
+ * the request and the edge is the spam boundary that keeps the public staging
+ * URL from leaking writes into the Backlog DB.
  */
 export async function POST(request: Request) {
   const notionToken = process.env.NOTION_TOKEN;
@@ -45,27 +49,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Feedback service not configured' }, { status: 500 });
   }
 
-  const authUser = await getAuthUser();
-  if (!authUser) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-  }
-  if (!isBrikAdmin(authUser)) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
   const body = await request.json().catch(() => ({}));
-  const { page_url, feedback_type, description } = body as {
+  const { page_url, feedback_type, description, submitter: rawSubmitter } = body as {
     page_url?: string;
     feedback_type?: string;
     description?: string;
+    submitter?: string;
   };
 
   if (!description?.trim()) {
     return NextResponse.json({ error: 'Description is required' }, { status: 400 });
   }
 
-  const submitter = authUser.profile.full_name ?? 'Unknown';
-  const email = authUser.profile.email ?? 'unknown';
+  // No session to attribute to. Use the reviewer name if the widget sends one
+  // (form mode currently doesn't), else a generic staging label.
+  const submitter = rawSubmitter?.trim() || 'Staging reviewer';
   const type = feedback_type ?? 'bug';
   const emoji = EMOJI_MAP[type] ?? '📝';
   const title = `${emoji} ${description.trim().slice(0, 80)}${description.length > 80 ? '...' : ''}`;
@@ -82,7 +80,7 @@ export async function POST(request: Request) {
       properties: {
         Name: { title: [{ text: { content: title } }] },
         Description: { rich_text: [{ text: { content: description.trim() } }] },
-        Submitter: { rich_text: [{ text: { content: `${submitter} (${email})` } }] },
+        Submitter: { rich_text: [{ text: { content: submitter } }] },
         // Post-OPE-29 Backlog schema: Type/Severity are now relations (not
         // writable by name), Triage was renamed to "Triage Status". Intake
         // writes the surviving select properties; triage assigns the relations.
