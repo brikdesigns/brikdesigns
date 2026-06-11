@@ -91,15 +91,17 @@ The "Past Newsletters" list on the Webflow `/newsletter` page is the `source="ne
 handles `source` ∈ `customer_stories` | `services`, resolving rows **live** from the cached
 `is_public`-filtered collection queries and rendering neutral `CardGrid + Grid + Card preset="display"`
 (non-accent). Beyond the base `source` / `limit?` / `layout?` contract it reads two
-forward-compatible props the shared picker will write:
+props the shared picker writes:
 
 - **`items?: string[]`** — curated, ordered row slugs. Omitted ⇒ auto-pull top-`limit` by rank.
   An `items` slug that is later unpublished/deleted drops out of the live list (dangling-ref omit).
 - **`title?: string`** — section heading override (defaults: "Related Customer Stories" / "Related Services").
 
 `source="newsletters"` is **not yet rendered** — it ships with the newsletter-page migration,
-not #422 (the parser returns `null` + dev-warns). The portal authoring half (the shared picker
-that writes `items`) is the #422 fast-follow.
+not #422 (the parser returns `null` + dev-warns). The portal authoring half **shipped**
+(portal#1103): a generic `CmsRowPicker` + the `cross-reference` typed editor in the event
+composer write `source` / ordered `items` slugs / `title` / `layout` / `limit`. The same
+picker is shared with #405 per "build once". #422 is closed.
 
 ---
 
