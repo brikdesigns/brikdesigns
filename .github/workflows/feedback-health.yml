@@ -1,0 +1,57 @@
+name: Feedback widget health
+
+# Guards the staging QA feedback widget against the two failure classes that
+# have broken it before — both of which look identical to the reviewer
+# ("Feedback failed — see console for details."):
+#
+#   1. NOTION_TOKEN missing from the Netlify deploy → route 500s before Notion.
+#   2. Backlog DB schema drift → route's select-by-name payload 400s.
+#
+# Runs on a daily schedule (the "morning check") so drift is caught before a
+# reviewer hits it, plus manual dispatch for on-demand verification. Not a PR
+# gate: it probes the live staging deploy + live Notion schema, which is a
+# property of the deployed environment, not of the diff. Sibling to verify.yml
+# (PR-time lint/token gates) and a11y.yml (deploy-preview audit).
+#
+# Requires the NOTION_TOKEN repo secret (read access to the Backlog DB is enough
+# for the schema check). Without it, check B is skipped and only the deployed
+# 500/404 probe runs — still catches the env-binding regression.
+
+on:
+  schedule:
+    # 13:00 UTC ≈ 07:00/08:00 America/Chicago — before the workday.
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL to probe'
+        required: false
+        default: 'https://staging--brikdesigns.netlify.app'
+
+concurrency:
+  group: feedback-health-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    env:
+      PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Audit feedback widget health
+        run: npm run audit:feedback-health -- "${{ github.event.inputs.base_url || 'https://staging--brikdesigns.netlify.app' }}"
