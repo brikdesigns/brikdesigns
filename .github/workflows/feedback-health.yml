@@ -14,10 +14,11 @@ name: Feedback widget health
 # (PR-time lint/token gates) and a11y.yml (deploy-preview audit).
 #
 # Repo secrets: NOTION_TOKEN (read access to the Backlog DB, for the schema
-# check B) and STAGING_SITE_PASSWORD (the Netlify visitor-access password, so
-# check A can authenticate through the edge gate). Each check skips
-# independently if its secret is absent; the unauthenticated gate-up check (C)
-# always runs and catches the password protection being turned off.
+# check B) and FEEDBACK_INTAKE_TOKEN (the /api/feedback capability token, equal
+# to the deploy's NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN, so check A can probe the
+# real staging route). Each check skips independently if its secret is absent;
+# the no-token gate-up check (C) always runs and catches the token gate being
+# turned off (brikdesigns#444).
 
 on:
   schedule:
@@ -44,10 +45,11 @@ jobs:
     env:
       PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-      # Netlify visitor-access password — lets check A authenticate through the
-      # edge gate to probe the real staging route. Without it, check A is
-      # skipped and only the gate-up + schema checks run.
-      STAGING_SITE_PASSWORD: ${{ secrets.STAGING_SITE_PASSWORD }}
+      # /api/feedback capability token — lets check A probe the real staging
+      # route through the token gate. Must equal the deploy's
+      # NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN. Without it, check A is skipped and
+      # only the gate-up + schema checks run.
+      FEEDBACK_INTAKE_TOKEN: ${{ secrets.FEEDBACK_INTAKE_TOKEN }}
     steps:
       - uses: actions/checkout@v5
 

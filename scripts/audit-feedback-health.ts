@@ -20,29 +20,29 @@
  *
  * The route no longer gates on a Supabase super_admin session — this is the
  * marketing site, which has no login, so that gate rejected everyone and broke
- * all feedback (brik-llm#352). The whole brikdesigns deploy is now
- * password-protected at the Netlify edge (site-wide — Netlify password
- * protection can't scope to a context), which is the spam boundary.
+ * all feedback (brik-llm#352). Staging is now publicly reachable + noindexed
+ * (the Webflow-staging model); the spam boundary is a capability token
+ * (FEEDBACK_INTAKE_TOKEN) the route requires as the `k` query param — see
+ * src/app/api/feedback/route.ts (brikdesigns#444, replaced the #442/#443
+ * site-wide Netlify edge password).
  *
  * Three independent checks:
- *   A. Authenticate through the Netlify password, then POST an empty body to the
- *      staging route. Healthy = 400 "Description is required" — the route cleared
- *      the NOTION_TOKEN check and reached body validation WITHOUT writing to
- *      Notion. Fails on 500 (token missing/misbound) or 404 (route not deployed).
- *      Probing through the gate (not a public context) tests the real staging
- *      binding. Skipped (not failed) when STAGING_SITE_PASSWORD is absent — the
- *      gate-up check (C) still runs token-lessly.
+ *   A. POST an empty body to the staging route WITH the token (`?k=…`). Healthy
+ *      = 400 "Description is required" — the route cleared the token gate and
+ *      the NOTION_TOKEN check, and reached body validation WITHOUT writing to
+ *      Notion. Fails on 401 (token rejected), 500 (NOTION_TOKEN missing/misbound)
+ *      or 404 (route not deployed / no token provisioned). Skipped (not failed)
+ *      when FEEDBACK_INTAKE_TOKEN is absent — the gate-up check (C) still runs.
  *   B. Fetch the live Backlog schema with NOTION_TOKEN and assert every property
  *      the route writes still exists with the expected type — and that the select
  *      options it sends by name are still present. Skipped (not failed) when
  *      NOTION_TOKEN is absent.
- *   C. Confirm the edge gate is up — GET the staging root unauthenticated and
- *      expect a Netlify password challenge (401). A 200 means the password
- *      protection was turned off and the public staging URL can spam the
- *      Backlog DB again.
+ *   C. Confirm the token gate is up — POST to the route WITHOUT a token and
+ *      expect 401. A 400 (reached body validation) or 200 means the gate is OFF
+ *      and the public staging URL can spam the Backlog DB again.
  *
  * Usage:
- *   NOTION_TOKEN=… STAGING_SITE_PASSWORD=… \
+ *   NOTION_TOKEN=… FEEDBACK_INTAKE_TOKEN=… \
  *     npx tsx scripts/audit-feedback-health.ts [staging-base-url]
  *   # default staging-base-url: https://staging--brikdesigns.netlify.app
  *
@@ -78,103 +78,80 @@ const CONTRACT: Array<{ name: string; type: string; options?: string[] }> = [
 const problems: string[] = [];
 
 /**
- * Submit the Netlify visitor-access password and return the access cookie that
- * unlocks the gated deploy, or null if auth failed. Netlify answers the password
- * POST with a 302 + a Set-Cookie named after the site ID (not "nf_jwt"), so we
- * forward whatever cookie(s) the 302 sets rather than matching a fixed name.
+ * Check A — the route must clear the token gate + the NOTION_TOKEN check and
+ * reach body validation. POST an empty body WITH the token (`?k=…`): it stops
+ * at the description check (400) BEFORE the Notion write, so the probe never
+ * creates a Backlog row.
  */
-async function authenticate(baseUrl: string, password: string): Promise<string | null> {
-  let res: Response;
-  try {
-    res = await fetch(`${baseUrl}/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `password=${encodeURIComponent(password)}`,
-      redirect: 'manual', // the 302 carries the cookie; following it 401s again
-    });
-  } catch {
-    return null;
-  }
-  if (res.status !== 302) return null;
-  // getSetCookie() (undici, Node 18+) preserves multiple cookies; fall back to
-  // the combined header for older runtimes. Keep only the name=value pair.
-  const cookies = res.headers.getSetCookie?.() ?? [res.headers.get('set-cookie') ?? ''];
-  const pairs = cookies.map((c) => c.split(';')[0].trim()).filter(Boolean);
-  return pairs.length ? pairs.join('; ') : null;
-}
-
-/**
- * Check A — the route must clear the NOTION_TOKEN check and reach body
- * validation. Authenticate through the edge password first, then POST an empty
- * body: it stops at the description check (400) BEFORE the Notion write, so the
- * probe never creates a Backlog row.
- */
-async function checkDeployedEndpoint(baseUrl: string, password: string): Promise<void> {
-  const cookie = await authenticate(baseUrl, password);
-  if (!cookie) {
-    problems.push(`[A] could not authenticate through the Netlify password at ${baseUrl} (no nf_jwt).`);
-    return;
-  }
-
-  const url = `${baseUrl}/api/feedback`;
+async function checkDeployedEndpoint(baseUrl: string, intakeToken: string): Promise<void> {
+  const url = `${baseUrl}/api/feedback?k=${encodeURIComponent(intakeToken)}`;
+  const display = `${baseUrl}/api/feedback`;
   let status: number;
   let body = '';
   try {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Cookie: cookie },
+      headers: { 'Content-Type': 'application/json' },
       body: '{}', // no description → 400 before any Notion write
     });
     status = res.status;
     body = await res.text();
   } catch (err) {
-    problems.push(`[A] could not reach ${url}: ${(err as Error).message}`);
+    problems.push(`[A] could not reach ${display}: ${(err as Error).message}`);
     return;
   }
 
   if (status === 400) {
-    console.log(`[A] ✓ ${url} → 400 (authed; token check cleared, reached validation; no write)`);
+    console.log(`[A] ✓ ${display} → 400 (token + NOTION_TOKEN cleared, reached validation; no write)`);
     return;
   }
   if (status === 401) {
-    problems.push(`[A] ${url} → 401 — edge password auth did not stick (nf_jwt rejected).`);
+    problems.push(`[A] ${display} → 401 — token rejected. FEEDBACK_INTAKE_TOKEN here ≠ the value on the deploy.`);
     return;
   }
   if (status === 500) {
     problems.push(
-      `[A] ${url} → 500 ${body.trim()} — NOTION_TOKEN is missing/misbound on the ` +
+      `[A] ${display} → 500 ${body.trim()} — NOTION_TOKEN is missing/misbound on the ` +
         `Netlify deploy. Set it with: printf '%s' "$TOKEN" | ./scripts/set-netlify-env.sh NOTION_TOKEN`,
     );
     return;
   }
   if (status === 404) {
-    problems.push(`[A] ${url} → 404 — the feedback route is not deployed on this context.`);
+    problems.push(
+      `[A] ${display} → 404 — route not deployed, or NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN ` +
+        `is not provisioned on this context.`,
+    );
     return;
   }
-  problems.push(`[A] ${url} → unexpected ${status} ${body.trim()} (expected 400).`);
+  problems.push(`[A] ${display} → unexpected ${status} ${body.trim()} (expected 400).`);
 }
 
 /**
- * Check C — the staging edge gate must be up. GET the staging root; a Netlify
- * password-protected deploy answers 401 with a password page. A 200 means the
- * gate is off and the public staging URL can spam the Backlog DB again.
+ * Check C — the token gate must be up. POST to the route WITHOUT a token; the
+ * gate answers 401 before any Notion write. A 400 (reached body validation) or
+ * 200 means the gate is OFF and the public staging URL can spam the Backlog DB.
  */
-async function checkEdgeGate(stagingUrl: string): Promise<void> {
+async function checkTokenGate(stagingUrl: string): Promise<void> {
+  const url = `${stagingUrl}/api/feedback`;
   let status: number;
   try {
-    const res = await fetch(stagingUrl, { method: 'GET', redirect: 'manual' });
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}',
+    });
     status = res.status;
   } catch (err) {
-    problems.push(`[C] could not reach ${stagingUrl}: ${(err as Error).message}`);
+    problems.push(`[C] could not reach ${url}: ${(err as Error).message}`);
     return;
   }
-  if (status === 401) {
-    console.log(`[C] ✓ ${stagingUrl} → 401 (Netlify password gate is up)`);
+  if (status === 401 || status === 404) {
+    console.log(`[C] ✓ ${url} → ${status} (token gate is up — no token, no write)`);
     return;
   }
   problems.push(
-    `[C] ${stagingUrl} → ${status} (expected 401) — the staging password gate is ` +
-      `OFF. Re-enable visitor-access password protection on non-production contexts.`,
+    `[C] ${url} → ${status} (expected 401) — the feedback token gate is OFF. The ` +
+      `public staging URL can write to the Backlog DB without a token.`,
   );
 }
 
@@ -224,21 +201,21 @@ async function checkNotionSchema(token: string): Promise<void> {
 async function main(): Promise<void> {
   const stagingUrl = (process.argv[2] ?? DEFAULT_BASE).replace(/\/$/, '');
   const token = process.env.NOTION_TOKEN;
-  const password = process.env.STAGING_SITE_PASSWORD;
+  const intakeToken = process.env.FEEDBACK_INTAKE_TOKEN;
 
   console.log(`Auditing feedback widget health against ${stagingUrl}\n`);
 
-  if (password) {
-    await checkDeployedEndpoint(stagingUrl, password);
+  if (intakeToken) {
+    await checkDeployedEndpoint(stagingUrl, intakeToken);
   } else {
-    console.log('[A] ⊘ skipped — STAGING_SITE_PASSWORD not set (gate-up check still runs).');
+    console.log('[A] ⊘ skipped — FEEDBACK_INTAKE_TOKEN not set (gate-up check still runs).');
   }
   if (token) {
     await checkNotionSchema(token);
   } else {
     console.log('[B] ⊘ skipped — NOTION_TOKEN not set.');
   }
-  await checkEdgeGate(stagingUrl);
+  await checkTokenGate(stagingUrl);
 
   if (problems.length) {
     console.error(`\n✗ Feedback widget health check failed:\n${problems.map((p) => `  - ${p}`).join('\n')}`);

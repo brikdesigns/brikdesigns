@@ -33,6 +33,16 @@ const BrikDevBar = dynamic(
   { ssr: false },
 );
 
+// Capability token gating /api/feedback (brikdesigns#444). Inlined at build;
+// set only on the staging Netlify context, so the endpoint carried to the
+// widget is token-bearing on staging and bare elsewhere (the bare endpoint
+// 404s — the route is staging-only). The widget POSTs data-endpoint verbatim,
+// so the token rides as a query param without any widget/BDS change.
+const FEEDBACK_INTAKE_TOKEN = process.env.NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN;
+const FEEDBACK_ENDPOINT = FEEDBACK_INTAKE_TOKEN
+  ? `/api/feedback?k=${encodeURIComponent(FEEDBACK_INTAKE_TOKEN)}`
+  : '/api/feedback';
+
 /** Inject /brik-feedback-widget.js once with form-mode + user-auth attrs. */
 function FeedbackWidgetLoader() {
   useEffect(() => {
@@ -44,7 +54,7 @@ function FeedbackWidgetLoader() {
     s.setAttribute(MARKER, '');
     s.setAttribute('data-mode', 'form');
     s.setAttribute('data-auth', 'user');
-    s.setAttribute('data-endpoint', '/api/feedback');
+    s.setAttribute('data-endpoint', FEEDBACK_ENDPOINT);
     s.setAttribute('data-context-label', 'Page');
     document.head.appendChild(s);
   }, []);
