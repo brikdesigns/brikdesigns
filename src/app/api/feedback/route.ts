@@ -30,19 +30,36 @@ const EMOJI_MAP: Record<string, string> = {
  * Filed under the existing "Website" Product option (brik-llm#794).
  *
  * Required env vars (Netlify staging context):
- *   - NOTION_TOKEN          — Notion integration token with write access to
- *                             the Backlog DB
- *   - NEXT_PUBLIC_SITE_URL  — base URL the page_url field is prefixed with
+ *   - NOTION_TOKEN                      — Notion integration token with write
+ *                                         access to the Backlog DB
+ *   - NEXT_PUBLIC_SITE_URL              — base URL the page_url field prefixes
+ *   - NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN — capability token gating this route
  *
  * Auth: this site has no login (it's the marketing rebuild, not an app), so a
  * super_admin session can never exist here — the old session gate rejected
- * everyone and blocked all feedback (brik-llm#352). The staging deploy is now
- * password-protected at the Netlify edge (non-production contexts), so reaching
- * this route already means an authorized reviewer. The route therefore trusts
- * the request and the edge is the spam boundary that keeps the public staging
- * URL from leaking writes into the Backlog DB.
+ * everyone and blocked all feedback (brik-llm#352). Instead the route requires
+ * a capability token (NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN), carried as the `k`
+ * query param on the widget's POST URL and provisioned only on the staging
+ * Netlify context: a request without the matching token gets 401, and a deploy
+ * with no token provisioned (e.g. production) gets 404. This lets staging be
+ * publicly reachable + noindexed (the Webflow-staging model) without leaving
+ * the public URL free to spam writes into the shared Backlog DB. The token is
+ * a bot/scanner boundary, not a secret — it ships in the staging client bundle.
+ * (brikdesigns#444; replaced the site-wide Netlify edge password of #442/#443.)
  */
 export async function POST(request: Request) {
+  // Capability-token gate (brikdesigns#444). Staging-only: no token provisioned
+  // → route is not available here (production). Token present but mismatched/
+  // absent on the request → unauthorized. Checked before NOTION_TOKEN so blind
+  // scanners get 401 regardless of the Notion binding state.
+  const intakeToken = process.env.NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN;
+  if (!intakeToken) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+  if (new URL(request.url).searchParams.get('k') !== intakeToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const notionToken = process.env.NOTION_TOKEN;
   if (!notionToken) {
     console.error('[feedback] NOTION_TOKEN not configured in env');
