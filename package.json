@@ -16,6 +16,7 @@
     "audit:plan-data": "npx tsx scripts/audit-plan-data.ts",
     "audit:plan-routes": "npx tsx scripts/audit-plan-routes.ts",
     "audit:icons": "npx tsx scripts/audit-icons.ts",
+    "audit:feedback-health": "npx tsx scripts/audit-feedback-health.ts",
     "gen:types": "node scripts/gen-types.mjs",
     "test:a11y": "playwright test",
     "visual-parity": "node scripts/visual-parity.mjs",
