@@ -7,12 +7,12 @@ import {
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import {
+  Button,
   Card,
   CardGrid,
   Frame,
   Grid,
   HeroSplitImageCardOverlay,
-  TextLink,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
@@ -306,9 +306,9 @@ export default async function PlanDetailPage({ params }: Props) {
                 title={other.name}
                 description={other.description ?? undefined}
                 action={
-                  <TextLink href={`/plans/${other.slug}`}>
+                  <Button href={`/plans/${other.slug}`} variant="primary" size="md">
                     Learn More
-                  </TextLink>
+                  </Button>
                 }
               />
               );
