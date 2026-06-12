@@ -292,7 +292,12 @@ export const getSupportPlans = cache(
       // means this query is schema-tolerant before the migration lands).
       const { data, error } = await supabase
         .from('service_plans')
-        .select('*')
+        // Embed the plan's marketing line for its card_image_url — plan cards
+        // standardize on the service-line illustration over the plan's own
+        // marketing image (#454), which clashed with the card treatment.
+        .select(
+          '*, marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name, card_image_url)'
+        )
         .eq('is_public', true)
         .order('rank', { ascending: true });
       if (error) throw error;
