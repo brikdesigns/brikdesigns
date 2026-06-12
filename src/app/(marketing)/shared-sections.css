@@ -306,6 +306,16 @@
   margin-bottom: 0;
 }
 
+/* Re-center the eyebrow icon when it's a ServiceTag badge. BDS's
+   `.bp-hero-img-card__icon` (written for an `<img>` eyebrow) sets `display: block`,
+   which lands later in source order than `.bds-service-tag--icon`'s `inline-flex`
+   and wins — leaving `align-items`/`justify-content` inert, so the glyph pins to the
+   badge's top-left. Restoring `inline-flex` only on the ServiceTag case (specificity
+   0,3,0) re-centers it without touching the plain-`<img>` icon. brik-bds#873. */
+.page-hero-blueprint .bp-hero-img-card__icon.bds-service-tag--icon {
+  display: inline-flex;
+}
+
 /* ─── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 767px) {
