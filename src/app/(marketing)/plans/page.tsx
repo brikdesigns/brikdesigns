@@ -17,6 +17,13 @@ export default async function PlansPage() {
 
   const plans = rawPlans.map((plan) => {
     const sl = plan.service_lines as { slug: string } | null;
+    // Prefer the plan's marketing-line illustration (card_image_url) over its
+    // own marketing image (#454). PostgREST returns the embed as object or
+    // array — normalize both. Falls back to plan.image_url when unset.
+    const rawLine = (plan as { marketing_line?: unknown }).marketing_line;
+    const marketingLine = Array.isArray(rawLine)
+      ? (rawLine[0] as { card_image_url: string | null } | undefined) ?? null
+      : (rawLine as { card_image_url: string | null } | null);
     return {
       name: plan.name,
       slug: plan.slug,
@@ -24,7 +31,7 @@ export default async function PlansPage() {
       annualPrice: plan.annual_price_display || null,
       discountLabel: plan.discount_label || null,
       description: plan.description || '',
-      imageUrl: plan.image_url || null,
+      imageUrl: marketingLine?.card_image_url || plan.image_url || null,
       features: [] as string[],
       serviceLineSlug: sl?.slug ?? null,
     };
