@@ -8,10 +8,8 @@ import {
   Frame,
   SegmentedControl,
   ServiceTag,
-  TextLink,
 } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
-import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { gap } from '@/lib/tokens';
 
 // Category + icon resolution happen on the server (queries.ts pulls
@@ -64,7 +62,6 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
       )}
       <div className="plan-service-list">
         {visibleServices.map((svc) => {
-          const lineSlug = svc.service_lines?.slug ?? '';
           return (
             <Card key={svc.slug} variant="outlined" padding="md">
               <div className="plan-service-list-item">
@@ -97,11 +94,6 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
                   {svc.description && (
                     <p className="plan-service-list-item__description">{svc.description}</p>
                   )}
-                  <TextLink
-                    href={`/services/${routeSlugForServiceLine(lineSlug)}/${svc.slug}`}
-                  >
-                    Learn More
-                  </TextLink>
                 </div>
               </div>
             </Card>
