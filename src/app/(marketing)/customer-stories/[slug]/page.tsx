@@ -338,18 +338,23 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
       {otherStories.length > 0 && (
         <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Other customer stories</h2>
-            <p
-              style={{
-                ...text.body,
-                color: color.text.secondary,
-                textAlign: 'center',
-                maxWidth: '60ch',
-                margin: '0 auto',
-              }}
-            >
-              We&apos;re more than a design studio — we&apos;re your strategic marketing partner.
-            </p>
+            {/* Title + description are one tight pair — the container's
+             * 36px column gap is meant to separate the block from the grid,
+             * not to space a heading from its own subtitle (#456). */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: gap.sm, alignItems: 'center' }}>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Other customer stories</h2>
+              <p
+                style={{
+                  ...text.body,
+                  color: color.text.secondary,
+                  textAlign: 'center',
+                  maxWidth: '60ch',
+                  margin: '0 auto',
+                }}
+              >
+                We&apos;re more than a design studio — we&apos;re your strategic marketing partner.
+              </p>
+            </div>
             <Grid columns={3} gap="md" style={{ marginTop: 'var(--gap-lg)' }}>
               {otherStories.map((s) => {
                 const cat = mapServiceLineSlug(s.service_line_slug || 'service');
