@@ -168,7 +168,7 @@ export default async function PlanDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
-        className="page-hero-blueprint"
+        className="page-hero-blueprint page-hero-blueprint--no-service-tag"
         data-scroll-hero
         style={
           {
