@@ -5,14 +5,12 @@ import Image from 'next/image';
 import {
   Card,
   CardGrid,
-  Button,
   Frame,
   SegmentedControl,
   ServiceTag,
 } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
-import { routeSlugForServiceLine } from '@/lib/service-line-routes';
-import { gap, serviceColor } from '@/lib/tokens';
+import { gap } from '@/lib/tokens';
 
 // Category + icon resolution happen on the server (queries.ts pulls
 // next/headers and can't be imported here); page.tsx pre-resolves both
@@ -64,8 +62,6 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
       )}
       <div className="plan-service-list">
         {visibleServices.map((svc) => {
-          const lineSlug = svc.service_lines?.slug ?? '';
-          const svcTokens = serviceColor(svc.category);
           return (
             <Card key={svc.slug} variant="outlined" padding="md">
               <div className="plan-service-list-item">
@@ -98,15 +94,6 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
                   {svc.description && (
                     <p className="plan-service-list-item__description">{svc.description}</p>
                   )}
-                  <div style={{ '--background-brand-primary': svcTokens.bg } as React.CSSProperties}>
-                    <Button
-                      href={`/services/${routeSlugForServiceLine(lineSlug)}/${svc.slug}`}
-                      variant="primary"
-                      size="sm"
-                    >
-                      Learn More
-                    </Button>
-                  </div>
                 </div>
               </div>
             </Card>

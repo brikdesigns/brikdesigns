@@ -6,9 +6,15 @@ import { useFormSubmit } from '@/lib/hooks/useFormSubmit';
 import { FormError } from '@/components/marketing/forms/FormError';
 import { FormSuccessCard } from '@/components/marketing/forms/FormSuccessCard';
 
-export function LeadCaptureForm({ source = 'get_started' }: { source?: string }) {
+export function LeadCaptureForm({
+  source = 'get_started',
+  plan: planProp,
+  planName = '',
+}: { source?: string; plan?: string; planName?: string }) {
   const searchParams = useSearchParams();
-  const plan = searchParams.get('plan') || '';
+  // In the modal there is no `?plan=` in the URL — take the slug as a prop and
+  // fall back to the query param for the standalone /get-started route. #401.
+  const plan = planProp ?? searchParams.get('plan') ?? '';
   const service = searchParams.get('service') || '';
 
   const { isSubmitting, isSuccess, isError, error, submit } = useFormSubmit({
@@ -55,7 +61,9 @@ export function LeadCaptureForm({ source = 'get_started' }: { source?: string })
             Selected plan:
           </span>
           <span style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-md)', color: 'var(--text-primary)', marginLeft: 'var(--gap-xs)' }}>
-            {plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+            {/* Prefer the resolved CMS name (passed from the get-started page);
+                fall back to humanizing the slug only when the name is unknown. */}
+            {planName || plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
           </span>
           <input type="hidden" name="plan" value={plan} />
         </div>

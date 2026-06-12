@@ -270,10 +270,14 @@
 
 /* ─── Panel (dropdown) ────────────────────────────────────────── */
 
-/* Webflow: .submenu-wrapper.w--open — fixed at 6rem from top, full viewport width */
+/* Anchored to the actual bottom of the nav (top:100% of the sticky .mega-nav),
+   full viewport width. The old `inset: 6rem` pinned the panel 96px below the
+   viewport top regardless of the real nav height, leaving a gap when the menu
+   was open and the nav wasn't exactly 96px tall. #355 */
 .mega-nav__panel {
-  position: fixed;
-  inset: 6rem auto auto 0;
+  position: absolute;
+  top: 100%;
+  left: 0;
   width: 100vw;
   min-width: 100vw;
   background-color: var(--surface-primary);

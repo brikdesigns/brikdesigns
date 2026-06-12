@@ -183,15 +183,14 @@ export const color = {
   // canonical ServiceLine member; the legacy `service` line slug falls
   // through to it in serviceColor(). Token suffix is `back-office` (#797).
   service: {
+    // CTA pairing note: service buttons use the base `bg` fill + the neutral
+    // `--text-on-color-light` foreground (the canonical BDS service-button
+    // pattern, ≥AA on all five lines). The former `ctaBg`/`ctaText` consumer
+    // pairing (#346) is retired — contrast now lives in the BDS color-pairing
+    // foundation (brik-bds#868). See ServiceLineCard. (#429)
     brand: {
       bg: 'var(--background-service-brand)',
       text: 'var(--text-service-brand-on-light)',
-      // Accessible CTA fill for a light surface: the dark `*-on-light`
-      // background paired with the light `*-on-dark` text. The `bg`/`text`
-      // pairing above (light tint + darkest text) falls short of WCAG AA for
-      // orange/purple service lines (4.32:1 / 4.26:1) — see brikdesigns #346.
-      ctaBg: 'var(--background-service-brand-on-light)',
-      ctaText: 'var(--text-service-brand-on-dark)',
       surface: 'var(--surface-service-brand)',
       surfaceLight: 'var(--surface-service-brand-light)',
       surfaceDark: 'var(--surface-service-brand-dark)',
@@ -200,8 +199,6 @@ export const color = {
     marketing: {
       bg: 'var(--background-service-marketing)',
       text: 'var(--text-service-marketing-on-light)',
-      ctaBg: 'var(--background-service-marketing-on-light)',
-      ctaText: 'var(--text-service-marketing-on-dark)',
       surface: 'var(--surface-service-marketing)',
       surfaceLight: 'var(--surface-service-marketing-light)',
       surfaceDark: 'var(--surface-service-marketing-dark)',
@@ -210,8 +207,6 @@ export const color = {
     information: {
       bg: 'var(--background-service-information)',
       text: 'var(--text-service-information-on-light)',
-      ctaBg: 'var(--background-service-information-on-light)',
-      ctaText: 'var(--text-service-information-on-dark)',
       surface: 'var(--surface-service-information)',
       surfaceLight: 'var(--surface-service-information-light)',
       surfaceDark: 'var(--surface-service-information-dark)',
@@ -220,8 +215,6 @@ export const color = {
     product: {
       bg: 'var(--background-service-product)',
       text: 'var(--text-service-product-on-light)',
-      ctaBg: 'var(--background-service-product-on-light)',
-      ctaText: 'var(--text-service-product-on-dark)',
       surface: 'var(--surface-service-product)',
       surfaceLight: 'var(--surface-service-product-light)',
       surfaceDark: 'var(--surface-service-product-dark)',
@@ -230,8 +223,6 @@ export const color = {
     'back-office': {
       bg: 'var(--background-service-back-office)',
       text: 'var(--text-service-back-office-on-light)',
-      ctaBg: 'var(--background-service-back-office-on-light)',
-      ctaText: 'var(--text-service-back-office-on-dark)',
       surface: 'var(--surface-service-back-office)',
       surfaceLight: 'var(--surface-service-back-office-light)',
       surfaceDark: 'var(--surface-service-back-office-dark)',

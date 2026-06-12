@@ -8,7 +8,10 @@ import { useEffect } from 'react';
  *
  * Phase 3 of brikdesigns/brik-llm#352 (issue brikdesigns/brikdesigns#54).
  * Mounts the unified vanilla devbar widgets (canonical in BDS, served from
- * /public on this app) for logged-in admin reviewers on staging.
+ * /public on this app) for reviewers on the password-gated staging deploy.
+ * Feedback submission is no longer session-gated (this marketing site has no
+ * login); the Netlify edge password is the access boundary — see
+ * src/app/api/feedback/route.ts and brik-llm#352.
  *
  *   NEXT_PUBLIC_ENABLE_DEV_TOOLS=true → DevBar shell + inspect (auto-loaded
  *                                       by BrikDevBar) + feedback widget in
@@ -30,6 +33,16 @@ const BrikDevBar = dynamic(
   { ssr: false },
 );
 
+// Capability token gating /api/feedback (brikdesigns#444). Inlined at build;
+// set only on the staging Netlify context, so the endpoint carried to the
+// widget is token-bearing on staging and bare elsewhere (the bare endpoint
+// 404s — the route is staging-only). The widget POSTs data-endpoint verbatim,
+// so the token rides as a query param without any widget/BDS change.
+const FEEDBACK_INTAKE_TOKEN = process.env.NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN;
+const FEEDBACK_ENDPOINT = FEEDBACK_INTAKE_TOKEN
+  ? `/api/feedback?k=${encodeURIComponent(FEEDBACK_INTAKE_TOKEN)}`
+  : '/api/feedback';
+
 /** Inject /brik-feedback-widget.js once with form-mode + user-auth attrs. */
 function FeedbackWidgetLoader() {
   useEffect(() => {
@@ -41,7 +54,7 @@ function FeedbackWidgetLoader() {
     s.setAttribute(MARKER, '');
     s.setAttribute('data-mode', 'form');
     s.setAttribute('data-auth', 'user');
-    s.setAttribute('data-endpoint', '/api/feedback');
+    s.setAttribute('data-endpoint', FEEDBACK_ENDPOINT);
     s.setAttribute('data-context-label', 'Page');
     document.head.appendChild(s);
   }, []);

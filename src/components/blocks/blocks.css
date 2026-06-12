@@ -1,0 +1,53 @@
+/* Landing-page block library (brikdesigns#423).
+   Structural CSS only — for what BDS components don't cover (sanitized-HTML
+   prose rhythm, logo-strip item sizing, the block-stack container). Color,
+   spacing, and radii come from BDS tokens; accent tinting is intentionally
+   absent — it is gated on the BDS color foundation (brik-bds#827, #429). */
+
+/* Block-stack container — single-column default layout. Other layouts arrive
+   with the layout switcher (#424, the `events.layout` seam). */
+.lp-blocks {
+  padding-block: var(--padding-huge);
+  background-color: var(--surface-primary);
+}
+.lp-blocks__container {
+  max-width: var(--content-width-default);
+  margin-inline: auto;
+  padding-inline: var(--padding-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+/* rich-content — sanitized prose rhythm. Mirrors the legacy
+   .event-page__description so migrated prose renders identically. */
+.rich-content {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  line-height: var(--font-line-height-relaxed);
+  color: var(--text-primary);
+}
+.rich-content > * + * {
+  margin-top: var(--gap-md);
+}
+.rich-content a {
+  color: var(--text-link);
+}
+.rich-content :is(h2, h3) {
+  font-family: var(--font-family-heading);
+  color: var(--text-primary);
+}
+
+/* logo-strip — fixed item width (a layout dimension BDS doesn't own; the
+   Stack + Frame primitives come from BDS). */
+.logo-strip__item {
+  width: 120px;
+}
+
+/* cross-reference (layout="row") — vertical stack of display-row cards. The
+   Card/CardGrid primitives own all chrome; this only sets the inter-row gap. */
+.xref-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}

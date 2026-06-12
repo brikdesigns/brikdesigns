@@ -68,7 +68,6 @@ export default async function AboutPage() {
   const categories = await getServiceCategories();
 
   const serviceLines = categories
-    .filter((cat) => cat.slug !== 'product')
     .map((cat) => ({
       name: cat.name,
       slug: cat.slug,
@@ -101,7 +100,7 @@ export default async function AboutPage() {
 
       {/* ═══ Team ═══ */}
       {/* Webflow: 2-col bordered cards, large circle headshots, social links, full bios */}
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg">
           <Grid columns={2} gap="lg">
             {TEAM.map((member) => (
@@ -159,11 +158,11 @@ export default async function AboutPage() {
 
       {/* ═══ Value of Design CTA ═══ */}
       {/* Webflow: bordered card, 2-col: text left + 3D diamond image right */}
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg">
           <div className="about-value-card">
             <div className="about-value-text">
-              <h2 style={heading.lg}>The Value of Design</h2>
+              <h2 style={heading.lg}>The value of design</h2>
               <p style={{ ...text.body, color: color.text.secondary }}>Learn about the value of design in 4 steps.</p>
               <Button href="/value" variant="primary" size="md">Learn More</Button>
             </div>
@@ -182,7 +181,7 @@ export default async function AboutPage() {
 
       {/* ═══ Pillars (Approach / Mission / Vision) ═══ */}
       {/* Webflow: tan bg, stacked rows: number+title left, body text right */}
-      <section className="content-section content-section--accent">
+      <section className="page-section page-section--accent">
         <div className="container-lg container-lg--comfortable">
           {PILLARS.map((pillar) => (
             <div key={pillar.number} className="about-pillar-row">
@@ -200,10 +199,10 @@ export default async function AboutPage() {
 
       {/* ═══ Our Services ═══ */}
       {/* Webflow: header text + 3-col grid of image cards with "Learn more" buttons */}
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our services</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>

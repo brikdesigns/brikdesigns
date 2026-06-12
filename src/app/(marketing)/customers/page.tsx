@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { Icon } from '@iconify/react';
 import { Grid, Card, Button, LinkButton, Frame } from '@brikdesigns/bds';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
@@ -91,10 +92,10 @@ export default async function CustomersPage() {
 
       {/* Industries we know — hardcoded list of verticals with experience.
        * Icons drive recognition; the name reads as a label below. */}
-      <section className="content-section content-section--accent">
+      <section className="page-section page-section--accent">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Know Inside-Out</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries we know inside-out</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:
             </p>
@@ -115,7 +116,7 @@ export default async function CustomersPage() {
       {/* Company size segments — horizontal cards via Card preset="display-row".
        * The eyebrow (number + subtitle) sits in the image slot; the fits-list
        * sits in the extras slot between description and action. */}
-      <section className="content-section content-section--secondary">
+      <section className="page-section page-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="customers-segments">
             {SEGMENTS.map((seg, idx) => (
@@ -141,7 +142,10 @@ export default async function CustomersPage() {
                     <p style={label.smBold}>Great fit for:</p>
                     <ul className="customers-segment-list">
                       {seg.fits.map((fit) => (
-                        <li key={fit} style={{ ...text.bodySm, color: color.text.secondary }}>{fit}</li>
+                        <li key={fit} className="customers-segment-list__item" style={{ ...text.bodySm, color: color.text.secondary }}>
+                          <Icon icon="ph:check" className="customers-segment-list__check" aria-hidden="true" />
+                          {fit}
+                        </li>
                       ))}
                     </ul>
                   </>
@@ -160,10 +164,10 @@ export default async function CustomersPage() {
       {/* Industry detail cards — DB-driven. Image from industry_pages.image_url
        * drives the card icon (same field used by the detail hero + meganav). */}
       {industryCards.length > 0 && (
-        <section className="content-section">
+        <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center">
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Serve</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries we serve</h2>
               <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 Explore detailed playbooks for the verticals we work in most.
               </p>
@@ -192,10 +196,10 @@ export default async function CustomersPage() {
       {/* Common challenges — pull-quote cards using --background-service-{name}
        * tokens. Quotation mark and primary color treatment match the Webflow
        * source. */}
-      <section className="content-section content-section--secondary">
+      <section className="page-section page-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common Challenges We Solve</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common challenges we solve</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               Here are some of the things we hear most often from teams ready to make a change.
             </p>
@@ -224,7 +228,7 @@ export default async function CustomersPage() {
       <section className="cta-section-brand">
         <div className="cta-card-brand">
           <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
-            Get in Touch
+            Get in touch
           </h2>
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0, opacity: 0.9 }}>
             Starting a new project or want to collaborate with us?

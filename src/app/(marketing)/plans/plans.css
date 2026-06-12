@@ -1,5 +1,16 @@
 /* ─── Plans page — layout only ──────────────────────────── */
 
+/* Other Support Plans cards carry each linked plan's own service tint (#397).
+   --surface-service-* tokens are FIXED-LIGHT in both themes, so the display
+   preset's theme-responsive --text-primary flips light → light-on-light in
+   dark mode (illegible). Pin title + description to the theme-invariant dark
+   primitive — the same fixed-on-fixed pattern #360 used for borderless cards
+   (≥5.05:1 on every service tint, both themes). */
+.plan-other-card--tinted .bds-card__preset-display-title,
+.plan-other-card--tinted .bds-card__preset-display-description {
+  color: var(--color-grayscale-darkest);
+}
+
 .plans-card-wrapper {
   display: flex;
   flex-direction: column;
@@ -146,4 +157,14 @@
     grid-template-columns: 56px 1fr;
     gap: var(--gap-md);
   }
+}
+
+/* Plan hero omits the service-line tag (R4 #452). The BDS HeroSplitImageCardOverlay
+   always renders an icon/ServiceTag when `audience` is set (needed for the hero's
+   data-audience theming) with no opt-out prop — so hide it here, scoped to the plan
+   hero only via the --no-service-tag modifier. Interim until brik-bds#871 adds a
+   blueprint opt-out; mirrors the repo's existing `.page-hero-blueprint .bp-hero-img-card__*`
+   override pattern in shared-sections.css. */
+.page-hero-blueprint--no-service-tag .bp-hero-img-card__icon {
+  display: none;
 }

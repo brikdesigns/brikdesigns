@@ -216,6 +216,68 @@ export const getRelatedService = cache(
   )
 );
 
+/** A service associated with a blog post, shaped for the related-services band. */
+export interface RelatedBlogService {
+  slug: string;
+  name: string;
+  tagline: string | null;
+  description: string | null;
+  image_url: string | null;
+  service_lines: { slug: string } | null;
+}
+
+/**
+ * Services an editor has associated with a blog post via the
+ * `blog_post_services` junction (portal migration 00195). Used by the blog
+ * detail page to render a per-post "related services" band; the page falls
+ * back to the generic service-line band when this returns an empty array.
+ *
+ * Ordered by `services.rank` (the junction carries no order column — same as
+ * the mirrored `customer_story_services` — so editor-chosen order is not
+ * modelled, per #405's grooming call). Capped at 3 to hold the 3-up layout.
+ */
+export const getRelatedServicesForPost = cache(
+  unstable_cache(
+    async (postSlug: string): Promise<RelatedBlogService[]> => {
+      const supabase = createPublicClient();
+      const { data } = await supabase
+        .from('blog_posts')
+        .select(`
+          slug,
+          blog_post_services(
+            services(
+              slug, name, tagline, description, image_url, rank, is_public,
+              service_lines(slug)
+            )
+          )
+        `)
+        .eq('slug', postSlug)
+        .maybeSingle();
+
+      // PostgREST types these to-one embeds as arrays even though each
+      // resolves to a single row at runtime; flatMap + array-normalize keeps
+      // this correct under either shape without an unsafe cast.
+      const linked = (data?.blog_post_services ?? [])
+        .flatMap((row) => row.services ?? [])
+        .filter((s) => s != null && s.is_public !== false);
+
+      return linked
+        .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+        .slice(0, 3)
+        .map(({ slug, name, tagline, description, image_url, service_lines }) => ({
+          slug,
+          name,
+          tagline,
+          description,
+          image_url,
+          service_lines: (Array.isArray(service_lines) ? service_lines[0] : service_lines) ?? null,
+        }));
+    },
+    ['related-services-for-post'],
+    { revalidate: 3600, tags: ['cms-services'] }
+  )
+);
+
 // ============================================================
 // Support Plans — reads from service_plans + service_plan_items (#206)
 // ============================================================
@@ -230,7 +292,12 @@ export const getSupportPlans = cache(
       // means this query is schema-tolerant before the migration lands).
       const { data, error } = await supabase
         .from('service_plans')
-        .select('*')
+        // Embed the plan's marketing line for its card_image_url — plan cards
+        // standardize on the service-line illustration over the plan's own
+        // marketing image (#454), which clashed with the card treatment.
+        .select(
+          '*, marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name, card_image_url)'
+        )
         .eq('is_public', true)
         .order('rank', { ascending: true });
       if (error) throw error;
@@ -249,6 +316,7 @@ export const getSupportPlanBySlug = cache(
         .from('service_plans')
         .select(
           `*,
+           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name),
            service_plan_items(
              sort_order,
              service:services(
@@ -277,7 +345,10 @@ export const getOtherSupportPlans = cache(
       const supabase = createPublicClient();
       const { data, error } = await supabase
         .from('service_plans')
-        .select('name, slug, monthly_price_display, description, image_url, discount_label')
+        .select(
+          `name, slug, monthly_price_display, description, image_url, discount_label,
+           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name)`
+        )
         .eq('is_public', true)
         .neq('slug', excludeSlug)
         .order('rank', { ascending: true });

@@ -75,7 +75,7 @@ function ContactItem({ icon, children, href }: { icon: string; children: React.R
   if (href) {
     return <a href={href} style={baseStyle}>{inner}</a>;
   }
-  return <div style={baseStyle}>{inner}</div>;
+  return <p style={{ ...baseStyle, margin: 0 }}>{inner}</p>;
 }
 
 /**
@@ -160,7 +160,7 @@ export function Footer() {
       }
       columns={[
         {
-          heading: 'Follow Us Online',
+          heading: 'Follow us online',
           links: socialLinks.map((link) => ({
             label: link.label,
             href: link.href,

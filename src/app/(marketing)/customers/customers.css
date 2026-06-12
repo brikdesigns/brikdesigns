@@ -87,10 +87,16 @@
   gap: var(--gap-xs);
 }
 
-.customers-segment-list li::before {
-  content: '✓ ';
+.customers-segment-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-sm);
+}
+
+.customers-segment-list__check {
   color: var(--text-brand-primary);
-  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 /* ─── Customer detail page ────────────────────────────────── */

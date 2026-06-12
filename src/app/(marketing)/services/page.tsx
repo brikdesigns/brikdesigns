@@ -58,10 +58,10 @@ export default async function ServicesPage() {
       </section>
 
       {/* ═══ Main service lines (3-col grid) ═══ */}
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our services</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               We offer design services at every stage of your business growth — from establishment to maturity.
             </p>
@@ -87,7 +87,7 @@ export default async function ServicesPage() {
         return (
           <section
             key={cat.slug}
-            className="content-section service-surface"
+            className="page-section service-surface"
             style={{ backgroundColor: serviceColor(resolveServiceTagCategory(cat)).surface }}
           >
             <div className="container-lg">

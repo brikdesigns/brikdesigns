@@ -25,12 +25,12 @@ interface ServiceLineCardProps {
  * would render a plain `<a>` and regress both).
  */
 export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: ServiceLineCardProps) {
-  // Audience-tinted CTA. Uses the accessible fill pairing — the dark
-  // `--background-service-{slug}-on-light` background with light
-  // `--text-service-{slug}-on-dark` text. The light-tint `bg` + darkest
-  // `text` pairing fell short of WCAG AA for orange/purple (4.32:1 / 4.26:1)
-  // under the BDS 0.90.0 token model. See brikdesigns #346.
-  // Replaces raw `cat.brand_color_base` hex (brikdesigns#99).
+  // Audience-tinted CTA — the canonical BDS service-button pairing: the service
+  // base fill (`--background-service-{slug}`) + the neutral on-color foreground
+  // (`--text-on-color-light`, black). Verified ≥AA on all five lines (6.16–17.82:1).
+  // This retires the brikdesigns#346 consumer-specific `ctaBg`/`ctaText` pairing
+  // now that the BDS color-pairing foundation (brik-bds#868) documents + gates
+  // the pattern — see design.brikdesigns.com/docs/primitives/color-pairings. (#429)
   const tokens = serviceColor(category);
   return (
     <Link href={`/services/${routeSlugForServiceLine(slug)}`} className="services-card-link">
@@ -49,7 +49,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
         </div>
         <span
           className={composeButtonClasses({ variant: 'primary', size: 'md' })}
-          style={{ backgroundColor: tokens.ctaBg, color: tokens.ctaText, borderColor: tokens.ctaBg }}
+          style={{ backgroundColor: tokens.bg, color: 'var(--text-on-color-light)', borderColor: tokens.bg }}
         >
           Learn more
         </span>
@@ -75,12 +75,14 @@ interface ServiceCalloutProps {
  * The Card sits on the section's `--surface-service-{slug}` tinted background;
  * the audience-tinted CTA (`--background-service-{audience}`) contrasts
  * against Card's `--surface-primary` instead of disappearing into the section
- * tint (#103).
+ * tint (#103). `variant="elevated"` supplies that `--surface-primary` fill +
+ * shadow with no border — borderless left the card transparent on the tint,
+ * which broke the #103 contrast intent (#427; regression from #360).
  */
 export function ServiceCallout({ name, slug, category, description, imageUrl }: ServiceCalloutProps) {
   const tokens = serviceColor(category);
   return (
-    <Card variant="borderless" padding="lg" className="services-callout-card">
+    <Card variant="elevated" padding="lg" className="services-callout-card">
       <Stack direction="horizontal" gap="lg" align="center">
         <div className="services-callout-card__media">
           <Frame ratio="square" fit="cover">
@@ -100,7 +102,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
               href={`/services/${routeSlugForServiceLine(slug)}`}
               variant="primary"
               size="md"
-              style={{ backgroundColor: tokens.ctaBg, color: tokens.ctaText, borderColor: tokens.ctaBg }}
+              style={{ backgroundColor: tokens.bg, color: 'var(--text-on-color-light)', borderColor: tokens.bg }}
             >
               Learn more
             </Button>

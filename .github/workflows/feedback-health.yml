@@ -1,0 +1,65 @@
+name: Feedback widget health
+
+# Guards the staging QA feedback widget against the two failure classes that
+# have broken it before — both of which look identical to the reviewer
+# ("Feedback failed — see console for details."):
+#
+#   1. NOTION_TOKEN missing from the Netlify deploy → route 500s before Notion.
+#   2. Backlog DB schema drift → route's select-by-name payload 400s.
+#
+# Runs on a daily schedule (the "morning check") so drift is caught before a
+# reviewer hits it, plus manual dispatch for on-demand verification. Not a PR
+# gate: it probes the live staging deploy + live Notion schema, which is a
+# property of the deployed environment, not of the diff. Sibling to verify.yml
+# (PR-time lint/token gates) and a11y.yml (deploy-preview audit).
+#
+# Repo secrets: NOTION_TOKEN (read access to the Backlog DB, for the schema
+# check B) and FEEDBACK_INTAKE_TOKEN (the /api/feedback capability token, equal
+# to the deploy's NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN, so check A can probe the
+# real staging route). Each check skips independently if its secret is absent;
+# the no-token gate-up check (C) always runs and catches the token gate being
+# turned off (brikdesigns#444).
+
+on:
+  schedule:
+    # 13:00 UTC ≈ 07:00/08:00 America/Chicago — before the workday.
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'Base URL to probe'
+        required: false
+        default: 'https://staging--brikdesigns.netlify.app'
+
+concurrency:
+  group: feedback-health-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      packages: read
+    env:
+      PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+      # /api/feedback capability token — lets check A probe the real staging
+      # route through the token gate. Must equal the deploy's
+      # NEXT_PUBLIC_FEEDBACK_INTAKE_TOKEN. Without it, check A is skipped and
+      # only the gate-up + schema checks run.
+      FEEDBACK_INTAKE_TOKEN: ${{ secrets.FEEDBACK_INTAKE_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Audit feedback widget health
+        run: npm run audit:feedback-health -- "${{ github.event.inputs.base_url || 'https://staging--brikdesigns.netlify.app' }}"

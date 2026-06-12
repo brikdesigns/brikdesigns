@@ -31,7 +31,7 @@ export default async function BlogPage() {
         <ScrollDownCta />
       </section>
 
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg">
           <Grid columns={3} gap="lg">
             {posts.map((post) => (

@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { getEventBySlug, getPublicEventSlugs } from '@/lib/supabase/queries';
 import { type EventRow, eventAccent, plainTextExcerpt } from '@/lib/events';
 import { sanitizeHtml } from '@/lib/sanitize';
+import { parseBlocks, parseAlertBanner } from '@/lib/blocks';
+import { BlockRenderer, AlertBannerBlock } from '@/components/blocks';
 import { EventRegistrationForm } from '@/components/marketing/EventRegistrationForm';
 import { EventEndedBanner } from '@/components/marketing/EventStatusBanner';
 import { heading, text } from '@/lib/styles';
@@ -51,8 +53,19 @@ export default async function MarketingPage({ params }: Props) {
 
   const accent = eventAccent(event.accent_color_token);
   const ended = event.status === 'ended';
+  const blocks = parseBlocks(event.blocks);
+  const alertBanner = parseAlertBanner(event.alert_banner);
 
   return (
+    <>
+      {alertBanner && <AlertBannerBlock {...alertBanner} />}
+      {blocks.length > 0 ? (
+        <section className="lp-blocks">
+          <div className="lp-blocks__container">
+            <BlockRenderer blocks={blocks} />
+          </div>
+        </section>
+      ) : (
     <section className="marketing-page" style={{ backgroundColor: accent.surfaceLight }}>
       <div className="marketing-page__container">
         {event.hero_image_url && (
@@ -97,5 +110,7 @@ export default async function MarketingPage({ params }: Props) {
         </div>
       </div>
     </section>
+      )}
+    </>
   );
 }

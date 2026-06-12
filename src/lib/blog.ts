@@ -87,3 +87,19 @@ export async function getPostBySlug(slug: string) {
     content: row.content ?? '',
   };
 }
+
+/**
+ * Related posts for a blog detail page. Prefers posts sharing the current
+ * post's category (first tag); tops up with the most-recent remaining posts
+ * so the section is always populated. Excludes the current post.
+ */
+export async function getRelatedPosts(
+  slug: string,
+  category: string,
+  limit = 3,
+): Promise<BlogPost[]> {
+  const others = (await getAllPosts()).filter((p) => p.slug !== slug);
+  const sameCategory = category ? others.filter((p) => p.category === category) : [];
+  const rest = others.filter((p) => !sameCategory.includes(p));
+  return [...sameCategory, ...rest].slice(0, limit);
+}

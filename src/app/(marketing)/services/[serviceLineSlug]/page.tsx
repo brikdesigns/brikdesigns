@@ -83,7 +83,7 @@ export default async function ServiceLinePage({ params }: Props) {
       {/* ═══ Hero ═══ */}
       <section
         className="page-hero service-surface"
-        style={{ backgroundColor: svcColors.surface }}
+        style={{ backgroundColor: svcColors.surfaceLight }}
       >
         <div className="page-hero__container">
           <div className="service-detail-hero">
@@ -109,7 +109,7 @@ export default async function ServiceLinePage({ params }: Props) {
               <div className="service-detail-hero__aside">
                 <div
                   className="service-detail-hero__media"
-                  style={{ backgroundColor: svcColors.surface }}
+                  style={{ backgroundColor: svcColors.surfaceLight }}
                 >
                   <Image
                     src={serviceLine.hero_image_url}
@@ -126,11 +126,15 @@ export default async function ServiceLinePage({ params }: Props) {
         </div>
       </section>
 
-      {/* ═══ Service Cards ═══ */}
-      <section id="services" className="content-section service-surface" style={{ backgroundColor: svcColors.surface }}>
+      {/* ═══ Service Cards ═══
+       * Hero and body both use the lighter `surfaceLight` ramp so the service-line
+       * page reads as one uniform tinted band — matching the interior service-detail
+       * page (#389). Dark `--text-primary` copy gains contrast on the paler surface,
+       * so AA is preserved in both themes. */}
+      <section id="services" className="page-section service-surface" style={{ backgroundColor: svcColors.surfaceLight }}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-            {serviceLine.name} Services
+            {serviceLine.name} services
           </h2>
           <Grid columns={3} gap="md">
             {services.map((svc) => {
@@ -161,7 +165,7 @@ export default async function ServiceLinePage({ params }: Props) {
        * the correct character and colors rather than inheriting the current line.
        */}
       {supportPlan && (
-        <section className="content-section">
+        <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
               <h2 style={{ ...heading.lg, textAlign: 'center' }}>Monthly support services</h2>
@@ -214,10 +218,10 @@ export default async function ServiceLinePage({ params }: Props) {
        * (parity #158).
        */}
       {otherServiceLines.length > 0 && (
-        <section className="content-section content-section--accent">
+        <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-              Other Service Lines
+              Other service lines
             </h2>
             <Grid columns={3} gap="md">
               {otherServiceLines.map((cat) => {
@@ -230,6 +234,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   >
                     <Card
                       preset="display"
+                      variant="borderless"
                       title={cat.name}
                       description={cat.tagline ?? undefined}
                       image={

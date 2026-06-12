@@ -84,7 +84,7 @@ export default function ValuePage() {
         <section
           key={step.number}
           id={`value-${step.number}`}
-          className={`content-section ${i % 2 !== 0 ? 'content-section--secondary' : ''}`}
+          className={`page-section ${i % 2 !== 0 ? 'page-section--secondary' : ''}`}
         >
           <div className="container-lg container-lg--comfortable">
             <div className="value-step-header">
@@ -107,7 +107,7 @@ export default function ValuePage() {
       ))}
 
       {/* CTA */}
-      <section className="content-section content-section--accent">
+      <section className="page-section page-section--accent">
         <div className="container-lg">
           <div className="content-wrapper content-wrapper--center">
             <p style={{ ...text.bodyLg, textAlign: 'center' }}>

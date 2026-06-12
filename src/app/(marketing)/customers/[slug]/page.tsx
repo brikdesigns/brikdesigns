@@ -109,6 +109,14 @@ export default async function CustomerDetailPage({ params }: Props) {
         <div className="page-hero__container">
           <div className="customer-detail-hero">
             <div className="customer-detail-hero__content">
+              <Breadcrumb
+                style={{ flexWrap: 'wrap' }}
+                items={[
+                  { label: 'Home', href: '/' },
+                  { label: 'Customers', href: '/customers' },
+                  { label: page.name },
+                ]}
+              />
               {(page.primary_badge_url || page.secondary_badge_url) && (
                 <div className="customer-detail-hero__tag" aria-hidden="true">
                   {page.primary_badge_url && (
@@ -133,14 +141,6 @@ export default async function CustomerDetailPage({ params }: Props) {
                   )}
                 </div>
               )}
-              <Breadcrumb
-                style={{ flexWrap: 'wrap' }}
-                items={[
-                  { label: 'Home', href: '/' },
-                  { label: 'Customers', href: '/customers' },
-                  { label: page.name },
-                ]}
-              />
               <h1 className="page-hero__title">{page.name}</h1>
               {page.intro_description && (
                 <p className="page-hero__description">{page.intro_description}</p>
@@ -200,7 +200,7 @@ export default async function CustomerDetailPage({ params }: Props) {
             // `service-surface` only when the section carries a fixed-light service
             // tint — a service-line-less topic falls back to the theme-responsive
             // neutral surface, where the light dark-mode text is already correct.
-            className={`content-section${topic.service_line_slug ? ' service-surface' : ''}`}
+            className={`page-section${topic.service_line_slug ? ' service-surface' : ''}`}
             style={{ backgroundColor: sectionSurface }}
           >
             <div className="container-lg">
@@ -263,9 +263,9 @@ export default async function CustomerDetailPage({ params }: Props) {
       {/* Other industries — 3-col display cards. Card uses 1:1 image, title,
        * description (from tagline copy), and a md "Learn More" button. */}
       {otherPages.length > 0 && (
-        <section className="content-section">
+        <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Other Industries</h2>
+            <h2 style={heading.lg}>Other industries</h2>
             <Grid columns={3}>
               {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
@@ -288,9 +288,9 @@ export default async function CustomerDetailPage({ params }: Props) {
 
       {/* Latest Customer Story — single related story (row layout). */}
       {stories.length > 0 && (
-        <section className="content-section content-section--secondary">
+        <section className="page-section page-section--secondary">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Latest Customer Story</h2>
+            <h2 style={heading.lg}>Latest customer story</h2>
             <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>
               We&rsquo;re more than a design studio&mdash;we&rsquo;re your strategic marketing partner.
             </p>
@@ -330,7 +330,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       <section className="cta-section-brand">
         <div className="cta-card-brand">
           <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
-            Get in Touch
+            Get in touch
           </h2>
           <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
             Let&apos;s talk about how we can help your {page.name.toLowerCase()} business.

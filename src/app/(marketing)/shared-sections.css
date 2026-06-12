@@ -64,7 +64,7 @@
 }
 
 /* ─── Standard content section ───────────────────────────── */
-.content-section {
+.page-section {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-primary);
   display: flex;
@@ -74,11 +74,11 @@
   min-height: 100svh;
 }
 
-.content-section--secondary {
+.page-section--secondary {
   background-color: var(--surface-secondary);
 }
 
-.content-section--accent {
+.page-section--accent {
   background-color: var(--surface-accent);
 }
 
@@ -242,6 +242,15 @@
   animation: scroll-cta-bounce 0.8s ease-in-out 1.2s 3;
 }
 
+/* --surface-service-* tokens are fixed-light in both themes. Pin label + icon
+   to grayscale-darkest so they stay readable in dark mode (where --text-secondary
+   and --text-brand-primary resolve to lighter values). Mirrors the homepage
+   .section-hero override that pins to --text-on-color-dark on the Brik-orange hero. */
+.service-surface .scroll-down-cta__label,
+.service-surface .scroll-down-cta__icon {
+  color: var(--color-grayscale-darkest);
+}
+
 @keyframes scroll-cta-appear {
   to { opacity: 1; }
 }
@@ -297,6 +306,16 @@
   margin-bottom: 0;
 }
 
+/* Re-center the eyebrow icon when it's a ServiceTag badge. BDS's
+   `.bp-hero-img-card__icon` (written for an `<img>` eyebrow) sets `display: block`,
+   which lands later in source order than `.bds-service-tag--icon`'s `inline-flex`
+   and wins — leaving `align-items`/`justify-content` inert, so the glyph pins to the
+   badge's top-left. Restoring `inline-flex` only on the ServiceTag case (specificity
+   0,3,0) re-centers it without touching the plain-`<img>` icon. brik-bds#873. */
+.page-hero-blueprint .bp-hero-img-card__icon.bds-service-tag--icon {
+  display: inline-flex;
+}
+
 /* ─── Responsive ─────────────────────────────────────────── */
 
 @media (max-width: 767px) {
@@ -309,7 +328,7 @@
   }
 
   .page-hero,
-  .content-section {
+  .page-section {
     padding: var(--padding-xl) 0;
   }
 

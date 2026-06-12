@@ -399,59 +399,18 @@ h1, h2, h3, h4, h5, h6 {
     --background-secondary-hover: var(--color-grayscale-darker); /* bds-lint-ignore token-family — see above; hover: #333 → 11.29:1 */
   }
 
-  /* ═══ routesDark burn-down (#827, dark-theme face) ═══
-     The service surfaces are fixed-light in BOTH themes (see the #360 borderless
-     and #359 focus-ring notes above). But BDS's dark root shifts THREE service
-     token families one step lighter — `-darkest` → `-darker` — even though every
-     one of them is contractually paired with those fixed-light surfaces:
-       • --background-service-*-on-light  (the accessible card-CTA fill, #346/#347)
-       • --surface-service-*-dark         (= svcColors.inverse → --background-brand-primary,
-                                            the service primary-button fill)
-       • --text-service-*-on-light        (breadcrumb / ServiceTag / hero-lead text,
-                                            via the [data-audience] cascade brik-bds#781)
-     Lightening a token that sits on a fixed-light tint erodes contrast in dark mode:
-       white button labels 2.86–4.35:1 · index card CTAs 2.59–4.10:1 · on-light text 2.97:1
-     (all measured against the dark axe pass). Re-point the three families back to their
-     mode-invariant `-darkest` primitives — the exact values light mode already clears AA
-     with — so each pairing keeps its light-theme contrast in dark mode. No value is
-     invented: every token is aimed at the existing primitive its light sibling uses.
-     The proper home is the BDS dark service ramp (brik-bds#827); this consumer override
-     holds the AA line until that lands. */
-  :root[data-theme="dark"] {
-    /* bds-lint-ignore token-family — re-points service `*-on-light` / `*-dark` tokens
-       (which pair with fixed-light surfaces) to their mode-invariant `-darkest` primitives;
-       a bare theme-def block is intentional here because the consumers (BDS buttons,
-       breadcrumb, ServiceTag, ServiceLineCard CTAs) live across many routes with no
-       shared element scope — see brik-bds#827. */
-    --background-service-brand-on-light: var(--color-yellow-darkest);
-    --background-service-marketing-on-light: var(--color-green-darkest);
-    --background-service-information-on-light: var(--color-blue-darkest);
-    --background-service-product-on-light: var(--color-purple-darkest);
-    --background-service-back-office-on-light: var(--color-orange-darkest);
-
-    --surface-service-brand-dark: var(--color-yellow-darkest);
-    --surface-service-marketing-dark: var(--color-green-darkest);
-    --surface-service-information-dark: var(--color-blue-darkest);
-    --surface-service-product-dark: var(--color-purple-darkest);
-    --surface-service-back-office-dark: var(--color-orange-darkest);
-
-    --text-service-brand-on-light: var(--color-yellow-darkest);
-    --text-service-marketing-on-light: var(--color-green-darkest);
-    --text-service-information-on-light: var(--color-blue-darkest);
-    --text-service-product-on-light: var(--color-purple-darkest);
-    --text-service-back-office-on-light: var(--color-orange-darkest);
-  }
-
-  /* Inverse (dark-label) buttons share the `--surface-service-*-dark` source the
-     re-pin above just deepened. The hero price button (`.bds-button--inverse`,
-     rendered by BDS bp-hero-img-card with `--background-inverse` pointed at the
-     service dark surface) carries a DARK label, so the darkest fill drops it to
-     2.44:1. White-label primaries want the darkest step; dark-label inverses want
-     the medium one. Restore `--background-inverse` to the `-darker` step for the
-     inverse variant only — its pre-burn-down value, which clears AA against the
-     dark label (#000 on -darker ≈ 4.6:1). Keyed off the page's [data-audience]. */
+  /* Inverse (dark-label) buttons share the `--surface-service-*-dark` source, which
+     BDS 0.93.2 (brik-bds#865) now ships at `-darkest` in dark mode — retiring the
+     consumer re-pin that used to live here. The hero price button (`.bds-button--inverse`,
+     rendered by BDS bp-hero-img-card with `--background-inverse` pointed at the service
+     dark surface) carries a DARK label, so the darkest fill drops it to 2.44:1.
+     White-label primaries want the darkest step; dark-label inverses want the medium one.
+     Restore `--background-inverse` to the `-darker` step for the inverse variant only,
+     which clears AA against the dark label (#000 on -darker ≈ 4.6:1). Keyed off the page's
+     [data-audience]. Tracked upstream by brik-bds#823 (dark inverse-button contrast);
+     this override holds the AA line until that lands. */
   :root[data-theme="dark"] [data-audience="brand"] .bds-button--inverse {
-    --background-inverse: var(--color-yellow-darker); /* bds-lint-ignore token-family — undoes the darkest re-pin for the dark-label inverse variant; see comment */
+    --background-inverse: var(--color-yellow-darker); /* bds-lint-ignore token-family — pins the dark-label inverse variant to the medium step against the BDS-shipped darkest surface; see comment */
   }
   :root[data-theme="dark"] [data-audience="marketing"] .bds-button--inverse {
     --background-inverse: var(--color-green-darker); /* bds-lint-ignore token-family — see above */
@@ -500,5 +459,20 @@ h1, h2, h3, h4, h5, h6 {
   ) {
     --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — restores the dark-brand body text the section pin above darkened; #f2f2f2 on the card's own dark surface */
     --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals ~L113); no BDS primitive exists for it */
+  }
+
+  /* Current-page breadcrumb: de-emphasize it relative to the navigable link
+     trail (#391). On the service heroes the trail links and the current page
+     render identically — same colour (the BDS audience cascade, brik-bds#781,
+     rebinds --text-secondary onto the link's --text-brand-primary service hue)
+     AND same weight (both --font-weight-semi-bold). Colour can't carry the
+     distinction here: the hero band is a mid-tone tint (--surface-service-*, e.g.
+     product #9e8bc2) on which the link is already at the AA floor (4.26:1), so any
+     *lighter* colour would fail AA. Distinguish by WEIGHT instead — drop the
+     current crumb to regular so it reads as the recessive "you are here" without
+     touching contrast. Applied to the component (all breadcrumbs), not per-page.
+     Proper home is BDS Breadcrumb.css — tracked in brik-bds#835. */
+  .bds-breadcrumb__current {
+    font-weight: var(--font-weight-regular);
   }
 }

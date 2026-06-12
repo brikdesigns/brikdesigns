@@ -126,7 +126,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
     <>
       {/* ═══ Story arc — interior-hero + media + content + quote ═══
        * Anatomy follows /blog/[slug]'s rhythm but with image rows breaking out
-       * to the wide 1280px column for visual impact. One content-section hosts
+       * to the wide 1280px column for visual impact. One page-section hosts
        * alternating containers:
        *   - .container-lg--story  (760px) → breadcrumb, h1, meta, narrative,
        *                                     quote
@@ -142,7 +142,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
        *
        * Anatomy ref: design.brikdesigns.com/docs/getting-started/page-templates
        */}
-      <section className="content-section story-arc">
+      <section className="page-section story-arc">
         <div className="container-lg container-lg--story">
           <Breadcrumb
             className="story-breadcrumb"
@@ -257,7 +257,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
         {story.the_challenge && (
           <div className="container-lg container-lg--story">
             <div className="story-block">
-              <h2 style={heading.md}>The Challenge</h2>
+              <h2 style={heading.md}>The challenge</h2>
               <div
                 className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.the_challenge }}
@@ -284,7 +284,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
         {story.the_solution && (
           <div className="container-lg container-lg--story">
             <div className="story-block">
-              <h2 style={heading.md}>The Brik Solution</h2>
+              <h2 style={heading.md}>The Brik solution</h2>
               <div
                 className="story-block__body"
                 dangerouslySetInnerHTML={{ __html: story.the_solution }}
@@ -336,20 +336,25 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
       {/* ═══ Other Customer Stories — 3-col grid ═══ */}
       {otherStories.length > 0 && (
-        <section className="content-section content-section--accent">
+        <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Other Customer Stories</h2>
-            <p
-              style={{
-                ...text.body,
-                color: color.text.secondary,
-                textAlign: 'center',
-                maxWidth: '60ch',
-                margin: '0 auto',
-              }}
-            >
-              We&apos;re more than a design studio — we&apos;re your strategic marketing partner.
-            </p>
+            {/* Title + description are one tight pair — the container's
+             * 36px column gap is meant to separate the block from the grid,
+             * not to space a heading from its own subtitle (#456). */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: gap.sm, alignItems: 'center' }}>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Other customer stories</h2>
+              <p
+                style={{
+                  ...text.body,
+                  color: color.text.secondary,
+                  textAlign: 'center',
+                  maxWidth: '60ch',
+                  margin: '0 auto',
+                }}
+              >
+                We&apos;re more than a design studio — we&apos;re your strategic marketing partner.
+              </p>
+            </div>
             <Grid columns={3} gap="md" style={{ marginTop: 'var(--gap-lg)' }}>
               {otherStories.map((s) => {
                 const cat = mapServiceLineSlug(s.service_line_slug || 'service');
@@ -416,12 +421,12 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
       {/* ═══ Related Services — single row card ═══ */}
       {relatedService && (
         <section
-          className="content-section"
+          className="page-section"
           style={{ backgroundColor: serviceColor(relatedAudience).surface }}
         >
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Related Services</h2>
-            <Card variant="borderless" padding="lg" style={{ marginTop: 'var(--gap-lg)' }}>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Related services</h2>
+            <Card variant="elevated" padding="lg" style={{ marginTop: 'var(--gap-lg)' }}>
               <Stack direction="horizontal" gap="lg" align="center">
                 {relatedService.image_url && (
                   <div style={{ flex: '0 0 35%' }}>
@@ -479,7 +484,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
               margin: 0,
             }}
           >
-            Get in Touch
+            Get in touch
           </h2>
           <p
             style={{

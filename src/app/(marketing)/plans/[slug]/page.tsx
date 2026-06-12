@@ -7,14 +7,15 @@ import {
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import {
+  Button,
   Card,
   CardGrid,
   Frame,
   Grid,
   HeroSplitImageCardOverlay,
-  Button,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
+import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { color, serviceColor } from '@/lib/tokens';
 import { heading, text, label } from '@/lib/styles';
@@ -81,9 +82,15 @@ export default async function PlanDetailPage({ params }: Props) {
   }
   const includedServices: IncludedService[] = Array.from(seenServices.values());
 
-  // Derive service-line audience from included services — service_plans has no
-  // service_line_id (plans span lines by design). Most common line wins to avoid
-  // a single out-of-order item driving the wrong service-line color.
+  // Prefer the authoritative marketing_line_id FK for visual identity —
+  // the same column getOtherSupportPlans uses on the /plans list page.
+  // PostgREST may return embedded FK rows as object or array; normalize both.
+  const rawMarketingLine = (plan as { marketing_line?: unknown }).marketing_line;
+  const marketingLine = Array.isArray(rawMarketingLine)
+    ? (rawMarketingLine[0] as { slug: string; name: string } | undefined) ?? null
+    : (rawMarketingLine as { slug: string; name: string } | null);
+
+  // Fall back to dominant-included-line heuristic when marketing_line_id is unset.
   const lineCounts = new Map<string, number>();
   for (const svc of includedServices) {
     const slug = svc.service_lines?.slug ?? '';
@@ -96,9 +103,10 @@ export default async function PlanDetailPage({ params }: Props) {
   }
   const dominantLineName =
     includedServices.find((s) => s.service_lines?.slug === dominantLineSlug)?.service_lines?.name ?? '';
-  const audience = mapServiceLineSlug(dominantLineSlug);
+
+  const audience = mapServiceLineSlug(marketingLine?.slug ?? dominantLineSlug);
   const audienceTokens = serviceColor(audience);
-  const firstLineName = dominantLineName;
+  const firstLineName = marketingLine?.name ?? dominantLineName;
 
   const otherPlans = await getOtherSupportPlans(slug);
 
@@ -130,6 +138,11 @@ export default async function PlanDetailPage({ params }: Props) {
             priceLabel: 'Per month',
             price: plan.monthly_price_display,
           }),
+          // Hero CTA stays a nav link: the BDS hero blueprint's `priceCard.cta`
+          // is url-only (no onClick), so it can't open the modal the cta-panel
+          // button does (#401). Tracked in brik-bds#843 — swap to the modal once
+          // the blueprint gains an action affordance. The standalone route is
+          // the fallback target regardless.
           cta: { label: 'Get Started', url: `/get-started?plan=${plan.slug}` },
         }
       : undefined,
@@ -155,7 +168,7 @@ export default async function PlanDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
-        className="page-hero-blueprint"
+        className="page-hero-blueprint page-hero-blueprint--no-service-tag"
         data-scroll-hero
         style={
           {
@@ -190,7 +203,7 @@ export default async function PlanDetailPage({ params }: Props) {
        * elevated card stays neutral so the price + button read as the focal
        * element (mirrors the live Webflow support-plan CTA).
        */}
-      <section className="content-section">
+      <section className="page-section">
         <div className="container-lg container-lg--comfortable">
           <div
             className="plan-cta-panel"
@@ -233,13 +246,7 @@ export default async function PlanDetailPage({ params }: Props) {
                   </div>
                 )}
                 <div className="button-wrapper button-wrapper--center">
-                  <Button
-                    href={`/get-started?plan=${plan.slug}`}
-                    variant="primary"
-                    size="lg"
-                  >
-                    Get Started
-                  </Button>
+                  <GetStartedModalButton plan={plan.slug} planName={plan.name} />
                 </div>
               </div>
             </Card>
@@ -257,10 +264,33 @@ export default async function PlanDetailPage({ params }: Props) {
           <Grid columns={3} gap="lg">
             {otherPlans.map((other) => {
               const otherImage = planImage(other.slug);
+              // Tint each card with the linked plan's OWN dominant service
+              // line, not this page's audience — a plan's services span lines,
+              // so visual identity comes from its `marketing_line_id` pointer
+              // (portal migration 00196). PostgREST may return the embed as
+              // object or array; normalize defensively (mirrors the
+              // supportPlanMarketingLine pattern on services/[serviceSlug]).
+              // `surface` is the canonical card-fill token; it is FIXED-LIGHT
+              // in both themes, so plans.css pins the display preset's text to
+              // a dark primitive to keep AA in dark mode (see #360 /
+              // .plan-other-card--tinted).
+              const rawLine = (other as { marketing_line?: unknown }).marketing_line;
+              const otherLine = Array.isArray(rawLine)
+                ? (rawLine[0] as { slug: string | null } | undefined) ?? null
+                : (rawLine as { slug: string | null } | null);
+              const otherSurface = otherLine?.slug
+                ? serviceColor(mapServiceLineSlug(otherLine.slug)).surface
+                : undefined;
               return (
               <Card
                 key={other.slug}
                 preset="display"
+                {...(otherSurface
+                  ? {
+                      className: 'plan-other-card--tinted',
+                      style: { backgroundColor: otherSurface },
+                    }
+                  : {})}
                 image={
                   otherImage ? (
                     <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">
@@ -276,11 +306,7 @@ export default async function PlanDetailPage({ params }: Props) {
                 title={other.name}
                 description={other.description ?? undefined}
                 action={
-                  <Button
-                    href={`/plans/${other.slug}`}
-                    variant="primary"
-                    size="sm"
-                  >
+                  <Button href={`/plans/${other.slug}`} variant="primary" size="md">
                     Learn More
                   </Button>
                 }
