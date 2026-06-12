@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getSupportPlans } from '@/lib/supabase/queries';
 import { PlanCardGrid } from './PlanCardGrid';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './plans.css';
 
@@ -40,6 +41,7 @@ export default async function PlansPage() {
             systems, or product design — without the cost of full-time hires.
           </p>
         </div>
+        <ScrollDownCta />
       </section>
 
       {/* Plan cards */}
