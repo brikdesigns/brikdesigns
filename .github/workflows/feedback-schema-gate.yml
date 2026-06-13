@@ -1,0 +1,38 @@
+name: feedback-schema-gate
+
+# Pre-merge gate: when a PR changes the /api/feedback route, assert the live
+# Notion Backlog schema still matches the contract the route writes — BEFORE the
+# change deploys. Closes the gap where the daily brik-llm cron (#804) only caught
+# Backlog schema drift AFTER it shipped (the 2026-06-07 outage ran red, unwatched,
+# for 3 days).
+#
+# The contract is defined ONCE, in brik-llm (scripts/audit/feedback-schema-contract.py).
+# This job runs it via the brik-llm composite action — no second contract copy
+# lives here. Requires brik-llm `actions/permissions/access` = organization and a
+# NOTION_TOKEN GitHub Actions secret (read access to the Backlog DB), provisioned
+# via `brik-secrets propagate notion`.
+#
+# brikdesigns/brikdesigns#471 · parent brikdesigns/brik-llm#352 · sibling of #804, #926.
+
+on:
+  pull_request:
+    paths:
+      - "src/app/api/feedback/**"
+      - ".github/workflows/feedback-schema-gate.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: feedback-schema-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Backlog schema contract check
+        uses: brikdesigns/brik-llm/.github/actions/feedback-schema-contract@main
+        with:
+          notion-token: ${{ secrets.NOTION_TOKEN }}
