@@ -474,7 +474,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <Card
                   key={svc.slug}
                   preset="display"
-                  variant="borderless"
+                  variant="elevated"
                   image={
                     svc.image_url ? (
                       <Frame customRatio="3 / 2" fit="contain" className="service-sibling-card__media">
