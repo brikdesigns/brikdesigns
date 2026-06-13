@@ -143,7 +143,9 @@ export default async function PlanDetailPage({ params }: Props) {
           // button does (#401). Tracked in brik-bds#843 — swap to the modal once
           // the blueprint gains an action affordance. The standalone route is
           // the fallback target regardless.
-          cta: { label: 'Get Started', url: `/get-started?plan=${plan.slug}` },
+          // `size: 'md'` opts into the priceCard.cta size hook added in
+          // @brikdesigns/bds@0.95.0 (brik-bds#869); blueprint default is `sm`.
+          cta: { label: 'Get Started', url: `/get-started?plan=${plan.slug}`, size: 'md' },
         }
       : undefined,
     visualNotes: {
