@@ -555,7 +555,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   </div>
                 )}
                 <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
-                <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
+                <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
                 <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="md">Learn More</Button>
               </div>
             </div>
