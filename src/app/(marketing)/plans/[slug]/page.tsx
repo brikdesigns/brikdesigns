@@ -168,7 +168,7 @@ export default async function PlanDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
-        className="page-hero-blueprint page-hero-blueprint--no-service-tag"
+        className="page-hero-blueprint"
         data-scroll-hero
         style={
           {
@@ -187,6 +187,7 @@ export default async function PlanDetailPage({ params }: Props) {
           section={heroSection}
           clientFacts={defaultClientFacts}
           theme={defaultMarketingTheme}
+          showServiceTag={false}
         />
         <ScrollDownCta />
       </div>
