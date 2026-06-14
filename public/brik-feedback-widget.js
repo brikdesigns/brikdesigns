@@ -432,55 +432,27 @@
     removeForm();
   }
 
-  // ── Section detection ──────────────────────────────────────────────────
-  function detectSectionContext(target) {
+  // ── Section detection (delegates to the shared inspector detector) ────────
+  // ADR-007 makes the inspector the single element-context detector. On mockup
+  // deploys the inspect widget is injected alongside this one and exposes
+  // window.BrikInspect.detectContext(el); we map its result to the
+  // section_context shape stored in Supabase design_feedback.section_context.
+  // No parallel detection here (brik-client-portal#1132). If the inspector is
+  // somehow absent, degrade to empty context rather than throw.
+  function sectionContextFromDetector(target) {
+    const detect =
+      (typeof window !== 'undefined' && window.BrikInspect && window.BrikInspect.detectContext) || null;
+    if (!detect) return {};
+
+    const c = detect(target) || {};
     const ctx = {};
-
-    // Find nearest <section> ancestor with section classes
-    const section = target.closest('section[class*="section--"], [class*="section--"]');
-    if (section) {
-      // Extract section type from class: "section section--hero" → "hero"
-      const typeMatch = section.className.match(/section--([a-z-]+)/);
-      if (typeMatch) ctx.section_type = typeMatch[1];
-
-      // aria-label is the human-readable name
-      if (section.getAttribute('aria-label')) ctx.section_label = section.getAttribute('aria-label');
-
-      // id for anchoring
-      if (section.id) ctx.section_id = section.id;
-
-      // Look for <!-- Source: home.md Section-XX --> comment above the section
-      let prev = section.previousSibling;
-      while (prev) {
-        if (prev.nodeType === 8) { // Comment node
-          const commentMatch = prev.textContent.trim().match(/Source:\s*(.+)/);
-          if (commentMatch) {
-            ctx.content_source = commentMatch[1].trim();
-            break;
-          }
-        }
-        // Stop if we hit another element
-        if (prev.nodeType === 1) break;
-        prev = prev.previousSibling;
-      }
-
-      // Section number from DOM order
-      const allSections = document.querySelectorAll('section[class*="section--"]');
-      const idx = Array.from(allSections).indexOf(section);
-      if (idx >= 0) ctx.section_number = idx + 1;
-    }
-
-    // Detect layout class on nearest layout container
-    const layout = target.closest('[class*="layout--"]');
-    if (layout) {
-      const layoutMatch = layout.className.match(/layout--([a-z0-9-]+)/);
-      if (layoutMatch) ctx.layout = layoutMatch[1];
-    }
-
-    // Detect the clicked element type
-    const el = target.closest('a, button, h1, h2, h3, h4, img, video, input, textarea, p, li, span');
-    if (el) ctx.element_tag = el.tagName.toLowerCase();
-
+    if (c.section_type) ctx.section_type = c.section_type;
+    if (c.section_label) ctx.section_label = c.section_label;
+    if (c.section_id) ctx.section_id = c.section_id;
+    if (c.content_source) ctx.content_source = c.content_source;
+    if (c.section_number) ctx.section_number = c.section_number;
+    if (c.layout) ctx.layout = c.layout;
+    if (c.element_tag) ctx.element_tag = c.element_tag;
     return ctx;
   }
 
@@ -501,7 +473,7 @@
     const y = e.pageY;
 
     // Detect section context before creating the pin overlay
-    currentSectionContext = detectSectionContext(e.target);
+    currentSectionContext = sectionContextFromDetector(e.target);
 
     pendingPin = document.createElement('div');
     pendingPin.className = 'bfb-pin bfb-pin--pending';
