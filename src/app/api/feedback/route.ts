@@ -51,11 +51,14 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { page_url, feedback_type, description, submitter: rawSubmitter } = body as {
+  const { page_url, feedback_type, description, submitter: rawSubmitter, page, section, component } = body as {
     page_url?: string;
     feedback_type?: string;
     description?: string;
     submitter?: string;
+    page?: string;
+    section?: string;
+    component?: string;
   };
 
   if (!description?.trim()) {
@@ -82,6 +85,12 @@ export async function POST(request: Request) {
         product: PRODUCT_NAME,
         url: `${BASE_URL}${page_url ?? ''}`,
         roleOptions: ['Brik Admin'],
+        // Section/element context from the widget's pick-element mode; each is
+        // optional and only written when the user targeted an element. Landed in
+        // feedback-contract 0.2.0 (mirrors the portal route).
+        page,
+        section,
+        component,
       }),
     ),
   });
@@ -97,6 +106,6 @@ export async function POST(request: Request) {
     );
   }
 
-  const page = await res.json();
-  return NextResponse.json({ id: page.id, status: 'submitted' });
+  const notionPage = await res.json();
+  return NextResponse.json({ id: notionPage.id, status: 'submitted' });
 }
