@@ -46,6 +46,24 @@ test.describe('Contact booking modal — #483', () => {
     ).toBeVisible();
   });
 
+  test('shows a loading state until the booking widget finishes loading (#484)', async ({ page }) => {
+    // Delay the booking iframe so the loading overlay is observable, then
+    // assert it disappears once the (slow) widget loads. Route must be
+    // registered before navigation.
+    await page.route('**/widget/booking/**', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+    await page.goto(CONTACT_PATH, { waitUntil: 'load' });
+    await page.getByRole('button', { name: 'Book a Call' }).click();
+
+    // Spinner (BDS Spinner is role="status") is shown while the iframe loads.
+    const status = page.getByRole('status');
+    await expect(status).toBeVisible();
+    // …and is removed once the widget's load event fires.
+    await expect(status).toBeHidden({ timeout: 15_000 });
+  });
+
   // Same BDS default-Modal defect as the get-started modal: the title is
   // rendered but not wired to `aria-labelledby`, so the dialog's programmatic
   // accessible name is empty. Tracked in brik-bds#844; re-enable once shipped
