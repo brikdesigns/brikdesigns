@@ -150,6 +150,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   description={svc.description}
                   imageUrl={svc.image_url}
                   iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                  className="service-card--flat"
                   showCta
                 />
               );
@@ -188,7 +189,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   />
                 </div>
               )}
-              <Card variant="outlined" padding="lg">
+              <Card variant="outlined" padding="lg" className="service-card--flat">
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
                   {supportPlanServiceLine.card_image_url && (
                     <div className="service-detail-support-cta__media">

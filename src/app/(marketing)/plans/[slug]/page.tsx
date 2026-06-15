@@ -267,33 +267,13 @@ export default async function PlanDetailPage({ params }: Props) {
           <Grid columns={3} gap="lg">
             {otherPlans.map((other) => {
               const otherImage = planImage(other.slug);
-              // Tint each card with the linked plan's OWN dominant service
-              // line, not this page's audience — a plan's services span lines,
-              // so visual identity comes from its `marketing_line_id` pointer
-              // (portal migration 00196). PostgREST may return the embed as
-              // object or array; normalize defensively (mirrors the
-              // supportPlanMarketingLine pattern on services/[serviceSlug]).
-              // `surface` is the canonical card-fill token; it is FIXED-LIGHT
-              // in both themes, so plans.css pins the display preset's text to
-              // a dark primitive to keep AA in dark mode (see #360 /
-              // .plan-other-card--tinted).
-              const rawLine = (other as { marketing_line?: unknown }).marketing_line;
-              const otherLine = Array.isArray(rawLine)
-                ? (rawLine[0] as { slug: string | null } | undefined) ?? null
-                : (rawLine as { slug: string | null } | null);
-              const otherSurface = otherLine?.slug
-                ? serviceColor(mapServiceLineSlug(otherLine.slug)).surface
-                : undefined;
+              // Plain surface-primary cards — the per-plan service tint (#397)
+              // was removed per staging review (backlog #278 / #482); the cards
+              // now use the default display-preset fill in both themes.
               return (
               <Card
                 key={other.slug}
                 preset="display"
-                {...(otherSurface
-                  ? {
-                      className: 'plan-other-card--tinted',
-                      style: { backgroundColor: otherSurface },
-                    }
-                  : {})}
                 image={
                   otherImage ? (
                     <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">

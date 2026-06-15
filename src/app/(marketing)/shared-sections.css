@@ -349,3 +349,18 @@
     padding: var(--padding-xl);
   }
 }
+
+/* ─── Chrome-stripped card (backlog #275–#277 / #482) ───────────────
+   Staging review asked to drop the border ring from the service-line
+   services grid, the customer-topic grids, and the monthly-support card.
+   Owner treatment: keep the surface-primary fill, remove only the border +
+   shadow (NOT the BDS transparent `borderless` variant — the fill is load-
+   bearing on the lighter service tints). The display preset / outlined card
+   already ship no shadow; the border is all that's removed. `.bds-card`
+   raises specificity so this beats the BDS variant border without !important.
+   Filled (non-borderless) cards on a `.service-surface` tint already get the
+   correct dark-mode text via globals.css (the #360 fixed-light handling). */
+.bds-card.service-card--flat {
+  border: none;
+  box-shadow: none;
+}
