@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Button } from '@brikdesigns/bds';
+import { BookACallButton } from '@/components/marketing/BookACallButton';
 import { ContactForm } from '@/components/marketing/ContactForm';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -17,9 +18,7 @@ export default function ContactPage() {
         <div className="contact-hero-row">
           <h1 style={heading.lg}>Get in touch</h1>
           <div className="contact-cta-row">
-            <Button href="https://calendly.com/brikdesigns" variant="secondary" size="md" target="_blank" rel="noopener noreferrer">
-              Book a Call
-            </Button>
+            <BookACallButton />
             <Button href="mailto:hello@brikdesigns.com" variant="secondary" size="md">
               Send Email
             </Button>
