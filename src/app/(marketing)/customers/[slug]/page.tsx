@@ -249,6 +249,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                         description={svc.description}
                         imageUrl={svc.image_url}
                         iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                        className="service-card--flat"
                         showCta
                       />
                     </div>

@@ -18,10 +18,13 @@ interface ServiceCardProps {
    * URL through SSR.
    */
   iconServiceName?: string;
+  /** Optional class on the underlying Card root (e.g. the `service-card--flat`
+   *  chrome-strip used on the service-line + customer-topic grids). */
+  className?: string;
 }
 
 export function ServiceCard({
-  name, slug, serviceLineSlug, category, tagline, imageUrl, description, showCta, iconServiceName,
+  name, slug, serviceLineSlug, category, tagline, imageUrl, description, showCta, iconServiceName, className,
 }: ServiceCardProps) {
   const href = `/services/${serviceLineSlug}/${slug}`;
   const tagProps = iconServiceName ? { serviceName: iconServiceName } : {};
@@ -29,6 +32,7 @@ export function ServiceCard({
   return (
     <Card
       preset="display"
+      className={className}
       title={name}
       description={description ?? tagline ?? undefined}
       image={imageUrl ? (
