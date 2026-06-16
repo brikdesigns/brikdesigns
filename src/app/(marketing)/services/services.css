@@ -226,6 +226,24 @@
   background-color: var(--surface-accent);
 }
 
+/* Sibling-services display-card titles shrink to heading-sm so they sit one
+   step below the section heading, matching the service-line index grid
+   (.service-card--flat) and the customer-topic grids. The BDS preset-display
+   title defaults to --heading-md. — #489 / BACKLOG-294 */
+.service-sibling-card .bds-card__preset-display-title {
+  font-size: var(--heading-sm);
+}
+
+/* CardGrid section titles on the service-detail page render at --heading-md by
+   default, inconsistent with the service-line page's manual section headings
+   (heading-lg). Lift them to heading-lg so the section→card hierarchy reads
+   consistently across both surfaces (section = lg, display card = sm). Scoped
+   to .service-themed CardGrids so non-service CardGrids are unaffected.
+   — #489 / BACKLOG-295 */
+.bds-card-grid.service-themed .bds-card-grid__title {
+  font-size: var(--heading-lg);
+}
+
 /* ─── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 991px) {

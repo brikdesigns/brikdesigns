@@ -435,7 +435,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                     : {})}
                   variant="icon-text"
                   label={relatedService.name}
-                  size="md"
+                  size="sm"
                   style={{ alignSelf: 'flex-start' }}
                 />
                 <CardTitle>{relatedService.name}</CardTitle>
@@ -475,6 +475,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   key={svc.slug}
                   preset="display"
                   variant="elevated"
+                  className="service-sibling-card"
                   image={
                     svc.image_url ? (
                       <Frame customRatio="3 / 2" fit="contain" className="service-sibling-card__media">
