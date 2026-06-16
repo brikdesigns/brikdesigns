@@ -95,7 +95,7 @@ export default async function MarketingPage({ params }: Props) {
             <EventEndedBanner />
           ) : (
             <>
-              <h2 style={{ ...heading.sm, marginBottom: gap.xs }}>Sign up</h2>
+              <h2 style={{ ...heading.sm, marginBottom: gap.xs }}>Sign Up</h2>
               <p style={{ ...text.bodySm, color: color.text.secondary, marginTop: 0, marginBottom: gap.md }}>
                 Enter your email and we&apos;ll be in touch.
               </p>

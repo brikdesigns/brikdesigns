@@ -266,7 +266,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {otherPages.length > 0 && (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Other industries</h2>
+            <h2 style={heading.lg}>Other Industries</h2>
             <Grid columns={3}>
               {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
@@ -291,7 +291,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {stories.length > 0 && (
         <section className="page-section page-section--secondary">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Latest customer story</h2>
+            <h2 style={heading.lg}>Latest Customer Story</h2>
             <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>
               We&rsquo;re more than a design studio&mdash;we&rsquo;re your strategic marketing partner.
             </p>

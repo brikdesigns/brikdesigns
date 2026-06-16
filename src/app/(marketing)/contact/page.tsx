@@ -16,7 +16,7 @@ export default function ContactPage() {
     <section className="contact-section">
       <div className="contact-card">
         <div className="contact-hero-row">
-          <h1 style={heading.lg}>Get in touch</h1>
+          <h1 style={heading.lg}>Get in Touch</h1>
           <div className="contact-cta-row">
             <BookACallButton />
             <Button href="mailto:hello@brikdesigns.com" variant="secondary" size="md">
@@ -29,7 +29,7 @@ export default function ContactPage() {
         </div>
 
         <div className="contact-form-block">
-          <h2 style={heading.md}>Send us a message</h2>
+          <h2 style={heading.md}>Send Us a Message</h2>
           <p style={{ ...text.bodySm, color: color.text.secondary, margin: 0 }}>Let us know what you&apos;re interested in</p>
           <ContactForm />
         </div>

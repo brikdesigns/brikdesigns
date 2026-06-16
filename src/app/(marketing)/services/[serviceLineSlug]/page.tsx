@@ -169,7 +169,7 @@ export default async function ServiceLinePage({ params }: Props) {
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Monthly support services</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Monthly Support Services</h2>
               <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 Join our monthly support plan to get professional advice without the need for a team.
               </p>

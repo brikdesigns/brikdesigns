@@ -232,7 +232,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           imageUrl: service.image_url,
           imageAlt: service.name,
           ...(startingPrice && { priceLabel: 'Starting at', price: startingPrice }),
-          cta: { label: "Let's Talk", url: '/contact' },
+          cta: { label: "Let's Talk", url: '/contact', size: 'md' },
         }
       : undefined,
     visualNotes: {
@@ -526,7 +526,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a partner to avoid the full-time hassle?</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a Partner to Avoid the Full-Time Hassle?</h2>
               <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
               </p>
