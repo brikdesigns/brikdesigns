@@ -11,6 +11,8 @@
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "test:lint:tokens": "node scripts/lint-tokens.test.mjs",
     "lint:service-urls": "node scripts/lint-service-urls.mjs",
+    "lint:heading-case": "node scripts/lint-heading-case.mjs",
+    "test:lint:heading-case": "node scripts/lint-heading-case.test.mjs",
     "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
     "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "audit:plan-data": "npx tsx scripts/audit-plan-data.ts",
