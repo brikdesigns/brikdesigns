@@ -251,6 +251,18 @@
   color: var(--color-grayscale-darkest);
 }
 
+/* The service-plan detail hero (`page-hero-blueprint`, plans/[slug]) is a tinted
+   blueprint surface but — unlike the service-detail hero — carries no
+   `.service-surface` class, so the scroll-down CTA would otherwise inherit the
+   service `--text-brand-primary` (a dark service tint) on a mid-tone service
+   background and lose contrast (brikdesigns#451). Pin it to grayscale-darkest
+   exactly like .service-surface above. Consumer-level legibility fix; token-level
+   pairing stays with #437. */
+.page-hero-blueprint .scroll-down-cta__label,
+.page-hero-blueprint .scroll-down-cta__icon {
+  color: var(--color-grayscale-darkest);
+}
+
 @keyframes scroll-cta-appear {
   to { opacity: 1; }
 }
