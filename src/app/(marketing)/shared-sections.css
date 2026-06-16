@@ -364,3 +364,11 @@
   border: none;
   box-shadow: none;
 }
+
+/* Service display-card titles shrink to heading-sm so they sit one step below
+   the section heading (heading-lg), establishing the section→card hierarchy.
+   The BDS preset-display title defaults to --heading-md. Mirrors the
+   customer-topic grid treatment (customers.css). — #489 / BACKLOG-296 */
+.service-card--flat .bds-card__preset-display-title {
+  font-size: var(--heading-sm);
+}

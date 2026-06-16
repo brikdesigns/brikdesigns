@@ -25,13 +25,18 @@
   background-color: var(--surface-secondary);
   padding: var(--padding-md);
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
 }
 
+/* Fill the full height of the (taller) content column so the framed image
+   doesn't float in the centre leaving a surface-secondary gap above/below.
+   `height: 100%` overrides the 4/3 ratio on desktop; the mobile query below
+   restores an explicit ratio once the row stacks. — #489 / BACKLOG-297 */
 .story-card__media {
   position: relative;
   width: 100%;
+  height: 100%;
   aspect-ratio: 4/3;
   border-radius: var(--border-radius-sm);
   overflow: hidden;
@@ -84,6 +89,7 @@
   }
 
   .story-card__media {
+    height: auto;
     aspect-ratio: 16/9;
   }
 

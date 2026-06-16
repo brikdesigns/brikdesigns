@@ -48,7 +48,7 @@ export default function FreeMarketingAnalysisPage() {
         </div>
 
         <div className="fma-form-card">
-          <h2 style={{ ...heading.md, margin: 0 }}>Share your details</h2>
+          <h2 style={{ ...heading.md, margin: 0 }}>Share Your Details</h2>
           <p style={{ ...text.bodySm, color: color.text.secondary, margin: 0 }}>
             Provide your contact details and we&apos;ll reach out.
           </p>

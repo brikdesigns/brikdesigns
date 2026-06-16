@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
         Last updated: {LAST_UPDATED}
       </p>
 
-      <Section title="The short version">
+      <Section title="The Short Version">
         <p>
           We collect what you give us — and only what we need to do good work. We
           don&apos;t sell anything to anyone. We don&apos;t use third-party
@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
         </p>
       </Section>
 
-      <Section title="What we collect">
+      <Section title="What We Collect">
         <p>When you fill out a form on brikdesigns.com (Contact, Get Started, Free Marketing Analysis), we collect:</p>
         <ul style={listStyle}>
           <li>Your name</li>
@@ -74,7 +74,7 @@ export default function PrivacyPolicyPage() {
         </p>
       </Section>
 
-      <Section title="What we do with it">
+      <Section title="What We Do With It">
         <p>Form submissions go to two places:</p>
         <ul style={listStyle}>
           <li>
@@ -93,7 +93,7 @@ export default function PrivacyPolicyPage() {
         </p>
       </Section>
 
-      <Section title="Who else sees it">
+      <Section title="Who Else Sees It">
         <p>The services that process your information on our behalf:</p>
         <ul style={listStyle}>
           <li>
@@ -116,7 +116,7 @@ export default function PrivacyPolicyPage() {
         </p>
       </Section>
 
-      <Section title="Your rights">
+      <Section title="Your Rights">
         <p>You can ask us to:</p>
         <ul style={listStyle}>
           <li>Send you a copy of the information we have about you.</li>

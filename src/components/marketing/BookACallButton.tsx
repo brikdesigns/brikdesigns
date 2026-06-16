@@ -60,7 +60,7 @@ export function BookACallButton() {
             >
               <iframe
                 src={`https://api.leadconnectorhq.com/widget/booking/${BOOKING_ID}`}
-                title="Book a call with Brik Designs"
+                title="Book a Call With Brik Designs"
                 style={{ width: '100%', minHeight: '100%', border: 'none' }}
                 id={`${BOOKING_ID}_booking`}
                 onLoad={() => setLoaded(true)}
