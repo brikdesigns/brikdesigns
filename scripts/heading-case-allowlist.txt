@@ -1,0 +1,13 @@
+# scripts/heading-case-allowlist.txt
+# Exact heading strings the title-case gate should ignore — brand names,
+# acronyms, or deliberate stylings that the heuristic can't tell from a
+# sentence-case mistake. The canonical rule is brik-bds#910 (typography.mdx
+# "Heading casing"); the gate is lint-heading-case.mjs (brikdesigns#491).
+#
+# Format: one full, exact heading string per line (matched after trim).
+#         Lines starting with `#` are comments.
+# Prefer this only for genuine exceptions — most headings should just be
+# title-cased. For a one-off, an inline `/* lint-heading-case-ignore */`
+# comment on the same line works too.
+#
+# (Currently empty — the #490 sweep + #491 cleanup left no standing exceptions.)
