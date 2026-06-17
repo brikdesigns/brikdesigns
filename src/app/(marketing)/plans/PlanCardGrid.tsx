@@ -68,7 +68,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
                   plan.discountLabel ? (
                     <span
                       style={{
-                        color: color.text.primary,
+                        color: color.system.green,
                         fontSize: font.size.label.sm,
                         fontWeight: font.weight.semibold,
                       }}
