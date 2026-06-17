@@ -186,12 +186,13 @@ export default async function CustomerDetailPage({ params }: Props) {
         const CARD_SLOTS = 3;
         const slots = Array.from({ length: CARD_SLOTS }, (_, i) => services[i] ?? null);
 
-        // Section tint follows the topic's service line via the canonical
-        // theme-aware surface token (`--surface-service-{slug}`), replacing the
-        // legacy per-topic_number hex map. Falls back to a neutral surface when
-        // the topic has no service line assigned.
+        // Section tint follows the topic's service line via the pale
+        // `surfaceLight` ramp (`--surface-service-{slug}-light`), matching the
+        // site-wide pale hero/band treatment (#408) and replacing the legacy
+        // per-topic_number hex map. Falls back to a neutral surface when the
+        // topic has no service line assigned.
         const sectionSurface = topic.service_line_slug
-          ? serviceColor(mapServiceLineSlug(topic.service_line_slug)).surface
+          ? serviceColor(mapServiceLineSlug(topic.service_line_slug)).surfaceLight
           : color.surface.secondary;
 
         return (

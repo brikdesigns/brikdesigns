@@ -422,7 +422,9 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
       {relatedService && (
         <section
           className="page-section"
-          style={{ backgroundColor: serviceColor(relatedAudience).surface }}
+          // Pale `surfaceLight` ramp — matches the site-wide pale hero/band
+          // treatment (#408); the elevated card inside stays neutral.
+          style={{ backgroundColor: serviceColor(relatedAudience).surfaceLight }}
         >
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Related Services</h2>
