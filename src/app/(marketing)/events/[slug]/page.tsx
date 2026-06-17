@@ -71,7 +71,7 @@ export default async function EventPage({ params }: Props) {
       {blocks.length > 0 ? (
         <section className="lp-blocks">
           <div className="lp-blocks__container">
-            <BlockRenderer blocks={blocks} />
+            <BlockRenderer blocks={blocks} context={{ rowId: event.id, accent, ended }} />
           </div>
         </section>
       ) : (
