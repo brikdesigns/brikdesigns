@@ -212,13 +212,13 @@ export default async function CustomersPage() {
             {CHALLENGES.map((challenge) => (
               <Card
                 key={challenge.quote}
-                variant="outlined"
+                variant="borderless"
                 padding="lg"
                 className="challenge-card service-surface"
                 style={{ backgroundColor: challenge.bg }}
               >
                 <span className="challenge-card__quote-mark" aria-hidden="true">&ldquo;</span>
-                <p style={text.bodyLg}>{challenge.quote}</p>
+                <p style={text.bodyHuge}>{challenge.quote}</p>
               </Card>
             ))}
           </Grid>
