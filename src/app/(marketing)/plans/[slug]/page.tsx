@@ -228,7 +228,7 @@ export default async function PlanDetailPage({ params }: Props) {
             )}
             <Card variant="elevated" padding="lg" className="plan-cta-panel__card">
               <div className="content-wrapper content-wrapper--center">
-                <p style={{ ...heading.lg, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>Get</p>
+                <p style={{ ...heading.lg, color: color.text.primary, textAlign: 'center', margin: 0 }}>Get</p>
                 <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
                 {plan.description && (
                   <p
@@ -243,7 +243,7 @@ export default async function PlanDetailPage({ params }: Props) {
                 )}
                 {plan.monthly_price_display && (
                   <div className="plan-cta-panel__price">
-                    <p style={{ ...heading.md, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>
+                    <p style={{ ...heading.md, color: color.text.primary, textAlign: 'center', margin: 0 }}>
                       {plan.monthly_price_display}
                     </p>
                     <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center', margin: 0 }}>
