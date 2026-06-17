@@ -463,7 +463,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                     <Button
                       href={`/services/${routeSlugForServiceLine(relatedCatSlug)}/${relatedService.slug}`}
                       variant="primary"
-                      size="sm"
+                      size="md"
                     >
                       Learn More
                     </Button>
