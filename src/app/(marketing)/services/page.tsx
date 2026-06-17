@@ -88,7 +88,9 @@ export default async function ServicesPage() {
           <section
             key={cat.slug}
             className="page-section service-surface"
-            style={{ backgroundColor: serviceColor(resolveServiceTagCategory(cat)).surface }}
+            // Pale `surfaceLight` ramp — matches the site-wide pale hero/band
+            // treatment (#408) and the already-pale service-line pages (#389).
+            style={{ backgroundColor: serviceColor(resolveServiceTagCategory(cat)).surfaceLight }}
           >
             <div className="container-lg">
               {copy && (
