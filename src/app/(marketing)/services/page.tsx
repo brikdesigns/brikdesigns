@@ -61,7 +61,7 @@ export default async function ServicesPage() {
       <section className="page-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our services</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               We offer design services at every stage of your business growth — from establishment to maturity.
             </p>
@@ -88,7 +88,9 @@ export default async function ServicesPage() {
           <section
             key={cat.slug}
             className="page-section service-surface"
-            style={{ backgroundColor: serviceColor(resolveServiceTagCategory(cat)).surface }}
+            // Pale `surfaceLight` ramp — matches the site-wide pale hero/band
+            // treatment (#408) and the already-pale service-line pages (#389).
+            style={{ backgroundColor: serviceColor(resolveServiceTagCategory(cat)).surfaceLight }}
           >
             <div className="container-lg">
               {copy && (

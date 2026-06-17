@@ -13,6 +13,21 @@ if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
   fi
 fi
 
+# ── Heading title-case lint (marketing JSX) ──
+# Stops sentence-case headings from regressing the #490 sweep. Canonical rule:
+# brik-bds#910 (typography.mdx "Heading casing"). Heuristic — see the script for
+# the allowlist + `/* lint-heading-case-ignore */` escape hatch (brikdesigns#491).
+if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+  if [ -f scripts/lint-heading-case.mjs ]; then
+    echo "🔠 Running heading title-case lint..."
+    if ! node scripts/lint-heading-case.mjs; then
+      echo ""
+      echo "   Title-case the heading above, or allowlist a genuine exception."
+      exit 1
+    fi
+  fi
+fi
+
 # ── Secret scan (gitleaks) ──
 # Defense-in-depth for the secret-leak prevention layer. Mirrors the pattern
 # used in brik-bds, brik-client-portal, renew-pms. Runs gitleaks on the staged

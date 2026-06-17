@@ -1,25 +1,9 @@
 import { NextResponse } from 'next/server';
+import { buildBacklogPageBody, NOTION_VERSION } from '@brikdesigns/feedback-contract';
 
 const NOTION_API = 'https://api.notion.com/v1';
-const NOTION_VERSION = '2022-06-28';
-const BACKLOG_DATABASE_ID = '32097d34-ed28-8051-8225-eb6800c2e05a';
 const PRODUCT_NAME = 'Website';
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://staging--brikdesigns.netlify.app';
-
-/** Map widget types to Backlog Type select values */
-const TYPE_MAP: Record<string, string> = {
-  bug: 'Bug',
-  ui: 'Enhancement',
-  suggestion: 'Suggestion',
-  question: 'Question',
-};
-
-const EMOJI_MAP: Record<string, string> = {
-  bug: '🐛',
-  ui: '🎨',
-  suggestion: '💡',
-  question: '❓',
-};
 
 /**
  * POST /api/feedback — staging-only QA feedback → renew-pms Backlog Notion DB.
@@ -67,11 +51,14 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const { page_url, feedback_type, description, submitter: rawSubmitter } = body as {
+  const { page_url, feedback_type, description, submitter: rawSubmitter, page, section, component } = body as {
     page_url?: string;
     feedback_type?: string;
     description?: string;
     submitter?: string;
+    page?: string;
+    section?: string;
+    component?: string;
   };
 
   if (!description?.trim()) {
@@ -82,8 +69,6 @@ export async function POST(request: Request) {
   // (form mode currently doesn't), else a generic staging label.
   const submitter = rawSubmitter?.trim() || 'Staging reviewer';
   const type = feedback_type ?? 'bug';
-  const emoji = EMOJI_MAP[type] ?? '📝';
-  const title = `${emoji} ${description.trim().slice(0, 80)}${description.length > 80 ? '...' : ''}`;
 
   const res = await fetch(`${NOTION_API}/pages`, {
     method: 'POST',
@@ -92,22 +77,22 @@ export async function POST(request: Request) {
       'Notion-Version': NOTION_VERSION,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      parent: { database_id: BACKLOG_DATABASE_ID },
-      properties: {
-        Name: { title: [{ text: { content: title } }] },
-        Description: { rich_text: [{ text: { content: description.trim() } }] },
-        Submitter: { rich_text: [{ text: { content: submitter } }] },
-        // Post-OPE-29 Backlog schema: Type/Severity are now relations (not
-        // writable by name), Triage was renamed to "Triage Status". Intake
-        // writes the surviving select properties; triage assigns the relations.
-        'Type [legacy]': { select: { name: TYPE_MAP[type] ?? 'Bug' } },
-        Role: { multi_select: [{ name: 'Brik Admin' }] },
-        Product: { select: { name: PRODUCT_NAME } },
-        'Triage Status': { select: { name: 'Not Triaged' } },
-        URL: { url: `${BASE_URL}${page_url ?? ''}` },
-      },
-    }),
+    body: JSON.stringify(
+      buildBacklogPageBody({
+        type,
+        description,
+        submitter,
+        product: PRODUCT_NAME,
+        url: `${BASE_URL}${page_url ?? ''}`,
+        roleOptions: ['Brik Admin'],
+        // Section/element context from the widget's pick-element mode; each is
+        // optional and only written when the user targeted an element. Landed in
+        // feedback-contract 0.2.0 (mirrors the portal route).
+        page,
+        section,
+        component,
+      }),
+    ),
   });
 
   if (!res.ok) {
@@ -121,6 +106,6 @@ export async function POST(request: Request) {
     );
   }
 
-  const page = await res.json();
-  return NextResponse.json({ id: page.id, status: 'submitted' });
+  const notionPage = await res.json();
+  return NextResponse.json({ id: notionPage.id, status: 'submitted' });
 }

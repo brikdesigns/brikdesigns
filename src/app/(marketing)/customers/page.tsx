@@ -95,7 +95,7 @@ export default async function CustomersPage() {
       <section className="page-section page-section--accent">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries we know inside-out</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Know Inside-Out</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:
             </p>
@@ -167,7 +167,7 @@ export default async function CustomersPage() {
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center">
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries we serve</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Serve</h2>
               <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 Explore detailed playbooks for the verticals we work in most.
               </p>
@@ -177,7 +177,6 @@ export default async function CustomersPage() {
                 <Card
                   key={ind.slug}
                   preset="display"
-                  href={`/customers/${ind.slug}`}
                   title={ind.name}
                   description={ind.tagline ?? undefined}
                   image={ind.image_url ? (
@@ -185,6 +184,11 @@ export default async function CustomersPage() {
                       <Image src={ind.image_url} alt="" width={240} height={240} />
                     </Frame>
                   ) : undefined}
+                  action={
+                    <Button href={`/customers/${ind.slug}`} variant="primary" size="md">
+                      Learn More
+                    </Button>
+                  }
                   className="industries-cms-card"
                 />
               ))}
@@ -199,7 +203,7 @@ export default async function CustomersPage() {
       <section className="page-section page-section--secondary">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common challenges we solve</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common Challenges We Solve</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
               Here are some of the things we hear most often from teams ready to make a change.
             </p>
@@ -208,13 +212,13 @@ export default async function CustomersPage() {
             {CHALLENGES.map((challenge) => (
               <Card
                 key={challenge.quote}
-                variant="outlined"
+                variant="borderless"
                 padding="lg"
                 className="challenge-card service-surface"
                 style={{ backgroundColor: challenge.bg }}
               >
                 <span className="challenge-card__quote-mark" aria-hidden="true">&ldquo;</span>
-                <p style={text.bodyLg}>{challenge.quote}</p>
+                <p style={text.bodyHuge}>{challenge.quote}</p>
               </Card>
             ))}
           </Grid>

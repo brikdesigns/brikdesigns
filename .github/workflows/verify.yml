@@ -8,6 +8,8 @@ name: Verify (lint + token gate + schema parity)
 #  - Token-lint self-test: fixture-based regression tests for the family rule
 #  - Service-URL lint: hardcoded /services/<slug> URLs must use the canonical
 #    Supabase short-form slugs (brikdesigns#113)
+#  - Heading title-case lint: hardcoded marketing headings must follow the
+#    title-case standard (brik-bds#910); + fixture-based self-test (brikdesigns#491)
 #  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
 #    src/app/(chromeless)/admin/services/_components/field-configs.ts
 #
@@ -71,3 +73,9 @@ jobs:
 
       - name: Service-URL lint (no hardcoded long-form Webflow slugs)
         run: npm run lint:service-urls
+
+      - name: Heading title-case lint (marketing JSX)
+        run: npm run lint:heading-case
+
+      - name: Heading title-case lint — self-test (fixtures)
+        run: npm run test:lint:heading-case

@@ -143,7 +143,9 @@ export default async function PlanDetailPage({ params }: Props) {
           // button does (#401). Tracked in brik-bds#843 — swap to the modal once
           // the blueprint gains an action affordance. The standalone route is
           // the fallback target regardless.
-          cta: { label: 'Get Started', url: `/get-started?plan=${plan.slug}` },
+          // `size: 'md'` opts into the priceCard.cta size hook added in
+          // @brikdesigns/bds@0.95.0 (brik-bds#869); blueprint default is `sm`.
+          cta: { label: 'Get Started', url: `/get-started?plan=${plan.slug}`, size: 'md' },
         }
       : undefined,
     visualNotes: {
@@ -168,18 +170,20 @@ export default async function PlanDetailPage({ params }: Props) {
     >
       {/* ═══ Hero ═══ */}
       <div
-        className="page-hero-blueprint page-hero-blueprint--no-service-tag"
+        className="page-hero-blueprint"
         data-scroll-hero
         style={
           {
             '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
-            // Section-level service-line tint — `surface` family per
-            // service-token-decision-tree.md (the hero is a broad container).
-            // Mirrors the services/[slug] hero so all interior heros read as
-            // one continuous surface band; the BDS blueprint card defers to
-            // this via the `.page-hero-blueprint .bp-hero-img-card` override
-            // in shared-sections.css (no two-tone seam).
-            backgroundColor: audienceTokens.surface,
+            // Section-level service-line tint — `surface` family, pale `-light`
+            // tone per service-token-decision-tree.md Q2 (the hero is a broad
+            // container; pale surface pairs with darkest on-light text at AAA,
+            // brik-bds#838). Mirrors the now-pale services/[slug] hero (#389)
+            // so all interior heros read as one continuous surface band; the
+            // BDS blueprint card defers to this via the
+            // `.page-hero-blueprint .bp-hero-img-card` override in
+            // shared-sections.css (no two-tone seam). (#408)
+            backgroundColor: audienceTokens.surfaceLight,
           } as React.CSSProperties
         }
       >
@@ -187,6 +191,7 @@ export default async function PlanDetailPage({ params }: Props) {
           section={heroSection}
           clientFacts={defaultClientFacts}
           theme={defaultMarketingTheme}
+          showServiceTag={false}
         />
         <ScrollDownCta />
       </div>
@@ -199,15 +204,16 @@ export default async function PlanDetailPage({ params }: Props) {
       {/* ═══ CTA — two-column support-plan panel (Webflow parity) ═══
        * Surface-service-tinted panel carrying the plan's marketing
        * illustration on the left and a neutral price/CTA card on the right.
-       * Panel tone is the dominant service-line `surface` token; the inner
-       * elevated card stays neutral so the price + button read as the focal
-       * element (mirrors the live Webflow support-plan CTA).
+       * Panel tone is the dominant service-line pale `surfaceLight` tint
+       * (matches the hero band above, #408); the inner elevated card stays
+       * neutral so the price + button read as the focal element (mirrors the
+       * live Webflow support-plan CTA).
        */}
       <section className="page-section">
         <div className="container-lg container-lg--comfortable">
           <div
             className="plan-cta-panel"
-            style={{ backgroundColor: audienceTokens.surface }}
+            style={{ backgroundColor: audienceTokens.surfaceLight }}
           >
             {heroImage && (
               <div className="plan-cta-panel__media">
@@ -222,12 +228,12 @@ export default async function PlanDetailPage({ params }: Props) {
             )}
             <Card variant="elevated" padding="lg" className="plan-cta-panel__card">
               <div className="content-wrapper content-wrapper--center">
-                <p style={{ ...label.smBold, color: audienceTokens.text }}>Get</p>
+                <p style={{ ...heading.lg, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>Get</p>
                 <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
                 {plan.description && (
                   <p
                     style={{
-                      ...text.body,
+                      ...text.bodyLg,
                       color: color.text.secondary,
                       textAlign: 'center',
                     }}
@@ -264,33 +270,13 @@ export default async function PlanDetailPage({ params }: Props) {
           <Grid columns={3} gap="lg">
             {otherPlans.map((other) => {
               const otherImage = planImage(other.slug);
-              // Tint each card with the linked plan's OWN dominant service
-              // line, not this page's audience — a plan's services span lines,
-              // so visual identity comes from its `marketing_line_id` pointer
-              // (portal migration 00196). PostgREST may return the embed as
-              // object or array; normalize defensively (mirrors the
-              // supportPlanMarketingLine pattern on services/[serviceSlug]).
-              // `surface` is the canonical card-fill token; it is FIXED-LIGHT
-              // in both themes, so plans.css pins the display preset's text to
-              // a dark primitive to keep AA in dark mode (see #360 /
-              // .plan-other-card--tinted).
-              const rawLine = (other as { marketing_line?: unknown }).marketing_line;
-              const otherLine = Array.isArray(rawLine)
-                ? (rawLine[0] as { slug: string | null } | undefined) ?? null
-                : (rawLine as { slug: string | null } | null);
-              const otherSurface = otherLine?.slug
-                ? serviceColor(mapServiceLineSlug(otherLine.slug)).surface
-                : undefined;
+              // Plain surface-primary cards — the per-plan service tint (#397)
+              // was removed per staging review (backlog #278 / #482); the cards
+              // now use the default display-preset fill in both themes.
               return (
               <Card
                 key={other.slug}
                 preset="display"
-                {...(otherSurface
-                  ? {
-                      className: 'plan-other-card--tinted',
-                      style: { backgroundColor: otherSurface },
-                    }
-                  : {})}
                 image={
                   otherImage ? (
                     <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">

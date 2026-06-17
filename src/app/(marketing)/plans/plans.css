@@ -1,16 +1,5 @@
 /* ─── Plans page — layout only ──────────────────────────── */
 
-/* Other Support Plans cards carry each linked plan's own service tint (#397).
-   --surface-service-* tokens are FIXED-LIGHT in both themes, so the display
-   preset's theme-responsive --text-primary flips light → light-on-light in
-   dark mode (illegible). Pin title + description to the theme-invariant dark
-   primitive — the same fixed-on-fixed pattern #360 used for borderless cards
-   (≥5.05:1 on every service tint, both themes). */
-.plan-other-card--tinted .bds-card__preset-display-title,
-.plan-other-card--tinted .bds-card__preset-display-description {
-  color: var(--color-grayscale-darkest);
-}
-
 .plans-card-wrapper {
   display: flex;
   flex-direction: column;
@@ -33,6 +22,19 @@
   border: none;
   background: transparent;
   border-radius: 0;
+}
+
+/* Discount badge — success-green that clears AA on the card surface in BOTH
+   themes. The card is `--surface-primary` = white in light / black in dark, so
+   no single green passes both: the semantic `--text-positive` (#27ae60) is only
+   2.87:1 on white. Pair a dark green for the white card with the brighter
+   system-green for the black card — same fixed-on-surface pattern the #359/#360
+   service fixes use. */
+.plans-discount-badge {
+  color: var(--color-green-darkest); /* bds-lint-ignore token-family — light: #2a5542 on white --surface-primary = 8.5:1; no semantic positive-text token is AA on white, so pair a mode-specific green */
+}
+:root[data-theme="dark"] .plans-discount-badge {
+  color: var(--color-system-green); /* bds-lint-ignore token-family — dark: #27ae60 on black --surface-primary = 6.0:1; the dark-green above would be 2.03:1 dark-on-dark */
 }
 
 /* ─── Plan detail — included services list ───────────────── */
@@ -157,14 +159,4 @@
     grid-template-columns: 56px 1fr;
     gap: var(--gap-md);
   }
-}
-
-/* Plan hero omits the service-line tag (R4 #452). The BDS HeroSplitImageCardOverlay
-   always renders an icon/ServiceTag when `audience` is set (needed for the hero's
-   data-audience theming) with no opt-out prop — so hide it here, scoped to the plan
-   hero only via the --no-service-tag modifier. Interim until brik-bds#871 adds a
-   blueprint opt-out; mirrors the repo's existing `.page-hero-blueprint .bp-hero-img-card__*`
-   override pattern in shared-sections.css. */
-.page-hero-blueprint--no-service-tag .bp-hero-img-card__icon {
-  display: none;
 }

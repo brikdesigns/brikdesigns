@@ -251,6 +251,18 @@
   color: var(--color-grayscale-darkest);
 }
 
+/* The service-plan detail hero (`page-hero-blueprint`, plans/[slug]) is a tinted
+   blueprint surface but — unlike the service-detail hero — carries no
+   `.service-surface` class, so the scroll-down CTA would otherwise inherit the
+   service `--text-brand-primary` (a dark service tint) on a pale service
+   background and lose contrast (brikdesigns#451). Pin it to grayscale-darkest
+   exactly like .service-surface above. Consumer-level legibility fix; token-level
+   pairing stays with #437. */
+.page-hero-blueprint .scroll-down-cta__label,
+.page-hero-blueprint .scroll-down-cta__icon {
+  color: var(--color-grayscale-darkest);
+}
+
 @keyframes scroll-cta-appear {
   to { opacity: 1; }
 }
@@ -348,4 +360,27 @@
   .cta-card-brand {
     padding: var(--padding-xl);
   }
+}
+
+/* ─── Chrome-stripped card (backlog #275–#277 / #482) ───────────────
+   Staging review asked to drop the border ring from the service-line
+   services grid, the customer-topic grids, and the monthly-support card.
+   Owner treatment: keep the surface-primary fill, remove only the border +
+   shadow (NOT the BDS transparent `borderless` variant — the fill is load-
+   bearing on the lighter service tints). The display preset / outlined card
+   already ship no shadow; the border is all that's removed. `.bds-card`
+   raises specificity so this beats the BDS variant border without !important.
+   Filled (non-borderless) cards on a `.service-surface` tint already get the
+   correct dark-mode text via globals.css (the #360 fixed-light handling). */
+.bds-card.service-card--flat {
+  border: none;
+  box-shadow: none;
+}
+
+/* Service display-card titles shrink to heading-sm so they sit one step below
+   the section heading (heading-lg), establishing the section→card hierarchy.
+   The BDS preset-display title defaults to --heading-md. Mirrors the
+   customer-topic grid treatment (customers.css). — #489 / BACKLOG-296 */
+.service-card--flat .bds-card__preset-display-title {
+  font-size: var(--heading-sm);
 }

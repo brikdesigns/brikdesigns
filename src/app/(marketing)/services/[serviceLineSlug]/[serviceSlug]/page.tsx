@@ -232,7 +232,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           imageUrl: service.image_url,
           imageAlt: service.name,
           ...(startingPrice && { priceLabel: 'Starting at', price: startingPrice }),
-          cta: { label: "Let's Talk", url: '/contact' },
+          cta: { label: "Let's Talk", url: '/contact', size: 'md' },
         }
       : undefined,
     visualNotes: {
@@ -435,7 +435,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                     : {})}
                   variant="icon-text"
                   label={relatedService.name}
-                  size="md"
+                  size="sm"
                   style={{ alignSelf: 'flex-start' }}
                 />
                 <CardTitle>{relatedService.name}</CardTitle>
@@ -474,7 +474,8 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <Card
                   key={svc.slug}
                   preset="display"
-                  variant="borderless"
+                  variant="elevated"
+                  className="service-sibling-card"
                   image={
                     svc.image_url ? (
                       <Frame customRatio="3 / 2" fit="contain" className="service-sibling-card__media">
@@ -525,7 +526,7 @@ export default async function ServiceDetailPage({ params }: Props) {
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a partner to avoid the full-time hassle?</h2>
+              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a Partner to Avoid the Full-Time Hassle?</h2>
               <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
                 We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
               </p>
@@ -555,7 +556,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   </div>
                 )}
                 <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
-                <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
+                <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
                 <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="md">Learn More</Button>
               </div>
             </div>

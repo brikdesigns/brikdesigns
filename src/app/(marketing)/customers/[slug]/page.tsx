@@ -186,12 +186,13 @@ export default async function CustomerDetailPage({ params }: Props) {
         const CARD_SLOTS = 3;
         const slots = Array.from({ length: CARD_SLOTS }, (_, i) => services[i] ?? null);
 
-        // Section tint follows the topic's service line via the canonical
-        // theme-aware surface token (`--surface-service-{slug}`), replacing the
-        // legacy per-topic_number hex map. Falls back to a neutral surface when
-        // the topic has no service line assigned.
+        // Section tint follows the topic's service line via the pale
+        // `surfaceLight` ramp (`--surface-service-{slug}-light`), matching the
+        // site-wide pale hero/band treatment (#408) and replacing the legacy
+        // per-topic_number hex map. Falls back to a neutral surface when the
+        // topic has no service line assigned.
         const sectionSurface = topic.service_line_slug
-          ? serviceColor(mapServiceLineSlug(topic.service_line_slug)).surface
+          ? serviceColor(mapServiceLineSlug(topic.service_line_slug)).surfaceLight
           : color.surface.secondary;
 
         return (
@@ -249,6 +250,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                         description={svc.description}
                         imageUrl={svc.image_url}
                         iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                        className="service-card--flat"
                         showCta
                       />
                     </div>
@@ -265,7 +267,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {otherPages.length > 0 && (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Other industries</h2>
+            <h2 style={heading.lg}>Other Industries</h2>
             <Grid columns={3}>
               {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
@@ -290,7 +292,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {stories.length > 0 && (
         <section className="page-section page-section--secondary">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Latest customer story</h2>
+            <h2 style={heading.lg}>Latest Customer Story</h2>
             <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>
               We&rsquo;re more than a design studio&mdash;we&rsquo;re your strategic marketing partner.
             </p>
