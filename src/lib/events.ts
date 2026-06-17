@@ -24,7 +24,7 @@ export interface EventRow {
   event_date: string | null;
   event_time: string | null;
   fee: number | null;
-  template: 'event' | 'newsletter';
+  template: 'event' | 'newsletter' | 'landing';
   status: 'draft' | 'active' | 'ended';
   accent_color_token: string | null;
   hero_image_url: string | null;
