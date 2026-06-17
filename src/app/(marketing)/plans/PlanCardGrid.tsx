@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Grid, PricingCard, SegmentedControl, Button } from '@brikdesigns/bds';
-import { color, font, gap, serviceColor } from '@/lib/tokens';
+import { font, gap, serviceColor } from '@/lib/tokens';
 
 interface Plan {
   name: string;
@@ -67,8 +67,8 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
                 badge={
                   plan.discountLabel ? (
                     <span
+                      className="plans-discount-badge"
                       style={{
-                        color: color.system.green,
                         fontSize: font.size.label.sm,
                         fontWeight: font.weight.semibold,
                       }}
