@@ -421,9 +421,14 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
       {/* ═══ Related Services — single row card ═══ */}
       {relatedService && (
         <section
-          className="page-section"
+          className="page-section service-surface"
           // Pale `surfaceLight` ramp — matches the site-wide pale hero/band
           // treatment (#408); the elevated card inside stays neutral.
+          // `service-surface` pins the on-tint heading to grayscale-darkest in
+          // dark mode (globals.css) — the tint is fixed-light in both themes, so
+          // without it the theme-responsive `<h2>` flips near-white → light-on-
+          // light (1.02:1). The elevated Card is excluded by the pin's
+          // `:not(.bds-card)` carve-out, so its text stays correct. (#502/322)
           style={{ backgroundColor: serviceColor(relatedAudience).surfaceLight }}
         >
           <div className="container-lg container-lg--comfortable">
