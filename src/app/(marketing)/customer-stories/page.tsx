@@ -3,7 +3,7 @@ import { Grid, Button } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { hasIconFor } from '@/lib/service-icons';
-import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
+import { CustomerStoriesList } from './CustomerStoriesList';
 import { ServiceLineCard } from '../services/ServiceLineCard';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -40,8 +40,8 @@ export default async function CustomerStoriesPage() {
       <section className="page-section">
         <div className="container-lg">
           {stories && stories.length > 0 ? (
-            <div className="story-list">
-              {stories.map((story) => {
+            <CustomerStoriesList
+              stories={stories.map((story) => {
                 const serviceLineCategory = story.service_line_slug
                   ? (mapServiceLineSlug(story.service_line_slug) as ServiceLine)
                   : null;
@@ -51,24 +51,21 @@ export default async function CustomerStoriesPage() {
                   ? serviceName
                   : undefined;
 
-                return (
-                  <CustomerStoryCard
-                    key={story.id}
-                    slug={story.slug}
-                    name={story.name}
-                    clientName={story.client_name}
-                    industry={story.industry ?? null}
-                    launchDate={story.launch_date ?? null}
-                    serviceLineName={serviceLineName}
-                    serviceLineCategory={serviceLineCategory}
-                    serviceName={serviceName}
-                    shortDescription={story.short_description ?? null}
-                    imageUrl={story.thumbnail_url ?? story.hero_image_url ?? null}
-                    iconServiceName={iconServiceName}
-                  />
-                );
+                return {
+                  slug: story.slug,
+                  name: story.name,
+                  clientName: story.client_name,
+                  industry: story.industry ?? null,
+                  launchDate: story.launch_date ?? null,
+                  serviceLineName,
+                  serviceLineCategory,
+                  serviceName,
+                  shortDescription: story.short_description ?? null,
+                  imageUrl: story.thumbnail_url ?? story.hero_image_url ?? null,
+                  iconServiceName,
+                };
               })}
-            </div>
+            />
           ) : (
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>Customer stories coming soon.</p>
           )}
