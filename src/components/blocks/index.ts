@@ -5,3 +5,6 @@ export { EventMetaBlock } from './EventMetaBlock';
 export { SpeakerBlock } from './SpeakerBlock';
 export { LogoStripBlock } from './LogoStripBlock';
 export { CrossReferenceBlock } from './CrossReferenceBlock';
+export { HeroBlock } from './HeroBlock';
+export { FormBlock } from './FormBlock';
+export { CtaBlock } from './CtaBlock';

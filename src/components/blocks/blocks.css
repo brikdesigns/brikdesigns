@@ -1,8 +1,11 @@
 /* Landing-page block library (brikdesigns#423).
    Structural CSS only — for what BDS components don't cover (sanitized-HTML
-   prose rhythm, logo-strip item sizing, the block-stack container). Color,
-   spacing, and radii come from BDS tokens; accent tinting is intentionally
-   absent — it is gated on the BDS color foundation (brik-bds#827, #429). */
+   prose rhythm, logo-strip item sizing, the block-stack container, the
+   hero/form/cta layout). Color, spacing, and radii come from BDS tokens; the
+   accent-bearing arms (hero tint, form-card top border) take their accent from
+   the page token inline (set in the arm from BlockContext) — never a re-pointed
+   token (#429). The pairings are validated by the BDS color foundation
+   (brik-bds#827, closed 2026-06-13). */
 
 /* Block-stack container — single-column default layout. Other layouts arrive
    with the layout switcher (#424, the `events.layout` seam). */
@@ -50,4 +53,42 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-lg);
+}
+
+/* hero — tinted intro surface. Accent background is set inline from the page
+   token (HeroBlock, from BlockContext); structure/radius/padding live here.
+   Mirrors the legacy .marketing-page hero so migrated rows render identically. */
+.lp-hero {
+  padding: var(--padding-xl);
+  border-radius: var(--border-radius-lg);
+}
+.lp-hero__media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  margin-bottom: var(--gap-lg);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+/* form-card — accent top border set inline (FormBlock); width/style here.
+   Mirrors the legacy .marketing-page__form-card / .event-page__form-card. */
+.lp-form-card {
+  padding: var(--padding-xl);
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-muted);
+  border-top-width: 3px;
+  border-top-style: solid;
+  border-top-color: var(--border-brand-primary);
+  border-radius: var(--border-radius-lg);
+  text-align: left;
+}
+
+/* cta — heading + body + link buttons. Buttons keep their native BDS variant
+   (accessible by construction); this only lays out the action row. */
+.lp-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
 }
