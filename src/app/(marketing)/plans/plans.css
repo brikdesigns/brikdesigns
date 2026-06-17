@@ -24,6 +24,19 @@
   border-radius: 0;
 }
 
+/* Discount badge — success-green that clears AA on the card surface in BOTH
+   themes. The card is `--surface-primary` = white in light / black in dark, so
+   no single green passes both: the semantic `--text-positive` (#27ae60) is only
+   2.87:1 on white. Pair a dark green for the white card with the brighter
+   system-green for the black card — same fixed-on-surface pattern the #359/#360
+   service fixes use. */
+.plans-discount-badge {
+  color: var(--color-green-darkest); /* bds-lint-ignore token-family — light: #2a5542 on white --surface-primary = 8.5:1; no semantic positive-text token is AA on white, so pair a mode-specific green */
+}
+:root[data-theme="dark"] .plans-discount-badge {
+  color: var(--color-system-green); /* bds-lint-ignore token-family — dark: #27ae60 on black --surface-primary = 6.0:1; the dark-green above would be 2.03:1 dark-on-dark */
+}
+
 /* ─── Plan detail — included services list ───────────────── */
 
 .plan-service-list {
