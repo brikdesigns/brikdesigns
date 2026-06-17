@@ -228,12 +228,12 @@ export default async function PlanDetailPage({ params }: Props) {
             )}
             <Card variant="elevated" padding="lg" className="plan-cta-panel__card">
               <div className="content-wrapper content-wrapper--center">
-                <p style={{ ...label.smBold, color: audienceTokens.text }}>Get</p>
+                <p style={{ ...heading.lg, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>Get</p>
                 <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
                 {plan.description && (
                   <p
                     style={{
-                      ...text.body,
+                      ...text.bodyLg,
                       color: color.text.secondary,
                       textAlign: 'center',
                     }}

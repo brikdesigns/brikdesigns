@@ -177,7 +177,6 @@ export default async function CustomersPage() {
                 <Card
                   key={ind.slug}
                   preset="display"
-                  href={`/customers/${ind.slug}`}
                   title={ind.name}
                   description={ind.tagline ?? undefined}
                   image={ind.image_url ? (
@@ -185,6 +184,11 @@ export default async function CustomersPage() {
                       <Image src={ind.image_url} alt="" width={240} height={240} />
                     </Frame>
                   ) : undefined}
+                  action={
+                    <Button href={`/customers/${ind.slug}`} variant="primary" size="md">
+                      Learn More
+                    </Button>
+                  }
                   className="industries-cms-card"
                 />
               ))}
@@ -208,13 +212,13 @@ export default async function CustomersPage() {
             {CHALLENGES.map((challenge) => (
               <Card
                 key={challenge.quote}
-                variant="outlined"
+                variant="borderless"
                 padding="lg"
                 className="challenge-card service-surface"
                 style={{ backgroundColor: challenge.bg }}
               >
                 <span className="challenge-card__quote-mark" aria-hidden="true">&ldquo;</span>
-                <p style={text.bodyLg}>{challenge.quote}</p>
+                <p style={text.bodyHuge}>{challenge.quote}</p>
               </Card>
             ))}
           </Grid>
