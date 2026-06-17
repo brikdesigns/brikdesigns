@@ -1,4 +1,5 @@
 export { BlockRenderer } from './BlockRenderer';
+export { LandingBlocks } from './LandingBlocks';
 export { AlertBannerBlock } from './AlertBannerBlock';
 export { RichContentBlock } from './RichContentBlock';
 export { EventMetaBlock } from './EventMetaBlock';

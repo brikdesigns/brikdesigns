@@ -53,7 +53,7 @@ function renderBlock(block: RawBlock, key: number, context: BlockContext) {
       return data ? <CrossReferenceBlock key={key} {...data} /> : null;
     }
     case 'hero':
-      return <HeroBlock key={key} {...parseHeroProps(props)} accent={context.accent} />;
+      return <HeroBlock key={key} {...parseHeroProps(props)} />;
     case 'form':
       return (
         <FormBlock
