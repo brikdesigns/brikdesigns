@@ -37,6 +37,7 @@ import {
   isViolation,
   findFamilyViolations,
   checkTokenFamilyPairing,
+  checkWrapperFamily,
   PATHS,
 } from './lib/canonical-tokens.mjs';
 
@@ -53,10 +54,16 @@ const files = await glob('src/**/*.{ts,tsx,css}', {
 const inventedViolations = [];
 const familyViolations = [];
 const pairingViolations = [];
+const wrapperViolations = [];
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
   const lines = text.split('\n');
+
+  // Rule 6: wrapper-definition family — only the typed-token wrapper.
+  if (file.replace(/\\/g, '/').endsWith('src/lib/tokens.ts')) {
+    wrapperViolations.push(...checkWrapperFamily(text, file));
+  }
 
   // Track theme-definition block state so Shape B is skipped inside them.
   // Two canonical shapes:
@@ -124,11 +131,15 @@ if (WRITE_ALLOWLIST) {
   process.exit(0);
 }
 
-const totalViolations = inventedViolations.length + familyViolations.length + pairingViolations.length;
+const totalViolations =
+  inventedViolations.length +
+  familyViolations.length +
+  pairingViolations.length +
+  wrapperViolations.length;
 
 if (totalViolations === 0) {
   console.log(
-    `OK — ${files.length} files scanned, no invented tokens, no family mismatches, no pairing violations.`
+    `OK — ${files.length} files scanned, no invented tokens, no family mismatches, no pairing violations, no wrapper-family drift.`
   );
   process.exit(0);
 }
@@ -207,6 +218,31 @@ if (pairingViolations.length > 0) {
   console.error('  --background-*/--surface-*  →  background / background-color');
   console.error('  --text-*/--color-*          →  color');
   console.error('  --border-*/--background-*   →  border-color / border-*-color / outline-color');
+  console.error(
+    'Escape hatch: add `/* bds-lint-ignore token-family — <reason> */` on the same line.'
+  );
+}
+
+// ── Wrapper-definition family (src/lib/tokens.ts) ───────────────────────────
+if (wrapperViolations.length > 0) {
+  if (inventedViolations.length > 0 || familyViolations.length > 0 || pairingViolations.length > 0) {
+    console.error('');
+  }
+  console.error(
+    `FAIL — ${wrapperViolations.length} wrapper-definition family mismatch(es):\n`
+  );
+  for (const v of wrapperViolations) {
+    console.error(`  ${v.file}:${v.line}  ${v.snippet}`);
+    console.error(
+      `    \`${v.keyPath}\` is a ${v.expectedFamily}-family key but holds a --${v.actualFamily}-* token (${v.tokenName}).`
+    );
+    console.error(`    Fix: point it at a --${v.expectedFamily}-* token, or move the key to the ${v.actualFamily} namespace.`);
+    console.error('');
+  }
+  console.error(
+    'Rule: a wrapper key\'s value family must match the family the key declares.'
+  );
+  console.error('  surface.* → --surface-*   ·   background.* → --background-*   ·   service.{slug}.{bg|onLight|…} → --background-*');
   console.error(
     'Escape hatch: add `/* bds-lint-ignore token-family — <reason> */` on the same line.'
   );

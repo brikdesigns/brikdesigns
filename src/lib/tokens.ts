@@ -127,11 +127,9 @@ export const color = {
   surface: {
     primary: 'var(--surface-primary)',
     secondary: 'var(--surface-secondary)',
-    tertiary: 'var(--background-tertiary)',
     negative: 'var(--surface-negative)',
     warning: 'var(--surface-warning)',
     success: 'var(--surface-positive)',
-    successSubtle: 'var(--background-status-success-subtle)',
     overlay: 'var(--surface-overlay)',
     brandPrimary: 'var(--surface-brand-primary)',
     brandSecondary: 'var(--surface-brand-secondary)',
