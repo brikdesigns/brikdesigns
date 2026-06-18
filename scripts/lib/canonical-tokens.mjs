@@ -240,6 +240,112 @@ export function checkTokenFamilyPairing(line, lineNum, file, { skipShapeB = fals
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Rule 6: Wrapper-definition family (src/lib/tokens.ts)
+//
+// The three checks above operate on `var(--TOKEN)` literals at the point of
+// USE. But our TSX consumers assign through the typed wrapper
+// (`svcColors.inverse`, `color.surface.tertiary`) — no literal var() is on the
+// consumer line, so Rules 3/5 never see it. The family decision actually lives
+// in the wrapper DEFINITION, where a `surface`-namespace key can silently hold
+// a `--background-*` value (or a service `bg`/`onLight` key hold a `--surface-*`
+// value). That alias→alias, surface↔background drift is exactly how BACKLOG-318
+// shipped green. This rule closes the hole at the definition site.
+//
+// The rule: a wrapper value's token family must match the family its key
+// declares —
+//   • top-level `surface:` namespace   → values must be `--surface-*`
+//   • top-level `background:` namespace → values must be `--background-*`
+//   • `service.{slug}.{key}` sub-keys   → family inferred from the key name
+//       surface / surfaceLight / surfaceDark → `--surface-*`
+//       bg / background* / onLight / onDark / inverse / onColor* → `--background-*`
+//       text → `--text-*`   border → `--border-*`
+// Keys whose intent we can't infer are skipped (no false positives).
+// Escape hatch: `bds-lint-ignore token-family` on the same line.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// service.{slug} sub-key → expected value family. The key name IS the intent.
+function serviceKeyExpectedFamily(key) {
+  if (key.startsWith('surface')) return '--surface-';
+  if (
+    key === 'bg' ||
+    key.startsWith('background') ||
+    key === 'onLight' ||
+    key === 'onDark' ||
+    key === 'inverse' ||
+    key.startsWith('onColor')
+  ) {
+    return '--background-';
+  }
+  if (key === 'text') return '--text-';
+  if (key === 'border') return '--border-';
+  return null;
+}
+
+// Walk a typed-wrapper source file, tracking the object-key path via a brace
+// stack, and flag value lines whose token family disagrees with the family
+// their key context declares.
+export function checkWrapperFamily(text, file) {
+  const violations = [];
+  const lines = text.split('\n');
+  const stack = []; // object-key path, e.g. ['service', 'brand']
+
+  // `key: {`  — opens a nested object.
+  const openRe = /^\s*['"]?([A-Za-z][\w-]*)['"]?\s*:\s*\{/;
+  // `key: 'var(--token)'`  — a token-valued leaf.
+  const leafRe = /^\s*['"]?([A-Za-z][\w-]*)['"]?\s*:\s*['"]var\((--[\w-]+)/;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    // Wrapper comments don't carry unbalanced braces, so skipping them keeps
+    // the brace stack accurate.
+    if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) {
+      continue;
+    }
+
+    const openM = line.match(openRe);
+    if (openM) {
+      stack.push(openM[1]);
+      continue;
+    }
+
+    const leafM = line.match(leafRe);
+    if (leafM) {
+      const key = leafM[1];
+      const tokenName = leafM[2];
+      let expected = null;
+      if (stack.length === 1 && (stack[0] === 'surface' || stack[0] === 'background')) {
+        expected = stack[0] === 'surface' ? '--surface-' : '--background-';
+      } else if (stack[0] === 'service' && stack.length === 2) {
+        expected = serviceKeyExpectedFamily(key);
+      }
+      if (expected) {
+        const family = classifyTokenFamily(tokenName);
+        if (family && family !== expected && !line.includes('bds-lint-ignore')) {
+          violations.push({
+            file,
+            line: i + 1,
+            keyPath: [...stack, key].join('.'),
+            tokenName,
+            expectedFamily: expected.slice(2, -1),
+            actualFamily: family.slice(2, -1),
+            snippet: trimmed.slice(0, 120),
+          });
+        }
+      }
+      // a leaf line never opens a block; fall through to brace bookkeeping below
+    }
+
+    // Brace bookkeeping for closes (`}`, `},`, `} as const;`). A leaf line has
+    // balanced quotes and no stray braces, so only true block-closers pop.
+    const closes = (line.match(/\}/g) ?? []).length;
+    for (let c = 0; c < closes; c++) stack.pop();
+  }
+
+  return violations;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Service-token family rule
 //
 // Canon (node_modules/@brikdesigns/bds/dist/tokens.css L980+):

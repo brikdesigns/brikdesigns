@@ -163,7 +163,7 @@ export default async function PlanDetailPage({ params }: Props) {
     <div
       style={
         {
-          '--background-inverse': audienceTokens.inverse,
+          '--background-inverse': audienceTokens.onLight,
           '--text-brand-primary': audienceTokens.text,
         } as React.CSSProperties
       }

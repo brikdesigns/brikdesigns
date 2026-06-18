@@ -399,16 +399,21 @@ h1, h2, h3, h4, h5, h6 {
     --background-secondary-hover: var(--color-grayscale-darker); /* bds-lint-ignore token-family — see above; hover: #333 → 11.29:1 */
   }
 
-  /* Inverse (dark-label) buttons share the `--surface-service-*-dark` source, which
-     BDS 0.93.2 (brik-bds#865) now ships at `-darkest` in dark mode — retiring the
-     consumer re-pin that used to live here. The hero price button (`.bds-button--inverse`,
-     rendered by BDS bp-hero-img-card with `--background-inverse` pointed at the service
-     dark surface) carries a DARK label, so the darkest fill drops it to 2.44:1.
-     White-label primaries want the darkest step; dark-label inverses want the medium one.
-     Restore `--background-inverse` to the `-darker` step for the inverse variant only,
-     which clears AA against the dark label (#000 on -darker ≈ 4.6:1). Keyed off the page's
-     [data-audience]. Tracked upstream by brik-bds#823 (dark inverse-button contrast);
-     this override holds the AA line until that lands. */
+  /* Inverse (dark-label) buttons. The consumer feeds `--background-inverse` from the
+     service `-on-light` context token (`--background-service-{slug}-on-light` via the
+     `onLight` wrapper key, #526) — value-identical in both modes to the former
+     `--surface-service-{slug}-dark` source, both resolving to `--color-{hue}-darkest`
+     (re-verified against 0.97.4, #525). The BDS dark-ramp lightening that once softened
+     this `darkest → darker` is fixed (brik-bds#865 / #823, both closed) — the tokens are
+     now mode-invariant, so this is NOT waiting on an upstream ramp fix.
+     The override persists for a separate, consumer-side reason: the hero price button
+     (`.bds-button--inverse`, rendered by BDS bp-hero-img-card) carries a DARK `#000`
+     label, and #000 on the canonical `-darkest` service fill is only 2.44:1. White-label
+     primaries want the darkest step; this dark-label inverse wants the medium one — so we
+     pin `--background-inverse` to the `-darker` step for the inverse variant only, clearing
+     AA (#000 on -darker ≈ 4.6:1). Keyed off the page's [data-audience]. This is a
+     dark-label pairing decision, not a token bug; revisit if the BDS inverse button moves
+     to a white label. */
   :root[data-theme="dark"] [data-audience="brand"] .bds-button--inverse {
     --background-inverse: var(--color-yellow-darker); /* bds-lint-ignore token-family — pins the dark-label inverse variant to the medium step against the BDS-shipped darkest surface; see comment */
   }
