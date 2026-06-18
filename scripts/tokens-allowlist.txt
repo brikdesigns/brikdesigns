@@ -4,13 +4,8 @@
 # Goal: drive this list to zero (Bucket A migration work).
 #
 # Format: one bare token name per line. `#` starts a comment.
-
-# ── BDS 0.78.0 content-width tokens ──
-# Added in brik-bds#768 (v0.76.0). These are canonical BDS tokens but fail
-# against the installed 0.72.0. Will resolve when #227 bumps BDS to latest.
-content-width-narrow
-content-width-default
-content-width-wide
-content-width-xl
-content-width-full
-
+#
+# Currently EMPTY — goal reached. The former content-width-* entries (added
+# when the repo lagged BDS 0.72.0) are native in the pinned 0.97.4 dist and
+# were removed in #529. Add a new entry only as a transitional last resort,
+# with a TODO to migrate it back to zero.
