@@ -6,13 +6,14 @@
  * (`events.blocks` / `events.alert_banner`) are fixed by the portal migration
  * 00207 (the source of truth).
  *
- * SCOPE — foundation slice (#423): only the **non-accent** blocks are typed +
- * renderable here. The accent-bearing blocks (`hero` tint, `form` card accent
- * border, `cta` on accent) are gated on the BDS color foundation
- * (brik-bds#827) and `cross-reference` ships with #422 (shared CMS picker).
- * Those `type`s are added — type + renderer arm together — when their gates
- * clear; until then the renderer skips them (see BlockRenderer).
+ * SCOPE: the accent-bearing blocks (`hero` tint, `form` card accent border,
+ * `cta` on accent) were gated on the BDS color foundation (brik-bds#827) —
+ * that gate closed 2026-06-13, so they ship here alongside the non-accent
+ * blocks and `cross-reference` (#422). Each `type` is added — type + renderer
+ * arm together; an unknown `type` is skipped by the renderer (see BlockRenderer).
  */
+import type { eventAccent } from './events';
+import type { ButtonVariant } from '@brikdesigns/bds';
 
 // ─── Wire shape ──────────────────────────────────────────────────────
 // What the untyped Supabase client hands back from the `events.blocks`
@@ -252,5 +253,146 @@ export function parseCrossReferenceProps(
   if (props.layout === 'row' || props.layout === 'grid') out.layout = props.layout;
   const title = str(props.title);
   if (title) out.title = title;
+  return out;
+}
+
+// ─── Block render context ────────────────────────────────────────────
+// The accent-bearing arms (hero / form / cta) need page-level context the
+// per-block props don't carry. The routes thread it through BlockRenderer;
+// the non-accent arms ignore it.
+
+export interface BlockContext {
+  /** `events.id` — the registration / newsletter form posts against this row. */
+  rowId: string;
+  /** Service accent (`eventAccent(row.accent_color_token)`): hero tint + form-card border. */
+  accent: ReturnType<typeof eventAccent>;
+  /** `row.status === 'ended'` → the form arm renders the ended banner instead. */
+  ended: boolean;
+}
+
+// ─── hero ────────────────────────────────────────────────────────────
+
+/** Title + optional eyebrow / tagline / media. Section tint comes from the
+ *  page accent (BlockContext), not props — never a per-block color override. */
+export interface HeroProps {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  media?: { url: string; alt: string } | null;
+}
+
+export function parseHeroProps(props: Record<string, unknown>): HeroProps {
+  const out: HeroProps = { title: str(props.title) ?? '' };
+  const eyebrow = str(props.eyebrow);
+  if (eyebrow) out.eyebrow = eyebrow;
+  const subtitle = str(props.subtitle);
+  if (subtitle) out.subtitle = subtitle;
+  const rawMedia = props.media;
+  if (rawMedia && typeof rawMedia === 'object') {
+    const url = str((rawMedia as { url?: unknown }).url);
+    if (url) out.media = { url, alt: str((rawMedia as { alt?: unknown }).alt) ?? '' };
+  }
+  return out;
+}
+
+// ─── form ────────────────────────────────────────────────────────────
+
+/**
+ * Registration / newsletter / lead capture. Maps to the existing form
+ * components (catalogue Form-variants table): `registration`/`newsletter` →
+ * `EventRegistrationForm`, `lead` → `LeadCaptureForm`. The submit button keeps
+ * its accessible BDS variant — the accent is decorative (form-card top border),
+ * never the button fill (#429).
+ */
+export type FormVariant = 'registration' | 'newsletter' | 'lead';
+
+export interface FormProps {
+  variant: FormVariant;
+  /** Lead source written to the contact + registration row. Defaults per variant. */
+  source?: string;
+  /** Optional card heading above the form (e.g. "Register" / "Sign Up"). */
+  heading?: string;
+  submitLabel?: string;
+  /** Label override for the practice/company field (registration variant). */
+  companyLabel?: string;
+}
+
+function isFormVariant(value: unknown): value is FormVariant {
+  return value === 'registration' || value === 'newsletter' || value === 'lead';
+}
+
+export function parseFormProps(props: Record<string, unknown>): FormProps {
+  const variant = isFormVariant(props.variant) ? props.variant : 'registration';
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    props.variant !== undefined &&
+    !isFormVariant(props.variant)
+  ) {
+    console.warn(
+      `[blocks] form variant "${String(props.variant)}" unknown ` +
+        `(registration | newsletter | lead) — defaulting to "registration".`,
+    );
+  }
+  const out: FormProps = { variant };
+  const source = str(props.source);
+  if (source) out.source = source;
+  const heading = str(props.heading);
+  if (heading) out.heading = heading;
+  const submitLabel = str(props.submitLabel ?? props.submit_label);
+  if (submitLabel) out.submitLabel = submitLabel;
+  const companyLabel = str(props.companyLabel ?? props.company_label);
+  if (companyLabel) out.companyLabel = companyLabel;
+  return out;
+}
+
+// ─── cta ─────────────────────────────────────────────────────────────
+
+/** Heading + body + one or more link buttons. Buttons render with their
+ *  native BDS variant (default `primary`) — accessible by construction. */
+export interface CtaButton {
+  label: string;
+  href: string;
+  variant?: ButtonVariant;
+}
+
+export interface CtaProps {
+  heading?: string;
+  body?: string;
+  buttons: CtaButton[];
+}
+
+// Marketing-CTA-appropriate variants only — the semantic/danger variants
+// (`destructive`/`danger`/`positive`) don't belong on a landing-page CTA.
+const CTA_BUTTON_VARIANTS = new Set<ButtonVariant>([
+  'primary',
+  'secondary',
+  'outline',
+  'ghost',
+  'inverse',
+  'on-color',
+]);
+
+function parseCtaButtonVariant(value: unknown): ButtonVariant | undefined {
+  return typeof value === 'string' && CTA_BUTTON_VARIANTS.has(value as ButtonVariant)
+    ? (value as ButtonVariant)
+    : undefined;
+}
+
+export function parseCtaProps(props: Record<string, unknown>): CtaProps {
+  const out: CtaProps = { buttons: [] };
+  const heading = str(props.heading);
+  if (heading) out.heading = heading;
+  const body = str(props.body);
+  if (body) out.body = body;
+  if (Array.isArray(props.buttons)) {
+    for (const item of props.buttons) {
+      if (!item || typeof item !== 'object') continue;
+      const label = str((item as { label?: unknown }).label);
+      const href = str((item as { href?: unknown }).href);
+      if (!label || !href) continue;
+      const variant = parseCtaButtonVariant((item as { variant?: unknown }).variant);
+      out.buttons.push(variant ? { label, href, variant } : { label, href });
+    }
+  }
   return out;
 }

@@ -1,7 +1,11 @@
 export { BlockRenderer } from './BlockRenderer';
+export { LandingBlocks } from './LandingBlocks';
 export { AlertBannerBlock } from './AlertBannerBlock';
 export { RichContentBlock } from './RichContentBlock';
 export { EventMetaBlock } from './EventMetaBlock';
 export { SpeakerBlock } from './SpeakerBlock';
 export { LogoStripBlock } from './LogoStripBlock';
 export { CrossReferenceBlock } from './CrossReferenceBlock';
+export { HeroBlock } from './HeroBlock';
+export { FormBlock } from './FormBlock';
+export { CtaBlock } from './CtaBlock';

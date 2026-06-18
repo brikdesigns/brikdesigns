@@ -1,4 +1,4 @@
-import type { RawBlock } from '@/lib/blocks';
+import type { RawBlock, BlockContext } from '@/lib/blocks';
 import {
   parseAlertBanner,
   parseRichContentProps,
@@ -6,6 +6,9 @@ import {
   parseSpeakerProps,
   parseLogoStripProps,
   parseCrossReferenceProps,
+  parseHeroProps,
+  parseFormProps,
+  parseCtaProps,
 } from '@/lib/blocks';
 import { RichContentBlock } from './RichContentBlock';
 import { EventMetaBlock } from './EventMetaBlock';
@@ -13,6 +16,9 @@ import { SpeakerBlock } from './SpeakerBlock';
 import { LogoStripBlock } from './LogoStripBlock';
 import { AlertBannerBlock } from './AlertBannerBlock';
 import { CrossReferenceBlock } from './CrossReferenceBlock';
+import { HeroBlock } from './HeroBlock';
+import { FormBlock } from './FormBlock';
+import { CtaBlock } from './CtaBlock';
 import './blocks.css';
 
 /**
@@ -20,14 +26,12 @@ import './blocks.css';
  * (author-supplied, composer-validated, sanitized downstream); each arm casts
  * to its typed interface at this boundary.
  *
- * Non-accent blocks are handled (the #423 foundation slice + `cross-reference`,
- * #422). The accent-bearing blocks (hero / form / cta — gated on brik-bds#827)
- * have no arm yet, so the `default` skips them: there are no live rows authoring
- * those types until their gate clears, and the dev warning surfaces any
- * premature authoring. This is intentional gated coverage, not a silent drop —
- * each arm is added with its gate.
+ * The accent-bearing arms (hero / form / cta) read page-level `context`
+ * (row id for the form, service accent for the hero tint / form-card border,
+ * ended state for the form). The non-accent arms ignore it. An unknown `type`
+ * is skipped with a dev warning — gated coverage, not a silent drop.
  */
-function renderBlock(block: RawBlock, key: number) {
+function renderBlock(block: RawBlock, key: number, context: BlockContext) {
   const { props } = block;
   switch (block.type) {
     case 'rich-content':
@@ -48,12 +52,23 @@ function renderBlock(block: RawBlock, key: number) {
       const data = parseCrossReferenceProps(props);
       return data ? <CrossReferenceBlock key={key} {...data} /> : null;
     }
+    case 'hero':
+      return <HeroBlock key={key} {...parseHeroProps(props)} />;
+    case 'form':
+      return (
+        <FormBlock
+          key={key}
+          {...parseFormProps(props)}
+          rowId={context.rowId}
+          accent={context.accent}
+          ended={context.ended}
+        />
+      );
+    case 'cta':
+      return <CtaBlock key={key} {...parseCtaProps(props)} />;
     default:
       if (process.env.NODE_ENV !== 'production') {
-        console.warn(
-          `[BlockRenderer] No renderer for block type "${block.type}". Accent blocks ` +
-            `(hero/form/cta) are gated on brik-bds#827. Block skipped.`,
-        );
+        console.warn(`[BlockRenderer] No renderer for block type "${block.type}". Block skipped.`);
       }
       return null;
   }
@@ -62,8 +77,15 @@ function renderBlock(block: RawBlock, key: number) {
 /**
  * Render an ordered list of landing-page blocks. The caller decides the
  * fallback: an empty `blocks` array means "render from the legacy columns"
- * (the 00207 contract) and BlockRenderer is not invoked.
+ * (the 00207 contract) and BlockRenderer is not invoked. `context` carries the
+ * page-level data the accent-bearing arms need (see BlockContext).
  */
-export function BlockRenderer({ blocks }: { blocks: RawBlock[] }) {
-  return <>{blocks.map((block, i) => renderBlock(block, i))}</>;
+export function BlockRenderer({
+  blocks,
+  context,
+}: {
+  blocks: RawBlock[];
+  context: BlockContext;
+}) {
+  return <>{blocks.map((block, i) => renderBlock(block, i, context))}</>;
 }

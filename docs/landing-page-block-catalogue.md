@@ -140,14 +140,19 @@ registry (`brik-bds/dist/tokens.css`):
 
 …where `{slug}` ∈ `brand | marketing | product | back-office | information`.
 
-**These blocks are BLOCKED for build** until a BDS foundation decision confirms the
-`theme-brand-brik` + service-accent **light/dark pairings pass WCAG AA** for the
-`(surface, text, button-variant)` combinations the blocks need:
+**Gate cleared — arms shipped ([#512](https://github.com/brikdesigns/brikdesigns/issues/512)).**
+[brik-bds#827](https://github.com/brikdesigns/brik-bds/issues/827) closed 2026-06-13 and the
+color-pairing foundation it produced (`tokens/contrast-pairings.json` + the contrast gate)
+validates the `theme-brand-brik` + service-accent light/dark pairings. The `hero`, `form`,
+and `cta` arms now ship in `BlockRenderer` (render-first, like `cross-reference`): the
+accent is applied to decorative surfaces only (hero section tint via `accent.surfaceLight`,
+form-card top border via `accent.bg`), with neutral `--text-*` tokens on the tint and the
+form/CTA buttons keeping their accessible BDS variant. The original gate rationale:
 
-- The known failures are the **service-line ramps** — [brik-bds#827](https://github.com/brikdesigns/brik-bds/issues/827)
+- The known failures were the **service-line ramps** — brik-bds#827
   (product 4.26:1, back-office 4.32:1 light; dark `-darkest`→`-darker` shift) and its
   consumer cleanup [brikdesigns#429](https://github.com/brikdesigns/brikdesigns/issues/429).
-- If cataloguing/build surfaces a **brand-theme base pairing** that also fails AA, that
+- If a future page surfaces a **brand-theme base pairing** that fails AA, that
   is a **new BDS foundation issue** — never patched in a block.
 
 **Hard rule — no per-block color overrides.** The current event-template workaround
@@ -159,8 +164,10 @@ per `COMPONENT-MAP.md`; they never re-point a token to dodge a contrast failure.
 failing pairing is fixed at the foundation, once, for every consumer.
 
 Net: the **structure** of every block (vocabulary, props, BDS mapping) is settled by this
-catalogue now. The **accent values** are pinned to the tokens above but are **not blessed
-for build** until the foundation decision lands.
+catalogue, and all arms — including the accent-bearing `hero` / `form` / `cta` — now render
+(#512). Recomposing the bespoke template CSS (`event-page__*`, `marketing-page__*`, `fma-*`)
+onto the canonical BDS components (`PageHeader`, form container) + migrating the four pages
+onto authored rows is the remaining [#423](https://github.com/brikdesigns/brikdesigns/issues/423) work.
 
 ---
 

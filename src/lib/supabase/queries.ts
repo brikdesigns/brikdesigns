@@ -587,7 +587,7 @@ export const getEventBySlug = cache(
 
 export const getPublicEventSlugs = cache(
   unstable_cache(
-    async (template: 'event' | 'newsletter') => {
+    async (template: 'event' | 'newsletter' | 'landing') => {
       const supabase = createPublicClient();
       const { data } = await supabase
         .from('events')
@@ -596,7 +596,7 @@ export const getPublicEventSlugs = cache(
       return (data ?? []) as { slug: string }[];
     },
     // unstable_cache appends the serialized `template` arg to this key, so the
-    // 'event' and 'newsletter' calls get distinct cache entries automatically.
+    // 'event' / 'newsletter' / 'landing' calls get distinct cache entries.
     ['public-event-slugs'],
     { revalidate: 3600, tags: ['cms-events'] }
   )

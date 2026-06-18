@@ -455,10 +455,34 @@ h1, h2, h3, h4, h5, h6 {
     .bds-pricing-card,
     .bp-hero-img-card,
     .event-page__form-card,
+    .lp-form-card,
     .event-page__speaker
   ) {
     --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — restores the dark-brand body text the section pin above darkened; #f2f2f2 on the card's own dark surface */
     --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals ~L113); no BDS primitive exists for it */
+  }
+
+  /* Solid landing surface (LandingBlocks `surface_treatment="solid"`): a full
+     brand/service colour section (e.g. --surface-brand-primary) that reads as a
+     "dark colour" in BOTH themes, so the inherited text pins to the on-color
+     light foreground. Mirrors the .service-surface tint pin, but the colour is
+     theme-invariant so the rule is unscoped (no per-theme branch). */
+  .lp-surface-solid {
+    --text-primary: var(--text-on-color-dark); /* bds-lint-ignore token-family — white-on-color text on the solid brand/service surface; same fixed-on-fixed pattern as .service-surface */
+    --text-secondary: var(--text-on-color-dark); /* bds-lint-ignore token-family — see above */
+  }
+
+  /* …the form card inside a solid section keeps its OWN surface (--surface-primary),
+     so restore the normal body text the section pin above whitened: dark in light
+     mode (white card), light in dark mode (dark card) — the .service-surface
+     nested-card exception, inverted for the white-text section. */
+  .lp-surface-solid .lp-form-card {
+    --text-primary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — dark text on the white form card; the section pin above set it white */
+    --text-secondary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above */
+  }
+  :root[data-theme="dark"] .lp-surface-solid .lp-form-card {
+    --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — light text on the card's own dark surface in dark mode */
+    --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop; no BDS primitive exists for it */
   }
 
   /* Current-page breadcrumb: de-emphasize it relative to the navigable link

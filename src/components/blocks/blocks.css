@@ -1,8 +1,11 @@
 /* Landing-page block library (brikdesigns#423).
    Structural CSS only — for what BDS components don't cover (sanitized-HTML
-   prose rhythm, logo-strip item sizing, the block-stack container). Color,
-   spacing, and radii come from BDS tokens; accent tinting is intentionally
-   absent — it is gated on the BDS color foundation (brik-bds#827, #429). */
+   prose rhythm, logo-strip item sizing, the block-stack container, the
+   hero/form/cta layout). Color, spacing, and radii come from BDS tokens; the
+   accent-bearing arms (hero tint, form-card top border) take their accent from
+   the page token inline (set in the arm from BlockContext) — never a re-pointed
+   token (#429). The pairings are validated by the BDS color foundation
+   (brik-bds#827, closed 2026-06-13). */
 
 /* Block-stack container — single-column default layout. Other layouts arrive
    with the layout switcher (#424, the `events.layout` seam). */
@@ -50,4 +53,57 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-lg);
+}
+
+/* hero — content only (eyebrow / title / tagline / media). The surface is owned
+   by the page-level section (LandingBlocks); the hero just lays out its own
+   media. Text colour inherits the section's re-pointed `--text-*` pairing. */
+.lp-hero__media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  margin-bottom: var(--gap-lg);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+/* form-card — accent top border set inline (FormBlock); width/style here.
+   Mirrors the legacy .marketing-page__form-card / .event-page__form-card. */
+.lp-form-card {
+  padding: var(--padding-xl);
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-muted);
+  border-top-width: 3px;
+  border-top-style: solid;
+  border-top-color: var(--border-brand-primary);
+  border-radius: var(--border-radius-lg);
+  text-align: left;
+}
+
+/* cta — heading + body + link buttons. Buttons keep their native BDS variant
+   (accessible by construction); this only lays out the action row. */
+.lp-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
+}
+
+/* split layout (layout="split") — content left, form right; matches the legacy
+   fma 2-col marketing pages. Single column below the BDS md breakpoint. The
+   aside sticks so the form stays in view on long content. */
+.lp-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-xl);
+}
+@media (min-width: 768px) {
+  .lp-split {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: start;
+  }
+  .lp-split__aside {
+    position: sticky;
+    top: var(--gap-xl);
+  }
 }
