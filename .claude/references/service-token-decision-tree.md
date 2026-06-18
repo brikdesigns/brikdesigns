@@ -56,11 +56,11 @@ Context is mode-invariant: `-on-light` pins the value for a light backdrop regar
 
 There is **no** `--surface-service-{slug}-on-light`. Context is for the things that sit *on* surfaces, not for surfaces themselves.
 
-### `-inverse` — only on `background`
+### There is no per-line `-inverse`
 
-`--background-service-{slug}-inverse` is **mode-aware**: it's the opposite-tone companion of the default and flips with theme. Used by blueprints (e.g. `HeroSplitImageCardOverlay`) that need an "inverse CTA fill" — a button color that contrasts with the surrounding service tint in either mode.
+⚠️ **Anti-pattern:** there is **no** `--{family}-service-{slug}-inverse` token in any family — not `--background-service-{slug}-inverse`, not on `surface`/`text`/`border`. (Grep `dist/tokens.css`: zero matches on 0.97.4.) A service line does **not** carry a per-line inverse companion. It adapts via the `-on-light` / `-on-dark` **context** axis above.
 
-There is **no** `--surface-service-{slug}-inverse` / `--text-service-{slug}-inverse` / `--border-service-{slug}-inverse`. Inverse is background-only.
+When a component needs a fill that reads against a *known* backdrop — e.g. a CTA button on a `surfaceLight` service band — use the `background` context token for that backdrop: `--background-service-{slug}-on-light` (on a known-light surface) or `--background-service-{slug}-on-dark` (on a known-dark one). That is the canonical replacement for the "inverse CTA fill" idea.
 
 ### Mode-awareness summary
 
@@ -69,7 +69,6 @@ There is **no** `--surface-service-{slug}-inverse` / `--text-service-{slug}-inve
 | `--{family}-service-{slug}` (no suffix)       | **Yes** — flips in dark mode |
 | `--surface-service-{slug}-{light\|dark}`      | No — pinned tone |
 | `--{family}-service-{slug}-on-{light\|dark}`  | No — pinned context |
-| `--background-service-{slug}-inverse`         | **Yes** — flips opposite to default |
 
 ---
 
@@ -96,9 +95,9 @@ There is **no** `--surface-service-{slug}-inverse` / `--text-service-{slug}-inve
 - **On a known dark surface** → `-on-dark` suffix
 - **Surface is theme-following** → default token, no suffix (the canon flips it in dark mode)
 
-**Q4: Do I need the opposite-tone companion?**
+**Q4: Do I need a fill that reads against a known backdrop (e.g. a CTA on a service band)?**
 
-- Only relevant for `background`. Use `--background-service-{slug}-inverse` when a blueprint needs a fill that contrasts with the surrounding service surface in either mode. This is the **only** mode-aware modifier.
+- There is **no** per-line `-inverse` token — see the anti-pattern above. Route to the `background` **context** token for the backdrop the component sits on: `--background-service-{slug}-on-light` on a known-light surface, `--background-service-{slug}-on-dark` on a known-dark one (Q3 axis). In TSX this is the wrapper's `onLight` key.
 
 ---
 
@@ -156,8 +155,8 @@ import { color, serviceColor } from '@/lib/tokens';
 const tokens = serviceColor('marketing');
 // tokens.surface  = 'var(--surface-service-marketing)'
 // tokens.bg       = 'var(--background-service-marketing)'
-// tokens.text     = 'var(--text-service-marketing)'
-// tokens.inverse  = 'var(--background-service-marketing-inverse)'
+// tokens.text     = 'var(--text-service-marketing-on-light)'
+// tokens.onLight  = 'var(--background-service-marketing-on-light)'  // fill on a known-light backdrop
 ```
 
 The wrapper hides the family selection — `bg` is for components, `surface` is for containers. Picking the right key in the wrapper is the same decision as picking the right family in raw CSS.

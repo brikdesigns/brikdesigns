@@ -188,13 +188,22 @@ export const color = {
     // pattern, ≥AA on all five lines). The former `ctaBg`/`ctaText` consumer
     // pairing (#346) is retired — contrast now lives in the BDS color-pairing
     // foundation (brik-bds#868). See ServiceLineCard. (#429)
+    //
+    // `onLight` is the component fill to use when the element sits on a known
+    // *light* backdrop (the `surfaceLight` service band). It's the `background`
+    // context token per `token-anatomy` canon — a service line adapts via
+    // `-on-light`/`-on-dark`, not a per-line inverse. It replaces the former
+    // `inverse` key, which aliased the `surface`-tone `-dark` token into
+    // `background`-tier consumer properties (surface→background, alias→alias).
+    // Value-identical to `surface-service-{slug}-dark` in both modes (#525), so
+    // this is a zero-visual-change semantic correction. (#526 / BACKLOG-318)
     brand: {
       bg: 'var(--background-service-brand)',
       text: 'var(--text-service-brand-on-light)',
       surface: 'var(--surface-service-brand)',
       surfaceLight: 'var(--surface-service-brand-light)',
       surfaceDark: 'var(--surface-service-brand-dark)',
-      inverse: 'var(--surface-service-brand-dark)',
+      onLight: 'var(--background-service-brand-on-light)',
     },
     marketing: {
       bg: 'var(--background-service-marketing)',
@@ -202,7 +211,7 @@ export const color = {
       surface: 'var(--surface-service-marketing)',
       surfaceLight: 'var(--surface-service-marketing-light)',
       surfaceDark: 'var(--surface-service-marketing-dark)',
-      inverse: 'var(--surface-service-marketing-dark)',
+      onLight: 'var(--background-service-marketing-on-light)',
     },
     information: {
       bg: 'var(--background-service-information)',
@@ -210,7 +219,7 @@ export const color = {
       surface: 'var(--surface-service-information)',
       surfaceLight: 'var(--surface-service-information-light)',
       surfaceDark: 'var(--surface-service-information-dark)',
-      inverse: 'var(--surface-service-information-dark)',
+      onLight: 'var(--background-service-information-on-light)',
     },
     product: {
       bg: 'var(--background-service-product)',
@@ -218,7 +227,7 @@ export const color = {
       surface: 'var(--surface-service-product)',
       surfaceLight: 'var(--surface-service-product-light)',
       surfaceDark: 'var(--surface-service-product-dark)',
-      inverse: 'var(--surface-service-product-dark)',
+      onLight: 'var(--background-service-product-on-light)',
     },
     'back-office': {
       bg: 'var(--background-service-back-office)',
@@ -226,7 +235,7 @@ export const color = {
       surface: 'var(--surface-service-back-office)',
       surfaceLight: 'var(--surface-service-back-office-light)',
       surfaceDark: 'var(--surface-service-back-office-dark)',
-      inverse: 'var(--surface-service-back-office-dark)',
+      onLight: 'var(--background-service-back-office-on-light)',
     },
   },
 } as const;

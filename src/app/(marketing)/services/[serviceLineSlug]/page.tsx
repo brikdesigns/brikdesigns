@@ -79,7 +79,7 @@ export default async function ServiceLinePage({ params }: Props) {
     // cascade (brik-bds#781) — currently no-op here (no breadcrumb on the
     // service-line index), but stays consistent with the service-detail page
     // pattern so a future breadcrumb addition picks up the audience tint.
-    <div data-audience={audience} className="service-themed" style={{ '--background-brand-primary': svcColors.inverse, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
+    <div data-audience={audience} className="service-themed" style={{ '--background-brand-primary': svcColors.onLight, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
       {/* ═══ Hero ═══ */}
       <section
         className="page-hero service-surface"
@@ -176,7 +176,7 @@ export default async function ServiceLinePage({ params }: Props) {
             </div>
             <div
               className="service-detail-support-grid"
-              style={{ '--background-brand-primary': supportPlanServiceLineColors.inverse, '--text-brand-primary': supportPlanServiceLineColors.text } as React.CSSProperties}
+              style={{ '--background-brand-primary': supportPlanServiceLineColors.onLight, '--text-brand-primary': supportPlanServiceLineColors.text } as React.CSSProperties}
             >
               {supportPlan.image_url && (
                 <div className="service-detail-support-grid__media">
@@ -231,7 +231,7 @@ export default async function ServiceLinePage({ params }: Props) {
                 return (
                   <div
                     key={cat.slug}
-                    style={{ '--background-brand-primary': catColors.inverse, '--text-brand-primary': catColors.text } as React.CSSProperties}
+                    style={{ '--background-brand-primary': catColors.onLight, '--text-brand-primary': catColors.text } as React.CSSProperties}
                   >
                     <Card
                       preset="display"

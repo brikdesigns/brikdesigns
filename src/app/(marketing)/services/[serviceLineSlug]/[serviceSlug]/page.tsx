@@ -282,7 +282,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             // + priceCard "Let's Talk"). BDS .bds-button--primary reads from
             // --background-brand-primary; scoping the override here keeps
             // sections below the hero on Brik poppy.
-            '--background-brand-primary': serviceTokens.inverse,
+            '--background-brand-primary': serviceTokens.onLight,
           } as React.CSSProperties
         }
       >
@@ -312,7 +312,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="pricing"
           title="Pricing Options"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
@@ -361,7 +361,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="story"
           title="Related Customer Story"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
         >
           {/* elevated (not borderless): surface-primary fill + shadow keeps the
               row-card contained on the service tint — #427 (regression from #360). */}
@@ -409,7 +409,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="addon"
           title="Recommended Add-On Service"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
         >
           {/* elevated (not borderless): surface-primary fill + shadow keeps the
               row-card contained on the service tint — #427 (regression from #360). */}
@@ -465,7 +465,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.inverse } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {

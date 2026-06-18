@@ -216,7 +216,7 @@ export default async function BlogPostPage({ params }: Props) {
                 return (
                   <div
                     key={line.slug}
-                    style={{ '--background-brand-primary': lineColors.inverse, '--text-brand-primary': lineColors.text } as React.CSSProperties}
+                    style={{ '--background-brand-primary': lineColors.onLight, '--text-brand-primary': lineColors.text } as React.CSSProperties}
                   >
                     <Card
                       preset="display"
