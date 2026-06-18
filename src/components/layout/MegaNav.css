@@ -39,7 +39,7 @@
 .mega-nav__utility {
   border-bottom: 1px solid var(--border-secondary);
   font-family: var(--font-family-label);
-  font-size: var(--body-xs);
+  font-size: var(--label-xs);
   height: 40px;
   display: flex;
   justify-content: center;
@@ -82,7 +82,7 @@
 /* "Talk to sales:" label — brand-primary colour matches Webflow reference. */
 .mega-nav__utility-label {
   font-family: var(--font-family-label);
-  font-size: var(--body-xs);
+  font-size: var(--label-xs);
   font-weight: 600;
   color: var(--text-brand-primary);
 }
@@ -109,7 +109,7 @@
 /* Webflow: .text-label-xs — "Sign in" link */
 .mega-nav__utility-signin {
   font-family: var(--font-family-label);
-  font-size: var(--body-xs);
+  font-size: var(--label-xs);
   font-weight: 600;
   color: var(--text-brand-primary);
   text-decoration: none;
