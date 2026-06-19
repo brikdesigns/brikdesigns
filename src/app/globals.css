@@ -295,11 +295,14 @@ h1, h2, h3, h4, h5, h6 {
     max-width: none;
   }
 
-  /* bds-card-grid__title defaults to clamp(--heading-lg, 3.5vw, --heading-huge) which
-     can exceed the page H1 on service/category pages. Cap to --heading-md and center
-     to match Webflow section header rhythm. brik-bds#591. */
+  /* bds-card-grid__title is the section <h2> for every CardGrid blueprint
+     section. BDS defaults it to clamp(--heading-lg, 3.5vw, --heading-huge),
+     which can exceed the page H1. Pin to a flat --heading-lg: that is the
+     canonical section-heading size (#318) and still sits below the page hero
+     (the original brik-bds#591 concern) without shrinking to sub-head size.
+     Centered to match the Webflow section-header rhythm. #535. */
   .bds-card-grid__title {
-    font-size: var(--heading-md);
+    font-size: var(--heading-lg);
     text-align: center;
   }
 
