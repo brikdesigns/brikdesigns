@@ -20,11 +20,18 @@ heading-xl
 heading-xxl
 heading-huge
 #
-# ── Burn-down: pre-existing consumer overrides (no upstream blocker) ─────────
-# Semantic-color redefinitions outside Brand-Kit scope. Either move into the
-# brand theme (client-theme layer) or remove. Tracked for burn-down.
-#   --background-tertiary : :root light pairing for a gap-fills token
-#   --text-primary/-secondary : rebinds inside .service-surface / .lp-form-card
-background-tertiary
+# ── Contextual contrast pins — NOT transitional ─────────────────────────────
+# `--text-primary` / `--text-secondary` are rebound on specific surface
+# contexts (`.service-surface`, `.lp-surface-solid`, `.lp-form-card` + the
+# nested-card exceptions) so BDS components in the subtree inherit a readable
+# foreground on fixed-light service tints / solid brand surfaces — the #360 /
+# #391 contrast pattern, not a Brand-Kit variation. They can't move to
+# `.theme-{client}` scope (surface-context-specific, not brand-wide) and can't
+# be removed without breaking contrast. The cascade-contract gate has no
+# per-line escape (unlike the token-family rule's `bds-lint-ignore`), so the
+# global allowlist is the only suppression available today. Burn-down needs a
+# brik-bds gate feature: an inline cascade-contract ignore directive mirroring
+# `/* bds-lint-ignore token-family — … */`. Until then these stay
+# (see brikdesigns #534 hand-off + ADR-013 §2).
 text-primary
 text-secondary

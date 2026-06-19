@@ -176,11 +176,6 @@ html {
        double-hyphen Webflow form. */
     --system--red: var(--color-system-red);
 
-    /* Provide a light-mode --background-tertiary at the same value BDS canon
-       already exports (gap-fills); declared here too so the dark-mode override
-       above has a symmetric light pairing in this file. */
-    --background-tertiary: var(--color-grayscale-lighter);
-
     /* ---- Project-local heading scale (one step larger than BDS canon) ---- */
     --heading-tiny: var(--font-size-100);
     --heading-sm: var(--font-size-300);
