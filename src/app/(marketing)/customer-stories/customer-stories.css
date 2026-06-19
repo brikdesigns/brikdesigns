@@ -194,7 +194,7 @@
 .story-quote__attribution {
   margin-top: var(--gap-sm);
   font-family: var(--font-family-label);
-  font-size: var(--body-sm);
+  font-size: var(--label-sm);
   font-weight: 400;
   color: var(--text-secondary);
 }

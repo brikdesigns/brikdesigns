@@ -56,11 +56,11 @@ Context is mode-invariant: `-on-light` pins the value for a light backdrop regar
 
 There is **no** `--surface-service-{slug}-on-light`. Context is for the things that sit *on* surfaces, not for surfaces themselves.
 
-### `-inverse` — only on `background`
+### There is no per-line `-inverse`
 
-`--background-service-{slug}-inverse` is **mode-aware**: it's the opposite-tone companion of the default and flips with theme. Used by blueprints (e.g. `HeroSplitImageCardOverlay`) that need an "inverse CTA fill" — a button color that contrasts with the surrounding service tint in either mode.
+⚠️ **Anti-pattern:** there is **no** `--{family}-service-{slug}-inverse` token in any family — not `--background-service-{slug}-inverse`, not on `surface`/`text`/`border`. (Grep `dist/tokens.css`: zero matches on 0.97.4.) A service line does **not** carry a per-line inverse companion. It adapts via the `-on-light` / `-on-dark` **context** axis above.
 
-There is **no** `--surface-service-{slug}-inverse` / `--text-service-{slug}-inverse` / `--border-service-{slug}-inverse`. Inverse is background-only.
+When a component needs a fill that reads against a *known* backdrop — e.g. a CTA button on a `surfaceLight` service band — use the `background` context token for that backdrop: `--background-service-{slug}-on-light` (on a known-light surface) or `--background-service-{slug}-on-dark` (on a known-dark one). That is the canonical replacement for the "inverse CTA fill" idea.
 
 ### Mode-awareness summary
 
@@ -69,7 +69,6 @@ There is **no** `--surface-service-{slug}-inverse` / `--text-service-{slug}-inve
 | `--{family}-service-{slug}` (no suffix)       | **Yes** — flips in dark mode |
 | `--surface-service-{slug}-{light\|dark}`      | No — pinned tone |
 | `--{family}-service-{slug}-on-{light\|dark}`  | No — pinned context |
-| `--background-service-{slug}-inverse`         | **Yes** — flips opposite to default |
 
 ---
 
@@ -96,25 +95,34 @@ There is **no** `--surface-service-{slug}-inverse` / `--text-service-{slug}-inve
 - **On a known dark surface** → `-on-dark` suffix
 - **Surface is theme-following** → default token, no suffix (the canon flips it in dark mode)
 
-**Q4: Do I need the opposite-tone companion?**
+**Q4: Do I need a fill that reads against a known backdrop (e.g. a CTA on a service band)?**
 
-- Only relevant for `background`. Use `--background-service-{slug}-inverse` when a blueprint needs a fill that contrasts with the surrounding service surface in either mode. This is the **only** mode-aware modifier.
+- There is **no** per-line `-inverse` token — see the anti-pattern above. Route to the `background` **context** token for the backdrop the component sits on: `--background-service-{slug}-on-light` on a known-light surface, `--background-service-{slug}-on-dark` on a known-dark one (Q3 axis). In TSX this is the wrapper's `onLight` key.
 
 ---
 
 ## Concrete examples from this repo
 
-### Section-level service tint (hero, callout) — use `surface`
+### Section-level service tint (hero, callout) — use `surface`, pale `-light` tone
 
-The service detail page at [`src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx`](../../src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx) resolves the hero background through `--page-brand-primary`, which is locally aliased to `--surface-service-{audience}` per the inline comment at line 163. This is correct: the hero is a broad page-level surface.
+The service detail page at [`src/app/(marketing)/services/[serviceLineSlug]/[serviceSlug]/page.tsx`](../../src/app/(marketing)/services/[serviceLineSlug]/[serviceSlug]/page.tsx) tints its hero with `serviceTokens.surfaceLight` (= `--surface-service-{audience}-light`). This is correct on two axes: the hero is a broad page-level **surface** (family), and a text-bearing hero/band uses the pale **`-light` tone**. #389 moved the services pages to `surfaceLight`; #408 extended pale heroes/bands site-wide (plans, customers, customer-stories, services callouts). Pale surface + dark on-tint copy is the AAA-validated pairing retargeted in brik-bds#838 — prefer `-light` over the mid-tone no-suffix token for any hero/band that carries heading or body text.
 
 ```css
-/* Right — hero band is a surface */
+/* Right — text-bearing hero band: pale -light surface */
 .hero {
-  background: var(--surface-service-marketing);
-  color: var(--text-service-marketing);
+  background: var(--surface-service-marketing-light);
 }
 ```
+
+```tsx
+/* Right — typed wrapper (preferred in TSX) */
+const t = serviceColor('marketing');
+<section className="service-surface" style={{ backgroundColor: t.surfaceLight }}>
+```
+
+Add `className="service-surface"` to the section. The `-light` tone is mode-invariant (the tint never flips), but theme-responsive copy does: in dark mode the `:root[data-theme="dark"] .service-surface` pin in [`src/app/globals.css`](../../src/app/globals.css) re-points inherited `--text-primary` / `--text-secondary` to the mode-invariant `--color-grayscale-darkest` so heading/body stays dark on the still-light tint. Nested components that establish their own dark surface — `Card`, `PricingCard`, the hero image-card price block — are carved out of the pin and keep their light text.
+
+**Exception — card-image backdrops stay mid-tone `surface`.** `PlanCardGrid`'s card-image backdrop deliberately uses the no-suffix mid-tone `--surface-service-{slug}` — that's card chrome, not a text-bearing band (#482 / #454). And the service-tinted CTA button pairing (brik poppy at 6.23:1, AA) is owned by #437 / brik-bds#868, not this rule.
 
 ### Service tag / badge — use `background`
 
@@ -147,8 +155,8 @@ import { color, serviceColor } from '@/lib/tokens';
 const tokens = serviceColor('marketing');
 // tokens.surface  = 'var(--surface-service-marketing)'
 // tokens.bg       = 'var(--background-service-marketing)'
-// tokens.text     = 'var(--text-service-marketing)'
-// tokens.inverse  = 'var(--background-service-marketing-inverse)'
+// tokens.text     = 'var(--text-service-marketing-on-light)'
+// tokens.onLight  = 'var(--background-service-marketing-on-light)'  // fill on a known-light backdrop
 ```
 
 The wrapper hides the family selection — `bg` is for components, `surface` is for containers. Picking the right key in the wrapper is the same decision as picking the right family in raw CSS.
