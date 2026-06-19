@@ -30,6 +30,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { glob } from 'glob';
 import {
   loadTokenSets,
@@ -40,9 +41,28 @@ import {
   checkWrapperFamily,
   PATHS,
 } from './lib/canonical-tokens.mjs';
+// Rule 7: cascade-contract — BDS-owned, consumer-imported (ADR-013 §2). Flags
+// redefinitions of BDS scale/semantic tokens + typography family↔size
+// mismatches. Owned in brik-bds so the gate can't fork across consumers.
+import { scanCascadeContract } from '@brikdesigns/bds/cascade-contract-check';
 
 const args = new Set(process.argv.slice(2));
 const WRITE_ALLOWLIST = args.has('--write-allowlist');
+
+// Transitional exemptions for the cascade-contract gate. Bare token names
+// (one per line, `#` comments); see scripts/cascade-contract-allowlist.txt.
+const CASCADE_ALLOWLIST_PATH = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  'cascade-contract-allowlist.txt'
+);
+const cascadeExempt = fs.existsSync(CASCADE_ALLOWLIST_PATH)
+  ? fs
+      .readFileSync(CASCADE_ALLOWLIST_PATH, 'utf8')
+      .split('\n')
+      .map((l) => l.replace(/#.*$/, '').trim())
+      .filter(Boolean)
+      .map((name) => (name.startsWith('--') ? name : `--${name}`))
+  : [];
 
 const sets = loadTokenSets();
 const checkSets = WRITE_ALLOWLIST ? { ...sets, allowlist: new Set() } : sets;
@@ -55,6 +75,7 @@ const inventedViolations = [];
 const familyViolations = [];
 const pairingViolations = [];
 const wrapperViolations = [];
+const cascadeViolations = [];
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
@@ -108,6 +129,11 @@ for (const file of files) {
   // Rule 2: service-token family (CSS only — full-text walker)
   if (file.endsWith('.css')) {
     familyViolations.push(...findFamilyViolations(file, text));
+
+    // Rule 7: cascade-contract (CSS only) — redefinition + typography family.
+    cascadeViolations.push(
+      ...scanCascadeContract({ css: text, file, exemptTokens: cascadeExempt }).violations
+    );
   }
 }
 
@@ -135,11 +161,12 @@ const totalViolations =
   inventedViolations.length +
   familyViolations.length +
   pairingViolations.length +
-  wrapperViolations.length;
+  wrapperViolations.length +
+  cascadeViolations.length;
 
 if (totalViolations === 0) {
   console.log(
-    `OK — ${files.length} files scanned, no invented tokens, no family mismatches, no pairing violations, no wrapper-family drift.`
+    `OK — ${files.length} files scanned, no invented tokens, no family mismatches, no pairing violations, no wrapper-family drift, no cascade-contract violations.`
   );
   process.exit(0);
 }
@@ -245,6 +272,31 @@ if (wrapperViolations.length > 0) {
   console.error('  surface.* → --surface-*   ·   background.* → --background-*   ·   service.{slug}.{bg|onLight|…} → --background-*');
   console.error(
     'Escape hatch: add `/* bds-lint-ignore token-family — <reason> */` on the same line.'
+  );
+}
+
+// ── Cascade-contract (ADR-013 §2) ───────────────────────────────────────────
+if (cascadeViolations.length > 0) {
+  if (
+    inventedViolations.length > 0 ||
+    familyViolations.length > 0 ||
+    pairingViolations.length > 0 ||
+    wrapperViolations.length > 0
+  ) {
+    console.error('');
+  }
+  console.error(
+    `FAIL — ${cascadeViolations.length} cascade-contract violation(s):\n`
+  );
+  for (const v of cascadeViolations) {
+    console.error(`  ${v.file}:${v.line}  [${v.rule}] ${v.token}`);
+    console.error(`    ${v.message}`);
+    console.error('');
+  }
+  console.error('Rule: consumers consume BDS tokens; they do not redefine them.');
+  console.error('  See cascade.mdx (the adoption contract) + brik-bds ADR-013.');
+  console.error(
+    '  Transitional burn-down only: add the token to scripts/cascade-contract-allowlist.txt.'
   );
 }
 
