@@ -62,5 +62,9 @@ next-env.d.ts
 # Playwright MCP scratch output (console logs, page snapshots) — never commit
 .playwright-mcp/
 
+# Playwright relative-path screenshot captures (hero-*.jpeg) — visual-QA
+# scratch that lands in the repo root, never committed
+/hero-*.jpeg
+
 # Git worktrees managed by new-task.sh (tracked as untracked by primary)
 /.claude/worktrees/
