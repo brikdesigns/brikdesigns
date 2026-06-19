@@ -1,0 +1,30 @@
+# scripts/cascade-contract-allowlist.txt
+#
+# Transitional exemptions for the cascade-contract gate
+# (@brikdesigns/bds/cascade-contract-check, ADR-013 §2). Each entry is a token
+# whose REDEFINITION in consumer CSS is tolerated for now. Goal: drive to zero.
+#
+# Format: one bare token name per line (`--` optional). `#` starts a comment.
+# A name here exempts redefinitions of that token anywhere in src/**.
+#
+# ── Blocked on brik-bds#920 (typography Mode emission) ───────────────────────
+# The :root heading remap (globals.css) is one step larger than BDS canon — the
+# project-local marketing scale. It cannot be deleted until #920 emits
+# `data-mode-typography`, at which point brikdesigns adopts a mode and DROPS the
+# remap (ADR-013 §3 proof-of-loop). Remove these 7 entries then.
+heading-tiny
+heading-sm
+heading-md
+heading-lg
+heading-xl
+heading-xxl
+heading-huge
+#
+# ── Burn-down: pre-existing consumer overrides (no upstream blocker) ─────────
+# Semantic-color redefinitions outside Brand-Kit scope. Either move into the
+# brand theme (client-theme layer) or remove. Tracked for burn-down.
+#   --background-tertiary : :root light pairing for a gap-fills token
+#   --text-primary/-secondary : rebinds inside .service-surface / .lp-form-card
+background-tertiary
+text-primary
+text-secondary
