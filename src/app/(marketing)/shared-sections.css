@@ -32,7 +32,7 @@
 
 .page-hero__title {
   font-family: var(--font-family-heading);
-  font-size: var(--heading-xl);
+  font-size: var(--heading-huge);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
@@ -304,6 +304,17 @@
   align-items: start;
 }
 
+/* Pin the L3 blueprint title to the standardized interior-hero size
+   (--heading-huge) instead of BDS's `clamp(--heading-xl, 5vw, --heading-xxl)`,
+   which scales independently of the parent and could invert the L2→L3 hierarchy.
+   Flat value (not a clamp) so L3 never exceeds its L1/L2 parent at any width;
+   responsive step-downs below keep it equal to .page-hero__title. Scoped to
+   `.page-hero-blueprint` (0,2,0 > BDS's 0,1,0). Consumer fix per #538; do not
+   invent a token. (#538) */
+.page-hero-blueprint .bp-hero-img-card__title {
+  font-size: var(--heading-huge);
+}
+
 /* Tighten the hero content rhythm to gap-sm (breadcrumb → eyebrow → H1 → lead).
    BDS hardcodes `__content` to gap-md with no component-var hook, and the
    breadcrumb adds its own gap-sm margin-bottom on top — so set the flex gap to
@@ -330,13 +341,25 @@
 
 /* ─── Responsive ─────────────────────────────────────────── */
 
+/* Interior hero step-down ladder: 57.5 (heading-huge) → 45.5 (heading-xxl)
+   on tablet → 40.5 (heading-xl) on mobile, so the 57.5px title reflows
+   without overrunning the gutter. The L3 blueprint title (#538) steps down
+   in lockstep so it stays equal to — never above — the L1/L2 hero. */
+@media (max-width: 991px) {
+  .page-hero__title,
+  .page-hero-blueprint .bp-hero-img-card__title {
+    font-size: var(--heading-xxl);
+  }
+}
+
 @media (max-width: 767px) {
   .scroll-down-cta {
     display: none;
   }
 
-  .page-hero__title {
-    font-size: var(--heading-lg);
+  .page-hero__title,
+  .page-hero-blueprint .bp-hero-img-card__title {
+    font-size: var(--heading-xl);
   }
 
   .page-hero,
