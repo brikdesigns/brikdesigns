@@ -93,7 +93,7 @@ export default async function EventPage({ params }: Props) {
             </div>
           )}
 
-          <h1 style={heading.lg}>{event.title}</h1>
+          <h1 className="page-hero__title">{event.title}</h1>
 
           <div className="event-page__meta">
             {event.event_date && (
