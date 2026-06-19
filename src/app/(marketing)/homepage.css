@@ -55,7 +55,14 @@
 /* Webflow: .text_display-sm.on-color-dark */
 .hero-title {
   font-family: var(--font-family-display);
-  font-size: var(--heading-huge);
+  /* Display treatment → display-family + display-scale size (#534).
+     --display-sm (72.8px) is the smallest display token; there is no
+     --display-* below it, so the responsive step-down is expressed as a
+     fluid clamp() rather than re-introducing a heading-scale token on a
+     display element. Cap = --display-sm; floor tuned for the hardcoded
+     mid-title <br/> at mobile widths. Token-gap follow-up: brik-bds could
+     add a sub-72.8px display step. */
+  font-size: clamp(2.25rem, 1rem + 4.6vw, var(--display-sm));
   font-weight: 700;
   line-height: var(--font-line-height-tight);
   color: var(--text-on-color-dark);
@@ -452,12 +459,8 @@
     gap: 12px; /* gap-md at tablet */
   }
 
-  /* --heading-huge (57.5px) overruns the tablet viewport with the hardcoded
-     mid-title <br/>. Drop to --heading-xl (40.5px) so both lines clear the
-     gutter cleanly. */
-  .hero-title {
-    font-size: var(--heading-xl);
-  }
+  /* Tablet hero size is handled by the base clamp() (fluid down to the
+     floor); no discrete override here — see the .hero-title base rule. */
 
   /* Audit — stack vertically */
   .audit-layout {
@@ -512,7 +515,7 @@
 /* Webflow: mobile portrait — 479px */
 @media (max-width: 479px) {
   .hero-title {
-    font-size: var(--heading-lg);
+    /* Size handled by the base clamp() floor; tighten leading on mobile. */
     line-height: var(--font-line-height-snug);
     /* No fixed width: let the title flow within the gutter. */
   }
