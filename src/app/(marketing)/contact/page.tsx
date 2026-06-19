@@ -4,6 +4,7 @@ import { BookACallButton } from '@/components/marketing/BookACallButton';
 import { ContactForm } from '@/components/marketing/ContactForm';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
+import '../shared-sections.css';
 import './contact.css';
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default function ContactPage() {
     <section className="contact-section">
       <div className="contact-card">
         <div className="contact-hero-row">
-          <h1 style={heading.lg}>Get in Touch</h1>
+          <h1 className="page-hero__title">Get in Touch</h1>
           <div className="contact-cta-row">
             <BookACallButton />
             <Button href="mailto:hello@brikdesigns.com" variant="secondary" size="md">
