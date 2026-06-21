@@ -193,7 +193,7 @@ export default async function ServiceLinePage({ params }: Props) {
                 </div>
               )}
               <Card variant="outlined" padding="lg" className="service-card--flat">
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: gap.md, textAlign: 'center', height: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
                   {supportPlanServiceLine.card_image_url && (
                     <div className="service-detail-support-cta__media">
                       <Image
