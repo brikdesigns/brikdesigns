@@ -32,7 +32,10 @@
 html {
   background-color: var(--page-primary);
   overflow-x: hidden;
-  scroll-behavior: smooth;
+  /* No global `scroll-behavior: smooth` — it makes the App Router's scroll-to-top
+     on every route change animate, so links/cards near the page bottom visibly
+     scroll the page up before the next page appears. Smooth scrolling is applied
+     explicitly where wanted (ScrollDownCta uses JS scrollIntoView). #383 */
 }
 :root[data-theme="dark"] {
   background-color: var(--background-primary);
@@ -225,6 +228,17 @@ body {
   color: var(--text-primary);
   font-family: var(--font-family-body);
   transition: background-color 0.3s ease, color 0.3s ease;
+  /* Sticky-footer: fill the viewport so the footer pins to the bottom on short
+     pages instead of floating with white page showing below it. #346 */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Marketing layout is <MegaNav (sticky)> + <main> + <Footer>; main grows to
+   push the footer to the viewport bottom on short pages. #346 */
+main {
+  flex: 1 0 auto;
 }
 
 /* Headings — Webflow site uses bold (700) for all heading levels */
