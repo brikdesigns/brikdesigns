@@ -176,14 +176,10 @@ html {
        double-hyphen Webflow form. */
     --system--red: var(--color-system-red);
 
-    /* ---- Project-local heading scale (one step larger than BDS canon) ---- */
-    --heading-tiny: var(--font-size-100);
-    --heading-sm: var(--font-size-300);
-    --heading-md: var(--font-size-500);
-    --heading-lg: var(--font-size-700);
-    --heading-xl: var(--font-size-900);
-    --heading-xxl: var(--font-size-1000);
-    --heading-huge: var(--font-size-1200);
+    /* ---- Heading scale: BDS `data-mode-typography="expressive"` (set on <html>) ----
+       The former project-local remap (one step larger than BDS canon) is retired —
+       the `expressive` variant emits the identical scale from bds-tokens. ADR-013 §3
+       proof-of-loop; brik-bds #928 / brikdesigns #534. */
 
     /* ---- Project-local icon scale (one step smaller than BDS canon) ---- */
     --icon-sm: var(--font-size-75);
