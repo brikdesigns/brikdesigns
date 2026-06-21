@@ -158,6 +158,13 @@ export default async function ServiceDetailPage({ params }: Props) {
     return (lineData as { slug: string }).slug || serviceLineSlug;
   })();
 
+  // The add-on card represents a *different* service line than this page (e.g.
+  // business-card [brand] recommends layout-design [information]). Its CTA must
+  // carry the add-on's own service-line color, not the page's — same per-card
+  // pattern as the Other-Plans CTAs (#343/#570). Surface tint stays on the
+  // page's band; only the button overrides `--background-brand-primary`. #569
+  const relatedServiceTokens = serviceColor(mapServiceLineSlug(relatedServiceLineSlug));
+
   // Support plan — a service can belong to multiple plans (1:M plan→service via
   // service_plan_items); we render the highest-ranked one. Replaces the legacy
   // service.support_plan_slug denorm column (#206).
@@ -449,6 +456,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                     href={`/services/${routeSlugForServiceLine(relatedServiceLineSlug)}/${relatedService.slug}`}
                     variant="primary"
                     size="md"
+                    style={{ '--background-brand-primary': relatedServiceTokens.onLight } as React.CSSProperties}
                   >
                     Learn More
                   </Button>
