@@ -87,7 +87,7 @@
   gap: var(--gap-md);
 }
 
-.about-value-image {
+.about-value-card__media {
   flex: 0 0 300px;
   aspect-ratio: 1;
   display: flex;
@@ -131,7 +131,7 @@
     flex-direction: column;
   }
 
-  .about-value-image {
+  .about-value-card__media {
     flex: none;
     width: 100%;
     max-width: 300px;

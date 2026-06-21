@@ -150,7 +150,7 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="audit-image">
-            <div className="audit-image-frame">
+            <div className="audit__media">
               <Image
                 src="/images/3d-form-robot.png"
                 alt="3D clay form illustration"
@@ -175,7 +175,7 @@ export default async function HomePage() {
             </div>
             <div className="story-card">
               <div className="story-image-wrapper">
-                <div className="story-image-frame">
+                <div className="section-story__media">
                   {featuredStory.hero_image_url ? (
                     <Image
                       src={featuredStory.hero_image_url}
