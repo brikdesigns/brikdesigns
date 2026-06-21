@@ -5,6 +5,7 @@ import { getServiceLineBySlug, getServicesByServiceLine, getServiceCategories, g
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
@@ -83,6 +84,7 @@ export default async function ServiceLinePage({ params }: Props) {
       {/* ═══ Hero ═══ */}
       <section
         className="page-hero service-surface"
+        data-scroll-hero
         style={{ backgroundColor: svcColors.surfaceLight }}
       >
         <div className="page-hero__container">
@@ -124,6 +126,7 @@ export default async function ServiceLinePage({ params }: Props) {
             )}
           </div>
         </div>
+        <ScrollDownCta />
       </section>
 
       {/* ═══ Service Cards ═══
