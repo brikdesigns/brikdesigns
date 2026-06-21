@@ -107,6 +107,12 @@
   max-width: 768px;
 }
 
+/* Center the section description to match the centered section title
+   (globals.css centers .bds-card-grid__title but not the description). #339 */
+.plan-what-you-get .bds-card-grid__description {
+  text-align: center;
+}
+
 /* ─── Bottom CTA — two-column support-plan panel ─────────── */
 /* Surface-service-tinted panel: plan illustration left, price/CTA card right.
    Mirrors the .service-detail-support-grid pattern used on the service-detail
