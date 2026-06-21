@@ -32,6 +32,11 @@
 html {
   background-color: var(--page-primary);
   overflow-x: hidden;
+  /* Disable elastic rubber-band overscroll so the light page background can't be
+     revealed past the footer when scrolling to the end of a (tall) page. The
+     #356 box-shadow skirt + the sticky footer don't cover the browser's
+     overscroll region; only stopping the bounce does. #346 */
+  overscroll-behavior-y: none;
   /* No global `scroll-behavior: smooth` — it makes the App Router's scroll-to-top
      on every route change animate, so links/cards near the page bottom visibly
      scroll the page up before the next page appears. Smooth scrolling is applied
