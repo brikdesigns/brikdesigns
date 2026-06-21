@@ -93,12 +93,11 @@ export default async function ServiceLinePage({ params }: Props) {
               <Breadcrumb
                 style={{ flexWrap: 'wrap' }}
                 items={[
-                  { label: 'Home', href: '/' },
                   { label: 'Services', href: '/services' },
                   { label: serviceLine.name },
                 ]}
               />
-              <h1 className="page-hero__title">{serviceLine.name}</h1>
+              <h1 className="page-hero__title" style={{ color: svcColors.text }}>{serviceLine.name}</h1>
               {serviceLine.description && (
                 <p className="page-hero__description">{serviceLine.description}</p>
               )}
