@@ -7,18 +7,11 @@
 # Format: one bare token name per line (`--` optional). `#` starts a comment.
 # A name here exempts redefinitions of that token anywhere in src/**.
 #
-# ── Blocked on brik-bds#920 (typography Mode emission) ───────────────────────
-# The :root heading remap (globals.css) is one step larger than BDS canon — the
-# project-local marketing scale. It cannot be deleted until #920 emits
-# `data-mode-typography`, at which point brikdesigns adopts a mode and DROPS the
-# remap (ADR-013 §3 proof-of-loop). Remove these 7 entries then.
-heading-tiny
-heading-sm
-heading-md
-heading-lg
-heading-xl
-heading-xxl
-heading-huge
+# ── Heading scale: RESOLVED (brik-bds #928, bds ≥0.99.0) ─────────────────────
+# The :root heading remap is retired — brikdesigns adopts the `expressive`
+# typography variant (`data-mode-typography="expressive"` on <html>), which emits
+# the identical scale from bds-tokens. ADR-013 §3 proof-of-loop closed; the 7
+# `--heading-*` entries were removed here (brikdesigns #534).
 #
 # ── Contextual contrast pins — NOT transitional ─────────────────────────────
 # `--text-primary` / `--text-secondary` are rebound on specific surface
