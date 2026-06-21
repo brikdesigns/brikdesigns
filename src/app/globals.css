@@ -258,7 +258,7 @@ h1, h2, h3, h4, h5, h6 {
      for `.bds-footer--inverse` without re-declaring background-color
      directly (which would force us to fight BDS specificity in the
      client-overrides layer). */
-  --bds-footer-surface: var(--color-grayscale-black);
+  --bds-footer-surface: var(--color-grayscale-darkest);
 }
 
 @layer client-overrides {
@@ -294,6 +294,13 @@ h1, h2, h3, h4, h5, h6 {
      Centered to match the Webflow section-header rhythm. #535. */
   .bds-card-grid__title {
     font-size: var(--heading-lg);
+    text-align: center;
+  }
+
+  /* Section description centers with its title — the rule above centers
+     .bds-card-grid__title site-wide, so the description follows to keep the
+     whole section header on the centered rhythm (#281 intent). #339 */
+  .bds-card-grid__description {
     text-align: center;
   }
 
