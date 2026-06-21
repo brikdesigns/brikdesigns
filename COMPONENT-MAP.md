@@ -77,17 +77,18 @@ Image / illustration / video frames use the BEM element `__media`. The frame own
 
 Prefer BDS `<Frame ratio="…" fit="…">` for new sections (lives in [Layout Components](#layout-components) above). Hand-rolled `[block]__media` is the fallback for sections that need behaviour `<Frame>` doesn't yet cover — pinned by [brik-bds#486](https://github.com/brikdesigns/brik-bds/issues/486) (canonical aspect-ratio tokens) and [brik-bds#681](https://github.com/brikdesigns/brik-bds/issues/681) (Media category umbrella).
 
-### Known follow-up: Webflow-flat media names
+### Webflow-flat media names — resolved ([brikdesigns#197](https://github.com/brikdesigns/brikdesigns/issues/197))
 
-Several pre-BEM frame classes survive from the Webflow port and need block-name decisions before they can be renamed to `__media`. Tracked under [brikdesigns#197](https://github.com/brikdesigns/brikdesigns/issues/197):
+The pre-BEM frame classes from the Webflow port have been renamed to `[block]__media`. Block names were taken from the actual parent block in the markup (a few earlier suggestions referenced blocks that didn't exist):
 
-| File | Class | Suggested block |
+| File | Old class | New class |
 |---|---|---|
-| `src/app/homepage.css` | `.audit-image-frame`, `.audit-image` | `.audit-card` (new block) |
-| `src/app/homepage.css` | `.story-image-frame`, `.story-image-wrapper` | Conflicts with `.story-card` already in `customer-stories.css` — needs disambiguation pass (`.section-story__media`?) |
-| `src/app/about/about.css` | `.about-value-image` | `.about-value-row__media` |
-| `src/app/about/about.css` | `.about-service-image` | `.about-service-card__media` |
-| `src/app/plans/plans.css` | `.plans-card-image` | `.plans-card__media` |
+| `src/app/homepage.css` | `.audit-image-frame` | `.audit__media` |
+| `src/app/homepage.css` | `.story-image-frame` | `.section-story__media` (distinct from `customer-stories.css`'s `.story-card__media`) |
+| `src/app/about/about.css` | `.about-value-image` | `.about-value-card__media` |
+| `src/app/plans/plans.css` | `.plans-card-image` | `.plans-card-wrapper__media` |
+
+Layout-column wrappers (`.audit-image`, `.story-image-wrapper`) were left as-is — they aren't media frames. `.about-service-image` no longer exists. `<Frame>` adoption + aspect-ratio tokens remain deferred to [brik-bds#486](https://github.com/brikdesigns/brik-bds/issues/486).
 
 ## Pre-Build Checklist
 

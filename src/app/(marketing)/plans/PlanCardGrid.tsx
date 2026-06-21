@@ -46,7 +46,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
             <div key={plan.slug} className="plans-card-wrapper">
               {plan.imageUrl && (
                 <div
-                  className="plans-card-image"
+                  className="plans-card-wrapper__media"
                   style={svcTokens ? { backgroundColor: svcTokens.surface } : undefined}
                 >
                   <Image

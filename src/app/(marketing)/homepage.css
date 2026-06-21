@@ -259,7 +259,7 @@
 }
 
 /* Webflow: .img-frame-service — square, accent bg, border-radius-md = 8px */
-.audit-image-frame {
+.audit__media {
   aspect-ratio: 1;
   width: 100%;
   background-color: var(--surface-accent);
@@ -324,7 +324,7 @@
 }
 
 /* Webflow: .img-frame-landscape — aspect 3/2, md radius (8px) */
-.story-image-frame {
+.section-story__media {
   border-radius: 8px;
   overflow: hidden;
   aspect-ratio: 3 / 2;
@@ -333,7 +333,7 @@
   position: relative;
 }
 
-.story-image-frame img {
+.section-story__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
