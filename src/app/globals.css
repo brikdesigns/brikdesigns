@@ -258,7 +258,7 @@ h1, h2, h3, h4, h5, h6 {
      for `.bds-footer--inverse` without re-declaring background-color
      directly (which would force us to fight BDS specificity in the
      client-overrides layer). */
-  --bds-footer-surface: var(--color-grayscale-black);
+  --bds-footer-surface: var(--color-grayscale-darkest);
 }
 
 @layer client-overrides {
