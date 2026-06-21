@@ -166,7 +166,7 @@ export default async function AboutPage() {
               <p style={{ ...text.body, color: color.text.secondary }}>Learn about the value of design in 4 steps.</p>
               <Button href="/value" variant="primary" size="md">Learn More</Button>
             </div>
-            <div className="about-value-image">
+            <div className="about-value-card__media">
               <Image
                 src="/images/value_of_design_4x.webp"
                 alt="The Value of Design"
