@@ -163,6 +163,9 @@ export default async function PlanDetailPage({ params }: Props) {
     <div
       style={
         {
+          // Primary CTAs on this plan page inherit the plan's service-line color
+          // (mirrors services/[serviceLineSlug]). #342
+          '--background-brand-primary': audienceTokens.onLight,
           '--background-inverse': audienceTokens.onLight,
           '--text-brand-primary': audienceTokens.text,
         } as React.CSSProperties
@@ -270,6 +273,13 @@ export default async function PlanDetailPage({ params }: Props) {
           <Grid columns={3} gap="lg">
             {otherPlans.map((other) => {
               const otherImage = planImage(other.slug);
+              // Each card's CTA uses that plan's own service-line color (dynamic),
+              // not the current page's — overrides the page-level default. #343
+              const rawOtherLine = (other as { marketing_line?: unknown }).marketing_line;
+              const otherLine = Array.isArray(rawOtherLine) ? rawOtherLine[0] : rawOtherLine;
+              const otherTokens = (otherLine as { slug?: string } | null)?.slug
+                ? serviceColor(mapServiceLineSlug((otherLine as { slug: string }).slug))
+                : null;
               // Plain surface-primary cards — the per-plan service tint (#397)
               // was removed per staging review (backlog #278 / #482); the cards
               // now use the default display-preset fill in both themes.
@@ -292,7 +302,12 @@ export default async function PlanDetailPage({ params }: Props) {
                 title={other.name}
                 description={other.description ?? undefined}
                 action={
-                  <Button href={`/plans/${other.slug}`} variant="primary" size="md">
+                  <Button
+                    href={`/plans/${other.slug}`}
+                    variant="primary"
+                    size="md"
+                    style={otherTokens ? ({ '--background-brand-primary': otherTokens.onLight } as React.CSSProperties) : undefined}
+                  >
                     Learn More
                   </Button>
                 }
