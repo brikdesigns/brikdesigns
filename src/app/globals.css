@@ -297,6 +297,13 @@ h1, h2, h3, h4, h5, h6 {
     text-align: center;
   }
 
+  /* Section description centers with its title — the rule above centers
+     .bds-card-grid__title site-wide, so the description follows to keep the
+     whole section header on the centered rhythm (#281 intent). #339 */
+  .bds-card-grid__description {
+    text-align: center;
+  }
+
   /* Borderless cards (#360) sit transparently on service-tinted sections, whose
      --surface-service-* tokens are FIXED-LIGHT in both themes. The card text
      therefore loses its former white-fill backdrop and lands directly on the
