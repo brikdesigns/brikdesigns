@@ -52,7 +52,7 @@ export default async function PlansPage() {
       </section>
 
       {/* Plan cards */}
-      <section className="page-section page-section--secondary">
+      <section className="page-section">
         <div className="container-lg container-lg--comfortable">
           <PlanCardGrid plans={plans} />
         </div>

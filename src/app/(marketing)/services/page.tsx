@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Grid } from '@brikdesigns/bds';
-import { getServiceCategories, resolveServiceTagCategory } from '@/lib/supabase/queries';
+import { getServiceCategories, resolveServiceTagCategory, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
 import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
@@ -15,8 +15,12 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600;
 
-/** Service lines shown as main cards (3-col grid) */
-const MAIN_LINES = ['brand', 'marketing', 'service'];
+/** Service lines shown as main cards (3-col grid). Keyed by the canonical BDS
+ *  ServiceLine enum (not raw slug) so the back-office line resolves whether its
+ *  DB slug is the legacy `service` or the post-00199 `back-office` (the rename
+ *  is mid-migration on the shared Supabase — see mapServiceLineSlug). Matching
+ *  on the raw slug `service` silently dropped the card once an env flipped. */
+const MAIN_LINES = ['brand', 'marketing', 'back-office'];
 
 /** Service lines shown as callout sections (image + text) */
 const CALLOUT_LINES = ['product', 'information'];
@@ -36,7 +40,7 @@ const CALLOUT_COPY: Record<string, { title: string; subtitle: string }> = {
 export default async function ServicesPage() {
   const categories = await getServiceCategories();
 
-  const mainLines = categories.filter((c) => MAIN_LINES.includes(c.slug));
+  const mainLines = categories.filter((c) => MAIN_LINES.includes(mapServiceLineSlug(c.slug)));
   // Preserve CALLOUT_LINES order (DB sort doesn't match the design intent: Product → Information).
   const calloutLines = CALLOUT_LINES
     .map((slug) => categories.find((c) => c.slug === slug))

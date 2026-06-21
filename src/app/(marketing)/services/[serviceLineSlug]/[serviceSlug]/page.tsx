@@ -222,7 +222,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     // removed (#384); pricing sits directly below the hero on the same page.
     cta: null,
     breadcrumb: [
-      { label: 'All Services', href: '/services' },
+      { label: 'Services', href: '/services' },
       { label: serviceLine?.name || serviceLineSlug, href: `/services/${serviceLineSlug}` },
       { label: service.name },
     ],
