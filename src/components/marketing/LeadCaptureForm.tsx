@@ -13,16 +13,19 @@ export function LeadCaptureForm({
   plan: planProp,
   planName = '',
   serviceOptions = [],
-}: { source?: string; plan?: string; planName?: string; serviceOptions?: ServiceOption[] }) {
+  defaultServices,
+}: { source?: string; plan?: string; planName?: string; serviceOptions?: ServiceOption[]; defaultServices?: string[] }) {
   const searchParams = useSearchParams();
   // In the modal there is no `?plan=` in the URL — take the slug as a prop and
   // fall back to the query param for the standalone /get-started route. #401.
   const plan = planProp ?? searchParams.get('plan') ?? '';
   const service = searchParams.get('service') || '';
-  // Multi-select service picker. CTA pre-selection + cross-page persistence
-  // land in #577; #578 persists the array server-side. For now the selection
-  // is captured and submitted as `services` alongside the legacy `service`.
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  // Multi-select service picker. Preselect comes from the service-page modal
+  // (`defaultServices`) or the standalone /get-started?service= param (#577).
+  // #578 persists the array server-side; it's submitted as `services`.
+  const [selectedServices, setSelectedServices] = useState<string[]>(
+    defaultServices ?? (service ? [service] : []),
+  );
 
   const { isSubmitting, isSuccess, isError, error, submit } = useFormSubmit({
     endpoint: '/api/leads',
