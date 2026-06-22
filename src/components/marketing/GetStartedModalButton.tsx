@@ -3,28 +3,39 @@
 import { Suspense, useState } from 'react';
 import { Button, Modal } from '@brikdesigns/bds';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
+import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 
 /**
  * Get-started CTA that opens the lead form in a BDS Modal instead of
- * navigating to /get-started. The standalone route stays live as a
- * fallback / direct-link target. #401.
- *
- * The plan slug is passed in (the modal has no `?plan=` query string to read,
- * unlike the standalone page) and forwarded to the form for the preselect.
+ * navigating to /get-started. Used by support-plan pages (plan preselect) and
+ * service-detail pages (service preselect + the service multi-select). The
+ * standalone /get-started route stays live as a fallback. #401, #577.
  */
 export function GetStartedModalButton({
   plan,
   planName,
+  service,
+  serviceOptions = [],
+  label = 'Get Started',
+  variant = 'primary',
+  size = 'lg',
 }: {
-  plan: string;
+  plan?: string;
   planName?: string;
+  /** Service slug to preselect in the picker (service-detail pages). */
+  service?: string;
+  /** Options for the multi-select; passed through from the server page. */
+  serviceOptions?: ServiceOption[];
+  label?: string;
+  variant?: 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <Button variant="primary" size="lg" onClick={() => setIsOpen(true)}>
-        Get Started
+      <Button variant={variant} size={size} onClick={() => setIsOpen(true)}>
+        {label}
       </Button>
       <Modal
         isOpen={isOpen}
@@ -33,7 +44,13 @@ export function GetStartedModalButton({
         size="md"
       >
         <Suspense>
-          <LeadCaptureForm source="get_started" plan={plan} planName={planName} />
+          <LeadCaptureForm
+            source="get_started"
+            plan={plan}
+            planName={planName}
+            serviceOptions={serviceOptions}
+            defaultServices={service ? [service] : undefined}
+          />
         </Suspense>
       </Modal>
     </>

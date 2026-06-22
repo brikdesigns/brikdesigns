@@ -5,6 +5,7 @@ import { getServiceLineBySlug, getServicesByServiceLine, getServiceCategories, g
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
+import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
@@ -83,6 +84,7 @@ export default async function ServiceLinePage({ params }: Props) {
       {/* ═══ Hero ═══ */}
       <section
         className="page-hero service-surface"
+        data-scroll-hero
         style={{ backgroundColor: svcColors.surfaceLight }}
       >
         <div className="page-hero__container">
@@ -91,12 +93,11 @@ export default async function ServiceLinePage({ params }: Props) {
               <Breadcrumb
                 style={{ flexWrap: 'wrap' }}
                 items={[
-                  { label: 'Home', href: '/' },
                   { label: 'Services', href: '/services' },
                   { label: serviceLine.name },
                 ]}
               />
-              <h1 className="page-hero__title">{serviceLine.name}</h1>
+              <h1 className="page-hero__title" style={{ color: svcColors.text }}>{serviceLine.name}</h1>
               {serviceLine.description && (
                 <p className="page-hero__description">{serviceLine.description}</p>
               )}
@@ -124,6 +125,7 @@ export default async function ServiceLinePage({ params }: Props) {
             )}
           </div>
         </div>
+        <ScrollDownCta />
       </section>
 
       {/* ═══ Service Cards ═══
@@ -190,7 +192,7 @@ export default async function ServiceLinePage({ params }: Props) {
                 </div>
               )}
               <Card variant="outlined" padding="lg" className="service-card--flat">
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: gap.md, textAlign: 'center', height: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
                   {supportPlanServiceLine.card_image_url && (
                     <div className="service-detail-support-cta__media">
                       <Image

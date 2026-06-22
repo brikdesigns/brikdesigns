@@ -407,3 +407,36 @@
 .service-card--flat .bds-card__preset-display-title {
   font-size: var(--heading-sm);
 }
+
+/* ─── Card chrome on a tinted surface — two-tier standard (BACKLOG-336) ──
+   On any tinted band — service tint (`.service-surface`), `--surface-secondary`
+   (`.page-section--secondary`), or `--surface-accent` (`.page-section--accent`)
+   — cards shed the outlined gray border ring (#333/#367/#368). The
+   surface-primary fill is load-bearing on the tint, so it's kept; we never swap
+   to the transparent `borderless` variant.
+     • Browse/listing GRIDS → flat (fill, no border, no shadow).
+     • Focal decision / lone feature cards → elevated (fill + shadow) for
+       containment (the #427 row-card precedent, generalized).
+   `.bds-card` / the explicit element class raises specificity to beat the BDS
+   variant border without `!important`.
+   Canonical rule + rationale: .claude/references/card-chrome-on-tint.md  (#558) */
+
+/* Flat — blog related-posts grid (accent band). `.blog-card` also renders on
+   the white blog index, so this is scoped to the tinted section only. */
+.page-section--accent .bds-card.blog-card {
+  border: none;
+}
+
+/* Elevated — single "Latest Customer Story" card (secondary band). */
+.page-section--secondary .bds-card.story-card {
+  border: none;
+  box-shadow: var(--box-shadow-md);
+}
+
+/* Elevated — service pricing tiers (service tint). The featured tier keeps its
+   brand-colored ring as intentional emphasis; only the plain tiers shed the
+   gray border and gain the containment shadow. */
+.service-surface .bds-pricing-card:not(.bds-pricing-card--highlighted) {
+  border: none;
+  box-shadow: var(--box-shadow-md);
+}

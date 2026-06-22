@@ -48,6 +48,10 @@ See `.claude/references/service-url-slug-convention.md`.
 
 See `.claude/references/service-token-decision-tree.md`.
 
+## When placing a card on a tinted surface (service tint, `--surface-secondary`, `--surface-accent`)
+
+See `.claude/references/card-chrome-on-tint.md`. Short form: drop the gray border ring; browse grids → flat (no border/shadow), focal/lone cards → elevated (no border, `--box-shadow-md`); keep the `--surface-primary` fill, never the transparent `borderless` variant.
+
 ## When querying `services` / `service_lines` / `offerings`
 
 See `.claude/references/service-data-sot.md`.

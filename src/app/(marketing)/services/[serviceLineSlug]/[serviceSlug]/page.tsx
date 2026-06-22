@@ -8,8 +8,13 @@ import {
   getStoriesByService,
   getRelatedService,
   getSupportPlansByServiceId,
+  getServiceCategories,
+  getServices,
+  resolveServiceTagCategory,
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
+import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
+import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import {
   Card,
@@ -158,6 +163,13 @@ export default async function ServiceDetailPage({ params }: Props) {
     return (lineData as { slug: string }).slug || serviceLineSlug;
   })();
 
+  // The add-on card represents a *different* service line than this page (e.g.
+  // business-card [brand] recommends layout-design [information]). Its CTA must
+  // carry the add-on's own service-line color, not the page's — same per-card
+  // pattern as the Other-Plans CTAs (#343/#570). Surface tint stays on the
+  // page's band; only the button overrides `--background-brand-primary`. #569
+  const relatedServiceTokens = serviceColor(mapServiceLineSlug(relatedServiceLineSlug));
+
   // Support plan — a service can belong to multiple plans (1:M plan→service via
   // service_plan_items); we render the highest-ranked one. Replaces the legacy
   // service.support_plan_slug denorm column (#206).
@@ -215,7 +227,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     // removed (#384); pricing sits directly below the hero on the same page.
     cta: null,
     breadcrumb: [
-      { label: 'All Services', href: '/services' },
+      { label: 'Services', href: '/services' },
       { label: serviceLine?.name || serviceLineSlug, href: `/services/${serviceLineSlug}` },
       { label: service.name },
     ],
@@ -245,6 +257,30 @@ export default async function ServiceDetailPage({ params }: Props) {
     },
     items: [],
   };
+
+  // Service picker options for the Get Started modal, clustered by service
+  // line (line rank → service rank), mirroring the /get-started page.
+  const [allServiceLines, allServices] = await Promise.all([
+    getServiceCategories(),
+    getServices(),
+  ]);
+  const lineRank = new Map<string, number>(
+    allServiceLines.map((l) => [l.id, l.rank ?? 0]),
+  );
+  const serviceOptions: ServiceOption[] = [...allServices]
+    .sort(
+      (a, b) =>
+        (lineRank.get(a.service_line_id) ?? 99) -
+          (lineRank.get(b.service_line_id) ?? 99) ||
+        (a.rank ?? 0) - (b.rank ?? 0),
+    )
+    .map((s) => ({
+      value: s.slug,
+      label: s.name,
+      category: resolveServiceTagCategory({
+        slug: s.service_lines?.slug ?? s.slug,
+      }),
+    }));
 
   return (
     // Page-level cascade: service-line-colored accent text (eyebrows,
@@ -338,9 +374,12 @@ export default async function ServiceDetailPage({ params }: Props) {
                   features={parseFeatures(off.included_scope)}
                   highlighted={!!off.is_featured}
                   action={
-                    <Button href="/contact" variant="primary" size="md">
-                      Let&apos;s Talk
-                    </Button>
+                    <GetStartedModalButton
+                      service={service.slug}
+                      serviceOptions={serviceOptions}
+                      label="Get Started"
+                      size="md"
+                    />
                   }
                 />
               );
@@ -449,6 +488,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                     href={`/services/${routeSlugForServiceLine(relatedServiceLineSlug)}/${relatedService.slug}`}
                     variant="primary"
                     size="md"
+                    style={{ '--background-brand-primary': relatedServiceTokens.onLight } as React.CSSProperties}
                   >
                     Learn More
                   </Button>

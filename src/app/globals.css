@@ -32,7 +32,15 @@
 html {
   background-color: var(--page-primary);
   overflow-x: hidden;
-  scroll-behavior: smooth;
+  /* Disable elastic rubber-band overscroll so the light page background can't be
+     revealed past the footer when scrolling to the end of a (tall) page. The
+     #356 box-shadow skirt + the sticky footer don't cover the browser's
+     overscroll region; only stopping the bounce does. #346 */
+  overscroll-behavior-y: none;
+  /* No global `scroll-behavior: smooth` — it makes the App Router's scroll-to-top
+     on every route change animate, so links/cards near the page bottom visibly
+     scroll the page up before the next page appears. Smooth scrolling is applied
+     explicitly where wanted (ScrollDownCta uses JS scrollIntoView). #383 */
 }
 :root[data-theme="dark"] {
   background-color: var(--background-primary);
@@ -225,6 +233,17 @@ body {
   color: var(--text-primary);
   font-family: var(--font-family-body);
   transition: background-color 0.3s ease, color 0.3s ease;
+  /* Sticky-footer: fill the viewport so the footer pins to the bottom on short
+     pages instead of floating with white page showing below it. #346 */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Marketing layout is <MegaNav (sticky)> + <main> + <Footer>; main grows to
+   push the footer to the viewport bottom on short pages. #346 */
+main {
+  flex: 1 0 auto;
 }
 
 /* Headings — Webflow site uses bold (700) for all heading levels */
@@ -258,7 +277,7 @@ h1, h2, h3, h4, h5, h6 {
      for `.bds-footer--inverse` without re-declaring background-color
      directly (which would force us to fight BDS specificity in the
      client-overrides layer). */
-  --bds-footer-surface: var(--color-grayscale-black);
+  --bds-footer-surface: var(--color-grayscale-darkest);
 }
 
 @layer client-overrides {
@@ -294,6 +313,13 @@ h1, h2, h3, h4, h5, h6 {
      Centered to match the Webflow section-header rhythm. #535. */
   .bds-card-grid__title {
     font-size: var(--heading-lg);
+    text-align: center;
+  }
+
+  /* Section description centers with its title — the rule above centers
+     .bds-card-grid__title site-wide, so the description follows to keep the
+     whole section header on the centered rhythm (#281 intent). #339 */
+  .bds-card-grid__description {
     text-align: center;
   }
 

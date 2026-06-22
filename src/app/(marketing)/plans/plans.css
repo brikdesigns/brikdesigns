@@ -10,7 +10,7 @@
   overflow: hidden;
 }
 
-.plans-card-image {
+.plans-card-wrapper__media {
   aspect-ratio: 1;
   background-color: var(--surface-accent);
   overflow: hidden;

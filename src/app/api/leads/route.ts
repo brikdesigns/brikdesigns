@@ -27,7 +27,7 @@ function emailToName(email: string): string {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, company_name, phone, plan, service, message, source, event_id } = body;
+    const { name, email, company_name, phone, plan, service, services, message, source, event_id } = body;
 
     // Basic validation. With an event_id, name + company_name are both
     // optional — event attendees may have no practice, and newsletter signups
@@ -69,6 +69,25 @@ export async function POST(request: Request) {
 
     const supabase = createServiceClient();
 
+    // Resolve multi-select service slugs (#578) to display names for the notes
+    // + notification, falling back to the slug if a name isn't found. Read-only
+    // lookup against the public `services` table. Backward compatible: the
+    // legacy single `service` field still flows through untouched.
+    const serviceSlugs: string[] = Array.isArray(services)
+      ? services.filter((s: unknown): s is string => typeof s === 'string' && s.length > 0)
+      : [];
+    let serviceNames: string[] = [];
+    if (serviceSlugs.length > 0) {
+      const { data: svcRows } = await supabase
+        .from('services')
+        .select('slug, name')
+        .in('slug', serviceSlugs);
+      const nameBySlug = new Map<string, string>(
+        (svcRows ?? []).map((r: { slug: string; name: string }) => [r.slug, r.name]),
+      );
+      serviceNames = serviceSlugs.map((s) => nameBySlug.get(s) ?? s);
+    }
+
     // Name may be absent for newsletter signups — derive one from the email so
     // contacts.first_name + companies.name stay populated (brikdesigns#336).
     const displayName = String(name || '').trim() || emailToName(email);
@@ -101,6 +120,7 @@ export async function POST(request: Request) {
           source && `Source: ${source}`,
           plan && `Interested in plan: ${plan}`,
           service && `Interested in service: ${service}`,
+          serviceNames.length > 0 && `Interested in services: ${serviceNames.join(', ')}`,
           message && `Message: ${message}`,
         ]
           .filter(Boolean)
@@ -191,6 +211,7 @@ export async function POST(request: Request) {
       phone,
       plan,
       service,
+      services: serviceNames,
       message,
       source,
       eventTitle,

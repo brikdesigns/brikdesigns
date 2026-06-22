@@ -12,10 +12,10 @@ import {
   CardGrid,
   Frame,
   Grid,
-  HeroSplitImageCardOverlay,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
+import { PlanHeroModal } from './PlanHeroModal';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { color, serviceColor } from '@/lib/tokens';
 import { heading, text, label } from '@/lib/styles';
@@ -138,11 +138,11 @@ export default async function PlanDetailPage({ params }: Props) {
             priceLabel: 'Per month',
             price: plan.monthly_price_display,
           }),
-          // Hero CTA stays a nav link: the BDS hero blueprint's `priceCard.cta`
-          // is url-only (no onClick), so it can't open the modal the cta-panel
-          // button does (#401). Tracked in brik-bds#843 — swap to the modal once
-          // the blueprint gains an action affordance. The standalone route is
-          // the fallback target regardless.
+          // Hero CTA opens the lead-capture modal via PlanHeroModal's
+          // `onPriceCtaClick` (brik-bds#843, @brikdesigns/bds@0.101.0) — the
+          // same modal the lower cta-panel button opens (#401). The `url` below
+          // stays the rendered href, so it remains a working no-JS / direct-link
+          // fallback to the standalone /get-started page.
           // `size: 'md'` opts into the priceCard.cta size hook added in
           // @brikdesigns/bds@0.95.0 (brik-bds#869); blueprint default is `sm`.
           cta: { label: 'Get Started', url: `/get-started?plan=${plan.slug}`, size: 'md' },
@@ -163,6 +163,9 @@ export default async function PlanDetailPage({ params }: Props) {
     <div
       style={
         {
+          // Primary CTAs on this plan page inherit the plan's service-line color
+          // (mirrors services/[serviceLineSlug]). #342
+          '--background-brand-primary': audienceTokens.onLight,
           '--background-inverse': audienceTokens.onLight,
           '--text-brand-primary': audienceTokens.text,
         } as React.CSSProperties
@@ -187,11 +190,12 @@ export default async function PlanDetailPage({ params }: Props) {
           } as React.CSSProperties
         }
       >
-        <HeroSplitImageCardOverlay
+        <PlanHeroModal
           section={heroSection}
           clientFacts={defaultClientFacts}
           theme={defaultMarketingTheme}
-          showServiceTag={false}
+          plan={plan.slug}
+          planName={plan.name}
         />
         <ScrollDownCta />
       </div>
@@ -270,6 +274,13 @@ export default async function PlanDetailPage({ params }: Props) {
           <Grid columns={3} gap="lg">
             {otherPlans.map((other) => {
               const otherImage = planImage(other.slug);
+              // Each card's CTA uses that plan's own service-line color (dynamic),
+              // not the current page's — overrides the page-level default. #343
+              const rawOtherLine = (other as { marketing_line?: unknown }).marketing_line;
+              const otherLine = Array.isArray(rawOtherLine) ? rawOtherLine[0] : rawOtherLine;
+              const otherTokens = (otherLine as { slug?: string } | null)?.slug
+                ? serviceColor(mapServiceLineSlug((otherLine as { slug: string }).slug))
+                : null;
               // Plain surface-primary cards — the per-plan service tint (#397)
               // was removed per staging review (backlog #278 / #482); the cards
               // now use the default display-preset fill in both themes.
@@ -292,7 +303,12 @@ export default async function PlanDetailPage({ params }: Props) {
                 title={other.name}
                 description={other.description ?? undefined}
                 action={
-                  <Button href={`/plans/${other.slug}`} variant="primary" size="md">
+                  <Button
+                    href={`/plans/${other.slug}`}
+                    variant="primary"
+                    size="md"
+                    style={otherTokens ? ({ '--background-brand-primary': otherTokens.onLight } as React.CSSProperties) : undefined}
+                  >
                     Learn More
                   </Button>
                 }
