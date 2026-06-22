@@ -20,7 +20,6 @@ import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpe
 import { color, serviceColor } from '@/lib/tokens';
 import { heading, text, label } from '@/lib/styles';
 import { hasIconFor, SERVICE_LINE_ICON } from '@/lib/service-icons';
-import { planImage } from '@/lib/plan-images';
 import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../../shared-sections.css';
@@ -87,8 +86,8 @@ export default async function PlanDetailPage({ params }: Props) {
   // PostgREST may return embedded FK rows as object or array; normalize both.
   const rawMarketingLine = (plan as { marketing_line?: unknown }).marketing_line;
   const marketingLine = Array.isArray(rawMarketingLine)
-    ? (rawMarketingLine[0] as { slug: string; name: string } | undefined) ?? null
-    : (rawMarketingLine as { slug: string; name: string } | null);
+    ? (rawMarketingLine[0] as { slug: string; name: string; card_image_url: string | null } | undefined) ?? null
+    : (rawMarketingLine as { slug: string; name: string; card_image_url: string | null } | null);
 
   // Fall back to dominant-included-line heuristic when marketing_line_id is unset.
   const lineCounts = new Map<string, number>();
@@ -111,11 +110,11 @@ export default async function PlanDetailPage({ params }: Props) {
   const otherPlans = await getOtherSupportPlans(slug);
 
   // Hero mirrors services/[slug] — split column with priceCard overlay
-  // driven by the same image source as the meganav + related-plans card
-  // (planImage lookup keyed by slug). The hero's own CTA lives inside the
-  // priceCard, so cta is null at the section level (no duplicate "Get Started"
-  // buttons stacked).
-  const heroImage = planImage(plan.slug);
+  // driven by the same image source as the meganav + related-plans card:
+  // the plan's marketing_line card_image_url (the single CMS source, #467).
+  // The hero's own CTA lives inside the priceCard, so cta is null at the
+  // section level (no duplicate "Get Started" buttons stacked).
+  const heroImage = marketingLine?.card_image_url ?? null;
   const heroSection: BlueprintSection = {
     sectionKey: `hero-${plan.slug}`,
     sectionType: 'hero',
@@ -273,11 +272,14 @@ export default async function PlanDetailPage({ params }: Props) {
         <CardGrid sectionKey="other-plans" title="Other Support Plans">
           <Grid columns={3} gap="lg">
             {otherPlans.map((other) => {
-              const otherImage = planImage(other.slug);
               // Each card's CTA uses that plan's own service-line color (dynamic),
               // not the current page's — overrides the page-level default. #343
               const rawOtherLine = (other as { marketing_line?: unknown }).marketing_line;
               const otherLine = Array.isArray(rawOtherLine) ? rawOtherLine[0] : rawOtherLine;
+              // Card illustration = that plan's service-line card_image_url (the
+              // single CMS source, #467).
+              const otherImage =
+                (otherLine as { card_image_url?: string | null } | null)?.card_image_url ?? null;
               const otherTokens = (otherLine as { slug?: string } | null)?.slug
                 ? serviceColor(mapServiceLineSlug((otherLine as { slug: string }).slug))
                 : null;
