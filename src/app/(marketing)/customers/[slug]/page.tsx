@@ -47,7 +47,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const page = await getIndustryPageBySlug(slug);
     return {
-      title: `${page.name} Customers | Brik Designs`,
+      // Bare title — the root layout's `title.template` ('%s | Brik Designs')
+      // appends the site suffix. Appending it here too double-suffixes (#587).
+      title: `${page.name} Customers`,
       description: page.tagline || `Brik Designs works with ${page.name} businesses.`,
     };
   } catch {
