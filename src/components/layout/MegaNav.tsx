@@ -7,7 +7,6 @@ import { Icon } from '@iconify/react';
 import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
-import { planImage } from '@/lib/plan-images';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ThemeToggle } from './ThemeToggle';
 
@@ -28,6 +27,7 @@ interface NavServiceLine {
   category: BdsServiceLine;
   tagline: string;
   services: ServiceItem[];
+  imageUrl: string | null;
 }
 
 interface SupportPlan {
@@ -226,11 +226,13 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                     </div>
 
                     {/* Webflow: .inner-wrapper.auto — Product promo card (5th column) */}
-                    {serviceLines.find((l) => l.category === 'product') && (
+                    {(() => {
+                      const productLine = serviceLines.find((l) => l.category === 'product');
+                      return productLine?.imageUrl ? (
                       <div className="mega-nav__product-promo">
                         <div className="mega-nav__product-promo-media">
                           <Image
-                            src="/images/product_mobile_app_2x.webp"
+                            src={productLine.imageUrl}
                             alt="Product design"
                             width={200}
                             height={200}
@@ -250,7 +252,8 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                           Learn More
                         </Link>
                       </div>
-                    )}
+                      ) : null;
+                    })()}
                   </div>
                 </div>
               )}
@@ -389,13 +392,14 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                       </Link>
                     </div>
                     {/* Webflow: .layout-nav-support — plan cards. Card
-                        metadata (title, href, copy) drives off Supabase;
-                        image path comes from the shared planImage() lookup
-                        for parity with the plan detail hero + related cards.
+                        metadata (title, href, copy, image) drives off Supabase;
+                        the image is the plan's service-line card_image_url (the
+                        single CMS source, #467), resolved in MegaNavServer for
+                        parity with the plan detail hero + related cards.
                     */}
                     <div className="mega-nav__plans-grid">
                       {supportPlans.map((plan) => {
-                        const image = planImage(plan.slug);
+                        const image = plan.imageUrl;
                         if (!image) return null;
                         return (
                           <AboutNavCard
