@@ -22,6 +22,8 @@ export interface LeadNotification {
   phone?: string;
   plan?: string;
   service?: string;
+  /** Multi-select service names from the Get Started form (#578). */
+  services?: string[];
   message?: string;
   source: string;
   /** Set for event/newsletter registrations — routes Slack to #events. */
@@ -53,6 +55,7 @@ function plainTextBody(lead: LeadNotification): string {
     field('Source', lead.source),
     field('Plan', lead.plan),
     field('Service', lead.service),
+    field('Services', lead.services?.length ? lead.services.join(', ') : undefined),
     lead.message ? `\nMessage:\n${lead.message}` : null,
   ]
     .filter(Boolean)
@@ -69,6 +72,7 @@ function htmlBody(lead: LeadNotification): string {
     ['Source', lead.source],
     ['Plan', lead.plan],
     ['Service', lead.service],
+    ['Services', lead.services?.length ? escapeHtml(lead.services.join(', ')) : undefined],
   ]
     .filter(([, v]) => Boolean(v))
     .map(([k, v]) => `<tr><td><strong>${k}</strong></td><td>${v}</td></tr>`)
@@ -138,6 +142,7 @@ async function sendSlack(lead: LeadNotification): Promise<void> {
     field('Phone', lead.phone),
     field('Plan', lead.plan),
     field('Service', lead.service),
+    field('Services', lead.services?.length ? lead.services.join(', ') : undefined),
     lead.message ? `*Message:* ${lead.message}` : null,
   ].filter(Boolean);
 
