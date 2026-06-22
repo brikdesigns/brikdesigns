@@ -8,8 +8,13 @@ import {
   getStoriesByService,
   getRelatedService,
   getSupportPlansByServiceId,
+  getServiceCategories,
+  getServices,
+  resolveServiceTagCategory,
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
+import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
+import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import {
   Card,
@@ -253,6 +258,30 @@ export default async function ServiceDetailPage({ params }: Props) {
     items: [],
   };
 
+  // Service picker options for the Get Started modal, clustered by service
+  // line (line rank → service rank), mirroring the /get-started page.
+  const [allServiceLines, allServices] = await Promise.all([
+    getServiceCategories(),
+    getServices(),
+  ]);
+  const lineRank = new Map<string, number>(
+    allServiceLines.map((l) => [l.id, l.rank ?? 0]),
+  );
+  const serviceOptions: ServiceOption[] = [...allServices]
+    .sort(
+      (a, b) =>
+        (lineRank.get(a.service_line_id) ?? 99) -
+          (lineRank.get(b.service_line_id) ?? 99) ||
+        (a.rank ?? 0) - (b.rank ?? 0),
+    )
+    .map((s) => ({
+      value: s.slug,
+      label: s.name,
+      category: resolveServiceTagCategory({
+        slug: s.service_lines?.slug ?? s.slug,
+      }),
+    }));
+
   return (
     // Page-level cascade: service-line-colored accent text (eyebrows,
     // breadcrumbs, service tag copy). Stops short of --background-inverse on
@@ -345,9 +374,12 @@ export default async function ServiceDetailPage({ params }: Props) {
                   features={parseFeatures(off.included_scope)}
                   highlighted={!!off.is_featured}
                   action={
-                    <Button href="/contact" variant="primary" size="md">
-                      Let&apos;s Talk
-                    </Button>
+                    <GetStartedModalButton
+                      service={service.slug}
+                      serviceOptions={serviceOptions}
+                      label="Get Started"
+                      size="md"
+                    />
                   }
                 />
               );
