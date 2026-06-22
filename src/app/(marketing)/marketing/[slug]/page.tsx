@@ -28,7 +28,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!event || event.template !== 'newsletter') return { title: 'Not Found' };
   const description = plainTextExcerpt(event.description_html);
   return {
-    title: `${event.title} | Brik Designs`,
+    // Bare title — the root layout's `title.template` ('%s | Brik Designs')
+    // appends the site suffix. Appending it here too double-suffixes (#587).
+    title: event.title,
     description,
     openGraph: {
       title: event.title,
