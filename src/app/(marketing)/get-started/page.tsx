@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
-import { getSupportPlans } from '@/lib/supabase/queries';
+import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
+import {
+  getSupportPlans,
+  getServiceCategories,
+  getServices,
+  resolveServiceTagCategory,
+} from '@/lib/supabase/queries';
 import '../shared-sections.css';
 
 export const metadata: Metadata = {
@@ -23,6 +29,31 @@ export default async function GetStartedPage({ searchParams }: Props) {
     planName = plans.find((p) => p.slug === planSlug)?.name ?? '';
   }
 
+  // Build the service-picker options, clustered by service line (line rank,
+  // then service rank) so the flat MultiSelect groups lines together. Each
+  // option carries its BDS ServiceLine so the selected chip is line-colored.
+  const [serviceLines, services] = await Promise.all([
+    getServiceCategories(),
+    getServices(),
+  ]);
+  const lineRank = new Map<string, number>(
+    serviceLines.map((line) => [line.id, line.rank ?? 0]),
+  );
+  const serviceOptions: ServiceOption[] = [...services]
+    .sort(
+      (a, b) =>
+        (lineRank.get(a.service_line_id) ?? 99) -
+          (lineRank.get(b.service_line_id) ?? 99) ||
+        (a.rank ?? 0) - (b.rank ?? 0),
+    )
+    .map((service) => ({
+      value: service.slug,
+      label: service.name,
+      category: resolveServiceTagCategory({
+        slug: service.service_lines?.slug ?? service.slug,
+      }),
+    }));
+
   return (
     <>
       <section className="page-hero">
@@ -38,7 +69,11 @@ export default async function GetStartedPage({ searchParams }: Props) {
       <section className="page-section">
         <div className="container-lg" style={{ maxWidth: 600, alignItems: 'flex-start' }}>
           <Suspense>
-            <LeadCaptureForm source="get_started" planName={planName} />
+            <LeadCaptureForm
+              source="get_started"
+              planName={planName}
+              serviceOptions={serviceOptions}
+            />
           </Suspense>
         </div>
       </section>

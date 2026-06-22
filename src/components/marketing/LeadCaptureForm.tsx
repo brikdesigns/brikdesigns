@@ -1,21 +1,28 @@
 'use client';
 
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button, TextInput, TextArea } from '@brikdesigns/bds';
 import { useFormSubmit } from '@/lib/hooks/useFormSubmit';
 import { FormError } from '@/components/marketing/forms/FormError';
 import { FormSuccessCard } from '@/components/marketing/forms/FormSuccessCard';
+import { ServiceMultiSelect, type ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 
 export function LeadCaptureForm({
   source = 'get_started',
   plan: planProp,
   planName = '',
-}: { source?: string; plan?: string; planName?: string }) {
+  serviceOptions = [],
+}: { source?: string; plan?: string; planName?: string; serviceOptions?: ServiceOption[] }) {
   const searchParams = useSearchParams();
   // In the modal there is no `?plan=` in the URL — take the slug as a prop and
   // fall back to the query param for the standalone /get-started route. #401.
   const plan = planProp ?? searchParams.get('plan') ?? '';
   const service = searchParams.get('service') || '';
+  // Multi-select service picker. CTA pre-selection + cross-page persistence
+  // land in #577; #578 persists the array server-side. For now the selection
+  // is captured and submitted as `services` alongside the legacy `service`.
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
   const { isSubmitting, isSuccess, isError, error, submit } = useFormSubmit({
     endpoint: '/api/leads',
@@ -31,6 +38,7 @@ export function LeadCaptureForm({
       phone: form.get('phone') || '',
       plan: plan || form.get('plan') || '',
       service: service || '',
+      services: selectedServices,
       message: form.get('message') || '',
       source,
       // Honeypot — bots fill every field, real users don't see this one.
@@ -103,6 +111,13 @@ export function LeadCaptureForm({
         type="tel"
         placeholder="(555) 123-4567"
       />
+      {serviceOptions.length > 0 && (
+        <ServiceMultiSelect
+          options={serviceOptions}
+          value={selectedServices}
+          onChange={setSelectedServices}
+        />
+      )}
       <TextArea
         label="Tell us about your project (optional)"
         name="message"
