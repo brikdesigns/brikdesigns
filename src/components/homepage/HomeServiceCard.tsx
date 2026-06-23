@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { Card, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
-import { color } from '@/lib/tokens';
+import { color, serviceColor } from '@/lib/tokens';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 
 interface HomeServiceCardProps {
@@ -30,7 +30,16 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: Hom
         </Frame>
       }
       tag={<ServiceTag category={category} variant="icon" size="md" />}
-      action={<LinkButton href={`/services/${routeSlugForServiceLine(slug)}`} variant="primary" size="md">Learn more</LinkButton>}
+      action={
+        <LinkButton
+          href={`/services/${routeSlugForServiceLine(slug)}`}
+          variant="primary"
+          size="md"
+          style={{ '--background-brand-primary': serviceColor(category).onLight } as React.CSSProperties}
+        >
+          Learn more
+        </LinkButton>
+      }
     />
   );
 }

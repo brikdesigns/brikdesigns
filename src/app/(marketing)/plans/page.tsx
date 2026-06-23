@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getSupportPlans } from '@/lib/supabase/queries';
+import { getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { PlanCardGrid } from './PlanCardGrid';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
@@ -22,8 +22,13 @@ export default async function PlansPage() {
     // array — normalize both. Falls back to plan.image_url when unset.
     const rawLine = (plan as { marketing_line?: unknown }).marketing_line;
     const marketingLine = Array.isArray(rawLine)
-      ? (rawLine[0] as { card_image_url: string | null } | undefined) ?? null
-      : (rawLine as { card_image_url: string | null } | null);
+      ? (rawLine[0] as { slug: string | null; card_image_url: string | null } | undefined) ?? null
+      : (rawLine as { slug: string | null; card_image_url: string | null } | null);
+    // The plan's driving service line is its marketing_line (migration 00196) —
+    // `getSupportPlans` embeds only that, not the plan's own service_line_id, so
+    // `service_lines` is null here. Source the card tint + CTA color from the
+    // marketing line, matching the plan detail page (audienceTokens). #BRIK-WEB-47
+    const lineSlug = marketingLine?.slug ?? sl?.slug ?? null;
     return {
       name: plan.name,
       slug: plan.slug,
@@ -33,7 +38,7 @@ export default async function PlansPage() {
       description: plan.description || '',
       imageUrl: marketingLine?.card_image_url || plan.image_url || null,
       features: [] as string[],
-      serviceLineSlug: sl?.slug ?? null,
+      serviceLineSlug: lineSlug ? mapServiceLineSlug(lineSlug) : null,
     };
   });
 

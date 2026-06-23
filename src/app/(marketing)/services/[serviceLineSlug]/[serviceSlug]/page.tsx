@@ -208,9 +208,16 @@ export default async function ServiceDetailPage({ params }: Props) {
     if (!supportPlan) return null;
     const raw = (supportPlan as { marketing_line?: unknown }).marketing_line;
     if (!raw) return null;
-    if (Array.isArray(raw)) return (raw[0] as { card_image_url: string | null; name: string | null } | undefined) ?? null;
-    return raw as { card_image_url: string | null; name: string | null };
+    if (Array.isArray(raw)) return (raw[0] as { slug: string | null; card_image_url: string | null; name: string | null } | undefined) ?? null;
+    return raw as { slug: string | null; card_image_url: string | null; name: string | null };
   })();
+
+  // The support-plan CTA carries the plan's *own* service-line color (its
+  // marketing line), not this page's line — same per-card pattern as the add-on
+  // and Other-Plans CTAs (#569/#343). #BRIK-WEB-47
+  const supportPlanTokens = supportPlanMarketingLine?.slug
+    ? serviceColor(mapServiceLineSlug(supportPlanMarketingLine.slug))
+    : null;
 
   // Service-line tokens drive two scoped cascades:
   //   - Page-level: --text-brand-primary so eyebrows / breadcrumbs / accent
@@ -629,7 +636,14 @@ export default async function ServiceDetailPage({ params }: Props) {
                 )}
                 <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
                 <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
-                <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="md">Learn More</Button>
+                <Button
+                  href={`/plans#${supportPlan.slug}`}
+                  variant="primary"
+                  size="md"
+                  style={supportPlanTokens ? ({ '--background-brand-primary': supportPlanTokens.onLight } as React.CSSProperties) : undefined}
+                >
+                  Learn More
+                </Button>
               </div>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Card, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
+import { serviceColor } from '@/lib/tokens';
 
 interface ServiceCardProps {
   name: string;
@@ -41,7 +42,16 @@ export function ServiceCard({
         </Frame>
       ) : undefined}
       tag={<ServiceTag category={category} variant="icon" size="md" {...tagProps} />}
-      action={showCta ? <LinkButton href={href} variant="primary" size="md">Learn More</LinkButton> : undefined}
+      action={showCta ? (
+        <LinkButton
+          href={href}
+          variant="primary"
+          size="md"
+          style={{ '--background-brand-primary': serviceColor(category).onLight } as React.CSSProperties}
+        >
+          Learn More
+        </LinkButton>
+      ) : undefined}
       href={!showCta ? href : undefined}
     />
   );
