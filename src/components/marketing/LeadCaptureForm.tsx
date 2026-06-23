@@ -14,7 +14,8 @@ export function LeadCaptureForm({
   planName = '',
   serviceOptions = [],
   defaultServices,
-}: { source?: string; plan?: string; planName?: string; serviceOptions?: ServiceOption[]; defaultServices?: string[] }) {
+  offering,
+}: { source?: string; plan?: string; planName?: string; serviceOptions?: ServiceOption[]; defaultServices?: string[]; offering?: { name: string; price?: string } }) {
   const searchParams = useSearchParams();
   // In the modal there is no `?plan=` in the URL — take the slug as a prop and
   // fall back to the query param for the standalone /get-started route. #401.
@@ -42,6 +43,10 @@ export function LeadCaptureForm({
       plan: plan || form.get('plan') || '',
       service: service || '',
       services: selectedServices,
+      // Pricing tier the lead clicked through from (#592). Already-resolved
+      // display data — no server lookup needed.
+      offering: offering?.name || '',
+      offering_price: offering?.price || '',
       message: form.get('message') || '',
       source,
       // Honeypot — bots fill every field, real users don't see this one.
@@ -77,6 +82,24 @@ export function LeadCaptureForm({
             {planName || plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
           </span>
           <input type="hidden" name="plan" value={plan} />
+        </div>
+      )}
+
+      {offering?.name && (
+        <div
+          style={{
+            padding: 'var(--padding-md)',
+            backgroundColor: 'var(--surface-secondary)',
+            borderRadius: 'var(--border-radius-md)',
+          }}
+        >
+          <span style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-sm)', color: 'var(--text-secondary)' }}>
+            Interested in:
+          </span>
+          <span style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-md)', color: 'var(--text-primary)', marginLeft: 'var(--gap-xs)' }}>
+            {offering.name}
+            {offering.price ? ` · ${offering.price}` : ''}
+          </span>
         </div>
       )}
 
