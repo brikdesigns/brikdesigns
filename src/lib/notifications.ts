@@ -24,6 +24,10 @@ export interface LeadNotification {
   service?: string;
   /** Multi-select service names from the Get Started form (#578). */
   services?: string[];
+  /** Pricing tier the lead clicked through from (#592). */
+  offering?: string;
+  /** Formatted price of that tier (e.g. "$350 /month"). */
+  offeringPrice?: string;
   message?: string;
   source: string;
   /** Set for event/newsletter registrations — routes Slack to #events. */
@@ -35,6 +39,12 @@ const FROM_EMAIL = 'Brik Designs <hello@brikdesigns.com>';
 function field(label: string, value: string | undefined): string | null {
   if (!value) return null;
   return `${label}: ${value}`;
+}
+
+/** Combine the offering name + its formatted price into one display value. */
+function offeringValue(lead: LeadNotification): string | undefined {
+  if (!lead.offering) return undefined;
+  return lead.offeringPrice ? `${lead.offering} (${lead.offeringPrice})` : lead.offering;
 }
 
 function headline(lead: LeadNotification): string {
@@ -56,6 +66,7 @@ function plainTextBody(lead: LeadNotification): string {
     field('Plan', lead.plan),
     field('Service', lead.service),
     field('Services', lead.services?.length ? lead.services.join(', ') : undefined),
+    field('Offering', offeringValue(lead)),
     lead.message ? `\nMessage:\n${lead.message}` : null,
   ]
     .filter(Boolean)
@@ -73,6 +84,7 @@ function htmlBody(lead: LeadNotification): string {
     ['Plan', lead.plan],
     ['Service', lead.service],
     ['Services', lead.services?.length ? escapeHtml(lead.services.join(', ')) : undefined],
+    ['Offering', offeringValue(lead) ? escapeHtml(offeringValue(lead)!) : undefined],
   ]
     .filter(([, v]) => Boolean(v))
     .map(([k, v]) => `<tr><td><strong>${k}</strong></td><td>${v}</td></tr>`)
@@ -143,6 +155,7 @@ async function sendSlack(lead: LeadNotification): Promise<void> {
     field('Plan', lead.plan),
     field('Service', lead.service),
     field('Services', lead.services?.length ? lead.services.join(', ') : undefined),
+    field('Offering', offeringValue(lead)),
     lead.message ? `*Message:* ${lead.message}` : null,
   ].filter(Boolean);
 

@@ -27,7 +27,7 @@ function emailToName(email: string): string {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, company_name, phone, plan, service, services, message, source, event_id } = body;
+    const { name, email, company_name, phone, plan, service, services, offering, offering_price, message, source, event_id } = body;
 
     // Basic validation. With an event_id, name + company_name are both
     // optional — event attendees may have no practice, and newsletter signups
@@ -121,6 +121,7 @@ export async function POST(request: Request) {
           plan && `Interested in plan: ${plan}`,
           service && `Interested in service: ${service}`,
           serviceNames.length > 0 && `Interested in services: ${serviceNames.join(', ')}`,
+          offering && `Interested in offering: ${offering}${offering_price ? ` (${offering_price})` : ''}`,
           message && `Message: ${message}`,
         ]
           .filter(Boolean)
@@ -212,6 +213,8 @@ export async function POST(request: Request) {
       plan,
       service,
       services: serviceNames,
+      offering,
+      offeringPrice: offering_price,
       message,
       source,
       eventTitle,
