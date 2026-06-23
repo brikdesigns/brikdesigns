@@ -14,6 +14,7 @@ import {
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
+import { ServiceHeroModal } from './ServiceHeroModal';
 import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import {
@@ -24,7 +25,6 @@ import {
   CardTitle,
   Frame,
   Grid,
-  HeroSplitImageCardOverlay,
   Button,
   PricingCard,
   ServiceTag,
@@ -138,6 +138,27 @@ export default async function ServiceDetailPage({ params }: Props) {
   const startingPrice = sortedOfferings.length > 0
     ? formatPrice(sortedOfferings[0]?.base_price_cents)
     : null;
+
+  // Single-tier services have no pricing grid, so the hero "Let's Talk" CTA is
+  // the only offering CTA — carry that one offering into the lead record,
+  // formatted exactly like the multi-tier grid CTAs (#592/#595). Multi-tier and
+  // no-offering services keep the hero CTA service-level (offering undefined).
+  const heroOffering = (() => {
+    if (sortedOfferings.length !== 1) return undefined;
+    const off = sortedOfferings[0] as {
+      name: string;
+      base_price_cents: number | null;
+      billing_frequency: string | null;
+    };
+    const priceDisplay = formatPrice(off.base_price_cents);
+    const period = priceDisplay ? formatPeriod(off.billing_frequency) : undefined;
+    return {
+      name: off.name,
+      price: priceDisplay
+        ? `${priceDisplay}${period ? ` ${period}` : ''}`
+        : undefined,
+    };
+  })();
 
   // Related services in same service line (exclude current)
   const siblingServices = serviceLine?.id
@@ -322,10 +343,13 @@ export default async function ServiceDetailPage({ params }: Props) {
           } as React.CSSProperties
         }
       >
-        <HeroSplitImageCardOverlay
+        <ServiceHeroModal
           section={heroSection}
           clientFacts={defaultClientFacts}
           theme={defaultMarketingTheme}
+          service={service.slug}
+          serviceOptions={serviceOptions}
+          offering={heroOffering}
         />
         <ScrollDownCta />
       </div>
