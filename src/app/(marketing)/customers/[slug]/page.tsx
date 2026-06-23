@@ -125,8 +125,8 @@ export default async function CustomerDetailPage({ params }: Props) {
                     <Image
                       src={page.primary_badge_url}
                       alt=""
-                      width={96}
-                      height={96}
+                      width={40}
+                      height={40}
                       className="customer-detail-hero__tag-icon customer-detail-hero__badge--primary"
                       priority
                     />
@@ -135,8 +135,8 @@ export default async function CustomerDetailPage({ params }: Props) {
                     <Image
                       src={page.secondary_badge_url}
                       alt=""
-                      width={96}
-                      height={96}
+                      width={40}
+                      height={40}
                       className="customer-detail-hero__tag-icon customer-detail-hero__badge--secondary"
                       priority
                     />
