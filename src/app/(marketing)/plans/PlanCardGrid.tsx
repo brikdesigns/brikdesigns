@@ -82,7 +82,10 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
                     href={`/plans/${plan.slug}`}
                     variant="primary"
                     size="md"
-                    style={{ width: '100%' }}
+                    style={{
+                      width: '100%',
+                      ...(svcTokens ? { '--background-brand-primary': svcTokens.onLight } : {}),
+                    } as React.CSSProperties}
                   >
                     Learn More
                   </Button>
