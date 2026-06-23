@@ -24,6 +24,7 @@ export async function MegaNavServer() {
         category: mapServiceLineSlug(cat.slug),
         tagline: '',
         services: [],
+        imageUrl: cat.card_image_url ?? null,
       };
     }
 
@@ -40,6 +41,7 @@ export async function MegaNavServer() {
       category: mapServiceLineSlug(cat.slug),
       tagline: col.tagline,
       services: catServices,
+      imageUrl: cat.card_image_url ?? null,
     };
   });
 
@@ -48,7 +50,10 @@ export async function MegaNavServer() {
     slug: plan.slug,
     price: plan.monthly_price_display || 'Contact',
     description: plan.home_description || plan.description || '',
-    imageUrl: plan.image_url || null,
+    // Service-line illustration is the single CMS source (#467): prefer the
+    // plan's marketing_line card_image_url, falling back to the plan's own
+    // image_url for legacy rows with no marketing line set.
+    imageUrl: plan.marketing_line?.card_image_url ?? plan.image_url ?? null,
   }));
 
   const industryItems = (industries || []).map((ind) => ({

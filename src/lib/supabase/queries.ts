@@ -316,7 +316,7 @@ export const getSupportPlanBySlug = cache(
         .from('service_plans')
         .select(
           `*,
-           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name),
+           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name, card_image_url),
            service_plan_items(
              sort_order,
              service:services(
@@ -347,7 +347,7 @@ export const getOtherSupportPlans = cache(
         .from('service_plans')
         .select(
           `name, slug, monthly_price_display, description, image_url, discount_label,
-           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name)`
+           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name, card_image_url)`
         )
         .eq('is_public', true)
         .neq('slug', excludeSlug)

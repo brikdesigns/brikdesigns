@@ -16,6 +16,7 @@ export function GetStartedModalButton({
   planName,
   service,
   serviceOptions = [],
+  offering,
   label = 'Get Started',
   variant = 'primary',
   size = 'lg',
@@ -26,6 +27,14 @@ export function GetStartedModalButton({
   service?: string;
   /** Options for the multi-select; passed through from the server page. */
   serviceOptions?: ServiceOption[];
+  /**
+   * The pricing tier this CTA renders for (service-detail pricing grid).
+   * Already-resolved display data — name + formatted price — passed straight
+   * through to the lead record so we know which offering the lead clicked.
+   * Offerings are nested under services and aren't globally addressable by
+   * slug, so we carry the resolved values rather than re-querying (#592).
+   */
+  offering?: { name: string; price?: string };
   label?: string;
   variant?: 'primary' | 'secondary';
   size?: 'sm' | 'md' | 'lg';
@@ -50,6 +59,7 @@ export function GetStartedModalButton({
             planName={planName}
             serviceOptions={serviceOptions}
             defaultServices={service ? [service] : undefined}
+            offering={offering}
           />
         </Suspense>
       </Modal>

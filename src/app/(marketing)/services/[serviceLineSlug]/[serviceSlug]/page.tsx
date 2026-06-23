@@ -361,6 +361,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               is_featured: boolean | null;
             }) => {
               const priceDisplay = formatPrice(off.base_price_cents);
+              const period = priceDisplay ? formatPeriod(off.billing_frequency) : undefined;
               // No-price offerings show "Quote" in the price slot — single
               // word, fits PricingCard's heading-xl typography. The action
               // button carries the actual "contact for a custom quote" CTA.
@@ -369,7 +370,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   key={off.slug}
                   title={off.name}
                   price={priceDisplay ?? 'Quote'}
-                  period={priceDisplay ? formatPeriod(off.billing_frequency) : undefined}
+                  period={period}
                   description={off.description ?? undefined}
                   features={parseFeatures(off.included_scope)}
                   highlighted={!!off.is_featured}
@@ -377,6 +378,13 @@ export default async function ServiceDetailPage({ params }: Props) {
                     <GetStartedModalButton
                       service={service.slug}
                       serviceOptions={serviceOptions}
+                      // Carry the clicked tier into the lead record (#592).
+                      offering={{
+                        name: off.name,
+                        price: priceDisplay
+                          ? `${priceDisplay}${period ? ` ${period}` : ''}`
+                          : undefined,
+                      }}
                       label="Get Started"
                       size="md"
                     />
