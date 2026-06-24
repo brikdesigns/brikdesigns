@@ -3,6 +3,7 @@
 import { Suspense, useState, type ComponentProps } from 'react';
 import { HeroSplitImageCardOverlay, Modal, type ServiceLine } from '@brikdesigns/bds';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
+import { LeadModalLayout } from '@/components/marketing/LeadModalLayout';
 
 type HeroProps = ComponentProps<typeof HeroSplitImageCardOverlay>;
 
@@ -36,6 +37,21 @@ export function PlanHeroModal({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Plans have no offering/image — the panel shows the service-line glyph plus
+  // the "Selected plan" label/value. The panel carries that context, so the
+  // in-form callout is suppressed (`hideOfferingSummary`).
+  const showPanel = Boolean(serviceLine && plan);
+
+  const form = (
+    <LeadCaptureForm
+      source="get_started"
+      plan={plan}
+      planName={planName}
+      serviceLine={serviceLine}
+      hideOfferingSummary={showPanel}
+    />
+  );
+
   return (
     <>
       <HeroSplitImageCardOverlay
@@ -49,10 +65,23 @@ export function PlanHeroModal({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="Get Started"
-        size="md"
+        size={showPanel ? 'xl' : 'md'}
       >
         <Suspense>
-          <LeadCaptureForm source="get_started" plan={plan} planName={planName} serviceLine={serviceLine} />
+          {showPanel && serviceLine ? (
+            <LeadModalLayout
+              serviceLine={serviceLine}
+              label="Selected plan"
+              value={
+                planName ||
+                plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+              }
+            >
+              {form}
+            </LeadModalLayout>
+          ) : (
+            form
+          )}
         </Suspense>
       </Modal>
     </>

@@ -3,6 +3,7 @@
 import { Suspense, useState, type ComponentProps } from 'react';
 import { HeroSplitImageCardOverlay, Modal, type ServiceLine } from '@brikdesigns/bds';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
+import { LeadModalLayout } from '@/components/marketing/LeadModalLayout';
 import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 
 type HeroProps = ComponentProps<typeof HeroSplitImageCardOverlay>;
@@ -29,6 +30,7 @@ export function ServiceHeroModal({
   offering,
   serviceLine,
   serviceName,
+  imageUrl,
 }: {
   section: HeroProps['section'];
   clientFacts: HeroProps['clientFacts'];
@@ -46,8 +48,27 @@ export function ServiceHeroModal({
   serviceLine?: ServiceLine;
   /** Parent service name resolving the ServiceTag glyph. */
   serviceName?: string;
+  /** Service image for the 2-col modal's showcase panel (the hero priceCard image). */
+  imageUrl?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  // The hero represents a single offering; show the 2-col showcase panel when
+  // we have that context. The panel carries it, so the in-form callout is
+  // suppressed (`hideOfferingSummary`).
+  const showPanel = Boolean(serviceLine && offering?.name);
+
+  const form = (
+    <LeadCaptureForm
+      source="get_started"
+      serviceOptions={serviceOptions}
+      defaultServices={service ? [service] : undefined}
+      offering={offering}
+      serviceLine={serviceLine}
+      serviceName={serviceName}
+      hideOfferingSummary={showPanel}
+    />
+  );
 
   return (
     <>
@@ -61,17 +82,24 @@ export function ServiceHeroModal({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="Get Started"
-        size="md"
+        size={showPanel ? 'xl' : 'md'}
       >
         <Suspense>
-          <LeadCaptureForm
-            source="get_started"
-            serviceOptions={serviceOptions}
-            defaultServices={service ? [service] : undefined}
-            offering={offering}
-            serviceLine={serviceLine}
-            serviceName={serviceName}
-          />
+          {showPanel && serviceLine && offering ? (
+            <LeadModalLayout
+              serviceLine={serviceLine}
+              imageUrl={imageUrl}
+              imageAlt={offering.name}
+              label="Interested in"
+              value={offering.name}
+              price={offering.price}
+              frequency={offering.frequency}
+            >
+              {form}
+            </LeadModalLayout>
+          ) : (
+            form
+          )}
         </Suspense>
       </Modal>
     </>
