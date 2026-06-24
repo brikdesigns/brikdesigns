@@ -26,7 +26,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@brikdesigns/bds": "^0.104.0",
+    "@brikdesigns/bds": "^0.105.0",
     "@brikdesigns/feedback-contract": "^0.2.0",
     "@iconify/react": "^6.0.2",
     "@mdx-js/mdx": "^3.1.1",

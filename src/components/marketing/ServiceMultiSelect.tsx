@@ -16,13 +16,13 @@ export type ServiceOption = {
 /**
  * ServiceMultiSelect — wraps the BDS MultiSelect for picking Brik services on
  * the Get Started form. Options arrive pre-ordered by service line (clustered)
- * from the server; each selected item renders with a service-line-colored
- * ServiceTag glyph as its leading icon.
+ * from the server; each selected item renders as a service-line-colored
+ * `ServiceTag` chip (icon + label) via MultiSelect's `chip` slot.
  *
- * Note: the shipped MultiSelect takes a flat option list (no `<optgroup>`
- * headers), so "grouped by line" is expressed as clustered ordering + the
- * per-line tag color on selections. True header-grouped dropdowns are the
- * deferred brik-bds Menu/MultiSelect enhancement (out of scope for #576).
+ * Note: the native dropdown `<option>` can't render a node, so the dropdown
+ * still shows the plain label plus the per-line colored glyph via `icon`. A
+ * full ServiceTag pill in the dropdown would require a custom ARIA listbox —
+ * tracked separately under brik-bds#940, descoped from #602.
  */
 export function ServiceMultiSelect({
   options,
@@ -40,11 +40,24 @@ export function ServiceMultiSelect({
   const multiOptions = options.map((o) => ({
     value: o.value,
     label: o.label,
+    // Dropdown glyph — native <option> can't host a node, so the colored
+    // icon is the most the dropdown can show.
     icon: (
       <ServiceTag
         category={o.category}
         variant="icon"
         serviceName={o.label}
+        size="sm"
+      />
+    ),
+    // Selected chip — line-colored ServiceTag pill instead of the default
+    // neutral Tag. MultiSelect supplies its own remove control beside it.
+    chip: (
+      <ServiceTag
+        category={o.category}
+        variant="icon-text"
+        serviceName={o.label}
+        label={o.label}
         size="sm"
       />
     ),
