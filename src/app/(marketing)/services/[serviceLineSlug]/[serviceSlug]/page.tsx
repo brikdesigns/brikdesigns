@@ -360,6 +360,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           serviceOptions={serviceOptions}
           offering={heroOffering}
           serviceLine={serviceLineKey}
+          {...(service.image_url ? { imageUrl: service.image_url } : {})}
           {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
         />
         <ScrollDownCta />
@@ -422,6 +423,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                         frequency: period,
                       }}
                       serviceLine={serviceLineKey}
+                      {...(service.image_url ? { imageUrl: service.image_url } : {})}
                       {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
                       label="Get Started"
                       size="md"

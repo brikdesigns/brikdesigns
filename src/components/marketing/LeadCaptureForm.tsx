@@ -17,7 +17,8 @@ export function LeadCaptureForm({
   offering,
   serviceLine,
   serviceName,
-}: { source?: string; plan?: string; planName?: string; serviceOptions?: ServiceOption[]; defaultServices?: string[]; offering?: { name: string; price?: string; frequency?: string }; serviceLine?: ServiceLine; serviceName?: string }) {
+  hideOfferingSummary = false,
+}: { source?: string; plan?: string; planName?: string; serviceOptions?: ServiceOption[]; defaultServices?: string[]; offering?: { name: string; price?: string; frequency?: string }; serviceLine?: ServiceLine; serviceName?: string; hideOfferingSummary?: boolean }) {
   const searchParams = useSearchParams();
   // In the modal there is no `?plan=` in the URL — take the slug as a prop and
   // fall back to the query param for the standalone /get-started route. #401.
@@ -75,7 +76,7 @@ export function LeadCaptureForm({
           hidden input keeps the slug in the submitted payload. */}
       {plan && (
         <>
-          {serviceLine && (
+          {serviceLine && !hideOfferingSummary && (
             <ProductSummaryCard
               serviceLine={serviceLine}
               label="Selected plan"
@@ -87,8 +88,10 @@ export function LeadCaptureForm({
       )}
 
       {/* Offering/tier callout — use case 2. The parent service drives the
-          ServiceTag glyph; price • frequency render below the value. */}
-      {offering?.name && serviceLine && (
+          ServiceTag glyph; price • frequency render below the value. Suppressed
+          when the modal's 2-col layout already shows offering context in its
+          left showcase panel (`hideOfferingSummary`). */}
+      {offering?.name && serviceLine && !hideOfferingSummary && (
         <ProductSummaryCard
           serviceLine={serviceLine}
           serviceName={serviceName}
@@ -114,24 +117,33 @@ export function LeadCaptureForm({
         required
         placeholder="Jane Smith"
       />
-      <TextInput
-        label="Email"
-        name="email"
-        type="email"
-        required
-        placeholder="jane@example.com"
-      />
+      {/* Email + phone share a row. flex-wrap + flex-basis lets the pair sit
+          side-by-side when there's room and stack on narrow widths (mobile,
+          single-col modal) without a media query. */}
+      <div style={{ display: 'flex', gap: 'var(--gap-lg)', flexWrap: 'wrap' }}>
+        <TextInput
+          label="Email"
+          name="email"
+          type="email"
+          required
+          placeholder="jane@example.com"
+          fullWidth
+          style={{ flex: '1 1 200px' }}
+        />
+        <TextInput
+          label="Phone (optional)"
+          name="phone"
+          type="tel"
+          placeholder="(555) 123-4567"
+          fullWidth
+          style={{ flex: '1 1 200px' }}
+        />
+      </div>
       <TextInput
         label="Company name"
         name="company_name"
         required
         placeholder="Acme Design Co."
-      />
-      <TextInput
-        label="Phone (optional)"
-        name="phone"
-        type="tel"
-        placeholder="(555) 123-4567"
       />
       {serviceOptions.length > 0 && (
         <ServiceMultiSelect
