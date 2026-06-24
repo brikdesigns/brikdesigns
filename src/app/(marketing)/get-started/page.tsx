@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import type { ServiceLine } from '@brikdesigns/bds';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
 import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 import {
@@ -7,6 +8,7 @@ import {
   getServiceCategories,
   getServices,
   resolveServiceTagCategory,
+  mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import '../shared-sections.css';
 
@@ -24,9 +26,18 @@ export default async function GetStartedPage({ searchParams }: Props) {
   // `product-support` → "Product Design Support", not "Product Support"). #400.
   const { plan: planSlug } = await searchParams;
   let planName = '';
+  let planServiceLine: ServiceLine | undefined;
   if (planSlug) {
     const plans = await getSupportPlans();
-    planName = plans.find((p) => p.slug === planSlug)?.name ?? '';
+    const matched = plans.find((p) => p.slug === planSlug);
+    planName = matched?.name ?? '';
+    // Resolve the plan's parent service-line so the form's summary card shows
+    // the right ServiceTag — same card the modal entry points render (#600).
+    // marketing_line is the CMS-primary line (portal migration 00196).
+    const rawLine = (matched as { marketing_line?: unknown } | undefined)?.marketing_line;
+    const line = Array.isArray(rawLine) ? rawLine[0] : rawLine;
+    const lineSlug = (line as { slug?: string } | null)?.slug;
+    if (lineSlug) planServiceLine = mapServiceLineSlug(lineSlug);
   }
 
   // Build the service-picker options, clustered by service line (line rank,
@@ -73,6 +84,7 @@ export default async function GetStartedPage({ searchParams }: Props) {
               source="get_started"
               planName={planName}
               serviceOptions={serviceOptions}
+              serviceLine={planServiceLine}
             />
           </Suspense>
         </div>

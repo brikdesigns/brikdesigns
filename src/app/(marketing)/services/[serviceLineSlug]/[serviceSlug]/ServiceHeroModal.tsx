@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useState, type ComponentProps } from 'react';
-import { HeroSplitImageCardOverlay, Modal } from '@brikdesigns/bds';
+import { HeroSplitImageCardOverlay, Modal, type ServiceLine } from '@brikdesigns/bds';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
 import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 
@@ -27,6 +27,8 @@ export function ServiceHeroModal({
   service,
   serviceOptions = [],
   offering,
+  serviceLine,
+  serviceName,
 }: {
   section: HeroProps['section'];
   clientFacts: HeroProps['clientFacts'];
@@ -39,7 +41,11 @@ export function ServiceHeroModal({
    * The offering this hero represents (single-tier services only) — carried
    * into the lead record, consistent with the pricing-grid CTAs (#592).
    */
-  offering?: { name: string; price?: string };
+  offering?: { name: string; price?: string; frequency?: string };
+  /** Parent service-line driving the lead-form summary card's ServiceTag (#600). */
+  serviceLine?: ServiceLine;
+  /** Parent service name resolving the ServiceTag glyph. */
+  serviceName?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -63,6 +69,8 @@ export function ServiceHeroModal({
             serviceOptions={serviceOptions}
             defaultServices={service ? [service] : undefined}
             offering={offering}
+            serviceLine={serviceLine}
+            serviceName={serviceName}
           />
         </Suspense>
       </Modal>

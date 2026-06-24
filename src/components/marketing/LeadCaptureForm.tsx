@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Button, TextInput, TextArea } from '@brikdesigns/bds';
+import { Button, TextInput, TextArea, ProductSummaryCard, type ServiceLine } from '@brikdesigns/bds';
 import { useFormSubmit } from '@/lib/hooks/useFormSubmit';
 import { FormError } from '@/components/marketing/forms/FormError';
 import { FormSuccessCard } from '@/components/marketing/forms/FormSuccessCard';
@@ -15,7 +15,9 @@ export function LeadCaptureForm({
   serviceOptions = [],
   defaultServices,
   offering,
-}: { source?: string; plan?: string; planName?: string; serviceOptions?: ServiceOption[]; defaultServices?: string[]; offering?: { name: string; price?: string } }) {
+  serviceLine,
+  serviceName,
+}: { source?: string; plan?: string; planName?: string; serviceOptions?: ServiceOption[]; defaultServices?: string[]; offering?: { name: string; price?: string; frequency?: string }; serviceLine?: ServiceLine; serviceName?: string }) {
   const searchParams = useSearchParams();
   // In the modal there is no `?plan=` in the URL — take the slug as a prop and
   // fall back to the query param for the standalone /get-started route. #401.
@@ -44,9 +46,11 @@ export function LeadCaptureForm({
       service: service || '',
       services: selectedServices,
       // Pricing tier the lead clicked through from (#592). Already-resolved
-      // display data — no server lookup needed.
+      // display data — no server lookup needed. Price + frequency are carried
+      // separately for the card's `price • frequency` rendering, but rejoined
+      // here so the lead record stores the same combined string as before.
       offering: offering?.name || '',
-      offering_price: offering?.price || '',
+      offering_price: [offering?.price, offering?.frequency].filter(Boolean).join(' '),
       message: form.get('message') || '',
       source,
       // Honeypot — bots fill every field, real users don't see this one.
@@ -65,42 +69,34 @@ export function LeadCaptureForm({
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)' }}>
+      {/* Selected-plan callout — use case 4. The plan's parent service-line
+          drives the leading ServiceTag (no specific service glyph). Falls back
+          to the humanized slug when the resolved CMS name is unknown. The
+          hidden input keeps the slug in the submitted payload. */}
       {plan && (
-        <div
-          style={{
-            padding: 'var(--padding-md)',
-            backgroundColor: 'var(--surface-secondary)',
-            borderRadius: 'var(--border-radius-md)',
-          }}
-        >
-          <span style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-sm)', color: 'var(--text-secondary)' }}>
-            Selected plan:
-          </span>
-          <span style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-md)', color: 'var(--text-primary)', marginLeft: 'var(--gap-xs)' }}>
-            {/* Prefer the resolved CMS name (passed from the get-started page);
-                fall back to humanizing the slug only when the name is unknown. */}
-            {planName || plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-          </span>
+        <>
+          {serviceLine && (
+            <ProductSummaryCard
+              serviceLine={serviceLine}
+              label="Selected plan"
+              value={planName || plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+            />
+          )}
           <input type="hidden" name="plan" value={plan} />
-        </div>
+        </>
       )}
 
-      {offering?.name && (
-        <div
-          style={{
-            padding: 'var(--padding-md)',
-            backgroundColor: 'var(--surface-secondary)',
-            borderRadius: 'var(--border-radius-md)',
-          }}
-        >
-          <span style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-sm)', color: 'var(--text-secondary)' }}>
-            Interested in:
-          </span>
-          <span style={{ fontFamily: 'var(--font-family-label)', fontSize: 'var(--label-md)', color: 'var(--text-primary)', marginLeft: 'var(--gap-xs)' }}>
-            {offering.name}
-            {offering.price ? ` · ${offering.price}` : ''}
-          </span>
-        </div>
+      {/* Offering/tier callout — use case 2. The parent service drives the
+          ServiceTag glyph; price • frequency render below the value. */}
+      {offering?.name && serviceLine && (
+        <ProductSummaryCard
+          serviceLine={serviceLine}
+          serviceName={serviceName}
+          label="Interested in"
+          value={offering.name}
+          price={offering.price}
+          frequency={offering.frequency}
+        />
       )}
 
       {/* Honeypot — invisible to real users, fills bots in. */}
