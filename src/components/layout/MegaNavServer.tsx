@@ -1,4 +1,5 @@
-import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug, resolveServiceTagCategory } from '@/lib/supabase/queries';
+import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 import { NAV_COLUMNS } from '@/lib/meganav-columns';
 import { MegaNav } from './MegaNav';
 
@@ -63,5 +64,26 @@ export async function MegaNavServer() {
     imageUrl: ind.image_url || null,
   }));
 
-  return <MegaNav serviceLines={serviceLines} supportPlans={supportPlans} industries={industryItems} />;
+  // Service-picker options for the nav "Let's Talk" modal — services (not
+  // offerings), clustered by service line so chips are line-colored. Mirrors
+  // the get-started / contact mapping.
+  const lineRank = new Map<string, number>(
+    categories.map((cat) => [cat.id, cat.rank ?? 0]),
+  );
+  const serviceOptions: ServiceOption[] = [...services]
+    .sort(
+      (a, b) =>
+        (lineRank.get(a.service_line_id) ?? 99) -
+          (lineRank.get(b.service_line_id) ?? 99) ||
+        (a.rank ?? 0) - (b.rank ?? 0),
+    )
+    .map((service) => ({
+      value: service.slug,
+      label: service.name,
+      category: resolveServiceTagCategory({
+        slug: service.service_lines?.slug ?? service.slug,
+      }),
+    }));
+
+  return <MegaNav serviceLines={serviceLines} supportPlans={supportPlans} industries={industryItems} serviceOptions={serviceOptions} />;
 }
