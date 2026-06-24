@@ -195,6 +195,7 @@ export default async function PlanDetailPage({ params }: Props) {
           theme={defaultMarketingTheme}
           plan={plan.slug}
           planName={plan.name}
+          serviceLine={audience}
         />
         <ScrollDownCta />
       </div>
@@ -255,7 +256,7 @@ export default async function PlanDetailPage({ params }: Props) {
                   </div>
                 )}
                 <div className="button-wrapper button-wrapper--center">
-                  <GetStartedModalButton plan={plan.slug} planName={plan.name} />
+                  <GetStartedModalButton plan={plan.slug} planName={plan.name} serviceLine={audience} />
                 </div>
               </div>
             </Card>

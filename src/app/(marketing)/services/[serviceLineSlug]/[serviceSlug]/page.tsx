@@ -152,11 +152,13 @@ export default async function ServiceDetailPage({ params }: Props) {
     };
     const priceDisplay = formatPrice(off.base_price_cents);
     const period = priceDisplay ? formatPeriod(off.billing_frequency) : undefined;
+    // Price + frequency are carried separately so the lead-form summary card
+    // can render them as `price • frequency`; they're rejoined into the lead
+    // record on submit (#600).
     return {
       name: off.name,
-      price: priceDisplay
-        ? `${priceDisplay}${period ? ` ${period}` : ''}`
-        : undefined,
+      price: priceDisplay ?? undefined,
+      frequency: period,
     };
   })();
 
@@ -357,6 +359,8 @@ export default async function ServiceDetailPage({ params }: Props) {
           service={service.slug}
           serviceOptions={serviceOptions}
           offering={heroOffering}
+          serviceLine={serviceLineKey}
+          {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
         />
         <ScrollDownCta />
       </div>
@@ -410,12 +414,15 @@ export default async function ServiceDetailPage({ params }: Props) {
                       service={service.slug}
                       serviceOptions={serviceOptions}
                       // Carry the clicked tier into the lead record (#592).
+                      // Price + frequency are split for the summary card's
+                      // `price • frequency` rendering (#600); rejoined on submit.
                       offering={{
                         name: off.name,
-                        price: priceDisplay
-                          ? `${priceDisplay}${period ? ` ${period}` : ''}`
-                          : undefined,
+                        price: priceDisplay ?? undefined,
+                        frequency: period,
                       }}
+                      serviceLine={serviceLineKey}
+                      {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
                       label="Get Started"
                       size="md"
                     />

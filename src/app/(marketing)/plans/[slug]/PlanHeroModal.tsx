@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useState, type ComponentProps } from 'react';
-import { HeroSplitImageCardOverlay, Modal } from '@brikdesigns/bds';
+import { HeroSplitImageCardOverlay, Modal, type ServiceLine } from '@brikdesigns/bds';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
 
 type HeroProps = ComponentProps<typeof HeroSplitImageCardOverlay>;
@@ -24,12 +24,15 @@ export function PlanHeroModal({
   theme,
   plan,
   planName,
+  serviceLine,
 }: {
   section: HeroProps['section'];
   clientFacts: HeroProps['clientFacts'];
   theme: HeroProps['theme'];
   plan: string;
   planName?: string;
+  /** Plan's parent service-line driving the lead-form summary card's ServiceTag (#600). */
+  serviceLine?: ServiceLine;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -49,7 +52,7 @@ export function PlanHeroModal({
         size="md"
       >
         <Suspense>
-          <LeadCaptureForm source="get_started" plan={plan} planName={planName} />
+          <LeadCaptureForm source="get_started" plan={plan} planName={planName} serviceLine={serviceLine} />
         </Suspense>
       </Modal>
     </>
