@@ -4,10 +4,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
-import { ServiceTag } from '@brikdesigns/bds';
+import { Modal, ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
+import { ContactForm } from '@/components/marketing/ContactForm';
+import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 import { ThemeToggle } from './ThemeToggle';
 
 import './MegaNav.css';
@@ -49,6 +51,8 @@ export interface MegaNavProps {
   serviceLines: NavServiceLine[];
   supportPlans: SupportPlan[];
   industries: IndustryItem[];
+  /** Service options for the "Let's Talk" contact modal (services, not offerings). */
+  serviceOptions: ServiceOption[];
 }
 
 type DropdownId = 'services' | 'customers' | 'about' | 'plans' | null;
@@ -57,11 +61,12 @@ type DropdownId = 'services' | 'customers' | 'about' | 'plans' | null;
    Component
    ──────────────────────────────────────────────────────────────── */
 
-export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps) {
+export function MegaNav({ serviceLines, supportPlans, industries, serviceOptions }: MegaNavProps) {
   const [open, setOpen] = useState<DropdownId>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const lastYRef = useRef(0);
 
@@ -423,9 +428,13 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
 
           {/* Webflow: .nav-button-wrapper — CTA + mobile toggle, far right */}
           <div className="mega-nav__actions">
-            <Link href="/contact" className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>
+            <button
+              type="button"
+              className={composeButtonClasses({ variant: 'primary', size: 'sm' })}
+              onClick={() => setContactOpen(true)}
+            >
               Let&apos;s Talk
-            </Link>
+            </button>
             <button
               className="mega-nav__mobile-toggle"
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -458,11 +467,27 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
           <Link href="/about" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>About</Link>
           <Link href="/blog" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
           <Link href="/plans" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Support Plans</Link>
-          <Link href="/contact" className="mega-nav__mobile-link mega-nav__mobile-link--cta" onClick={() => setMobileOpen(false)}>
+          <button
+            type="button"
+            className="mega-nav__mobile-link mega-nav__mobile-link--cta"
+            onClick={() => { setMobileOpen(false); setContactOpen(true); }}
+          >
             Let&apos;s Talk
-          </Link>
+          </button>
         </div>
       )}
+
+      {/* "Let's Talk" contact modal — get-in-touch form with a services
+          multi-select (services, not offerings). Shared by the desktop + mobile
+          CTAs above (#601). */}
+      <Modal
+        isOpen={contactOpen}
+        onClose={() => setContactOpen(false)}
+        title="Let's Talk"
+        size="md"
+      >
+        <ContactForm serviceOptions={serviceOptions} />
+      </Modal>
     </header>
   );
 }
