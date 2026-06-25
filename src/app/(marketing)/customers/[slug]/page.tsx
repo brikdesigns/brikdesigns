@@ -114,7 +114,6 @@ export default async function CustomerDetailPage({ params }: Props) {
               <Breadcrumb
                 style={{ flexWrap: 'wrap' }}
                 items={[
-                  { label: 'Home', href: '/' },
                   { label: 'Customers', href: '/customers' },
                   { label: page.name },
                 ]}
