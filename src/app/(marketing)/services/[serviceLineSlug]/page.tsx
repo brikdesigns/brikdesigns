@@ -136,7 +136,7 @@ export default async function ServiceLinePage({ params }: Props) {
       <section id="services" className="page-section service-surface" style={{ backgroundColor: svcColors.surfaceLight }}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-            {serviceLine.name} services
+            {serviceLine.name} Services
           </h2>
           <Grid columns={3} gap="md">
             {services.map((svc) => {
@@ -224,7 +224,7 @@ export default async function ServiceLinePage({ params }: Props) {
         <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-              Other service lines
+              Other Service Lines
             </h2>
             <Grid columns={3} gap="md">
               {otherServiceLines.map((cat) => {
