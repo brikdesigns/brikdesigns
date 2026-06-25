@@ -71,7 +71,6 @@ export default async function BlogPostPage({ params }: Props) {
           <Breadcrumb
             style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
             items={[
-              { label: 'Home', href: '/' },
               { label: 'Blog', href: '/blog' },
               { label: meta.title },
             ]}

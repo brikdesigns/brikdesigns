@@ -135,7 +135,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
        * so the narrative reads as one continuous flow instead of stacked
        * sub-sections.
        *
-       * The third breadcrumb item (story title) is restored but hidden via CSS
+       * The last breadcrumb item (story title) is restored but hidden via CSS
        * (.story-breadcrumb > span:last-child). Result: "Customer Stories"
        * stops being the last item and renders as a link — without us having
        * to render a custom breadcrumb component.
@@ -148,7 +148,6 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
             className="story-breadcrumb"
             style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
             items={[
-              { label: 'Home', href: '/' },
               { label: 'Customer Stories', href: '/customer-stories' },
               { label: storyTitle },
             ]}
