@@ -62,15 +62,21 @@
   // Token prefixes considered valid BDS tokens. Anything not starting with
   // one of these is treated as an unknown custom var (still surfaced, but
   // flagged so agents can decide whether to canonicalize it).
+  // Keep in sync with the families defined in @brikdesigns/bds dist/tokens.css.
   const VALID_TOKEN_PREFIXES = [
     '--color-', '--text-', '--background-', '--surface-', '--border-',
     '--padding-', '--space-', '--spacing-', '--gap-', '--margin-',
-    '--font-family-', '--typography-', '--font-size-', '--font-weight-',
-    '--body-', '--heading-', '--display-', '--label-',
+    '--font-family-', '--font-casing-', '--typography-', '--font-size-', '--font-weight-',
+    '--body-', '--heading-', '--display-', '--label-', '--subtitle-',
     '--font-line-height-', '--letter-spacing-',
     '--border-radius-', '--radius-',
-    '--shadow-', '--elevation-',
-    '--transition-', '--motion-', '--duration-', '--easing-',
+    '--shadow-', '--box-shadow-', '--elevation-',
+    // Motion: --duration-/--ease-/--delay-/--iteration- are semantic tokens;
+    // --easing- is the Style-Dictionary primitive export. See tokens.css.
+    '--transition-', '--motion-', '--duration-', '--easing-', '--ease-',
+    '--delay-', '--iteration-', '--stagger-',
+    '--icon-', '--size-', '--content-width-', '--aspect-', '--blur-radius-',
+    '--layout-', '--page-', '--state-', '--tooltip-', '--bds-',
     '--breakpoint-', '--z-', '--interaction-',
   ];
 
