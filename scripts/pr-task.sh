@@ -96,7 +96,7 @@ fi
 # Add new audits as new CMS surfaces ship (services, customer stories, etc.).
 PLANS_TOUCHED=$(
   { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
-    | grep -E '^src/app/plans/|^src/lib/supabase/queries\.ts$|^scripts/audit-plan-' \
+    | grep -E '^src/app/\(marketing\)/plans/|^src/lib/supabase/queries\.ts$|^scripts/audit-plan-' \
     | head -1 || true
 )
 if [ -n "$PLANS_TOUCHED" ]; then
@@ -124,7 +124,7 @@ fi
 # the offerings/services reconciliation in #149 closes — wrong default.
 CMS_TOUCHED=$(
   { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
-    | grep -E '^src/app/(services|customer-stories|industries)/|^src/lib/supabase/queries\.ts$|^scripts/audit-supabase-drift\.ts$|^content/csv/' \
+    | grep -E '^src/app/\(marketing\)/(services|customer-stories|customers)/|^src/lib/supabase/queries\.ts$|^scripts/audit-supabase-drift\.ts$|^content/csv/' \
     | head -1 || true
 )
 if [ -n "$CMS_TOUCHED" ]; then
