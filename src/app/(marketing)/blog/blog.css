@@ -1,5 +1,31 @@
 /* ─── Blog — layout only ────────────────────────────────── */
 
+/* Type filter — scrolls horizontally inside its own box on narrow
+   viewports so long segment labels never force the page body to scroll. */
+.blog-filter {
+  width: 100%;
+  margin-bottom: var(--gap-xl);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.blog-filter::-webkit-scrollbar {
+  display: none;
+}
+
+/* max-content + auto margins: centers when the control fits, left-aligns
+   and scrolls when it overflows (centered overflow would clip the start). */
+.blog-filter__inner {
+  width: max-content;
+  margin-inline: auto;
+}
+
+.blog-filter__empty {
+  width: 100%;
+  text-align: center;
+  padding-block: var(--padding-xl);
+}
+
 .blog-card {
   overflow: hidden;
 }
