@@ -1,0 +1,58 @@
+/* ─── Route-level loading skeletons ──────────────────────────
+   Shared placeholder block for `loading.tsx` files. The opacity pulse is what
+   makes it read as "loading" — a static grey fill reads as broken content.
+   Reduced-motion users get the static fill (no animation): the skeleton's
+   shape still communicates the pending layout, so the motion is non-essential.
+   ──────────────────────────────────────────────────────────── */
+.skeleton {
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-sm);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* ─── Split-hero skeleton layout ─────────────────────────────
+   Two-column hero (content left, media right) used by the interior `.page-hero`
+   skeletons (customers/plans/services). Mirrors `.customer-detail-hero`'s
+   responsive collapse so the skeleton geometry tracks the real hero. */
+.skeleton-hero-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: center;
+  width: 100%;
+}
+
+.skeleton-hero-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  width: 100%;
+}
+
+@media (max-width: 991px) {
+  .skeleton-hero-split {
+    grid-template-columns: 1fr;
+  }
+}
