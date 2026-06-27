@@ -60,6 +60,10 @@ See `.claude/references/service-data-sot.md`.
 
 See `.claude/references/services-cms-ownership.md`.
 
+## When adding or replacing images in `public/`
+
+See `.claude/references/image-optimization.md`. Short form: WebP for photos/illustrations, size source to ~2× the render slot, keep each raster file under 300 KB (CI-gated by `scripts/lint-images.mjs`).
+
 ## When extending staging-only dev tools
 
 Query brik-rag: `brikdesigns staging dev tools scope`.

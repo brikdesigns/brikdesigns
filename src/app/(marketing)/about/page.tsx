@@ -23,7 +23,7 @@ const TEAM = [
     name: 'Abbey',
     fullName: 'Abbey Stanerson',
     role: 'Co-founder, Marketing and Operations',
-    image: '/images/Abbey-Headshot.png',
+    image: '/images/Abbey-Headshot.webp',
     bio: [
       'Abbey brings over a decade of experience in marketing and operations, ranging from working at a startup marketing agency to a Fortune 500 marketing agency focused on private practices, particularly in the dental industry. She has collaborated with hundreds of clients to craft strategies that drive meaningful results. Known for her bubbly personality and "yay!" enthusiasm, Abbey combines her approachable demeanor with a deep understanding of what works.',
       'Her open, honest communication style ensures clients feel informed and confident while her expertise in deciphering what\'s right for each project delivers solutions that truly make an impact.',
@@ -35,7 +35,7 @@ const TEAM = [
     name: 'Nick',
     fullName: 'Nick Stanerson',
     role: 'Co-founder, Creative',
-    image: '/images/Nick-Headshot.png',
+    image: '/images/Nick-Headshot.webp',
     bio: [
       'Nick is a meticulous designer with extensive experience as a lead designer at prestigious product companies, including iHeartRadio, SimplePractice, and Built. His expertise lies in transforming complex ideas into intuitive, user-friendly designs through thorough research, testing, and refinement.',
       'Nick\'s work goes beyond aesthetics\u2014he ensures every design is both functional and impactful, creating experiences that connect with users and drive results. With a relentless commitment to excellence, Nick delivers designs that balance beauty, functionality, and innovation.',
