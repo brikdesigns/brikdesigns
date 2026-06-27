@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Icon } from '@iconify/react';
+import { Icon } from '@/lib/icon';
 import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';

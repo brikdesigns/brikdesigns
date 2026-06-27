@@ -18,7 +18,7 @@ import { EventRegistrationForm } from '@/components/marketing/EventRegistrationF
 import { EventEndedBanner } from '@/components/marketing/EventStatusBanner';
 import { heading, text, label } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
-import { Icon } from '@iconify/react';
+import { Icon } from '@/lib/icon';
 import '../../shared-sections.css';
 import '../events.css';
 

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { Icon } from '@iconify/react';
+import { Icon } from '@/lib/icon';
 import { Grid, Button } from '@brikdesigns/bds';
 import { getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';

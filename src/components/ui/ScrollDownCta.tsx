@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { Icon } from '@iconify/react';
+import { Icon } from '@/lib/icon';
 
 interface Props {
   label?: string;

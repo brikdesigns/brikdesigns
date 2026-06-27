@@ -12,6 +12,9 @@ name: Verify (lint + token gate + schema parity)
 #    title-case standard (brik-bds#910); + fixture-based self-test (brikdesigns#491)
 #  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
 #    src/app/(chromeless)/admin/services/_components/field-configs.ts
+#  - Icon-collection drift: src/lib/icons.generated.json stays in sync with
+#    `ph:*` usage so no icon falls through to the api.iconify.design CDN
+#    (brikdesigns#626)
 #
 # Sibling to a11y.yml (which waits for Netlify) and visual-parity.yml
 # (which also waits for Netlify). This one runs on every push and PR.
@@ -83,3 +86,6 @@ jobs:
 
       - name: Image-budget lint (public/ asset weight)
         run: npm run lint:images
+
+      - name: Icon-collection drift (offline Phosphor subset in sync with usage)
+        run: npm run gen:icons:check
