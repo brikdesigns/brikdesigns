@@ -43,6 +43,22 @@ if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
   fi
 fi
 
+# ── Icon-collection drift (offline Phosphor subset) ──
+# Keeps src/lib/icons.generated.json in sync with `ph:*` usage so a newly added
+# icon can't silently fall through to the api.iconify.design CDN at runtime
+# (brikdesigns#626). Also fails on a `ph:*` typo that doesn't exist in Phosphor.
+# Fix: npm run gen:icons. Mirrors brik-bds#1002's gen-icon-collection gate.
+if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+  if [ -f scripts/gen-icon-collection.mjs ]; then
+    echo "🎨 Running icon-collection drift check..."
+    if ! node scripts/gen-icon-collection.mjs --check; then
+      echo ""
+      echo "   Run \`npm run gen:icons\` and stage src/lib/icons.generated.json."
+      exit 1
+    fi
+  fi
+fi
+
 # ── Secret scan (gitleaks) ──
 # Defense-in-depth for the secret-leak prevention layer. Mirrors the pattern
 # used in brik-bds, brik-client-portal, renew-pms. Runs gitleaks on the staged

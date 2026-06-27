@@ -1,4 +1,4 @@
-import { Icon } from '@iconify/react';
+import { Icon } from '@/lib/icon';
 import { Stack } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
