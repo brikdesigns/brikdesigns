@@ -196,6 +196,13 @@ export default async function CustomerDetailPage({ params }: Props) {
           ? serviceColor(mapServiceLineSlug(topic.service_line_slug)).surfaceLight
           : color.surface.secondary;
 
+        // Topic number + heading take the section's service-line text color so
+        // they read as part of the line they belong to; body copy stays neutral
+        // (#R7). Falls back to text-primary when the topic has no service line.
+        const accentColor = topic.service_line_slug
+          ? serviceColor(mapServiceLineSlug(topic.service_line_slug)).text
+          : color.text.primary;
+
         return (
           <section
             key={topic.topic_number}
@@ -213,12 +220,12 @@ export default async function CustomerDetailPage({ params }: Props) {
                     fontSize: font.size.display.md,
                     fontWeight: font.weight.bold,
                     lineHeight: font.lineHeight.tight,
-                    color: color.text.primary,
+                    color: accentColor,
                     margin: 0,
                   }}>
                     {String(topic.topic_number).padStart(2, '0')}
                   </span>
-                  {topic.title && <h3 style={heading.md}>{topic.title}</h3>}
+                  {topic.title && <h3 style={{ ...heading.md, color: accentColor }}>{topic.title}</h3>}
                   {topic.description && (
                     <p style={{ ...text.body, color: color.text.primary }}>{topic.description}</p>
                   )}

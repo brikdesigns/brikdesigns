@@ -12,7 +12,8 @@
 
 .plans-card-wrapper__media {
   aspect-ratio: 1;
-  background-color: var(--surface-accent);
+  /* Images sit on the card's own white surface — no service-line tint (#R7). */
+  background-color: var(--surface-primary);
   overflow: hidden;
 }
 
@@ -43,6 +44,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
+}
+
+/* Uniform card height across the stacked list so the rhythm reads as one
+   system regardless of description length (#R7). The tallest desktop card is
+   ~152px; min-height levels the shorter cards up to match. Cards with longer
+   copy (mobile wrapping) grow past it — min, not max, so nothing clips. */
+.plan-service-list .bds-card {
+  min-height: 152px;
 }
 
 .plan-service-list-item {

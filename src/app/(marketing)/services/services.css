@@ -58,6 +58,14 @@
 
 /* ─── Service detail page ─────────────────────────────────── */
 
+/* Hero price card (BDS HeroSplitImageCardOverlay): the CTA button is the last
+ * child of `.bp-hero-img-card__price`, which stacks label → value → button at a
+ * uniform `--gap-xs` (4px). That sat too tight under the price, so push the
+ * button down — label→value stays tight, value→button gets room (#R7). */
+.page-hero-blueprint .bp-hero-img-card__price .bds-button {
+  margin-top: var(--gap-md);
+}
+
 /* Hero — split layout: content left, image + price right */
 .service-detail-hero {
   display: grid;
