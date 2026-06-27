@@ -224,7 +224,7 @@ export default async function BlogPostPage({ params }: Props) {
                       image={
                         line.card_image_url ? (
                           <Frame customRatio="3 / 2" fit="contain">
-                            <Image src={line.card_image_url} alt={line.name} fill />
+                            <Image src={line.card_image_url} alt={line.name} fill sizes="(max-width: 768px) 100vw, 400px" />
                           </Frame>
                         ) : undefined
                       }
