@@ -27,6 +27,7 @@ on:
     paths:
       - 'src/**'
       - 'scripts/**'
+      - 'public/**'
       - 'supabase/**'
       - 'eslint.config.mjs'
       - 'next.config.*'
@@ -79,3 +80,6 @@ jobs:
 
       - name: Heading title-case lint — self-test (fixtures)
         run: npm run test:lint:heading-case
+
+      - name: Image-budget lint (public/ asset weight)
+        run: npm run lint:images

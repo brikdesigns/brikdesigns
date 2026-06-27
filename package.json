@@ -13,6 +13,7 @@
     "lint:service-urls": "node scripts/lint-service-urls.mjs",
     "lint:heading-case": "node scripts/lint-heading-case.mjs",
     "test:lint:heading-case": "node scripts/lint-heading-case.test.mjs",
+    "lint:images": "node scripts/lint-images.mjs",
     "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
     "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "audit:plan-data": "npx tsx scripts/audit-plan-data.ts",

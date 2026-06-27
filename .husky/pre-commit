@@ -28,6 +28,21 @@ if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
   fi
 fi
 
+# ── Image-budget lint (public/ asset weight) ──
+# Stops oversized raster assets from regressing the #625 cleanup (8.3 MB → ~100 KB).
+# Fails on any public/ image over the per-file budget. Standard + escape hatch:
+# .claude/references/image-optimization.md and scripts/lint-images.mjs header.
+if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+  if [ -f scripts/lint-images.mjs ]; then
+    echo "🖼  Running image-budget lint..."
+    if ! node scripts/lint-images.mjs; then
+      echo ""
+      echo "   Compress/convert the image(s) above before committing."
+      exit 1
+    fi
+  fi
+fi
+
 # ── Secret scan (gitleaks) ──
 # Defense-in-depth for the secret-leak prevention layer. Mirrors the pattern
 # used in brik-bds, brik-client-portal, renew-pms. Runs gitleaks on the staged
