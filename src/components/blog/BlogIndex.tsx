@@ -25,30 +25,41 @@ interface Props {
 /**
  * Blog index grid with a type filter.
  *
- * The control is data-driven: segments are derived from the distinct tags
- * present on published posts (membership match, so it stays correct if posts
- * ever carry multiple tags). Filtering is client-side `useState` — the server
- * page stays statically generated. Long-label overflow on narrow viewports is
- * handled by the `.blog-filter` scroll container (see blog.css).
+ * The control is data-driven from each post's canonical service line
+ * (`primary_category_id` FK → `service_lines`, set via the drift-proof
+ * "Primary service line" picker in the portal). Segments are the distinct
+ * service lines present, ordered by `service_lines.sort_order` so they match
+ * the site-wide service ordering. Filtering is client-side `useState` — the
+ * server page stays statically generated. Long-label overflow on narrow
+ * viewports is handled by the `.blog-filter` scroll container (see blog.css).
  */
 export function BlogIndex({ posts }: Props) {
-  const types = useMemo(
-    () => Array.from(new Set(posts.flatMap((p) => p.tags))).sort((a, b) => a.localeCompare(b)),
-    [posts],
-  );
+  const lines = useMemo(() => {
+    const seen = new Map<string, { slug: string; name: string; rank: number }>();
+    for (const p of posts) {
+      if (p.serviceLineSlug && !seen.has(p.serviceLineSlug)) {
+        seen.set(p.serviceLineSlug, {
+          slug: p.serviceLineSlug,
+          name: p.serviceLine,
+          rank: p.serviceLineRank,
+        });
+      }
+    }
+    return Array.from(seen.values()).sort((a, b) => a.rank - b.rank);
+  }, [posts]);
 
   const items = useMemo(
-    () => [{ label: 'All', value: ALL }, ...types.map((t) => ({ label: t, value: t }))],
-    [types],
+    () => [{ label: 'All', value: ALL }, ...lines.map((l) => ({ label: l.name, value: l.slug }))],
+    [lines],
   );
 
   const [active, setActive] = useState<string>(ALL);
 
-  const visible = active === ALL ? posts : posts.filter((p) => p.tags.includes(active));
+  const visible = active === ALL ? posts : posts.filter((p) => p.serviceLineSlug === active);
 
   return (
     <>
-      {types.length > 0 && (
+      {lines.length > 0 && (
         <div className="blog-filter">
           <div className="blog-filter__inner">
             <SegmentedControl
