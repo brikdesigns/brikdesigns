@@ -243,7 +243,7 @@ export default async function ServiceLinePage({ params }: Props) {
                       image={
                         cat.card_image_url ? (
                           <Frame customRatio="3 / 2" fit="contain">
-                            <Image src={cat.card_image_url} alt={cat.name} fill />
+                            <Image src={cat.card_image_url} alt={cat.name} fill sizes="(max-width: 768px) 100vw, 400px" />
                           </Frame>
                         ) : undefined
                       }
