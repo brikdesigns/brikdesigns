@@ -195,12 +195,19 @@ export const color = {
     // `background`-tier consumer properties (surface→background, alias→alias).
     // Value-identical to `surface-service-{slug}-dark` in both modes (#525), so
     // this is a zero-visual-change semantic correction. (#526 / BACKLOG-318)
+    //
+    // `inverse` is the surface-tier theme-flip re-introduced by ADR-012 (#1013):
+    // `--surface-service-{slug}-inverse` — white in light mode, `{hue}-darkest`
+    // in dark. This is NOT the retired background alias above; it's a genuine
+    // `surface` token for service-identified chrome that reads as neutral white
+    // in light but carries the line's deep tint in dark (interior-hero cards).
     brand: {
       bg: 'var(--background-service-brand)',
       text: 'var(--text-service-brand-on-light)',
       surface: 'var(--surface-service-brand)',
       surfaceLight: 'var(--surface-service-brand-light)',
       surfaceDark: 'var(--surface-service-brand-dark)',
+      inverse: 'var(--surface-service-brand-inverse)',
       onLight: 'var(--background-service-brand-on-light)',
     },
     marketing: {
@@ -209,6 +216,7 @@ export const color = {
       surface: 'var(--surface-service-marketing)',
       surfaceLight: 'var(--surface-service-marketing-light)',
       surfaceDark: 'var(--surface-service-marketing-dark)',
+      inverse: 'var(--surface-service-marketing-inverse)',
       onLight: 'var(--background-service-marketing-on-light)',
     },
     information: {
@@ -217,6 +225,7 @@ export const color = {
       surface: 'var(--surface-service-information)',
       surfaceLight: 'var(--surface-service-information-light)',
       surfaceDark: 'var(--surface-service-information-dark)',
+      inverse: 'var(--surface-service-information-inverse)',
       onLight: 'var(--background-service-information-on-light)',
     },
     product: {
@@ -225,6 +234,7 @@ export const color = {
       surface: 'var(--surface-service-product)',
       surfaceLight: 'var(--surface-service-product-light)',
       surfaceDark: 'var(--surface-service-product-dark)',
+      inverse: 'var(--surface-service-product-inverse)',
       onLight: 'var(--background-service-product-on-light)',
     },
     'back-office': {
@@ -233,6 +243,7 @@ export const color = {
       surface: 'var(--surface-service-back-office)',
       surfaceLight: 'var(--surface-service-back-office-light)',
       surfaceDark: 'var(--surface-service-back-office-dark)',
+      inverse: 'var(--surface-service-back-office-inverse)',
       onLight: 'var(--background-service-back-office-on-light)',
     },
   },

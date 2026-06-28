@@ -33,9 +33,9 @@ These five slugs (and only these) are valid in any `--*-service-{slug}` token na
 
 ---
 
-## The two modifier axes
+## The modifier axes
 
-The canon has two orthogonal modifier axes, applied to **different** families:
+The canon has two orthogonal modifier axes (tone, context) applied to **different** families, plus one mode-flip construct on `surface`:
 
 ### TONE (`-light`, `-dark`) — only on `surface`
 
@@ -56,17 +56,22 @@ Context is mode-invariant: `-on-light` pins the value for a light backdrop regar
 
 There is **no** `--surface-service-{slug}-on-light`. Context is for the things that sit *on* surfaces, not for surfaces themselves.
 
-### There is no per-line `-inverse`
+### INVERSE (`-inverse`) — only on `surface`
 
-⚠️ **Anti-pattern:** there is **no** `--{family}-service-{slug}-inverse` token in any family — not `--background-service-{slug}-inverse`, not on `surface`/`text`/`border`. (Grep `dist/tokens.css`: zero matches on 0.97.4.) A service line does **not** carry a per-line inverse companion. It adapts via the `-on-light` / `-on-dark` **context** axis above.
+There is exactly **one** `-inverse` construct, and it lives only on `surface`:
 
-When a component needs a fill that reads against a *known* backdrop — e.g. a CTA button on a `surfaceLight` service band — use the `background` context token for that backdrop: `--background-service-{slug}-on-light` (on a known-light surface) or `--background-service-{slug}-on-dark` (on a known-dark one). That is the canonical replacement for the "inverse CTA fill" idea.
+- `--surface-service-{slug}-inverse` → **white in light mode, `{hue}-darkest` in dark mode** (a sharp theme-flip, per the `-inverse` token-anatomy canon). Mode-aware.
+
+Use it for a **service-identified surface that should read as neutral chrome in light but carry the line's deep tint in dark** — e.g. an interior-hero service card that sits flush with the white page in light mode, then holds its line identity against the dark page in dark mode. This is the case neither `--surface-inverse` (neutral — loses the tint in dark) nor `--surface-service-{slug}-dark` (mode-invariant — never white in light) can serve. See **brik-bds ADR-012**.
+
+⚠️ **Still surface-only.** There is **no** `-inverse` on `background`, `text`, or `border` — those adapt via the `-on-light` / `-on-dark` **context** axis above. When a *component* needs a fill that reads against a *known* backdrop — e.g. a CTA button on a `surfaceLight` service band — use the `background` context token: `--background-service-{slug}-on-light` (on a known-light surface) or `--background-service-{slug}-on-dark` (on a known-dark one).
 
 ### Mode-awareness summary
 
 | Token shape                                   | Mode-aware? |
 |-----------------------------------------------|-------------|
 | `--{family}-service-{slug}` (no suffix)       | **Yes** — flips in dark mode |
+| `--surface-service-{slug}-inverse`            | **Yes** — sharp flip: white (light) → `{hue}-darkest` (dark) |
 | `--surface-service-{slug}-{light\|dark}`      | No — pinned tone |
 | `--{family}-service-{slug}-on-{light\|dark}`  | No — pinned context |
 
@@ -81,11 +86,12 @@ When a component needs a fill that reads against a *known* backdrop — e.g. a C
 3. **A border on a component** → `--border-service-{slug}` family
 4. **Text** → `--text-service-{slug}` family
 
-**Q2: Do I need to pin the shade?**
+**Q2: Do I need to pin the shade?** (surface only)
 
 - **No, follow the theme** → default token, no suffix (e.g. `--surface-service-marketing`)
-- **Yes, always pastel** → `-light` suffix (surface only)
-- **Yes, always deep** → `-dark` suffix (surface only)
+- **Yes, always pastel** → `-light` suffix
+- **Yes, always deep** → `-dark` suffix
+- **Neutral white in light, service-deep in dark** → `-inverse` suffix (e.g. `--surface-service-marketing-inverse`; brik-bds ADR-012) — for service-identified chrome that disappears into a light page but carries its tint on a dark one
 
 **Q3: Is the component sitting on a known-light or known-dark surface?**
 
@@ -95,9 +101,9 @@ When a component needs a fill that reads against a *known* backdrop — e.g. a C
 - **On a known dark surface** → `-on-dark` suffix
 - **Surface is theme-following** → default token, no suffix (the canon flips it in dark mode)
 
-**Q4: Do I need a fill that reads against a known backdrop (e.g. a CTA on a service band)?**
+**Q4: Do I need a component fill that reads against a known backdrop (e.g. a CTA on a service band)?**
 
-- There is **no** per-line `-inverse` token — see the anti-pattern above. Route to the `background` **context** token for the backdrop the component sits on: `--background-service-{slug}-on-light` on a known-light surface, `--background-service-{slug}-on-dark` on a known-dark one (Q3 axis). In TSX this is the wrapper's `onLight` key.
+- This is the `background` tier, which has **no** `-inverse`. Route to the **context** token for the backdrop the component sits on: `--background-service-{slug}-on-light` on a known-light surface, `--background-service-{slug}-on-dark` on a known-dark one (Q3 axis). In TSX this is the wrapper's `onLight` key. (The `-inverse` flip is a *surface* construct — see Q2 — not a component fill.)
 
 ---
 
@@ -191,12 +197,11 @@ Same problem in reverse. A tag is a component; using `surface` couples it to sec
 
 ```css
 /* WRONG — invented modifier, fails token-lint */
-background: var(--surface-service-marketing-inverse);  /* no -inverse on surface */
 background: var(--background-service-marketing-light); /* no -light on background */
-color: var(--text-service-marketing-inverse);          /* no -inverse on text */
+color: var(--text-service-marketing-inverse);          /* no -inverse on text — surface only */
 ```
 
-The modifier matrix is asymmetric. If a name isn't in `dist/tokens.css`, it doesn't exist. **Never invent — surface the gap to the user instead** (cross-repo: file in `brik-bds`).
+The modifier matrix is asymmetric: `-inverse` is **surface-only** (brik-bds ADR-012), `-light`/`-dark` tone is **surface-only**, and `-on-light`/`-on-dark` context is **background/border/text-only**. If a name isn't in `dist/tokens.css`, it doesn't exist. **Never invent — surface the gap to the user instead** (cross-repo: file in `brik-bds`).
 
 ### Wrong modifier for dark mode
 
@@ -232,7 +237,7 @@ Always import from `@/lib/tokens`. Hand-rolled hex hardcodes a single mode, can 
 - **Typed wrappers** — [`src/lib/tokens.ts`](../../src/lib/tokens.ts) `color.service.*`
 - **Component map** — [`COMPONENT-MAP.md`](../../COMPONENT-MAP.md)
 - **CSS layer order** — [`src/app/globals.css`](../../src/app/globals.css)
-- **Upstream canon docs** — `brik-bds#564` (5-layer composition model), `brik-bds#576` (`-inverse` modifier semantics), `brik-bds#563` (Figma ↔ canonical reconciliation)
+- **Upstream canon docs** — `brik-bds#564` (5-layer composition model), `brik-bds#576` (`-inverse` modifier semantics), brik-bds **ADR-012** (`--surface-service-{slug}-inverse` carve-out — neutral-light / service-deep flip), `brik-bds#563` (Figma ↔ canonical reconciliation)
 - **Enforcement** — `npm run lint:tokens` enforces both invented-token and family-mismatch checks. Both gates are live as of brikdesigns#110.
 
 ---
