@@ -16,6 +16,10 @@ Use surface-web or surface-shared. surface-product is product-app scope.
 
 Import tokens from `@/lib/tokens` and `@/lib/styles`. No raw `var(--...)` strings.
 
+## When locating the element to change on a page (surface, appearance, layout)
+
+Read `.claude/references/page-anatomy.md`. Short form: identify the target by its **layer** in the page anatomy (Section → Layout → Container → Block → Component), read top-down from the DOM tree — never by selector-name resemblance. A BEM block name containing "card" (e.g. `bp-hero-img-card`) does **not** make it the card; that's a `<section>` (Section layer). The card is the nested Container element (`aside.bp-hero-img-card__media-card`). When a ticket says "card," it means the Container layer. Canonical: [build-standards/page-structure](https://design.brikdesigns.com/docs/build-standards/page-structure) + [composition-layers](https://design.brikdesigns.com/docs/build-standards/composition-layers).
+
 ## When naming CSS classes or TS data-object keys for text roles
 
 Read `.claude/references/naming-conventions.md`. Short form: `__title` and `__description` are canonical; `__heading`, `__subtext`, and `__body` are banned. `heading` is a typography token scale — correct as an import from `styles.ts`, wrong as a class name or data-object key.
