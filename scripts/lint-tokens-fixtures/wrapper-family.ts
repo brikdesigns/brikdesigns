@@ -27,11 +27,12 @@ const color = {
       surface: 'var(--surface-service-brand)', // pass — surface key, surface value
       surfaceDark: 'var(--surface-service-brand-dark)', // pass
       text: 'var(--text-service-brand-on-light)', // pass — text key, text value
-      // VIOLATION 3 — the literal BACKLOG-318 pattern: a background-context key
-      // (`inverse`) aliasing the surface-tone `-dark` token.
-      inverse: 'var(--surface-service-brand-dark)',
+      inverse: 'var(--surface-service-brand-inverse)', // pass — inverse is surface-only (ADR-012)
+      // VIOLATION 3 — the BACKLOG-318 surface↔background drift shape: a
+      // background-context key (`onLight`) aliasing a `--surface-*` token.
+      onLight: 'var(--surface-service-brand-dark)',
       // escape-hatch — same violation shape as #3 but explicitly suppressed.
-      onLight: 'var(--surface-service-brand-dark)', /* bds-lint-ignore token-family — fixture: proves the pragma suppresses */
+      onDark: 'var(--surface-service-brand-dark)', /* bds-lint-ignore token-family — fixture: proves the pragma suppresses */
     },
   },
 } as const;
