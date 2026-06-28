@@ -283,15 +283,15 @@
   padding-bottom: var(--padding-huge);
 }
 
-/* Single service-line surface tone across the whole hero band.
-   BDS paints `--background-service-*` directly on `.bp-hero-img-card[data-audience]`,
-   which differs from the canonical `--surface-service-*` tint the wrapper carries —
-   the two shades read as a layered seam. Deferring the card to `transparent` lets
-   the wrapper's surface tone be the single visible background. The `[data-audience]`
-   selector matches BDS's specificity (0,2,0) and wins on source order. */
-.page-hero-blueprint .bp-hero-img-card[data-audience] {
-  background: transparent;
-}
+/* The hero image-card now carries its own surface — the `--surface-service-{line}-inverse`
+   token (ADR-012 / brik-bds#1017, shipped in BDS 0.108.0): white in light mode,
+   `{hue}-darkest` in dark. It deliberately reads as neutral chrome floating on the
+   wrapper's pale `surfaceLight` band in light mode, and as the line's deep tint in dark.
+   This reverses the earlier `transparent` "single continuous band" treatment (#408/#389):
+   BDS paints the card surface + recalibrates its headline/eyebrow/lead text per theme
+   (AA-verified, brik-bds#1020), so we defer to the BDS-shipped rule rather than overriding
+   it. Dark-mode inherited body text on the card is handled by the globals.css
+   `.service-surface :is(…, .bp-hero-img-card, …)` light-text restore. (BRIK-WEB-52) */
 
 /* Pin the hero content + media card to the top of the band so the breadcrumb
    sits at a stable vertical position regardless of how many lines the H1 wraps
