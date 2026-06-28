@@ -344,6 +344,11 @@ export default async function ServiceDetailPage({ params }: Props) {
             // the body sections below (#389 — interior hero matches body).
             backgroundColor: serviceTokens.surfaceLight,
             '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
+            // Interior-hero CARD surface — the nested `aside.bp-hero-img-card__media-card`,
+            // NOT this section. The `--bp-hero-img-card-card-bg` hook scopes the ADR-012
+            // service `-inverse` token to the card only: white in light → `{hue}-darkest`
+            // in dark; BDS recalibrates the card text per theme (AA, brik-bds#1020). (BRIK-WEB-52)
+            '--bp-hero-img-card-card-bg': serviceTokens.inverse,
             // Service-line-colored primary CTAs inside the hero (View Details
             // + priceCard "Let's Talk"). BDS .bds-button--primary reads from
             // --background-brand-primary; scoping the override here keeps

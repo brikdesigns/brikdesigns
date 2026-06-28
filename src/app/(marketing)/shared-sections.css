@@ -283,15 +283,17 @@
   padding-bottom: var(--padding-huge);
 }
 
-/* The hero image-card now carries its own surface — the `--surface-service-{line}-inverse`
-   token (ADR-012 / brik-bds#1017, shipped in BDS 0.108.0): white in light mode,
-   `{hue}-darkest` in dark. It deliberately reads as neutral chrome floating on the
-   wrapper's pale `surfaceLight` band in light mode, and as the line's deep tint in dark.
-   This reverses the earlier `transparent` "single continuous band" treatment (#408/#389):
-   BDS paints the card surface + recalibrates its headline/eyebrow/lead text per theme
-   (AA-verified, brik-bds#1020), so we defer to the BDS-shipped rule rather than overriding
-   it. Dark-mode inherited body text on the card is handled by the globals.css
-   `.service-surface :is(…, .bp-hero-img-card, …)` light-text restore. (BRIK-WEB-52) */
+/* Keep the hero SECTION transparent so the wrapper's pale `surfaceLight` band is the
+   single visible section background — no two-tone seam against the band (#408/#389).
+   NOTE on anatomy: `section.bp-hero-img-card[data-audience]` is the SECTION, NOT the card.
+   The interior-hero CARD is the nested `aside.bp-hero-img-card__media-card`. Its surface —
+   the ADR-012 service `-inverse` token (white in light → `{hue}-darkest` in dark) — is set
+   on the card via the `--bp-hero-img-card-card-bg` hook in each page's hero-wrapper TSX
+   (`serviceColor().inverse`), so it stays scoped to the card and never repaints this
+   section. (BRIK-WEB-52) */
+.page-hero-blueprint .bp-hero-img-card[data-audience] {
+  background: transparent;
+}
 
 /* Pin the hero content + media card to the top of the band so the breadcrumb
    sits at a stable vertical position regardless of how many lines the H1 wraps
