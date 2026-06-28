@@ -283,12 +283,14 @@
   padding-bottom: var(--padding-huge);
 }
 
-/* Single service-line surface tone across the whole hero band.
-   BDS paints `--background-service-*` directly on `.bp-hero-img-card[data-audience]`,
-   which differs from the canonical `--surface-service-*` tint the wrapper carries —
-   the two shades read as a layered seam. Deferring the card to `transparent` lets
-   the wrapper's surface tone be the single visible background. The `[data-audience]`
-   selector matches BDS's specificity (0,2,0) and wins on source order. */
+/* Keep the hero SECTION transparent so the wrapper's pale `surfaceLight` band is the
+   single visible section background — no two-tone seam against the band (#408/#389).
+   NOTE on anatomy: `section.bp-hero-img-card[data-audience]` is the SECTION, NOT the card.
+   The interior-hero CARD is the nested `aside.bp-hero-img-card__media-card`. Its surface —
+   the ADR-012 service `-inverse` token (white in light → `{hue}-darkest` in dark) — is set
+   on the card via the `--bp-hero-img-card-card-bg` hook in each page's hero-wrapper TSX
+   (`serviceColor().inverse`), so it stays scoped to the card and never repaints this
+   section. (BRIK-WEB-52) */
 .page-hero-blueprint .bp-hero-img-card[data-audience] {
   background: transparent;
 }

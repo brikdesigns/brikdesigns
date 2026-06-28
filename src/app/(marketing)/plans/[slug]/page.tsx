@@ -182,10 +182,15 @@ export default async function PlanDetailPage({ params }: Props) {
             // container; pale surface pairs with darkest on-light text at AAA,
             // brik-bds#838). Mirrors the now-pale services/[slug] hero (#389)
             // so all interior heros read as one continuous surface band; the
-            // BDS blueprint card defers to this via the
-            // `.page-hero-blueprint .bp-hero-img-card` override in
+            // BDS blueprint SECTION (`section.bp-hero-img-card`) defers to this
+            // via the `.page-hero-blueprint .bp-hero-img-card` override in
             // shared-sections.css (no two-tone seam). (#408)
             backgroundColor: audienceTokens.surfaceLight,
+            // Interior-hero CARD surface — the nested `aside.bp-hero-img-card__media-card`,
+            // NOT this section. The `--bp-hero-img-card-card-bg` hook scopes the ADR-012
+            // service `-inverse` token to the card only: white in light → `{hue}-darkest`
+            // in dark; BDS recalibrates the card text per theme (AA, brik-bds#1020). (BRIK-WEB-52)
+            '--bp-hero-img-card-card-bg': audienceTokens.inverse,
           } as React.CSSProperties
         }
       >
