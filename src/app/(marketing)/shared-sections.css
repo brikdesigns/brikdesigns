@@ -295,6 +295,39 @@
   background: transparent;
 }
 
+/* Dark mode: the priceCard primary CTA lives inside the `-inverse` media card
+   (the service line's `{hue}-darkest` tint). Each hero-wrapper TSX pins the
+   button fill (BDS .bds-button--primary reads --background-brand-primary) to the
+   service `-on-light` step — also `{hue}-darkest` — which works for the
+   View-Details CTA on the pale band, but collides with the card surface and
+   disappears (dark-on-dark) for the CTA on the card. Repaint just the card CTA
+   with the `-on-dark` step (a light tint) + black text so it stays
+   service-colored and clears the 3:1 non-text floor. Per audience because CSS
+   can't derive the line's hue; rest-state only (`:not(:hover):not(:active)`) so
+   BDS's poppy hover/press feedback still wins. Setting the `background-color`
+   property (not redefining --background-brand-primary) keeps the ADR-013 cascade
+   contract. Light mode is unaffected: the card is white there and `-on-light` is
+   correct. Token pairing gated in brik-bds contrast-pairings.json (inverse card
+   fill). data-audience is always one of the 5 canonical lines (mapServiceLineSlug). */
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card__media-card .bds-button--primary {
+  color: var(--text-on-color-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="brand"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+  background-color: var(--background-service-brand-on-dark);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="marketing"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+  background-color: var(--background-service-marketing-on-dark);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="information"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+  background-color: var(--background-service-information-on-dark);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="product"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+  background-color: var(--background-service-product-on-dark);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="back-office"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+  background-color: var(--background-service-back-office-on-dark);
+}
+
 /* Pin the hero content + media card to the top of the band so the breadcrumb
    sits at a stable vertical position regardless of how many lines the H1 wraps
    to. BDS defaults `.bp-hero-img-card__container` to `align-items: center`,
