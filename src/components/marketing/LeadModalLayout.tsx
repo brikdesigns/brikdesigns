@@ -19,8 +19,10 @@ import { heading, label } from '@/lib/styles';
  * to a single stacked column on narrow widths (mobile, narrow modal), matching
  * the inline-style idiom used across marketing components.
  *
- * Exploratory (#599) — composed from BDS primitives in-app. If the panel
- * proves reusable it's a candidate for extraction into BDS.
+ * Decision (#599 Phase B): the showcase panel stays in-app — single call site,
+ * and its data model duplicates BDS `ProductSummaryCard` (only the layout
+ * differs). If a second surface needs this image-on-top showcase layout, extend
+ * `ProductSummaryCard` with a layout axis rather than forking a new component.
  */
 export function LeadModalLayout({
   imageUrl,
