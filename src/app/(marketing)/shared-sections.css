@@ -308,9 +308,15 @@
    property (not redefining --background-brand-primary) keeps the ADR-013 cascade
    contract. Light mode is unaffected: the card is white there and `-on-light` is
    correct. Token pairing gated in brik-bds contrast-pairings.json (inverse card
-   fill). data-audience is always one of the 5 canonical lines (mapServiceLineSlug). */
+   fill). data-audience is always one of the 5 canonical lines (mapServiceLineSlug).
+
+   Text is pinned to the grayscale-darkest primitive, NOT --text-on-color-light:
+   the BDS hero blueprint rebinds --text-on-color-light to grayscale-white per
+   audience (so white reads on the `-dark` service surfaces), which would leave
+   white-on-light-tint here (1.17:1, axe-flagged). The `-on-dark` fills are all
+   light `{hue}-lighter` tints, so darkest text clears AA in every state. */
 :root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card__media-card .bds-button--primary {
-  color: var(--text-on-color-light);
+  color: var(--color-grayscale-darkest);
 }
 :root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="brand"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
   background-color: var(--background-service-brand-on-dark);
