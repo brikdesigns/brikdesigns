@@ -334,6 +334,45 @@
   background-color: var(--background-service-back-office-on-dark);
 }
 
+/* Dark mode: BDS flips the hero content-text hooks (headline/eyebrow/lead) to
+   the service `-on-dark` step for [data-audience] heroes — correct for BDS's
+   default dark hero, whose section background IS the `-inverse` (dark) surface.
+   But these interior heroes override the section to transparent and paint a
+   *light* `surfaceLight` band (the `[data-audience] { background: transparent }`
+   rule above), so `-on-dark` (a light tint) leaves the title/eyebrow/lead
+   light-on-light — invisible (confirmed via computed style on the dark deploy
+   preview; axe reports identical fg/bg as "incomplete", not a violation, so it
+   slipped the gate). Re-pin the content-text hooks to the `-on-light` (dark)
+   step so they read on the light band. These are --bp-* component-API hooks (not
+   semantic tokens), per audience because the hue is line-specific. The card's
+   own text (price label/value via --text-primary; CTA handled above) is on the
+   dark card and unaffected. */
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="brand"] {
+  --bp-hero-img-card-headline-color: var(--text-service-brand-on-light);
+  --bp-hero-img-card-eyebrow-color: var(--text-service-brand-on-light);
+  --bp-hero-img-card-lead-color: var(--text-service-brand-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="marketing"] {
+  --bp-hero-img-card-headline-color: var(--text-service-marketing-on-light);
+  --bp-hero-img-card-eyebrow-color: var(--text-service-marketing-on-light);
+  --bp-hero-img-card-lead-color: var(--text-service-marketing-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="information"] {
+  --bp-hero-img-card-headline-color: var(--text-service-information-on-light);
+  --bp-hero-img-card-eyebrow-color: var(--text-service-information-on-light);
+  --bp-hero-img-card-lead-color: var(--text-service-information-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="product"] {
+  --bp-hero-img-card-headline-color: var(--text-service-product-on-light);
+  --bp-hero-img-card-eyebrow-color: var(--text-service-product-on-light);
+  --bp-hero-img-card-lead-color: var(--text-service-product-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="back-office"] {
+  --bp-hero-img-card-headline-color: var(--text-service-back-office-on-light);
+  --bp-hero-img-card-eyebrow-color: var(--text-service-back-office-on-light);
+  --bp-hero-img-card-lead-color: var(--text-service-back-office-on-light);
+}
+
 /* Pin the hero content + media card to the top of the band so the breadcrumb
    sits at a stable vertical position regardless of how many lines the H1 wraps
    to. BDS defaults `.bp-hero-img-card__container` to `align-items: center`,
