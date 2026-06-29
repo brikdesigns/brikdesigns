@@ -373,6 +373,32 @@
   --bp-hero-img-card-lead-color: var(--text-service-back-office-on-light);
 }
 
+/* Dark mode: the breadcrumb LINK trail (.bds-breadcrumb__link) colors from
+   --text-brand-primary, which BDS flips to the service `-on-dark` step on
+   [data-audience] heroes — so on this light band the links render at the band
+   tint (contrast ~1:1, invisible; confirmed via computed style on the dark
+   preview). The current crumb + separators use --text-secondary/--text-muted,
+   which the BDS `[data-audience] .bds-breadcrumb` rule pins to `-on-light`, so
+   they stay readable. Pin the links to the same `-on-light` (dark) step, per
+   audience, so the whole trail reads on the light band. Property-level (not a
+   token redefinition) per the ADR-013 cascade contract; the link has no :hover
+   color rule, so all states are covered. */
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="brand"] .bds-breadcrumb__link {
+  color: var(--text-service-brand-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="marketing"] .bds-breadcrumb__link {
+  color: var(--text-service-marketing-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="information"] .bds-breadcrumb__link {
+  color: var(--text-service-information-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="product"] .bds-breadcrumb__link {
+  color: var(--text-service-product-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="back-office"] .bds-breadcrumb__link {
+  color: var(--text-service-back-office-on-light);
+}
+
 /* Pin the hero content + media card to the top of the band so the breadcrumb
    sits at a stable vertical position regardless of how many lines the H1 wraps
    to. BDS defaults `.bp-hero-img-card__container` to `align-items: center`,
