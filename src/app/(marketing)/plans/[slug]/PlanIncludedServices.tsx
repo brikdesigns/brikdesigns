@@ -25,7 +25,17 @@ export interface IncludedService {
   hasIcon: boolean;
 }
 
-export function PlanIncludedServices({ services }: { services: IncludedService[] }) {
+export function PlanIncludedServices({
+  services,
+  surfaceInverse,
+}: {
+  services: IncludedService[];
+  /** Plan service-line `-inverse` surface (white in light / `{hue}-darkest` in
+   *  dark) applied to the section band + the per-service cards. The cards keep
+   *  their `outlined` border so they stay differentiated from the same-hue band
+   *  in dark mode (per BRIK-WEB service-inverse direction). */
+  surfaceInverse: string;
+}) {
   const lines = useMemo(() => {
     const seen = new Map<string, { slug: string; name: string }>();
     for (const svc of services) {
@@ -49,6 +59,7 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
       title="What You Get"
       description="Here are a list of services you get when you sign up for monthly support"
       className="plan-what-you-get"
+      style={{ backgroundColor: surfaceInverse }}
     >
       {showSegments && (
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: gap.xl }}>
@@ -63,7 +74,12 @@ export function PlanIncludedServices({ services }: { services: IncludedService[]
       <div className="plan-service-list">
         {visibleServices.map((svc) => {
           return (
-            <Card key={svc.slug} variant="outlined" padding="md">
+            <Card
+              key={svc.slug}
+              variant="outlined"
+              padding="md"
+              style={{ backgroundColor: surfaceInverse }}
+            >
               <div className="plan-service-list-item">
                 {svc.image_url && (
                   <Frame
