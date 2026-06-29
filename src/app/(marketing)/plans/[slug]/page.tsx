@@ -207,7 +207,7 @@ export default async function PlanDetailPage({ params }: Props) {
 
       {/* ═══ What You Get ═══ */}
       {includedServices.length > 0 && (
-        <PlanIncludedServices services={includedServices} />
+        <PlanIncludedServices services={includedServices} surfaceInverse={audienceTokens.inverse} />
       )}
 
       {/* ═══ CTA — two-column support-plan panel (Webflow parity) ═══
@@ -235,7 +235,15 @@ export default async function PlanDetailPage({ params }: Props) {
                 />
               </div>
             )}
-            <Card variant="elevated" padding="lg" className="plan-cta-panel__card">
+            <Card
+              variant="elevated"
+              padding="lg"
+              className="plan-cta-panel__card"
+              // Service `-inverse` surface: white in light (focal price card stays
+              // neutral on the pale panel) → `{hue}-darkest` in dark (carries the
+              // plan's line identity). Shadow keeps it lifted off the panel band.
+              style={{ backgroundColor: audienceTokens.inverse }}
+            >
               <div className="content-wrapper content-wrapper--center">
                 <p style={{ ...heading.lg, color: color.text.primary, textAlign: 'center', margin: 0 }}>Get</p>
                 <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
@@ -289,13 +297,17 @@ export default async function PlanDetailPage({ params }: Props) {
               const otherTokens = (otherLine as { slug?: string } | null)?.slug
                 ? serviceColor(mapServiceLineSlug((otherLine as { slug: string }).slug))
                 : null;
-              // Plain surface-primary cards — the per-plan service tint (#397)
-              // was removed per staging review (backlog #278 / #482); the cards
-              // now use the default display-preset fill in both themes.
+              // Service `-inverse` surface, scoped to each card's OWN line
+              // (`otherTokens`, matching the Learn More button hue below). This
+              // is a no-op in light mode — `-inverse` resolves to white, the same
+              // neutral fill the staging review locked in when it dropped the
+              // light-mode per-plan tint (#397, backlog #278 / #482) — and only
+              // carries the deep `{hue}-darkest` band in dark mode. (BRIK-WEB)
               return (
               <Card
                 key={other.slug}
                 preset="display"
+                style={{ backgroundColor: (otherTokens ?? audienceTokens).inverse }}
                 image={
                   otherImage ? (
                     <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">

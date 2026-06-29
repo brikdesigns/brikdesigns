@@ -455,9 +455,11 @@ export default async function ServiceDetailPage({ params }: Props) {
           className="service-themed service-surface"
           style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
         >
-          {/* elevated (not borderless): surface-primary fill + shadow keeps the
-              row-card contained on the service tint — #427 (regression from #360). */}
-          <Card variant="elevated" padding="lg">
+          {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
+              row-card contained on the service-tint band — white in light (== the
+              former surface-primary fill, #427/#360), `{hue}-darkest` in dark so
+              the card carries the line identity against the lighter band. (BRIK-WEB) */}
+          <Card variant="elevated" padding="lg" style={{ backgroundColor: serviceTokens.inverse }}>
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedStory.hero_image_url && (
                 <div style={{ flex: '0 0 40%' }}>
@@ -503,9 +505,11 @@ export default async function ServiceDetailPage({ params }: Props) {
           className="service-themed service-surface"
           style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
         >
-          {/* elevated (not borderless): surface-primary fill + shadow keeps the
-              row-card contained on the service tint — #427 (regression from #360). */}
-          <Card variant="elevated" padding="lg">
+          {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
+              row-card contained on the service-tint band — white in light (== the
+              former surface-primary fill, #427/#360), `{hue}-darkest` in dark so
+              the card carries the line identity against the lighter band. (BRIK-WEB) */}
+          <Card variant="elevated" padding="lg" style={{ backgroundColor: serviceTokens.inverse }}>
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedService.image_url && (
                 <div style={{ flex: '0 0 35%' }}>
@@ -569,6 +573,10 @@ export default async function ServiceDetailPage({ params }: Props) {
                   preset="display"
                   variant="elevated"
                   className="service-sibling-card"
+                  // Service `-inverse` surface — white in light (== the prior
+                  // display-preset fill), `{hue}-darkest` in dark. Siblings are
+                  // all this page's line, so the page hue is correct here. (BRIK-WEB)
+                  style={{ backgroundColor: serviceTokens.inverse }}
                   image={
                     svc.image_url ? (
                       <Frame customRatio="3 / 2" fit="contain" className="service-sibling-card__media">
@@ -616,7 +624,7 @@ export default async function ServiceDetailPage({ params }: Props) {
        * portal /settings/plans data task.
        */}
       {supportPlan && (
-        <section className="page-section">
+        <section className="page-section" style={{ backgroundColor: serviceTokens.inverse }}>
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
               <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a Partner to Avoid the Full-Time Hassle?</h2>
