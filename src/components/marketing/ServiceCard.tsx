@@ -53,7 +53,21 @@ export function ServiceCard({
           href={href}
           variant="primary"
           size="md"
-          style={{ '--background-brand-primary': serviceColor(category).onLight } as React.CSSProperties}
+          // On an `-inverse` card the deep `onLight` fill blends into the
+          // `{hue}-darkest` card in dark mode. When the card opts into the
+          // inverse surface, also feed the #648 mode-aware vars so the rest
+          // fill flips to the pale `onDark` step + deep `text` ink in dark mode
+          // only (consumed by `.service-themed .bds-button--primary` in
+          // globals.css). Light mode is unchanged. (BRIK-WEB)
+          style={{
+            '--background-brand-primary': serviceColor(category).onLight,
+            ...(surfaceInverse
+              ? {
+                  '--service-cta-fill-dark': serviceColor(category).onDark,
+                  '--service-cta-ink-dark': serviceColor(category).text,
+                }
+              : {}),
+          } as React.CSSProperties}
         >
           Learn More
         </LinkButton>
