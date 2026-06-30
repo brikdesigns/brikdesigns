@@ -389,7 +389,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="pricing"
           title="Pricing Options"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
@@ -457,7 +457,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="story"
           title="Related Customer Story"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
           {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
               row-card contained on the service-tint band — white in light (== the
@@ -507,7 +507,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="addon"
           title="Recommended Add-On Service"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
           {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
               row-card contained on the service-tint band — white in light (== the
@@ -549,7 +549,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                     href={`/services/${routeSlugForServiceLine(relatedServiceLineSlug)}/${relatedService.slug}`}
                     variant="primary"
                     size="md"
-                    style={{ '--background-brand-primary': relatedServiceTokens.onLight } as React.CSSProperties}
+                    style={{ '--background-brand-primary': relatedServiceTokens.onLight, '--service-cta-fill-dark': relatedServiceTokens.onDark, '--service-cta-ink-dark': relatedServiceTokens.text } as React.CSSProperties}
                   >
                     Learn More
                   </Button>
@@ -566,7 +566,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
@@ -628,7 +628,7 @@ export default async function ServiceDetailPage({ params }: Props) {
        * portal /settings/plans data task.
        */}
       {supportPlan && (
-        <section className="page-section" style={{ backgroundColor: serviceTokens.inverse }}>
+        <section className="page-section service-themed" style={{ backgroundColor: serviceTokens.inverse }}>
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
               <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a Partner to Avoid the Full-Time Hassle?</h2>
@@ -666,7 +666,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   href={`/plans#${supportPlan.slug}`}
                   variant="primary"
                   size="md"
-                  style={supportPlanTokens ? ({ '--background-brand-primary': supportPlanTokens.onLight } as React.CSSProperties) : undefined}
+                  style={supportPlanTokens ? ({ '--background-brand-primary': supportPlanTokens.onLight, '--service-cta-fill-dark': supportPlanTokens.onDark, '--service-cta-ink-dark': supportPlanTokens.text } as React.CSSProperties) : undefined}
                 >
                   Learn More
                 </Button>
