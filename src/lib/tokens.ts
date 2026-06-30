@@ -201,11 +201,6 @@ export const color = {
     // in dark. This is NOT the retired background alias above; it's a genuine
     // `surface` token for service-identified chrome that reads as neutral white
     // in light but carries the line's deep tint in dark (interior-hero cards).
-    //
-    // `onDark` mirrors `onLight` on the opposite context axis: the component
-    // fill (`--background-service-{slug}-on-dark`) to use when the element sits
-    // on a known *dark* backdrop. Pairs with the `inverse` surface in dark mode
-    // (deep `{hue}-darkest` tint), where a pale on-dark fill reads correctly.
     brand: {
       bg: 'var(--background-service-brand)',
       text: 'var(--text-service-brand-on-light)',
@@ -214,7 +209,6 @@ export const color = {
       surfaceDark: 'var(--surface-service-brand-dark)',
       inverse: 'var(--surface-service-brand-inverse)',
       onLight: 'var(--background-service-brand-on-light)',
-      onDark: 'var(--background-service-brand-on-dark)',
     },
     marketing: {
       bg: 'var(--background-service-marketing)',
@@ -224,7 +218,6 @@ export const color = {
       surfaceDark: 'var(--surface-service-marketing-dark)',
       inverse: 'var(--surface-service-marketing-inverse)',
       onLight: 'var(--background-service-marketing-on-light)',
-      onDark: 'var(--background-service-marketing-on-dark)',
     },
     information: {
       bg: 'var(--background-service-information)',
@@ -234,7 +227,6 @@ export const color = {
       surfaceDark: 'var(--surface-service-information-dark)',
       inverse: 'var(--surface-service-information-inverse)',
       onLight: 'var(--background-service-information-on-light)',
-      onDark: 'var(--background-service-information-on-dark)',
     },
     product: {
       bg: 'var(--background-service-product)',
@@ -244,7 +236,6 @@ export const color = {
       surfaceDark: 'var(--surface-service-product-dark)',
       inverse: 'var(--surface-service-product-inverse)',
       onLight: 'var(--background-service-product-on-light)',
-      onDark: 'var(--background-service-product-on-dark)',
     },
     'back-office': {
       bg: 'var(--background-service-back-office)',
@@ -254,7 +245,6 @@ export const color = {
       surfaceDark: 'var(--surface-service-back-office-dark)',
       inverse: 'var(--surface-service-back-office-inverse)',
       onLight: 'var(--background-service-back-office-on-light)',
-      onDark: 'var(--background-service-back-office-on-dark)',
     },
   },
 } as const;

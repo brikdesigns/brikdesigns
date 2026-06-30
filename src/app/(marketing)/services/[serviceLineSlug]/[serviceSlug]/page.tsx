@@ -389,7 +389,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="pricing"
           title="Pricing Options"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onDark } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
@@ -566,7 +566,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onDark } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
@@ -666,7 +666,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   href={`/plans#${supportPlan.slug}`}
                   variant="primary"
                   size="md"
-                  style={supportPlanTokens ? ({ '--background-brand-primary': supportPlanTokens.onDark } as React.CSSProperties) : undefined}
+                  style={supportPlanTokens ? ({ '--background-brand-primary': supportPlanTokens.onLight } as React.CSSProperties) : undefined}
                 >
                   Learn More
                 </Button>
