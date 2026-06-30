@@ -214,16 +214,26 @@ html {
     --box-shadow-lg: 0 4px 12px 0 rgba(0, 0, 0, 0.12);
 
     /* ---- Standard container pattern shared across the site + nav.
-       max-width (fixed px) + margin-inline: auto + padding-inline (fluid).
-       max-width consumes BDS canonical --content-width-xl (1280px). Fluid
-       gutter is a project-local — BDS ships discrete --padding-* primitives,
-       not a clamp formula, so this stays. ---- */
-    --site-gutter: clamp(1rem, 5vw, 2rem);
+       max-width (fixed px) + margin-inline: auto + padding-inline.
+       max-width consumes BDS canonical --content-width-xl (1280px); the gutter
+       consumes BDS canonical --padding-lg (24px) — the same primitive BDS's own
+       `.bds-card-grid__container` uses, so project containers (nav, .container-lg,
+       page-hero, blocks, footer) line up flush with BDS section content at every
+       breakpoint. Was a one-off `clamp(1rem, 5vw, 2rem)` (32px desktop) — 8px
+       wider than BDS sections, which misaligned the nav logo from page content. ---- */
+    --site-gutter: var(--padding-lg);
     /* Height of the sticky nav — used to offset hero min-height so the
        scroll-down CTA stays within the viewport on initial load. */
     --nav-height: 6rem;
     /* Character/plan image slot in support plan CTA cards. */
     --support-cta-image-size: 180px;
+    /* Cascade contract for service-card fills on a service-tinted band. Cards
+       on a `.service-surface` read this for their background so a section can
+       opt into the `--surface-service-{slug}-inverse` chrome (neutral white in
+       light, deep service tint in dark) by setting it inline via
+       `serviceColor().inverse`. Defaults to the neutral card fill, so any card
+       reading it without an override is unchanged. */
+    --service-card-surface: var(--surface-primary);
   }
 }
 

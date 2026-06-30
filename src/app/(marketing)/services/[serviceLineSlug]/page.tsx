@@ -133,7 +133,7 @@ export default async function ServiceLinePage({ params }: Props) {
        * page reads as one uniform tinted band — matching the interior service-detail
        * page (#389). Dark `--text-primary` copy gains contrast on the paler surface,
        * so AA is preserved in both themes. */}
-      <section id="services" className="page-section service-surface" style={{ backgroundColor: svcColors.surfaceLight }}>
+      <section id="services" className="page-section service-surface" style={{ backgroundColor: svcColors.surfaceLight, '--service-card-surface': svcColors.inverse } as React.CSSProperties}>
         <div className="container-lg container-lg--comfortable">
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {serviceLine.name} Services

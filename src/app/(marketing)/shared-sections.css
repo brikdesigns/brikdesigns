@@ -440,3 +440,18 @@
   border: none;
   box-shadow: var(--box-shadow-md);
 }
+
+/* Inverse-surface card fill on a service tint. Cards inherit
+   `--service-card-surface` (globals :root default: `--surface-primary`); a
+   service section can override it inline with `serviceColor().inverse`
+   (`--surface-service-{slug}-inverse` — neutral white in light, deep service
+   tint in dark) so the card reads as service-identified chrome. Sections that
+   don't set it stay on the neutral fill, so this is inert by default.
+   `.service-surface .…` raises specificity over the BDS default fill.
+     • Service-line grid cards (`.service-card--flat`).
+     • Service-detail pricing tiers (`.bds-pricing-card`, incl. the highlighted
+       tier — it keeps its brand-colored ring, only the fill follows the tint). */
+.service-surface .bds-card.service-card--flat,
+.service-surface .bds-pricing-card {
+  background-color: var(--service-card-surface);
+}
