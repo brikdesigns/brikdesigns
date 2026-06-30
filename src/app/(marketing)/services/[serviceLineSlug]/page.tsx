@@ -153,6 +153,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   imageUrl={svc.image_url}
                   iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
                   className="service-card--flat"
+                  surfaceInverse
                   showCta
                 />
               );

@@ -409,6 +409,10 @@ export default async function ServiceDetailPage({ params }: Props) {
               return (
                 <PricingCard
                   key={off.slug}
+                  // Service `-inverse` surface — white in light (== the prior
+                  // surface-primary fill), `{hue}-darkest` in dark — matching the
+                  // inverse-card convention used across this page (#645).
+                  style={{ backgroundColor: serviceTokens.inverse }}
                   title={off.name}
                   price={priceDisplay ?? 'Quote'}
                   period={period}
