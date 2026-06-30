@@ -227,6 +227,14 @@ html {
     --nav-height: 6rem;
     /* Character/plan image slot in support plan CTA cards. */
     --support-cta-image-size: 180px;
+    /* #648 — consumer-local handoff vars for the mode-aware service-CTA fill.
+       Set per-CTA in the service-detail page (to serviceColor().onDark / .text)
+       and consumed by the dark-mode `.service-themed .bds-button--primary` rule.
+       Declared `initial` so a service-themed primary that doesn't opt in falls
+       through the var() fallback to its existing fill, and so the token-lint
+       invented-token gate sees them declared. */
+    --service-cta-fill-dark: initial;
+    --service-cta-ink-dark: initial;
   }
 }
 
@@ -367,8 +375,9 @@ h1, h2, h3, h4, h5, h6 {
      at REST already (brik-bds#827, pre-existing) — darkening on interaction
      only helps; this rule does not regress it. Focus ring is retinted to the
      service color so it stops flashing poppy on a non-poppy page. Scoped via
-     `.service-themed` so the bottom support band (intentionally left on the
-     default treatment) is untouched. */
+     `.service-themed`, which the bottom support band now carries too (#648):
+     since #647 that band is a service `-inverse` card like the grids above, so
+     it joins the same hover/focus treatment instead of the default poppy ramp. */
   .service-themed .bds-button--primary:hover:not(:disabled):not(.bds-button--loading) {
     background-color: var(--background-brand-primary);
     box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.12);
@@ -379,11 +388,20 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.2);
   }
 
+  /* In dark mode the rest fill flips to the pale `onDark` step (#648, rule
+     below), so the hover/active states must hold that same pale fill — without
+     this the base rule above re-asserts the deep `--background-brand-primary`
+     and the button jumps pale → deep on hover. The rgba(0,0,0) overlay darkens
+     the pale fill slightly; the dark `--service-cta-ink-dark` label stays AA.
+     Fallback to `--background-brand-primary` keeps any service-themed primary
+     button that opts out of the dark fill on its existing behaviour. */
   :root[data-theme="dark"] .service-themed .bds-button--primary:hover:not(:disabled):not(.bds-button--loading) {
+    background-color: var(--service-cta-fill-dark, var(--background-brand-primary));
     box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.14);
   }
 
   :root[data-theme="dark"] .service-themed .bds-button--primary:active:not(:disabled) {
+    background-color: var(--service-cta-fill-dark, var(--background-brand-primary));
     box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.22);
   }
 
@@ -400,6 +418,26 @@ h1, h2, h3, h4, h5, h6 {
      the off-brand poppy ring on a non-poppy page. */
   .service-themed .bds-button--primary:focus-visible {
     outline-color: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — every --border-* token is theme-responsive (flips light in the dark root), but the service surfaces are fixed-light in BOTH themes, so only a mode-invariant primitive clears 3:1 in both. Same fixed-on-fixed-light primitive the #360 borderless-card fix uses. */
+  }
+
+  /* #648 — Mode-aware service-CTA fill on the dark `-inverse` cards.
+     The service-detail pricing / Other Services / support (and the story +
+     add-on) CTAs sit on a service `-inverse` card: white in light mode,
+     `{hue}-darkest` in dark (#647). At rest BDS paints --background-brand-primary
+     + white label; the consumer overrides the fill to the deep `onLight` step
+     (`{hue}-darkest`). In LIGHT mode that pops on the white card and is AA —
+     unchanged here. In DARK mode the deep fill ≈ the dark card, so the CTA
+     vanishes into it. We can't statically swap to the pale `onDark` step: white
+     label on `{hue}-lighter` is ~1.0–1.95:1 and the axe gate (#640) correctly
+     blocked it (#647 revert). So flip BOTH in dark mode only — pale `onDark`
+     fill + the deep `{hue}-darkest` `text` ink (≥6.9:1 AA on every line, and
+     ≥3:1 vs the dark card so it reads as distinct). The consumer supplies both
+     via --service-cta-fill-dark / --service-cta-ink-dark wherever it sets
+     --background-brand-primary; the var() fallbacks make this a no-op for any
+     service-themed primary that doesn't opt in. */
+  :root[data-theme="dark"] .service-themed .bds-button--primary {
+    background-color: var(--service-cta-fill-dark, var(--background-brand-primary));
+    color: var(--service-cta-ink-dark, var(--text-on-color-dark));
   }
 
   /* #369 — Dark-theme secondary button label fails AA.
