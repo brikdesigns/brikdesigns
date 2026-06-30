@@ -83,11 +83,9 @@ html {
     /* Brand: softer red than --color-system-red-light for negative surfaces. */
     --surface-negative: #fdeaea;
 
-    /* Brand: deeper poppy on borders + brand image backgrounds. Upstream
-       uses poppy-light for higher hover-on-light contrast; brand identity
-       calls for stronger weight here. */
-    --border-brand-primary: var(--color-poppy-dark);
-    --background-image-brand: var(--color-poppy-dark);
+    /* Brand: border + brand image backgrounds inherit vibrant poppy-light
+       from BDS theme-brand-brik (BDS-22 / ADR-015 — vibrant Poppy is the
+       brand color; the prior poppy-dark override read blood-red). Removed. */
 
     /* Brand: inline body links use poppy-dark (#b0351b → ~7.95:1 on white,
        AAA) instead of upstream's --color-poppy-light (#e35335 → 3.78:1, AA
@@ -139,9 +137,8 @@ html {
     --surface-negative: #3d1a1a;
     --border-negative: #ff6b6b;
 
-    /* Brand: deeper poppy on borders + brand image backgrounds. */
-    --border-brand-primary: var(--color-poppy-dark);
-    --background-image-brand: var(--color-poppy-dark);
+    /* Brand: border + brand image backgrounds inherit vibrant poppy-light
+       from BDS theme-brand-brik (BDS-22 / ADR-015). Removed. */
 
     /* Brand: inline body links use poppy-lighter (#ffa693 → ~8.5:1 on
        grayscale-darkest, AAA) instead of the light-mode poppy-dark, which
