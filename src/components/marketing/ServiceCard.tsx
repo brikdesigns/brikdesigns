@@ -22,10 +22,15 @@ interface ServiceCardProps {
   /** Optional class on the underlying Card root (e.g. the `service-card--flat`
    *  chrome-strip used on the service-line + customer-topic grids). */
   className?: string;
+  /** Fill the card with the service line's `-inverse` surface — neutral white
+   *  in light mode (== the prior surface-primary fill), deep `{hue}-darkest` in
+   *  dark so the card carries the line identity on the tinted band. Matches the
+   *  service-detail inverse-card convention (#645). Opt-in per usage. */
+  surfaceInverse?: boolean;
 }
 
 export function ServiceCard({
-  name, slug, serviceLineSlug, category, tagline, imageUrl, description, showCta, iconServiceName, className,
+  name, slug, serviceLineSlug, category, tagline, imageUrl, description, showCta, iconServiceName, className, surfaceInverse,
 }: ServiceCardProps) {
   const href = `/services/${serviceLineSlug}/${slug}`;
   const tagProps = iconServiceName ? { serviceName: iconServiceName } : {};
@@ -34,6 +39,7 @@ export function ServiceCard({
     <Card
       preset="display"
       className={className}
+      {...(surfaceInverse ? { style: { backgroundColor: serviceColor(category).inverse } } : {})}
       title={name}
       description={description ?? tagline ?? undefined}
       image={imageUrl ? (

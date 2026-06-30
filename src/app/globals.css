@@ -227,13 +227,6 @@ html {
     --nav-height: 6rem;
     /* Character/plan image slot in support plan CTA cards. */
     --support-cta-image-size: 180px;
-    /* Cascade contract for service-card fills on a service-tinted band. Cards
-       on a `.service-surface` read this for their background so a section can
-       opt into the `--surface-service-{slug}-inverse` chrome (neutral white in
-       light, deep service tint in dark) by setting it inline via
-       `serviceColor().inverse`. Defaults to the neutral card fill, so any card
-       reading it without an override is unchanged. */
-    --service-card-surface: var(--surface-primary);
   }
 }
 
