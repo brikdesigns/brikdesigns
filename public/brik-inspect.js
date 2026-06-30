@@ -830,6 +830,9 @@
   if (typeof window !== 'undefined') {
     window.BrikInspect = window.BrikInspect || {};
     window.BrikInspect.detectContext = detectReportContext;
+    // Exposed for regression tests (cascade-keyword skip — #1615). Not part of
+    // the public surface; consumers use detectContext / the report event.
+    window.BrikInspect.getDeclaredValue = getDeclaredValue;
   }
 
   // ── Stylesheet rule index ───────────────────────────────────────────────
@@ -879,6 +882,14 @@
       if (!matches) continue;
       const val = rule.style.getPropertyValue(prop);
       if (!val) continue;
+      // `revert` / `revert-layer` are cascade-control keywords, not design
+      // decisions — they explicitly defer to a lower layer/origin. Consumers
+      // that bridge Tailwind preflight back to BDS layers (the portal's
+      // `[class*="bds-"] { all: revert-layer }`) otherwise mask every real
+      // token, surfacing a wall of "revert-layer" in the panel. Skip them so
+      // the underlying token rule wins. See brik-client-portal#1615.
+      const trimmed = val.trim();
+      if (trimmed === 'revert' || trimmed === 'revert-layer') continue;
       if (!best || rule.specificity >= best.specificity) {
         best = { value: val, origin: rule.selector, specificity: rule.specificity };
       }

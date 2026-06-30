@@ -182,10 +182,15 @@ export default async function PlanDetailPage({ params }: Props) {
             // container; pale surface pairs with darkest on-light text at AAA,
             // brik-bds#838). Mirrors the now-pale services/[slug] hero (#389)
             // so all interior heros read as one continuous surface band; the
-            // BDS blueprint card defers to this via the
-            // `.page-hero-blueprint .bp-hero-img-card` override in
+            // BDS blueprint SECTION (`section.bp-hero-img-card`) defers to this
+            // via the `.page-hero-blueprint .bp-hero-img-card` override in
             // shared-sections.css (no two-tone seam). (#408)
             backgroundColor: audienceTokens.surfaceLight,
+            // Interior-hero CARD surface — the nested `aside.bp-hero-img-card__media-card`,
+            // NOT this section. The `--bp-hero-img-card-card-bg` hook scopes the ADR-012
+            // service `-inverse` token to the card only: white in light → `{hue}-darkest`
+            // in dark; BDS recalibrates the card text per theme (AA, brik-bds#1020). (BRIK-WEB-52)
+            '--bp-hero-img-card-card-bg': audienceTokens.inverse,
           } as React.CSSProperties
         }
       >
@@ -202,7 +207,7 @@ export default async function PlanDetailPage({ params }: Props) {
 
       {/* ═══ What You Get ═══ */}
       {includedServices.length > 0 && (
-        <PlanIncludedServices services={includedServices} />
+        <PlanIncludedServices services={includedServices} surfaceInverse={audienceTokens.inverse} />
       )}
 
       {/* ═══ CTA — two-column support-plan panel (Webflow parity) ═══
@@ -230,7 +235,15 @@ export default async function PlanDetailPage({ params }: Props) {
                 />
               </div>
             )}
-            <Card variant="elevated" padding="lg" className="plan-cta-panel__card">
+            <Card
+              variant="elevated"
+              padding="lg"
+              className="plan-cta-panel__card"
+              // Service `-inverse` surface: white in light (focal price card stays
+              // neutral on the pale panel) → `{hue}-darkest` in dark (carries the
+              // plan's line identity). Shadow keeps it lifted off the panel band.
+              style={{ backgroundColor: audienceTokens.inverse }}
+            >
               <div className="content-wrapper content-wrapper--center">
                 <p style={{ ...heading.lg, color: color.text.primary, textAlign: 'center', margin: 0 }}>Get</p>
                 <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
@@ -284,13 +297,17 @@ export default async function PlanDetailPage({ params }: Props) {
               const otherTokens = (otherLine as { slug?: string } | null)?.slug
                 ? serviceColor(mapServiceLineSlug((otherLine as { slug: string }).slug))
                 : null;
-              // Plain surface-primary cards — the per-plan service tint (#397)
-              // was removed per staging review (backlog #278 / #482); the cards
-              // now use the default display-preset fill in both themes.
+              // Service `-inverse` surface, scoped to each card's OWN line
+              // (`otherTokens`, matching the Learn More button hue below). This
+              // is a no-op in light mode — `-inverse` resolves to white, the same
+              // neutral fill the staging review locked in when it dropped the
+              // light-mode per-plan tint (#397, backlog #278 / #482) — and only
+              // carries the deep `{hue}-darkest` band in dark mode. (BRIK-WEB)
               return (
               <Card
                 key={other.slug}
                 preset="display"
+                style={{ backgroundColor: (otherTokens ?? audienceTokens).inverse }}
                 image={
                   otherImage ? (
                     <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">
