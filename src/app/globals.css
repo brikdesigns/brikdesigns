@@ -94,6 +94,12 @@ html {
        axe on /privacy-policy + /terms when those routes first entered the
        public-routes a11y suite via #302's chromeless/marketing split. */
     --text-link: var(--color-poppy-dark);
+    /* Brand: --text-brand-primary is used across the site as SMALL text
+       (mega-nav labels, hero/cta descriptions, eyebrows). BDS 0.114.0 flipped
+       it to vibrant poppy-light (#e35335 = 3.78:1, AA fail at those sizes), so
+       pin it dark locally — same call as --text-link, and the small-text carve-
+       out ADR-015 prescribes. Vibrant Poppy stays on fills/surfaces/borders. */
+    --text-brand-primary: var(--color-poppy-dark);
 
     /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
     --page-accent: var(--color-tan-lightest);
@@ -145,6 +151,10 @@ html {
        drops to ~2.2:1 on dark surfaces. Poppy-lighter is the canonical
        lighter shade — readable on dark, recognizably brand. */
     --text-link: var(--color-poppy-lighter);
+    /* Brand: small brand text on dark — poppy-dark would be ~2.2:1 on the
+       near-black surface; use poppy-lighter (readable, on-brand), same as
+       --text-link above. Pairs with the light-mode poppy-dark pin. */
+    --text-brand-primary: var(--color-poppy-lighter);
 
     /* Brand: dark-mode link tone (system-link is too saturated on black). */
     --color-system-link: #6b8aff;
