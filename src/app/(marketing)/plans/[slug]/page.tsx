@@ -159,7 +159,14 @@ export default async function PlanDetailPage({ params }: Props) {
   };
 
   return (
+    // `service-themed` activates the shared service-CTA cascade in globals.css:
+    // the hover/focus rules that hold the service fill (instead of flashing
+    // poppy) and the #648 dark-mode `.service-themed .bds-button--primary` flip.
+    // The flip is opt-in per CTA via `--service-cta-fill-dark`/`-ink-dark`; any
+    // primary button that doesn't set them falls back to current behaviour, so
+    // adding the class is a no-op for non-opted buttons. (BRIK-WEB)
     <div
+      className="service-themed"
       style={
         {
           // Primary CTAs on this plan page inherit the plan's service-line color
@@ -242,7 +249,11 @@ export default async function PlanDetailPage({ params }: Props) {
               // Service `-inverse` surface: white in light (focal price card stays
               // neutral on the pale panel) → `{hue}-darkest` in dark (carries the
               // plan's line identity). Shadow keeps it lifted off the panel band.
-              style={{ backgroundColor: audienceTokens.inverse }}
+              // `--service-cta-fill-dark`/`-ink-dark`: the Get-Started CTA inside
+              // sits on this inverse card; flip it to the pale `onDark` step +
+              // deep `text` ink in dark mode so it pops on the `{hue}-darkest`
+              // card (#648). Light mode unchanged. (BRIK-WEB)
+              style={{ backgroundColor: audienceTokens.inverse, '--service-cta-fill-dark': audienceTokens.onDark, '--service-cta-ink-dark': audienceTokens.text } as React.CSSProperties}
             >
               <div className="content-wrapper content-wrapper--center">
                 <p style={{ ...heading.lg, color: color.text.primary, textAlign: 'center', margin: 0 }}>Get</p>
@@ -297,17 +308,21 @@ export default async function PlanDetailPage({ params }: Props) {
               const otherTokens = (otherLine as { slug?: string } | null)?.slug
                 ? serviceColor(mapServiceLineSlug((otherLine as { slug: string }).slug))
                 : null;
+              // Resolve the card hue once — its OWN line, falling back to the
+              // page line — and drive both the `-inverse` surface and the CTA
+              // off it so the button always matches its card.
+              const cardTokens = otherTokens ?? audienceTokens;
               // Service `-inverse` surface, scoped to each card's OWN line
-              // (`otherTokens`, matching the Learn More button hue below). This
-              // is a no-op in light mode — `-inverse` resolves to white, the same
-              // neutral fill the staging review locked in when it dropped the
-              // light-mode per-plan tint (#397, backlog #278 / #482) — and only
-              // carries the deep `{hue}-darkest` band in dark mode. (BRIK-WEB)
+              // (matching the Learn More button hue below). This is a no-op in
+              // light mode — `-inverse` resolves to white, the same neutral fill
+              // the staging review locked in when it dropped the light-mode
+              // per-plan tint (#397, backlog #278 / #482) — and only carries the
+              // deep `{hue}-darkest` band in dark mode. (BRIK-WEB)
               return (
               <Card
                 key={other.slug}
                 preset="display"
-                style={{ backgroundColor: (otherTokens ?? audienceTokens).inverse }}
+                style={{ backgroundColor: cardTokens.inverse }}
                 image={
                   otherImage ? (
                     <Frame customRatio="3 / 2" fit="contain" className="illustration-media-bg">
@@ -327,7 +342,11 @@ export default async function PlanDetailPage({ params }: Props) {
                     href={`/plans/${other.slug}`}
                     variant="primary"
                     size="md"
-                    style={otherTokens ? ({ '--background-brand-primary': otherTokens.onLight } as React.CSSProperties) : undefined}
+                    // `--service-cta-fill-dark`/`-ink-dark` flip this CTA to the
+                    // pale `onDark` step + deep `text` ink in dark mode so it pops
+                    // on the card's `{hue}-darkest` `-inverse` surface (#648).
+                    // Light mode keeps the deep `onLight` fill. (BRIK-WEB)
+                    style={{ '--background-brand-primary': cardTokens.onLight, '--service-cta-fill-dark': cardTokens.onDark, '--service-cta-ink-dark': cardTokens.text } as React.CSSProperties}
                   >
                     Learn More
                   </Button>

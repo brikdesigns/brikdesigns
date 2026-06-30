@@ -179,7 +179,11 @@ export default async function ServiceLinePage({ params }: Props) {
             </div>
             <div
               className="service-detail-support-grid"
-              style={{ '--background-brand-primary': supportPlanServiceLineColors.onLight, '--text-brand-primary': supportPlanServiceLineColors.text } as React.CSSProperties}
+              // `--service-cta-fill-dark`/`-ink-dark`: the "Learn more" CTA below
+              // sits on the `-inverse` card; flip it to the pale `onDark` step +
+              // deep `text` ink in dark mode so it pops on the `{hue}-darkest`
+              // card (#648). Light mode unchanged. (BRIK-WEB)
+              style={{ '--background-brand-primary': supportPlanServiceLineColors.onLight, '--text-brand-primary': supportPlanServiceLineColors.text, '--service-cta-fill-dark': supportPlanServiceLineColors.onDark, '--service-cta-ink-dark': supportPlanServiceLineColors.text } as React.CSSProperties}
             >
               {supportPlan.image_url && (
                 <div className="service-detail-support-grid__media">
@@ -192,7 +196,12 @@ export default async function ServiceLinePage({ params }: Props) {
                   />
                 </div>
               )}
-              <Card variant="outlined" padding="lg" className="service-card--flat">
+              {/* Service `-inverse` surface — white in light (== the prior
+                  surface-primary fill; the outlined border keeps it visible on
+                  the white section), `{hue}-darkest` in dark so the card carries
+                  the plan line identity. Matches the service-detail inverse-card
+                  convention (#645). (BRIK-WEB) */}
+              <Card variant="outlined" padding="lg" className="service-card--flat" style={{ backgroundColor: supportPlanServiceLineColors.inverse }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
                   {supportPlanServiceLine.card_image_url && (
                     <div className="service-detail-support-cta__media">
@@ -234,11 +243,19 @@ export default async function ServiceLinePage({ params }: Props) {
                 return (
                   <div
                     key={cat.slug}
-                    style={{ '--background-brand-primary': catColors.onLight, '--text-brand-primary': catColors.text } as React.CSSProperties}
+                    // Each card's own line hue. `--service-cta-fill-dark`/`-ink-dark`
+                    // flip the "Learn More" CTA to the pale `onDark` step + deep
+                    // `text` ink in dark mode so it pops on the card's `-inverse`
+                    // surface (#648). Light mode unchanged. (BRIK-WEB)
+                    style={{ '--background-brand-primary': catColors.onLight, '--text-brand-primary': catColors.text, '--service-cta-fill-dark': catColors.onDark, '--service-cta-ink-dark': catColors.text } as React.CSSProperties}
                   >
                     <Card
                       preset="display"
                       variant="elevated"
+                      // Service `-inverse` surface — white in light (== the prior
+                      // display-preset fill; the elevated shadow keeps it visible
+                      // on the accent band), `{hue}-darkest` in dark. (BRIK-WEB)
+                      style={{ backgroundColor: catColors.inverse }}
                       title={cat.name}
                       description={cat.tagline ?? undefined}
                       image={
