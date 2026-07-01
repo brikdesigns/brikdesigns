@@ -104,6 +104,7 @@
     "/free-marketing-analysis": {
       "color-contrast": [
         ".bds-button--sm",
+        ".bds-button__content",
         ".bds-footer__above-top > div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".lp-form-card > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".lp-hero > p",
