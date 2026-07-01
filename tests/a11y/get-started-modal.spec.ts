@@ -13,15 +13,38 @@ import AxeBuilder from '@axe-core/playwright';
  * (the #360 fixed-light `--surface-service-*` gotcha: dark-mode contrast
  * regressions are invisible to a light-only scan).
  *
- * The modal is new, so it carries no baseline: zero serious/critical in
- * either theme. It also asserts the interactive a11y contract the issue
- * calls for — labelled dialog, ESC-to-close, focus-return on close.
+ * Baseline: zero serious/critical in either theme EXCEPT the BDS-22
+ * owner-accepted white-on-vibrant-Poppy submit-button debt (see CONTRAST_DEBT
+ * below; tracked brik-bds#479). NEW violations still fail. It also asserts the
+ * interactive a11y contract the issue calls for — labelled dialog, ESC-to-close,
+ * focus-return on close.
  */
 
 // Representative plan page that renders the cta-panel modal trigger.
 const PLAN_PATH = '/plans/marketing-support';
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
+
+// BDS-22 / ADR-015 debt allowlist — per-(theme, rule, selector), mirroring the
+// public-routes baseline discipline (tests/a11y/README.md: per-selector only,
+// never disableRules whole-app). The modal's submit button renders a white
+// label on the vibrant Poppy fill (--background-brand-primary = poppy-light
+// #e35335, 3.78:1 at 16px normal weight) — the deliberate owner-accepted
+// white-on-red CTA debt from BDS-22 (brik-bds@0.114.0 reverted the fill
+// poppy-dark→poppy-light). This spec is otherwise a hard-zero gate; the
+// allowlist keeps NEW violations blocking. Burn-down: dark label on the fill,
+// bold + >=18.66px label (AA-large), or an intermediate AA-passing Poppy step
+// (brik-bds BDS-20 scale). Tracked: brik-bds#479.
+const MODAL_SUBMIT_BTN =
+  '.bds-modal__body > div > div > form > .bds-button--full-width.bds-button--lg[type="submit"] > .bds-button__content';
+const CONTRAST_DEBT: Record<'light' | 'dark', Record<string, string[]>> = {
+  light: { 'color-contrast': [MODAL_SUBMIT_BTN] },
+  dark: { 'color-contrast': [MODAL_SUBMIT_BTN] },
+};
+const normalizeSelector = (s: string): string =>
+  s.replace(/:nth-child\(\d+\)/g, '').replace(/:nth-of-type\(\d+\)/g, '').trim();
+const isModalBaselined = (theme: 'light' | 'dark', ruleId: string, selector: string): boolean =>
+  (CONTRAST_DEBT[theme][ruleId] ?? []).map(normalizeSelector).includes(normalizeSelector(selector));
 
 async function openModal(page: Page) {
   await page.goto(PLAN_PATH, { waitUntil: 'load' });
@@ -74,11 +97,17 @@ test.describe('Get-started modal — #401', () => {
     const blocking = results.violations
       .filter((v) => BLOCKING_IMPACTS.has(v.impact ?? ''))
       .flatMap((v) =>
-        v.nodes.map(
-          (n) =>
-            `  [${v.impact}] ${v.id} → ${Array.isArray(n.target) ? n.target.join(' >> ') : String(n.target)}\n    ${v.help}`,
-        ),
-      );
+        v.nodes.map((n) => ({
+          impact: v.impact,
+          ruleId: v.id,
+          help: v.help,
+          selector: Array.isArray(n.target) ? n.target.join(' >> ') : String(n.target),
+        })),
+      )
+      // Drop the BDS-22 owner-accepted contrast debt (see CONTRAST_DEBT above);
+      // NEW serious/critical violations still fail this gate.
+      .filter((f) => !isModalBaselined(theme, f.ruleId, f.selector))
+      .map((f) => `  [${f.impact}] ${f.ruleId} → ${f.selector}\n    ${f.help}`);
 
     expect(
       blocking,
