@@ -1,30 +1,295 @@
 {
-  "_comment": "Pre-existing serious/critical findings allowed at baseline-install time. New violations of any rule on any selector still fail CI. Burn-down policy: see tests/a11y/README.md. Format: routes[<path>][<axe-rule-id>] = string[] of CSS selectors to allow. SELECTOR MATCHING: the spec strips :nth-child(N) and :nth-of-type(N) on both sides before comparing — write canonical (un-indexed) entries. RESET 2026-05-07 against deploy-preview-43; selector normalization 2026-05-11 (#40) collapsed 354 → 237 entries by absorbing per-card index variants. brikdesigns#43 migrated BDS consumption from submodule to npm package; the bundled @brikdesigns/bds/styles.css now covers the full button system, surfacing brand-vs-AA contrast tensions (white-on-poppy 4.34:1, poppy-on-yellow 2.58:1, etc.) that previous architecture only partially exercised. EXPANSION 2026-05-15 (#167 promote PR): +51 white-on-poppy primary-button selectors across 16 routes — services / plans rebuild surfaced new href patterns (e.g. [href$=\"brand\"], [href$=\"marketing-support\"]) that weren't in the 05-07 baseline. Underlying contrast issue is upstream BDS — burn-down still tracked in #40. BURN-DOWN 2026-05-17 (#40 monthly): removed 30 entries (273→243). 22 footer above-top h3/p selectors cleared by fix(footer) commit 27a5fbb (use on-color-dark not text-inverse — dark mode flipped text-inverse to black on always-dark footer bg). 6 homepage subtexts (.audit-subtext, 2×.section-subtext, .story-description) + 2 about subtexts (.about-hero__intro, .about-hero__scroll>span) + 2 .page-hero__tagline (/services/brand + /industries/dental) all now pass following fix(a11y) commit b88855c (--text-secondary→#4f4f4f, --text-brand-primary→#b0351b). Remaining 243: ~120 white-on-poppy primary buttons (upstream BDS), ~7 BDS breadcrumb, ~25 other (outline-on-dark hero, BDS plans toggle, various). EXPANSION 2026-05-17 (#215 promote blocker round 1): +2 upstream BDS white-on-poppy entries (3.78:1) surfaced by new /customers + BDS card refactor PRs. /: div > .bds-button--md.bds-button--primary.bds-button > .bds-button__content. /services/brand: .bds-button--sm. 243→245. EXPANSION 2026-05-17 (#215 promote blocker round 2): +7 entries across /industries (4), /industries/dental (1), /customers (2) — new routes now resolving after netlify.toml redirect loop fix (#216); all upstream BDS white-on-poppy (3.78:1). 245→252. BURN-DOWN 2026-05-18 (post brik-bds@0.72.0 publish — #710/#711): removed 214 entries (221→7). brik-bds#710 shipped --surface-brand-primary / --background-brand-primary poppy-light → poppy-dark + the previously-missing --surface-brand-primary-hover/-pressed + --background-brand-primary-hover/-pressed state-pair siblings; brikdesigns bumped to @brikdesigns/bds@^0.72.0 via #240/#241. The white-on-poppy primary-button + badge contrast clusters (the bulk of the prior baseline) no longer fire. Log count had drifted from file count (running log: 252; baseline.json at burn-down start: 221) — re-anchored on actual scan against local next dev at staging-equivalent state. Remaining 7: 5 .bds-breadcrumb__current / .bds-breadcrumb__link on /services/brand, /services/brand/logo-design, /customers/dental (upstream BDS breadcrumb contrast); 2 .bds-pricing-card__period + .bds-pricing-card__badge on /plans (BDS plans card subtext). Both clusters are `.bds-*` component internals — upstream fix tracked in brikdesigns/brik-bds#765 (filed 2026-05-23). EXPANSION 2026-05-24 (#262 promote blocker): +1 .bds-pricing-card__period on /services/brand/logo-design — same upstream BDS period-text contrast bug now surfaced by service-line UI cleanup (PR #255) which added PricingCard to service detail pages. 7→8. Tracked in brik-bds#765. BURN-DOWN 2026-05-24 (#40 monthly): removed 1 entry (8→7). .bds-pricing-card__badge>span on /plans cleared by fixing PlanCardGrid.tsx discount-label color from color.text.success (#27ae60, 2.87:1) to color.text.primary. Breadcrumb-link + text-muted entries blocked pending two upstream fixes: (A) dep bump to brik-bds>=0.73.0 (includes #719, fixes 2 .bds-breadcrumb__link entries) — blocked on Netlify PACKAGES_READ_TOKEN rotation (brikdesigns/brik-llm#570, #624; Netlify brikdesigns site env not updated after 2026-05-23 rotation); (B) brik-bds#765 (--text-muted→--text-secondary in Breadcrumb.css + PricingCard.css, fixes 5 entries). When both land, remaining 7 entries clear and #40 closes. EXPANSION 2026-06-04 (#335 events landing): +3 service-line primary-button entries on /services (1) + /customer-stories (2). The product (#362d48 on #9e8bc2 = 4.26:1) and back-office (#4e1400 on #e76134 = 4.32:1) service-button palettes are marginally under AA — surfaced on the index pages after the service→back-office rename + palette additions. Distinct cluster from #765 (breadcrumb/pricing-card); upstream fix tracked in brik-bds#827. Discovered during brikdesigns#335; the events route itself is a11y-clean. 7→10. BURN-DOWN 2026-06-04 (#346 / PR #347): removed the 3 service-line button entries (10→7). #347 fixed the root cause — ServiceLineCard now uses the accessible `--background-service-{x}-on-light` fill + `--text-service-{x}-on-dark` text pairing (8.3–12.5:1), so the product/back-office CTA contrast no longer fires on /services or /customer-stories. Verified 0 color-contrast on both routes against live staging. Baselining them (#349) was redundant with the fix and would have masked any future regression — removed.",
+  "_comment": "EXPANSION 2026-07-01 (BDS-22 — brik-bds#1053/#649, ADR-015): re-introduced the white-on-vibrant-Poppy button/surface cluster (65 light + 71 dark canonical selectors across 18 routes) that the 2026-05-18 #710 burn-down eliminated. brik-bds@0.114.0 reverted --surface/-background-brand-primary poppy-dark→poppy-light per OWNER DECISION to keep the white-on-red CTA look; BDS gates it AA-large (3:1) but 16px normal-weight labels are AA-normal (4.5) per axe, so white-on-#e35335 (3.78:1) fires. Deliberate owner-accepted debt, NOT a silent skip. NOTE: --text-brand-primary was pinned dark locally (#649) so poppy-TEXT-on-white is fixed, not baselined — only white(-ish)-on-fill entries below are the debt. Burn-down options: dark labels on the fill, bold+>=18.66px labels (AA-large), or an intermediate AA-passing Poppy step (brik-bds BDS-20 scale). Tracked: brik-bds#479. --- PRIOR HISTORY: Pre-existing serious/critical findings allowed at baseline-install time. New violations of any rule on any selector still fail CI. Burn-down policy: see tests/a11y/README.md. Format: routes[<path>][<axe-rule-id>] = string[] of CSS selectors to allow. SELECTOR MATCHING: the spec strips :nth-child(N) and :nth-of-type(N) on both sides before comparing — write canonical (un-indexed) entries. RESET 2026-05-07 against deploy-preview-43; selector normalization 2026-05-11 (#40) collapsed 354 → 237 entries by absorbing per-card index variants. brikdesigns#43 migrated BDS consumption from submodule to npm package; the bundled @brikdesigns/bds/styles.css now covers the full button system, surfacing brand-vs-AA contrast tensions (white-on-poppy 4.34:1, poppy-on-yellow 2.58:1, etc.) that previous architecture only partially exercised. EXPANSION 2026-05-15 (#167 promote PR): +51 white-on-poppy primary-button selectors across 16 routes — services / plans rebuild surfaced new href patterns (e.g. [href$=\"brand\"], [href$=\"marketing-support\"]) that weren't in the 05-07 baseline. Underlying contrast issue is upstream BDS — burn-down still tracked in #40. BURN-DOWN 2026-05-17 (#40 monthly): removed 30 entries (273→243). 22 footer above-top h3/p selectors cleared by fix(footer) commit 27a5fbb (use on-color-dark not text-inverse — dark mode flipped text-inverse to black on always-dark footer bg). 6 homepage subtexts (.audit-subtext, 2×.section-subtext, .story-description) + 2 about subtexts (.about-hero__intro, .about-hero__scroll>span) + 2 .page-hero__tagline (/services/brand + /industries/dental) all now pass following fix(a11y) commit b88855c (--text-secondary→#4f4f4f, --text-brand-primary→#b0351b). Remaining 243: ~120 white-on-poppy primary buttons (upstream BDS), ~7 BDS breadcrumb, ~25 other (outline-on-dark hero, BDS plans toggle, various). EXPANSION 2026-05-17 (#215 promote blocker round 1): +2 upstream BDS white-on-poppy entries (3.78:1) surfaced by new /customers + BDS card refactor PRs. /: div > .bds-button--md.bds-button--primary.bds-button > .bds-button__content. /services/brand: .bds-button--sm. 243→245. EXPANSION 2026-05-17 (#215 promote blocker round 2): +7 entries across /industries (4), /industries/dental (1), /customers (2) — new routes now resolving after netlify.toml redirect loop fix (#216); all upstream BDS white-on-poppy (3.78:1). 245→252. BURN-DOWN 2026-05-18 (post brik-bds@0.72.0 publish — #710/#711): removed 214 entries (221→7). brik-bds#710 shipped --surface-brand-primary / --background-brand-primary poppy-light → poppy-dark + the previously-missing --surface-brand-primary-hover/-pressed + --background-brand-primary-hover/-pressed state-pair siblings; brikdesigns bumped to @brikdesigns/bds@^0.72.0 via #240/#241. The white-on-poppy primary-button + badge contrast clusters (the bulk of the prior baseline) no longer fire. Log count had drifted from file count (running log: 252; baseline.json at burn-down start: 221) — re-anchored on actual scan against local next dev at staging-equivalent state. Remaining 7: 5 .bds-breadcrumb__current / .bds-breadcrumb__link on /services/brand, /services/brand/logo-design, /customers/dental (upstream BDS breadcrumb contrast); 2 .bds-pricing-card__period + .bds-pricing-card__badge on /plans (BDS plans card subtext). Both clusters are `.bds-*` component internals — upstream fix tracked in brikdesigns/brik-bds#765 (filed 2026-05-23). EXPANSION 2026-05-24 (#262 promote blocker): +1 .bds-pricing-card__period on /services/brand/logo-design — same upstream BDS period-text contrast bug now surfaced by service-line UI cleanup (PR #255) which added PricingCard to service detail pages. 7→8. Tracked in brik-bds#765. BURN-DOWN 2026-05-24 (#40 monthly): removed 1 entry (8→7). .bds-pricing-card__badge>span on /plans cleared by fixing PlanCardGrid.tsx discount-label color from color.text.success (#27ae60, 2.87:1) to color.text.primary. Breadcrumb-link + text-muted entries blocked pending two upstream fixes: (A) dep bump to brik-bds>=0.73.0 (includes #719, fixes 2 .bds-breadcrumb__link entries) — blocked on Netlify PACKAGES_READ_TOKEN rotation (brikdesigns/brik-llm#570, #624; Netlify brikdesigns site env not updated after 2026-05-23 rotation); (B) brik-bds#765 (--text-muted→--text-secondary in Breadcrumb.css + PricingCard.css, fixes 5 entries). When both land, remaining 7 entries clear and #40 closes. EXPANSION 2026-06-04 (#335 events landing): +3 service-line primary-button entries on /services (1) + /customer-stories (2). The product (#362d48 on #9e8bc2 = 4.26:1) and back-office (#4e1400 on #e76134 = 4.32:1) service-button palettes are marginally under AA — surfaced on the index pages after the service→back-office rename + palette additions. Distinct cluster from #765 (breadcrumb/pricing-card); upstream fix tracked in brik-bds#827. Discovered during brikdesigns#335; the events route itself is a11y-clean. 7→10. BURN-DOWN 2026-06-04 (#346 / PR #347): removed the 3 service-line button entries (10→7). #347 fixed the root cause — ServiceLineCard now uses the accessible `--background-service-{x}-on-light` fill + `--text-service-{x}-on-dark` text pairing (8.3–12.5:1), so the product/back-office CTA contrast no longer fires on /services or /customer-stories. Verified 0 color-contrast on both routes against live staging. Baselining them (#349) was redundant with the fix and would have masked any future regression — removed.",
   "routes": {
     "/services/brand": {
       "color-contrast": [
         ".bds-breadcrumb__current",
         ".bds-breadcrumb__link[href$=\"services\"]",
-        ".bds-breadcrumb__link[href=\"/\"]"
+        ".bds-breadcrumb__link[href=\"/\"]",
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--sm"
       ]
     },
     "/services/brand/logo-design": {
       "color-contrast": [
         ".bds-breadcrumb__current",
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm",
         ".bds-pricing-card > .bds-pricing-card__price-block > .bds-pricing-card__period"
       ]
     },
     "/plans": {
       "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm",
         ".plans-card-wrapper > .bds-pricing-card > .bds-pricing-card__price-block > .bds-pricing-card__period"
       ]
     },
     "/customers/dental": {
       "color-contrast": [
-        ".bds-breadcrumb__current"
+        ".bds-breadcrumb__current",
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"real-estate\"] > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"small-business\"] > .bds-button__content",
+        ".bds-button--sm",
+        ".bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
+        ".cta-card-brand > p",
+        "a[href$=\"saas\"] > .bds-button__content"
+      ]
+    },
+    "/": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".button-wrapper--center.button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
+        ".cta-description",
+        ".hero-button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
+        ".hero-description",
+        "a[href$=\"back-office-support\"] > .bds-button__content",
+        "a[href$=\"free-marketing-analysis\"] > .bds-button__content",
+        "a[href$=\"marketing-support\"] > .bds-button__content",
+        "a[href$=\"product-support\"] > .bds-button__content",
+        "div > .bds-button--md.bds-button--primary.bds-button > .bds-button__content"
+      ]
+    },
+    "/about": {
+      "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm",
+        "a[href$=\"value\"] > .bds-button__content"
+      ]
+    },
+    "/blog": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".bds-card.bds-card--outlined.bds-card--padding-none > .blog-card__content > .bds-card-footer > .bds-button--md.bds-button.bds-button--primary > .bds-button__content"
+      ]
+    },
+    "/contact": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".bds-footer__above-top > div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
+        ".contact-form-block > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
+      ]
+    },
+    "/customer-stories": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".bds-card--link.story-card.bds-card > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button"
+      ]
+    },
+    "/customers": {
+      "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"dental\"] > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"real-estate\"] > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"small-business\"] > .bds-button__content",
+        ".bds-button--sm",
+        ".bds-card--preset-display-row.bds-card--preset-display-row-narrow.bds-card > .bds-card__preset-display-row-body > .bds-card__preset-display-row-action > .bds-button--md.bds-button--primary[href$=\"contact\"] > .bds-button__content",
+        ".cta-card-brand > p",
+        "a[href$=\"saas\"] > .bds-button__content"
+      ]
+    },
+    "/events/demo-spring-webinar": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".event-page__form-card > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
+        "div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
+      ]
+    },
+    "/free-marketing-analysis": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".lp-hero > p",
+        ".rich-content > p",
+        ".rich-content > ul > li",
+        "li",
+        "p",
+        "strong"
+      ]
+    },
+    "/get-started": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".container-lg > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
+        "div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
+      ]
+    },
+    "/plans/back-office-support": {
+      "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--sm"
+      ]
+    },
+    "/privacy-policy": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".bds-button__content"
+      ]
+    },
+    "/services": {
+      "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm"
+      ]
+    },
+    "/services/back-office/crm-setup-and-data-cleanup": {
+      "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm"
+      ]
+    },
+    "/value": {
+      "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--sm",
+        ".button-wrapper > .bds-button--lg.bds-button.bds-button--primary > .bds-button__content"
       ]
     }
   },
   "_commentDark": "Dark-theme baseline (chromium-desktop-dark project, colorScheme:dark). Added 2026-06-06 (#359 follow-up) when the axe suite gained a dark-mode pass — the suite had only ever rendered light, so dark-only contrast debt was invisible (the #366 dark service-button failure shipped unseen). Captured against local `next dev` at staging-equivalent state. Same format/normalization as routes. Burn-down tracked alongside the light baseline (#40); the service-button entries here are the dark-theme face of brik-bds#827 (medium `-darker` service fills under white labels — marketing 2.87:1, brand 4.36:1). BURN-DOWN 2026-06-06 (#369): removed the 3 /contact secondary-button entries (the mailto / tel / Calendly a[target=_blank] CTAs). globals.css client-overrides now re-fills the dark .bds-button--secondary (rest --color-grayscale-dark #5a5a5a 6.16:1, hover --color-grayscale-darker #333 11.29:1) against the near-white --text-primary label, matching the button's own dark :active fill. Verified 0 color-contrast on /contact dark against local next dev. First routesDark burn-down; remaining dark debt is the brik-bds#827 service-CTA cluster + breadcrumb/hero text. BURN-DOWN 2026-06-06 (#375): cleared the ENTIRE remaining routesDark debt (the #827 dark face) — routesDark is now empty. Root cause was a single mechanism: BDS's dark root shifts three service token families one step lighter (`-darkest` → `-darker`) even though all three pair with the service SURFACE tints, which are fixed-light in both themes. globals.css client-overrides now re-points `--background-service-*-on-light`, `--surface-service-*-dark`, and `--text-service-*-on-light` back to their mode-invariant `-darkest` primitives in dark mode (fixes white-label primary buttons 2.86–4.35:1, accessible card CTAs 2.59–4.10:1, breadcrumb/ServiceTag/hero-lead 2.97:1); restores `--background-inverse` to the `-darker` step for the dark-label `.bds-button--inverse` hero price button per [data-audience]; and pins grayscale --text-primary/-secondary dark on a new `.service-surface` section marker (added to the fixed-light-tinted sections on services-line/-detail, /services callouts, /customers challenge cards, /customers/[slug] topic grids, /events) while restoring light text on the nested surfaced components (Card/PricingCard/hero-img-card/event form+speaker) that establish their own dark surface. Proper home is the BDS dark service ramp (brik-bds#827). Verified 0 dark color-contrast across all 16 routes (empty routesDark passes) against local next dev.",
-  "routesDark": {}
+  "routesDark": {
+    "/": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".button-wrapper--center.button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
+        ".cta-description",
+        ".hero-button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
+        ".hero-description",
+        "a[href$=\"back-office-support\"] > .bds-button__content",
+        "a[href$=\"free-marketing-analysis\"] > .bds-button__content",
+        "a[href$=\"marketing-support\"] > .bds-button__content",
+        "a[href$=\"product-support\"] > .bds-button__content",
+        "div > .bds-button--md.bds-button--primary.bds-button > .bds-button__content"
+      ]
+    },
+    "/about": {
+      "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm",
+        "a[href$=\"value\"] > .bds-button__content"
+      ]
+    },
+    "/blog": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".bds-card.bds-card--outlined.bds-card--padding-none > .blog-card__content > .bds-card-footer > .bds-button--md.bds-button.bds-button--primary > .bds-button__content"
+      ]
+    },
+    "/contact": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".bds-footer__above-top > div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
+        ".contact-form-block > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
+      ]
+    },
+    "/customer-stories": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".bds-card--link.story-card.bds-card > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button"
+      ]
+    },
+    "/customers": {
+      "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"dental\"] > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"real-estate\"] > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"small-business\"] > .bds-button__content",
+        ".bds-button--sm",
+        ".bds-card--preset-display-row.bds-card--preset-display-row-narrow.bds-card > .bds-card__preset-display-row-body > .bds-card__preset-display-row-action > .bds-button--md.bds-button--primary[href$=\"contact\"] > .bds-button__content",
+        ".cta-card-brand > p",
+        "a[href$=\"saas\"] > .bds-button__content"
+      ]
+    },
+    "/customers/dental": {
+      "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"real-estate\"] > .bds-button__content",
+        ".bds-button--md.bds-button--primary[href$=\"small-business\"] > .bds-button__content",
+        ".bds-button--sm",
+        ".bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
+        ".cta-card-brand > p",
+        "a[href$=\"saas\"] > .bds-button__content"
+      ]
+    },
+    "/events/demo-spring-webinar": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".event-page__form-card > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
+        "div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
+      ]
+    },
+    "/free-marketing-analysis": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".lp-hero > p",
+        ".rich-content > p",
+        ".rich-content > ul > li",
+        "li",
+        "p",
+        "strong"
+      ]
+    },
+    "/get-started": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".container-lg > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
+        "div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
+      ]
+    },
+    "/plans": {
+      "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm"
+      ]
+    },
+    "/plans/back-office-support": {
+      "color-contrast": [
+        "#hero-back-office-support-title",
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--sm",
+        ".bp-hero-img-card__lead"
+      ]
+    },
+    "/privacy-policy": {
+      "color-contrast": [
+        ".bds-button--sm",
+        ".bds-button__content"
+      ]
+    },
+    "/services": {
+      "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm"
+      ]
+    },
+    "/services/back-office/crm-setup-and-data-cleanup": {
+      "color-contrast": [
+        "#hero-crm-setup-and-data-cleanup-title",
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm",
+        ".bp-hero-img-card__lead"
+      ]
+    },
+    "/services/brand": {
+      "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--sm"
+      ]
+    },
+    "/services/brand/logo-design": {
+      "color-contrast": [
+        "#hero-logo-design-title",
+        ".bds-button--lg > .bds-button__content",
+        ".bds-button--sm",
+        ".bp-hero-img-card__lead"
+      ]
+    },
+    "/value": {
+      "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
+        ".bds-button--sm",
+        ".button-wrapper > .bds-button--lg.bds-button.bds-button--primary > .bds-button__content"
+      ]
+    }
+  }
 }
