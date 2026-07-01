@@ -83,11 +83,9 @@ html {
     /* Brand: softer red than --color-system-red-light for negative surfaces. */
     --surface-negative: #fdeaea;
 
-    /* Brand: deeper poppy on borders + brand image backgrounds. Upstream
-       uses poppy-light for higher hover-on-light contrast; brand identity
-       calls for stronger weight here. */
-    --border-brand-primary: var(--color-poppy-dark);
-    --background-image-brand: var(--color-poppy-dark);
+    /* Brand: border + brand image backgrounds inherit vibrant poppy-light
+       from BDS theme-brand-brik (BDS-22 / ADR-015 — vibrant Poppy is the
+       brand color; the prior poppy-dark override read blood-red). Removed. */
 
     /* Brand: inline body links use poppy-dark (#b0351b → ~7.95:1 on white,
        AAA) instead of upstream's --color-poppy-light (#e35335 → 3.78:1, AA
@@ -96,6 +94,12 @@ html {
        axe on /privacy-policy + /terms when those routes first entered the
        public-routes a11y suite via #302's chromeless/marketing split. */
     --text-link: var(--color-poppy-dark);
+    /* Brand: --text-brand-primary is used across the site as SMALL text
+       (mega-nav labels, hero/cta descriptions, eyebrows). BDS 0.114.0 flipped
+       it to vibrant poppy-light (#e35335 = 3.78:1, AA fail at those sizes), so
+       pin it dark locally — same call as --text-link, and the small-text carve-
+       out ADR-015 prescribes. Vibrant Poppy stays on fills/surfaces/borders. */
+    --text-brand-primary: var(--color-poppy-dark);
 
     /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
     --page-accent: var(--color-tan-lightest);
@@ -139,15 +143,18 @@ html {
     --surface-negative: #3d1a1a;
     --border-negative: #ff6b6b;
 
-    /* Brand: deeper poppy on borders + brand image backgrounds. */
-    --border-brand-primary: var(--color-poppy-dark);
-    --background-image-brand: var(--color-poppy-dark);
+    /* Brand: border + brand image backgrounds inherit vibrant poppy-light
+       from BDS theme-brand-brik (BDS-22 / ADR-015). Removed. */
 
     /* Brand: inline body links use poppy-lighter (#ffa693 → ~8.5:1 on
        grayscale-darkest, AAA) instead of the light-mode poppy-dark, which
        drops to ~2.2:1 on dark surfaces. Poppy-lighter is the canonical
        lighter shade — readable on dark, recognizably brand. */
     --text-link: var(--color-poppy-lighter);
+    /* Brand: small brand text on dark — poppy-dark would be ~2.2:1 on the
+       near-black surface; use poppy-lighter (readable, on-brand), same as
+       --text-link above. Pairs with the light-mode poppy-dark pin. */
+    --text-brand-primary: var(--color-poppy-lighter);
 
     /* Brand: dark-mode link tone (system-link is too saturated on black). */
     --color-system-link: #6b8aff;
