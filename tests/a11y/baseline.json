@@ -39,11 +39,13 @@
     },
     "/": {
       "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
         ".button-wrapper--center.button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
         ".cta-description",
         ".hero-button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
         ".hero-description",
+        ".scroll-down-cta__label",
         "a[href$=\"back-office-support\"] > .bds-button__content",
         "a[href$=\"free-marketing-analysis\"] > .bds-button__content",
         "a[href$=\"marketing-support\"] > .bds-button__content",
@@ -60,6 +62,7 @@
     },
     "/blog": {
       "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
         ".bds-button--sm",
         ".bds-card.bds-card--outlined.bds-card--padding-none > .blog-card__content > .bds-card-footer > .bds-button--md.bds-button.bds-button--primary > .bds-button__content"
       ]
@@ -73,8 +76,10 @@
     },
     "/customer-stories": {
       "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
-        ".bds-card--link.story-card.bds-card > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button"
+        ".bds-card--link.story-card.bds-card > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
+        ".cta-card-brand > p"
       ]
     },
     "/customers": {
@@ -99,6 +104,8 @@
     "/free-marketing-analysis": {
       "color-contrast": [
         ".bds-button--sm",
+        ".bds-footer__above-top > div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
+        ".lp-form-card > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".lp-hero > p",
         ".rich-content > p",
         ".rich-content > ul > li",
@@ -150,11 +157,13 @@
   "routesDark": {
     "/": {
       "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
         ".button-wrapper--center.button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
         ".cta-description",
         ".hero-button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
         ".hero-description",
+        ".scroll-down-cta__label",
         "a[href$=\"back-office-support\"] > .bds-button__content",
         "a[href$=\"free-marketing-analysis\"] > .bds-button__content",
         "a[href$=\"marketing-support\"] > .bds-button__content",
@@ -171,6 +180,7 @@
     },
     "/blog": {
       "color-contrast": [
+        ".bds-button--lg > .bds-button__content",
         ".bds-button--sm",
         ".bds-card.bds-card--outlined.bds-card--padding-none > .blog-card__content > .bds-card-footer > .bds-button--md.bds-button.bds-button--primary > .bds-button__content"
       ]
@@ -184,8 +194,10 @@
     },
     "/customer-stories": {
       "color-contrast": [
+        ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
-        ".bds-card--link.story-card.bds-card > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button"
+        ".bds-card--link.story-card.bds-card > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
+        ".cta-card-brand > p"
       ]
     },
     "/customers": {
@@ -221,6 +233,8 @@
     "/free-marketing-analysis": {
       "color-contrast": [
         ".bds-button--sm",
+        ".bds-footer__above-top > div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
+        ".lp-form-card > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".lp-hero > p",
         ".rich-content > p",
         ".rich-content > ul > li",
