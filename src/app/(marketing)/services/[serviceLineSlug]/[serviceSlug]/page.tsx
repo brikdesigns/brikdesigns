@@ -161,6 +161,12 @@ export default async function ServiceDetailPage({ params }: Props) {
       frequency: period,
     };
   })();
+  // Single-tier offering description for the hero modal's showcase panel — kept
+  // separate from `heroOffering` (which flows into the lead record) so the copy
+  // stays a display-only concern of the panel (#653).
+  const heroOfferingDescription = heroOffering
+    ? ((sortedOfferings[0] as { description?: string | null }).description ?? undefined)
+    : undefined;
 
   // Related services in same service line (exclude current)
   const siblingServices = serviceLine?.id
@@ -367,6 +373,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           serviceLine={serviceLineKey}
           {...(service.image_url ? { imageUrl: service.image_url } : {})}
           {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
+          {...(heroOfferingDescription ? { description: heroOfferingDescription } : {})}
         />
         <ScrollDownCta />
       </div>
@@ -434,6 +441,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                       serviceLine={serviceLineKey}
                       {...(service.image_url ? { imageUrl: service.image_url } : {})}
                       {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
+                      {...(off.description ? { description: off.description } : {})}
                       label="Get Started"
                       size="md"
                     />

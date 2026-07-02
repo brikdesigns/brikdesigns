@@ -21,6 +21,7 @@ export function GetStartedModalButton({
   serviceLine,
   serviceName,
   imageUrl,
+  description,
   label = 'Get Started',
   variant = 'primary',
   size = 'lg',
@@ -46,6 +47,8 @@ export function GetStartedModalButton({
   serviceName?: string;
   /** Service image for the 2-col modal's showcase panel (offering CTAs). */
   imageUrl?: string;
+  /** Offering / plan description from the CMS, shown in the showcase panel (#653). */
+  description?: string;
   label?: string;
   variant?: 'primary' | 'secondary';
   size?: 'sm' | 'md' | 'lg';
@@ -97,6 +100,7 @@ export function GetStartedModalButton({
               }
               price={offering?.price}
               frequency={offering?.frequency}
+              description={description}
             >
               {form}
             </LeadModalLayout>
