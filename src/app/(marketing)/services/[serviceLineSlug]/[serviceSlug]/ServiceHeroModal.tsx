@@ -31,6 +31,7 @@ export function ServiceHeroModal({
   serviceLine,
   serviceName,
   imageUrl,
+  description,
 }: {
   section: HeroProps['section'];
   clientFacts: HeroProps['clientFacts'];
@@ -50,6 +51,8 @@ export function ServiceHeroModal({
   serviceName?: string;
   /** Service image for the 2-col modal's showcase panel (the hero priceCard image). */
   imageUrl?: string;
+  /** Offering description from the CMS, shown in the showcase panel (#653). */
+  description?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -94,6 +97,7 @@ export function ServiceHeroModal({
               value={offering.name}
               price={offering.price}
               frequency={offering.frequency}
+              description={description}
             >
               {form}
             </LeadModalLayout>

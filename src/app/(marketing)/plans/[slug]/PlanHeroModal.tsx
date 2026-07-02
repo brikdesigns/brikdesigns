@@ -26,6 +26,7 @@ export function PlanHeroModal({
   plan,
   planName,
   serviceLine,
+  description,
 }: {
   section: HeroProps['section'];
   clientFacts: HeroProps['clientFacts'];
@@ -34,6 +35,8 @@ export function PlanHeroModal({
   planName?: string;
   /** Plan's parent service-line driving the lead-form summary card's ServiceTag (#600). */
   serviceLine?: ServiceLine;
+  /** Plan description from the CMS, shown in the showcase panel (#653). */
+  description?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -76,6 +79,7 @@ export function PlanHeroModal({
                 planName ||
                 plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
               }
+              description={description}
             >
               {form}
             </LeadModalLayout>
