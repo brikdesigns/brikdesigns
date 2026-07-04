@@ -21,7 +21,7 @@ import { hasIconFor } from '@/lib/service-icons';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { MDXRemote } from '@/components/blog/MDXRemote';
 import { heading, text, label } from '@/lib/styles';
-import { color, gap, serviceColor } from '@/lib/tokens';
+import { color, font, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../blog.css';
 
@@ -242,7 +242,7 @@ export default async function BlogPostPage({ params }: Props) {
       {meta.ctaTitle && (
         <section className="cta-section-brand">
           <div className="cta-card-brand">
-            <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center' }}>
+            <h2 style={{ ...heading.lg, lineHeight: font.lineHeight.snug, color: color.text.onColorDark, textAlign: 'center' }}>
               {meta.ctaTitle}
             </h2>
             <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', opacity: 0.9 }}>
