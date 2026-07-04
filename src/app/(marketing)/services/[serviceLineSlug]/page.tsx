@@ -6,6 +6,7 @@ import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { hasIconFor } from '@/lib/service-icons';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
+import { SmoothScrollButton } from '@/components/ui/SmoothScrollButton';
 import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
@@ -102,7 +103,7 @@ export default async function ServiceLinePage({ params }: Props) {
                 <p className="page-hero__description">{serviceLine.description}</p>
               )}
               <div className="button-wrapper">
-                <Button href="#services" variant="primary" size="lg">View Services</Button>
+                <SmoothScrollButton href="#services" variant="primary" size="lg">View Services</SmoothScrollButton>
               </div>
             </div>
 
