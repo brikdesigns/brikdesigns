@@ -165,6 +165,7 @@
         ".hero-button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
         ".hero-description",
         ".scroll-down-cta__label",
+        ".section-plans > .section-container > .section-header > .section-description",
         "a[href$=\"back-office-support\"] > .bds-button__content",
         "a[href$=\"free-marketing-analysis\"] > .bds-button__content",
         "a[href$=\"marketing-support\"] > .bds-button__content",
@@ -188,6 +189,9 @@
     },
     "/contact": {
       "color-contrast": [
+        ".bds-button--secondary.bds-button--md.bds-button > .bds-button__content",
+        ".bds-button--secondary.bds-button--md[href=\"mailto:hello@brikdesigns.com\"] > .bds-button__content",
+        ".bds-button--secondary.bds-button--md[href=\"tel:+15614908714\"] > .bds-button__content",
         ".bds-button--sm",
         ".bds-footer__above-top > div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".contact-form-block > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
@@ -210,6 +214,7 @@
         ".bds-button--sm",
         ".bds-card--preset-display-row.bds-card--preset-display-row-narrow.bds-card > .bds-card__preset-display-row-body > .bds-card__preset-display-row-action > .bds-button--md.bds-button--primary[href$=\"contact\"] > .bds-button__content",
         ".cta-card-brand > p",
+        ".page-section--secondary.page-section > .container-lg.container-lg--comfortable > .content-wrapper.content-wrapper--center > p",
         "a[href$=\"saas\"] > .bds-button__content"
       ]
     },
@@ -262,7 +267,8 @@
         "#hero-back-office-support-title",
         ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
-        ".bp-hero-img-card__lead"
+        ".bp-hero-img-card__lead",
+        ".plan-cta-panel__price > p"
       ]
     },
     "/privacy-policy": {
@@ -301,6 +307,8 @@
     },
     "/value": {
       "color-contrast": [
+        "#value-02 > .container-lg--comfortable.container-lg > p",
+        "#value-04 > .container-lg--comfortable.container-lg > p",
         ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
         ".button-wrapper > .bds-button--lg.bds-button.bds-button--primary > .bds-button__content"
