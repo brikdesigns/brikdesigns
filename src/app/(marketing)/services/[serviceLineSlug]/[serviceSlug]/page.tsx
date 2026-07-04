@@ -671,7 +671,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
                 <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
                 <Button
-                  href={`/plans#${supportPlan.slug}`}
+                  href={`/plans/${supportPlan.slug}`}
                   variant="primary"
                   size="md"
                   style={supportPlanTokens ? ({ '--background-brand-primary': supportPlanTokens.onLight, '--service-cta-fill-dark': supportPlanTokens.onDark, '--service-cta-ink-dark': supportPlanTokens.text } as React.CSSProperties) : undefined}

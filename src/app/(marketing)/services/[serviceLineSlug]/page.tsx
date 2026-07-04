@@ -216,7 +216,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   )}
                   <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
                   <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
-                  <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="md">Learn more</Button>
+                  <Button href={`/plans/${supportPlan.slug}`} variant="primary" size="md">Learn more</Button>
                 </div>
               </Card>
             </div>
