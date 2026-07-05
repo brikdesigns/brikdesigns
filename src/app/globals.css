@@ -130,6 +130,14 @@ html {
     --border-input: var(--color-grayscale-light);
     --background-secondary-hover: var(--color-grayscale-light);
 
+    /* NOTE: dark `--background-input` intentionally left at the upstream value
+       (grayscale-black). An earlier stopgap here lifted it to a raw #4f4f4f so
+       inputs read as filled on the near-black modal, but the field's #bdbdbd
+       placeholder on #4f4f4f is only 4.35:1 — a serious WCAG AA failure on the
+       /contact + /get-started forms. The fill-visibility fix must be chosen as a
+       validated text-on-fill pairing at the token layer; tracked in
+       brik-bds#1148 (scoped) + consumer-override enforcement in brik-bds#1155. */
+
     /* Cascade resets: my light-mode override of these tokens leaks past
        upstream's dark-mode reset because client-theme layer > bds-tokens.
        Restate the desired dark value explicitly. */
@@ -245,6 +253,13 @@ html {
        invented-token gate sees them declared. */
     --service-cta-fill-dark: initial;
     --service-cta-ink-dark: initial;
+    /* #671 — consumer-local handoff vars for the customer-story Related Services
+       band tint. Set per-instance in the customer-story page (serviceColor()
+       .surfaceLight / .surfaceDark) and consumed by the `.related-services-band`
+       rules in shared-sections.css. Declared `initial` so the token-lint
+       invented-token gate sees them declared. */
+    --related-band-light: initial;
+    --related-band-dark: initial;
   }
 }
 
