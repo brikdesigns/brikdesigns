@@ -514,6 +514,16 @@
   font-size: var(--heading-sm);
 }
 
+/* Same heading-sm normalization for the "Other Support Plans" / "Other Service
+   Lines" display grids, whose cards keep their own chrome (elevated / -inverse
+   fill) and so can't reuse `.service-card--flat` (that also strips border +
+   shadow). Title-only, so the elevated treatment is preserved. Brings these
+   grids into parity with the main service/plan card grids on the same page,
+   which already render at heading-sm. — #674 / BACKLOG-340,341 */
+.display-card--title-sm .bds-card__preset-display-title {
+  font-size: var(--heading-sm);
+}
+
 /* ─── Card chrome on a tinted surface — two-tier standard (BACKLOG-336) ──
    On any tinted band — service tint (`.service-surface`), `--surface-secondary`
    (`.page-section--secondary`), or `--surface-accent` (`.page-section--accent`)
