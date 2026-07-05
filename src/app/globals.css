@@ -130,16 +130,13 @@ html {
     --border-input: var(--color-grayscale-light);
     --background-secondary-hover: var(--color-grayscale-light);
 
-    /* Stopgap (#671 / brik-bds#1148): upstream dark `--background-input` is
-       grayscale-black — identical to `--surface-primary`, so inputs on a
-       primary-surface container (the lead-capture Modal) have zero fill
-       contrast and read as border-only. Lift the field fill one grayscale step
-       (matches this block's `--surface-secondary`) so inputs read as filled on
-       the near-black modal/page. Remove once brik-bds#1148 fixes the token.
-       NOTE: raw hex, NOT `var(--color-grayscale-darker)` — the compiler dropped
-       the var() reference on this one property (verified in the dark-mode modal);
-       #4f4f4f IS grayscale-darker. Mirrors the raw-hex sibling stops above. */
-    --background-input: #4f4f4f;
+    /* NOTE: dark `--background-input` intentionally left at the upstream value
+       (grayscale-black). An earlier stopgap here lifted it to a raw #4f4f4f so
+       inputs read as filled on the near-black modal, but the field's #bdbdbd
+       placeholder on #4f4f4f is only 4.35:1 — a serious WCAG AA failure on the
+       /contact + /get-started forms. The fill-visibility fix must be chosen as a
+       validated text-on-fill pairing at the token layer; tracked in
+       brik-bds#1148 (scoped) + consumer-override enforcement in brik-bds#1155. */
 
     /* Cascade resets: my light-mode override of these tokens leaks past
        upstream's dark-mode reset because client-theme layer > bds-tokens.
