@@ -420,15 +420,22 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
       {/* ═══ Related Services — single row card ═══ */}
       {relatedService && (
         <section
-          className="page-section service-surface"
-          // Pale `surfaceLight` ramp — matches the site-wide pale hero/band
-          // treatment (#408); the elevated card inside stays neutral.
-          // `service-surface` pins the on-tint heading to grayscale-darkest in
-          // dark mode (globals.css) — the tint is fixed-light in both themes, so
-          // without it the theme-responsive `<h2>` flips near-white → light-on-
-          // light (1.02:1). The elevated Card is excluded by the pin's
-          // `:not(.bds-card)` carve-out, so its text stays correct. (#502/322)
-          style={{ backgroundColor: serviceColor(relatedAudience).surfaceLight }}
+          className="page-section service-surface related-services-band"
+          // Light mode: pale `surfaceLight` ramp (site-wide pale band treatment,
+          // #408). Dark mode: `.related-services-band` (shared-sections.css)
+          // repaints to the deep `surfaceDark` service tint so the band reads
+          // dark like its neighbouring `story-arc` / `--accent` sections instead
+          // of a stuck light-green band (#671/322). Both tint values are handed
+          // to CSS as custom props; the `background-color` is applied in the
+          // stylesheet (NOT inline) so the dark-mode rule can override it. That
+          // rule also flips the section's inherited heading text light, since the
+          // `.service-surface` grayscale-darkest pin is only correct on the light
+          // tint. The elevated Card keeps its own dark surface + light text via
+          // the pin's nested-card carve-out. (#502/322)
+          style={{
+            '--related-band-light': serviceColor(relatedAudience).surfaceLight,
+            '--related-band-dark': serviceColor(relatedAudience).surfaceDark,
+          } as React.CSSProperties}
         >
           <div className="container-lg container-lg--comfortable">
             <h2 style={{ ...heading.lg, textAlign: 'center' }}>Related Services</h2>

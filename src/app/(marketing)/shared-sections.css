@@ -546,3 +546,26 @@
   border: none;
   box-shadow: var(--box-shadow-md);
 }
+
+/* ─── Related Services band — dark-mode deep-tint conversion (#671 / 322) ──
+   The customer-story "Related Services" section tints with the pale
+   `surfaceLight` service ramp in light mode (the #408 pale-band treatment).
+   In dark mode that mode-invariant light tint read as a stuck light-green band
+   between the dark `story-arc` and `--accent` sections, so here it flips to the
+   deep `surfaceDark` service tint. The section hands both tint values in as
+   custom props (`--related-band-{light,dark}`); the background is applied here
+   (not inline) so this dark-mode rule can win. `.page-section.` raises
+   specificity above the base `.page-section` fill.
+   Scoped to THIS section only — the site-wide `.service-surface` pale bands
+   (service hero/pricing/plans) intentionally stay pale in both themes. */
+.page-section.related-services-band {
+  background-color: var(--related-band-light);
+}
+:root[data-theme="dark"] .page-section.related-services-band {
+  background-color: var(--related-band-dark);
+  /* Band is now dark: flip the inherited heading/body text light, overriding the
+     `.service-surface` grayscale-darkest pin (globals.css) that is only correct
+     on the light tint. Mirrors that pin's nested-card exception values. */
+  --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — light heading/body on the deep service tint; mirrors the .service-surface nested-card exception (globals.css) */
+  --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals.css); no BDS primitive exists for it */
+}

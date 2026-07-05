@@ -130,6 +130,17 @@ html {
     --border-input: var(--color-grayscale-light);
     --background-secondary-hover: var(--color-grayscale-light);
 
+    /* Stopgap (#671 / brik-bds#1148): upstream dark `--background-input` is
+       grayscale-black — identical to `--surface-primary`, so inputs on a
+       primary-surface container (the lead-capture Modal) have zero fill
+       contrast and read as border-only. Lift the field fill one grayscale step
+       (matches this block's `--surface-secondary`) so inputs read as filled on
+       the near-black modal/page. Remove once brik-bds#1148 fixes the token.
+       NOTE: raw hex, NOT `var(--color-grayscale-darker)` — the compiler dropped
+       the var() reference on this one property (verified in the dark-mode modal);
+       #4f4f4f IS grayscale-darker. Mirrors the raw-hex sibling stops above. */
+    --background-input: #4f4f4f;
+
     /* Cascade resets: my light-mode override of these tokens leaks past
        upstream's dark-mode reset because client-theme layer > bds-tokens.
        Restate the desired dark value explicitly. */
@@ -242,6 +253,13 @@ html {
        invented-token gate sees them declared. */
     --service-cta-fill-dark: initial;
     --service-cta-ink-dark: initial;
+    /* #671 — consumer-local handoff vars for the customer-story Related Services
+       band tint. Set per-instance in the customer-story page (serviceColor()
+       .surfaceLight / .surfaceDark) and consumed by the `.related-services-band`
+       rules in shared-sections.css. Declared `initial` so the token-lint
+       invented-token gate sees them declared. */
+    --related-band-light: initial;
+    --related-band-dark: initial;
   }
 }
 
