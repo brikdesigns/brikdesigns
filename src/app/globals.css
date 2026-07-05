@@ -466,8 +466,8 @@ h1, h2, h3, h4, h5, h6 {
      darker fills. Subsumed by #227 if globals.css migrates to consume
      theme-brand-brik from BDS. */
   :root[data-theme="dark"] .theme-brand-brik .bds-button--secondary {
-    --background-secondary: var(--color-grayscale-dark); /* bds-lint-ignore token-family — re-points the secondary-bg token for the button scope only, using the same grayscale primitive family the brand-kit dark block uses for --background-secondary* (lines ~115/119); the Shape-B pairing check fires solely because the selector is component-scoped (.bds-button--secondary), not a bare theme-def block. rest: #5a5a5a → 6.16:1 vs --text-primary #f2f2f2 */
-    --background-secondary-hover: var(--color-grayscale-darker); /* bds-lint-ignore token-family — see above; hover: #333 → 11.29:1 */
+    --background-secondary: var(--color-grayscale-darker); /* bds-lint-ignore token-family — re-points the secondary-bg token for the button scope only, using the same grayscale primitive family the brand-kit dark block uses for --background-secondary* (lines ~115/119); the Shape-B pairing check fires solely because the selector is component-scoped (.bds-button--secondary), not a bare theme-def block. rest: #4f4f4f → 7.32:1 vs --text-primary #f2f2f2. Shifted one step darker from grayscale-dark after the #1106 ramp sync lightened grayscale-dark to #828282 (3.43:1, AA fail); see brik-bds#1136. */
+    --background-secondary-hover: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above; hover: #333 → 11.29:1 (also shifted one step for #1106) */
   }
 
   /* Inverse (dark-label) buttons. The consumer feeds `--background-inverse` from the
