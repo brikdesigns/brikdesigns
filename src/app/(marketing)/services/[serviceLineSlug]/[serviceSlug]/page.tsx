@@ -14,6 +14,7 @@ import {
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
+import { ServiceHeroModal } from './ServiceHeroModal';
 import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import {
@@ -24,7 +25,6 @@ import {
   CardTitle,
   Frame,
   Grid,
-  HeroSplitImageCardOverlay,
   Button,
   PricingCard,
   ServiceTag,
@@ -139,6 +139,35 @@ export default async function ServiceDetailPage({ params }: Props) {
     ? formatPrice(sortedOfferings[0]?.base_price_cents)
     : null;
 
+  // Single-tier services have no pricing grid, so the hero "Let's Talk" CTA is
+  // the only offering CTA — carry that one offering into the lead record,
+  // formatted exactly like the multi-tier grid CTAs (#592/#595). Multi-tier and
+  // no-offering services keep the hero CTA service-level (offering undefined).
+  const heroOffering = (() => {
+    if (sortedOfferings.length !== 1) return undefined;
+    const off = sortedOfferings[0] as {
+      name: string;
+      base_price_cents: number | null;
+      billing_frequency: string | null;
+    };
+    const priceDisplay = formatPrice(off.base_price_cents);
+    const period = priceDisplay ? formatPeriod(off.billing_frequency) : undefined;
+    // Price + frequency are carried separately so the lead-form summary card
+    // can render them as `price • frequency`; they're rejoined into the lead
+    // record on submit (#600).
+    return {
+      name: off.name,
+      price: priceDisplay ?? undefined,
+      frequency: period,
+    };
+  })();
+  // Single-tier offering description for the hero modal's showcase panel — kept
+  // separate from `heroOffering` (which flows into the lead record) so the copy
+  // stays a display-only concern of the panel (#653).
+  const heroOfferingDescription = heroOffering
+    ? ((sortedOfferings[0] as { description?: string | null }).description ?? undefined)
+    : undefined;
+
   // Related services in same service line (exclude current)
   const siblingServices = serviceLine?.id
     ? (await getServicesByServiceLine(serviceLine.id)).filter((s) => s.slug !== serviceSlug).slice(0, 3)
@@ -187,9 +216,16 @@ export default async function ServiceDetailPage({ params }: Props) {
     if (!supportPlan) return null;
     const raw = (supportPlan as { marketing_line?: unknown }).marketing_line;
     if (!raw) return null;
-    if (Array.isArray(raw)) return (raw[0] as { card_image_url: string | null; name: string | null } | undefined) ?? null;
-    return raw as { card_image_url: string | null; name: string | null };
+    if (Array.isArray(raw)) return (raw[0] as { slug: string | null; card_image_url: string | null; name: string | null } | undefined) ?? null;
+    return raw as { slug: string | null; card_image_url: string | null; name: string | null };
   })();
+
+  // The support-plan CTA carries the plan's *own* service-line color (its
+  // marketing line), not this page's line — same per-card pattern as the add-on
+  // and Other-Plans CTAs (#569/#343). #BRIK-WEB-47
+  const supportPlanTokens = supportPlanMarketingLine?.slug
+    ? serviceColor(mapServiceLineSlug(supportPlanMarketingLine.slug))
+    : null;
 
   // Service-line tokens drive two scoped cascades:
   //   - Page-level: --text-brand-primary so eyebrows / breadcrumbs / accent
@@ -314,6 +350,11 @@ export default async function ServiceDetailPage({ params }: Props) {
             // the body sections below (#389 — interior hero matches body).
             backgroundColor: serviceTokens.surfaceLight,
             '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
+            // Interior-hero CARD surface — the nested `aside.bp-hero-img-card__media-card`,
+            // NOT this section. The `--bp-hero-img-card-card-bg` hook scopes the ADR-012
+            // service `-inverse` token to the card only: white in light → `{hue}-darkest`
+            // in dark; BDS recalibrates the card text per theme (AA, brik-bds#1020). (BRIK-WEB-52)
+            '--bp-hero-img-card-card-bg': serviceTokens.inverse,
             // Service-line-colored primary CTAs inside the hero (View Details
             // + priceCard "Let's Talk"). BDS .bds-button--primary reads from
             // --background-brand-primary; scoping the override here keeps
@@ -322,10 +363,17 @@ export default async function ServiceDetailPage({ params }: Props) {
           } as React.CSSProperties
         }
       >
-        <HeroSplitImageCardOverlay
+        <ServiceHeroModal
           section={heroSection}
           clientFacts={defaultClientFacts}
           theme={defaultMarketingTheme}
+          service={service.slug}
+          serviceOptions={serviceOptions}
+          offering={heroOffering}
+          serviceLine={serviceLineKey}
+          {...(service.image_url ? { imageUrl: service.image_url } : {})}
+          {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
+          {...(heroOfferingDescription ? { description: heroOfferingDescription } : {})}
         />
         <ScrollDownCta />
       </div>
@@ -348,7 +396,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="pricing"
           title="Pricing Options"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {sortedOfferings.map((off: {
@@ -368,6 +416,10 @@ export default async function ServiceDetailPage({ params }: Props) {
               return (
                 <PricingCard
                   key={off.slug}
+                  // Service `-inverse` surface — white in light (== the prior
+                  // surface-primary fill), `{hue}-darkest` in dark — matching the
+                  // inverse-card convention used across this page (#645).
+                  style={{ backgroundColor: serviceTokens.inverse }}
                   title={off.name}
                   price={priceDisplay ?? 'Quote'}
                   period={period}
@@ -379,12 +431,17 @@ export default async function ServiceDetailPage({ params }: Props) {
                       service={service.slug}
                       serviceOptions={serviceOptions}
                       // Carry the clicked tier into the lead record (#592).
+                      // Price + frequency are split for the summary card's
+                      // `price • frequency` rendering (#600); rejoined on submit.
                       offering={{
                         name: off.name,
-                        price: priceDisplay
-                          ? `${priceDisplay}${period ? ` ${period}` : ''}`
-                          : undefined,
+                        price: priceDisplay ?? undefined,
+                        frequency: period,
                       }}
+                      serviceLine={serviceLineKey}
+                      {...(service.image_url ? { imageUrl: service.image_url } : {})}
+                      {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
+                      {...(off.description ? { description: off.description } : {})}
                       label="Get Started"
                       size="md"
                     />
@@ -408,11 +465,13 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="story"
           title="Related Customer Story"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
-          {/* elevated (not borderless): surface-primary fill + shadow keeps the
-              row-card contained on the service tint — #427 (regression from #360). */}
-          <Card variant="elevated" padding="lg">
+          {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
+              row-card contained on the service-tint band — white in light (== the
+              former surface-primary fill, #427/#360), `{hue}-darkest` in dark so
+              the card carries the line identity against the lighter band. (BRIK-WEB) */}
+          <Card variant="elevated" padding="lg" style={{ backgroundColor: serviceTokens.inverse }}>
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedStory.hero_image_url && (
                 <div style={{ flex: '0 0 40%' }}>
@@ -456,11 +515,13 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="addon"
           title="Recommended Add-On Service"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
-          {/* elevated (not borderless): surface-primary fill + shadow keeps the
-              row-card contained on the service tint — #427 (regression from #360). */}
-          <Card variant="elevated" padding="lg">
+          {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
+              row-card contained on the service-tint band — white in light (== the
+              former surface-primary fill, #427/#360), `{hue}-darkest` in dark so
+              the card carries the line identity against the lighter band. (BRIK-WEB) */}
+          <Card variant="elevated" padding="lg" style={{ backgroundColor: serviceTokens.inverse }}>
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedService.image_url && (
                 <div style={{ flex: '0 0 35%' }}>
@@ -496,7 +557,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                     href={`/services/${routeSlugForServiceLine(relatedServiceLineSlug)}/${relatedService.slug}`}
                     variant="primary"
                     size="md"
-                    style={{ '--background-brand-primary': relatedServiceTokens.onLight } as React.CSSProperties}
+                    style={{ '--background-brand-primary': relatedServiceTokens.onLight, '--service-cta-fill-dark': relatedServiceTokens.onDark, '--service-cta-ink-dark': relatedServiceTokens.text } as React.CSSProperties}
                   >
                     Learn More
                   </Button>
@@ -513,7 +574,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
           <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
@@ -524,6 +585,10 @@ export default async function ServiceDetailPage({ params }: Props) {
                   preset="display"
                   variant="elevated"
                   className="service-sibling-card"
+                  // Service `-inverse` surface — white in light (== the prior
+                  // display-preset fill), `{hue}-darkest` in dark. Siblings are
+                  // all this page's line, so the page hue is correct here. (BRIK-WEB)
+                  style={{ backgroundColor: serviceTokens.inverse }}
                   image={
                     svc.image_url ? (
                       <Frame customRatio="3 / 2" fit="contain" className="service-sibling-card__media">
@@ -571,7 +636,7 @@ export default async function ServiceDetailPage({ params }: Props) {
        * portal /settings/plans data task.
        */}
       {supportPlan && (
-        <section className="page-section">
+        <section className="page-section service-themed" style={{ backgroundColor: serviceTokens.inverse }}>
           <div className="container-lg container-lg--comfortable">
             <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
               <h2 style={{ ...heading.lg, textAlign: 'center' }}>Want a Partner to Avoid the Full-Time Hassle?</h2>
@@ -605,7 +670,14 @@ export default async function ServiceDetailPage({ params }: Props) {
                 )}
                 <h3 style={{ ...heading.sm, textAlign: 'center' }}>{supportPlan.name}</h3>
                 <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>{supportPlan.description}</p>
-                <Button href={`/plans#${supportPlan.slug}`} variant="primary" size="md">Learn More</Button>
+                <Button
+                  href={`/plans/${supportPlan.slug}`}
+                  variant="primary"
+                  size="md"
+                  style={supportPlanTokens ? ({ '--background-brand-primary': supportPlanTokens.onLight, '--service-cta-fill-dark': supportPlanTokens.onDark, '--service-cta-ink-dark': supportPlanTokens.text } as React.CSSProperties) : undefined}
+                >
+                  Learn More
+                </Button>
               </div>
             </div>
           </div>

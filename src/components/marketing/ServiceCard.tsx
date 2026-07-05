@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Card, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
+import { serviceColor } from '@/lib/tokens';
 
 interface ServiceCardProps {
   name: string;
@@ -21,10 +22,15 @@ interface ServiceCardProps {
   /** Optional class on the underlying Card root (e.g. the `service-card--flat`
    *  chrome-strip used on the service-line + customer-topic grids). */
   className?: string;
+  /** Fill the card with the service line's `-inverse` surface — neutral white
+   *  in light mode (== the prior surface-primary fill), deep `{hue}-darkest` in
+   *  dark so the card carries the line identity on the tinted band. Matches the
+   *  service-detail inverse-card convention (#645). Opt-in per usage. */
+  surfaceInverse?: boolean;
 }
 
 export function ServiceCard({
-  name, slug, serviceLineSlug, category, tagline, imageUrl, description, showCta, iconServiceName, className,
+  name, slug, serviceLineSlug, category, tagline, imageUrl, description, showCta, iconServiceName, className, surfaceInverse,
 }: ServiceCardProps) {
   const href = `/services/${serviceLineSlug}/${slug}`;
   const tagProps = iconServiceName ? { serviceName: iconServiceName } : {};
@@ -33,6 +39,7 @@ export function ServiceCard({
     <Card
       preset="display"
       className={className}
+      {...(surfaceInverse ? { style: { backgroundColor: serviceColor(category).inverse } } : {})}
       title={name}
       description={description ?? tagline ?? undefined}
       image={imageUrl ? (
@@ -41,7 +48,30 @@ export function ServiceCard({
         </Frame>
       ) : undefined}
       tag={<ServiceTag category={category} variant="icon" size="md" {...tagProps} />}
-      action={showCta ? <LinkButton href={href} variant="primary" size="md">Learn More</LinkButton> : undefined}
+      action={showCta ? (
+        <LinkButton
+          href={href}
+          variant="primary"
+          size="md"
+          // On an `-inverse` card the deep `onLight` fill blends into the
+          // `{hue}-darkest` card in dark mode. When the card opts into the
+          // inverse surface, also feed the #648 mode-aware vars so the rest
+          // fill flips to the pale `onDark` step + deep `text` ink in dark mode
+          // only (consumed by `.service-themed .bds-button--primary` in
+          // globals.css). Light mode is unchanged. (BRIK-WEB)
+          style={{
+            '--background-brand-primary': serviceColor(category).onLight,
+            ...(surfaceInverse
+              ? {
+                  '--service-cta-fill-dark': serviceColor(category).onDark,
+                  '--service-cta-ink-dark': serviceColor(category).text,
+                }
+              : {}),
+          } as React.CSSProperties}
+        >
+          Learn More
+        </LinkButton>
+      ) : undefined}
       href={!showCta ? href : undefined}
     />
   );

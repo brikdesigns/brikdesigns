@@ -1,11 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import { Button, TextInput, TextArea } from '@brikdesigns/bds';
 import { useFormSubmit } from '@/lib/hooks/useFormSubmit';
 import { FormError } from '@/components/marketing/forms/FormError';
 import { FormSuccessCard } from '@/components/marketing/forms/FormSuccessCard';
+import { ServiceMultiSelect, type ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 
-export function ContactForm() {
+export function ContactForm({ serviceOptions = [] }: { serviceOptions?: ServiceOption[] }) {
+  // Services the visitor is interested in. The contact form carries services
+  // (not offerings) — there's no offering/tier context from this entry point.
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+
   const { isSubmitting, isSuccess, isError, error, submit } = useFormSubmit({
     endpoint: '/api/leads',
   });
@@ -17,6 +23,7 @@ export function ContactForm() {
       name: form.get('name'),
       email: form.get('email'),
       company_name: form.get('company_name') || 'Not provided',
+      services: selectedServices,
       message: form.get('message') || '',
       source: 'contact',
       // Honeypot — bots fill every field, real users don't see this one.
@@ -47,6 +54,13 @@ export function ContactForm() {
       <TextInput label="Your name" name="name" required placeholder="Jane Smith" />
       <TextInput label="Email" name="email" type="email" required placeholder="jane@example.com" />
       <TextInput label="Company (optional)" name="company_name" placeholder="Acme Design Co." />
+      {serviceOptions.length > 0 && (
+        <ServiceMultiSelect
+          options={serviceOptions}
+          value={selectedServices}
+          onChange={setSelectedServices}
+        />
+      )}
       <TextArea
         label="How can we help?"
         name="message"

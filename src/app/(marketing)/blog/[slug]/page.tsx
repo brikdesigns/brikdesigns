@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { Icon } from '@iconify/react';
+import { Icon } from '@/lib/icon';
 import {
   Breadcrumb,
   Button,
@@ -21,7 +21,7 @@ import { hasIconFor } from '@/lib/service-icons';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { MDXRemote } from '@/components/blog/MDXRemote';
 import { heading, text, label } from '@/lib/styles';
-import { color, gap, serviceColor } from '@/lib/tokens';
+import { color, font, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../blog.css';
 
@@ -71,7 +71,6 @@ export default async function BlogPostPage({ params }: Props) {
           <Breadcrumb
             style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
             items={[
-              { label: 'Home', href: '/' },
               { label: 'Blog', href: '/blog' },
               { label: meta.title },
             ]}
@@ -225,7 +224,7 @@ export default async function BlogPostPage({ params }: Props) {
                       image={
                         line.card_image_url ? (
                           <Frame customRatio="3 / 2" fit="contain">
-                            <Image src={line.card_image_url} alt={line.name} fill />
+                            <Image src={line.card_image_url} alt={line.name} fill sizes="(max-width: 768px) 100vw, 400px" />
                           </Frame>
                         ) : undefined
                       }
@@ -243,7 +242,7 @@ export default async function BlogPostPage({ params }: Props) {
       {meta.ctaTitle && (
         <section className="cta-section-brand">
           <div className="cta-card-brand">
-            <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center' }}>
+            <h2 style={{ ...heading.lg, lineHeight: font.lineHeight.snug, color: color.text.onColorDark, textAlign: 'center' }}>
               {meta.ctaTitle}
             </h2>
             <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', opacity: 0.9 }}>

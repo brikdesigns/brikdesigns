@@ -123,9 +123,9 @@
  * primary_badge_url / secondary_badge_url are a light/dark theme pair; both
  * render in the DOM and the swap below shows exactly one per theme. */
 .customer-detail-hero__tag {
-  width: 96px;
-  height: 96px;
-  border-radius: var(--border-radius-lg);
+  width: var(--size-1000);
+  height: var(--size-1000);
+  border-radius: var(--border-radius-md);
   background-color: var(--surface-accent);
   display: flex;
   align-items: center;

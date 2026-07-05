@@ -17,6 +17,7 @@ export interface BlogPost {
   summary: string;
   date: string;
   category: string;
+  tags: string[];
   duration: string;
   featured: boolean;
   image?: string;
@@ -48,6 +49,7 @@ function rowToMeta(row: BlogPostRow): BlogPost {
     summary: row.excerpt ?? '',
     date: row.published_at ?? '',
     category: row.tags?.[0] ?? '',
+    tags: row.tags ?? [],
     duration: row.duration ?? '',
     featured: Boolean(row.featured),
     image: row.featured_image_url ?? undefined,

@@ -762,6 +762,21 @@
   border-bottom: 1px solid var(--border-secondary);
 }
 
+/* CTA rendered as a <button> (opens the contact modal) — reset native chrome
+   while keeping the shared link styling. Border-bottom is left to the base /
+   --cta rules. */
+button.mega-nav__mobile-link {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
 .mega-nav__mobile-link--indent {
   padding-left: var(--padding-md);
   font-weight: 400;

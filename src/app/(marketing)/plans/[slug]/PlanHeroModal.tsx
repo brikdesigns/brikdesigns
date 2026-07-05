@@ -1,8 +1,9 @@
 'use client';
 
 import { Suspense, useState, type ComponentProps } from 'react';
-import { HeroSplitImageCardOverlay, Modal } from '@brikdesigns/bds';
+import { HeroSplitImageCardOverlay, Modal, type ServiceLine } from '@brikdesigns/bds';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
+import { LeadModalLayout } from '@/components/marketing/LeadModalLayout';
 
 type HeroProps = ComponentProps<typeof HeroSplitImageCardOverlay>;
 
@@ -24,14 +25,35 @@ export function PlanHeroModal({
   theme,
   plan,
   planName,
+  serviceLine,
+  description,
 }: {
   section: HeroProps['section'];
   clientFacts: HeroProps['clientFacts'];
   theme: HeroProps['theme'];
   plan: string;
   planName?: string;
+  /** Plan's parent service-line driving the lead-form summary card's ServiceTag (#600). */
+  serviceLine?: ServiceLine;
+  /** Plan description from the CMS, shown in the showcase panel (#653). */
+  description?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  // Plans have no offering/image — the panel shows the service-line glyph plus
+  // the "Selected plan" label/value. The panel carries that context, so the
+  // in-form callout is suppressed (`hideOfferingSummary`).
+  const showPanel = Boolean(serviceLine && plan);
+
+  const form = (
+    <LeadCaptureForm
+      source="get_started"
+      plan={plan}
+      planName={planName}
+      serviceLine={serviceLine}
+      hideOfferingSummary={showPanel}
+    />
+  );
 
   return (
     <>
@@ -46,10 +68,24 @@ export function PlanHeroModal({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="Get Started"
-        size="md"
+        size={showPanel ? 'xl' : 'md'}
       >
         <Suspense>
-          <LeadCaptureForm source="get_started" plan={plan} planName={planName} />
+          {showPanel && serviceLine ? (
+            <LeadModalLayout
+              serviceLine={serviceLine}
+              label="Selected plan"
+              value={
+                planName ||
+                plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+              }
+              description={description}
+            >
+              {form}
+            </LeadModalLayout>
+          ) : (
+            form
+          )}
         </Suspense>
       </Modal>
     </>

@@ -28,7 +28,16 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/services', name: 'Services index' },
   { path: '/services/brand', name: 'Service line — brand' },
   { path: '/services/brand/logo-design', name: 'Service detail — logo design' },
+  // Back-office audience routes (#640). The dark-mode `[data-audience]` hero
+  // rule flips the service text/fill tokens to the `-on-dark` step assuming the
+  // section is the dark `-inverse` surface; brikdesigns paints a light band, so
+  // the hero headline/lead/breadcrumb and the priceCard CTA went invisible —
+  // and it shipped unseen because no plan-detail or back-office service-detail
+  // route was audited. Both render the `data-audience="back-office"` hero +
+  // priceCard that regressed (#638). Audited in light AND dark per project.
+  { path: '/services/back-office/crm-setup-and-data-cleanup', name: 'Service detail — back-office CRM setup' },
   { path: '/plans', name: 'Plans' },
+  { path: '/plans/back-office-support', name: 'Plan detail — back-office support' },
   // /industries/* legacy paths 308-redirect to /customers/* — testing them
   // exercises the redirect and lands axe on the same content, which inflates
   // the violation footprint with the muted .bds-breadcrumb__current text
@@ -153,15 +162,43 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
         selector: string;
         failureSummary: string;
       };
-      const flatFindings: FlatFinding[] = results.violations.flatMap((v) =>
-        v.nodes.map((n) => ({
-          ruleId: v.id,
-          impact: v.impact ?? 'unknown',
-          help: v.help,
-          selector: Array.isArray(n.target) ? n.target.join(' >> ') : String(n.target),
-          failureSummary: n.failureSummary ?? '',
-        })),
-      );
+      const toFindings = (results_: typeof results.violations): FlatFinding[] =>
+        results_.flatMap((v) =>
+          v.nodes.map((n) => ({
+            ruleId: v.id,
+            impact: v.impact ?? 'unknown',
+            help: v.help,
+            selector: Array.isArray(n.target) ? n.target.join(' >> ') : String(n.target),
+            failureSummary: n.failureSummary ?? '',
+          })),
+        );
+
+      // axe files identical fg/bg text (contrast ratio exactly 1:1) under
+      // `incomplete`, not `violations` — it can't *prove* failure when fg===bg
+      // because some unseen rule could override the background. But `equalRatio`
+      // is an unambiguous invisible-text failure, and it's the EXACT signature
+      // of the #640/#638 dark-mode hero regression that shipped unseen: the
+      // suite only ever read `results.violations`. Promote just this messageKey
+      // to a blocking finding. Genuinely-indeterminate incompletes (bgGradient,
+      // bgImage, element overlap) stay out — they false-positive on the many
+      // legit heroes that lay text over a photo/gradient. Verified against
+      // axe-core 4.11: fg===bg → incomplete + data.messageKey==='equalRatio'.
+      const equalRatioIncomplete = results.incomplete
+        .filter((v) => v.id === 'color-contrast')
+        .map((v) => ({
+          ...v,
+          nodes: v.nodes.filter((n) =>
+            [...(n.any ?? []), ...(n.none ?? []), ...(n.all ?? [])].some(
+              (c) => c.data?.messageKey === 'equalRatio',
+            ),
+          ),
+        }))
+        .filter((v) => v.nodes.length > 0);
+
+      const flatFindings: FlatFinding[] = [
+        ...toFindings(results.violations),
+        ...toFindings(equalRatioIncomplete),
+      ];
 
       const blocking = flatFindings.filter(
         (f) => BLOCKING_IMPACTS.has(f.impact) && !isBaselined(theme, route.path, f.ruleId, f.selector),

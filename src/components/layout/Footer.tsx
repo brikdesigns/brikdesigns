@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Icon } from '@iconify/react';
+import { Icon } from '@/lib/icon';
 import { Footer as BdsFooter, ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { color } from '@/lib/tokens';

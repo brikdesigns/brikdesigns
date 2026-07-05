@@ -1,12 +1,15 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { SegmentedControl } from '@brikdesigns/bds';
+import { Button, SegmentedControl } from '@brikdesigns/bds';
 import { CustomerStoryCard, type CustomerStoryCardProps } from '@/components/marketing/CustomerStoryCard';
 import { text } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
 
 const ALL = 'all';
+/** BACKLOG-443: initial visible cap; a "Load more" control reveals the rest. */
+const INITIAL_VISIBLE = 6;
+const LOAD_STEP = 6;
 
 /**
  * Client-side industry filter for the customer-stories list. The page maps the
@@ -23,9 +26,19 @@ export function CustomerStoriesList({ stories }: { stories: CustomerStoryCardPro
   }, [stories]);
 
   const [industry, setIndustry] = useState(ALL);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
   const filtered =
     industry === ALL ? stories : stories.filter((story) => story.industry === industry);
+
+  // Reset the cap whenever the industry filter changes.
+  const handleIndustryChange = (next: string) => {
+    setIndustry(next);
+    setVisibleCount(INITIAL_VISIBLE);
+  };
+
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = filtered.length > visibleCount;
 
   return (
     <>
@@ -46,18 +59,31 @@ export function CustomerStoriesList({ stories }: { stories: CustomerStoryCardPro
               ...industries.map((name) => ({ label: name, value: name })),
             ]}
             value={industry}
-            onChange={setIndustry}
+            onChange={handleIndustryChange}
             size="lg"
           />
         </div>
       )}
 
       {filtered.length > 0 ? (
-        <div className="story-list">
-          {filtered.map((story) => (
-            <CustomerStoryCard key={story.slug} {...story} />
-          ))}
-        </div>
+        <>
+          <div className="story-list">
+            {visible.map((story) => (
+              <CustomerStoryCard key={story.slug} {...story} />
+            ))}
+          </div>
+          {hasMore && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: gap.xl }}>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setVisibleCount((count) => count + LOAD_STEP)}
+              >
+                Load more
+              </Button>
+            </div>
+          )}
+        </>
       ) : (
         <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
           No customer stories in this industry yet.

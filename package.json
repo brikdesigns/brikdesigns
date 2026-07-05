@@ -13,6 +13,7 @@
     "lint:service-urls": "node scripts/lint-service-urls.mjs",
     "lint:heading-case": "node scripts/lint-heading-case.mjs",
     "test:lint:heading-case": "node scripts/lint-heading-case.test.mjs",
+    "lint:images": "node scripts/lint-images.mjs",
     "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
     "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "audit:plan-data": "npx tsx scripts/audit-plan-data.ts",
@@ -20,13 +21,15 @@
     "audit:icons": "npx tsx scripts/audit-icons.ts",
     "audit:feedback-health": "npx tsx scripts/audit-feedback-health.ts",
     "gen:types": "node scripts/gen-types.mjs",
+    "gen:icons": "node scripts/gen-icon-collection.mjs",
+    "gen:icons:check": "node scripts/gen-icon-collection.mjs --check",
     "test:a11y": "playwright test",
     "visual-parity": "node scripts/visual-parity.mjs",
     "analyze": "ANALYZE=true next build",
     "prepare": "husky"
   },
   "dependencies": {
-    "@brikdesigns/bds": "^0.102.0",
+    "@brikdesigns/bds": "^0.119.1",
     "@brikdesigns/feedback-contract": "^0.2.0",
     "@iconify/react": "^6.0.2",
     "@mdx-js/mdx": "^3.1.1",
@@ -48,6 +51,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
+    "@iconify-json/ph": "^1.2.2",
     "@netlify/plugin-nextjs": "^5.15.9",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",

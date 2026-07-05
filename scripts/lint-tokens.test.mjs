@@ -470,7 +470,7 @@ test('Rule 6: fixture reproduces BACKLOG-318 + #528 — exactly 3 violations', (
   const v = checkWrapperFamily(readFixture('wrapper-family.ts'), 'wrapper-family.ts');
   assert.equal(v.length, 3, `expected 3, got ${v.length}: ${JSON.stringify(v.map((x) => x.keyPath))}`);
   const paths = v.map((x) => x.keyPath).sort();
-  assert.deepEqual(paths, ['background.odd', 'service.brand.inverse', 'surface.tertiary']);
+  assert.deepEqual(paths, ['background.odd', 'service.brand.onLight', 'surface.tertiary']);
 });
 
 test('Rule 6: surface namespace holding --background-* fires', () => {
@@ -492,19 +492,27 @@ test('Rule 6: background namespace holding --surface-* fires', () => {
   assert.equal(v[0].expectedFamily, 'background');
 });
 
-test('Rule 6: service.{slug}.inverse holding --surface-* fires (BACKLOG-318)', () => {
+test('Rule 6: service.{slug}.inverse holding --surface-* passes (ADR-012)', () => {
   const v = checkWrapperFamily(
-    "const color = {\n  service: {\n    brand: {\n      inverse: 'var(--surface-service-brand-dark)',\n    },\n  },\n} as const;",
+    "const color = {\n  service: {\n    brand: {\n      inverse: 'var(--surface-service-brand-inverse)',\n    },\n  },\n} as const;",
+    'tokens.ts'
+  );
+  assert.equal(v.length, 0);
+});
+
+test('Rule 6: service.{slug}.inverse holding --background-* fires (ADR-012: inverse is surface-only)', () => {
+  const v = checkWrapperFamily(
+    "const color = {\n  service: {\n    brand: {\n      inverse: 'var(--background-service-brand)',\n    },\n  },\n} as const;",
     'tokens.ts'
   );
   assert.equal(v.length, 1);
   assert.equal(v[0].keyPath, 'service.brand.inverse');
-  assert.equal(v[0].expectedFamily, 'background');
+  assert.equal(v[0].expectedFamily, 'surface');
 });
 
-test('Rule 6: canonical service keys pass (bg/surface/text/onLight)', () => {
+test('Rule 6: canonical service keys pass (bg/surface/text/inverse/onLight)', () => {
   const v = checkWrapperFamily(
-    "const color = {\n  service: {\n    brand: {\n      bg: 'var(--background-service-brand)',\n      surface: 'var(--surface-service-brand)',\n      surfaceDark: 'var(--surface-service-brand-dark)',\n      text: 'var(--text-service-brand-on-light)',\n      onLight: 'var(--background-service-brand-on-light)',\n    },\n  },\n} as const;",
+    "const color = {\n  service: {\n    brand: {\n      bg: 'var(--background-service-brand)',\n      surface: 'var(--surface-service-brand)',\n      surfaceDark: 'var(--surface-service-brand-dark)',\n      text: 'var(--text-service-brand-on-light)',\n      inverse: 'var(--surface-service-brand-inverse)',\n      onLight: 'var(--background-service-brand-on-light)',\n    },\n  },\n} as const;",
     'tokens.ts'
   );
   assert.equal(v.length, 0);

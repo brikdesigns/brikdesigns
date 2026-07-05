@@ -25,16 +25,11 @@ type IconManifest = Record<ServiceLine, Set<string>>;
 
 const CATEGORIES: readonly ServiceLine[] = ['brand', 'marketing', 'information', 'product', 'back-office'];
 
-// On-disk icon directory per category. The back-office line's icons still live
-// under `public/icons/service/` (filenames are already `back-office-*`); the
-// physical dir rename is a deferred follow-up (mirrors BDS getServiceIconPath).
-const ICON_DIR: Partial<Record<ServiceLine, string>> = { 'back-office': 'service' };
-
 function loadIconManifest(): IconManifest {
   const map = {} as IconManifest;
   for (const cat of CATEGORIES) {
     try {
-      const files = fs.readdirSync(path.join(process.cwd(), 'public/icons', ICON_DIR[cat] ?? cat));
+      const files = fs.readdirSync(path.join(process.cwd(), 'public/icons', cat));
       map[cat] = new Set(files.filter((f) => f.endsWith('.svg')).map((f) => f.replace(/\.svg$/, '')));
     } catch (err) {
       // Empty manifest = `hasIconFor()` returns false for every name in this

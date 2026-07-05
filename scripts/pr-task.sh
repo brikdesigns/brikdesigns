@@ -84,6 +84,57 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# ── Parallel open-PR overlap check ──
+# new-task.sh screens for overlapping work at task-creation time, but a parallel
+# session can open an overlapping PR *after* this branch starts — invisible to a
+# creation-time check. Re-check here, at the last point before we create a
+# possibly-duplicate PR: compare this branch's changed files against every other
+# open PR's files. Shared files mean duplicated effort or a forced rebase.
+# (2026-07-04 #657: #663 and #664 both re-built parts of the Round 8 ready
+# bucket and both touched services/[serviceLineSlug]/page.tsx — the duplication
+# surfaced only after the fact. This is the guard that would have caught it.)
+#
+# TTY-aware: prompts only on an interactive terminal, so it never consumes the
+# piped stdin an agent feeds the UI gate below. Non-interactive runs warn loudly
+# and proceed (this is a coordination signal, not a hard gate — blocking would
+# break scripted PR flows).
+if command -v gh &>/dev/null; then
+  git fetch origin "${BASE_BRANCH}" --quiet 2>/dev/null || true
+  OVERLAP_CHANGED=$( { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } | sort -u )
+  if [ -n "$OVERLAP_CHANGED" ]; then
+    OVERLAP_REPORT=""
+    while IFS=$'\t' read -r PR_NUM PR_TITLE PR_HEAD PR_FILES; do
+      [ -z "${PR_NUM:-}" ] && continue
+      [ "$PR_HEAD" = "$BRANCH" ] && continue
+      SHARED=$(comm -12 \
+        <(printf '%s\n' "$OVERLAP_CHANGED") \
+        <(printf '%s\n' "$PR_FILES" | tr ',' '\n' | sort -u))
+      if [ -n "$SHARED" ]; then
+        OVERLAP_REPORT+="  PR #${PR_NUM} — ${PR_TITLE}"$'\n'
+        OVERLAP_REPORT+="$(printf '%s\n' "$SHARED" | sed 's/^/      ↳ /')"$'\n'
+      fi
+    done < <(gh pr list --state open --json number,title,headRefName,files \
+               --jq '.[] | "\(.number)\t\(.title)\t\(.headRefName)\t\(.files | map(.path) | join(","))"' 2>/dev/null || true)
+    if [ -n "$OVERLAP_REPORT" ]; then
+      echo ""
+      echo -e "${YELLOW}⚠  Open PR(s) already touch files this branch changes:${NC}"
+      printf '%b' "$OVERLAP_REPORT"
+      echo -e "${YELLOW}   Parallel edits to the same file = duplicated work or a forced rebase.${NC}"
+      echo -e "${YELLOW}   Confirm this is complementary (not a re-implementation) before continuing.${NC}"
+      if [ -t 0 ]; then
+        echo -n "   Proceed anyway? [y/N]: "
+        read -r OVERLAP_CONFIRM
+        if [[ ! "$OVERLAP_CONFIRM" =~ ^[Yy]$ ]]; then
+          echo -e "${RED}✗ PR creation aborted. Reconcile with the open PR(s) above, then re-run.${NC}"
+          exit 1
+        fi
+      else
+        echo -e "${YELLOW}   (non-interactive stdin — proceeding; review the overlap above.)${NC}"
+      fi
+    fi
+  fi
+fi
+
 # ── CMS data audit ──
 # If the diff touches a CMS-driven surface, validate the underlying Supabase
 # data before the PR opens. Catches the silent-fallback class of regression —
@@ -96,7 +147,7 @@ fi
 # Add new audits as new CMS surfaces ship (services, customer stories, etc.).
 PLANS_TOUCHED=$(
   { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
-    | grep -E '^src/app/plans/|^src/lib/supabase/queries\.ts$|^scripts/audit-plan-' \
+    | grep -E '^src/app/\(marketing\)/plans/|^src/lib/supabase/queries\.ts$|^scripts/audit-plan-' \
     | head -1 || true
 )
 if [ -n "$PLANS_TOUCHED" ]; then
@@ -124,7 +175,7 @@ fi
 # the offerings/services reconciliation in #149 closes — wrong default.
 CMS_TOUCHED=$(
   { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
-    | grep -E '^src/app/(services|customer-stories|industries)/|^src/lib/supabase/queries\.ts$|^scripts/audit-supabase-drift\.ts$|^content/csv/' \
+    | grep -E '^src/app/\(marketing\)/(services|customer-stories|customers)/|^src/lib/supabase/queries\.ts$|^scripts/audit-supabase-drift\.ts$|^content/csv/' \
     | head -1 || true
 )
 if [ -n "$CMS_TOUCHED" ]; then

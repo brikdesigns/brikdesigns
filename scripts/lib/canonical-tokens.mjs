@@ -256,8 +256,8 @@ export function checkTokenFamilyPairing(line, lineNum, file, { skipShapeB = fals
 //   • top-level `surface:` namespace   → values must be `--surface-*`
 //   • top-level `background:` namespace → values must be `--background-*`
 //   • `service.{slug}.{key}` sub-keys   → family inferred from the key name
-//       surface / surfaceLight / surfaceDark → `--surface-*`
-//       bg / background* / onLight / onDark / inverse / onColor* → `--background-*`
+//       surface / surfaceLight / surfaceDark / inverse → `--surface-*`
+//       bg / background* / onLight / onDark / onColor* → `--background-*`
 //       text → `--text-*`   border → `--border-*`
 // Keys whose intent we can't infer are skipped (no false positives).
 // Escape hatch: `bds-lint-ignore token-family` on the same line.
@@ -265,13 +265,15 @@ export function checkTokenFamilyPairing(line, lineNum, file, { skipShapeB = fals
 
 // service.{slug} sub-key → expected value family. The key name IS the intent.
 function serviceKeyExpectedFamily(key) {
-  if (key.startsWith('surface')) return '--surface-';
+  // `inverse` is surface-only per ADR-012 (--surface-service-{slug}-inverse,
+  // white in light / {hue}-darkest in dark). It is NOT the retired background
+  // alias ADR-011 removed.
+  if (key.startsWith('surface') || key === 'inverse') return '--surface-';
   if (
     key === 'bg' ||
     key.startsWith('background') ||
     key === 'onLight' ||
     key === 'onDark' ||
-    key === 'inverse' ||
     key.startsWith('onColor')
   ) {
     return '--background-';

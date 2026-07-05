@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Icon } from '@iconify/react';
+import { Icon } from '@/lib/icon';
 import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
@@ -423,7 +423,10 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
 
           {/* Webflow: .nav-button-wrapper — CTA + mobile toggle, far right */}
           <div className="mega-nav__actions">
-            <Link href="/contact" className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>
+            <Link
+              href="/contact"
+              className={composeButtonClasses({ variant: 'primary', size: 'sm' })}
+            >
               Let&apos;s Talk
             </Link>
             <button
@@ -458,7 +461,11 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
           <Link href="/about" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>About</Link>
           <Link href="/blog" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
           <Link href="/plans" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Support Plans</Link>
-          <Link href="/contact" className="mega-nav__mobile-link mega-nav__mobile-link--cta" onClick={() => setMobileOpen(false)}>
+          <Link
+            href="/contact"
+            className="mega-nav__mobile-link mega-nav__mobile-link--cta"
+            onClick={() => setMobileOpen(false)}
+          >
             Let&apos;s Talk
           </Link>
         </div>

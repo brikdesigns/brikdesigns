@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Icon } from '@iconify/react';
+import { Icon } from '@/lib/icon';
 import { Card, CardDescription, CardFooter, ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';

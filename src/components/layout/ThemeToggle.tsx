@@ -8,6 +8,7 @@ export function ThemeToggle() {
   return (
     <Switch
       size="sm"
+      variant="accent-knob"
       checked={theme === 'dark'}
       onChange={() => toggleTheme()}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
