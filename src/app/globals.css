@@ -133,7 +133,10 @@ html {
     /* Cascade resets: my light-mode override of these tokens leaks past
        upstream's dark-mode reset because client-theme layer > bds-tokens.
        Restate the desired dark value explicitly. */
-    --surface-secondary: var(--color-grayscale-darker);
+    /* darkest (#333), not darker (#4f4f4f): --text-secondary (#bdbdbd) on it
+       is 6.7:1 (AA); #4f4f4f was 4.35:1 (fail). Mirrors the BDS 0.119.1 fix
+       (brik-bds#1136) — the local restatement here would otherwise shadow it. */
+    --surface-secondary: var(--color-grayscale-darkest);
     --surface-brand-secondary: var(--color-grayscale-darkest);
     --background-brand-secondary: var(--color-grayscale-darkest);
     --background-inverse: var(--color-grayscale-black);
