@@ -8,6 +8,9 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+// Declaration parsing is BDS-owned. Delegating to the shared engine keeps this
+// consumer from forking its own `--name:` regex (which drifts from BDS's).
+import { parseAllowlist } from '@brikdesigns/bds/canonical-check';
 
 const ROOT = process.cwd();
 
@@ -19,12 +22,11 @@ export const PATHS = {
 
 export function readDeclaredTokens(file) {
   if (!fs.existsSync(file)) return new Set();
-  const text = fs.readFileSync(file, 'utf8');
-  const names = new Set();
-  for (const m of text.matchAll(/^\s*(--[a-z][a-z0-9-]*)\s*:/gim)) {
-    names.add(m[1]);
-  }
-  return names;
+  // `parseAllowlist` is BDS's canonical `--name:` declaration parser. It also
+  // captures compact single-line blocks (`.foo { --a: x; --b: y }`) that the
+  // former line-anchored regex missed — a strict superset of declared names,
+  // so nothing previously flagged as invented becomes silently allowed.
+  return parseAllowlist(fs.readFileSync(file, 'utf8'));
 }
 
 export function readAllowlist() {
