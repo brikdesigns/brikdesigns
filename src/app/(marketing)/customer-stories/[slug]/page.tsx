@@ -404,7 +404,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                          * to a hard reload + scroll-to-top instead of
                          * client-side navigation. Mirrors ServiceLineCard +
                          * CustomerStoryCard. */}
-                        <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>
+                        <span className={composeButtonClasses({ variant: 'primary', size: 'md' })}>
                           Read Story
                         </span>
                       </CardFooter>
