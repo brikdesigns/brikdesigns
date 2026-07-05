@@ -514,6 +514,16 @@
   font-size: var(--heading-sm);
 }
 
+/* Same heading-sm normalization for the "Other Support Plans" / "Other Service
+   Lines" display grids, whose cards keep their own chrome (elevated / -inverse
+   fill) and so can't reuse `.service-card--flat` (that also strips border +
+   shadow). Title-only, so the elevated treatment is preserved. Brings these
+   grids into parity with the main service/plan card grids on the same page,
+   which already render at heading-sm. — #674 / BACKLOG-340,341 */
+.display-card--title-sm .bds-card__preset-display-title {
+  font-size: var(--heading-sm);
+}
+
 /* ─── Card chrome on a tinted surface — two-tier standard (BACKLOG-336) ──
    On any tinted band — service tint (`.service-surface`), `--surface-secondary`
    (`.page-section--secondary`), or `--surface-accent` (`.page-section--accent`)
@@ -545,4 +555,27 @@
 .service-surface .bds-pricing-card:not(.bds-pricing-card--highlighted) {
   border: none;
   box-shadow: var(--box-shadow-md);
+}
+
+/* ─── Related Services band — dark-mode deep-tint conversion (#671 / 322) ──
+   The customer-story "Related Services" section tints with the pale
+   `surfaceLight` service ramp in light mode (the #408 pale-band treatment).
+   In dark mode that mode-invariant light tint read as a stuck light-green band
+   between the dark `story-arc` and `--accent` sections, so here it flips to the
+   deep `surfaceDark` service tint. The section hands both tint values in as
+   custom props (`--related-band-{light,dark}`); the background is applied here
+   (not inline) so this dark-mode rule can win. `.page-section.` raises
+   specificity above the base `.page-section` fill.
+   Scoped to THIS section only — the site-wide `.service-surface` pale bands
+   (service hero/pricing/plans) intentionally stay pale in both themes. */
+.page-section.related-services-band {
+  background-color: var(--related-band-light);
+}
+:root[data-theme="dark"] .page-section.related-services-band {
+  background-color: var(--related-band-dark);
+  /* Band is now dark: flip the inherited heading/body text light, overriding the
+     `.service-surface` grayscale-darkest pin (globals.css) that is only correct
+     on the light tint. Mirrors that pin's nested-card exception values. */
+  --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — light heading/body on the deep service tint; mirrors the .service-surface nested-card exception (globals.css) */
+  --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals.css); no BDS primitive exists for it */
 }

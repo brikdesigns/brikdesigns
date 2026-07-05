@@ -253,6 +253,7 @@ export default async function ServiceLinePage({ params }: Props) {
                     <Card
                       preset="display"
                       variant="elevated"
+                      className="display-card--title-sm"
                       // Service `-inverse` surface — white in light (== the prior
                       // display-preset fill; the elevated shadow keeps it visible
                       // on the accent band), `{hue}-darkest` in dark. (BRIK-WEB)
