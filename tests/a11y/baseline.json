@@ -188,9 +188,6 @@
     },
     "/contact": {
       "color-contrast": [
-        ".bds-button--secondary.bds-button--md.bds-button > .bds-button__content",
-        ".bds-button--secondary.bds-button--md[href=\"mailto:hello@brikdesigns.com\"] > .bds-button__content",
-        ".bds-button--secondary.bds-button--md[href=\"tel:+15614908714\"] > .bds-button__content",
         ".bds-button--sm",
         ".bds-footer__above-top > div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".contact-form-block > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
