@@ -591,15 +591,4 @@ h1, h2, h3, h4, h5, h6 {
   .bds-breadcrumb__current {
     font-weight: var(--font-weight-regular);
   }
-
-  /* On the pricing-card hero band in dark mode, the audience cascade (brik-bds#781)
-     flips the trail LINK onto --text-brand-primary (light-on-dark, e.g. #ffecac) but
-     leaves the current crumb on --text-secondary, which resolves to the SAME hue as
-     the darkened band surface → 1:1, invisible (brik-bds#1165 hero fold regression).
-     Re-point it to --text-brand-primary so it matches the link (7.3–9.1:1) and stays
-     recessive via the regular weight above — the light-mode "same colour, distinguish
-     by weight" intent, restored for dark. Proper home is BDS Breadcrumb.css (brik-bds#835). */
-  :root[data-theme="dark"] .bds-hero--with-pricing-card .bds-breadcrumb__current {
-    color: var(--text-brand-primary);
-  }
 }
