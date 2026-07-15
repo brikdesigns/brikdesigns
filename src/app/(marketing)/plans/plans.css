@@ -104,7 +104,9 @@
 
 .plan-service-list-item__description {
   font-family: var(--font-family-body);
-  font-size: var(--body-sm);
+  /* --body-md matches the standard card-description scale (was --body-sm, the
+     smallest of four body scales across the plans/services card family). #674 / BACKLOG-313 */
+  font-size: var(--body-md);
   color: var(--text-secondary);
   margin: 0;
 }
