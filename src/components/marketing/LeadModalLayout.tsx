@@ -10,7 +10,7 @@ import { heading, label, text } from '@/lib/styles';
  * stacked) and the form (`children`) on the right.
  *
  * Visually derived from the hero's media card
- * (`HeroSplitImageCardOverlay` → `.bp-hero-img-card__media-card`): rounded
+ * (`HeroSplitImageCardOverlay` → `.bds-hero__media-card`): rounded
  * image frame, stacked label → value → detail → description. The panel is
  * tinted with the parent service line's subtle brand ramp
  * (`serviceColor(serviceLine).surfaceLight` + `.text` for the value), mirroring

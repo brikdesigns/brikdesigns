@@ -493,7 +493,7 @@ h1, h2, h3, h4, h5, h6 {
      this `darkest → darker` is fixed (brik-bds#865 / #823, both closed) — the tokens are
      now mode-invariant, so this is NOT waiting on an upstream ramp fix.
      The override persists for a separate, consumer-side reason: the hero price button
-     (`.bds-button--inverse`, rendered by BDS bp-hero-img-card) carries a DARK `#000`
+     (`.bds-button--inverse`, rendered by BDS bds-hero) carries a DARK `#000`
      label, and #000 on the canonical `-darkest` service fill is only 2.44:1. White-label
      primaries want the darkest step; this dark-label inverse wants the medium one — so we
      pin `--background-inverse` to the `-darker` step for the inverse variant only, clearing
@@ -544,8 +544,7 @@ h1, h2, h3, h4, h5, h6 {
   :root[data-theme="dark"] .service-surface :is(
     .bds-card:not(.bds-card--borderless),
     .bds-pricing-card,
-    .bp-hero-img-card,
-    .bds-hero__media-card, /* bds@0.122.1 renamed .bp-hero-img-card → .bds-hero__media-card (hero fold, brik-bds#1165); the price block moved with it */
+    .bds-hero__media-card, /* hero image/price card (bds-hero, brik-bds#1165) */
     .event-page__form-card,
     .lp-form-card,
     .event-page__speaker

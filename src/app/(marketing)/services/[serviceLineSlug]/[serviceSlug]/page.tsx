@@ -233,8 +233,8 @@ export default async function ServiceDetailPage({ params }: Props) {
   //   - Hero-only: --background-brand-primary so primary CTAs inside the
   //     hero render in the service-line inverse color (per brikdesigns#159).
   //     Scoping to the hero keeps Brik poppy on every CTA below.
-  // BDS itself sets --bp-hero-img-card-* and --background-inverse on
-  // `.bp-hero-img-card[data-audience]`, so those aren't repeated here
+  // BDS itself sets --bds-hero-* and --background-inverse on
+  // `.bds-hero--with-pricing-card[data-audience]`, so those aren't repeated here
   // (brikdesigns#99 fix for the prior raw-hex bypass).
   //
   // `serviceLineKey` is the canonical BDS `ServiceLine` enum value
@@ -349,12 +349,12 @@ export default async function ServiceDetailPage({ params }: Props) {
             // uses the lighter `surfaceLight` ramp so it reads as one band with
             // the body sections below (#389 — interior hero matches body).
             backgroundColor: serviceTokens.surfaceLight,
-            '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
-            // Interior-hero CARD surface — the nested `aside.bp-hero-img-card__media-card`,
-            // NOT this section. The `--bp-hero-img-card-card-bg` hook scopes the ADR-012
+            '--bds-hero-padding-y': 'var(--padding-huge)',
+            // Interior-hero CARD surface — the nested `aside.bds-hero__media-card`,
+            // NOT this section. The `--bds-hero-media-bg` hook scopes the ADR-012
             // service `-inverse` token to the card only: white in light → `{hue}-darkest`
             // in dark; BDS recalibrates the card text per theme (AA, brik-bds#1020). (BRIK-WEB-52)
-            '--bp-hero-img-card-card-bg': serviceTokens.inverse,
+            '--bds-hero-media-bg': serviceTokens.inverse,
             // Service-line-colored primary CTAs inside the hero (View Details
             // + priceCard "Let's Talk"). BDS .bds-button--primary reads from
             // --background-brand-primary; scoping the override here keeps

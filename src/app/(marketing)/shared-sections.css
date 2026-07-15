@@ -285,13 +285,13 @@
 
 /* Keep the hero SECTION transparent so the wrapper's pale `surfaceLight` band is the
    single visible section background — no two-tone seam against the band (#408/#389).
-   NOTE on anatomy: `section.bp-hero-img-card[data-audience]` is the SECTION, NOT the card.
-   The interior-hero CARD is the nested `aside.bp-hero-img-card__media-card`. Its surface —
+   NOTE on anatomy: `section.bds-hero--with-pricing-card[data-audience]` is the SECTION, NOT the card.
+   The interior-hero CARD is the nested `aside.bds-hero__media-card`. Its surface —
    the ADR-012 service `-inverse` token (white in light → `{hue}-darkest` in dark) — is set
-   on the card via the `--bp-hero-img-card-card-bg` hook in each page's hero-wrapper TSX
+   on the card via the `--bds-hero-media-bg` hook in each page's hero-wrapper TSX
    (`serviceColor().inverse`), so it stays scoped to the card and never repaints this
    section. (BRIK-WEB-52) */
-.page-hero-blueprint .bp-hero-img-card[data-audience] {
+.page-hero-blueprint .bds-hero--with-pricing-card[data-audience] {
   background: transparent;
 }
 
@@ -315,22 +315,22 @@
    audience (so white reads on the `-dark` service surfaces), which would leave
    white-on-light-tint here (1.17:1, axe-flagged). The `-on-dark` fills are all
    light `{hue}-lighter` tints, so darkest text clears AA in every state. */
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card__media-card .bds-button--primary {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero__media-card .bds-button--primary {
   color: var(--color-grayscale-darkest);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="brand"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="brand"] .bds-hero__media-card .bds-button--primary:not(:hover):not(:active) {
   background-color: var(--background-service-brand-on-dark);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="marketing"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="marketing"] .bds-hero__media-card .bds-button--primary:not(:hover):not(:active) {
   background-color: var(--background-service-marketing-on-dark);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="information"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="information"] .bds-hero__media-card .bds-button--primary:not(:hover):not(:active) {
   background-color: var(--background-service-information-on-dark);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="product"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="product"] .bds-hero__media-card .bds-button--primary:not(:hover):not(:active) {
   background-color: var(--background-service-product-on-dark);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="back-office"] .bp-hero-img-card__media-card .bds-button--primary:not(:hover):not(:active) {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="back-office"] .bds-hero__media-card .bds-button--primary:not(:hover):not(:active) {
   background-color: var(--background-service-back-office-on-dark);
 }
 
@@ -343,70 +343,99 @@
    light-on-light — invisible (confirmed via computed style on the dark deploy
    preview; axe reports identical fg/bg as "incomplete", not a violation, so it
    slipped the gate). Re-pin the content-text hooks to the `-on-light` (dark)
-   step so they read on the light band. These are --bp-* component-API hooks (not
+   step so they read on the light band. These are --bds-hero-* component-API hooks (not
    semantic tokens), per audience because the hue is line-specific. The card's
    own text (price label/value via --text-primary; CTA handled above) is on the
    dark card and unaffected. */
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="brand"] {
-  --bp-hero-img-card-headline-color: var(--text-service-brand-on-light);
-  --bp-hero-img-card-eyebrow-color: var(--text-service-brand-on-light);
-  --bp-hero-img-card-lead-color: var(--text-service-brand-on-light);
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="brand"] {
+  --bds-hero-headline-color: var(--text-service-brand-on-light);
+  --bds-hero-eyebrow-color: var(--text-service-brand-on-light);
+  --bds-hero-lead-color: var(--text-service-brand-on-light);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="marketing"] {
-  --bp-hero-img-card-headline-color: var(--text-service-marketing-on-light);
-  --bp-hero-img-card-eyebrow-color: var(--text-service-marketing-on-light);
-  --bp-hero-img-card-lead-color: var(--text-service-marketing-on-light);
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="marketing"] {
+  --bds-hero-headline-color: var(--text-service-marketing-on-light);
+  --bds-hero-eyebrow-color: var(--text-service-marketing-on-light);
+  --bds-hero-lead-color: var(--text-service-marketing-on-light);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="information"] {
-  --bp-hero-img-card-headline-color: var(--text-service-information-on-light);
-  --bp-hero-img-card-eyebrow-color: var(--text-service-information-on-light);
-  --bp-hero-img-card-lead-color: var(--text-service-information-on-light);
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="information"] {
+  --bds-hero-headline-color: var(--text-service-information-on-light);
+  --bds-hero-eyebrow-color: var(--text-service-information-on-light);
+  --bds-hero-lead-color: var(--text-service-information-on-light);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="product"] {
-  --bp-hero-img-card-headline-color: var(--text-service-product-on-light);
-  --bp-hero-img-card-eyebrow-color: var(--text-service-product-on-light);
-  --bp-hero-img-card-lead-color: var(--text-service-product-on-light);
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="product"] {
+  --bds-hero-headline-color: var(--text-service-product-on-light);
+  --bds-hero-eyebrow-color: var(--text-service-product-on-light);
+  --bds-hero-lead-color: var(--text-service-product-on-light);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="back-office"] {
-  --bp-hero-img-card-headline-color: var(--text-service-back-office-on-light);
-  --bp-hero-img-card-eyebrow-color: var(--text-service-back-office-on-light);
-  --bp-hero-img-card-lead-color: var(--text-service-back-office-on-light);
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="back-office"] {
+  --bds-hero-headline-color: var(--text-service-back-office-on-light);
+  --bds-hero-eyebrow-color: var(--text-service-back-office-on-light);
+  --bds-hero-lead-color: var(--text-service-back-office-on-light);
 }
 
-/* Dark mode: the breadcrumb LINK trail (.bds-breadcrumb__link) colors from
-   --text-brand-primary, which BDS flips to the service `-on-dark` step on
-   [data-audience] heroes — so on this light band the links render at the band
-   tint (contrast ~1:1, invisible; confirmed via computed style on the dark
-   preview). The current crumb + separators use --text-secondary/--text-muted,
-   which the BDS `[data-audience] .bds-breadcrumb` rule pins to `-on-light`, so
-   they stay readable. Pin the links to the same `-on-light` (dark) step, per
-   audience, so the whole trail reads on the light band. Property-level (not a
-   token redefinition) per the ADR-013 cascade contract; the link has no :hover
-   color rule, so all states are covered. */
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="brand"] .bds-breadcrumb__link {
+/* Dark mode: the whole breadcrumb trail rides service tokens that BDS flips to
+   the `-on-dark` step on [data-audience] heroes — correct for BDS's default dark
+   hero (section IS the `-inverse` dark surface), but invisible here where the
+   section is a light `surfaceLight` band. Two hooks carry it:
+     • LINK crumbs (.bds-breadcrumb__link) color from --text-brand-primary.
+     • the CURRENT crumb (.bds-breadcrumb__current) + separators ride
+       --text-secondary / --text-muted, which BDS pins to `-on-dark` on
+       `.bds-hero--with-pricing-card[data-audience] .bds-breadcrumb` as of bds
+       0.122.2 — a 1:1 vanish on the light band (the axe gate caught this once the
+       sibling text-flip fix made it measurable; brikdesigns#687).
+   Re-pin both back to the `-on-light` (dark) step, per audience, so the whole
+   trail reads on the band: property-level for links (ADR-013 cascade contract),
+   token-level for the current crumb/separators (they ride BDS's own
+   --text-secondary/--text-muted hooks, scoped to the breadcrumb subtree). The
+   .page-hero-blueprint prefix keeps specificity (0,6,0) above BDS's own
+   dark-hero breadcrumb rule (0,5,0). No :hover color rules, so all states hold. */
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="brand"] .bds-breadcrumb__link {
   color: var(--text-service-brand-on-light);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="marketing"] .bds-breadcrumb__link {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="marketing"] .bds-breadcrumb__link {
   color: var(--text-service-marketing-on-light);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="information"] .bds-breadcrumb__link {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="information"] .bds-breadcrumb__link {
   color: var(--text-service-information-on-light);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="product"] .bds-breadcrumb__link {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="product"] .bds-breadcrumb__link {
   color: var(--text-service-product-on-light);
 }
-:root[data-theme="dark"] .page-hero-blueprint .bp-hero-img-card[data-audience="back-office"] .bds-breadcrumb__link {
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="back-office"] .bds-breadcrumb__link {
   color: var(--text-service-back-office-on-light);
+}
+/* Current crumb + separators: override BDS's `-on-dark` --text-secondary/--text-muted
+   flip back to `-on-light` on the breadcrumb subtree so the "you are here" crumb
+   stays readable on the light band. */
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="brand"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-brand-on-light);
+  --text-muted: var(--text-service-brand-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="marketing"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-marketing-on-light);
+  --text-muted: var(--text-service-marketing-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="information"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-information-on-light);
+  --text-muted: var(--text-service-information-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="product"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-product-on-light);
+  --text-muted: var(--text-service-product-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="back-office"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-back-office-on-light);
+  --text-muted: var(--text-service-back-office-on-light);
 }
 
 /* Pin the hero content + media card to the top of the band so the breadcrumb
    sits at a stable vertical position regardless of how many lines the H1 wraps
-   to. BDS defaults `.bp-hero-img-card__container` to `align-items: center`,
+   to. BDS defaults `.bds-hero__container` to `align-items: center`,
    which re-centers the whole block when the title grows — shifting the
    breadcrumb between pages. Scoped to `.page-hero-blueprint` (specificity 0,2,0
    > BDS's 0,1,0) per the override pattern above; upstream fix tracked for
    brik-bds. (#354) */
-.page-hero-blueprint .bp-hero-img-card__container {
+.page-hero-blueprint .bds-hero__container {
   align-items: start;
 }
 
@@ -417,7 +446,7 @@
    responsive step-downs below keep it equal to .page-hero__title. Scoped to
    `.page-hero-blueprint` (0,2,0 > BDS's 0,1,0). Consumer fix per #538; do not
    invent a token. (#538) */
-.page-hero-blueprint .bp-hero-img-card__title {
+.page-hero-blueprint .bds-hero__title {
   font-size: var(--heading-huge);
 }
 
@@ -427,21 +456,21 @@
    gap-sm and drop the redundant margin so every step is a uniform gap-sm.
    A component-level spacing-variable ("space mode") in BDS would remove the
    need for this raw-class override — tracked in brik-bds#828. (#354) */
-.page-hero-blueprint .bp-hero-img-card__content {
+.page-hero-blueprint .bds-hero__content {
   gap: var(--gap-sm);
 }
 
-.page-hero-blueprint .bp-hero-img-card__breadcrumb {
+.page-hero-blueprint .bds-hero__breadcrumb {
   margin-bottom: 0;
 }
 
 /* Re-center the eyebrow icon when it's a ServiceTag badge. BDS's
-   `.bp-hero-img-card__icon` (written for an `<img>` eyebrow) sets `display: block`,
+   `.bds-hero__icon` (written for an `<img>` eyebrow) sets `display: block`,
    which lands later in source order than `.bds-service-tag--icon`'s `inline-flex`
    and wins — leaving `align-items`/`justify-content` inert, so the glyph pins to the
    badge's top-left. Restoring `inline-flex` only on the ServiceTag case (specificity
    0,3,0) re-centers it without touching the plain-`<img>` icon. brik-bds#873. */
-.page-hero-blueprint .bp-hero-img-card__icon.bds-service-tag--icon {
+.page-hero-blueprint .bds-hero__icon.bds-service-tag--icon {
   display: inline-flex;
 }
 
@@ -453,7 +482,7 @@
    in lockstep so it stays equal to — never above — the L1/L2 hero. */
 @media (max-width: 991px) {
   .page-hero__title,
-  .page-hero-blueprint .bp-hero-img-card__title {
+  .page-hero-blueprint .bds-hero__title {
     font-size: var(--heading-xxl);
   }
 }
@@ -464,7 +493,7 @@
   }
 
   .page-hero__title,
-  .page-hero-blueprint .bp-hero-img-card__title {
+  .page-hero-blueprint .bds-hero__title {
     font-size: var(--heading-xl);
   }
 
