@@ -398,7 +398,9 @@ export default async function ServiceDetailPage({ params }: Props) {
           className="service-themed service-surface"
           style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
-          <Grid columns={3} gap="lg">
+          {/* gap="md" matches the index 3-col grids (detail-page grids were the
+              lone gap="lg" outliers). #674 / BACKLOG-415 */}
+          <Grid columns={3} gap="md">
             {sortedOfferings.map((off: {
               slug: string;
               name: string;
@@ -576,7 +578,8 @@ export default async function ServiceDetailPage({ params }: Props) {
           className="service-themed service-surface"
           style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
-          <Grid columns={3} gap="lg">
+          {/* gap="md" matches the index 3-col grids. #674 / BACKLOG-415 */}
+          <Grid columns={3} gap="md">
             {siblingServices.map((svc) => {
               const cat = mapServiceLineSlug(serviceLine?.slug || serviceLineSlug);
               return (
