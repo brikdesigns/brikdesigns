@@ -4,6 +4,7 @@ import { Footer as BdsFooter, ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { color } from '@/lib/tokens';
 import { heading, text } from '@/lib/styles';
+import { INDUSTRY_ICONS } from '@/lib/industry-icons';
 import { NewsletterForm } from './NewsletterForm';
 import './footer.css';
 
@@ -17,9 +18,9 @@ const aboutLinks: { label: string; href: string; icon: string }[] = [
 
 const customerLinks: { label: string; href: string; icon: string }[] = [
   { label: 'Who We Support', href: '/customers', icon: 'ph:users' },
-  { label: 'Dental', href: '/customers/dental', icon: 'ph:tooth' },
-  { label: 'Real Estate', href: '/customers/real-estate', icon: 'ph:house' },
-  { label: 'Small Business', href: '/customers/small-business', icon: 'ph:storefront' },
+  { label: 'Dental', href: '/customers/dental', icon: INDUSTRY_ICONS['Dental'] },
+  { label: 'Real Estate', href: '/customers/real-estate', icon: INDUSTRY_ICONS['Real Estate'] },
+  { label: 'Small Business', href: '/customers/small-business', icon: INDUSTRY_ICONS['Small Business'] },
 ];
 
 // Hrefs use the canonical `/services/{route-slug}` segments: brand / marketing
