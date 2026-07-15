@@ -27,17 +27,9 @@ import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
+import { INDUSTRY_ICONS, INDUSTRY_ICON_FALLBACK } from '@/lib/industry-icons';
 import '../../shared-sections.css';
 import '../customer-stories.css';
-
-// Industry → Phosphor icon. Mirrors CustomerStoryCard's INDUSTRY_ICONS so the
-// detail-page meta row matches the index-card visual vocabulary. Fallback
-// (ph:buildings) handles industries not in the map.
-const INDUSTRY_ICONS: Record<string, string> = {
-  'Small Business': 'ph:storefront',
-  'Dental': 'ph:tooth',
-  'Real Estate': 'ph:house',
-};
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -115,7 +107,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
     : null;
   const serviceLineCategory = serviceLineSlug as ServiceLine | null;
   const industryIcon = story.industry
-    ? INDUSTRY_ICONS[story.industry] ?? 'ph:buildings'
+    ? INDUSTRY_ICONS[story.industry] ?? INDUSTRY_ICON_FALLBACK
     : null;
   const serviceIconName = relatedService?.name && serviceLineCategory && hasIconFor(serviceLineCategory, relatedService.name)
     ? relatedService.name
