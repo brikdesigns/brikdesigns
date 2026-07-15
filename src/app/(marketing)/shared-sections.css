@@ -373,16 +373,22 @@
   --bds-hero-lead-color: var(--text-service-back-office-on-light);
 }
 
-/* Dark mode: the breadcrumb LINK trail (.bds-breadcrumb__link) colors from
-   --text-brand-primary, which BDS flips to the service `-on-dark` step on
-   [data-audience] heroes — so on this light band the links render at the band
-   tint (contrast ~1:1, invisible; confirmed via computed style on the dark
-   preview). The current crumb + separators use --text-secondary/--text-muted,
-   which the BDS `[data-audience] .bds-breadcrumb` rule pins to `-on-light`, so
-   they stay readable. Pin the links to the same `-on-light` (dark) step, per
-   audience, so the whole trail reads on the light band. Property-level (not a
-   token redefinition) per the ADR-013 cascade contract; the link has no :hover
-   color rule, so all states are covered. */
+/* Dark mode: the whole breadcrumb trail rides service tokens that BDS flips to
+   the `-on-dark` step on [data-audience] heroes — correct for BDS's default dark
+   hero (section IS the `-inverse` dark surface), but invisible here where the
+   section is a light `surfaceLight` band. Two hooks carry it:
+     • LINK crumbs (.bds-breadcrumb__link) color from --text-brand-primary.
+     • the CURRENT crumb (.bds-breadcrumb__current) + separators ride
+       --text-secondary / --text-muted, which BDS pins to `-on-dark` on
+       `.bds-hero--with-pricing-card[data-audience] .bds-breadcrumb` as of bds
+       0.122.2 — a 1:1 vanish on the light band (the axe gate caught this once the
+       sibling text-flip fix made it measurable; brikdesigns#687).
+   Re-pin both back to the `-on-light` (dark) step, per audience, so the whole
+   trail reads on the band: property-level for links (ADR-013 cascade contract),
+   token-level for the current crumb/separators (they ride BDS's own
+   --text-secondary/--text-muted hooks, scoped to the breadcrumb subtree). The
+   .page-hero-blueprint prefix keeps specificity (0,6,0) above BDS's own
+   dark-hero breadcrumb rule (0,5,0). No :hover color rules, so all states hold. */
 :root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="brand"] .bds-breadcrumb__link {
   color: var(--text-service-brand-on-light);
 }
@@ -397,6 +403,29 @@
 }
 :root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="back-office"] .bds-breadcrumb__link {
   color: var(--text-service-back-office-on-light);
+}
+/* Current crumb + separators: override BDS's `-on-dark` --text-secondary/--text-muted
+   flip back to `-on-light` on the breadcrumb subtree so the "you are here" crumb
+   stays readable on the light band. */
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="brand"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-brand-on-light);
+  --text-muted: var(--text-service-brand-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="marketing"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-marketing-on-light);
+  --text-muted: var(--text-service-marketing-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="information"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-information-on-light);
+  --text-muted: var(--text-service-information-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="product"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-product-on-light);
+  --text-muted: var(--text-service-product-on-light);
+}
+:root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="back-office"] .bds-breadcrumb {
+  --text-secondary: var(--text-service-back-office-on-light);
+  --text-muted: var(--text-service-back-office-on-light);
 }
 
 /* Pin the hero content + media card to the top of the band so the breadcrumb
