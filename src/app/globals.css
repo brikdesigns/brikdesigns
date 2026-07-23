@@ -40,11 +40,12 @@ html {
 }
 
 /* Smooth in-page scrolling (anchor links; ScrollDownCta/SmoothScrollButton keep
-   their explicit scrollIntoView). Global smooth was removed in #383 because the
-   App Router animated its scroll-to-top on every route change — Next 16 fixed
-   that: navigations force an instant scroll reset unless the site opts in via
-   data-scroll-behavior="smooth" on <html> (which we deliberately do NOT set).
-   Verified against the local build: route changes jump instantly, anchors glide.
+   their explicit scrollIntoView). Requires data-scroll-behavior="smooth" on
+   <html> (layout.tsx): that attribute is Next 16's opt-in to temporarily force
+   scroll-behavior auto while the router resets scroll on navigation. WITHOUT
+   it the reset gets animated and interrupted, stranding the user mid-page on
+   the destination route (BACKLOG-859, reproduced on staging 2026-07-23 — the
+   prior comment here had the attribute's semantics backwards).
    Scoped to no-preference so reduced-motion users keep instant jumps. */
 @media (prefers-reduced-motion: no-preference) {
   html {
