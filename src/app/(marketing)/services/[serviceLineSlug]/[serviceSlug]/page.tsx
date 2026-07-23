@@ -472,8 +472,11 @@ export default async function ServiceDetailPage({ params }: Props) {
           {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
               row-card contained on the service-tint band — white in light (== the
               former surface-primary fill, #427/#360), `{hue}-darkest` in dark so
-              the card carries the line identity against the lighter band. (BRIK-WEB) */}
-          <Card variant="elevated" padding="lg" style={{ backgroundColor: serviceTokens.inverse }}>
+              the card carries the line identity against the lighter band. (BRIK-WEB)
+              brik-bds#1146 (BDS 0.132) dropped the cast shadow from `elevated`;
+              `.service-row-card` (shared-sections.css) restores it site-side per
+              the on-tint focal-card standard. BACKLOG-895 */}
+          <Card variant="elevated" padding="lg" className="service-row-card" style={{ backgroundColor: serviceTokens.inverse }}>
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedStory.hero_image_url && (
                 <div style={{ flex: '0 0 40%' }}>
@@ -522,8 +525,11 @@ export default async function ServiceDetailPage({ params }: Props) {
           {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
               row-card contained on the service-tint band — white in light (== the
               former surface-primary fill, #427/#360), `{hue}-darkest` in dark so
-              the card carries the line identity against the lighter band. (BRIK-WEB) */}
-          <Card variant="elevated" padding="lg" style={{ backgroundColor: serviceTokens.inverse }}>
+              the card carries the line identity against the lighter band. (BRIK-WEB)
+              brik-bds#1146 (BDS 0.132) dropped the cast shadow from `elevated`;
+              `.service-row-card` (shared-sections.css) restores it site-side per
+              the on-tint focal-card standard. BACKLOG-895 */}
+          <Card variant="elevated" padding="lg" className="service-row-card" style={{ backgroundColor: serviceTokens.inverse }}>
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedService.image_url && (
                 <div style={{ flex: '0 0 35%' }}>
@@ -578,8 +584,11 @@ export default async function ServiceDetailPage({ params }: Props) {
           className="service-themed service-surface"
           style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
-          {/* gap="md" matches the index 3-col grids. #674 / BACKLOG-415 */}
-          <Grid columns={3} gap="md">
+          {/* gap="lg": staging review wanted more air between the sibling cards
+              (BACKLOG-896). Diverges from the index 3-col grids' gap="md" (the
+              #674 normalization) — if this reads right on preview, consider
+              lifting the index grids to match. */}
+          <Grid columns={3} gap="lg">
             {siblingServices.map((svc) => {
               const cat = mapServiceLineSlug(serviceLine?.slug || serviceLineSlug);
               return (

@@ -408,15 +408,21 @@ h1, h2, h3, h4, h5, h6 {
      service color so it stops flashing poppy on a non-poppy page. Scoped via
      `.service-themed`, which the bottom support band now carries too (#648):
      since #647 that band is a service `-inverse` card like the grids above, so
-     it joins the same hover/focus treatment instead of the default poppy ramp. */
+     it joins the same hover/focus treatment instead of the default poppy ramp.
+
+     The overlay is a background-image gradient, NOT an inset box-shadow: inset
+     shadows stop at the padding edge, so BDS's 2px transparent border stayed
+     un-overlaid and read as a darker ring around the button on hover
+     (BACKLOG-892). background-image clips to border-box by default, covering
+     the border region too, so the state shift is uniform edge-to-edge. */
   .service-themed .bds-button--primary:hover:not(:disabled):not(.bds-button--loading) {
     background-color: var(--background-brand-primary);
-    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.12);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
   }
 
   .service-themed .bds-button--primary:active:not(:disabled) {
     background-color: var(--background-brand-primary);
-    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.2);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2));
   }
 
   /* In dark mode the rest fill flips to the pale `onDark` step (#648, rule
@@ -428,12 +434,12 @@ h1, h2, h3, h4, h5, h6 {
      button that opts out of the dark fill on its existing behaviour. */
   :root[data-theme="dark"] .service-themed .bds-button--primary:hover:not(:disabled):not(.bds-button--loading) {
     background-color: var(--service-cta-fill-dark, var(--background-brand-primary));
-    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.14);
+    background-image: linear-gradient(rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.14));
   }
 
   :root[data-theme="dark"] .service-themed .bds-button--primary:active:not(:disabled) {
     background-color: var(--service-cta-fill-dark, var(--background-brand-primary));
-    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.22);
+    background-image: linear-gradient(rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.22));
   }
 
   /* Focus ring: pin to the fixed dark grayscale primitive, NOT a service token.
