@@ -37,10 +37,19 @@ html {
      #356 box-shadow skirt + the sticky footer don't cover the browser's
      overscroll region; only stopping the bounce does. #346 */
   overscroll-behavior-y: none;
-  /* No global `scroll-behavior: smooth` — it makes the App Router's scroll-to-top
-     on every route change animate, so links/cards near the page bottom visibly
-     scroll the page up before the next page appears. Smooth scrolling is applied
-     explicitly where wanted (ScrollDownCta uses JS scrollIntoView). #383 */
+}
+
+/* Smooth in-page scrolling (anchor links; ScrollDownCta/SmoothScrollButton keep
+   their explicit scrollIntoView). Global smooth was removed in #383 because the
+   App Router animated its scroll-to-top on every route change — Next 16 fixed
+   that: navigations force an instant scroll reset unless the site opts in via
+   data-scroll-behavior="smooth" on <html> (which we deliberately do NOT set).
+   Verified against the local build: route changes jump instantly, anchors glide.
+   Scoped to no-preference so reduced-motion users keep instant jumps. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 :root[data-theme="dark"] {
   background-color: var(--background-primary);
@@ -326,10 +335,6 @@ h1, h2, h3, h4, h5, h6 {
   .bds-footer--inverse .bds-footer__bottom-sep,
   .bds-footer--inverse .bds-footer__social {
     color: var(--color-grayscale-white);
-  }
-
-  .bds-footer--inverse .bds-footer__above-top {
-    border-bottom-color: rgba(255, 255, 255, 0.15);
   }
 
   /* bds-card-grid__header defaults to max-width: 72ch (readability cap).
