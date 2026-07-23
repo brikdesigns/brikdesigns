@@ -170,7 +170,10 @@
 }
 
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
-/* Webflow: .section_service — secondary bg, full-width, centered */
+/* Webflow: .section_service — secondary bg, full-width, centered.
+   min-height matches the neighboring full-viewport bands (.section-audit,
+   .page-section) — this was the only homepage band without one, which is
+   why it read cramped (BACKLOG-868). Content centers in the taller band. */
 .section-plans {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-secondary);
@@ -179,6 +182,7 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+  min-height: 100vh;
   position: relative;
 }
 
