@@ -51,7 +51,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" data-mode-typography="expressive" className={poppins.variable} suppressHydrationWarning>
+    // data-scroll-behavior is Next 16's opt-in to force scroll-behavior:auto
+    // while the router resets scroll on navigation — without it, the CSS
+    // `scroll-behavior: smooth` (globals.css) turns those resets into
+    // interruptible animations. Param-only navigations (story → story) skip
+    // Next's reset entirely; ScrollToTop in (marketing)/layout.tsx covers
+    // that case (BACKLOG-859).
+    <html
+      lang="en"
+      data-mode-typography="expressive"
+      data-scroll-behavior="smooth"
+      className={poppins.variable}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
