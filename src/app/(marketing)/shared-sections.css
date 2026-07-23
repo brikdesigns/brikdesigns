@@ -586,6 +586,17 @@
   box-shadow: var(--box-shadow-md);
 }
 
+/* Elevated — the lone row-cards on the service-detail tint ("Recommended
+   Add-On Service" + "Related Customer Story"). Both always intended shadow
+   containment via BDS `variant="elevated"` (#427/#360), but brik-bds#1146
+   (BDS 0.132) removed the cast shadow from the elevated variant globally,
+   leaving these focal cards flat on their bands (BACKLOG-895). The focal tier
+   of the on-tint standard owns the shadow at site level now, same as
+   .story-card above. */
+.service-surface .bds-card.service-row-card {
+  box-shadow: var(--box-shadow-md);
+}
+
 /* ─── Related Services band — dark-mode deep-tint conversion (#671 / 322) ──
    The customer-story "Related Services" section tints with the pale
    `surfaceLight` service ramp in light mode (the #408 pale-band treatment).
