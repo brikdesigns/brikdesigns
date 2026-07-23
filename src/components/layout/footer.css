@@ -18,6 +18,24 @@
   border-top: none;
 }
 
+/* ─── Vertical rhythm ──────────────────────────────────────────
+   Taller footer: double the BDS default block padding (--padding-xl → 64px
+   per edge) so the always-dark band reads as a destination section rather
+   than a strip. */
+.bds-footer.footer-site-width {
+  padding-block: calc(var(--padding-xl) * 2);
+}
+
+/* Newsletter ↔ link-columns separation: BDS draws a hairline divider under
+   the above-top slot (border-bottom + --padding-lg). Drop the divider and
+   let generous whitespace carry the separation instead — --padding-huge
+   (48px) + the container's --gap-xl (24px) ≈ 72px of air. The matching
+   inverse-variant border-color override in globals.css is removed with it. */
+.bds-footer.footer-site-width .bds-footer__above-top {
+  border-bottom: none;
+  padding-bottom: var(--padding-huge);
+}
+
 /* ─── Overscroll skirt ─────────────────────────────────────────
    The footer is always-dark (--bds-footer-surface, pinned in globals.css)
    but html/body background is --page-primary (light). On macOS the
