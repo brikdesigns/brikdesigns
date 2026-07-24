@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Breadcrumb, Card, Frame, Grid, LinkButton } from '@brikdesigns/bds';
+import { Card, Frame, Grid, LinkButton } from '@brikdesigns/bds';
+import { BackLink } from '@/components/ui/BackLink';
 import { text, heading } from '@/lib/styles';
 import { color, font, serviceColor } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
@@ -111,13 +112,7 @@ export default async function CustomerDetailPage({ params }: Props) {
         <div className="page-hero__container">
           <div className="customer-detail-hero">
             <div className="customer-detail-hero__content">
-              <Breadcrumb
-                style={{ flexWrap: 'wrap' }}
-                items={[
-                  { label: 'Customers', href: '/customers' },
-                  { label: page.name },
-                ]}
-              />
+              <BackLink href="/customers">Customers</BackLink>
               {(page.primary_badge_url || page.secondary_badge_url) && (
                 <div className="customer-detail-hero__tag" aria-hidden="true">
                   {page.primary_badge_url && (

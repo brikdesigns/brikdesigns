@@ -122,18 +122,6 @@
   padding-top: calc(var(--padding-huge) + var(--gap-lg));
 }
 
-/* Hide the breadcrumb's last (current-page) item so "Customer Stories"
- * renders as an active link without us having to fork BDS Breadcrumb.
- * BDS wraps every item in a <span style="display:contents"> with the
- * separator + label inside. Hiding the wrapper itself loses to the inline
- * `display: contents`, so target the wrapper's children (the separator and
- * the .bds-breadcrumb__current span) — both have class-level display rules
- * we can override without !important. Title stays in the DOM via items[]
- * for SEO/structured-data integrity. */
-.story-breadcrumb > span:last-child > * {
-  display: none;
-}
-
 /* Project metadata — 2-col grid, one field per cell, no background or
  * inset padding so the meta sits flush in the article column (matches the
  * blog post meta strip). <dl> wraps each dt/dd pair in a <div> (valid
