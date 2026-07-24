@@ -6,6 +6,7 @@ import { color } from '@/lib/tokens';
 import { heading, text } from '@/lib/styles';
 import { INDUSTRY_ICONS } from '@/lib/industry-icons';
 import { NewsletterForm } from './NewsletterForm';
+import { Reveal } from '@/components/ui/Reveal';
 import './footer.css';
 
 const aboutLinks: { label: string; href: string; icon: string }[] = [
@@ -104,6 +105,11 @@ export function Footer() {
     <BdsFooter
       className="footer-site-width"
       aboveTop={
+        // BACKLOG-932 (#728): fade the newsletter up on scroll. The footer sits
+        // outside <main>, so the site-wide ScrollReveal never reaches it — wrap
+        // the block in the per-element Reveal instead. Global (the footer is on
+        // every page); reduced-motion is honoured in footer.css.
+        <Reveal className="footer-newsletter-reveal">
         <div
           style={{
             display: 'flex',
@@ -137,6 +143,7 @@ export function Footer() {
             <NewsletterForm />
           </div>
         </div>
+        </Reveal>
       }
       logo={
         <Image

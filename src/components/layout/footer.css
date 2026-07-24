@@ -49,3 +49,25 @@
 .bds-footer.footer-site-width {
   box-shadow: 0 100vh 0 100vh var(--bds-footer-surface);
 }
+
+/* ─── Newsletter fade-up (BACKLOG-932 / #728) ──────────────────
+   The newsletter block fades up on scroll. Mirrors the site-wide
+   scroll-reveal.css timing/tokens; Reveal.tsx toggles `.is-visible` on the
+   `.footer-newsletter-reveal` root when it enters the viewport. Reduced-motion
+   visitors skip the transition and see it fully visible. */
+@media (prefers-reduced-motion: no-preference) {
+  .footer-newsletter-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity var(--duration-500) var(--ease-out),
+      transform var(--duration-500) var(--ease-out);
+    will-change: opacity, transform;
+  }
+
+  .footer-newsletter-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+}

@@ -135,7 +135,7 @@ export default async function ServiceLinePage({ params }: Props) {
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {serviceLine.name} Services
           </h2>
-          <Grid columns={3} gap="md">
+          <Grid columns={3} gap="lg">
             {services.map((svc) => {
               const cat = mapServiceLineSlug(serviceLine.slug);
               return (
