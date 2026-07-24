@@ -18,6 +18,14 @@ import { color } from '@/lib/tokens';
 
 const ALL = '__all__';
 
+/** Initial visible cap; a "Load more" control reveals the rest. Mirrors the
+ *  customer-stories list (CustomerStoriesList.tsx). Capping the grid bounds the
+ *  height delta on a filter switch, which is what kills the layout lurch — an
+ *  unbounded 12→2 collapse produced CLS ~0.49 and yanked the control the user
+ *  just clicked (#710 / BACKLOG-659). */
+const INITIAL_VISIBLE = 6;
+const LOAD_STEP = 6;
+
 interface Props {
   posts: BlogPost[];
 }
@@ -32,6 +40,10 @@ interface Props {
  * the site-wide service ordering. Filtering is client-side `useState` — the
  * server page stays statically generated. Long-label overflow on narrow
  * viewports is handled by the `.blog-filter` scroll container (see blog.css).
+ *
+ * Results are capped at INITIAL_VISIBLE with a "Load more" reveal; the cap
+ * resets on every filter change so switching categories never collapses a tall
+ * grid under the user (the #710 jitter fix).
  */
 export function BlogIndex({ posts }: Props) {
   const lines = useMemo(() => {
@@ -54,8 +66,18 @@ export function BlogIndex({ posts }: Props) {
   );
 
   const [active, setActive] = useState<string>(ALL);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
-  const visible = active === ALL ? posts : posts.filter((p) => p.serviceLineSlug === active);
+  // Reset the cap whenever the filter changes, so a new category always opens
+  // at INITIAL_VISIBLE rather than inheriting a larger "Load more" count.
+  const handleChange = (next: string) => {
+    setActive(next);
+    setVisibleCount(INITIAL_VISIBLE);
+  };
+
+  const filtered = active === ALL ? posts : posts.filter((p) => p.serviceLineSlug === active);
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = filtered.length > visibleCount;
 
   return (
     <>
@@ -65,7 +87,7 @@ export function BlogIndex({ posts }: Props) {
             <SegmentedControl
               items={items}
               value={active}
-              onChange={setActive}
+              onChange={handleChange}
               size="sm"
               aria-label="Filter posts by type"
             />
@@ -126,6 +148,18 @@ export function BlogIndex({ posts }: Props) {
             </Card>
           ))}
         </Grid>
+      )}
+
+      {hasMore && (
+        <div className="blog-loadmore">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setVisibleCount((count) => count + LOAD_STEP)}
+          >
+            Load more
+          </Button>
+        </div>
       )}
     </>
   );
