@@ -586,6 +586,21 @@
   box-shadow: var(--box-shadow-md);
 }
 
+/* Elevated — the service-line services grid (service tint). The base
+   `.service-card--flat` treatment strips border AND shadow, which reads as a
+   calm flat field on a mid-tint band. But every service line's `surfaceLight`
+   ramp is near-white (`#f8fdff` information, `#fffee1` brand, …), so a flat
+   `#fff` card has no visible edge and its top image reads as detached
+   (BACKLOG-875 / #708). Restore the containment shadow — same treatment the
+   pricing-tier grid above already uses on this exact surface — without bringing
+   back the gray border ring. Scoped to `.service-surface` so off-tint flat
+   usages (e.g. the monthly-support card on the white band) stay shadowless.
+   3-class selector beats the 2-class `.bds-card.service-card--flat` shadow:none
+   above without `!important`. */
+.service-surface .bds-card.service-card--flat {
+  box-shadow: var(--box-shadow-md);
+}
+
 /* Elevated — the lone row-cards on the service-detail tint ("Recommended
    Add-On Service" + "Related Customer Story"). Both always intended shadow
    containment via BDS `variant="elevated"` (#427/#360), but brik-bds#1146
