@@ -160,8 +160,8 @@ export const SERVICE_LINE_ICON: Record<ServiceLine, string> = {
   marketing: '/icons/marketing/marketing-design.svg',
   information: '/icons/information/information-design.svg',
   product: '/icons/product/product-design.svg',
-  'back-office': '/icons/service/back-office-design.svg',
-  // @deprecated alias of 'back-office'. Icon dir is still `service/` until the
-  // icon-asset dir rename follow-up.
-  service: '/icons/service/back-office-design.svg',
+  'back-office': '/icons/back-office/back-office-design.svg',
+  // @deprecated alias of 'back-office'. Kept only for the retired `service`
+  // ServiceLine value; resolves to the same back-office icon.
+  service: '/icons/back-office/back-office-design.svg',
 };

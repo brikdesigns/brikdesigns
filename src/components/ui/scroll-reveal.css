@@ -1,0 +1,26 @@
+/* Scroll-driven section reveal — companion to ScrollReveal.tsx, which applies
+   these classes after hydration (never in server markup, so no-JS visitors and
+   crawlers always see fully visible content).
+
+   BDS "subtle" motion tier: opacity + small translate only, decelerating
+   ease-out, no GSAP. The reduced-motion guard is belt-and-braces — the
+   component also bails before tagging anything when reduce is set. */
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity var(--duration-500) var(--ease-out),
+      transform var(--duration-500) var(--ease-out);
+    will-change: opacity, transform;
+  }
+
+  /* End state transitions to `transform: none` (not translateY(0)) so the
+     section stops being a containing block for fixed/absolute descendants
+     once the reveal completes. */
+  .scroll-reveal--in {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+}

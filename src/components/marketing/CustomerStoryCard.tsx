@@ -7,12 +7,7 @@ import type { ServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { heading, label, text } from '@/lib/styles';
 import { color } from '@/lib/tokens';
-
-const INDUSTRY_ICONS: Record<string, string> = {
-  'Small Business': 'ph:storefront',
-  'Dental': 'ph:tooth',
-  'Real Estate': 'ph:house',
-};
+import { INDUSTRY_ICONS, INDUSTRY_ICON_FALLBACK } from '@/lib/industry-icons';
 
 function formatDate(dateStr: string | null): string | null {
   if (!dateStr) return null;
@@ -59,7 +54,7 @@ export function CustomerStoryCard({
   shortDescription, imageUrl, iconServiceName,
 }: CustomerStoryCardProps) {
   const formattedDate = formatDate(launchDate);
-  const industryIcon = industry ? (INDUSTRY_ICONS[industry] ?? 'ph:buildings') : null;
+  const industryIcon = industry ? (INDUSTRY_ICONS[industry] ?? INDUSTRY_ICON_FALLBACK) : null;
 
   return (
     <Card variant="outlined" interactive href={`/customer-stories/${slug}`} className="story-card">

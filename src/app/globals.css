@@ -37,10 +37,20 @@ html {
      #356 box-shadow skirt + the sticky footer don't cover the browser's
      overscroll region; only stopping the bounce does. #346 */
   overscroll-behavior-y: none;
-  /* No global `scroll-behavior: smooth` — it makes the App Router's scroll-to-top
-     on every route change animate, so links/cards near the page bottom visibly
-     scroll the page up before the next page appears. Smooth scrolling is applied
-     explicitly where wanted (ScrollDownCta uses JS scrollIntoView). #383 */
+}
+
+/* Smooth in-page scrolling (anchor links; ScrollDownCta/SmoothScrollButton keep
+   their explicit scrollIntoView). Requires data-scroll-behavior="smooth" on
+   <html> (layout.tsx): that attribute is Next 16's opt-in to temporarily force
+   scroll-behavior auto while the router resets scroll on navigation. WITHOUT
+   it the reset gets animated and interrupted, stranding the user mid-page on
+   the destination route (BACKLOG-859, reproduced on staging 2026-07-23 — the
+   prior comment here had the attribute's semantics backwards).
+   Scoped to no-preference so reduced-motion users keep instant jumps. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 :root[data-theme="dark"] {
   background-color: var(--background-primary);
@@ -328,10 +338,6 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--color-grayscale-white);
   }
 
-  .bds-footer--inverse .bds-footer__above-top {
-    border-bottom-color: rgba(255, 255, 255, 0.15);
-  }
-
   /* bds-card-grid__header defaults to max-width: 72ch (readability cap).
      On this site all section headers are centered; the 72ch box without
      margin-inline:auto produces a left-anchored truncated block that looks
@@ -402,15 +408,21 @@ h1, h2, h3, h4, h5, h6 {
      service color so it stops flashing poppy on a non-poppy page. Scoped via
      `.service-themed`, which the bottom support band now carries too (#648):
      since #647 that band is a service `-inverse` card like the grids above, so
-     it joins the same hover/focus treatment instead of the default poppy ramp. */
+     it joins the same hover/focus treatment instead of the default poppy ramp.
+
+     The overlay is a background-image gradient, NOT an inset box-shadow: inset
+     shadows stop at the padding edge, so BDS's 2px transparent border stayed
+     un-overlaid and read as a darker ring around the button on hover
+     (BACKLOG-892). background-image clips to border-box by default, covering
+     the border region too, so the state shift is uniform edge-to-edge. */
   .service-themed .bds-button--primary:hover:not(:disabled):not(.bds-button--loading) {
     background-color: var(--background-brand-primary);
-    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.12);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
   }
 
   .service-themed .bds-button--primary:active:not(:disabled) {
     background-color: var(--background-brand-primary);
-    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.2);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2));
   }
 
   /* In dark mode the rest fill flips to the pale `onDark` step (#648, rule
@@ -422,12 +434,12 @@ h1, h2, h3, h4, h5, h6 {
      button that opts out of the dark fill on its existing behaviour. */
   :root[data-theme="dark"] .service-themed .bds-button--primary:hover:not(:disabled):not(.bds-button--loading) {
     background-color: var(--service-cta-fill-dark, var(--background-brand-primary));
-    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.14);
+    background-image: linear-gradient(rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.14));
   }
 
   :root[data-theme="dark"] .service-themed .bds-button--primary:active:not(:disabled) {
     background-color: var(--service-cta-fill-dark, var(--background-brand-primary));
-    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.22);
+    background-image: linear-gradient(rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.22));
   }
 
   /* Focus ring: pin to the fixed dark grayscale primitive, NOT a service token.
@@ -493,7 +505,7 @@ h1, h2, h3, h4, h5, h6 {
      this `darkest → darker` is fixed (brik-bds#865 / #823, both closed) — the tokens are
      now mode-invariant, so this is NOT waiting on an upstream ramp fix.
      The override persists for a separate, consumer-side reason: the hero price button
-     (`.bds-button--inverse`, rendered by BDS bp-hero-img-card) carries a DARK `#000`
+     (`.bds-button--inverse`, rendered by BDS bds-hero) carries a DARK `#000`
      label, and #000 on the canonical `-darkest` service fill is only 2.44:1. White-label
      primaries want the darkest step; this dark-label inverse wants the medium one — so we
      pin `--background-inverse` to the `-darker` step for the inverse variant only, clearing
@@ -544,7 +556,7 @@ h1, h2, h3, h4, h5, h6 {
   :root[data-theme="dark"] .service-surface :is(
     .bds-card:not(.bds-card--borderless),
     .bds-pricing-card,
-    .bp-hero-img-card,
+    .bds-hero__media-card, /* hero image/price card (bds-hero, brik-bds#1165) */
     .event-page__form-card,
     .lp-form-card,
     .event-page__speaker

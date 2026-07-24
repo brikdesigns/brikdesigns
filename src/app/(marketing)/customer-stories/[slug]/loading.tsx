@@ -5,7 +5,7 @@ import '../../shared-sections.css';
 /**
  * Shape-accurate skeleton for the customer-story detail page. Mirrors the real
  * `.story-arc` hero (`customer-stories/[slug]/page.tsx`): a narrow
- * `.container-lg--story` column with breadcrumb → title → a `story-detail-meta`
+ * `.container-lg--story` column with back link → title → a `story-detail-meta`
  * list (client / service line / service / industry) → the first wide story-arc
  * media frame. Stacked, not a split hero.
  */
@@ -13,8 +13,8 @@ export default function Loading() {
   return (
     <section className="page-section story-arc">
       <div className="container-lg container-lg--story">
-        {/* breadcrumb */}
-        <Skeleton style={{ height: '0.875rem', width: '13rem', marginBottom: gap.md }} />
+        {/* back link ("← Customer Stories") */}
+        <Skeleton style={{ height: '0.875rem', width: '10rem', marginBottom: gap.md }} />
 
         {/* title (heading.lg — two lines) */}
         <Skeleton style={{ height: '2.75rem', width: '90%' }} />

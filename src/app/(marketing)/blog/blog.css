@@ -26,6 +26,13 @@
   padding-block: var(--padding-xl);
 }
 
+/* "Load more" reveal — centered below the results grid. */
+.blog-loadmore {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--gap-xl);
+}
+
 .blog-card {
   overflow: hidden;
 }

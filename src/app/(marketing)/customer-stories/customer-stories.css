@@ -107,23 +107,19 @@
  * gap-xl below the previous. Per-element rhythm inside a row (h1 → meta,
  * h2 → body) is owned by the row's children. */
 
-/* Section-level rhythm: gap-xl between every direct child container after
- * the first. Section top/bottom padding (from .page-section) handles the
- * outer margins. */
+/* Section-level rhythm: gap-huge between every direct child container after
+ * the first, so the full-bleed screenshot rows breathe (was gap-xl —
+ * BACKLOG-871 flagged the arc as cramped between images). Section top/bottom
+ * padding (from .page-section) handles the outer margins. */
 .story-arc > .container-lg + .container-lg {
-  margin-top: var(--gap-xl);
+  margin-top: var(--gap-huge);
 }
 
-/* Hide the breadcrumb's last (current-page) item so "Customer Stories"
- * renders as an active link without us having to fork BDS Breadcrumb.
- * BDS wraps every item in a <span style="display:contents"> with the
- * separator + label inside. Hiding the wrapper itself loses to the inline
- * `display: contents`, so target the wrapper's children (the separator and
- * the .bds-breadcrumb__current span) — both have class-level display rules
- * we can override without !important. Title stays in the DOM via items[]
- * for SEO/structured-data integrity. */
-.story-breadcrumb > span:last-child > * {
-  display: none;
+/* Extra air between the sticky header and the breadcrumb/title block —
+ * .page-section's own padding reads cramped at the very top of the story
+ * arc (BACKLOG-869). */
+.story-arc.page-section {
+  padding-top: calc(var(--padding-huge) + var(--gap-lg));
 }
 
 /* Project metadata — 2-col grid, one field per cell, no background or
@@ -201,9 +197,23 @@
 
 /* ─── Other Customer Stories grid cards ────────────────────
  * Hero images are landscape; override the square aspect ratio used on
- * the /services pages to maintain consistent proportions here. */
+ * the /services pages to maintain consistent proportions here.
+ *
+ * The frame must be authoritative: with the img in normal flow at
+ * height:100%, a non-16/9 source (e.g. a square brand composite) can't
+ * resolve the percentage, falls back to its intrinsic ratio, and stretches
+ * the wrapper past the preferred aspect-ratio — one tall card in the row
+ * (BACKLOG-858). Absolutely position the img so the wrapper's aspect-ratio
+ * alone sizes the box and any source ratio gets cover-cropped to 16/9. */
 .services-card__media--landscape {
   aspect-ratio: 16/9;
+  position: relative;
+  overflow: hidden;
+}
+
+.services-card__media--landscape img {
+  position: absolute;
+  inset: 0;
 }
 
 @media (max-width: 767px) {

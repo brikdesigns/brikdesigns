@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Icon } from '@/lib/icon';
+import { BackLink } from '@/components/ui/BackLink';
 import {
-  Breadcrumb,
   Card,
   CardDescription,
   CardFooter,
@@ -27,17 +27,9 @@ import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
+import { INDUSTRY_ICONS, INDUSTRY_ICON_FALLBACK } from '@/lib/industry-icons';
 import '../../shared-sections.css';
 import '../customer-stories.css';
-
-// Industry → Phosphor icon. Mirrors CustomerStoryCard's INDUSTRY_ICONS so the
-// detail-page meta row matches the index-card visual vocabulary. Fallback
-// (ph:buildings) handles industries not in the map.
-const INDUSTRY_ICONS: Record<string, string> = {
-  'Small Business': 'ph:storefront',
-  'Dental': 'ph:tooth',
-  'Real Estate': 'ph:house',
-};
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -115,7 +107,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
     : null;
   const serviceLineCategory = serviceLineSlug as ServiceLine | null;
   const industryIcon = story.industry
-    ? INDUSTRY_ICONS[story.industry] ?? 'ph:buildings'
+    ? INDUSTRY_ICONS[story.industry] ?? INDUSTRY_ICON_FALLBACK
     : null;
   const serviceIconName = relatedService?.name && serviceLineCategory && hasIconFor(serviceLineCategory, relatedService.name)
     ? relatedService.name
@@ -128,30 +120,25 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
        * Anatomy follows /blog/[slug]'s rhythm but with image rows breaking out
        * to the wide 1280px column for visual impact. One page-section hosts
        * alternating containers:
-       *   - .container-lg--story  (760px) → breadcrumb, h1, meta, narrative,
+       *   - .container-lg--story  (760px) → back link, h1, meta, narrative,
        *                                     quote
        *   - .container-lg         (1280px) → hero / inline media figures
        * Inter-row spacing of gap-xl is owned by the section via .story-arc
        * so the narrative reads as one continuous flow instead of stacked
        * sub-sections.
        *
-       * The last breadcrumb item (story title) is restored but hidden via CSS
-       * (.story-breadcrumb > span:last-child). Result: "Customer Stories"
-       * stops being the last item and renders as a link — without us having
-       * to render a custom breadcrumb component.
+       * A single "← Customer Stories" back link (not a breadcrumb) — a story
+       * page has exactly one navigable ancestor, so the back link is the
+       * clearer return control (nav-pattern rule #712). The story title is not
+       * duplicated here; it's the <h1> immediately below.
        *
        * Anatomy ref: design.brikdesigns.com/docs/getting-started/page-templates
        */}
       <section className="page-section story-arc">
         <div className="container-lg container-lg--story">
-          <Breadcrumb
-            className="story-breadcrumb"
-            style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
-            items={[
-              { label: 'Customer Stories', href: '/customer-stories' },
-              { label: storyTitle },
-            ]}
-          />
+          <BackLink href="/customer-stories" style={{ marginBottom: gap.md }}>
+            Customer Stories
+          </BackLink>
 
           <h1 style={heading.lg}>{storyTitle}</h1>
 

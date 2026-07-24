@@ -183,21 +183,21 @@ export default async function PlanDetailPage({ params }: Props) {
         data-scroll-hero
         style={
           {
-            '--bp-hero-img-card-padding-y': 'var(--padding-huge)',
+            '--bds-hero-padding-y': 'var(--padding-huge)',
             // Section-level service-line tint — `surface` family, pale `-light`
             // tone per service-token-decision-tree.md Q2 (the hero is a broad
             // container; pale surface pairs with darkest on-light text at AAA,
             // brik-bds#838). Mirrors the now-pale services/[slug] hero (#389)
             // so all interior heros read as one continuous surface band; the
-            // BDS blueprint SECTION (`section.bp-hero-img-card`) defers to this
-            // via the `.page-hero-blueprint .bp-hero-img-card` override in
+            // BDS blueprint SECTION (`section.bds-hero--with-pricing-card`) defers to this
+            // via the `.page-hero-blueprint .bds-hero--with-pricing-card` override in
             // shared-sections.css (no two-tone seam). (#408)
             backgroundColor: audienceTokens.surfaceLight,
-            // Interior-hero CARD surface — the nested `aside.bp-hero-img-card__media-card`,
-            // NOT this section. The `--bp-hero-img-card-card-bg` hook scopes the ADR-012
+            // Interior-hero CARD surface — the nested `aside.bds-hero__media-card`,
+            // NOT this section. The `--bds-hero-media-bg` hook scopes the ADR-012
             // service `-inverse` token to the card only: white in light → `{hue}-darkest`
             // in dark; BDS recalibrates the card text per theme (AA, brik-bds#1020). (BRIK-WEB-52)
-            '--bp-hero-img-card-card-bg': audienceTokens.inverse,
+            '--bds-hero-media-bg': audienceTokens.inverse,
           } as React.CSSProperties
         }
       >
@@ -257,12 +257,17 @@ export default async function PlanDetailPage({ params }: Props) {
               style={{ backgroundColor: audienceTokens.inverse, '--service-cta-fill-dark': audienceTokens.onDark, '--service-cta-ink-dark': audienceTokens.text } as React.CSSProperties}
             >
               <div className="content-wrapper content-wrapper--center">
-                <p style={{ ...heading.lg, color: color.text.primary, textAlign: 'center', margin: 0 }}>Get</p>
-                <h2 style={{ ...heading.lg, textAlign: 'center' }}>{plan.name}</h2>
+                {/* Eyebrow, not a heading: demote "Get" from heading.lg (32px,
+                    co-equal with the plan name below it) to the uppercase
+                    subtitle-label scale so it reads as a kicker. #674 / BACKLOG-310,526 */}
+                <p style={{ ...label.subtitle, textAlign: 'center', margin: 0 }}>Get</p>
+                {/* heading.md (25px) mirrors the service-detail bottom-CTA plan name
+                    (was heading.lg 32px — 32-vs-20 drift between the two CTA cards). #674 / BACKLOG-526 */}
+                <h2 style={{ ...heading.md, textAlign: 'center' }}>{plan.name}</h2>
                 {plan.description && (
                   <p
                     style={{
-                      ...text.bodyLg,
+                      ...text.body,
                       color: color.text.secondary,
                       textAlign: 'center',
                     }}
@@ -296,7 +301,9 @@ export default async function PlanDetailPage({ params }: Props) {
        */}
       {otherPlans.length > 0 && (
         <CardGrid sectionKey="other-plans" title="Other Support Plans">
-          <Grid columns={3} gap="lg">
+          {/* gap="md" matches the /plans index + /services index 3-col grids
+              (detail pages were the lone gap="lg" outliers). #674 / BACKLOG-415 */}
+          <Grid columns={3} gap="md">
             {otherPlans.map((other) => {
               // Each card's CTA uses that plan's own service-line color (dynamic),
               // not the current page's — overrides the page-level default. #343
