@@ -18,6 +18,14 @@ import { color } from '@/lib/tokens';
 
 const ALL = '__all__';
 
+/** Initial visible cap; a "Load more" control reveals the rest. Mirrors the
+ *  customer-stories list (CustomerStoriesList.tsx). Capping the grid bounds the
+ *  height delta on a filter switch, which is what kills the layout lurch — an
+ *  unbounded 12→2 collapse produced CLS ~0.49 and yanked the control the user
+ *  just clicked (#710 / BACKLOG-659). */
+const INITIAL_VISIBLE = 6;
+const LOAD_STEP = 6;
+
 interface Props {
   posts: BlogPost[];
 }
@@ -25,36 +33,61 @@ interface Props {
 /**
  * Blog index grid with a type filter.
  *
- * The control is data-driven: segments are derived from the distinct tags
- * present on published posts (membership match, so it stays correct if posts
- * ever carry multiple tags). Filtering is client-side `useState` — the server
- * page stays statically generated. Long-label overflow on narrow viewports is
- * handled by the `.blog-filter` scroll container (see blog.css).
+ * The control is data-driven from each post's canonical service line
+ * (`primary_category_id` FK → `service_lines`, set via the drift-proof
+ * "Primary service line" picker in the portal). Segments are the distinct
+ * service lines present, ordered by `service_lines.sort_order` so they match
+ * the site-wide service ordering. Filtering is client-side `useState` — the
+ * server page stays statically generated. Long-label overflow on narrow
+ * viewports is handled by the `.blog-filter` scroll container (see blog.css).
+ *
+ * Results are capped at INITIAL_VISIBLE with a "Load more" reveal; the cap
+ * resets on every filter change so switching categories never collapses a tall
+ * grid under the user (the #710 jitter fix).
  */
 export function BlogIndex({ posts }: Props) {
-  const types = useMemo(
-    () => Array.from(new Set(posts.flatMap((p) => p.tags))).sort((a, b) => a.localeCompare(b)),
-    [posts],
-  );
+  const lines = useMemo(() => {
+    const seen = new Map<string, { slug: string; name: string; rank: number }>();
+    for (const p of posts) {
+      if (p.serviceLineSlug && !seen.has(p.serviceLineSlug)) {
+        seen.set(p.serviceLineSlug, {
+          slug: p.serviceLineSlug,
+          name: p.serviceLine,
+          rank: p.serviceLineRank,
+        });
+      }
+    }
+    return Array.from(seen.values()).sort((a, b) => a.rank - b.rank);
+  }, [posts]);
 
   const items = useMemo(
-    () => [{ label: 'All', value: ALL }, ...types.map((t) => ({ label: t, value: t }))],
-    [types],
+    () => [{ label: 'All', value: ALL }, ...lines.map((l) => ({ label: l.name, value: l.slug }))],
+    [lines],
   );
 
   const [active, setActive] = useState<string>(ALL);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
-  const visible = active === ALL ? posts : posts.filter((p) => p.tags.includes(active));
+  // Reset the cap whenever the filter changes, so a new category always opens
+  // at INITIAL_VISIBLE rather than inheriting a larger "Load more" count.
+  const handleChange = (next: string) => {
+    setActive(next);
+    setVisibleCount(INITIAL_VISIBLE);
+  };
+
+  const filtered = active === ALL ? posts : posts.filter((p) => p.serviceLineSlug === active);
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = filtered.length > visibleCount;
 
   return (
     <>
-      {types.length > 0 && (
+      {lines.length > 0 && (
         <div className="blog-filter">
           <div className="blog-filter__inner">
             <SegmentedControl
               items={items}
               value={active}
-              onChange={setActive}
+              onChange={handleChange}
               size="sm"
               aria-label="Filter posts by type"
             />
@@ -115,6 +148,18 @@ export function BlogIndex({ posts }: Props) {
             </Card>
           ))}
         </Grid>
+      )}
+
+      {hasMore && (
+        <div className="blog-loadmore">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => setVisibleCount((count) => count + LOAD_STEP)}
+          >
+            Load more
+          </Button>
+        </div>
       )}
     </>
   );

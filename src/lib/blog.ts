@@ -18,6 +18,12 @@ export interface BlogPost {
   date: string;
   category: string;
   tags: string[];
+  /** Canonical service line (from `primary_category_id` FK), `''` if unset. Drives the /blog type filter. */
+  serviceLine: string;
+  /** Canonical service-line slug, `''` if unset. Stable filter key. */
+  serviceLineSlug: string;
+  /** `service_lines.sort_order` for segment ordering; `999` if unset. */
+  serviceLineRank: number;
   duration: string;
   featured: boolean;
   image?: string;
@@ -40,6 +46,9 @@ interface BlogPostRow {
   cta_title: string | null;
   cta_description: string | null;
   tags: string[] | null;
+  primary_category_id: string | null;
+  // Embedded service line via the primary_category_id FK (many-to-one → single object).
+  primary_category: { slug: string; name: string; sort_order: number } | null;
 }
 
 function rowToMeta(row: BlogPostRow): BlogPost {
@@ -50,6 +59,9 @@ function rowToMeta(row: BlogPostRow): BlogPost {
     date: row.published_at ?? '',
     category: row.tags?.[0] ?? '',
     tags: row.tags ?? [],
+    serviceLine: row.primary_category?.name ?? '',
+    serviceLineSlug: row.primary_category?.slug ?? '',
+    serviceLineRank: row.primary_category?.sort_order ?? 999,
     duration: row.duration ?? '',
     featured: Boolean(row.featured),
     image: row.featured_image_url ?? undefined,
@@ -59,7 +71,7 @@ function rowToMeta(row: BlogPostRow): BlogPost {
 }
 
 const SELECT =
-  'id,title,slug,excerpt,content,featured_image_url,author,status,published_at,duration,featured,cta_title,cta_description,tags';
+  'id,title,slug,excerpt,content,featured_image_url,author,status,published_at,duration,featured,cta_title,cta_description,tags,primary_category_id,primary_category:service_lines!primary_category_id(slug,name,sort_order)';
 
 export async function getAllPosts(): Promise<BlogPost[]> {
   const supabase = await createClient();
@@ -70,7 +82,9 @@ export async function getAllPosts(): Promise<BlogPost[]> {
     .order('published_at', { ascending: false });
 
   if (error) throw error;
-  return (data as BlogPostRow[] | null)?.map(rowToMeta) ?? [];
+  // Cast via `unknown`: supabase-js infers the embedded `primary_category` as a
+  // to-many array, but a many-to-one FK returns a single object at runtime.
+  return (data as unknown as BlogPostRow[] | null)?.map(rowToMeta) ?? [];
 }
 
 export async function getPostBySlug(slug: string) {
@@ -83,7 +97,7 @@ export async function getPostBySlug(slug: string) {
     .maybeSingle();
 
   if (!data) return null;
-  const row = data as BlogPostRow;
+  const row = data as unknown as BlogPostRow;
   return {
     meta: rowToMeta(row),
     content: row.content ?? '',
