@@ -1,53 +1,146 @@
-/* ─── Value of Design page — layout only ─────────────────── */
+/* ─── Value of Design page — layout + scroll-motion ──────────
+   Motion is CSS-only; the `.rise` primitives are toggled by the
+   <Reveal> IntersectionObserver wrapper (src/components/ui/Reveal.tsx).
+   Colour-coding: each pillar band is tinted with its service line's
+   pale `surfaceLight` ramp (set inline via serviceColor().surfaceLight)
+   under `.service-surface`, which pins body copy dark on the fixed-light
+   tint in both themes (globals.css). ─────────────────────────── */
+
+/* ─── Scroll-reveal primitives ─────────────────────────────── */
+
+.rise {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.7s cubic-bezier(0.22, 0.68, 0.24, 1);
+  will-change: opacity, transform;
+}
+
+.rise--scale {
+  transform: translateY(28px) scale(0.96);
+}
+
+.reveal.is-visible .rise {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .rise--scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ─── Hero + pillar navigator ──────────────────────────────── */
 
 .value-hero {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-/* Step navigation links in hero */
-.value-step-nav {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
+.value-hero__intro {
+  max-width: 720px;
+}
+
+/* Four colour-coded jump-link cards */
+.value-toc {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap-lg);
   margin-top: var(--gap-xl);
   width: 100%;
-  max-width: 500px;
 }
 
-.value-step-nav__link {
+.value-toc__card {
+  /* Fixed-light service tint (mode-invariant) → pin card text dark in both
+     themes, mirroring the `.service-surface` section pin. */
+  --text-primary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — dark heading/label on the fixed-light service tint; same fixed-on-light pattern as .service-surface (globals.css) */
+  --text-secondary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above */
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--gap-md);
-  padding: var(--padding-sm) var(--padding-md);
-  border-radius: var(--border-radius-sm);
+  min-height: 260px;
+  padding: var(--padding-lg);
+  border-radius: var(--border-radius-md);
   text-decoration: none;
-  transition: background-color 0.15s;
+  color: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — dark ink on the fixed-light tint */
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
-.value-step-nav__link:hover {
-  background-color: var(--surface-secondary);
+.value-toc__card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--box-shadow-md);
 }
 
-/* Step header with large number */
-.value-step-header {
-  display: flex;
-  align-items: baseline;
-  gap: var(--gap-md);
-  margin-bottom: var(--gap-md);
+.value-toc__icon {
+  font-size: 2.75rem;
 }
 
-.value-step-number {
+.value-toc__number {
   font-family: var(--font-family-heading);
   font-size: var(--heading-huge);
   font-weight: 700;
-  color: var(--text-brand-primary);
   line-height: var(--font-line-height-tight);
 }
 
-/* Stats grid */
+.value-toc__title {
+  display: block;
+}
+
+.value-toc__view {
+  margin-top: auto;
+  color: var(--text-brand-primary);
+}
+
+/* ─── Editorial reveal band ────────────────────────────────── */
+
+.value-editorial__lede {
+  margin: var(--gap-sm) 0;
+}
+
+/* ─── Colour-coded pillars ─────────────────────────────────── */
+
+.value-pillar__header {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lg);
+  margin-bottom: var(--gap-md);
+}
+
+.value-pillar__number {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-huge);
+  font-weight: 700;
+  line-height: 0.85;
+}
+
+.value-pillar__heading-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.value-pillar__icon {
+  font-size: 2rem;
+}
+
+.value-pillar__intro {
+  max-width: 720px;
+}
+
+/* ─── Stat blocks (open on the tint — no own surface) ────────
+   Kept fill-less so the `.service-surface` dark-text pin applies cleanly
+   in both themes; a nested `--surface-primary` fill would read dark-on-dark
+   in dark mode (the case globals.css guards for BDS cards, not custom divs). */
+
 .value-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -60,30 +153,35 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
-  padding: var(--padding-lg);
-  background-color: var(--surface-primary);
-  border-radius: var(--border-radius-md);
-  border: 1px solid var(--border-secondary);
+  padding: var(--padding-md) 0 var(--padding-md) var(--padding-md);
+  border-left: 3px solid currentColor;
 }
 
 .value-stat-value {
   font-family: var(--font-family-heading);
   font-size: var(--heading-xl);
   font-weight: 700;
-  color: var(--text-brand-primary);
   line-height: var(--font-line-height-tight);
 }
 
-/* ─── Responsive ──────────────────────────────────────────── */
+/* ─── Responsive ───────────────────────────────────────────── */
 
 @media (max-width: 991px) {
+  .value-toc {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .value-stats-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 767px) {
-  .value-hero {
+  .value-toc {
+    grid-template-columns: 1fr;
+  }
+
+  .value-toc__card {
     min-height: auto;
   }
 
@@ -91,8 +189,9 @@
     grid-template-columns: 1fr;
   }
 
-  .value-step-header {
+  .value-pillar__header {
     flex-direction: column;
-    gap: var(--gap-xs);
+    align-items: flex-start;
+    gap: var(--gap-sm);
   }
 }
