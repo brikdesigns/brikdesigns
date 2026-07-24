@@ -1,10 +1,6 @@
 import type { Metadata } from 'next';
 import { Button } from '@brikdesigns/bds';
-import { Icon } from '@/lib/icon';
 import { Reveal } from '@/components/ui/Reveal';
-import { text, heading, label } from '@/lib/styles';
-import { color, serviceColor } from '@/lib/tokens';
-import '../shared-sections.css';
 import './value.css';
 
 export const metadata: Metadata = {
@@ -13,178 +9,303 @@ export const metadata: Metadata = {
     'Learn the value of design in 4 steps. From first impressions to conversions, discover why design is the secret weapon behind every successful brand.',
 };
 
-/**
- * Each pillar is colour-coded to a Brik service line (Value-page colour map):
- * 01 → marketing (green), 02 → product (purple), 03 → information (blue),
- * 04 → brand (yellow). Tints use the token-safe pale `surfaceLight` ramp
- * applied to the band via `.service-surface`; saturated accents (number, icon)
- * use the on-light service `text` token. `icon` is a bundled `ph:*` glyph
- * (src/lib/icons.generated.json).
- */
-const STEPS = [
-  {
-    number: '01',
-    service: 'marketing',
-    icon: 'ph:star',
-    title: 'First Impressions Are Everything',
-    intro:
-      'You have about 0.05 seconds to make an impression online. That’s how fast people decide whether to stay on your site or bounce. If your design is cluttered, outdated, or just plain unappealing you’re losing potential customers before they even give you a chance.',
-    stats: [
-      { value: '75%', label: 'of website credibility comes from design. If your site looks unprofessional, people won’t trust your business.' },
-      { value: '42%', label: 'of users leave a website because of poor functionality. Even the best product in the world won’t sell if users struggle to navigate your site.' },
-      { value: '50%', label: 'of consumers believe website design is crucial to a business’s brand. It’s not just about looks—it’s about perception.' },
-    ],
-  },
-  {
-    number: '02',
-    service: 'product',
-    icon: 'ph:storefront',
-    title: 'Good Design = More Conversions',
-    intro: 'Want more leads, sign-ups, and sales? Design can get you there.',
-    stats: [
-      { value: '200%', label: 'conversion rate increase. Strong UI/UX design can increase conversion rates by up to 200%. A well-thought-out, user-friendly design could literally double your results.' },
-      { value: '60%', label: 'of consumers avoid brands with unattractive logos—even if they have great reviews. Looks do matter when it comes to credibility.' },
-      { value: '32%', label: 'more revenue. Businesses that embrace design generate 32% more revenue and 56% higher shareholder returns. This isn’t a nice-to-have—it’s a must-have for growth.' },
-    ],
-  },
-  {
-    number: '03',
-    service: 'information',
-    icon: 'ph:globe',
-    title: 'People Crave Visually Appealing Content',
-    intro: 'Humans are visual creatures. We process images 60,000x faster than text, so if you’re relying on just words to tell your story, you’re missing out.',
-    stats: [
-      { value: '61%', label: 'of marketers believe visuals are the key to a successful campaign.' },
-      { value: 'Abandon', label: 'Users will leave a website if they have a bad experience with how it looks. If your visuals aren’t drawing people in, they’re pushing them away.' },
-    ],
-  },
-  {
-    number: '04',
-    service: 'brand',
-    icon: 'ph:briefcase',
-    title: 'Design is a Business Essential',
-    intro: 'Design isn’t a luxury—it’s a business essential. The companies that invest in design consistently outperform those that don’t.',
-    stats: [
-      { value: '61%', label: 'of marketers believe visuals are the key to a successful campaign. If your visuals aren’t drawing people in, they’re pushing them away.' },
-      { value: '50%', label: 'of consumers believe website design is crucial to a business’s brand. It’s not just about looks—it’s about perception.' },
-    ],
-  },
+/* ─── Inline icons (stroke = currentColor; colour set by CSS) ─── */
+const svgProps = {
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 3,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+};
+
+const Glasses = () => (
+  <svg viewBox="0 0 48 48" width="52" height="52" {...svgProps}>
+    <circle cx="12" cy="30" r="8" />
+    <circle cx="36" cy="30" r="8" />
+    <path d="M20 27c1.5-2 6.5-2 8 0" />
+    <path d="M4 20l4 3" />
+    <path d="M44 20l-4 3" />
+  </svg>
+);
+const PieChart = () => (
+  <svg viewBox="0 0 48 48" width="52" height="52" {...svgProps}>
+    <circle cx="21" cy="27" r="16" />
+    <path d="M26 4 a18 18 0 0 1 18 18 h-18 z" fill="currentColor" stroke="none" />
+  </svg>
+);
+const Presentation = () => (
+  <svg viewBox="0 0 48 48" width="52" height="52" {...svgProps}>
+    <rect x="8" y="8" width="32" height="22" rx="2" />
+    <path d="M24 30v8" />
+    <path d="M15 44l9-6 9 6" />
+  </svg>
+);
+const Briefcase = () => (
+  <svg viewBox="0 0 48 48" width="52" height="52" {...svgProps}>
+    <rect x="6" y="16" width="36" height="24" rx="3" />
+    <path d="M18 16v-4a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v4" />
+    <path d="M6 26h36" />
+  </svg>
+);
+const Timer = () => (
+  <svg viewBox="0 0 48 48" width="64" height="64" {...svgProps}>
+    <circle cx="24" cy="27" r="16" />
+    <path d="M24 27V18" />
+    <path d="M24 27l7 5" />
+    <path d="M18 6h12" />
+  </svg>
+);
+const Eye = () => (
+  <svg viewBox="0 0 48 48" width="52" height="52" {...svgProps}>
+    <path d="M4 24s7-13 20-13 20 13 20 13-7 13-20 13S4 24 4 24z" />
+    <circle cx="24" cy="24" r="6" />
+  </svg>
+);
+const Crown = () => (
+  <svg viewBox="0 0 48 48" width="52" height="52" {...svgProps}>
+    <path d="M6 34l-3-18 11 8 10-16 10 16 11-8-3 18z" />
+    <path d="M6 34h36" />
+  </svg>
+);
+
+const CARDS = [
+  { num: '01', title: 'First Impressions are Everything', variant: 'green', Icon: Glasses },
+  { num: '02', title: 'Good Design = More Conversions', variant: 'purple', Icon: PieChart },
+  { num: '03', title: 'People Crave Visual Content', variant: 'blue', Icon: Presentation },
+  { num: '04', title: 'Design is a Business Essential', variant: 'gold', Icon: Briefcase },
 ];
 
 export default function ValuePage() {
   return (
     <>
-      {/* ── Hero + colour-coded pillar navigator ────────────────── */}
-      <section className="page-hero value-hero" data-scroll-hero>
-        <div className="page-hero__container">
-          <Reveal className="value-hero__intro">
-            <p className="rise" style={{ ...label.smBold, color: color.text.brand }}>Why Design?</p>
-            <h1 className="page-hero__title rise" style={{ transitionDelay: '0.06s' }}>In 4 Steps</h1>
-            <p className="page-hero__description rise" style={{ transitionDelay: '0.12s' }}>
-              Design is more than just making things look pretty. It&apos;s the secret weapon behind every successful
-              brand, the silent salesperson that builds trust, boosts engagement, and turns browsers into buyers.
-            </p>
-            <p className="rise" style={{ ...text.body, color: color.text.secondary, transitionDelay: '0.18s' }}>
-              Here&apos;s why design deserves a front-row seat in your marketing strategy.
-            </p>
-          </Reveal>
-
-          <Reveal className="value-toc" as="nav">
-            {STEPS.map((step, i) => (
-              <a
-                key={step.number}
-                href={`#value-${step.number}`}
-                className="value-toc__card rise rise--scale"
-                style={{
-                  backgroundColor: serviceColor(step.service).surfaceLight,
-                  transitionDelay: `${i * 0.09}s`,
-                }}
-              >
-                <Icon icon={step.icon} className="value-toc__icon" aria-hidden style={{ color: serviceColor(step.service).text }} />
-                <span className="value-toc__number" style={{ color: serviceColor(step.service).text }}>{step.number}</span>
-                <span className="value-toc__title" style={heading.sm}>{step.title}</span>
-                <span className="value-toc__view" style={label.smBold}>View</span>
-              </a>
-            ))}
-          </Reveal>
-        </div>
+      {/* 1 · Hero */}
+      <section className="vband vband--coral value-hero">
+        <Reveal>
+          <div className="value-hero__title rise">Why Design?</div>
+          <div className="value-hero__sub rise" style={{ transitionDelay: '0.08s' }}>In 4 steps</div>
+        </Reveal>
       </section>
 
-      {/* ── Editorial reveal band ───────────────────────────────── */}
-      <section className="page-section value-editorial">
-        <div className="container-lg container-lg--comfortable">
-          <Reveal className="content-wrapper content-wrapper--narrow">
-            <p className="rise" style={{ ...label.smBold, color: color.text.brand }}>Let&apos;s Be Real</p>
-            <p className="value-editorial__lede rise" style={{ ...heading.md, transitionDelay: '0.08s' }}>
-              Yet so many businesses treat design as an afterthought instead of the powerhouse that it really is.
-            </p>
-            <p className="rise" style={{ ...text.bodyLg, color: color.text.secondary, transitionDelay: '0.16s' }}>
-              Design isn&apos;t decoration — it&apos;s how trust is earned, attention is held, and browsers become buyers.
-              Here&apos;s the proof, four ways.
-            </p>
-          </Reveal>
-        </div>
+      {/* 2 · Pillar-nav cards */}
+      <section className="vband vband--coral value-cards">
+        <Reveal className="value-cards__row">
+          {CARDS.map((c, i) => (
+            <a
+              key={c.num}
+              href={`#value-${c.num}`}
+              className={`value-card value-card--${c.variant} rise rise--scale`}
+              style={{ transitionDelay: `${i * 0.09}s` }}
+            >
+              <span className="value-card__icon"><c.Icon /></span>
+              <span className="value-card__number">{c.num}</span>
+              <span className="value-card__title">{c.title}</span>
+              <span className="value-card__view">View</span>
+            </a>
+          ))}
+        </Reveal>
       </section>
 
-      {/* ── Four colour-coded pillars ───────────────────────────── */}
-      {STEPS.map((step) => {
-        const c = serviceColor(step.service);
-        return (
-          <section
-            key={step.number}
-            id={`value-${step.number}`}
-            className="page-section service-surface value-pillar"
-            style={{ backgroundColor: c.surfaceLight }}
-          >
-            <div className="container-lg container-lg--comfortable">
-              <Reveal className="value-pillar__inner">
-                <div className="value-pillar__header rise">
-                  <span className="value-pillar__number" style={{ color: c.text }}>{step.number}</span>
-                  <div className="value-pillar__heading-group">
-                    <Icon icon={step.icon} className="value-pillar__icon" aria-hidden style={{ color: c.text }} />
-                    <h2 style={heading.lg}>{step.title}</h2>
-                  </div>
-                </div>
-                <p className="value-pillar__intro rise" style={{ ...text.bodyLg, color: color.text.secondary, transitionDelay: '0.08s' }}>
-                  {step.intro}
-                </p>
-                <div className="value-stats-grid">
-                  {step.stats.map((stat, i) => (
-                    <div
-                      key={stat.value}
-                      className="value-stat-card rise rise--scale"
-                      style={{ borderLeftColor: c.text, transitionDelay: `${0.14 + i * 0.1}s` }}
-                    >
-                      <span className="value-stat-value" style={{ color: c.text }}>{stat.value}</span>
-                      <p style={{ ...text.bodySm, color: color.text.secondary }}>{stat.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-          </section>
-        );
-      })}
+      {/* 3 · Editorial "Let's Be Real" */}
+      <section className="vband vband--coral value-editorial">
+        <Reveal>
+          <div className="value-editorial__eyebrow rise">Let&apos;s Be Real</div>
+          <div className="value-editorial__line rise" style={{ transitionDelay: '0.06s' }}>
+            Design is more than<br />just making things<br />look pretty
+          </div>
+          <div className="value-editorial__line value-editorial__line--spaced rise" style={{ transitionDelay: '0.12s' }}>
+            It&apos;s the secret weapon behind
+          </div>
+          <div className="value-editorial__line value-editorial__line--ink rise" style={{ transitionDelay: '0.18s' }}>
+            every successful brand,<br />the silent salesperson that<br />builds trust, boosts engagement,<br />and turns browsers into buyers
+          </div>
+        </Reveal>
+      </section>
 
-      {/* ── Closing CTA ─────────────────────────────────────────── */}
-      <section className="page-section page-section--accent">
-        <div className="container-lg">
-          <Reveal className="content-wrapper content-wrapper--center">
-            <p className="rise" style={{ ...text.bodyLg, textAlign: 'center' }}>
-              Whether you need a fresh new look, a website that wows, or branding that speaks to your audience,
-              we&apos;ve got you covered.
-            </p>
-            <h2 className="rise" style={{ ...heading.lg, textAlign: 'center', transitionDelay: '0.08s' }}>
-              Ready to see what great design can do for you?
-            </h2>
-            <p className="rise" style={{ ...text.body, color: color.text.secondary, textAlign: 'center', transitionDelay: '0.16s' }}>
-              Let&apos;s make something amazing together.
-            </p>
-            <div className="button-wrapper button-wrapper--center rise" style={{ transitionDelay: '0.24s' }}>
-              <Button href="/contact" variant="primary" size="lg">Let&apos;s Talk</Button>
-            </div>
-          </Reveal>
-        </div>
+      {/* 4 · Gold transition */}
+      <section className="vband vband--gold value-transition">
+        <Reveal>
+          <div className="value-transition__text rise">
+            Yet, so many businesses<br />treat design as an afterthought<br />instead of the powerhouse<br />that it really is.
+          </div>
+          <div className="value-transition__text rise" style={{ transitionDelay: '0.1s' }}>
+            Here&apos;s why design deserves<br />a front-row seat<br />in your marketing strategy.
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 5 · Pillar 01 title */}
+      <section id="value-01" className="vband vband--green value-ptitle">
+        <Reveal>
+          <div className="value-ptitle__num rise">01</div>
+          <div className="value-ptitle__head rise" style={{ transitionDelay: '0.08s' }}>
+            First Impressions<br />Are Everything
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 6 · Pillar 01 dramatic callout */}
+      <section className="vband vband--dark-green value-callout">
+        <Reveal>
+          <span className="value-callout__icon rise"><Timer /></span>
+          <div className="value-callout__pre rise" style={{ transitionDelay: '0.06s' }}>You have about</div>
+          <div className="value-callout__big rise" style={{ transitionDelay: '0.12s' }}>0.05 seconds</div>
+          <div className="value-callout__post rise" style={{ transitionDelay: '0.18s' }}>to make an impression online.</div>
+        </Reveal>
+      </section>
+
+      {/* 7 + 8 · Pillar 01 sub-callout + stats */}
+      <section className="vband vband--pink value-statband">
+        <Reveal>
+          <div className="value-subcallout rise">
+            If your design is cluttered, outdated, or just plain unappealing you&apos;re losing potential customers before they even give you a chance.
+          </div>
+        </Reveal>
+        <Reveal className="value-stats">
+          <div className="value-stat rise rise--scale">
+            <div className="value-stat__value value-stat__value--coral">75%</div>
+            <p className="value-stat__desc">of website credibility comes from design. If your site looks unprofessional, people won&apos;t trust your business.</p>
+          </div>
+          <div className="value-stat rise rise--scale" style={{ transitionDelay: '0.1s' }}>
+            <div className="value-stat__value value-stat__value--coral">42%</div>
+            <p className="value-stat__desc">of users leave a website because of poor functionality. Even the best product in the world won&apos;t sell if users struggle to navigate your site.</p>
+          </div>
+          <div className="value-stat rise rise--scale" style={{ transitionDelay: '0.2s' }}>
+            <div className="value-stat__value value-stat__value--coral">50%</div>
+            <p className="value-stat__desc">of consumers believe website design is crucial to a business&apos;s brand. It&apos;s not just about looks—it&apos;s about perception.</p>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 9 · Pillar 02 title */}
+      <section id="value-02" className="vband vband--lavender value-ptitle">
+        <Reveal>
+          <div className="value-ptitle__num rise">02</div>
+          <div className="value-ptitle__head rise" style={{ transitionDelay: '0.08s' }}>
+            Good Design =<br />More Conversions
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 10 · Pillar 02 intro */}
+      <section className="vband vband--lavender value-pintro">
+        <Reveal>
+          <div className="value-pintro__text rise">
+            Want more leads, sign-ups, and sales?<br />Design can get you there.
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 11 · Pillar 02 stats */}
+      <section className="vband vband--pink value-statband value-statband--flush">
+        <Reveal className="value-stats">
+          <div className="value-stat rise rise--scale">
+            <div className="value-stat__value value-stat__value--coral">200%</div>
+            <div className="value-stat__label">conversion rates</div>
+            <p className="value-stat__desc">Strong UI/UX design can increase conversion rates by up to 200%. That means a well-thought-out, user-friendly design could literally double your results.</p>
+          </div>
+          <div className="value-stat rise rise--scale" style={{ transitionDelay: '0.1s' }}>
+            <div className="value-stat__value value-stat__value--coral">60%</div>
+            <div className="value-stat__label">of consumers</div>
+            <p className="value-stat__desc">avoid brands with unattractive logos—even if they have great reviews. Looks do matter when it comes to credibility.</p>
+          </div>
+          <div className="value-stat rise rise--scale" style={{ transitionDelay: '0.2s' }}>
+            <div className="value-stat__value value-stat__value--coral">32%</div>
+            <div className="value-stat__label">more revenue</div>
+            <p className="value-stat__desc">Businesses that embrace design generate 32% more revenue and 56% higher shareholder returns. This isn&apos;t a nice-to-have—it&apos;s a must-have for growth.</p>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 12 · Pillar 03 title */}
+      <section id="value-03" className="vband vband--blue value-ptitle">
+        <Reveal>
+          <div className="value-ptitle__num rise">03</div>
+          <div className="value-ptitle__head rise" style={{ transitionDelay: '0.08s' }}>
+            People Crave<br />Visually Appealing Content
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 13 · Pillar 03 intro */}
+      <section className="vband vband--blue value-pintro">
+        <Reveal>
+          <div className="value-pintro__text rise">Humans are visual creatures.<br />We process images</div>
+          <div className="value-pintro__big rise" style={{ transitionDelay: '0.08s' }}>60,000x</div>
+          <div className="value-pintro__text rise" style={{ transitionDelay: '0.12s' }}>faster than text,</div>
+          <div className="value-pintro__note rise" style={{ transitionDelay: '0.18s' }}>
+            so if you&apos;re relying on just words to tell your story, you&apos;re missing out.
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 14 · Pillar 03 stats */}
+      <section className="vband vband--gold value-statband value-statband--flush">
+        <Reveal className="value-stats value-stats--two">
+          <div className="value-stat rise rise--scale">
+            <span className="value-stat__icon"><PieChart /></span>
+            <div className="value-stat__value">61%</div>
+            <p className="value-stat__desc">of marketers believe visuals are the key to a successful campaign.</p>
+          </div>
+          <div className="value-stat rise rise--scale" style={{ transitionDelay: '0.1s' }}>
+            <div className="value-stat__value">Abandon</div>
+            <p className="value-stat__desc">Users will leave a website if they have a bad experience with how it looks. If your visuals aren&apos;t drawing people in, they&apos;re pushing them away.</p>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 15 · Pillar 04 title */}
+      <section id="value-04" className="vband vband--gold value-ptitle">
+        <Reveal>
+          <div className="value-ptitle__num rise">04</div>
+          <div className="value-ptitle__head rise" style={{ transitionDelay: '0.08s' }}>
+            Design is a<br />Business Essential
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 16 · Pillar 04 intro (coral) */}
+      <section className="vband vband--coral value-pintro value-pintro--full">
+        <Reveal>
+          <div className="value-pintro__text rise">
+            Want more leads, sign-ups, and sales?<br />Design can get you there.
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 17 · Pillar 04 stats */}
+      <section className="vband vband--gold value-statband value-statband--flush">
+        <Reveal className="value-stats value-stats--two">
+          <div className="value-stat rise rise--scale">
+            <span className="value-stat__icon"><Eye /></span>
+            <div className="value-stat__value">61%</div>
+            <p className="value-stat__desc">of marketers believe visuals are the key to a successful campaign. Users will leave a website if they have a bad experience with how it looks. If your visuals aren&apos;t drawing people in, they&apos;re pushing them away.</p>
+          </div>
+          <div className="value-stat rise rise--scale" style={{ transitionDelay: '0.1s' }}>
+            <span className="value-stat__icon"><Crown /></span>
+            <div className="value-stat__value">50%</div>
+            <p className="value-stat__desc">of consumers believe website design is crucial to a business&apos;s brand. It&apos;s not just about looks—it&apos;s about perception.</p>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 18 · Pre-CTA */}
+      <section className="vband vband--salmon value-precta">
+        <Reveal>
+          <div className="value-precta__text rise">
+            Whether you need a fresh new look, a website that wows, or branding that speaks to your audience, we&apos;ve got you covered.
+          </div>
+        </Reveal>
+      </section>
+
+      {/* 19 · Final CTA */}
+      <section className="vband vband--coral value-cta">
+        <Reveal>
+          <div className="value-cta__head rise">Ready to see what great design can do for you?</div>
+          <div className="value-cta__sub rise" style={{ transitionDelay: '0.08s' }}>Let&apos;s make something amazing together.</div>
+          <div className="value-cta__btn rise" style={{ transitionDelay: '0.16s' }}>
+            <Button href="/contact" variant="inverse" size="lg">Let&apos;s Talk</Button>
+          </div>
+        </Reveal>
       </section>
     </>
   );

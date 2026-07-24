@@ -1,10 +1,22 @@
-/* ─── Value of Design page — layout + scroll-motion ──────────
-   Motion is CSS-only; the `.rise` primitives are toggled by the
-   <Reveal> IntersectionObserver wrapper (src/components/ui/Reveal.tsx).
-   Colour-coding: each pillar band is tinted with its service line's
-   pale `surfaceLight` ramp (set inline via serviceColor().surfaceLight)
-   under `.service-surface`, which pins body copy dark on the fixed-light
-   tint in both themes (globals.css). ─────────────────────────── */
+/* ─── Value of Design — full-bleed colour-band layout ────────
+   Ported 1:1 from the approved Paper build (file 01KNEV2…). Each section is a
+   full-bleed colour band; the page reads as a vertical sequence of bands with a
+   title → callout → stats rhythm per pillar.
+
+   COLOUR MAPPING (approved palette → BDS tokens, kept literal per sign-off):
+     coral      → --color-poppy-light      (brand primary base)
+     salmon     → --color-poppy-lighter    (light accent)
+     pink       → --color-poppy-lightest   (nearest token to source #FFDCDC)
+     green      → --color-green-dark
+     dark-green → --color-green-darkest
+     gold       → --color-yellow-light
+     lavender   → --color-purple-lighter
+     blue       → --color-blue-light
+   Band text uses the theme-fixed on-colour tokens (--text-on-color-light/-dark)
+   so copy stays legible on every fixed band in both light and dark themes.
+
+   Motion is CSS-only; `.rise` primitives are toggled by the <Reveal>
+   IntersectionObserver wrapper (src/components/ui/Reveal.tsx). */
 
 /* ─── Scroll-reveal primitives ─────────────────────────────── */
 
@@ -35,163 +47,458 @@
   }
 }
 
-/* ─── Hero + pillar navigator ──────────────────────────────── */
+/* ─── Band system ──────────────────────────────────────────── */
 
-.value-hero {
+.vband {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Fixed-colour bands (primitives = exact palette match). Text pinned to the
+   theme-fixed on-colour tokens. */
+.vband--coral {
+  background-color: var(--color-poppy-light); /* bds-lint-ignore token-family — brand poppy band, exact approved-palette match */
+  color: var(--text-on-color-dark);
+}
+.vband--green {
+  background-color: var(--color-green-dark); /* bds-lint-ignore token-family — approved-palette band */
+  color: var(--text-on-color-light);
+}
+.vband--dark-green {
+  background-color: var(--color-green-darkest); /* bds-lint-ignore token-family — approved-palette band */
+  color: var(--text-on-color-dark);
+}
+.vband--gold {
+  background-color: var(--color-yellow-light); /* bds-lint-ignore token-family — approved-palette band */
+  color: var(--text-on-color-light);
+}
+.vband--lavender {
+  background-color: var(--color-purple-lighter); /* bds-lint-ignore token-family — approved-palette band */
+  color: var(--text-on-color-light);
+}
+.vband--blue {
+  background-color: var(--color-blue-light); /* bds-lint-ignore token-family — approved-palette band */
+  color: var(--text-on-color-light);
+}
+.vband--pink {
+  background-color: var(--color-poppy-lightest); /* bds-lint-ignore token-family — nearest token to source #FFDCDC */
+  color: var(--text-on-color-light);
+}
+.vband--salmon {
+  background-color: var(--color-poppy-lighter); /* bds-lint-ignore token-family — approved-palette band */
+  color: var(--text-on-color-light);
+}
+
+/* Shared display type */
+.v-display {
+  font-family: var(--font-family-heading);
+  font-weight: 800;
+}
+.v-heading {
+  font-family: var(--font-family-heading);
+  font-weight: 700;
+}
+
+/* ─── Hero ─────────────────────────────────────────────────── */
+
+.value-hero {
+  align-items: center;
   justify-content: center;
+  gap: 16px;
+  min-height: 760px;
+  padding: 120px 80px;
+  text-align: center;
+}
+.value-hero__title {
+  font-family: var(--font-family-heading);
+  font-weight: 800;
+  font-size: 132px;
+  line-height: 110px;
+}
+.value-hero__sub {
+  font-family: var(--font-family-heading);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 40px;
 }
 
-.value-hero__intro {
-  max-width: 720px;
-}
+/* ─── Pillar-nav cards ─────────────────────────────────────── */
 
-/* Four colour-coded jump-link cards */
-.value-toc {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--gap-lg);
-  margin-top: var(--gap-xl);
+.value-cards {
+  align-items: center;
+  padding: 0 80px 120px 80px;
+}
+.value-cards__row {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 32px;
   width: 100%;
 }
-
-.value-toc__card {
-  /* Fixed-light service tint (mode-invariant) → pin card text dark in both
-     themes, mirroring the `.service-surface` section pin. */
-  --text-primary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — dark heading/label on the fixed-light service tint; same fixed-on-light pattern as .service-surface (globals.css) */
-  --text-secondary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above */
+.value-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--gap-md);
-  min-height: 260px;
-  padding: var(--padding-lg);
+  justify-content: space-between;
+  gap: 24px;
+  flex: 1 1 0;
+  width: 0;
+  min-height: 400px;
+  padding: 36px 32px;
   border-radius: var(--border-radius-md);
+  color: var(--text-on-color-light);
   text-decoration: none;
-  color: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — dark ink on the fixed-light tint */
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease;
 }
-
-.value-toc__card:hover {
+.value-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--box-shadow-md);
 }
-
-.value-toc__icon {
-  font-size: 2.75rem;
+.value-card--green {
+  background-color: var(--color-green-dark); /* bds-lint-ignore token-family — approved-palette card */
 }
-
-.value-toc__number {
+.value-card--purple {
+  background-color: var(--color-purple-lighter); /* bds-lint-ignore token-family — approved-palette card */
+}
+.value-card--blue {
+  background-color: var(--color-blue-light); /* bds-lint-ignore token-family — approved-palette card */
+}
+.value-card--gold {
+  background-color: var(--color-yellow-light); /* bds-lint-ignore token-family — approved-palette card */
+}
+.value-card__icon {
+  width: 56px;
+  height: 56px;
+  color: var(--text-on-color-light);
+}
+.value-card__number {
   font-family: var(--font-family-heading);
-  font-size: var(--heading-huge);
+  font-weight: 800;
+  font-size: 64px;
+  line-height: 60px;
+}
+.value-card__title {
+  font-family: var(--font-family-heading);
   font-weight: 700;
-  line-height: var(--font-line-height-tight);
+  font-size: 22px;
+  line-height: 28px;
+}
+.value-card__view {
+  background-color: var(--color-poppy-light); /* bds-lint-ignore token-family — coral action chip on the card */
+  color: var(--text-on-color-light);
+  border-radius: var(--border-radius-sm);
+  padding: 12px 28px;
+  font-family: var(--font-family-label);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
 }
 
-.value-toc__title {
-  display: block;
+/* ─── Editorial "Let's Be Real" ────────────────────────────── */
+
+.value-editorial {
+  align-items: flex-start;
+  gap: 8px;
+  padding: 140px 80px 140px 360px;
+}
+.value-editorial__eyebrow {
+  font-family: var(--font-family-label);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 32px;
+  margin-bottom: 16px;
+}
+.value-editorial__line {
+  font-family: var(--font-family-heading);
+  font-weight: 700;
+  font-size: 46px;
+  line-height: 56px;
+}
+.value-editorial__line--spaced {
+  margin-top: 24px;
+}
+.value-editorial__line--ink {
+  margin-top: 24px;
+  color: var(--color-poppy-darkest); /* bds-lint-ignore token-family — deep poppy ink for the second editorial group */
 }
 
-.value-toc__view {
-  margin-top: auto;
-  color: var(--text-brand-primary);
+/* ─── Gold transition ──────────────────────────────────────── */
+
+.value-transition {
+  align-items: flex-start;
+  gap: 32px;
+  padding: 140px 80px 140px 360px;
+}
+.value-transition__text {
+  font-family: var(--font-family-heading);
+  font-weight: 700;
+  font-size: 42px;
+  line-height: 52px;
 }
 
-/* ─── Editorial reveal band ────────────────────────────────── */
+/* ─── Pillar title ─────────────────────────────────────────── */
 
-.value-editorial__lede {
-  margin: var(--gap-sm) 0;
+.value-ptitle {
+  align-items: flex-start;
+  gap: 8px;
+  padding: 120px 80px;
+}
+.value-ptitle__num {
+  font-family: var(--font-family-heading);
+  font-weight: 800;
+  font-size: 130px;
+  line-height: 130px;
+}
+.value-ptitle__head {
+  font-family: var(--font-family-heading);
+  font-weight: 700;
+  font-size: 60px;
+  line-height: 66px;
 }
 
-/* ─── Colour-coded pillars ─────────────────────────────────── */
+/* ─── Pillar intro (centred) ───────────────────────────────── */
 
-.value-pillar__header {
-  display: flex;
+.value-pintro {
   align-items: center;
-  gap: var(--gap-lg);
-  margin-bottom: var(--gap-md);
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 80px 130px 80px;
+  text-align: center;
 }
-
-.value-pillar__number {
+.value-pintro--full {
+  padding: 120px 80px;
+}
+.value-pintro__text {
   font-family: var(--font-family-heading);
-  font-size: var(--heading-huge);
   font-weight: 700;
-  line-height: 0.85;
+  font-size: 40px;
+  line-height: 52px;
+}
+.value-pintro__big {
+  font-family: var(--font-family-heading);
+  font-weight: 800;
+  font-size: 88px;
+  line-height: 96px;
+}
+.value-pintro__note {
+  font-family: var(--font-family-body);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 34px;
+  margin-top: 16px;
+  max-width: 900px;
 }
 
-.value-pillar__heading-group {
+/* ─── Pillar 01 dramatic callout (dark green) ──────────────── */
+
+.value-callout {
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 140px 80px;
+  text-align: center;
+}
+.value-callout__icon {
+  width: 72px;
+  height: 72px;
+  color: var(--color-poppy-lighter); /* bds-lint-ignore token-family — salmon accent, ≥AA-large on the dark-green band */
+}
+.value-callout__pre,
+.value-callout__post {
+  font-family: var(--font-family-heading);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 40px;
+}
+.value-callout__big {
+  font-family: var(--font-family-heading);
+  font-weight: 800;
+  font-size: 104px;
+  line-height: 104px;
+  color: var(--color-poppy-lighter); /* bds-lint-ignore token-family — salmon accent, ≥AA-large on the dark-green band */
+}
+
+/* ─── Sub-callout + stats ──────────────────────────────────── */
+
+.value-statband {
+  align-items: center;
+  gap: 90px;
+  padding: 130px 80px;
+}
+.value-statband--flush {
+  gap: 0;
+}
+.value-subcallout {
+  font-family: var(--font-family-heading);
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 48px;
+  text-align: center;
+  max-width: 1040px;
+}
+.value-stats {
   display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
-.value-pillar__icon {
-  font-size: 2rem;
-}
-
-.value-pillar__intro {
-  max-width: 720px;
-}
-
-/* ─── Stat blocks (open on the tint — no own surface) ────────
-   Kept fill-less so the `.service-surface` dark-text pin applies cleanly
-   in both themes; a nested `--surface-primary` fill would read dark-on-dark
-   in dark mode (the case globals.css guards for BDS cards, not custom divs). */
-
-.value-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--gap-lg);
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 48px;
   width: 100%;
-  margin-top: var(--gap-xl);
 }
-
-.value-stat-card {
+.value-stats--two {
+  gap: 64px;
+}
+.value-stat {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-sm);
-  padding: var(--padding-md) 0 var(--padding-md) var(--padding-md);
-  border-left: 3px solid currentColor;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1 1 0;
+  width: 0;
+}
+.value-stat__icon {
+  width: 52px;
+  height: 52px;
+  color: var(--text-on-color-light);
+}
+.value-stat__value {
+  font-family: var(--font-family-heading);
+  font-weight: 800;
+  font-size: 72px;
+  line-height: 76px;
+}
+.value-stat__value--coral {
+  /* Fixed coral (not theme-aware --text-brand-primary) — the pink band is a
+     fixed-light colour in both themes, so the accent must stay fixed too, else
+     it flips to a low-contrast salmon in dark mode. */
+  color: var(--color-poppy-light); /* bds-lint-ignore token-family — fixed coral accent on the fixed-light pink band */
+}
+.value-stat__label {
+  font-family: var(--font-family-heading);
+  font-weight: 600;
+  font-size: 22px;
+  line-height: 30px;
+  margin-bottom: 8px;
+}
+.value-stat__desc {
+  font-family: var(--font-family-body);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 28px;
 }
 
-.value-stat-value {
+/* ─── Pre-CTA + final CTA ──────────────────────────────────── */
+
+.value-precta {
+  align-items: center;
+  justify-content: center;
+  padding: 130px 80px;
+  text-align: center;
+}
+.value-precta__text {
   font-family: var(--font-family-heading);
-  font-size: var(--heading-xl);
   font-weight: 700;
-  line-height: var(--font-line-height-tight);
+  font-size: 40px;
+  line-height: 52px;
+  max-width: 1080px;
+}
+.value-cta {
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 150px 80px;
+  text-align: center;
+}
+.value-cta__head {
+  font-family: var(--font-family-heading);
+  font-weight: 800;
+  font-size: 52px;
+  line-height: 60px;
+  max-width: 1000px;
+}
+.value-cta__sub {
+  font-family: var(--font-family-body);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 34px;
+}
+.value-cta__btn {
+  margin-top: 16px;
 }
 
 /* ─── Responsive ───────────────────────────────────────────── */
 
 @media (max-width: 991px) {
-  .value-toc {
-    grid-template-columns: 1fr 1fr;
+  .value-hero__title {
+    font-size: 92px;
+    line-height: 84px;
   }
-
-  .value-stats-grid {
-    grid-template-columns: 1fr 1fr;
+  .value-cards__row {
+    flex-wrap: wrap;
+  }
+  .value-card {
+    flex: 1 1 40%;
+    min-height: 320px;
+  }
+  .value-editorial,
+  .value-transition {
+    padding-left: 80px;
+  }
+  .value-ptitle__num {
+    font-size: 96px;
+    line-height: 96px;
+  }
+  .value-ptitle__head,
+  .value-editorial__line,
+  .value-transition__text,
+  .value-pintro__text,
+  .value-precta__text {
+    font-size: 34px;
+    line-height: 44px;
+  }
+  .value-callout__big {
+    font-size: 76px;
+    line-height: 76px;
   }
 }
 
 @media (max-width: 767px) {
-  .value-toc {
-    grid-template-columns: 1fr;
+  .vband {
+    padding-left: 28px;
+    padding-right: 28px;
   }
-
-  .value-toc__card {
+  .value-hero {
+    min-height: 520px;
+    padding: 80px 28px;
+  }
+  .value-hero__title {
+    font-size: 64px;
+    line-height: 60px;
+  }
+  .value-editorial,
+  .value-transition,
+  .value-ptitle,
+  .value-callout,
+  .value-statband,
+  .value-precta,
+  .value-cta,
+  .value-pintro {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+  .value-card {
+    flex: 1 1 100%;
+    width: 100%;
     min-height: auto;
   }
-
-  .value-stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .value-pillar__header {
+  .value-stats,
+  .value-stats--two {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--gap-sm);
+    gap: 40px;
+  }
+  .value-stat {
+    width: 100%;
   }
 }
