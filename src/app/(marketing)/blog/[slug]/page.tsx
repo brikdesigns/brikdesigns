@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Icon } from '@/lib/icon';
 import {
-  Breadcrumb,
   Button,
   Card,
   CardDescription,
@@ -14,6 +13,7 @@ import {
   LinkButton,
   ServiceTag,
 } from '@brikdesigns/bds';
+import { BackLink } from '@/components/ui/BackLink';
 import { getPostBySlug, getRelatedPosts } from '@/lib/blog';
 import { getServiceCategories, getRelatedServicesForPost, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
@@ -68,13 +68,9 @@ export default async function BlogPostPage({ params }: Props) {
     <>
       <section className="page-section">
         <div className="container-lg container-lg--post">
-          <Breadcrumb
-            style={{ marginBottom: gap.md, flexWrap: 'wrap' }}
-            items={[
-              { label: 'Blog', href: '/blog' },
-              { label: meta.title },
-            ]}
-          />
+          <BackLink href="/blog" style={{ marginBottom: gap.md }}>
+            Blog
+          </BackLink>
 
           <h1 style={heading.lg}>{meta.title}</h1>
 
