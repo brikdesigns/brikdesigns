@@ -396,7 +396,11 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="pricing"
           title="Pricing Options"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
+          // `--service-price-ink`: tie the tier price to the service line's ink
+          // (BACKLOG-938). On the white `-inverse` card the `-on-light` dark ink
+          // reads as the line colour; dark mode reverts to the default light
+          // text via the card-chrome nested-card carve-out (see shared-sections).
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text, '--service-price-ink': serviceTokens.text } as React.CSSProperties}
         >
           {/* gap="md" matches the index 3-col grids (detail-page grids were the
               lone gap="lg" outliers). #674 / BACKLOG-415 */}
