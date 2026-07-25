@@ -21,6 +21,51 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* ─── Service-line tint (#729) ──────────────────────────────────────
+   On a /services/{line} page the sticky nav adopts that line's darkest
+   surface. `--service` carries the line-agnostic ink + border inversion;
+   the per-line class below sets only the background. White ink clears AA
+   on any --surface-service-*-dark (e.g. 8:1 on marketing's --color-green-
+   darkest #2a5542). Marketing-first pilot — add the other four lines'
+   background rules here (+ NAV_TINT_LINES in MegaNav.tsx) once each dark
+   surface is AA-verified. The open dropdown panels are NOT tinted; they
+   keep --surface-primary. Same values apply in light + dark themes. */
+.mega-nav--service-marketing {
+  background-color: var(--surface-service-marketing-dark);
+}
+
+.mega-nav--service .mega-nav__utility-icon-wrap,
+.mega-nav--service .mega-nav__utility-label,
+.mega-nav--service .mega-nav__utility-link,
+.mega-nav--service .mega-nav__main,
+.mega-nav--service .mega-nav__logo,
+.mega-nav--service .mega-nav__toggle,
+.mega-nav--service .mega-nav__chevron {
+  color: var(--text-on-color-dark);
+}
+
+.mega-nav--service .mega-nav__utility,
+.mega-nav--service .mega-nav__utility-group + .mega-nav__utility-group,
+.mega-nav--service .mega-nav__utility-toggle {
+  border-color: var(--border-on-color-dark);
+}
+
+/* Hover/active feedback comes from opacity — the brand-poppy ink used off
+   the tint fails AA on the dark surface, so the ink stays white. */
+.mega-nav--service .mega-nav__toggle:hover,
+.mega-nav--service .mega-nav__toggle--active,
+.mega-nav--service .mega-nav__utility-link:hover {
+  color: var(--text-on-color-dark);
+  opacity: 0.85;
+}
+
+/* Mobile hamburger bars track the inverted ink. */
+.mega-nav--service .mega-nav__hamburger,
+.mega-nav--service .mega-nav__hamburger::before,
+.mega-nav--service .mega-nav__hamburger::after {
+  background: var(--text-on-color-dark); /* bds-lint-ignore token-family — hamburger bar tracks text color so it stays visible on the tinted nav; same rationale as the base .mega-nav__hamburger rule */
+}
+
 /* Override BDS button hover effects inside nav — filter/transform cause visual jitter */
 .mega-nav .bds-button:hover:not(:disabled) {
   filter: none;
