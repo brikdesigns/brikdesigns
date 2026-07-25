@@ -199,7 +199,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   the plan line identity. Matches the service-detail inverse-card
                   convention (#645). (BRIK-WEB) */}
               <Card variant="outlined" padding="lg" className="service-card--flat" style={{ backgroundColor: supportPlanServiceLineColors.inverse }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.lg, textAlign: 'center', height: '100%' }}>
                   {supportPlanServiceLine.card_image_url && (
                     <div className="service-detail-support-cta__media">
                       <Image
