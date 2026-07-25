@@ -144,7 +144,10 @@ export default async function CustomerDetailPage({ params }: Props) {
             </div>
             {page.image_url && (
               <div className="customer-detail-hero__aside">
-                <div className="customer-detail-hero__media">
+                {/* data-industry keys the per-page hero-illustration motion in
+                   customers.css (e.g. small-business neon blink, dental bounce
+                   — 966/968, #739). */}
+                <div className="customer-detail-hero__media" data-industry={slug}>
                   <Image
                     src={page.image_url}
                     alt={page.name}
