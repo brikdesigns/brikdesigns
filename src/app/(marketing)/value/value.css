@@ -15,37 +15,9 @@
    Band text uses the theme-fixed on-colour tokens (--text-on-color-light/-dark)
    so copy stays legible on every fixed band in both light and dark themes.
 
-   Motion is CSS-only; `.rise` primitives are toggled by the <Reveal>
-   IntersectionObserver wrapper (src/components/ui/Reveal.tsx). */
-
-/* ─── Scroll-reveal primitives ─────────────────────────────── */
-
-.rise {
-  opacity: 0;
-  transform: translateY(28px);
-  transition:
-    opacity 0.6s ease,
-    transform 0.7s cubic-bezier(0.22, 0.68, 0.24, 1);
-  will-change: opacity, transform;
-}
-
-.rise--scale {
-  transform: translateY(28px) scale(0.96);
-}
-
-.reveal.is-visible .rise {
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .rise,
-  .rise--scale {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
+   Section entrance motion is handled site-wide by <ScrollReveal> (marketing
+   layout) via the `.scroll-reveal` classes — this sheet is layout + colour
+   only, no per-page motion. */
 
 /* ─── Band system ──────────────────────────────────────────── */
 
