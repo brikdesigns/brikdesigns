@@ -173,6 +173,40 @@
   background-color: var(--surface-accent);
 }
 
+/* ─── Per-page hero-illustration motion (966/968, #739) ─────────
+ * Keyed off `data-industry` on the media box (set in [slug]/page.tsx). The
+ * size reduction is static — it holds even under reduced-motion; only the
+ * blink/bounce animations sit behind `prefers-reduced-motion: no-preference`.
+ * Animations run on the <img> (transform/opacity) so the accent frame stays
+ * put. */
+
+/* 966 — small-business neon "OPEN" sign reads smaller within its frame. */
+.customer-detail-hero__media[data-industry="small-business"] img {
+  transform: scale(0.8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* 966 — neon-sign flicker: mostly lit, occasional brief dropouts. */
+  .customer-detail-hero__media[data-industry="small-business"] img {
+    animation: neon-blink 4s infinite;
+  }
+
+  /* 968 — dental toothbrush: gentle vertical bounce. */
+  .customer-detail-hero__media[data-industry="dental"] img {
+    animation: toothbrush-bounce 2s ease-in-out infinite;
+  }
+}
+
+@keyframes neon-blink {
+  0%, 87%, 91%, 95%, 100% { opacity: 1; }
+  89%, 93% { opacity: 0.3; }
+}
+
+@keyframes toothbrush-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
 /* Topic grid — 4 equal columns inside container-lg (1280 max-width).
  * Col 1 = topic content (number/title/description/optional image).
  * Cols 2–4 = up to 3 service card slots. Empty slots render as
