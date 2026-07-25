@@ -97,6 +97,23 @@
   width: 100%;
 }
 
+/* ─── Product hero-illustration motion (961, #733) ─────────────
+ * Keyed off `data-audience="product"` on the `.service-themed` page root
+ * (set in [serviceLineSlug]/page.tsx). Mirrors the customer-hero motion
+ * precedent (#739): a gentle continuous float behind
+ * `prefers-reduced-motion: no-preference`. Animation runs on the <img>
+ * (transform only) so the rounded media frame stays put. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-audience="product"] .service-detail-hero__media img {
+    animation: product-hero-float 4s ease-in-out infinite;
+  }
+}
+
+@keyframes product-hero-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
 /* Offerings — default vertical, grid for 3+ */
 .service-detail-offerings {
   display: flex;
