@@ -466,51 +466,98 @@ export default async function ServiceDetailPage({ params }: Props) {
        * "whole card is the link" anti-pattern that prior agents shipped via
        * #105/#107 (asymmetric with the sibling Add-On block in the same file).
        */}
-      {relatedStory && (
+      {/* Related customer stories — count-driven (BACKLOG-939 / #730):
+          0 → section omitted; 1 → focal horizontal row-card; 2–3 → browse grid.
+          getStoriesByService() already returns up to 3 (rank-ordered), so this is
+          purely a render branch. */}
+      {relatedStories.length > 0 && (
         <CardGrid
           sectionKey="story"
-          title="Related Customer Story"
+          title={relatedStories.length === 1 ? 'Related Customer Story' : 'Related Customer Stories'}
           className="service-themed service-surface"
           style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
-          {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
-              row-card contained on the service-tint band — white in light (== the
-              former surface-primary fill, #427/#360), `{hue}-darkest` in dark so
-              the card carries the line identity against the lighter band. (BRIK-WEB)
-              brik-bds#1146 (BDS 0.132) dropped the cast shadow from `elevated`;
-              `.service-row-card` (shared-sections.css) restores it site-side per
-              the on-tint focal-card standard. BACKLOG-895 */}
-          <Card variant="elevated" padding="lg" className="service-row-card" style={{ backgroundColor: serviceTokens.inverse }}>
-            <Stack direction="horizontal" gap="lg" align="center">
-              {relatedStory.hero_image_url && (
-                <div style={{ flex: '0 0 40%' }}>
-                  <Frame customRatio="3 / 2" fit="cover">
-                    <Image
-                      src={relatedStory.hero_image_url}
-                      alt={relatedStory.name || relatedStory.client_name}
-                      width={400}
-                      height={267}
-                    />
-                  </Frame>
-                </div>
-              )}
-              <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
-                <CardTitle>{relatedStory.name || relatedStory.client_name}</CardTitle>
-                {relatedStory.short_description && (
-                  <CardDescription>{relatedStory.short_description}</CardDescription>
+          {relatedStory && relatedStories.length === 1 && (
+            /* Single focal story. elevated (not borderless): shadow + service
+                `-inverse` fill keeps the row-card contained on the service-tint
+                band — white in light (== the former surface-primary fill,
+                #427/#360), `{hue}-darkest` in dark so the card carries the line
+                identity against the lighter band. brik-bds#1146 (BDS 0.132)
+                dropped the cast shadow from `elevated`; `.service-row-card`
+                (shared-sections.css) restores it site-side per the on-tint
+                focal-card standard. BACKLOG-895 */
+            <Card variant="elevated" padding="lg" className="service-row-card" style={{ backgroundColor: serviceTokens.inverse }}>
+              <Stack direction="horizontal" gap="lg" align="center">
+                {relatedStory.hero_image_url && (
+                  <div style={{ flex: '0 0 40%' }}>
+                    <Frame customRatio="3 / 2" fit="cover">
+                      <Image
+                        src={relatedStory.hero_image_url}
+                        alt={relatedStory.name || relatedStory.client_name}
+                        width={400}
+                        height={267}
+                      />
+                    </Frame>
+                  </div>
                 )}
-                <CardFooter>
-                  <Button
-                    href={`/customer-stories/${relatedStory.slug}`}
-                    variant="primary"
-                    size="md"
-                  >
-                    Read Story
-                  </Button>
-                </CardFooter>
+                <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
+                  <CardTitle>{relatedStory.name || relatedStory.client_name}</CardTitle>
+                  {relatedStory.short_description && (
+                    <CardDescription>{relatedStory.short_description}</CardDescription>
+                  )}
+                  <CardFooter>
+                    <Button
+                      href={`/customer-stories/${relatedStory.slug}`}
+                      variant="primary"
+                      size="md"
+                    >
+                      Read Story
+                    </Button>
+                  </CardFooter>
+                </Stack>
               </Stack>
-            </Stack>
-          </Card>
+            </Card>
+          )}
+          {relatedStories.length > 1 && (
+            /* 2–3 stories → browse grid. Mirrors the same-page "Other {line}
+                Services" grid (`.service-sibling-card`, preset display, `-inverse`
+                fill) so both grids on this template read as one family on the
+                service tint. Browse grid of peers → flat per card-chrome-on-tint. */
+            <Grid columns={3} gap="lg">
+              {relatedStories.map((story) => (
+                <Card
+                  key={story.slug}
+                  preset="display"
+                  variant="elevated"
+                  className="service-sibling-card"
+                  style={{ backgroundColor: serviceTokens.inverse }}
+                  image={
+                    story.hero_image_url ? (
+                      <Frame customRatio="3 / 2" fit="cover">
+                        <Image
+                          src={story.hero_image_url}
+                          alt={story.name || story.client_name}
+                          width={400}
+                          height={267}
+                        />
+                      </Frame>
+                    ) : undefined
+                  }
+                  title={story.name || story.client_name}
+                  description={story.short_description || undefined}
+                  action={
+                    <Button
+                      href={`/customer-stories/${story.slug}`}
+                      variant="primary"
+                      size="md"
+                    >
+                      Read Story
+                    </Button>
+                  }
+                />
+              ))}
+            </Grid>
+          )}
         </CardGrid>
       )}
 
