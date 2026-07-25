@@ -179,7 +179,9 @@
 }
 .value-editorial__eyebrow {
   font-family: var(--font-family-label);
-  font-weight: 600;
+  /* 700 + 20px qualifies as WCAG "large text" so the white-on-coral eyebrow
+     clears the 3:1 large threshold (3.78:1) rather than failing 4.5:1. */
+  font-weight: 700;
   font-size: 20px;
   line-height: 32px;
   margin-bottom: 16px;

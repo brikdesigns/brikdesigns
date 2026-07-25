@@ -266,7 +266,7 @@ export default function ValuePage() {
         <div className="value-cta__head">Ready to see what great design can do for you?</div>
         <div className="value-cta__sub">Let&apos;s make something amazing together.</div>
         <div className="value-cta__btn">
-          <Button href="/contact" variant="inverse" size="lg">Let&apos;s Talk</Button>
+          <Button href="/contact" variant="on-color" size="lg">Let&apos;s Talk</Button>
         </div>
       </section>
     </>
