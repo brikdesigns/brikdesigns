@@ -1,10 +1,16 @@
 ---
 name: Service-data source-of-truth inventory
 description: Per-surface map of which Supabase table/columns and which query layer drive each `/services/*` surface — meganav, /services index, category landings, detail pages, footer service links, related-services blocks, and ServiceTag color resolution. Sibling to service-url-slug-convention.md.
-last-verified: 2026-05-15
+last-verified: 2026-07-27
 ---
 
 # Service-data source-of-truth inventory
+
+> **Scope / SoT boundary.** This is the marketing-site (brikdesigns.com) **consumption** source-of-truth — how the `/services/*` surfaces read the shared Supabase project. brikdesigns.com and the Brik portal share **one** Supabase project, so this doc is *not* authoritative for the service data model or vocabulary: defer to the portal for those —
+> - **Data model** (catalog spine, `service_lines → services → offerings`, `plans` vs `service_plans`): `brik-client-portal/.claude/references/service-model.md`
+> - **Canonical names / drift**: `brik-client-portal/.claude/references/terminology.md`
+>
+> This doc owns only the surface→data-path routing (which surface reads which table + curated TS array), not table/column meaning. (brikdesigns/brik-llm#1577)
 
 The recurring agent trip this doc closes: each `/services/*` surface pulls from a different combination of tables, query helpers, *and* hand-curated arrays in TS source. Touching one surface routinely breaks another because the implicit fan-out isn't documented. This doc is the inventory — given a surface, find its data path; given a column, find which surfaces it feeds.
 
