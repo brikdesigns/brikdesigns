@@ -112,6 +112,46 @@ function isBaselined(theme: Theme, routePath: string, ruleId: string, selector: 
   return normalizedBaseline[theme][routePath]?.[ruleId]?.has(normalizeSelector(selector)) ?? false;
 }
 
+// ── Accepted brand exception: white CTA label on poppy-light ────────────────
+//
+// A white label on --surface-brand-primary (#e35335) measures 3.78:1. WCAG 1.4.3
+// wants 4.5:1 for text below the large-text cutoff (18.66px bold / 24px regular),
+// so axe files it `color-contrast` / serious. Brik has ACCEPTED this pairing as a
+// standing brand exception rather than darken the CTA fill:
+//
+//   brik-bds tokens/contrast-pairings.json  → policy: brand-primary fills gated
+//                                             AA-large (3:1), brand-kit canon
+//   brik-bds 8f217ea (#1053, BDS-22)        → "Restore vibrant Poppy brand-primary;
+//                                             gate CTA fills at AA-large"
+//
+// The fill was darkened to poppy-dark once for AA and reverted; this is the
+// settled position, not undiscovered debt. Nick's call, 2026-07-27.
+//
+// This is deliberately NOT a baseline.json entry. The baseline is per-route
+// pre-existing debt to burn down; the brand CTA is a component that appears on
+// every marketing page and every page added later, so a per-route list would
+// fail each new route and slowly rot into a rubber stamp.
+//
+// Scope is kept tight on purpose: it matches ONLY a button's own label element
+// whose axe failure names the brand background. Any other low-contrast text —
+// including a different colour on a button, or white on some other fill — still
+// fails. Widen this only with a matching update to the BDS policy above.
+const BRAND_CTA_FILL = '#e35335';
+
+function isAcceptedBrandCtaContrast(finding: {
+  ruleId: string;
+  selector: string;
+  failureSummary: string;
+}): boolean {
+  if (finding.ruleId !== 'color-contrast') return false;
+  if (!finding.selector.trim().endsWith('.bds-button__content')) return false;
+  const summary = finding.failureSummary.toLowerCase();
+  return (
+    summary.includes(`background color: ${BRAND_CTA_FILL}`) &&
+    summary.includes('foreground color: #ffffff')
+  );
+}
+
 // The dark project (`chromium-desktop-dark`) sets colorScheme:'dark'; everything
 // else runs light. Keying off the project name keeps the two baselines distinct.
 function themeFor(projectName: string): Theme {
@@ -201,7 +241,10 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
       ];
 
       const blocking = flatFindings.filter(
-        (f) => BLOCKING_IMPACTS.has(f.impact) && !isBaselined(theme, route.path, f.ruleId, f.selector),
+        (f) =>
+          BLOCKING_IMPACTS.has(f.impact) &&
+          !isBaselined(theme, route.path, f.ruleId, f.selector) &&
+          !isAcceptedBrandCtaContrast(f),
       );
       const baselined = flatFindings.filter(
         (f) => BLOCKING_IMPACTS.has(f.impact) && isBaselined(theme, route.path, f.ruleId, f.selector),
