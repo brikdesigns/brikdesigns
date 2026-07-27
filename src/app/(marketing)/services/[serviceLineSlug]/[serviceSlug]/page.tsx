@@ -202,7 +202,13 @@ export default async function ServiceDetailPage({ params }: Props) {
   // Support plan — a service can belong to multiple plans (1:M plan→service via
   // service_plan_items); we render the highest-ranked one. Replaces the legacy
   // service.support_plan_slug denorm column (#206).
-  const supportPlans = await getSupportPlansByServiceId(service.id).catch(() => []);
+  // The fallback is deliberate — a missing support plan just hides the band —
+  // but it is logged, because an empty result from a query error is otherwise
+  // indistinguishable from a service that genuinely has no plan.
+  const supportPlans = await getSupportPlansByServiceId(service.id).catch((err) => {
+    console.warn(`[service] support-plan query failed for service_id=${service.id} — ${err}. Plan band omitted.`);
+    return [];
+  });
   const supportPlan = supportPlans[0] ?? null;
 
   // Resolve the support plan's *primary* service line for the bottom-CTA
