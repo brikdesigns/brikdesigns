@@ -28,6 +28,17 @@ export function ScrollReveal() {
     )
       // Outermost sections only — nested <section>s ride along with their parent.
       .filter((el) => !el.parentElement?.closest('section'))
+      // Skip tinted-surface bands (service tint / secondary / accent). Fading the
+      // whole coloured band in reads as hacky against the page ground, since the
+      // band's surface differs from the page (BACKLOG-940 / #728). These sections
+      // now appear statically; inner cards/content carry their own motion where
+      // wanted.
+      .filter(
+        (el) =>
+          !el.matches(
+            '.service-surface, .page-section--secondary, .page-section--accent'
+          )
+      )
       // Skip anything already (or nearly) on screen at init so the first paint
       // is untouched; the 0.85 factor matches the observer's -15% bottom margin.
       .filter((el) => el.getBoundingClientRect().top > window.innerHeight * 0.85);

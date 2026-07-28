@@ -263,6 +263,12 @@ html {
        invented-token gate sees them declared. */
     --service-cta-fill-dark: initial;
     --service-cta-ink-dark: initial;
+    /* BACKLOG-938 / #726 — consumer-local handoff var for the pricing tier's
+       price ink. Set per-instance on the pricing grid (to serviceColor().text)
+       and consumed by the `.service-surface .bds-pricing-card__price` rule in
+       shared-sections.css. Declared `initial` so the price falls through to the
+       BDS default and the token-lint invented-token gate sees it declared. */
+    --service-price-ink: initial;
     /* #671 — consumer-local handoff vars for the customer-story Related Services
        band tint. Set per-instance in the customer-story page (serviceColor()
        .surfaceLight / .surfaceDark) and consumed by the `.related-services-band`
@@ -557,6 +563,7 @@ h1, h2, h3, h4, h5, h6 {
     .bds-card:not(.bds-card--borderless),
     .bds-pricing-card,
     .bds-hero__media-card, /* hero image/price card (bds-hero, brik-bds#1165) */
+    .bds-menu, /* breadcrumb switcher dropdown — floating panel, own dark surface (#740) */
     .event-page__form-card,
     .lp-form-card,
     .event-page__speaker

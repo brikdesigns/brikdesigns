@@ -2,7 +2,7 @@
 
 Next.js 16 marketing site for Brik Designs. Deployed on Netlify.
 
-@../../brik/brik-bds/CLAUDE.md
+@../../brik/brik-bds/BDS-CONSUMER.md
 
 ## Stack
 

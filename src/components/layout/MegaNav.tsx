@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { Icon } from '@/lib/icon';
 import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
@@ -53,6 +54,15 @@ export interface MegaNavProps {
 
 type DropdownId = 'services' | 'customers' | 'about' | 'plans' | null;
 
+/* Service-line nav tint (#729). On a `/services/{line}` page the sticky nav
+   adopts that line's darkest surface (`--surface-service-{line}-dark`) with
+   inverted white ink + logo. The route segment equals the token suffix for
+   every line, so it doubles as the modifier-class key. Marketing-first pilot:
+   expand this allowlist to the other four lines once each dark surface is
+   AA-verified (the shared ink/border inversion already clears AA on any
+   `--surface-service-*-dark`). */
+const NAV_TINT_LINES = new Set(['marketing']);
+
 /* ────────────────────────────────────────────────────────────────
    Component
    ──────────────────────────────────────────────────────────────── */
@@ -64,6 +74,15 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
   const [hidden, setHidden] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const lastYRef = useRef(0);
+  const pathname = usePathname();
+
+  // Service-line tint: match `/services/{segment}` and tint only allow-listed
+  // lines (#729 marketing pilot). Sub-routes like `/services/marketing/seo`
+  // still resolve to the parent line's segment, so the tint persists.
+  const tintedLine = (() => {
+    const segment = pathname?.match(/^\/services\/([^/]+)/)?.[1];
+    return segment && NAV_TINT_LINES.has(segment) ? segment : null;
+  })();
 
   // Click-only toggle (matches Webflow data-hover="false")
   const toggle = useCallback((id: DropdownId) => {
@@ -124,7 +143,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
 
   return (
     <header
-      className={`mega-nav${scrolled ? ' mega-nav--scrolled' : ''}${hidden ? ' mega-nav--hidden' : ''}`}
+      className={`mega-nav${scrolled ? ' mega-nav--scrolled' : ''}${hidden ? ' mega-nav--hidden' : ''}${tintedLine ? ` mega-nav--service mega-nav--service-${tintedLine}` : ''}`}
       ref={navRef}
     >
       {/* Utility bar — Webflow: .utility-navigation → .layout-utility-nav.right → .top-nav-item */}
@@ -152,7 +171,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
         <div className="mega-nav__container mega-nav__main-inner">
           <Link href="/" className="mega-nav__logo">
             <Image
-              src="/images/Brik-logo_1.svg"
+              src={tintedLine ? '/images/Brik-logo_1-inverse.svg' : '/images/Brik-logo_1.svg'}
               alt="Brik Designs"
               width={124}
               height={50}

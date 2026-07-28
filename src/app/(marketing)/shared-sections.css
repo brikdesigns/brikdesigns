@@ -586,6 +586,19 @@
   box-shadow: var(--box-shadow-md);
 }
 
+/* Price ink follows the service line (BACKLOG-938 / #726). In light mode the
+   `-inverse` card is white, so the `-on-light` service ink (set as
+   `--service-price-ink` on the pricing grid) reads as the line colour. In dark
+   mode the card goes `{hue}-darkest`, so the price keeps BDS's default light
+   `--text-primary` (the nested-card carve-out from the .service-surface dark
+   text pin) rather than the dark ink. */
+.service-surface .bds-pricing-card__price {
+  color: var(--service-price-ink, var(--text-primary));
+}
+:root[data-theme='dark'] .service-surface .bds-pricing-card__price {
+  color: var(--text-primary);
+}
+
 /* Elevated — the service-line services grid (service tint). The base
    `.service-card--flat` treatment strips border AND shadow, which reads as a
    calm flat field on a mid-tint band. But every service line's `surfaceLight`

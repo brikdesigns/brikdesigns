@@ -73,7 +73,16 @@ export function CustomerStoryCard({
           </div>
         )}
         <div className="story-card__content">
-          <h3 style={heading.md}>{name}</h3>
+          {/* Title + description read as one grouped block above the meta grid
+             (965 / BACKLOG-965). Previously the meta grid split the two apart. */}
+          <div className="story-card__intro">
+            <h3 style={heading.md}>{name}</h3>
+            {shortDescription && (
+              <CardDescription style={{ ...text.bodySmall, marginTop: 0 }}>
+                {shortDescription}
+              </CardDescription>
+            )}
+          </div>
 
           <div className="story-card__meta">
             {clientName && (
@@ -119,12 +128,6 @@ export function CustomerStoryCard({
               />
             )}
           </div>
-
-          {shortDescription && (
-            <CardDescription style={{ ...text.bodySmall, marginTop: 0 }}>
-              {shortDescription}
-            </CardDescription>
-          )}
 
           <CardFooter>
             <span className={composeButtonClasses({ variant: 'primary', size: 'md' })}>

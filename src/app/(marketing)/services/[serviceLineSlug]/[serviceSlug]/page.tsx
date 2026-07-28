@@ -31,7 +31,6 @@ import {
   Stack,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
-import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
@@ -168,10 +167,22 @@ export default async function ServiceDetailPage({ params }: Props) {
     ? ((sortedOfferings[0] as { description?: string | null }).description ?? undefined)
     : undefined;
 
-  // Related services in same service line (exclude current)
-  const siblingServices = serviceLine?.id
-    ? (await getServicesByServiceLine(serviceLine.id)).filter((s) => s.slug !== serviceSlug).slice(0, 3)
+  // All public services in this line (rank-ordered) — one fetch drives both the
+  // breadcrumb switcher (all siblings incl. current) and the "Other Services"
+  // grid (up to 3, current excluded).
+  const lineServices = serviceLine?.id
+    ? await getServicesByServiceLine(serviceLine.id)
     : [];
+  const siblingServices = lineServices.filter((s) => s.slug !== serviceSlug).slice(0, 3);
+
+  // Breadcrumb switcher options — every sibling in the line, current included
+  // (highlighted, non-navigating). Same-line hrefs use the route's
+  // `serviceLineSlug`, matching the sibling-card + breadcrumb links below (#740).
+  const switcherOptions = lineServices.map((s) => ({
+    label: s.name,
+    href: `/services/${serviceLineSlug}/${s.slug}`,
+    current: s.slug === serviceSlug,
+  }));
 
   // Customer story — scoped to this service
   const relatedStories = service.has_customer_story
@@ -202,7 +213,13 @@ export default async function ServiceDetailPage({ params }: Props) {
   // Support plan — a service can belong to multiple plans (1:M plan→service via
   // service_plan_items); we render the highest-ranked one. Replaces the legacy
   // service.support_plan_slug denorm column (#206).
-  const supportPlans = await getSupportPlansByServiceId(service.id).catch(() => []);
+  // The fallback is deliberate — a missing support plan just hides the band —
+  // but it is logged, because an empty result from a query error is otherwise
+  // indistinguishable from a service that genuinely has no plan.
+  const supportPlans = await getSupportPlansByServiceId(service.id).catch((err) => {
+    console.warn(`[service] support-plan query failed for service_id=${service.id} — ${err}. Plan band omitted.`);
+    return [];
+  });
   const supportPlan = supportPlans[0] ?? null;
 
   // Resolve the support plan's *primary* service line for the bottom-CTA
@@ -365,12 +382,11 @@ export default async function ServiceDetailPage({ params }: Props) {
       >
         <ServiceHeroModal
           section={heroSection}
-          clientFacts={defaultClientFacts}
-          theme={defaultMarketingTheme}
           service={service.slug}
           serviceOptions={serviceOptions}
           offering={heroOffering}
           serviceLine={serviceLineKey}
+          switchOptions={switcherOptions}
           {...(service.image_url ? { imageUrl: service.image_url } : {})}
           {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
           {...(heroOfferingDescription ? { description: heroOfferingDescription } : {})}
@@ -396,7 +412,11 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="pricing"
           title="Pricing Options"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
+          // `--service-price-ink`: tie the tier price to the service line's ink
+          // (BACKLOG-938). On the white `-inverse` card the `-on-light` dark ink
+          // reads as the line colour; dark mode reverts to the default light
+          // text via the card-chrome nested-card carve-out (see shared-sections).
+          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text, '--service-price-ink': serviceTokens.text } as React.CSSProperties}
         >
           {/* gap="md" matches the index 3-col grids (detail-page grids were the
               lone gap="lg" outliers). #674 / BACKLOG-415 */}
@@ -462,51 +482,98 @@ export default async function ServiceDetailPage({ params }: Props) {
        * "whole card is the link" anti-pattern that prior agents shipped via
        * #105/#107 (asymmetric with the sibling Add-On block in the same file).
        */}
-      {relatedStory && (
+      {/* Related customer stories — count-driven (BACKLOG-939 / #730):
+          0 → section omitted; 1 → focal horizontal row-card; 2–3 → browse grid.
+          getStoriesByService() already returns up to 3 (rank-ordered), so this is
+          purely a render branch. */}
+      {relatedStories.length > 0 && (
         <CardGrid
           sectionKey="story"
-          title="Related Customer Story"
+          title={relatedStories.length === 1 ? 'Related Customer Story' : 'Related Customer Stories'}
           className="service-themed service-surface"
           style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
         >
-          {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
-              row-card contained on the service-tint band — white in light (== the
-              former surface-primary fill, #427/#360), `{hue}-darkest` in dark so
-              the card carries the line identity against the lighter band. (BRIK-WEB)
-              brik-bds#1146 (BDS 0.132) dropped the cast shadow from `elevated`;
-              `.service-row-card` (shared-sections.css) restores it site-side per
-              the on-tint focal-card standard. BACKLOG-895 */}
-          <Card variant="elevated" padding="lg" className="service-row-card" style={{ backgroundColor: serviceTokens.inverse }}>
-            <Stack direction="horizontal" gap="lg" align="center">
-              {relatedStory.hero_image_url && (
-                <div style={{ flex: '0 0 40%' }}>
-                  <Frame customRatio="3 / 2" fit="cover">
-                    <Image
-                      src={relatedStory.hero_image_url}
-                      alt={relatedStory.name || relatedStory.client_name}
-                      width={400}
-                      height={267}
-                    />
-                  </Frame>
-                </div>
-              )}
-              <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
-                <CardTitle>{relatedStory.name || relatedStory.client_name}</CardTitle>
-                {relatedStory.short_description && (
-                  <CardDescription>{relatedStory.short_description}</CardDescription>
+          {relatedStory && relatedStories.length === 1 && (
+            /* Single focal story. elevated (not borderless): shadow + service
+                `-inverse` fill keeps the row-card contained on the service-tint
+                band — white in light (== the former surface-primary fill,
+                #427/#360), `{hue}-darkest` in dark so the card carries the line
+                identity against the lighter band. brik-bds#1146 (BDS 0.132)
+                dropped the cast shadow from `elevated`; `.service-row-card`
+                (shared-sections.css) restores it site-side per the on-tint
+                focal-card standard. BACKLOG-895 */
+            <Card variant="elevated" padding="lg" className="service-row-card" style={{ backgroundColor: serviceTokens.inverse }}>
+              <Stack direction="horizontal" gap="lg" align="center">
+                {relatedStory.hero_image_url && (
+                  <div style={{ flex: '0 0 40%' }}>
+                    <Frame customRatio="3 / 2" fit="cover">
+                      <Image
+                        src={relatedStory.hero_image_url}
+                        alt={relatedStory.name || relatedStory.client_name}
+                        width={400}
+                        height={267}
+                      />
+                    </Frame>
+                  </div>
                 )}
-                <CardFooter>
-                  <Button
-                    href={`/customer-stories/${relatedStory.slug}`}
-                    variant="primary"
-                    size="md"
-                  >
-                    Read Story
-                  </Button>
-                </CardFooter>
+                <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
+                  <CardTitle>{relatedStory.name || relatedStory.client_name}</CardTitle>
+                  {relatedStory.short_description && (
+                    <CardDescription>{relatedStory.short_description}</CardDescription>
+                  )}
+                  <CardFooter>
+                    <Button
+                      href={`/customer-stories/${relatedStory.slug}`}
+                      variant="primary"
+                      size="md"
+                    >
+                      Read Story
+                    </Button>
+                  </CardFooter>
+                </Stack>
               </Stack>
-            </Stack>
-          </Card>
+            </Card>
+          )}
+          {relatedStories.length > 1 && (
+            /* 2–3 stories → browse grid. Mirrors the same-page "Other {line}
+                Services" grid (`.service-sibling-card`, preset display, `-inverse`
+                fill) so both grids on this template read as one family on the
+                service tint. Browse grid of peers → flat per card-chrome-on-tint. */
+            <Grid columns={3} gap="lg">
+              {relatedStories.map((story) => (
+                <Card
+                  key={story.slug}
+                  preset="display"
+                  variant="elevated"
+                  className="service-sibling-card"
+                  style={{ backgroundColor: serviceTokens.inverse }}
+                  image={
+                    story.hero_image_url ? (
+                      <Frame customRatio="3 / 2" fit="cover">
+                        <Image
+                          src={story.hero_image_url}
+                          alt={story.name || story.client_name}
+                          width={400}
+                          height={267}
+                        />
+                      </Frame>
+                    ) : undefined
+                  }
+                  title={story.name || story.client_name}
+                  description={story.short_description || undefined}
+                  action={
+                    <Button
+                      href={`/customer-stories/${story.slug}`}
+                      variant="primary"
+                      size="md"
+                    >
+                      Read Story
+                    </Button>
+                  }
+                />
+              ))}
+            </Grid>
+          )}
         </CardGrid>
       )}
 

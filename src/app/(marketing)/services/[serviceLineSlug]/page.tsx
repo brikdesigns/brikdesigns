@@ -135,7 +135,7 @@ export default async function ServiceLinePage({ params }: Props) {
           <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
             {serviceLine.name} Services
           </h2>
-          <Grid columns={3} gap="md">
+          <Grid columns={3} gap="lg">
             {services.map((svc) => {
               const cat = mapServiceLineSlug(serviceLine.slug);
               return (
@@ -199,7 +199,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   the plan line identity. Matches the service-detail inverse-card
                   convention (#645). (BRIK-WEB) */}
               <Card variant="outlined" padding="lg" className="service-card--flat" style={{ backgroundColor: supportPlanServiceLineColors.inverse }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.md, textAlign: 'center', height: '100%' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.lg, textAlign: 'center', height: '100%' }}>
                   {supportPlanServiceLine.card_image_url && (
                     <div className="service-detail-support-cta__media">
                       <Image
