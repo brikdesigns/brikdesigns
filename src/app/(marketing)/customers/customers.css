@@ -134,8 +134,11 @@
 }
 
 .customer-detail-hero__tag-icon {
-  width: 100%;
-  height: 100%;
+  /* Inset the glyph to 28px inside the 40px accent frame so it matches the
+   * BDS ServiceTag icon variant (28px glyph in a 40px frame) used on the
+   * service pages — BACKLOG-324. */
+  width: var(--size-700);
+  height: var(--size-700);
   object-fit: contain;
 }
 
