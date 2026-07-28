@@ -98,8 +98,18 @@
   font-size: var(--heading-sm);
   font-weight: var(--font-weight-semibold);
   line-height: var(--font-line-height-tight);
-  color: var(--text-primary);
+  /* Title follows the service line so it matches the service-line tag beside it
+     (BACKLOG-312). In light mode the `-inverse` card is white, so the service
+     `-on-light` ink (--text-brand-primary, scoped on the plan page's
+     [data-audience] root — plans/[slug]/page.tsx) reads as the line colour.
+     In dark mode the card goes `{hue}-darkest`, so revert to the default light
+     --text-primary to keep AA — mirrors the pricing-card price-ink carve-out
+     (BACKLOG-938, shared-sections.css). */
+  color: var(--text-brand-primary);
   margin: 0;
+}
+:root[data-theme='dark'] .plan-service-list-item__title {
+  color: var(--text-primary);
 }
 
 .plan-service-list-item__description {
