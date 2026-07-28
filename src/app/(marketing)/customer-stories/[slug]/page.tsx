@@ -76,13 +76,22 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
   const [otherStories, relatedService] = await Promise.all([
     // Prefer same-line stories for topical fit; fall back to next-ranked when
     // the line pool is empty so the section never disappears on isolated lines.
+    // The fallback is deliberate — a secondary section must not fail the page —
+    // but it is logged, because an empty result from a query error is otherwise
+    // indistinguishable from a genuinely empty pool.
     getOtherCustomerStories({
       excludeSlug: slug,
       serviceLineSlug: story.service_line_slug ?? null,
       limit: 3,
-    }).catch(() => []),
+    }).catch((err) => {
+      console.warn(`[customer-story] other-stories query failed for slug=${slug} — ${err}. Section renders empty.`);
+      return [];
+    }),
     story.service_slug
-      ? getServiceBySlug(story.service_slug).catch(() => null)
+      ? getServiceBySlug(story.service_slug).catch((err) => {
+          console.warn(`[customer-story] related-service lookup failed for service_slug=${story.service_slug} — ${err}. Related card omitted.`);
+          return null;
+        })
       : Promise.resolve(null),
   ]);
 
