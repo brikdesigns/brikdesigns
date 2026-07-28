@@ -563,6 +563,7 @@ h1, h2, h3, h4, h5, h6 {
     .bds-card:not(.bds-card--borderless),
     .bds-pricing-card,
     .bds-hero__media-card, /* hero image/price card (bds-hero, brik-bds#1165) */
+    .bds-menu, /* breadcrumb switcher dropdown — floating panel, own dark surface (#740) */
     .event-page__form-card,
     .lp-form-card,
     .event-page__speaker

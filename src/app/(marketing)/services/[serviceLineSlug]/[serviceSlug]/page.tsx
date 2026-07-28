@@ -31,7 +31,6 @@ import {
   Stack,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
-import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
@@ -168,10 +167,22 @@ export default async function ServiceDetailPage({ params }: Props) {
     ? ((sortedOfferings[0] as { description?: string | null }).description ?? undefined)
     : undefined;
 
-  // Related services in same service line (exclude current)
-  const siblingServices = serviceLine?.id
-    ? (await getServicesByServiceLine(serviceLine.id)).filter((s) => s.slug !== serviceSlug).slice(0, 3)
+  // All public services in this line (rank-ordered) — one fetch drives both the
+  // breadcrumb switcher (all siblings incl. current) and the "Other Services"
+  // grid (up to 3, current excluded).
+  const lineServices = serviceLine?.id
+    ? await getServicesByServiceLine(serviceLine.id)
     : [];
+  const siblingServices = lineServices.filter((s) => s.slug !== serviceSlug).slice(0, 3);
+
+  // Breadcrumb switcher options — every sibling in the line, current included
+  // (highlighted, non-navigating). Same-line hrefs use the route's
+  // `serviceLineSlug`, matching the sibling-card + breadcrumb links below (#740).
+  const switcherOptions = lineServices.map((s) => ({
+    label: s.name,
+    href: `/services/${serviceLineSlug}/${s.slug}`,
+    current: s.slug === serviceSlug,
+  }));
 
   // Customer story — scoped to this service
   const relatedStories = service.has_customer_story
@@ -371,12 +382,11 @@ export default async function ServiceDetailPage({ params }: Props) {
       >
         <ServiceHeroModal
           section={heroSection}
-          clientFacts={defaultClientFacts}
-          theme={defaultMarketingTheme}
           service={service.slug}
           serviceOptions={serviceOptions}
           offering={heroOffering}
           serviceLine={serviceLineKey}
+          switchOptions={switcherOptions}
           {...(service.image_url ? { imageUrl: service.image_url } : {})}
           {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
           {...(heroOfferingDescription ? { description: heroOfferingDescription } : {})}
