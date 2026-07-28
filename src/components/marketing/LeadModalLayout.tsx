@@ -62,7 +62,12 @@ export function LeadModalLayout({
   const svc = serviceColor(serviceLine);
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: gap.xl, alignItems: 'stretch' }}>
+    // `flex-start` (not `stretch`) so the showcase panel sizes to its own
+    // content and both columns align at the top. Stretching matched the panel
+    // to the taller form column, leaving a large empty tinted gap below the
+    // description on desktop (BACKLOG-894). Single-item lines when the columns
+    // wrap on mobile are unaffected.
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: gap.xl, alignItems: 'flex-start' }}>
       <aside
         style={{
           flex: '1 1 260px',
