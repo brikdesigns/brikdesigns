@@ -68,3 +68,6 @@ next-env.d.ts
 
 # Git worktrees managed by new-task.sh (tracked as untracked by primary)
 /.claude/worktrees/
+
+# Generated BDS inspector manifest (dev-tool artifact, regenerated per BDS bump)
+/public/bds-manifest.json
