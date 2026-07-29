@@ -1,20 +1,25 @@
 /**
  * Server-side icon resolution helpers for the marketing site.
  *
- * BDS's `<ServiceTag>` resolves service-specific icons via
- * `getServiceIconPath(category, serviceName)`. That function lives in a
- * `'use client'` module and can't be called from Server Components — and
- * when a predicted icon file doesn't exist, the rendered `<img>` leaks the
- * native broken-image glyph through SSR before React hydrates.
+ * Originally this mirrored BDS's `getServiceIconPath(category, serviceName)`
+ * so Server Components could PRE-CHECK whether a predicted icon file existed
+ * on disk — without that check, a miss rendered an `<img>` to a 404 and leaked
+ * the native broken-image glyph through SSR before React hydrated.
  *
- * This module mirrors BDS's resolution logic just enough to PRE-CHECK
- * whether a predicted icon exists on disk, so Server Components can pass
- * `serviceName` only when an icon is guaranteed to render.
+ * That premise no longer holds. BDS 0.137.0 removed `getServiceIconPath` and
+ * `getServiceLineIconPath` (brik-bds#1518); `<ServiceTag>` now resolves through
+ * `resolveServiceIcon`, which returns a key into a bundled inline SVG set and
+ * falls back to the service-line default, so it can never 404.
+ *
+ * `hasIconFor` is therefore likely vestigial — it still gates `serviceName` at
+ * 7 call sites, but the failure it was written to prevent can no longer happen.
+ * Removing it touches every one of those call sites, so it is tracked
+ * separately rather than folded into a comment fix: brikdesigns#776.
  *
  * Source of truth for the override map: `serviceIconOverrides` in
- * brik-bds/src/components/ui/ServiceBadge/ServiceBadge.tsx. Keep this list
- * in sync when BDS adds entries. (TODO: extract to a server-safe BDS
- * subpackage so this duplication can go away.)
+ * brik-bds `components/ui/ServiceTag/service-config.ts`. Keep this list in
+ * sync when BDS adds entries. (The old pointer here named a `ServiceBadge`
+ * component under a `src/` prefix; neither exists.)
  */
 
 import fs from 'node:fs';
@@ -88,7 +93,8 @@ const SERVICE_ICON_OVERRIDES: Record<string, string> = {
 
   // ── Marketing ────────────────────────────────────────────────────────────
   // BDS canonical names (& variants) — both must be here for SSR prediction
-  // to match what BDS's getServiceIconPath() generates server-side.
+  // to match the basenames BDS's icon resolution produces. (Named
+  // getServiceIconPath() until brik-bds#1518 removed it; see the file header.)
   'Comprehensive Marketing Audit & Consultation': 'marketing-consulting',
   'Custom Large E-Commerce Web Development and Design': 'marketing-web-design',
   'Custom Large Web Development and Design': 'marketing-web-design',
