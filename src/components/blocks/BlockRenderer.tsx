@@ -3,7 +3,7 @@ import {
   parseAlertBanner,
   parseRichContentProps,
   parseEventMetaProps,
-  parseSpeakerProps,
+  parseSpeakerBlockProps,
   parseLogoStripProps,
   parseCrossReferenceProps,
   parseHeroProps,
@@ -39,8 +39,8 @@ function renderBlock(block: RawBlock, key: number, context: BlockContext) {
     case 'event-meta':
       return <EventMetaBlock key={key} {...parseEventMetaProps(props)} />;
     case 'speaker': {
-      const data = parseSpeakerProps(props);
-      return data ? <SpeakerBlock key={key} {...data} /> : null;
+      const data = parseSpeakerBlockProps(props);
+      return data.speakers.length ? <SpeakerBlock key={key} {...data} /> : null;
     }
     case 'logo-strip':
       return <LogoStripBlock key={key} {...parseLogoStripProps(props)} />;
