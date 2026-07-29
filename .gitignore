@@ -69,5 +69,8 @@ next-env.d.ts
 # Git worktrees managed by new-task.sh (tracked as untracked by primary)
 /.claude/worktrees/
 
-# Generated BDS inspector manifest (dev-tool artifact, regenerated per BDS bump)
+# Generated BDS inspector manifest — copied from the installed @brikdesigns/bds
+# by `postinstall`. Ignoring it without a generator is what made
+# /bds-manifest.json 404 in production (brikdesigns/brik-bds#1552); the copy step
+# is what makes ignoring it safe, so keep the two together.
 /public/bds-manifest.json

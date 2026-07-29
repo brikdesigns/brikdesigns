@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "postinstall": "cp node_modules/@brikdesigns/bds/dist/bds-manifest.json public/bds-manifest.json",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "lint:tokens": "node scripts/lint-tokens.mjs",
