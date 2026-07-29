@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { hasIconFor } from '@/lib/service-icons';
 import {
   getServiceBySlug,
   getServicesByServiceLine,
@@ -388,7 +387,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           serviceLine={serviceLineKey}
           switchOptions={switcherOptions}
           {...(service.image_url ? { imageUrl: service.image_url } : {})}
-          {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
+          serviceName={service.name}
           {...(heroOfferingDescription ? { description: heroOfferingDescription } : {})}
         />
         <ScrollDownCta />
@@ -462,7 +461,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                       }}
                       serviceLine={serviceLineKey}
                       {...(service.image_url ? { imageUrl: service.image_url } : {})}
-                      {...(hasIconFor(serviceLineKey, service.name) ? { serviceName: service.name } : {})}
+                      serviceName={service.name}
                       {...(off.description ? { description: off.description } : {})}
                       label="Get Started"
                       size="md"
@@ -613,9 +612,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
                 <ServiceTag
                   category={mapServiceLineSlug(relatedServiceLineSlug)}
-                  {...(hasIconFor(mapServiceLineSlug(relatedServiceLineSlug), relatedService.name)
-                    ? { serviceName: relatedService.name }
-                    : {})}
+                  serviceName={relatedService.name}
                   variant="icon-text"
                   label={relatedService.name}
                   size="sm"
@@ -683,7 +680,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   tag={
                     <ServiceTag
                       category={cat}
-                      {...(hasIconFor(cat, svc.name) ? { serviceName: svc.name } : {})}
+                      serviceName={svc.name}
                       variant="icon-text"
                       label={svc.name}
                       size="sm"

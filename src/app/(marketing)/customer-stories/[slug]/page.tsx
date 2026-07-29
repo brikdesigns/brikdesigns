@@ -22,7 +22,6 @@ import {
   getServiceBySlug,
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
-import { hasIconFor } from '@/lib/service-icons';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading, label } from '@/lib/styles';
@@ -118,9 +117,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
   const industryIcon = story.industry
     ? INDUSTRY_ICONS[story.industry] ?? INDUSTRY_ICON_FALLBACK
     : null;
-  const serviceIconName = relatedService?.name && serviceLineCategory && hasIconFor(serviceLineCategory, relatedService.name)
-    ? relatedService.name
-    : undefined;
+  const serviceIconName = relatedService?.name && serviceLineCategory ? relatedService.name : undefined;
   const storyTitle = story.name || story.client_name;
 
   return (
@@ -381,7 +378,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                         {s.service_line_slug && (
                           <ServiceTag
                             category={cat}
-                            {...(hasIconFor(cat, s.name || '') ? { serviceName: s.name } : {})}
+                            serviceName={s.name}
                             variant="icon-text"
                             label={SERVICE_LINE_NAMES[cat] || cat}
                             size="sm"
@@ -452,9 +449,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                 <Stack direction="vertical" gap="sm" style={{ flex: 1 }}>
                   <ServiceTag
                     category={relatedAudience}
-                    {...(hasIconFor(relatedAudience, relatedService.name)
-                      ? { serviceName: relatedService.name }
-                      : {})}
+                    serviceName={relatedService.name}
                     variant="icon-text"
                     label={relatedService.name}
                     size="md"

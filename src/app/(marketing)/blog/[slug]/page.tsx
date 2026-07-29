@@ -17,7 +17,6 @@ import { BackLink } from '@/components/ui/BackLink';
 import { getPostBySlug, getRelatedPosts } from '@/lib/blog';
 import { getServiceCategories, getRelatedServicesForPost, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
-import { hasIconFor } from '@/lib/service-icons';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { MDXRemote } from '@/components/blog/MDXRemote';
 import { heading, text, label } from '@/lib/styles';
@@ -190,7 +189,7 @@ export default async function BlogPostPage({ params }: Props) {
                     tagline={svc.tagline}
                     description={svc.description}
                     imageUrl={svc.image_url}
-                    iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                    iconServiceName={svc.name}
                     showCta
                   />
                 );

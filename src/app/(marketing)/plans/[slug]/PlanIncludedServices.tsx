@@ -22,7 +22,6 @@ export interface IncludedService {
   image_url: string | null;
   service_lines: { slug: string; name: string } | null;
   category: ServiceLine;
-  hasIcon: boolean;
 }
 
 export function PlanIncludedServices({
@@ -101,7 +100,7 @@ export function PlanIncludedServices({
                     <h3 className="plan-service-list-item__title">{svc.name}</h3>
                     <ServiceTag
                       category={svc.category}
-                      {...(svc.hasIcon ? { serviceName: svc.name } : {})}
+                      serviceName={svc.name}
                       variant="icon-text"
                       label={svc.service_lines?.name ?? svc.name}
                       size="sm"
