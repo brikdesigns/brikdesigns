@@ -1,5 +1,6 @@
 'use client';
 
+import { type ReactNode } from 'react';
 import { MultiSelect, ServiceTag, type ServiceLine } from '@brikdesigns/bds';
 
 /**
@@ -51,14 +52,17 @@ export function ServiceMultiSelect({
       />
     ),
     // Selected chip — line-colored ServiceTag pill instead of the default
-    // neutral Tag. MultiSelect supplies its own remove control beside it.
-    chip: (
+    // neutral Tag. The function form hands MultiSelect's remove control to
+    // ServiceTag's trailing slot, so it sits inside the pill and inherits the
+    // service text color instead of floating beside it.
+    chip: (remove: ReactNode) => (
       <ServiceTag
         category={o.category}
         variant="icon-text"
         serviceName={o.label}
         label={o.label}
         size="sm"
+        trailing={remove}
       />
     ),
   }));
