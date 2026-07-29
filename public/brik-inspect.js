@@ -707,10 +707,100 @@
     return !!pageH1 && heading === pageH1;
   }
 
+  // ── Section / component identity helpers (brik-client-portal#1757) ────────
+  //
+  // The section detector formerly matched the substring "section--" anywhere in
+  // an element's class list. BDS renders BEM spacing modifiers such as
+  // `bds-data-section--spacing-lg`, which contain that substring but are NOT the
+  // Astro mockup `section section--{type}` convention. The old match reported
+  // every DataSection's spacing modifier ("spacing-lg") as its section identity,
+  // burying the real one (its title) and making feedback tickets un-triageable.
+  // These helpers anchor the mockup convention to a standalone class token and
+  // add a product-app path: a BDS section's identity is its rendered title.
+
+  // Standalone Astro mockup section-type token: "section--hero" → "hero".
+  // Excludes BDS BEM modifiers like "bds-data-section--spacing-lg" (a single
+  // token that does not START with "section--").
+  function mockupSectionType(el) {
+    for (const cls of el.classList || []) {
+      const m = cls.match(/^section--([a-z0-9-]+)$/i);
+      if (m) return m[1];
+    }
+    return null;
+  }
+
+  // Nearest ancestor carrying a standalone mockup section-- token.
+  function closestMockupSection(el) {
+    let node = el;
+    while (node && node !== document.body && node.nodeType === 1) {
+      if (mockupSectionType(node)) return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  // Nearest BDS "section" container (bds-data-section, bds-sheet-section) and its
+  // rendered title — the section identity a triager needs in a product app
+  // ("Integrations", "Brand Guide"). Block class = a bds-*section token with no
+  // BEM `__element` / `--modifier` suffix.
+  function closestBdsSection(el) {
+    let node = el;
+    while (node && node !== document.body && node.nodeType === 1) {
+      const block = Array.from(node.classList || []).find((c) => /^bds-[a-z-]*section$/.test(c));
+      if (block) {
+        const titleEl = node.querySelector(`.${block}__title`);
+        const title = titleEl && titleEl.textContent ? titleEl.textContent.trim() : '';
+        return { root: node, block, title: title || undefined };
+      }
+      node = node.parentElement;
+    }
+    return null;
+  }
+
+  // Stable structural path to the selected element — the address a triager or
+  // agent jumps to when a label repeats (two same-named bds-fields, a repeated
+  // component). Walks from the element up to the nearest <main> landmark (or
+  // <body>), emitting one `:nth-of-type` segment per level: nth-of-type is
+  // 1-based among same-tag siblings, so it survives sibling-count shifts that
+  // break nth-child. Prefers a bds-* block class over the bare tag so the path
+  // reads structurally (".bds-field:nth-of-type(2)"). brik-client-portal#1760.
+  function domPath(el) {
+    const segments = [];
+    let node = el;
+    while (node && node.nodeType === 1) {
+      const tag = node.tagName.toLowerCase();
+      let nth = 1;
+      let sib = node.previousElementSibling;
+      while (sib) {
+        if (sib.tagName === node.tagName) nth += 1;
+        sib = sib.previousElementSibling;
+      }
+      const block = Array.from(node.classList || []).find(
+        (c) => c.startsWith('bds-') && !c.includes('__') && !c.includes('--'),
+      );
+      segments.unshift(`${block ? `.${block}` : tag}:nth-of-type(${nth})`);
+      if (node === document.body || tag === 'main') break;
+      node = node.parentElement;
+    }
+    return segments.join(' > ') || undefined;
+  }
+
+  // A leaf component's own label, so a ticket names *which* instance. bds-field
+  // renders its label in `.bds-field__label`; the generic `{block}__label`
+  // lookup returns undefined when a component has none. Component is a rich_text
+  // Notion property, so appending this free text is safe.
+  function componentInstanceLabel(root, component) {
+    const labelEl = root.querySelector(`.${component}__label`);
+    const label = labelEl && labelEl.textContent ? labelEl.textContent.trim() : '';
+    return label || undefined;
+  }
+
   function sectionLabel(section) {
-    // Mockup convention first: "section section--hero" → "hero".
-    const typeMatch = section.className.match(/section--([a-z0-9-]+)/i);
-    if (typeMatch) return typeMatch[1];
+    // Mockup convention first: "section section--hero" → "hero". Anchored to a
+    // standalone token so BDS BEM modifiers ("bds-data-section--spacing-lg")
+    // don't false-match (brik-client-portal#1757).
+    const typeMatch = mockupSectionType(section);
+    if (typeMatch) return typeMatch;
 
     // Explicit, author-provided labels, most-explicit first. These deliberately
     // name a region, so they're trusted even on <main>.
@@ -749,10 +839,10 @@
   function detectSectionMeta(el) {
     const meta = {};
 
-    const section = el.closest('section[class*="section--"], [class*="section--"]');
+    const section = closestMockupSection(el);
     if (section) {
-      const typeMatch = section.className.match(/section--([a-z0-9-]+)/i);
-      if (typeMatch) meta.section_type = typeMatch[1];
+      const typeMatch = mockupSectionType(section);
+      if (typeMatch) meta.section_type = typeMatch;
 
       const ariaLabel = section.getAttribute('aria-label');
       if (ariaLabel) meta.section_label = ariaLabel;
@@ -770,9 +860,9 @@
         prev = prev.previousSibling;
       }
 
-      // 1-based position among all `section--` blocks in document order.
-      const all = document.querySelectorAll('section[class*="section--"]');
-      const idx = Array.from(all).indexOf(section);
+      // 1-based position among all mockup section-- blocks in document order.
+      const all = Array.from(document.querySelectorAll('[class*="section--"]')).filter(mockupSectionType);
+      const idx = all.indexOf(section);
       if (idx >= 0) meta.section_number = idx + 1;
     }
 
@@ -791,17 +881,49 @@
     const page = detectPage();
     if (page) ctx.page = page;
 
-    const section =
-      el.closest('[class*="section--"]') ||
-      el.closest('section, article, main, [role="region"], [data-section]');
-    if (section) {
-      const label = sectionLabel(section);
+    // Section identity, most-specific first (brik-client-portal#1757):
+    //  1. Astro mockup `section--{type}` (standalone token).
+    //  2. BDS section container's title — the identity a triager needs in a
+    //     product app ("Integrations"). The old [class*="section--"] match
+    //     caught the BDS spacing modifier here and reported "spacing-lg".
+    //  3. Semantic landmark → nearest heading / explicit label.
+    const mockupSection = closestMockupSection(el);
+    if (mockupSection) {
+      const label = sectionLabel(mockupSection);
       if (label) ctx.section = label;
+    } else {
+      const bdsSection = closestBdsSection(el);
+      if (bdsSection && bdsSection.title) {
+        ctx.section = bdsSection.title;
+      } else {
+        const landmark = el.closest('section, article, main, [role="region"], [data-section]');
+        if (landmark) {
+          const label = sectionLabel(landmark);
+          if (label) ctx.section = label;
+        }
+      }
     }
 
-    // Component detection the inspector already owns (block class, e.g. "bds-button").
+    // Element identity, promoted to their own fields so a repeated-label field
+    // is still uniquely addressable (brik-client-portal#1760):
+    //  - component_title: the nearest BDS section title, as its own field
+    //    rather than only folded into `section` above.
+    //  - dom_path: a stable structural path to the selected element.
+    const bdsSectionForTitle = closestBdsSection(el);
+    if (bdsSectionForTitle && bdsSectionForTitle.title) {
+      ctx.component_title = bdsSectionForTitle.title;
+    }
+    const path = domPath(el);
+    if (path) ctx.dom_path = path;
+
+    // Component: the BDS block class (e.g. "bds-field"), enriched with the
+    // instance label when the component has one so a ticket names *which* one
+    // ("bds-field · Live site"). brik-client-portal#1757.
     const bds = findBdsRoot(el);
-    if (bds) ctx.component = bds.component;
+    if (bds) {
+      const label = componentInstanceLabel(bds.root, bds.component);
+      ctx.component = label ? `${bds.component} · ${label}` : bds.component;
+    }
 
     const meaningful = el.closest(
       'a, button, h1, h2, h3, h4, img, video, input, textarea, select, p, li, span',
@@ -833,6 +955,12 @@
     // Exposed for regression tests (cascade-keyword skip — #1615). Not part of
     // the public surface; consumers use detectContext / the report event.
     window.BrikInspect.getDeclaredValue = getDeclaredValue;
+    // Drive inspect on/off from a host that owns the DevBar slot (host-managed
+    // mode — see registerWithDevBar). Idempotent: no-op when already in the
+    // requested state. Lets the BDS Storybook InspectWidget bind the slot's
+    // activate/deactivate to inspect mode without reaching into internals.
+    window.BrikInspect.setActive = (next) => { if (!!next !== active) toggleActive(); };
+    window.BrikInspect.isActive = () => active;
   }
 
   // ── Stylesheet rule index ───────────────────────────────────────────────
@@ -1410,7 +1538,11 @@
   // ── Init ────────────────────────────────────────────────────────────────
   function init() {
     injectStyles();
-    registerWithDevBar();
+    // A host (e.g. the BDS Storybook InspectWidget) may own the DevBar slot so
+    // its mount/unmount can add and remove Inspect in step with a UI toggle.
+    // When it signals host-managed mode, skip self-registration and let the
+    // host register the slot + drive activation via window.BrikInspect.setActive.
+    if (!window.__BRIK_INSPECT_DEVBAR_HOST_MANAGED__) registerWithDevBar();
     // Fetch the BDS inspector manifest + live Storybook index in parallel.
     // Both are best-effort: missing manifest → class-name-only behavior;
     // missing index → Storybook deep-link button is suppressed until
