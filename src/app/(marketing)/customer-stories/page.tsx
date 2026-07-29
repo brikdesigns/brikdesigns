@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Grid, Button } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { hasIconFor } from '@/lib/service-icons';
 import { CustomerStoriesList } from './CustomerStoriesList';
 import { ServiceLineCard } from '../services/ServiceLineCard';
 import { text, heading } from '@/lib/styles';
@@ -47,9 +46,7 @@ export default async function CustomerStoriesPage() {
                   : null;
                 const serviceLineName = (story as { service_lines?: { name: string } | null }).service_lines?.name ?? null;
                 const serviceName = (story as { services?: { name: string } | null }).services?.name ?? null;
-                const iconServiceName = serviceLineCategory && serviceName && hasIconFor(serviceLineCategory, serviceName)
-                  ? serviceName
-                  : undefined;
+                const iconServiceName = serviceLineCategory && serviceName ? serviceName : undefined;
 
                 return {
                   slug: story.slug,

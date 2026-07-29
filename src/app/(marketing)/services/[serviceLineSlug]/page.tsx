@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { getServiceLineBySlug, getServicesByServiceLine, getServiceCategories, getSupportPlanBySlug, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
-import { hasIconFor } from '@/lib/service-icons';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
@@ -148,7 +147,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   tagline={svc.tagline}
                   description={svc.description}
                   imageUrl={svc.image_url}
-                  iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                  iconServiceName={svc.name}
                   className="service-card--flat"
                   surfaceInverse
                   showCta

@@ -19,7 +19,7 @@ import { PlanHeroModal } from './PlanHeroModal';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { color, serviceColor } from '@/lib/tokens';
 import { heading, text, label } from '@/lib/styles';
-import { hasIconFor, SERVICE_LINE_ICON } from '@/lib/service-icons';
+import { SERVICE_LINE_ICON } from '@/lib/service-icons';
 import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../../shared-sections.css';
@@ -76,7 +76,6 @@ export default async function PlanDetailPage({ params }: Props) {
     seenServices.set(svc.slug, {
       ...svc,
       category,
-      hasIcon: hasIconFor(category, svc.name),
     });
   }
   const includedServices: IncludedService[] = Array.from(seenServices.values());
