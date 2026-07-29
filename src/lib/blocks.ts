@@ -39,11 +39,21 @@ export interface EventMetaProps {
   fee?: number | null;
 }
 
-/** Speaker name + bio (+ optional avatar). */
+/** A single speaker: name + bio (+ optional avatar). */
 export interface SpeakerProps {
   name: string;
   bio?: string | null;
   avatar?: { url: string; alt: string } | null;
+}
+
+/**
+ * The `speaker` block holds one OR MANY speakers. The composer authors an
+ * ordered `props.speakers` array; legacy rows carry a single speaker at the
+ * top level (`props.name`/`bio`/`avatar`) — `parseSpeakerBlockProps` normalizes
+ * both to this shape, so no data migration is required.
+ */
+export interface SpeakerBlockProps {
+  speakers: SpeakerProps[];
 }
 
 /** Sponsor / partner logo row. */
@@ -157,7 +167,10 @@ export function parseEventMetaProps(props: Record<string, unknown>): EventMetaPr
   return out;
 }
 
-export function parseSpeakerProps(props: Record<string, unknown>): SpeakerProps | null {
+/** Parse one speaker object; returns null when it carries no name or bio. */
+function parseOneSpeaker(raw: unknown): SpeakerProps | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const props = raw as Record<string, unknown>;
   const name = str(props.name) ?? '';
   const bio = str(props.bio);
   const rawAvatar = props.avatar;
@@ -168,6 +181,19 @@ export function parseSpeakerProps(props: Record<string, unknown>): SpeakerProps 
   }
   if (!name && !bio) return null;
   return { name, bio, avatar };
+}
+
+/**
+ * Normalize a `speaker` block's props to a speakers array. Accepts the current
+ * `props.speakers` array shape and the legacy single-speaker top-level shape;
+ * empty/invalid speakers are dropped.
+ */
+export function parseSpeakerBlockProps(props: Record<string, unknown>): SpeakerBlockProps {
+  const raw = Array.isArray(props.speakers) ? props.speakers : [props];
+  const speakers = raw
+    .map(parseOneSpeaker)
+    .filter((s): s is SpeakerProps => s !== null);
+  return { speakers };
 }
 
 export function parseLogoStripProps(props: Record<string, unknown>): LogoStripProps {
