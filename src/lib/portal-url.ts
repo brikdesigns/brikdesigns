@@ -7,8 +7,10 @@
  * so the URL tracks the deploy environment.
  *
  * Default: prod portal. Override via `NEXT_PUBLIC_PORTAL_URL` per Netlify
- * context (set to `https://staging.portal.brikdesigns.com` for the
- * brikdesigns staging + deploy-preview contexts).
+ * context (set to `https://staging--brik-client-portal.netlify.app` for the
+ * brikdesigns staging + deploy-preview contexts). The portal has no
+ * `staging.portal.brikdesigns.com` host — wildcards can't be issued on that
+ * zone, so branch deploys stay on the Netlify branch URL.
  */
 export const PORTAL_BASE_URL =
   process.env.NEXT_PUBLIC_PORTAL_URL ?? 'https://portal.brikdesigns.com';

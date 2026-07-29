@@ -9,7 +9,6 @@ import { color, font, serviceColor } from '@/lib/tokens';
 import { CustomerStoryCard } from '@/components/marketing/CustomerStoryCard';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
-import { hasIconFor } from '@/lib/service-icons';
 import type { ServiceLine } from '@brikdesigns/bds';
 import '../../shared-sections.css';
 import '../customers.css';
@@ -255,7 +254,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                         tagline={svc.tagline}
                         description={svc.description}
                         imageUrl={svc.image_url}
-                        iconServiceName={hasIconFor(cat, svc.name) ? svc.name : undefined}
+                        iconServiceName={svc.name}
                         className="service-card--flat"
                         showCta
                       />
