@@ -20,9 +20,18 @@ function SpeakerCard({ name, bio, avatar }: SpeakerProps) {
         )}
         <Stack gap="xs">
           {name && <CardTitle>{name}</CardTitle>}
-          {bio && (
-            <p style={{ ...text.body, color: color.text.secondary, margin: 0 }}>{bio}</p>
-          )}
+          {/* Split on blank lines so an authored multi-paragraph bio renders as
+              separate paragraphs; a single-paragraph bio is one <p> as before. */}
+          {bio &&
+            bio
+              .split(/\n{2,}/)
+              .map((para) => para.trim())
+              .filter(Boolean)
+              .map((para, i) => (
+                <p key={i} style={{ ...text.body, color: color.text.secondary, margin: 0 }}>
+                  {para}
+                </p>
+              ))}
         </Stack>
       </Stack>
     </Card>

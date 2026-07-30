@@ -15,7 +15,7 @@ export function LogoStripBlock({ logos }: LogoStripProps) {
       {logos.map((logo, i) => {
         const frame = (
           <Frame ratio="3-2" fit="contain" className="logo-strip__item">
-            <Image src={logo.url} alt={logo.alt || ''} fill sizes="120px" />
+            <Image src={logo.url} alt={logo.alt || ''} fill sizes="160px" />
           </Frame>
         );
         return logo.href ? (

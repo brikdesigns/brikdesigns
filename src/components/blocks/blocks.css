@@ -46,7 +46,7 @@
 /* logo-strip — fixed item width (a layout dimension BDS doesn't own; the
    Stack + Frame primitives come from BDS). */
 .logo-strip__item {
-  width: 120px;
+  width: 160px;
 }
 
 /* cross-reference (layout="row") — vertical stack of display-row cards. The
