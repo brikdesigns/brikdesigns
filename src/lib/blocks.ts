@@ -56,6 +56,26 @@ export interface SpeakerBlockProps {
   speakers: SpeakerProps[];
 }
 
+/**
+ * One key/value detail row — a leading icon, a short label subheader, and a
+ * value. Powers the `details` block (Venue / Hosts / Audience / … ).
+ */
+export interface DetailItem {
+  /**
+   * `ph:*` glyph name. Only names bundled in `src/lib/icons.generated.json`
+   * render — the offline Icon collection has no CDN fallback (#626), so an
+   * unbundled name shows an empty icon slot. Optional.
+   */
+  icon?: string;
+  label: string;
+  value: string;
+}
+
+/** A stacked list of key/value detail rows (subheader + value + icon). */
+export interface DetailsProps {
+  items: DetailItem[];
+}
+
 /** Sponsor / partner logo row. */
 export interface LogoStripLogo {
   url: string;
@@ -194,6 +214,26 @@ export function parseSpeakerBlockProps(props: Record<string, unknown>): SpeakerB
     .map(parseOneSpeaker)
     .filter((s): s is SpeakerProps => s !== null);
   return { speakers };
+}
+
+/**
+ * Normalize a `details` block's props to a rows array. Each row needs at least
+ * a label or a value; rows with neither are dropped. An omitted/invalid `icon`
+ * simply hides the icon slot for that row.
+ */
+export function parseDetailsProps(props: Record<string, unknown>): DetailsProps {
+  const raw = props.items;
+  if (!Array.isArray(raw)) return { items: [] };
+  const items: DetailItem[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const label = str((item as { label?: unknown }).label) ?? '';
+    const value = str((item as { value?: unknown }).value) ?? '';
+    if (!label && !value) continue;
+    const icon = str((item as { icon?: unknown }).icon);
+    items.push(icon ? { icon, label, value } : { label, value });
+  }
+  return { items };
 }
 
 export function parseLogoStripProps(props: Record<string, unknown>): LogoStripProps {

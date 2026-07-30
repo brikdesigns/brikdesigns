@@ -3,6 +3,7 @@ import {
   parseAlertBanner,
   parseRichContentProps,
   parseEventMetaProps,
+  parseDetailsProps,
   parseSpeakerBlockProps,
   parseLogoStripProps,
   parseCrossReferenceProps,
@@ -12,6 +13,7 @@ import {
 } from '@/lib/blocks';
 import { RichContentBlock } from './RichContentBlock';
 import { EventMetaBlock } from './EventMetaBlock';
+import { DetailsBlock } from './DetailsBlock';
 import { SpeakerBlock } from './SpeakerBlock';
 import { LogoStripBlock } from './LogoStripBlock';
 import { AlertBannerBlock } from './AlertBannerBlock';
@@ -38,6 +40,10 @@ function renderBlock(block: RawBlock, key: number, context: BlockContext) {
       return <RichContentBlock key={key} {...parseRichContentProps(props)} />;
     case 'event-meta':
       return <EventMetaBlock key={key} {...parseEventMetaProps(props)} />;
+    case 'details': {
+      const data = parseDetailsProps(props);
+      return data.items.length ? <DetailsBlock key={key} {...data} /> : null;
+    }
     case 'speaker': {
       const data = parseSpeakerBlockProps(props);
       return data.speakers.length ? <SpeakerBlock key={key} {...data} /> : null;
