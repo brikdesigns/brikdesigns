@@ -101,6 +101,121 @@ export function eventAccent(token: string | null | undefined) {
   return serviceColor(slug);
 }
 
+// ── Author-defined registration questions (#2558) ────────────────────
+// Authored in the portal composer (/settings/events) into
+// `events.form_config.fields`; answered into
+// `event_registrations.custom_answers` by /api/leads. The portal validates
+// the shape on write (its `CustomFieldSchema`), so this side parses
+// defensively and drops bad rows rather than throwing — a malformed question
+// must never take down a live registration page.
+
+export const CUSTOM_FIELD_TYPES = ['text', 'number', 'select', 'boolean'] as const;
+export type CustomFieldType = (typeof CUSTOM_FIELD_TYPES)[number];
+
+/** The two values a `boolean` question answers to — what `showIf.equals` compares against. */
+export const BOOLEAN_ANSWER_YES = 'yes';
+export const BOOLEAN_ANSWER_NO = 'no';
+
+export interface CustomFieldCondition {
+  field: string;
+  equals: string;
+}
+
+export interface CustomField {
+  key: string;
+  label: string;
+  type: CustomFieldType;
+  required: boolean;
+  options?: string[];
+  showIf?: CustomFieldCondition;
+}
+
+/** Read the author-defined questions out of an event's `form_config`. */
+export function parseCustomFields(formConfig: unknown): CustomField[] {
+  if (!formConfig || typeof formConfig !== 'object') return [];
+  const raw = (formConfig as Record<string, unknown>).fields;
+  if (!Array.isArray(raw)) return [];
+
+  return raw.flatMap((entry): CustomField[] => {
+    if (!entry || typeof entry !== 'object') return [];
+    const { key, label, type, required, options, showIf } = entry as Record<string, unknown>;
+    if (typeof key !== 'string' || !key) return [];
+    if (typeof label !== 'string' || !label) return [];
+    if (typeof type !== 'string' || !CUSTOM_FIELD_TYPES.includes(type as CustomFieldType)) {
+      return [];
+    }
+
+    const field: CustomField = {
+      key,
+      label,
+      type: type as CustomFieldType,
+      required: required === true,
+    };
+
+    if (Array.isArray(options)) {
+      const cleaned = options.filter((o): o is string => typeof o === 'string' && o.length > 0);
+      if (cleaned.length > 0) field.options = cleaned;
+    }
+
+    if (showIf && typeof showIf === 'object') {
+      const { field: onField, equals } = showIf as Record<string, unknown>;
+      if (typeof onField === 'string' && onField && typeof equals === 'string') {
+        field.showIf = { field: onField, equals };
+      }
+    }
+
+    return [field];
+  });
+}
+
+/**
+ * Whether a question should render given the answers so far. A condition
+ * naming a question that isn't in the set resolves to visible — hiding a
+ * field because its dependency vanished silently drops the answer.
+ */
+export function isCustomFieldVisible(
+  field: CustomField,
+  answers: Record<string, string>,
+  fields: CustomField[],
+): boolean {
+  if (!field.showIf) return true;
+  const dependency = fields.find((f) => f.key === field.showIf!.field);
+  if (!dependency) return true;
+  return (answers[field.showIf.field] ?? '') === field.showIf.equals;
+}
+
+/**
+ * Coerce the form's string answers into the values stored in
+ * `custom_answers`, per each question's declared type. Only visible questions
+ * contribute — a follow-up the registrant never saw must not persist a stale
+ * answer from before they changed the branching reply.
+ */
+export function toCustomAnswers(
+  fields: CustomField[],
+  answers: Record<string, string>,
+): Record<string, string | number | boolean> {
+  const out: Record<string, string | number | boolean> = {};
+
+  for (const field of fields) {
+    if (!isCustomFieldVisible(field, answers, fields)) continue;
+    const raw = (answers[field.key] ?? '').trim();
+    if (!raw) continue;
+
+    if (field.type === 'boolean') {
+      out[field.key] = raw === BOOLEAN_ANSWER_YES;
+    } else if (field.type === 'number') {
+      const n = Number(raw);
+      // A non-numeric answer keeps its text rather than becoming NaN — the
+      // input is type="number", so this only fires for hand-crafted posts.
+      out[field.key] = Number.isFinite(n) ? n : raw;
+    } else {
+      out[field.key] = raw;
+    }
+  }
+
+  return out;
+}
+
 /** Resolve a form-field label, honouring per-event form_config overrides. */
 export function fieldLabel(
   formConfig: Record<string, unknown> | null | undefined,

@@ -2,6 +2,12 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { notifyOnLead, notifyOnEventRegistration } from '@/lib/notifications';
 import { checkHoneypot, verifyRecaptcha } from '@/lib/spam-protection';
+import {
+  parseCustomFields,
+  isCustomFieldVisible,
+  BOOLEAN_ANSWER_YES,
+  BOOLEAN_ANSWER_NO,
+} from '@/lib/events';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -20,6 +26,76 @@ function emailToName(email: string): string {
 }
 
 /**
+ * Keep only answers to questions this event actually declares, coerced to the
+ * declared type (#2558).
+ *
+ * `/api/leads` is public and unauthenticated, so the submitted map is
+ * untrusted input: without this filter a caller could write arbitrary keys —
+ * or arbitrarily large values — into `event_registrations.custom_answers`.
+ * An unknown key is dropped silently; the registration itself still succeeds,
+ * because losing a stray answer must never cost someone their RSVP.
+ */
+function sanitizeCustomAnswers(
+  formConfig: unknown,
+  submitted: unknown,
+): Record<string, string | number | boolean> {
+  if (!submitted || typeof submitted !== 'object' || Array.isArray(submitted)) return {};
+  const fields = parseCustomFields(formConfig);
+  if (fields.length === 0) return {};
+
+  const raw = submitted as Record<string, unknown>;
+
+  // Pass 1 — normalize every declared answer to the string form the
+  // conditionals compare against, dropping anything not answerable.
+  const asText: Record<string, string> = {};
+  for (const field of fields) {
+    const value = raw[field.key];
+    if (value === undefined || value === null || value === '') continue;
+    if (typeof value === 'boolean') {
+      asText[field.key] = value ? BOOLEAN_ANSWER_YES : BOOLEAN_ANSWER_NO;
+      continue;
+    }
+    if (typeof value !== 'string' && typeof value !== 'number') continue;
+    asText[field.key] = String(value).slice(0, MAX_ANSWER_LENGTH);
+  }
+
+  // Pass 2 — keep only questions the registrant could actually see, then
+  // coerce to the declared type. The browser already filters by visibility
+  // (`toCustomAnswers`), but this endpoint is public: a hand-crafted post
+  // would otherwise store both sides of a branch, so a registration could
+  // claim "opening in TN: yes" and still carry an "if no, where?" answer.
+  const out: Record<string, string | number | boolean> = {};
+  for (const field of fields) {
+    const text = asText[field.key];
+    if (text === undefined) continue;
+    if (!isCustomFieldVisible(field, asText, fields)) continue;
+
+    if (field.type === 'boolean') {
+      if (text === BOOLEAN_ANSWER_YES) out[field.key] = true;
+      else if (text === BOOLEAN_ANSWER_NO) out[field.key] = false;
+      continue;
+    }
+
+    if (field.type === 'number') {
+      const n = Number(text);
+      if (Number.isFinite(n)) out[field.key] = n;
+      continue;
+    }
+
+    // A choice question only accepts one of its own options — anything else
+    // is a hand-crafted post, not something the rendered form can produce.
+    if (field.type === 'select' && !(field.options ?? []).includes(text)) continue;
+
+    out[field.key] = text;
+  }
+
+  return out;
+}
+
+/** Upper bound on a single free-text answer — the form has no length cap of its own. */
+const MAX_ANSWER_LENGTH = 2000;
+
+/**
  * Lead capture endpoint.
  * Called from the Get Started and Free Marketing Analysis forms.
  * Creates a company (type: 'lead') and contact in Supabase.
@@ -27,7 +103,7 @@ function emailToName(email: string): string {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, company_name, phone, plan, service, services, offering, offering_price, message, source, event_id } = body;
+    const { name, email, company_name, phone, plan, service, services, offering, offering_price, message, source, event_id, custom_answers } = body;
 
     // Basic validation. With an event_id, name + company_name are both
     // optional — event attendees may have no practice, and newsletter signups
@@ -115,7 +191,11 @@ export async function POST(request: Request) {
         name: effectiveCompanyName,
         slug: companySlug,
         type: 'lead',
-        status: 'new',
+        // Portal migration 00277 (#2123) dropped 'new' from
+        // companies_status_check, so every insert here 500'd with 23514 —
+        // the whole public lead + RSVP path was down. 'not_started' is the
+        // canonical entry state for an unworked lead.
+        status: 'not_started',
         notes: [
           source && `Source: ${source}`,
           plan && `Interested in plan: ${plan}`,
@@ -158,7 +238,7 @@ export async function POST(request: Request) {
     if (event_id) {
       const { data: eventRow, error: eventLookupError } = await supabase
         .from('events')
-        .select('title, template, event_date, event_time, description_html')
+        .select('title, template, event_date, event_time, description_html, form_config')
         .eq('id', event_id)
         .maybeSingle();
       if (eventLookupError) {
@@ -180,6 +260,10 @@ export async function POST(request: Request) {
           company_id: company.id,
           source: 'event_signup',
           status: 'registered',
+          // Answers are filtered against the event's own question set rather
+          // than trusted from the post body: this endpoint is public, so an
+          // arbitrary client could otherwise write any key into the jsonb.
+          custom_answers: sanitizeCustomAnswers(eventRow?.form_config, custom_answers),
         });
 
       if (registrationError) throw registrationError;
