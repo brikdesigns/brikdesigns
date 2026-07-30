@@ -41,7 +41,7 @@ Field surface for the live templates today: `EventRow` in `src/lib/events.ts`.
 | `hero` | Title + tagline + optional media/logo | `eyebrow?`, `title`, `subtitle?`, `media?{url,alt}`, `accent_token?` | `PageHeader` + `Frame` (media); split-layout backgrounds = section CSS (allowed — "What is NOT in BDS") | ✅ |
 | `rich-content` | Prose body — paragraphs, bullet lists, "we'll review" checklist, benefit copy | `html` (sanitized) | prose via `@/lib/styles` (`heading` / `text` / `list`); sanitized with `src/lib/sanitize.ts` | – |
 | `event-meta` | Date / time / fee row | `date?`, `time?`, `fee?` | `Stack direction="horizontal"` + `Icon` + `label` style | – |
-| `speaker` | Speaker name + bio (+ avatar) | `name`, `bio?`, `avatar?{url,alt}` | `Card variant="outlined"` / `Stack` | – |
+| `speaker` | One or many speakers (name + bio + avatar) | `speakers[]{name, bio?, avatar?{url,alt}}` (legacy single-speaker `name`/`bio`/`avatar` at top level still parsed) | `Card variant="outlined"` / `Stack` per speaker | – |
 | `logo-strip` | Sponsor / partner logos | `logos[]{url, alt, href?}` | `Stack` + `Frame fit="contain"` | – |
 | `stats` | Metric / proof row | `items[]{value, label}` | `Grid columns="auto-fit"` + `Card` | – |
 | `form` | Registration / lead / newsletter capture | `variant`(`registration`\|`lead`\|`newsletter`), `fields` (see Form variants), `submit_label?`, `source` | BDS form container ([Storybook › Containers/Form](https://storybook.brikdesigns.com/?path=/docs/containers-form--overview)) + `TextInput` + `Button` | ✅ (CTA) |

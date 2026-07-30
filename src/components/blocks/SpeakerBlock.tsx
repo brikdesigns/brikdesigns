@@ -2,15 +2,10 @@ import Image from 'next/image';
 import { Card, CardTitle, Stack } from '@brikdesigns/bds';
 import { text } from '@/lib/styles';
 import { color, border } from '@/lib/tokens';
-import type { SpeakerProps } from '@/lib/blocks';
+import type { SpeakerProps, SpeakerBlockProps } from '@/lib/blocks';
 
-/**
- * speaker block — name + bio (+ optional avatar). Maps to an outlined BDS Card
- * with a horizontal Stack (COMPONENT-MAP). Non-accent: no per-block color.
- */
-export function SpeakerBlock({ name, bio, avatar }: SpeakerProps) {
-  if (!name && !bio) return null;
-
+/** One speaker → an outlined BDS Card with a horizontal Stack (COMPONENT-MAP). */
+function SpeakerCard({ name, bio, avatar }: SpeakerProps) {
   return (
     <Card variant="outlined" padding="lg">
       <Stack direction="horizontal" gap="md" align="center">
@@ -31,5 +26,21 @@ export function SpeakerBlock({ name, bio, avatar }: SpeakerProps) {
         </Stack>
       </Stack>
     </Card>
+  );
+}
+
+/**
+ * speaker block — one or many speakers. Each speaker renders as an outlined
+ * Card; multiple stack vertically. Non-accent: no per-block color.
+ */
+export function SpeakerBlock({ speakers }: SpeakerBlockProps) {
+  if (speakers.length === 0) return null;
+
+  return (
+    <Stack gap="md">
+      {speakers.map((speaker, i) => (
+        <SpeakerCard key={i} {...speaker} />
+      ))}
+    </Stack>
   );
 }
