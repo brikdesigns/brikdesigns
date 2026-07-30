@@ -2,7 +2,13 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getEventBySlug, getPublicEventSlugs } from '@/lib/supabase/queries';
-import { type EventRow, eventAccent, landingSurface, plainTextExcerpt } from '@/lib/events';
+import {
+  type EventRow,
+  eventAccent,
+  landingSurface,
+  parseCustomFields,
+  plainTextExcerpt,
+} from '@/lib/events';
 import { sanitizeHtml } from '@/lib/sanitize';
 import { parseBlocks, parseAlertBanner } from '@/lib/blocks';
 import { LandingBlocks, AlertBannerBlock } from '@/components/blocks';
@@ -64,7 +70,7 @@ export default async function MarketingPage({ params }: Props) {
       {blocks.length > 0 ? (
         <LandingBlocks
           blocks={blocks}
-          context={{ rowId: event.id, accent, ended }}
+          context={{ rowId: event.id, accent, ended, customFields: parseCustomFields(event.form_config) }}
           layout={event.layout}
           surface={landingSurface(event.accent_color_token, event.surface_treatment)}
         />
@@ -107,6 +113,7 @@ export default async function MarketingPage({ params }: Props) {
                 variant="newsletter"
                 source="newsletter_signup"
                 submitLabel="Subscribe"
+                customFields={parseCustomFields(event.form_config)}
               />
             </>
           )}

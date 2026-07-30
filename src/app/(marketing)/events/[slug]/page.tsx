@@ -7,6 +7,7 @@ import {
   eventAccent,
   landingSurface,
   fieldLabel,
+  parseCustomFields,
   feeLabel,
   formatEventDate,
   plainTextExcerpt,
@@ -72,7 +73,7 @@ export default async function EventPage({ params }: Props) {
       {blocks.length > 0 ? (
         <LandingBlocks
           blocks={blocks}
-          context={{ rowId: event.id, accent, ended }}
+          context={{ rowId: event.id, accent, ended, customFields: parseCustomFields(event.form_config) }}
           layout={event.layout}
           surface={landingSurface(event.accent_color_token, event.surface_treatment)}
         />
@@ -179,6 +180,7 @@ export default async function EventPage({ params }: Props) {
                     'practice_name',
                     'Practice / Company (optional)',
                   )}
+                  customFields={parseCustomFields(event.form_config)}
                 />
               </>
             )}

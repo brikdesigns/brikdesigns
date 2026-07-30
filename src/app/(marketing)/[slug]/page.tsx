@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getEventBySlug, getPublicEventSlugs } from '@/lib/supabase/queries';
-import { type EventRow, eventAccent, landingSurface, plainTextExcerpt } from '@/lib/events';
+import {
+  type EventRow,
+  eventAccent,
+  landingSurface,
+  parseCustomFields,
+  plainTextExcerpt,
+} from '@/lib/events';
 import { parseBlocks, parseAlertBanner } from '@/lib/blocks';
 import { LandingBlocks, AlertBannerBlock } from '@/components/blocks';
 import '../shared-sections.css';
@@ -60,7 +66,7 @@ export default async function LandingPage({ params }: Props) {
       {alertBanner && <AlertBannerBlock {...alertBanner} />}
       <LandingBlocks
         blocks={blocks}
-        context={{ rowId: event.id, accent, ended }}
+        context={{ rowId: event.id, accent, ended, customFields: parseCustomFields(event.form_config) }}
         layout={event.layout}
         surface={landingSurface(event.accent_color_token, event.surface_treatment)}
       />

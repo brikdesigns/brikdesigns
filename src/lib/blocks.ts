@@ -12,7 +12,7 @@
  * blocks and `cross-reference` (#422). Each `type` is added — type + renderer
  * arm together; an unknown `type` is skipped by the renderer (see BlockRenderer).
  */
-import type { eventAccent } from './events';
+import type { eventAccent, CustomField } from './events';
 import type { ButtonVariant } from '@brikdesigns/bds';
 
 // ─── Wire shape ──────────────────────────────────────────────────────
@@ -294,6 +294,11 @@ export interface BlockContext {
   accent: ReturnType<typeof eventAccent>;
   /** `row.status === 'ended'` → the form arm renders the ended banner instead. */
   ended: boolean;
+  /**
+   * Author-defined registration questions (`parseCustomFields(row.form_config)`,
+   * #2558) — page-level like the accent, consumed only by the form arm.
+   */
+  customFields?: CustomField[];
 }
 
 // ─── hero ────────────────────────────────────────────────────────────
