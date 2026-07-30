@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { notifyOnLead, notifyOnEventRegistration } from '@/lib/notifications';
 import { checkHoneypot, verifyRecaptcha } from '@/lib/spam-protection';
-import { parseCustomFields, BOOLEAN_ANSWER_YES, BOOLEAN_ANSWER_NO } from '@/lib/events';
+import {
+  parseCustomFields,
+  isCustomFieldVisible,
+  BOOLEAN_ANSWER_YES,
+  BOOLEAN_ANSWER_NO,
+} from '@/lib/events';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -39,27 +44,43 @@ function sanitizeCustomAnswers(
   if (fields.length === 0) return {};
 
   const raw = submitted as Record<string, unknown>;
-  const out: Record<string, string | number | boolean> = {};
 
+  // Pass 1 — normalize every declared answer to the string form the
+  // conditionals compare against, dropping anything not answerable.
+  const asText: Record<string, string> = {};
   for (const field of fields) {
     const value = raw[field.key];
     if (value === undefined || value === null || value === '') continue;
+    if (typeof value === 'boolean') {
+      asText[field.key] = value ? BOOLEAN_ANSWER_YES : BOOLEAN_ANSWER_NO;
+      continue;
+    }
+    if (typeof value !== 'string' && typeof value !== 'number') continue;
+    asText[field.key] = String(value).slice(0, MAX_ANSWER_LENGTH);
+  }
+
+  // Pass 2 — keep only questions the registrant could actually see, then
+  // coerce to the declared type. The browser already filters by visibility
+  // (`toCustomAnswers`), but this endpoint is public: a hand-crafted post
+  // would otherwise store both sides of a branch, so a registration could
+  // claim "opening in TN: yes" and still carry an "if no, where?" answer.
+  const out: Record<string, string | number | boolean> = {};
+  for (const field of fields) {
+    const text = asText[field.key];
+    if (text === undefined) continue;
+    if (!isCustomFieldVisible(field, asText, fields)) continue;
 
     if (field.type === 'boolean') {
-      if (typeof value === 'boolean') out[field.key] = value;
-      else if (value === BOOLEAN_ANSWER_YES) out[field.key] = true;
-      else if (value === BOOLEAN_ANSWER_NO) out[field.key] = false;
+      if (text === BOOLEAN_ANSWER_YES) out[field.key] = true;
+      else if (text === BOOLEAN_ANSWER_NO) out[field.key] = false;
       continue;
     }
 
     if (field.type === 'number') {
-      const n = Number(value);
+      const n = Number(text);
       if (Number.isFinite(n)) out[field.key] = n;
       continue;
     }
-
-    if (typeof value !== 'string' && typeof value !== 'number') continue;
-    const text = String(value).slice(0, MAX_ANSWER_LENGTH);
 
     // A choice question only accepts one of its own options — anything else
     // is a hand-crafted post, not something the rendered form can produce.
@@ -170,7 +191,11 @@ export async function POST(request: Request) {
         name: effectiveCompanyName,
         slug: companySlug,
         type: 'lead',
-        status: 'new',
+        // Portal migration 00277 (#2123) dropped 'new' from
+        // companies_status_check, so every insert here 500'd with 23514 —
+        // the whole public lead + RSVP path was down. 'not_started' is the
+        // canonical entry state for an unworked lead.
+        status: 'not_started',
         notes: [
           source && `Source: ${source}`,
           plan && `Interested in plan: ${plan}`,
