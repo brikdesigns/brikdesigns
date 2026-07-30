@@ -24,10 +24,12 @@ export function FormBlock({
   rowId,
   accent,
   ended,
+  customFields,
 }: FormProps & {
   rowId: BlockContext['rowId'];
   accent: BlockContext['accent'];
   ended: BlockContext['ended'];
+  customFields: BlockContext['customFields'];
 }) {
   const form =
     variant === 'lead' ? (
@@ -43,6 +45,7 @@ export function FormBlock({
         variant="newsletter"
         source={source ?? 'newsletter_signup'}
         submitLabel={submitLabel ?? 'Subscribe'}
+        customFields={customFields}
       />
     ) : (
       <EventRegistrationForm
@@ -51,6 +54,7 @@ export function FormBlock({
         source={source ?? 'event_signup'}
         submitLabel={submitLabel}
         companyLabel={companyLabel}
+        customFields={customFields}
       />
     );
 

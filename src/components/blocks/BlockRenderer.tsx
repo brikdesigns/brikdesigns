@@ -62,6 +62,7 @@ function renderBlock(block: RawBlock, key: number, context: BlockContext) {
           rowId={context.rowId}
           accent={context.accent}
           ended={context.ended}
+          customFields={context.customFields}
         />
       );
     case 'cta':
