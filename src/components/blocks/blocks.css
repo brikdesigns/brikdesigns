@@ -69,15 +69,13 @@
   overflow: hidden;
 }
 
-/* form-card — accent top border set inline (FormBlock); width/style here.
+/* form-card — uniform muted border. The per-event accent top border was
+   removed (BACKLOG-1127): the colored top strip was omitted as a style choice.
    Mirrors the legacy .marketing-page__form-card / .event-page__form-card. */
 .lp-form-card {
   padding: var(--padding-xl);
   background-color: var(--surface-primary);
   border: 1px solid var(--border-muted);
-  border-top-width: 3px;
-  border-top-style: solid;
-  border-top-color: var(--border-brand-primary);
   border-radius: var(--border-radius-lg);
   text-align: left;
 }

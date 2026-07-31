@@ -22,7 +22,6 @@ export function FormBlock({
   submitLabel,
   companyLabel,
   rowId,
-  accent,
   ended,
   customFields,
 }: FormProps & {
@@ -59,7 +58,7 @@ export function FormBlock({
     );
 
   return (
-    <div className="lp-form-card" style={{ borderTopColor: accent.bg }}>
+    <div className="lp-form-card">
       {ended ? (
         <EventEndedBanner />
       ) : (
