@@ -9,7 +9,9 @@ import { BlockRenderer } from './BlockRenderer';
  * the subtree) and the **layout**:
  *
  *   - `layout="split"` — two columns: content (hero, prose, cta) on the left,
- *     the form on the right. Matches the legacy fma 2-col marketing pages.
+ *     the form on the right, with any `logo-strip` pulled into a full-width
+ *     trailer **below** both columns (sponsors read as their own section, not a
+ *     left-column tail — BACKLOG-1129). Matches the legacy fma 2-col pages.
  *   - default — a single stacked column.
  *
  * Both routes (`/events/[slug]`, `/marketing/[slug]`) and the vanity landing
@@ -31,7 +33,12 @@ export function LandingBlocks({
 
   if (layout === 'split') {
     const formBlocks = blocks.filter((b) => b.type === 'form');
-    const contentBlocks = blocks.filter((b) => b.type !== 'form');
+    // logo-strip breaks out of the 2-col grid into a full-width trailer below
+    // both columns, so sponsors read as their own section (BACKLOG-1129).
+    const trailerBlocks = blocks.filter((b) => b.type === 'logo-strip');
+    const contentBlocks = blocks.filter(
+      (b) => b.type !== 'form' && b.type !== 'logo-strip',
+    );
     return (
       <section className={sectionClass} style={style}>
         <div className="lp-blocks__container lp-split">
@@ -42,6 +49,11 @@ export function LandingBlocks({
             <BlockRenderer blocks={formBlocks} context={context} />
           </div>
         </div>
+        {trailerBlocks.length > 0 && (
+          <div className="lp-blocks__container lp-split__trailer">
+            <BlockRenderer blocks={trailerBlocks} context={context} />
+          </div>
+        )}
       </section>
     );
   }

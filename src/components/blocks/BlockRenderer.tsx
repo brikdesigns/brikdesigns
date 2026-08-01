@@ -2,6 +2,7 @@ import type { RawBlock, BlockContext } from '@/lib/blocks';
 import {
   parseAlertBanner,
   parseRichContentProps,
+  parseContentBlockProps,
   parseEventMetaProps,
   parseDetailsProps,
   parseSpeakerBlockProps,
@@ -12,6 +13,8 @@ import {
   parseCtaProps,
 } from '@/lib/blocks';
 import { RichContentBlock } from './RichContentBlock';
+import { ContentBlockBlock } from './ContentBlockBlock';
+import { ProseBlock } from './ProseBlock';
 import { EventMetaBlock } from './EventMetaBlock';
 import { DetailsBlock } from './DetailsBlock';
 import { SpeakerBlock } from './SpeakerBlock';
@@ -38,6 +41,10 @@ function renderBlock(block: RawBlock, key: number, context: BlockContext) {
   switch (block.type) {
     case 'rich-content':
       return <RichContentBlock key={key} {...parseRichContentProps(props)} />;
+    case 'content-block':
+      return <ContentBlockBlock key={key} {...parseContentBlockProps(props)} />;
+    case 'prose':
+      return <ProseBlock key={key} {...parseRichContentProps(props)} />;
     case 'event-meta':
       return <EventMetaBlock key={key} {...parseEventMetaProps(props)} />;
     case 'details': {

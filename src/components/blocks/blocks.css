@@ -107,3 +107,10 @@
     top: var(--gap-xl);
   }
 }
+
+/* split trailer — sponsors/logo-strip as a full-width section below the 2-col
+   grid (BACKLOG-1129). Sits a block-gap under the grid, matching the inter-block
+   rhythm inside .lp-blocks__container. */
+.lp-split__trailer {
+  margin-top: var(--gap-xl);
+}
