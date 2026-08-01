@@ -26,9 +26,23 @@ export interface RawBlock {
 
 // ─── Renderable (non-accent) block props ─────────────────────────────
 
-/** Prose body — paragraphs, lists, checklists. `html` is sanitized at render. */
+/** Prose body — paragraphs, lists, checklists. `html` is sanitized at render.
+ *  Shared by the `rich-content` (legacy `.rich-content`) and `prose` (BDS
+ *  `Prose`) blocks; `prose` is the formalized successor (ADR-023). */
 export interface RichContentProps {
   html: string;
+}
+
+/**
+ * Fixed-slot content lead — `title` / `subtitle` / `description` (BDS
+ * `ContentBlock`). A non-accent block; every slot optional (an all-empty block
+ * renders nothing). ADR-023 owns the vertical rhythm between the slots; the
+ * page section owns surface + text-pairing, so no per-block color here.
+ */
+export interface ContentBlockProps {
+  title?: string;
+  subtitle?: string;
+  description?: string;
 }
 
 /** Date / time / fee row. Each field optional; an omitted `fee` hides the
@@ -173,6 +187,17 @@ function str(value: unknown): string | undefined {
 
 export function parseRichContentProps(props: Record<string, unknown>): RichContentProps {
   return { html: str(props.html) ?? '' };
+}
+
+export function parseContentBlockProps(props: Record<string, unknown>): ContentBlockProps {
+  const out: ContentBlockProps = {};
+  const title = str(props.title);
+  if (title) out.title = title;
+  const subtitle = str(props.subtitle);
+  if (subtitle) out.subtitle = subtitle;
+  const description = str(props.description);
+  if (description) out.description = description;
+  return out;
 }
 
 export function parseEventMetaProps(props: Record<string, unknown>): EventMetaProps {

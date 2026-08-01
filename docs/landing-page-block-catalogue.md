@@ -40,7 +40,9 @@ Field surface for the live templates today: `EventRow` in `src/lib/events.ts`.
 |---|---|---|---|---|
 | `hero` | Title + tagline + optional media/logo | `eyebrow?`, `title`, `subtitle?`, `media?{url,alt}`, `accent_token?` | `PageHeader` + `Frame` (media); split-layout backgrounds = section CSS (allowed — "What is NOT in BDS") | ✅ |
 | `rich-content` | Prose body — paragraphs, bullet lists, "we'll review" checklist, benefit copy | `html` (sanitized) | prose via `@/lib/styles` (`heading` / `text` / `list`); sanitized with `src/lib/sanitize.ts` | – |
-| `event-meta` | Date / time / fee row | `date?`, `time?`, `fee?` | `Stack direction="horizontal"` + `Icon` + `label` style | – |
+| `content-block` | Fixed-slot content lead — title / subtitle / description (ADR-023) | `title?`, `subtitle?`, `description?` | BDS `ContentBlock` (`titleAs="h2"` under the hero `h1`); owns inter-slot rhythm | – |
+| `prose` | Free-form CMS-HTML body — the formalized successor to `rich-content` (ADR-023) | `html` (sanitized) | BDS `Prose`; sanitized with `src/lib/sanitize.ts`; owns element-adjacency rhythm | – |
+| `event-meta` | Date / time / fee row | `date?`, `time?`, `fee?` | `Stack direction="vertical"` + `Icon` + `label` style | – |
 | `details` | Structured key/value info rows (Venue / Hosts / Audience / …) — each a leading icon + label subheader + value, stacked | `items[]{icon?, label, value}` (`icon` = a **bundled** `ph:*` glyph — `src/lib/icons.generated.json`; no CDN fallback, #626) | `Stack` (vertical) of `Stack direction="horizontal"` + `Icon` + `label.subtitle` / `text.body` | – |
 | `speaker` | One or many speakers (name + bio + avatar) | `speakers[]{name, bio?, avatar?{url,alt}}` (legacy single-speaker `name`/`bio`/`avatar` at top level still parsed) | `Card variant="outlined"` / `Stack` per speaker | – |
 | `logo-strip` | Sponsor / partner logos | `logos[]{url, alt, href?}` | `Stack` + `Frame fit="contain"` | – |
@@ -112,7 +114,7 @@ Zero gaps: each section of all four sources resolves to a `type` above.
 
 | Page | Section (top → bottom) | Block `type` |
 |---|---|---|
-| `event` | hero image → title → date/time/fee → description → speaker → sponsors → register form / ended banner | `hero` → `event-meta` → `rich-content` → `speaker` → `logo-strip` → `form`(`registration`); *ended banner = status-driven* |
+| `event` | hero image → title → date/time/fee → content lead + prose body → details → speaker → register form → sponsors / ended banner | `hero` → `event-meta` → `content-block` → `prose` → `details` → `speaker` → `form`(`registration`) → `logo-strip`; *sponsors sit below content + form (BACKLOG-1129); ended banner = status-driven* |
 | `newsletter` | hero → title → description → sign-up form / ended banner | `hero` → `rich-content` → `form`(`newsletter`); *ended banner = status-driven* |
 | `free-marketing-analysis` | headline + lead → body → "we'll review" checklist → benefit line → lead form | `hero` → `rich-content` (checklist + benefit are prose) → `form`(`lead`) |
 | `brikdown-analysis` (Webflow) | logo hero → value-prop headline+body → review checklist → benefit statement → contact form | `hero` → `rich-content` → `form`(`lead`) |
