@@ -104,6 +104,10 @@ html {
        axe on /privacy-policy + /terms when those routes first entered the
        public-routes a11y suite via #302's chromeless/marketing split. */
     --text-link: var(--color-poppy-dark);
+    /* BDS components (TextLink, Prose) read the raw --text-text-link, not the
+       --text-link alias, so the AA pin above doesn't reach them. Mirror it so
+       BDS Prose/TextLink links honor the same poppy-dark AA pin. */
+    --text-text-link: var(--color-poppy-dark);
     /* Brand: --text-brand-primary is used across the site as SMALL text
        (mega-nav labels, hero/cta descriptions, eyebrows). BDS 0.114.0 flipped
        it to vibrant poppy-light (#e35335 = 3.78:1, AA fail at those sizes), so
@@ -172,6 +176,8 @@ html {
        drops to ~2.2:1 on dark surfaces. Poppy-lighter is the canonical
        lighter shade — readable on dark, recognizably brand. */
     --text-link: var(--color-poppy-lighter);
+    /* Mirror onto the raw name BDS components read (see light-mode note). */
+    --text-text-link: var(--color-poppy-lighter);
     /* Brand: small brand text on dark — poppy-dark would be ~2.2:1 on the
        near-black surface; use poppy-lighter (readable, on-brand), same as
        --text-link above. Pairs with the light-mode poppy-dark pin. */

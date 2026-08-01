@@ -12,10 +12,11 @@ import {
 import { sanitizeHtml } from '@/lib/sanitize';
 import { parseBlocks, parseAlertBanner } from '@/lib/blocks';
 import { LandingBlocks, AlertBannerBlock } from '@/components/blocks';
+import { Prose } from '@brikdesigns/bds';
 import { EventRegistrationForm } from '@/components/marketing/EventRegistrationForm';
 import { EventEndedBanner } from '@/components/marketing/EventStatusBanner';
 import { heading, text } from '@/lib/styles';
-import { color, gap } from '@/lib/tokens';
+import { color, gap, font } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../marketing.css';
 
@@ -93,9 +94,9 @@ export default async function MarketingPage({ params }: Props) {
         <h1 className="page-hero__title">{event.title}</h1>
 
         {event.description_html && (
-          <div
-            className="marketing-page__description"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.description_html) }}
+          <Prose
+            html={sanitizeHtml(event.description_html)}
+            style={{ fontSize: font.size.body.lg, color: color.text.secondary }}
           />
         )}
 
