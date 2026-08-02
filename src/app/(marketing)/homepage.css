@@ -33,7 +33,7 @@
   width: 100%;
   max-width: var(--content-width-xl);
   margin-inline: auto;
-  padding-inline: var(--site-gutter);
+  padding-inline: var(--gutter-page);
 }
 
 /* Webflow: .layout-wrapper-hero.comfortable — gap-xl between text block and buttons */
@@ -136,7 +136,7 @@
   width: 100%;
   max-width: var(--content-width-xl);
   margin-inline: auto;
-  padding-inline: var(--site-gutter);
+  padding-inline: var(--gutter-page);
   gap: 12px; /* Webflow gap--md = space-300 = 12px */
 }
 
@@ -305,7 +305,7 @@
   width: 100%;
   max-width: var(--content-width-xl);
   margin-inline: auto;
-  padding-inline: var(--site-gutter);
+  padding-inline: var(--gutter-page);
 }
 
 /* Webflow: .cms-item-story — row, space-between, gap-lg (24px), white bg, sm radius */
@@ -488,7 +488,7 @@
 
 /* Webflow: mobile landscape — 767px */
 @media (max-width: 767px) {
-  /* Hero — keeps --site-gutter padding-inline at every breakpoint so content
+  /* Hero — keeps --gutter-page padding-inline at every breakpoint so content
      never runs flush to the viewport edge (was: padding: 0 → edge-to-edge). */
   .section-hero {
     padding: var(--padding-huge) 0;
