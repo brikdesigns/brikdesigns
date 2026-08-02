@@ -589,39 +589,6 @@
   border-color: transparent;
 }
 
-/* Webflow: .mega-nav-item-story.accent — stories promo */
-.mega-nav__stories-promo {
-  display: flex;
-  align-items: center;
-  gap: var(--gap-lg);
-  padding: var(--padding-md);
-  background-color: var(--surface-accent);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  transition: background-color 0.15s;
-}
-
-.mega-nav__stories-promo:hover {
-  background-color: var(--surface-secondary);
-}
-
-.mega-nav__stories-promo-title {
-  font-family: var(--font-family-label);
-  font-size: var(--label-md);
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-.mega-nav__stories-promo-desc {
-  font-family: var(--font-family-body);
-  font-size: var(--body-sm);
-  color: var(--text-secondary);
-  flex: 1;
-}
-
-/* Stories promo CTA now uses BDS .bds-button--primary.bds-button--sm */
-
 /* ─── About grid (4-col with image cards) ────────────────────── */
 /* Webflow: .layout-nav-4-col-about */
 
