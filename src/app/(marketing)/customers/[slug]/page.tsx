@@ -273,11 +273,12 @@ export default async function CustomerDetailPage({ params }: Props) {
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <h2 style={heading.lg}>Other Industries</h2>
-            <Grid columns={3}>
+            <Grid columns={3} gap="lg">
               {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
                   key={p.slug}
                   preset="display"
+                  variant="raised"
                   title={p.name}
                   description={p.tagline ?? undefined}
                   image={p.image_url ? (
