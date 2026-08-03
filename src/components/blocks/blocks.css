@@ -98,3 +98,191 @@
 .lp-split__trailer {
   margin-top: var(--gap-xl);
 }
+
+/* ── showcase layout (layout="showcase") ──────────────────────────────────
+   The bold multi-color card layout (Grind After Graduation). A DARK,
+   theme-invariant canvas (--color-grayscale-darkest, not --surface-primary
+   which flips white in light mode — the design is dark-locked) carrying
+   fixed-palette bright cards. Card backgrounds are the BDS scale hues; the
+   dark-ink text pairing on those bright cards lives in globals.css
+   (.lp-showcase__card, mirroring the .service-surface pin). No per-block color
+   (#429) — the layout owns every hue here. */
+.lp-showcase {
+  padding-block: var(--padding-huge);
+  /* Canvas is dark-LOCKED in both themes (design is dark-only); a semantic
+     --background/--surface-* token would flip light in light mode. */
+  background-color: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — theme-invariant dark canvas; see note above */
+}
+.lp-showcase__container {
+  max-width: var(--content-width-xl);
+  margin-inline: auto;
+  padding-inline: var(--gutter-page);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+/* Base card — generous padding + radius; the hue modifiers set the ground. */
+.lp-showcase__card {
+  padding: var(--padding-xl);
+  border-radius: var(--border-radius-800);
+}
+/* Card grounds: the fixed showcase palette. These BDS scale hues have no
+   semantic surface/background equivalent, and the layout is dark-locked
+   (colours must not flip by theme), so the scale token IS the surface here —
+   the same escape-hatch pattern the brand-kit blocks use in globals.css. Dark
+   ink is pinned by .lp-showcase__card (globals.css). */
+.lp-showcase__card--purple {
+  background-color: var(--color-purple-lighter); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* purple exists */
+}
+.lp-showcase__card--blue {
+  background-color: var(--color-blue-lighter); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* blue exists */
+}
+.lp-showcase__card--green {
+  background-color: var(--color-green-light); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* green exists */
+}
+.lp-showcase__card--yellow {
+  background-color: var(--color-yellow-light); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* yellow exists */
+}
+
+/* Intro — title + about (left) beside the registration card (right). Single
+   column below the BDS md breakpoint. */
+.lp-showcase__intro {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-xl);
+}
+.lp-showcase__intro-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+@media (min-width: 768px) {
+  .lp-showcase__intro {
+    grid-template-columns: 1fr 1.4fr;
+    align-items: start;
+  }
+}
+
+/* Registration — meta + form stack. The FormBlock's inner .lp-form-card chrome
+   (dark bg + border) is neutralized so the form reads directly on the card. */
+.lp-showcase__registration {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+.lp-showcase__registration .lp-form-card {
+  padding: 0;
+  background-color: transparent;
+  border: none;
+}
+.lp-showcase__region-label {
+  margin: 0;
+}
+
+/* Trio — Venue / Hosts / Audience as centered stat cards. */
+.lp-showcase__trio {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-xl);
+}
+@media (min-width: 640px) {
+  .lp-showcase__trio {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.lp-showcase__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--gap-sm);
+}
+.lp-showcase__stat-label {
+  margin-top: var(--gap-xs);
+}
+
+/* Speaker — name + bio (left), large photo (right). */
+.lp-showcase__speaker {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-xl);
+  align-items: center;
+}
+.lp-showcase__speaker-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+.lp-showcase__speaker-photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  min-height: 300px;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+@media (min-width: 768px) {
+  .lp-showcase__speaker {
+    grid-template-columns: 1.5fr 1fr;
+  }
+}
+
+/* Partners — an optional yellow heading band over a grid of sponsor-logo cards.
+   The band title/description are authored on the logo-strip block (showcase
+   only). Logos sit on individual light cards directly on the dark canvas. */
+.lp-showcase__partners-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+.lp-showcase__partners-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+@media (min-width: 768px) {
+  .lp-showcase__partners-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+.lp-showcase__partners {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap-lg);
+}
+@media (min-width: 768px) {
+  .lp-showcase__partners {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+/* One logo card — light, theme-invariant ground to match the dark-locked canvas. */
+.lp-showcase__logo {
+  position: relative;
+  height: 96px;
+  padding: var(--padding-lg);
+  border-radius: var(--border-radius-lg);
+  background-color: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — theme-invariant light logo ground; no semantic --surface-* fits */
+}
+
+/* Registration form, two-up (EventRegistrationForm columns=2). Single column
+   below the BDS sm breakpoint; the submit/error block spans both columns. */
+.lp-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-lg);
+}
+@media (min-width: 640px) {
+  .lp-form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.lp-form-grid__full {
+  grid-column: 1 / -1;
+}
+
+/* Region labels ("Register today", "Speaker") — small uppercase eyebrow. */
+.lp-showcase__region-label {
+  text-transform: uppercase;
+}

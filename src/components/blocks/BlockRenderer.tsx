@@ -76,6 +76,7 @@ function renderBlock(block: RawBlock, key: number, context: BlockContext) {
           accent={context.accent}
           ended={context.ended}
           customFields={context.customFields}
+          columns={context.formColumns}
         />
       );
     case 'cta':

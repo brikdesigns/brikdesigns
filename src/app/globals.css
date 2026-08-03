@@ -600,6 +600,18 @@ h1, h2, h3, h4, h5, h6 {
     --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop; no BDS primitive exists for it */
   }
 
+  /* showcase layout (LandingBlocks layout="showcase") — fixed-palette bright
+     cards (purple/blue/green/yellow BDS scale hues) on a dark canvas. Each card
+     ground is fixed-light in BOTH themes, so pin the inherited heading/body copy
+     to the mode-invariant darkest grayscale — same fixed-on-fixed-light pattern
+     as .service-surface, but theme-invariant (no per-theme branch) because the
+     card colours never flip. The layout owns the colour; blocks stay colourless
+     (#429). */
+  .lp-showcase__card {
+    --text-primary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — dark ink on the fixed-light showcase card hues; same fixed-on-fixed pattern as .service-surface */
+    --text-secondary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above */
+  }
+
   /* Current-page breadcrumb: de-emphasize it relative to the navigable link
      trail (#391). On the service heroes the trail links and the current page
      render identically — same colour (the BDS audience cascade, brik-bds#781,
