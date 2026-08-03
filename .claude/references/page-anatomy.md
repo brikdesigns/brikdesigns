@@ -20,36 +20,36 @@ Two different layers own a "background surface": the **Section** owns the *band/
 
 **Locate the element to change by its layer/role in the page anatomy — read the DOM tree top-down (Section → Layout → Container → Block → Component) — never by selector-name resemblance.**
 
-A BEM **block name** describes the blueprint family; it does **not** define the element's layer. `bp-hero-img-card` has "card" in the name but is a **Section** (`<section>`). The **Container/Card** is the nested `__media-card` element. When a ticket says "card," it means the Container layer — the bounded thing — not the section whose block name happens to contain "card."
+A BEM **block name** describes the blueprint family; it does **not** define the element's layer. `bds-hero--with-pricing-card` has "card" in the name but is a **Section** (`<section>`). The **Container/Card** is the nested `bds-hero__media-card` element. When a ticket says "card," it means the Container layer — the bounded thing — not the section whose block name happens to contain "card."
 
 ## Worked example — the one that bit us (BRIK-WEB-52 / #633, #637)
 
 `HeroSplitImageCardOverlay` DOM:
 
 ```
-section.bp-hero-img-card[data-audience]        ← SECTION  (page-role surface / band)
-  div.bp-hero-img-card__container              ← container div (layout)
-    div.bp-hero-img-card__content              ← Block: breadcrumb, h1, lead, CTA
-    aside.bp-hero-img-card__media-card         ← CONTAINER (Card)  ← "the card"
-      div.__image-frame > img                  ← Block/Component
-      div.__price > label / value / Button     ← Block/Components
+section.bds-hero--with-pricing-card[data-audience]   ← SECTION  (page-role surface / band)
+  div.bds-hero__container                             ← container div (layout)
+    div.bds-hero__content                             ← Block: breadcrumb, h1, lead, CTA
+    aside.bds-hero__media-card                        ← CONTAINER (Card)  ← "the card"
+      div.bds-hero__image-frame > img                ← Block/Component
+      div.bds-hero__price > label / value / Button   ← Block/Components
 ```
 
 | Ticket said | Means (layer) | Element | Surface lever |
 |---|---|---|---|
-| "the card" | Container (Card) | `aside.bp-hero-img-card__media-card` | `--bp-hero-img-card-card-bg` (set via `serviceColor().inverse`) |
-| NOT this | Section | `section.bp-hero-img-card[data-audience]` | the page-role band tint; kept `transparent` here (#408/#389) |
+| "the card" | Container (Card) | `aside.bds-hero__media-card` | `--bds-hero-media-bg` (set via `serviceColor().inverse`) |
+| NOT this | Section | `section.bds-hero--with-pricing-card[data-audience]` | the page-role band tint; kept `transparent` here (#408/#389) |
 
 **WRONG** — removed the section's `transparent` override, repainting the whole **Section** with the inverse surface (reintroduced the two-tone seam #408/#389 deliberately removed):
 ```css
 /* repaints the SECTION — wrong layer */
-.page-hero-blueprint .bp-hero-img-card[data-audience] { background: /* inverse */ }
+.page-hero-blueprint .bds-hero--with-pricing-card[data-audience] { background: /* inverse */ }
 ```
 
 **RIGHT** — leave the Section transparent; route the surface to the **Container** via its hook, from the page's hero wrapper:
 ```tsx
 // hero wrapper style — scopes the inverse to the card only
-'--bp-hero-img-card-card-bg': serviceColor(audience).inverse,
+'--bds-hero-media-bg': serviceColor(audience).inverse,
 ```
 
 ## Before you change an element's surface/appearance
