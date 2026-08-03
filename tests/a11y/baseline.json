@@ -108,8 +108,8 @@
         ".reveal > div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".lp-form-card > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".lp-hero > p",
-        ".rich-content > p",
-        ".rich-content > ul > li",
+        ".bds-prose > p",
+        ".bds-prose > ul > li",
         "li",
         "p",
         "strong"
@@ -237,8 +237,8 @@
         ".reveal > div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".lp-form-card > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         ".lp-hero > p",
-        ".rich-content > p",
-        ".rich-content > ul > li",
+        ".bds-prose > p",
+        ".bds-prose > ul > li",
         "li",
         "p",
         "strong"

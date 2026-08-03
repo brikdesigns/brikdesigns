@@ -174,7 +174,7 @@ export default async function BlogPostPage({ params }: Props) {
             <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: gap.lg }}>
               Related services
             </h2>
-            <Grid columns={3} gap="md">
+            <Grid columns={3} gap="lg">
               {relatedServices.map((svc) => {
                 const lineSlug = svc.service_lines?.slug;
                 if (!lineSlug) return null;
@@ -203,7 +203,7 @@ export default async function BlogPostPage({ params }: Props) {
             <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: gap.lg }}>
               Explore our services
             </h2>
-            <Grid columns={3} gap="md">
+            <Grid columns={3} gap="lg">
               {serviceLines.map((line) => {
                 const lineKey = mapServiceLineSlug(line.slug);
                 const lineColors = serviceColor(lineKey);
@@ -214,6 +214,7 @@ export default async function BlogPostPage({ params }: Props) {
                   >
                     <Card
                       preset="display"
+                      variant="raised"
                       title={line.name}
                       description={line.tagline ?? undefined}
                       image={

@@ -2,6 +2,8 @@ export { BlockRenderer } from './BlockRenderer';
 export { LandingBlocks } from './LandingBlocks';
 export { AlertBannerBlock } from './AlertBannerBlock';
 export { RichContentBlock } from './RichContentBlock';
+export { ContentBlockBlock } from './ContentBlockBlock';
+export { ProseBlock } from './ProseBlock';
 export { EventMetaBlock } from './EventMetaBlock';
 export { DetailsBlock } from './DetailsBlock';
 export { SpeakerBlock } from './SpeakerBlock';

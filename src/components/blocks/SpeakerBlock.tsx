@@ -4,18 +4,20 @@ import { text } from '@/lib/styles';
 import { color, border } from '@/lib/tokens';
 import type { SpeakerProps, SpeakerBlockProps } from '@/lib/blocks';
 
-/** One speaker → an outlined BDS Card with a horizontal Stack (COMPONENT-MAP). */
+/** One speaker → an outlined BDS Card with a horizontal Stack (COMPONENT-MAP).
+ *  Avatar is enlarged (96px) and top-aligned to the name/title rather than
+ *  vertically centered (`align="start"`, BACKLOG-1128). */
 function SpeakerCard({ name, bio, avatar }: SpeakerProps) {
   return (
     <Card variant="outlined" padding="lg">
-      <Stack direction="horizontal" gap="md" align="center">
+      <Stack direction="horizontal" gap="md" align="start">
         {avatar?.url && (
           <Image
             src={avatar.url}
             alt={avatar.alt || ''}
-            width={56}
-            height={56}
-            style={{ borderRadius: border.radius.circle, objectFit: 'cover' }}
+            width={96}
+            height={96}
+            style={{ borderRadius: border.radius.circle, objectFit: 'cover', flexShrink: 0 }}
           />
         )}
         <Stack gap="xs">

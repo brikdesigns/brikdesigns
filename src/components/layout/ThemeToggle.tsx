@@ -1,12 +1,12 @@
 'use client';
 
-import { Switch } from '@brikdesigns/bds';
+import { ToggleSwitch } from '@brikdesigns/bds';
 import { useTheme } from '@/components/providers/ThemeProvider';
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
   return (
-    <Switch
+    <ToggleSwitch
       size="sm"
       variant="accent-knob"
       checked={theme === 'dark'}

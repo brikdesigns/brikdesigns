@@ -6,9 +6,10 @@ import { feeLabel, formatEventDate } from '@/lib/events';
 import type { EventMetaProps } from '@/lib/blocks';
 
 /**
- * event-meta block — date / time / fee row. Maps to a horizontal BDS Stack of
- * Icon + label items (COMPONENT-MAP), mirroring the legacy `.event-page__meta`
- * presentation. An omitted `fee` hides the item; `fee: null` renders "Free".
+ * event-meta block — date / time / fee list. Maps to a vertical BDS Stack of
+ * Icon + label items (COMPONENT-MAP); a stacked list, not a horizontal row, so
+ * each fact reads on its own line (BACKLOG-1125). An omitted `fee` hides the
+ * item; `fee: null` renders "Free".
  */
 export function EventMetaBlock({ date, time, fee }: EventMetaProps) {
   const showFee = fee !== undefined;
@@ -17,7 +18,7 @@ export function EventMetaBlock({ date, time, fee }: EventMetaProps) {
   const itemStyle = { ...label.sm, color: color.text.secondary };
 
   return (
-    <Stack direction="horizontal" gap="md" wrap>
+    <Stack gap="sm">
       {date && (
         <Stack as="span" direction="horizontal" gap="xs" align="center" style={itemStyle}>
           <Icon icon="ph:calendar-blank" width={16} height={16} aria-hidden />

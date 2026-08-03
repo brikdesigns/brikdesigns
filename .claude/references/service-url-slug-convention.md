@@ -1,7 +1,7 @@
 ---
 name: Service URL & slug convention
 description: Canonical `/services/*` URL structure, the five short-form service-line slugs, the Webflow long-form legacy map, and where translation lives in code. Sibling to service-token-decision-tree.md.
-last-verified: 2026-05-14
+last-verified: 2026-08-03
 ---
 
 # Service URL & slug convention
@@ -33,9 +33,9 @@ The recurring agent trip in this repo: Webflow uses long-form, flat URLs (`/serv
 
 | Pattern | Example | Source file |
 | --- | --- | --- |
-| `/services` | `/services` | [src/app/services/page.tsx](../../src/app/services/page.tsx) |
-| `/services/{route-line}` | `/services/marketing`, `/services/back-office` | [src/app/services/[serviceLineSlug]/page.tsx](../../src/app/services/[serviceLineSlug]/page.tsx) |
-| `/services/{route-line}/{service-slug}` | `/services/marketing/web-design` | [src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx](../../src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx) |
+| `/services` | `/services` | [src/app/(marketing)/services/page.tsx](../../src/app/(marketing)/services/page.tsx) |
+| `/services/{route-line}` | `/services/marketing`, `/services/back-office` | [src/app/(marketing)/services/[serviceLineSlug]/page.tsx](../../src/app/(marketing)/services/[serviceLineSlug]/page.tsx) |
+| `/services/{route-line}/{service-slug}` | `/services/marketing/web-design` | [src/app/(marketing)/services/[serviceLineSlug]/[serviceSlug]/page.tsx](../../src/app/(marketing)/services/[serviceLineSlug]/[serviceSlug]/page.tsx) |
 
 ### Webflow legacy URLs (preserved via redirects)
 

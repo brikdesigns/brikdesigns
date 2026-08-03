@@ -300,9 +300,10 @@ export default async function PlanDetailPage({ params }: Props) {
        */}
       {otherPlans.length > 0 && (
         <CardGrid sectionKey="other-plans" title="Other Support Plans">
-          {/* gap="md" matches the /plans index + /services index 3-col grids
-              (detail pages were the lone gap="lg" outliers). #674 / BACKLOG-415 */}
-          <Grid columns={3} gap="md">
+          {/* gap="lg" across all 3-col display-card grids — retires the #674 /
+              BACKLOG-415 gap="md" normalization, which was tied to the now-removed
+              card-chrome-on-tint standard. */}
+          <Grid columns={3} gap="lg">
             {otherPlans.map((other) => {
               // Each card's CTA uses that plan's own service-line color (dynamic),
               // not the current page's — overrides the page-level default. #343
@@ -329,6 +330,7 @@ export default async function PlanDetailPage({ params }: Props) {
               <Card
                 key={other.slug}
                 preset="display"
+                variant="raised"
                 className="display-card--title-sm"
                 style={{ backgroundColor: cardTokens.inverse }}
                 image={

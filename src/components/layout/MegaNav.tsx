@@ -185,6 +185,61 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
           <div className="mega-nav__right-group">
           <div className="mega-nav__menu-wrapper">
             <div className="mega-nav__menu">
+            {/* Support Plans */}
+            <div
+              className="mega-nav__dropdown"
+            >
+              <button
+                className={`mega-nav__toggle ${open === 'plans' ? 'mega-nav__toggle--active' : ''}`}
+                onClick={() => toggle('plans')}
+                aria-expanded={open === 'plans'}
+              >
+                Support Plans
+                <ChevronDown />
+              </button>
+
+              {open === 'plans' && (
+                <div className="mega-nav__panel mega-nav__panel--plans">
+                  <div className="mega-nav__panel-inner mega-nav__panel-row">
+                    {/* Webflow: .inner-wrapper.narrow.stacked — left intro */}
+                    <div className="mega-nav__panel-intro">
+                      <h3 className="mega-nav__panel-title">Support Plans</h3>
+                      <p className="mega-nav__panel-desc">
+                        Brik gives you access to senior-level design and strategic
+                        support—without the full-time overhead.
+                      </p>
+                      <Link href="/plans" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
+                        Learn More
+                      </Link>
+                    </div>
+                    {/* Webflow: .layout-nav-support — plan cards. Card
+                        metadata (title, href, copy, image) drives off Supabase;
+                        the image is the plan's service-line card_image_url (the
+                        single CMS source, #467), resolved in MegaNavServer for
+                        parity with the plan detail hero + related cards.
+                    */}
+                    <div className="mega-nav__plans-grid">
+                      {supportPlans.map((plan) => {
+                        const image = plan.imageUrl;
+                        if (!image) return null;
+                        return (
+                          <AboutNavCard
+                            key={plan.slug}
+                            href={`/plans/${plan.slug}`}
+                            image={image}
+                            title={plan.name}
+                            desc={plan.description}
+                            cta="Learn More"
+                            onClick={() => setOpen(null)}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Design Services */}
             <div
               className="mega-nav__dropdown"
@@ -330,22 +385,16 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                           </Link>
                         ))}
                       </div>
-
-                      {/* Webflow: .mega-nav-item-story.accent — Customer Stories promo */}
-                      <Link
-                        href="/customer-stories"
-                        className="mega-nav__stories-promo"
-                        onClick={() => setOpen(null)}
-                      >
-                        <span className="mega-nav__stories-promo-title">Customer Stories</span>
-                        <span className="mega-nav__stories-promo-desc">Real stories, real results. See what we&apos;ve built together.</span>
-                        <span className={composeButtonClasses({ variant: 'primary', size: 'sm' })}>View Stories</span>
-                      </Link>
                     </div>
                   </div>
                 </div>
               )}
             </div>
+
+            {/* Our Work — plain link to customer stories */}
+            <Link href="/customer-stories" className="mega-nav__toggle" onClick={() => setOpen(null)}>
+              Our Work
+            </Link>
 
             {/* About */}
             <div
@@ -382,61 +431,6 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                 </div>
               )}
             </div>
-
-            {/* Support Plans */}
-            <div
-              className="mega-nav__dropdown"
-            >
-              <button
-                className={`mega-nav__toggle ${open === 'plans' ? 'mega-nav__toggle--active' : ''}`}
-                onClick={() => toggle('plans')}
-                aria-expanded={open === 'plans'}
-              >
-                Support Plans
-                <ChevronDown />
-              </button>
-
-              {open === 'plans' && (
-                <div className="mega-nav__panel mega-nav__panel--plans">
-                  <div className="mega-nav__panel-inner mega-nav__panel-row">
-                    {/* Webflow: .inner-wrapper.narrow.stacked — left intro */}
-                    <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-title">Support Plans</h3>
-                      <p className="mega-nav__panel-desc">
-                        Brik gives you access to senior-level design and strategic
-                        support—without the full-time overhead.
-                      </p>
-                      <Link href="/plans" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
-                        Learn More
-                      </Link>
-                    </div>
-                    {/* Webflow: .layout-nav-support — plan cards. Card
-                        metadata (title, href, copy, image) drives off Supabase;
-                        the image is the plan's service-line card_image_url (the
-                        single CMS source, #467), resolved in MegaNavServer for
-                        parity with the plan detail hero + related cards.
-                    */}
-                    <div className="mega-nav__plans-grid">
-                      {supportPlans.map((plan) => {
-                        const image = plan.imageUrl;
-                        if (!image) return null;
-                        return (
-                          <AboutNavCard
-                            key={plan.slug}
-                            href={`/plans/${plan.slug}`}
-                            image={image}
-                            title={plan.name}
-                            desc={plan.description}
-                            cta="Learn More"
-                            onClick={() => setOpen(null)}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
             </div>
           </div>
 
@@ -463,6 +457,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="mega-nav__mobile-menu">
+          <Link href="/plans" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Support Plans</Link>
           <Link href="/services" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Design Services</Link>
           {serviceLines.map((line) => (
             <Link
@@ -476,10 +471,9 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
             </Link>
           ))}
           <Link href="/industries" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Industries</Link>
-          <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Customer Stories</Link>
+          <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Our Work</Link>
           <Link href="/about" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>About</Link>
           <Link href="/blog" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
-          <Link href="/plans" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Support Plans</Link>
           <Link
             href="/contact"
             className="mega-nav__mobile-link mega-nav__mobile-link--cta"

@@ -15,6 +15,7 @@ import {
 import { sanitizeHtml } from '@/lib/sanitize';
 import { parseBlocks, parseAlertBanner } from '@/lib/blocks';
 import { LandingBlocks, AlertBannerBlock } from '@/components/blocks';
+import { Prose } from '@brikdesigns/bds';
 import { EventRegistrationForm } from '@/components/marketing/EventRegistrationForm';
 import { EventEndedBanner } from '@/components/marketing/EventStatusBanner';
 import { heading, text, label } from '@/lib/styles';
@@ -116,10 +117,7 @@ export default async function EventPage({ params }: Props) {
           </div>
 
           {event.description_html && (
-            <div
-              className="event-page__description"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(event.description_html) }}
-            />
+            <Prose html={sanitizeHtml(event.description_html)} />
           )}
 
           {(event.speaker_name || event.speaker_bio) && (

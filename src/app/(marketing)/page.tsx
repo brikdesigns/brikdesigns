@@ -91,7 +91,7 @@ export default async function HomePage() {
               From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
             </p>
           </div>
-          <Grid columns={3} gap="md">
+          <Grid columns={3} gap="lg">
             {serviceLines.map((line) => (
               <HomeServiceCard
                 key={line.slug}
@@ -116,7 +116,7 @@ export default async function HomePage() {
               We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
             </p>
           </div>
-          <Grid columns={3} gap="md">
+          <Grid columns={3} gap="lg">
             {supportPlans.map((plan) => (
               <HomePlanCard
                 key={plan.slug}

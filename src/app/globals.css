@@ -104,6 +104,10 @@ html {
        axe on /privacy-policy + /terms when those routes first entered the
        public-routes a11y suite via #302's chromeless/marketing split. */
     --text-link: var(--color-poppy-dark);
+    /* BDS components (TextLink, Prose) read the raw --text-text-link, not the
+       --text-link alias, so the AA pin above doesn't reach them. Mirror it so
+       BDS Prose/TextLink links honor the same poppy-dark AA pin. */
+    --text-text-link: var(--color-poppy-dark);
     /* Brand: --text-brand-primary is used across the site as SMALL text
        (mega-nav labels, hero/cta descriptions, eyebrows). BDS 0.114.0 flipped
        it to vibrant poppy-light (#e35335 = 3.78:1, AA fail at those sizes), so
@@ -172,6 +176,8 @@ html {
        drops to ~2.2:1 on dark surfaces. Poppy-lighter is the canonical
        lighter shade — readable on dark, recognizably brand. */
     --text-link: var(--color-poppy-lighter);
+    /* Mirror onto the raw name BDS components read (see light-mode note). */
+    --text-text-link: var(--color-poppy-lighter);
     /* Brand: small brand text on dark — poppy-dark would be ~2.2:1 on the
        near-black surface; use poppy-lighter (readable, on-brand), same as
        --text-link above. Pairs with the light-mode poppy-dark pin. */
@@ -241,15 +247,14 @@ html {
     --box-shadow-md: 0 2px 6px 0 rgba(0, 0, 0, 0.08);
     --box-shadow-lg: 0 4px 12px 0 rgba(0, 0, 0, 0.12);
 
-    /* ---- Standard container pattern shared across the site + nav.
-       max-width (fixed px) + margin-inline: auto + padding-inline.
-       max-width consumes BDS canonical --content-width-xl (1280px); the gutter
-       consumes BDS canonical --padding-lg (24px) — the same primitive BDS's own
-       `.bds-card-grid__container` uses, so project containers (nav, .container-lg,
-       page-hero, blocks, footer) line up flush with BDS section content at every
-       breakpoint. Was a one-off `clamp(1rem, 5vw, 2rem)` (32px desktop) — 8px
-       wider than BDS sections, which misaligned the nav logo from page content. ---- */
-    --site-gutter: var(--padding-lg);
+    /* ---- Standard container pattern shared across the site + nav:
+       max-width (fixed px) + margin-inline: auto + padding-inline. The gutter
+       is BDS canonical --gutter-page (brik-bds ADR-025), which canonicalised
+       this project's former --site-gutter alias — same value (--padding-lg),
+       one name across BDS sections and project containers (nav, .container-lg,
+       page-hero, blocks, footer), flush-aligned at every breakpoint. History:
+       was a one-off `clamp(1rem, 5vw, 2rem)` (32px desktop) — 8px wider than
+       BDS sections, which misaligned the nav logo from page content. ---- */
     /* Height of the sticky nav — used to offset hero min-height so the
        scroll-down CTA stays within the viewport on initial load. */
     --nav-height: 6rem;
