@@ -15,6 +15,13 @@ const aboutLinks: { label: string; href: string; icon: string }[] = [
   { label: 'Support Plans', href: '/plans', icon: 'ph:lifebuoy' },
   { label: 'Blog', href: '/blog', icon: 'ph:notebook' },
   { label: 'Customer Stories', href: '/customer-stories', icon: 'ph:star' },
+  // Brik's own brand guide, transferred as a snapshot from the portal (#2683).
+  // Gated on the build-time NEXT_PUBLIC_HAS_BRAND_GUIDE flag (next.config.mjs)
+  // so the link only renders once public/brand-guide.html exists — mirroring
+  // vale-partners#67's "page exists = link renders" contract.
+  ...(process.env.NEXT_PUBLIC_HAS_BRAND_GUIDE === 'true'
+    ? [{ label: 'Brand Guide', href: '/brand-guide', icon: 'ph:palette' }]
+    : []),
 ];
 
 const customerLinks: { label: string; href: string; icon: string }[] = [

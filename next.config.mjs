@@ -1,10 +1,23 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import createMDX from '@next/mdx';
 import { withSentryConfig } from '@sentry/nextjs';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
+// The brand guide is a self-contained snapshot transferred from the Brik portal
+// (brik-client-portal scripts/brand-guide-transfer.ts, #2683) to
+// public/brand-guide.html. Its presence is a build-time fact: resolve it here in
+// the Node build context and bake it into a NEXT_PUBLIC_ constant, rather than
+// calling existsSync at request time — public/ is CDN-served on Netlify and is
+// not guaranteed on the serverless function's filesystem.
+const hasBrandGuide = existsSync(path.join(process.cwd(), 'public', 'brand-guide.html'));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  env: {
+    NEXT_PUBLIC_HAS_BRAND_GUIDE: String(hasBrandGuide),
+  },
   images: {
     remotePatterns: [
       { hostname: '*.supabase.co' },
@@ -46,6 +59,13 @@ const nextConfig = {
     }
 
     return [{ source: '/:path*', headers: baseHeaders }];
+  },
+  // Serve the transferred brand-guide snapshot (public/brand-guide.html, #2683)
+  // at the clean /brand-guide URL. A no-op when the file is absent — the route
+  // 404s until a snapshot is transferred, and the footer link is gated on
+  // NEXT_PUBLIC_HAS_BRAND_GUIDE so nothing points at it meanwhile.
+  async rewrites() {
+    return [{ source: '/brand-guide', destination: '/brand-guide.html' }];
   },
   // Webflow → Netlify URL migration. All 301 (permanent) so Google
   // transfers link equity. See `docs/cutover-redirects.md` for the source
