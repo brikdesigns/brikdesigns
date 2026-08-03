@@ -603,10 +603,54 @@
 /* Webflow: .layout-nav-support */
 
 .mega-nav__plans-grid {
-  flex: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-md);
+}
+
+/* Left region: "Support Plans" heading stacked over the 3-col card grid. */
+.mega-nav__plans-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+/* Right region: "Design Services" heading over the service-line list. */
+.mega-nav__plans-services {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+/* Service-line highlight list — one row per line (service tag + line name). */
+.mega-nav__line-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.mega-nav__line-link {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--padding-tiny) var(--padding-xs);
+  border-radius: var(--border-radius-md);
+  text-decoration: none;
+  font-family: var(--font-family-label);
+  font-size: var(--label-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.mega-nav__line-link:hover {
+  background-color: var(--surface-accent);
+  color: var(--text-brand-primary);
 }
 
 /* ─── About/Plans card (shared structure) ────────────────────── */
