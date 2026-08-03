@@ -48,7 +48,7 @@ export function ServiceCard({
           <Image src={imageUrl} alt={name} width={400} height={400} />
         </Frame>
       ) : undefined}
-      tag={<ServiceTag category={category} variant="icon" size="md" {...tagProps} />}
+      tag={<ServiceTag category={category} variant="icon" size="lg" {...tagProps} />}
       action={showCta ? (
         <LinkButton
           href={href}
