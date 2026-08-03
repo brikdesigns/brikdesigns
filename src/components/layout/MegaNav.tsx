@@ -63,6 +63,12 @@ type DropdownId = 'services' | 'customers' | 'about' | 'plans' | null;
    `--surface-service-*-dark`). */
 const NAV_TINT_LINES = new Set(['marketing']);
 
+/* Design Services meganav is parked while we explore a new way to surface
+   services (service lines now live in the Services/plans panel). Flip to `true`
+   to restore the standalone nav item + its 4-col meganav — the markup below is
+   kept intact on purpose. */
+const SHOW_DESIGN_SERVICES_NAV = false;
+
 /* ────────────────────────────────────────────────────────────────
    Component
    ──────────────────────────────────────────────────────────────── */
@@ -194,53 +200,67 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                 onClick={() => toggle('plans')}
                 aria-expanded={open === 'plans'}
               >
-                Support Plans
+                Services
                 <ChevronDown />
               </button>
 
               {open === 'plans' && (
                 <div className="mega-nav__panel mega-nav__panel--plans">
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
-                    {/* Webflow: .inner-wrapper.narrow.stacked — left intro */}
-                    <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-title">Support Plans</h3>
-                      <p className="mega-nav__panel-desc">
-                        Brik gives you access to senior-level design and strategic
-                        support—without the full-time overhead.
-                      </p>
-                      <Link href="/plans" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
-                        Learn More
-                      </Link>
-                    </div>
-                    {/* Webflow: .layout-nav-support — plan cards. Card
+                    {/* Left: Support Plans heading + 3-col plan cards. Card
                         metadata (title, href, copy, image) drives off Supabase;
                         the image is the plan's service-line card_image_url (the
                         single CMS source, #467), resolved in MegaNavServer for
                         parity with the plan detail hero + related cards.
                     */}
-                    <div className="mega-nav__plans-grid">
-                      {supportPlans.map((plan) => {
-                        const image = plan.imageUrl;
-                        if (!image) return null;
-                        return (
-                          <AboutNavCard
-                            key={plan.slug}
-                            href={`/plans/${plan.slug}`}
-                            image={image}
-                            title={plan.name}
-                            desc={plan.description}
-                            cta="Learn More"
-                            onClick={() => setOpen(null)}
-                          />
-                        );
-                      })}
+                    <div className="mega-nav__plans-main">
+                      <h3 className="mega-nav__panel-title">Support Plans</h3>
+                      <div className="mega-nav__plans-grid">
+                        {supportPlans.map((plan) => {
+                          const image = plan.imageUrl;
+                          if (!image) return null;
+                          return (
+                            <AboutNavCard
+                              key={plan.slug}
+                              href={`/plans/${plan.slug}`}
+                              image={image}
+                              title={plan.name}
+                              desc={plan.description}
+                              cta="Learn More"
+                              onClick={() => setOpen(null)}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Right: highlight services by service line — one row per
+                        line (service tag + line name), all lines incl. product. */}
+                    <div className="mega-nav__plans-services">
+                      <h3 className="mega-nav__panel-title">Design Services</h3>
+                      <ul className="mega-nav__line-list">
+                        {serviceLines.map((line) => (
+                          <li key={line.slug}>
+                            <Link
+                              href={`/services/${routeSlugForServiceLine(line.slug)}`}
+                              className="mega-nav__line-link"
+                              onClick={() => setOpen(null)}
+                            >
+                              <ServiceTag category={line.category} variant="icon" size="lg" />
+                              <span>{line.name}</span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Design Services */}
+            {/* Design Services — parked (SHOW_DESIGN_SERVICES_NAV). Kept intact
+                so it can be restored once we settle the new services surface. */}
+            {SHOW_DESIGN_SERVICES_NAV && (
             <div
               className="mega-nav__dropdown"
             >
@@ -332,6 +352,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                 </div>
               )}
             </div>
+            )}
 
             {/* Customers */}
             <div
@@ -342,7 +363,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                 onClick={() => toggle('customers')}
                 aria-expanded={open === 'customers'}
               >
-                Customers
+                Who We Work With
                 <ChevronDown />
               </button>
 
@@ -391,9 +412,9 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               )}
             </div>
 
-            {/* Our Work — plain link to customer stories */}
+            {/* Work — plain link to customer stories */}
             <Link href="/customer-stories" className="mega-nav__toggle" onClick={() => setOpen(null)}>
-              Our Work
+              Work
             </Link>
 
             {/* About */}
@@ -457,8 +478,10 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="mega-nav__mobile-menu">
-          <Link href="/plans" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Support Plans</Link>
-          <Link href="/services" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Design Services</Link>
+          <Link href="/plans" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Services</Link>
+          {SHOW_DESIGN_SERVICES_NAV && (
+            <Link href="/services" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Design Services</Link>
+          )}
           {serviceLines.map((line) => (
             <Link
               key={line.slug}
@@ -471,7 +494,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
             </Link>
           ))}
           <Link href="/industries" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Industries</Link>
-          <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Our Work</Link>
+          <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Work</Link>
           <Link href="/about" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>About</Link>
           <Link href="/blog" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
           <Link
