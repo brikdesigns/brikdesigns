@@ -224,7 +224,7 @@ export default async function BlogPostPage({ params }: Props) {
                           </Frame>
                         ) : undefined
                       }
-                      tag={<ServiceTag category={lineKey} variant="icon" size="md" />}
+                      tag={<ServiceTag category={lineKey} variant="icon" size="lg" />}
                       action={<LinkButton href={`/services/${routeSlugForServiceLine(line.slug)}`} variant="primary" size="md">Learn More</LinkButton>}
                     />
                   </div>
