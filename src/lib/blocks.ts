@@ -98,6 +98,10 @@ export interface LogoStripLogo {
 }
 export interface LogoStripProps {
   logos: LogoStripLogo[];
+  /** Optional section heading — rendered only by the showcase layout's partners
+   *  band; the default LogoStripBlock ignores it, so split/stacked are unchanged. */
+  title?: string;
+  description?: string;
 }
 
 // ─── Alert banner (block + page-level field share this shape) ─────────
@@ -275,7 +279,7 @@ export function parseLogoStripProps(props: Record<string, unknown>): LogoStripPr
       href: str((item as { href?: unknown }).href),
     });
   }
-  return { logos };
+  return { logos, title: str(props.title), description: str(props.description) };
 }
 
 // ─── cross-reference (related stories / services) ────────────────────
@@ -364,6 +368,11 @@ export interface BlockContext {
    * #2558) — page-level like the accent, consumed only by the form arm.
    */
   customFields?: CustomField[];
+  /**
+   * Registration form column count. The showcase layout sets `2` so the form
+   * lays fields two-up in its wide card; other layouts leave it undefined (1).
+   */
+  formColumns?: 1 | 2;
 }
 
 // ─── hero ────────────────────────────────────────────────────────────

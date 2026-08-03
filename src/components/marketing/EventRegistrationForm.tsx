@@ -92,6 +92,12 @@ export interface EventRegistrationFormProps {
    * the form is then byte-for-byte what it was before.
    */
   customFields?: CustomField[];
+  /**
+   * Field layout. `2` lays the fields two-up on wide screens (the showcase
+   * registration card); the default `1` is the single-column stack used
+   * everywhere else — byte-for-byte unchanged when omitted.
+   */
+  columns?: 1 | 2;
 }
 
 export function EventRegistrationForm({
@@ -101,7 +107,9 @@ export function EventRegistrationForm({
   companyLabel = 'Practice / Company (optional)',
   submitLabel = 'Register',
   customFields = [],
+  columns = 1,
 }: EventRegistrationFormProps) {
+  const isGrid = columns === 2;
   const isNewsletter = variant === 'newsletter';
   const { isSubmitting, isSuccess, isError, error, submit } = useFormSubmit({
     endpoint: '/api/leads',
@@ -149,7 +157,8 @@ export function EventRegistrationForm({
   return (
     <form
       onSubmit={handleSubmit}
-      style={{ display: 'flex', flexDirection: 'column', gap: gap.lg }}
+      className={isGrid ? 'lp-form-grid' : undefined}
+      style={isGrid ? undefined : { display: 'flex', flexDirection: 'column', gap: gap.lg }}
     >
       {/* Honeypot — invisible to real users. */}
       <input
@@ -197,11 +206,26 @@ export function EventRegistrationForm({
         />
       ))}
 
-      {isError && <FormError message={error} />}
-
-      <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting}>
-        {isSubmitting ? 'Submitting…' : submitLabel}
-      </Button>
+      {/* Error + submit span the full width in grid mode; in stack mode they
+          render as plain siblings (unchanged). */}
+      {isGrid ? (
+        <div
+          className="lp-form-grid__full"
+          style={{ display: 'flex', flexDirection: 'column', gap: gap.lg }}
+        >
+          {isError && <FormError message={error} />}
+          <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting}>
+            {isSubmitting ? 'Submitting…' : submitLabel}
+          </Button>
+        </div>
+      ) : (
+        <>
+          {isError && <FormError message={error} />}
+          <Button type="submit" variant="primary" size="lg" fullWidth loading={isSubmitting}>
+            {isSubmitting ? 'Submitting…' : submitLabel}
+          </Button>
+        </>
+      )}
     </form>
   );
 }
