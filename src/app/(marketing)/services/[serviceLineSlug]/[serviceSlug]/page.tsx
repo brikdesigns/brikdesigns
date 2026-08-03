@@ -537,13 +537,14 @@ export default async function ServiceDetailPage({ params }: Props) {
             /* 2–3 stories → browse grid. Mirrors the same-page "Other {line}
                 Services" grid (`.service-sibling-card`, preset display, `-inverse`
                 fill) so both grids on this template read as one family on the
-                service tint. Browse grid of peers → flat per card-chrome-on-tint. */
+                service tint. Display cells use the BDS `raised` variant for
+                elevation (brik-bds 0.144). */
             <Grid columns={3} gap="lg">
               {relatedStories.map((story) => (
                 <Card
                   key={story.slug}
                   preset="display"
-                  variant="elevated"
+                  variant="raised"
                   className="service-sibling-card"
                   style={{ backgroundColor: serviceTokens.inverse }}
                   image={
@@ -659,7 +660,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <Card
                   key={svc.slug}
                   preset="display"
-                  variant="elevated"
+                  variant="raised"
                   className="service-sibling-card"
                   // Service `-inverse` surface — white in light (== the prior
                   // display-preset fill), `{hue}-darkest` in dark. Siblings are

@@ -553,18 +553,20 @@
   font-size: var(--heading-sm);
 }
 
-/* ─── Card chrome on a tinted surface — two-tier standard (BACKLOG-336) ──
-   On any tinted band — service tint (`.service-surface`), `--surface-secondary`
-   (`.page-section--secondary`), or `--surface-accent` (`.page-section--accent`)
-   — cards shed the outlined gray border ring (#333/#367/#368). The
-   surface-primary fill is load-bearing on the tint, so it's kept; we never swap
-   to the transparent `borderless` variant.
-     • Browse/listing GRIDS → flat (fill, no border, no shadow).
-     • Focal decision / lone feature cards → elevated (fill + shadow) for
-       containment (the #427 row-card precedent, generalized).
-   `.bds-card` / the explicit element class raises specificity to beat the BDS
-   variant border without `!important`.
-   Canonical rule + rationale: .claude/references/card-chrome-on-tint.md  (#558) */
+/* ─── Card chrome overrides on tinted bands ───────────────────────────
+   Per-surface border/shadow tweaks for cards on non-default bands. These
+   shed the outlined gray border ring on a tint (#333/#367/#368); the
+   surface-primary fill is load-bearing there, so it's kept — never the
+   transparent `borderless` variant.
+
+   Display-card GRIDS now get their elevation from the BDS `raised` variant
+   (surface-primary fill + `--box-shadow-md`, brik-bds 0.144) applied in TSX,
+   NOT from this block. What remains below are the component-specific
+   exceptions that can't use that variant: `PricingCard` (no `raised`
+   variant — a `Card`-only prop) and the `.service-card--flat` grid own their
+   shadow at site level, and blog related-posts stay borderless on the accent
+   band. `.bds-card` / the element class raises specificity to beat the BDS
+   variant border without `!important`. */
 
 /* Flat — blog related-posts grid (accent band). `.blog-card` also renders on
    the white blog index, so this is scoped to the tinted section only. */

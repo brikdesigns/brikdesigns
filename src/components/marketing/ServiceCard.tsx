@@ -38,6 +38,7 @@ export function ServiceCard({
   return (
     <Card
       preset="display"
+      variant="raised"
       className={className}
       {...(surfaceInverse ? { style: { backgroundColor: serviceColor(category).inverse } } : {})}
       title={name}

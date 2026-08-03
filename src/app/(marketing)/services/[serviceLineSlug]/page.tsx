@@ -232,7 +232,7 @@ export default async function ServiceLinePage({ params }: Props) {
             <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
               Other Service Lines
             </h2>
-            <Grid columns={3} gap="md">
+            <Grid columns={3} gap="lg">
               {otherServiceLines.map((cat) => {
                 const catKey = mapServiceLineSlug(cat.slug);
                 const catColors = serviceColor(catKey);
@@ -247,7 +247,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   >
                     <Card
                       preset="display"
-                      variant="elevated"
+                      variant="raised"
                       className="display-card--title-sm"
                       // Service `-inverse` surface — white in light (== the prior
                       // display-preset fill; the elevated shadow keeps it visible

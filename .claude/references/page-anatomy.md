@@ -60,4 +60,4 @@ section.bds-hero--with-pricing-card[data-audience]   ← SECTION  (page-role sur
 4. **Confirm against Figma** (the visual ground truth — [visual-ground-truth-workflow.md](./visual-ground-truth-workflow.md)) before building. The frame shows *which* box gets the surface.
 5. **Distrust inherited comments + upstream code that conflate layers** — the prior `shared-sections.css` comment called the Section "the card," and BDS painted the Section; neither made the Section the card.
 
-See also: [naming-conventions.md](./naming-conventions.md) (slot/role names), [card-chrome-on-tint.md](./card-chrome-on-tint.md) (Card surfaces on tinted Sections).
+See also: [naming-conventions.md](./naming-conventions.md) (slot/role names).
