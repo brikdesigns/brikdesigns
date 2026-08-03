@@ -16,9 +16,9 @@ Every past layout failure in the brikdesigns rebuild came from agents guessing o
 Before writing any section, use the `playwright` MCP server to inspect the target page.
 
 ```
-playwright_navigate → https://www.brikdesigns.com/[page]
-playwright_screenshot → full-page, save reference
-playwright_evaluate →
+browser_navigate → https://www.brikdesigns.com/[page]
+browser_take_screenshot → full-page, save reference
+browser_evaluate →
   Array.from(document.querySelectorAll('[class*="section"], .section, section')).map(el => ({
     class: el.className,
     tag: el.tagName,
@@ -100,15 +100,15 @@ This is slower per PR but faster overall — rework drops dramatically.
 
 ## Playwright MCP quick reference
 
-The `playwright` MCP server is configured in `.claude/settings.json`. Available tools:
+The `playwright` MCP server (`@playwright/mcp@latest`) is configured in `.claude/settings.json`. Tools are exposed with the `mcp__playwright__` prefix (e.g. `mcp__playwright__browser_navigate`). Available tools:
 
 | Tool | What it does |
 |------|-------------|
-| `playwright_navigate` | Navigate to a URL |
-| `playwright_screenshot` | Full-page screenshot |
-| `playwright_evaluate` | Run JS in page context — returns computed styles, DOM structure |
-| `playwright_get_visible_text` | Extract text content |
-| `playwright_click` / `playwright_hover` | Trigger interactive states |
+| `browser_navigate` | Navigate to a URL |
+| `browser_take_screenshot` | Full-page screenshot |
+| `browser_evaluate` | Run JS in page context — returns computed styles, DOM structure |
+| `browser_snapshot` | Accessibility-tree snapshot (text + structure) |
+| `browser_click` / `browser_hover` | Trigger interactive states |
 
 **Common patterns:**
 

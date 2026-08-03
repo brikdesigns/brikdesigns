@@ -1,7 +1,7 @@
 ---
 name: Service-data source-of-truth inventory
 description: Per-surface map of which Supabase table/columns and which query layer drive each `/services/*` surface — meganav, /services index, category landings, detail pages, footer service links, related-services blocks, and ServiceTag color resolution. Sibling to service-url-slug-convention.md.
-last-verified: 2026-07-27
+last-verified: 2026-08-03
 ---
 
 # Service-data source-of-truth inventory
@@ -42,7 +42,7 @@ The sibling doc [service-url-slug-convention.md](./service-url-slug-convention.m
 
 | Surface concern | Source |
 | --- | --- |
-| Source file | [`src/app/services/page.tsx`](../../src/app/services/page.tsx) |
+| Source file | [`src/app/(marketing)/services/page.tsx`](../../src/app/(marketing)/services/page.tsx) |
 | Data fetched | `getServiceCategories()` **only** — service-lines, no services |
 | Visibility curation | Two hard-coded arrays in `page.tsx`: `MAIN_LINES` (3-col grid) + `CALLOUT_LINES` (callout band, order matters: Product → Information) |
 | URL construction | Hard-coded `/services/{slug}` patterns using `service_lines.slug` (short-form by convention) |
@@ -52,7 +52,7 @@ The sibling doc [service-url-slug-convention.md](./service-url-slug-convention.m
 
 | Surface concern | Source |
 | --- | --- |
-| Source file | [`src/app/services/[serviceLineSlug]/page.tsx`](../../src/app/services/[serviceLineSlug]/page.tsx) |
+| Source file | [`src/app/(marketing)/services/[serviceLineSlug]/page.tsx`](../../src/app/(marketing)/services/[serviceLineSlug]/page.tsx) |
 | Data fetched | `getServiceLineBySlug(serviceLineSlug)`, `getServicesByServiceLine(serviceLine.id)`, `getServiceCategories()` (for "Other Service Lines"), optionally `getSupportPlanBySlug(serviceLine.support_plan_slug)` |
 | Tables read | `service_lines`, `services` (by `service_line_id` FK), `plans` (conditional) |
 | Hero surface color | `serviceColor(mapServiceLineSlug(serviceLine.slug)).surface` — BDS `--surface-service-*` token |
@@ -63,7 +63,7 @@ The sibling doc [service-url-slug-convention.md](./service-url-slug-convention.m
 
 | Surface concern | Source |
 | --- | --- |
-| Source file | [`src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx`](../../src/app/services/[serviceLineSlug]/[serviceSlug]/page.tsx) |
+| Source file | [`src/app/(marketing)/services/[serviceLineSlug]/[serviceSlug]/page.tsx`](../../src/app/(marketing)/services/[serviceLineSlug]/[serviceSlug]/page.tsx) |
 | Primary fetch | `getServiceBySlug(serviceSlug)` — joins `service_lines` + `offerings` |
 | Related services (sidebar/grid) | `getServicesByServiceLine(category.id)` filtered to exclude current + `.slice(0, 3)` |
 | Related customer story | `getStoriesByService(serviceSlug)` — gated on `service.has_customer_story` |
@@ -77,7 +77,7 @@ The sibling doc [service-url-slug-convention.md](./service-url-slug-convention.m
 
 | Surface concern | Source |
 | --- | --- |
-| Source file | [`src/components/layout/Footer.tsx`](../../src/components/layout/Footer.tsx) — `serviceLines` const at L28 |
+| Source file | [`src/components/layout/Footer.tsx`](../../src/components/layout/Footer.tsx) — `serviceLines` const at L32 |
 | Data | **HARD-CODED** 5-entry array; **does not query Supabase** |
 | Fields per entry | `label` (display name), `href` (short-form `/services/{slug}`), `category` (BDS `ServiceLine` enum literal) |
 | Sync requirement | Renaming a service line OR a slug requires manual edits to: this Footer array, `NAV_COLUMNS` keys in `meganav-columns.ts`, `SERVICE_LINE_MAP` in `queries.ts`, the slug-convention doc, *and* the DB row. No automated detector — discovered via 404 reports. |
@@ -110,8 +110,8 @@ These TS-side curations are intentional — they encode editorial decisions Supa
 | File | Symbol | What it controls |
 | --- | --- | --- |
 | `src/lib/meganav-columns.ts` | `NAV_COLUMNS` | Which services appear in meganav and under which line |
-| `src/components/layout/Footer.tsx` | `serviceLines` (L28) | The 5 service-line links in the site-wide footer |
-| `src/app/services/page.tsx` | `MAIN_LINES`, `CALLOUT_LINES` | Which lines render as 3-col grid vs callout band |
+| `src/components/layout/Footer.tsx` | `serviceLines` (L32) | The 5 service-line links in the site-wide footer |
+| `src/app/(marketing)/services/page.tsx` | `MAIN_LINES`, `CALLOUT_LINES` | Which lines render as 3-col grid vs callout band |
 | `src/lib/supabase/queries.ts` | `SERVICE_LINE_MAP` | The slug ↔ BDS enum translation table |
 | `next.config.mjs` | `redirects()` | 5 line + ~25 service Webflow-legacy redirects |
 
