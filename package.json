@@ -15,6 +15,8 @@
     "lint:heading-case": "node scripts/lint-heading-case.mjs",
     "test:lint:heading-case": "node scripts/lint-heading-case.test.mjs",
     "lint:images": "node scripts/lint-images.mjs",
+    "lint:root-dynamic-route": "node scripts/lint-root-dynamic-route.mjs",
+    "test:lint:root-dynamic-route": "node scripts/lint-root-dynamic-route.test.mjs",
     "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
     "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "audit:plan-data": "npx tsx scripts/audit-plan-data.ts",

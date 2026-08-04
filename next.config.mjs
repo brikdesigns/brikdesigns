@@ -91,8 +91,27 @@ const nextConfig = {
       // ── Pricing alias → plans
       { source: '/pricing', destination: '/plans', permanent: true },
 
+      // ── Landing pages namespaced to /offers/* (brikdesigns#807)
+      // Closed list, not a pattern: these are the four `template='landing'` rows
+      // that existed when the route moved (enumerated on #807, 2026-08-04), and
+      // they are the only slugs that ever had a root URL. A landing page created
+      // after the move is born at /offers/<slug>, so nothing needs adding here.
+      // A root wildcard would instead 301 every unknown path — including future
+      // marketing pages — into /offers.
+      { source: '/free-marketing-analysis', destination: '/offers/free-marketing-analysis', permanent: true },
+      { source: '/dental-brikdown-analysis', destination: '/offers/dental-brikdown-analysis', permanent: true },
+      { source: '/newsletter', destination: '/offers/newsletter', permanent: true },
+
       // ── Brikdown analysis renamed → free marketing analysis
-      { source: '/brikdown-analysis', destination: '/free-marketing-analysis', permanent: true },
+      // Retargeted to the /offers path so this is one 301, not a 301 chain into
+      // the rule above. This rule is also why the `brikdown-analysis` landing row
+      // has been unreachable on this site since before #807: the redirect shadows
+      // it. The second line keeps that true after the move — without it, the row
+      // would newly become reachable at /offers/brikdown-analysis, and a route
+      // move should not publish content that was retired. Delete that one line to
+      // put the row live (it does build — see the prerender list on #807).
+      { source: '/brikdown-analysis', destination: '/offers/free-marketing-analysis', permanent: true },
+      { source: '/offers/brikdown-analysis', destination: '/offers/free-marketing-analysis', permanent: true },
 
       // ── Webflow "support" landing pages → /plans (the unified replacement)
       { source: '/category/back-office-support', destination: '/plans', permanent: true },
