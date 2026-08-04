@@ -87,5 +87,14 @@ jobs:
       - name: Image-budget lint (public/ asset weight)
         run: npm run lint:images
 
+      # brikdesigns#807. A dynamic segment at a route-group root loses to every
+      # named sibling silently, so the guard's own failure path is asserted too —
+      # a check only ever observed passing is not a proven check.
+      - name: Root dynamic-route lint (no marketing-root catch-all)
+        run: npm run lint:root-dynamic-route
+
+      - name: Root dynamic-route lint — self-test (fixtures + CLI exit codes)
+        run: npm run test:lint:root-dynamic-route
+
       - name: Icon-collection drift (offline Phosphor subset in sync with usage)
         run: npm run gen:icons:check

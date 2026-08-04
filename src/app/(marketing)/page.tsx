@@ -144,7 +144,7 @@ export default async function HomePage() {
               </p>
             </div>
             <div className="button-wrapper button-wrapper--center">
-              <Button href="/free-marketing-analysis" variant="primary" size="lg" target="_blank">
+              <Button href="/offers/free-marketing-analysis" variant="primary" size="lg" target="_blank">
                 Get Started
               </Button>
             </div>
