@@ -17,6 +17,10 @@
     "lint:images": "node scripts/lint-images.mjs",
     "lint:root-dynamic-route": "node scripts/lint-root-dynamic-route.mjs",
     "test:lint:root-dynamic-route": "node scripts/lint-root-dynamic-route.test.mjs",
+    "lint:server-require-esm": "node scripts/lint-server-require-esm.mjs",
+    "test:lint:server-require-esm": "node scripts/lint-server-require-esm.test.mjs",
+    "test:sanitize": "npx tsx scripts/test-sanitize-html.mjs",
+    "repro:on-demand-render": "bash scripts/repro-on-demand-render.sh",
     "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
     "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "audit:plan-data": "npx tsx scripts/audit-plan-data.ts",
@@ -45,12 +49,12 @@
     "@supabase/supabase-js": "^2.99.3",
     "dotenv": "^17.3.1",
     "gray-matter": "^4.0.3",
-    "isomorphic-dompurify": "^3.15.0",
     "next": "16.2.6",
     "next-mdx-remote": "^6.0.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "resend": "^6.12.3"
+    "resend": "^6.12.3",
+    "sanitize-html": "^2.17.6"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
@@ -61,6 +65,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sanitize-html": "^2.16.1",
     "csv-parse": "^6.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
