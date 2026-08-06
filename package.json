@@ -14,6 +14,7 @@
     "lint:service-urls": "node scripts/lint-service-urls.mjs",
     "lint:heading-case": "node scripts/lint-heading-case.mjs",
     "test:lint:heading-case": "node scripts/lint-heading-case.test.mjs",
+    "lint:font-weight": "node scripts/lint-font-weight.mjs",
     "lint:images": "node scripts/lint-images.mjs",
     "lint:root-dynamic-route": "node scripts/lint-root-dynamic-route.mjs",
     "test:lint:root-dynamic-route": "node scripts/lint-root-dynamic-route.test.mjs",
@@ -36,7 +37,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@brikdesigns/bds": "^0.146.0",
+    "@brikdesigns/bds": "^0.150.0",
     "@brikdesigns/feedback-contract": "^0.2.0",
     "@iconify/react": "^6.0.2",
     "@mdx-js/mdx": "^3.1.1",

@@ -10,6 +10,8 @@ name: Verify (lint + token gate + schema parity)
 #    Supabase short-form slugs (brikdesigns#113)
 #  - Heading title-case lint: hardcoded marketing headings must follow the
 #    title-case standard (brik-bds#910); + fixture-based self-test (brikdesigns#491)
+#  - Font-weight lint: weight must be tokenized (`font.weight.*`, no literals /
+#    raw var()) and every heading semibold (composite-typography initiative)
 #  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
 #    src/app/(chromeless)/admin/services/_components/field-configs.ts
 #  - Icon-collection drift: src/lib/icons.generated.json stays in sync with
@@ -83,6 +85,9 @@ jobs:
 
       - name: Heading title-case lint — self-test (fixtures)
         run: npm run test:lint:heading-case
+
+      - name: Font-weight lint (tokenized weight + semibold headings)
+        run: npm run lint:font-weight
 
       - name: Image-budget lint (public/ asset weight)
         run: npm run lint:images
