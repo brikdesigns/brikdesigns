@@ -6,6 +6,7 @@ import { ServiceTag } from '@brikdesigns/bds';
 import { Button } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
+import { font } from '@/lib/tokens';
 
 interface ServiceLineItem {
   name: string;
@@ -41,7 +42,7 @@ export function ServiceLineGrid({ items }: { items: ServiceLineItem[] }) {
                 style={{
                   fontFamily: 'var(--font-family-heading)',
                   fontSize: 'var(--heading-sm)',
-                  fontWeight: 'var(--font-weight-bold)',
+                  fontWeight: font.weight.heading,
                   lineHeight: 'var(--font-line-height-snug)',
                   color: 'var(--text-primary)',
                   margin: 0,
@@ -53,7 +54,7 @@ export function ServiceLineGrid({ items }: { items: ServiceLineItem[] }) {
                 style={{
                   fontFamily: 'var(--font-family-body)',
                   fontSize: 'var(--body-sm)',
-                  fontWeight: 'var(--font-weight-regular)',
+                  fontWeight: font.weight.regular,
                   lineHeight: 'var(--font-line-height-normal)',
                   color: 'var(--text-secondary)',
                   margin: 0,

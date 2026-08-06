@@ -199,22 +199,22 @@ export function LandingBlocks({
 
 /**
  * Big uppercase display type for the showcase title + partners heading — one
- * step above the marketing heading scale (heading/huge · 45.5px bold), which
- * HeroBlock's default heading.lg (32px) doesn't reach. Colour inherits the
- * card's pinned dark ink.
+ * step above the marketing heading scale (heading/huge · 45.5px, semibold via
+ * the shared heading weight token), which HeroBlock's default heading.lg (32px)
+ * doesn't reach. Colour inherits the card's pinned dark ink.
  */
 const showcaseDisplay = {
   fontFamily: font.family.heading,
   fontSize: font.size.heading.xxxLarge,
-  fontWeight: font.weight.bold,
+  fontWeight: font.weight.heading,
   lineHeight: font.lineHeight.tight,
   textTransform: 'uppercase',
   margin: 0,
 } as const;
 
 /**
- * showcase title — the hero's eyebrow / title / subtitle rendered as the bold
- * display headline (the mock's oversized uppercase title), rather than
+ * showcase title — the hero's eyebrow / title / subtitle rendered as the
+ * oversized uppercase display headline (semibold), rather than
  * HeroBlock's default marketing heading. Content only; the card owns the surface.
  */
 function ShowcaseTitle({ eyebrow, title, subtitle }: HeroProps) {

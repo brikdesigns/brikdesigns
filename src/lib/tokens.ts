@@ -100,12 +100,18 @@ export const font = {
     loose: 'var(--font-line-height-loose)',
   },
 
+  // Weight is a real token, not a literal number — the value must reach the
+  // themed CSS cascade. `heading` is the semantic heading-weight token
+  // (`--font-weight-heading` = semibold); ALL headings use it (one weight =
+  // semibold everywhere). `light` maps to `--font-weight-thin` (both 300; BDS
+  // has no `--font-weight-light`).
   weight: {
-    light: 300 as const,
-    regular: 400 as const,
-    medium: 500 as const,
-    semibold: 600 as const,
-    bold: 700 as const,
+    light: 'var(--font-weight-thin)',
+    regular: 'var(--font-weight-regular)',
+    medium: 'var(--font-weight-medium)',
+    semibold: 'var(--font-weight-semibold)',
+    bold: 'var(--font-weight-bold)',
+    heading: 'var(--font-weight-heading)',
   },
 } as const;
 
