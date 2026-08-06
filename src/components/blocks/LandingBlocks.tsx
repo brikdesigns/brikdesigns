@@ -120,11 +120,12 @@ export function LandingBlocks({
             </div>
             {(metaBlocks.length > 0 || formBlocks.length > 0) && (
               <div className="lp-showcase__card lp-showcase__card--purple lp-showcase__registration">
-                {/* Region label — functional chrome for the form (mirrors the
-                    legacy path's hardcoded "Register" heading), not authored copy. */}
-                <p className="lp-showcase__region-label" style={label.subtitle}>
+                {/* Region heading — the registration card's section title
+                    (mirrors the legacy path's hardcoded "Register" heading),
+                    functional chrome, not authored copy. */}
+                <h2 style={heading.section}>
                   Register today
-                </p>
+                </h2>
                 <BlockRenderer blocks={metaBlocks} context={context} />
                 <BlockRenderer blocks={formBlocks} context={formContext} />
               </div>
@@ -225,7 +226,7 @@ function ShowcaseTitle({ eyebrow, title, subtitle }: HeroProps) {
         </p>
       )}
       {title && <h1 style={showcaseDisplay}>{title}</h1>}
-      {subtitle && <p style={{ ...text.body, marginTop: gap.sm }}>{subtitle}</p>}
+      {subtitle && <p style={{ ...text.bodyLg, marginTop: gap.sm }}>{subtitle}</p>}
     </>
   );
 }
