@@ -303,9 +303,11 @@ main {
   flex: 1 0 auto;
 }
 
-/* Headings — Webflow site uses bold (700) for all heading levels */
+/* Headings — semibold per BDS build standard (headings.mdx); every heading
+   weight resolves through the shared --font-weight-heading token. Diverges
+   from the legacy Webflow site (700) that brikdesigns replaces. */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
+  font-weight: var(--font-weight-heading);
 }
 
 /* Dark mode logo inversion */
