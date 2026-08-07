@@ -5,7 +5,19 @@ import * as path from 'node:path';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 
+// Two modes share this script:
+//   webflow (default) — migration parity: compare the build against the live
+//     Webflow site, using each route's `webflow` path.
+//   self              — regression: compare the build against staging on the
+//     SAME path, so a dependency bump (e.g. a BDS minor) that shifts our own
+//     rendering is caught. See .github/workflows/visual-regression.yml.
+const REFERENCE_MODE = process.env.REFERENCE_MODE ?? 'webflow';
+const SELF_MODE = REFERENCE_MODE === 'self';
+const REFERENCE_LABEL = SELF_MODE ? 'Staging' : 'Webflow';
+
 const WEBFLOW_URL = process.env.WEBFLOW_URL ?? 'https://www.brikdesigns.com';
+const REFERENCE_URL = process.env.REFERENCE_URL
+  ?? (SELF_MODE ? 'https://staging--brikdesigns.netlify.app' : WEBFLOW_URL);
 const NETLIFY_URL = process.env.NETLIFY_URL ?? process.argv[2];
 const OUT = path.resolve('tests/visual-parity/screenshots');
 
@@ -44,7 +56,8 @@ const VIEWPORTS = [
 
 const THEMES = (process.env.THEMES ?? 'light,dark').split(',').map((t) => t.trim());
 
-console.log(`▸ webflow:    ${WEBFLOW_URL}`);
+console.log(`▸ mode:       ${REFERENCE_MODE}`);
+console.log(`▸ reference:  ${REFERENCE_URL} (${REFERENCE_LABEL})`);
 console.log(`▸ netlify:    ${NETLIFY_URL}`);
 console.log(`▸ themes:     ${THEMES.join(', ')}`);
 console.log(`▸ threshold:  ${DIFF_THRESHOLD > 0 ? `${DIFF_THRESHOLD}%` : 'off (set DIFF_THRESHOLD to enable)'}`);
@@ -63,8 +76,29 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
     colorScheme,
   });
   const page = await context.newPage();
+  // Hide dev-tool chrome. NEXT_PUBLIC_ENABLE_DEV_TOOLS is "false" on the
+  // deploy-preview context but enabled on staging (netlify.toml), so the
+  // DevBar/feedback/inspect widgets render on the reference side only and
+  // stamp a widget-shaped diff onto every route — largest on short pages,
+  // where the fixed-size overlay is the biggest share of the capture. These
+  // are the widget class prefixes the inspector itself ignores.
+  const DEV_CHROME_CSS = ['bdb-', 'bfb-', 'bi-', 'bps-']
+    .map((p) => `[class^="${p}"], [class*=" ${p}"]`)
+    .join(', ') + ' { display: none !important; }';
+  // An init script, not addStyleTag — the latter targets the current document
+  // and is discarded by the navigation below.
+  await page.addInitScript((css) => {
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.createElement('style');
+      el.textContent = css;
+      document.head.appendChild(el);
+    });
+  }, DEV_CHROME_CSS);
   await page.addInitScript((t) => {
-    try { localStorage.setItem('theme', t); } catch (e) {}
+    // localStorage can throw when storage is partitioned or blocked. The theme
+    // is also emulated via colorScheme on the context, so a failure here is
+    // recoverable — warn into the page console rather than failing the capture.
+    try { localStorage.setItem('theme', t); } catch (e) { console.warn('theme seed failed:', e.message); }
   }, theme);
   try {
     await page.goto(baseUrl + route, { waitUntil: 'domcontentloaded', timeout: timeoutMs });
@@ -81,6 +115,28 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
       window.scrollTo(0, 0);
       await new Promise((r) => setTimeout(r, 400));
     });
+    // Full-page height must settle before the screenshot. Webfonts swapping in
+    // and lazy images resolving reflow the document by a few px, which shifts
+    // everything below the change and makes a pixel diff of two captures of the
+    // SAME url read as 3-8% (measured). Wait for fonts, then for scrollHeight to
+    // stop moving, so the diff reflects rendering rather than capture timing.
+    await page.evaluate(() => document.fonts?.ready)
+      .catch((e) => console.warn(`  · fonts.ready unavailable (${e.message.split('\n')[0]})`));
+    try {
+      await page.waitForLoadState('networkidle', { timeout: 15000 });
+    } catch (e) {
+      // Analytics/beacon polling can keep the network busy indefinitely; the
+      // scrollHeight settle below is the real guard, so carry on.
+    }
+    await page.waitForFunction(
+      () => {
+        const h = document.body.scrollHeight;
+        if (window.__lastH === h) return true;
+        window.__lastH = h;
+        return false;
+      },
+      { timeout: 15000, polling: 250 },
+    ).catch((e) => console.warn(`  · height did not settle (${e.message.split('\n')[0]})`));
     await page.screenshot({ path: outPath, fullPage: true, animations: 'disabled' });
     return { ok: true };
   } catch (err) {
@@ -151,11 +207,14 @@ for (const theme of THEMES) {
     const dir = path.join(OUT, theme, viewport.name);
     fs.mkdirSync(dir, { recursive: true });
     for (const route of ROUTES) {
-      const wfPath  = path.join(dir, `${route.name}-webflow.png`);
+      // In self mode both sides render the same path — the reference is
+      // staging, not Webflow, so there is no legacy URL to map to.
+      const refRoute = SELF_MODE ? route.netlify : route.webflow;
+      const wfPath  = path.join(dir, `${route.name}-reference.png`);
       const nlPath  = path.join(dir, `${route.name}-netlify.png`);
       const diffPath = path.join(dir, `${route.name}-diff.png`);
       console.log(`▸ ${theme}/${viewport.name}: ${route.name}`);
-      await capture(WEBFLOW_URL, route.webflow, viewport, theme, wfPath);
+      await capture(REFERENCE_URL, refRoute, viewport, theme, wfPath);
       await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath);
       const diff = diffScreenshots(wfPath, nlPath, diffPath);
       if (diff) {
@@ -166,7 +225,7 @@ for (const theme of THEMES) {
         theme,
         viewport: viewport.name,
         route: route.name,
-        webflowPath: route.webflow,
+        webflowPath: refRoute,
         netlifyPath: route.netlify,
         wfImg: path.relative(OUT, wfPath),
         nlImg: path.relative(OUT, nlPath),
@@ -211,7 +270,7 @@ function diffLabel(pct) {
 const reportPath = path.join(OUT, 'index.html');
 const html = `<!doctype html>
 <meta charset="utf-8">
-<title>Visual parity — Webflow vs Netlify</title>
+<title>${SELF_MODE ? 'Visual regression' : 'Visual parity'} — ${REFERENCE_LABEL} vs Netlify</title>
 <style>
   body { margin: 0; font: 14px/1.5 -apple-system, system-ui, sans-serif; background: #f6f6f6; color: #111; }
   header { padding: 16px 20px; background: #111; color: #fff; position: sticky; top: 0; z-index: 10; }
@@ -237,8 +296,8 @@ const html = `<!doctype html>
   .summary-table tr:hover td { background: #fafafa; }
 </style>
 <header>
-  <h1>Visual parity — Webflow vs Netlify</h1>
-  <div class="meta">webflow: ${WEBFLOW_URL} · netlify: ${NETLIFY_URL} · captured ${new Date().toISOString()}</div>
+  <h1>${SELF_MODE ? 'Visual regression' : 'Visual parity'} — ${REFERENCE_LABEL} vs Netlify</h1>
+  <div class="meta">${REFERENCE_LABEL.toLowerCase()}: ${REFERENCE_URL} · netlify: ${NETLIFY_URL} · captured ${new Date().toISOString()}</div>
 </header>
 <div class="filter-bar">
   <label>Theme: <select id="theme-filter"><option value="all">all</option>${THEMES.map((t) => `<option value="${t}">${t}</option>`).join('')}</select></label>
@@ -273,10 +332,10 @@ ${results
     (r) => `
 <section data-theme="${r.theme}" data-viewport="${r.viewport}" data-diff="${r.diffPct !== null ? (r.diffPct > 5 ? 'red' : r.diffPct > 2 ? 'yellow' : 'green') : 'none'}" id="${r.route}-${r.theme}-${r.viewport}">
   <h2>${r.route} — ${r.theme} / ${r.viewport} <span class="diff-badge" style="color:${diffColor(r.diffPct)}">${diffLabel(r.diffPct)}</span></h2>
-  <p class="paths">webflow: <code>${r.webflowPath}</code> · netlify: <code>${r.netlifyPath}</code></p>
+  <p class="paths">${REFERENCE_LABEL.toLowerCase()}: <code>${r.webflowPath}</code> · netlify: <code>${r.netlifyPath}</code></p>
   <div class="trio">
     <div class="pane${r.wfOk ? '' : ' error'}">
-      <h3>Webflow (target)</h3>
+      <h3>${REFERENCE_LABEL} (reference)</h3>
       ${r.wfOk ? `<img loading="lazy" src="${r.wfImg}">` : 'Capture failed'}
     </div>
     <div class="pane${r.nlOk ? '' : ' error'}">

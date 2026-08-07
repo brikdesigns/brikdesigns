@@ -33,6 +33,7 @@
     "gen:icons:check": "node scripts/gen-icon-collection.mjs --check",
     "test:a11y": "playwright test",
     "visual-parity": "node scripts/visual-parity.mjs",
+    "visual-regression": "REFERENCE_MODE=self node scripts/visual-parity.mjs",
     "analyze": "ANALYZE=true next build",
     "prepare": "husky"
   },
