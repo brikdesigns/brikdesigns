@@ -76,6 +76,24 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
     colorScheme,
   });
   const page = await context.newPage();
+  // Hide dev-tool chrome. NEXT_PUBLIC_ENABLE_DEV_TOOLS is "false" on the
+  // deploy-preview context but enabled on staging (netlify.toml), so the
+  // DevBar/feedback/inspect widgets render on the reference side only and
+  // stamp a widget-shaped diff onto every route — largest on short pages,
+  // where the fixed-size overlay is the biggest share of the capture. These
+  // are the widget class prefixes the inspector itself ignores.
+  const DEV_CHROME_CSS = ['bdb-', 'bfb-', 'bi-', 'bps-']
+    .map((p) => `[class^="${p}"], [class*=" ${p}"]`)
+    .join(', ') + ' { display: none !important; }';
+  // An init script, not addStyleTag — the latter targets the current document
+  // and is discarded by the navigation below.
+  await page.addInitScript((css) => {
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.createElement('style');
+      el.textContent = css;
+      document.head.appendChild(el);
+    });
+  }, DEV_CHROME_CSS);
   await page.addInitScript((t) => {
     // localStorage can throw when storage is partitioned or blocked. The theme
     // is also emulated via colorScheme on the context, so a failure here is
