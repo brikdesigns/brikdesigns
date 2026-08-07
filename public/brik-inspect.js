@@ -1037,6 +1037,20 @@
     return VALID_TOKEN_PREFIXES.some((p) => name.startsWith(p));
   }
 
+  // A fully-transparent fill (`transparent`, `rgba(…, 0)`, `hsla(…, 0)`,
+  // `#00000000`) means "no fill" — a CSS keyword, not a brand color that needs a
+  // token. The browser normalizes `transparent` / `background: none` / an unset
+  // background to `rgba(0, 0, 0, 0)` in computed + declared values, so counting
+  // it as a hardcoded color is a false positive (mega-nav toggles, form cards,
+  // native inputs all surfaced this way).
+  function isTransparent(v) {
+    return (
+      /^\s*transparent\s*$/i.test(v) ||
+      /^#0{6,8}$/i.test(v) ||
+      /\b(?:rgba|hsla)\s*\([^)]*,\s*0(?:\.0+)?\s*\)/i.test(v)
+    );
+  }
+
   function findHardcodedFragments(raw) {
     const stripped = raw.replace(/var\([^)]*\)/g, '');
     const hits = [];
@@ -1052,7 +1066,7 @@
     }
     const px = stripped.match(new RegExp(RAW_PX_RE.source, 'g'));
     if (px) hits.push(...px.filter((v) => v !== '0px' && v !== '1px'));
-    return hits;
+    return hits.filter((h) => !isTransparent(h));
   }
 
   function auditProp(el, prop) {
