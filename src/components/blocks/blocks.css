@@ -100,18 +100,15 @@
 }
 
 /* ── showcase layout (layout="showcase") ──────────────────────────────────
-   The bold multi-color card layout (Grind After Graduation). A DARK,
-   theme-invariant canvas (--color-grayscale-darkest, not --surface-primary
-   which flips white in light mode — the design is dark-locked) carrying
-   fixed-palette bright cards. Card backgrounds are the BDS scale hues; the
-   dark-ink text pairing on those bright cards lives in globals.css
-   (.lp-showcase__card, mirroring the .service-surface pin). No per-block color
-   (#429) — the layout owns every hue here. */
+   The bold multi-color card layout (Grind After Graduation). A light page
+   canvas (--page-primary, matching Paper mockup 3B9-0) carrying fixed-palette
+   bright cards. Card backgrounds are the BDS scale hues; the dark-ink text
+   pairing on those bright cards lives in globals.css (.lp-showcase__card,
+   mirroring the .service-surface pin). No per-block color (#429) — the layout
+   owns every hue here. */
 .lp-showcase {
   padding-block: var(--padding-huge);
-  /* Canvas is dark-LOCKED in both themes (design is dark-only); a semantic
-     --background/--surface-* token would flip light in light mode. */
-  background-color: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — theme-invariant dark canvas; see note above */
+  background-color: var(--page-primary);
 }
 .lp-showcase__container {
   max-width: var(--content-width-xl);
