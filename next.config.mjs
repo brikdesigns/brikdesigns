@@ -1,10 +1,23 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import createMDX from '@next/mdx';
 import { withSentryConfig } from '@sentry/nextjs';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
+// The brand guide is a self-contained snapshot transferred from the Brik portal
+// (brik-client-portal scripts/brand-guide-transfer.ts, #2683) to
+// public/brand-guide.html. Its presence is a build-time fact: resolve it here in
+// the Node build context and bake it into a NEXT_PUBLIC_ constant, rather than
+// calling existsSync at request time — public/ is CDN-served on Netlify and is
+// not guaranteed on the serverless function's filesystem.
+const hasBrandGuide = existsSync(path.join(process.cwd(), 'public', 'brand-guide.html'));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  env: {
+    NEXT_PUBLIC_HAS_BRAND_GUIDE: String(hasBrandGuide),
+  },
   images: {
     remotePatterns: [
       { hostname: '*.supabase.co' },
@@ -47,6 +60,13 @@ const nextConfig = {
 
     return [{ source: '/:path*', headers: baseHeaders }];
   },
+  // Serve the transferred brand-guide snapshot (public/brand-guide.html, #2683)
+  // at the clean /brand-guide URL. A no-op when the file is absent — the route
+  // 404s until a snapshot is transferred, and the footer link is gated on
+  // NEXT_PUBLIC_HAS_BRAND_GUIDE so nothing points at it meanwhile.
+  async rewrites() {
+    return [{ source: '/brand-guide', destination: '/brand-guide.html' }];
+  },
   // Webflow → Netlify URL migration. All 301 (permanent) so Google
   // transfers link equity. See `docs/cutover-redirects.md` for the source
   // of truth and how to add a new mapping.
@@ -71,8 +91,27 @@ const nextConfig = {
       // ── Pricing alias → plans
       { source: '/pricing', destination: '/plans', permanent: true },
 
+      // ── Landing pages namespaced to /offers/* (brikdesigns#807)
+      // Closed list, not a pattern: these are the four `template='landing'` rows
+      // that existed when the route moved (enumerated on #807, 2026-08-04), and
+      // they are the only slugs that ever had a root URL. A landing page created
+      // after the move is born at /offers/<slug>, so nothing needs adding here.
+      // A root wildcard would instead 301 every unknown path — including future
+      // marketing pages — into /offers.
+      { source: '/free-marketing-analysis', destination: '/offers/free-marketing-analysis', permanent: true },
+      { source: '/dental-brikdown-analysis', destination: '/offers/dental-brikdown-analysis', permanent: true },
+      { source: '/newsletter', destination: '/offers/newsletter', permanent: true },
+
       // ── Brikdown analysis renamed → free marketing analysis
-      { source: '/brikdown-analysis', destination: '/free-marketing-analysis', permanent: true },
+      // Retargeted to the /offers path so this is one 301, not a 301 chain into
+      // the rule above. This rule is also why the `brikdown-analysis` landing row
+      // has been unreachable on this site since before #807: the redirect shadows
+      // it. The second line keeps that true after the move — without it, the row
+      // would newly become reachable at /offers/brikdown-analysis, and a route
+      // move should not publish content that was retired. Delete that one line to
+      // put the row live (it does build — see the prerender list on #807).
+      { source: '/brikdown-analysis', destination: '/offers/free-marketing-analysis', permanent: true },
+      { source: '/offers/brikdown-analysis', destination: '/offers/free-marketing-analysis', permanent: true },
 
       // ── Webflow "support" landing pages → /plans (the unified replacement)
       { source: '/category/back-office-support', destination: '/plans', permanent: true },

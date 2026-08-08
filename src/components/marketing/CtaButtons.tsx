@@ -33,7 +33,7 @@ export function AnalysisCta() {
         website, and online presence — then give you a clear plan.
       </p>
       <div style={{ marginTop: 'var(--gap-lg)' }}>
-        <Link href="/free-marketing-analysis">
+        <Link href="/offers/free-marketing-analysis">
           <Button variant="primary" size="lg">
             Get Your Free Analysis
           </Button>

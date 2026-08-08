@@ -10,13 +10,18 @@ import {
 } from '@/lib/events';
 import { parseBlocks, parseAlertBanner } from '@/lib/blocks';
 import { LandingBlocks, AlertBannerBlock } from '@/components/blocks';
-import '../shared-sections.css';
+import '../../shared-sections.css';
 
 type Props = { params: Promise<{ slug: string }> };
 
 export const revalidate = 3600;
-// Only the CMS landing slugs are served at the marketing root; any other path
-// falls through to a 404 rather than this route (no open root catch-all).
+// Only the CMS landing slugs are served under /offers; any other path 404s
+// rather than reaching this route. Namespaced under /offers (brikdesigns#807):
+// this route used to sit at the marketing ROOT, where a landing slug matching a
+// named sibling (`services`, `plans`, …) resolved to the marketing page instead
+// — silently, and baked at build time by `dynamicParams = false`. A dynamic
+// segment directly under `(marketing)/` is the bug; `scripts/lint-root-dynamic-route.mjs`
+// fails the build if one comes back.
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -51,8 +56,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function LandingPage({ params }: Props) {
   const { slug } = await params;
   const event = (await getEventBySlug(slug)) as EventRow | null;
-  // The marketing-root vanity URL serves `landing`-template rows only; events
-  // live at /events/[slug], newsletters at /marketing/[slug]. Draft rows aren't
+  // /offers/[slug] serves `landing`-template rows only; events live at
+  // /events/[slug], newsletters at /marketing/[slug]. Draft rows aren't
   // returned by RLS → also 404.
   if (!event || event.template !== 'landing') notFound();
 

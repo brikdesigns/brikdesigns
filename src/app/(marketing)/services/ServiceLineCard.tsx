@@ -43,7 +43,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
           )}
         </div>
         <div className="services-card__content">
-          <ServiceTag category={category} variant="icon" size="md" serviceName={name} />
+          <ServiceTag category={category} variant="icon" size="lg" serviceName={name} />
           <h3 style={{ ...heading.card }}>{name}</h3>
           <p style={{ ...text.body, color: color.text.secondary }}>{tagline}</p>
         </div>
@@ -94,7 +94,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
           </Frame>
         </div>
         <Stack direction="vertical" gap="sm" className="services-callout-card__content">
-          <ServiceTag category={category} variant="icon" size="md" />
+          <ServiceTag category={category} variant="icon" size="lg" />
           <CardTitle>{name}</CardTitle>
           <CardDescription>{description}</CardDescription>
           <CardFooter>

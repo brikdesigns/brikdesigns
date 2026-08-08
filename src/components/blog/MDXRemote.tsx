@@ -1,6 +1,7 @@
 import { MDXRemote as MDXRemoteBase } from 'next-mdx-remote/rsc';
 import Image from 'next/image';
 import Link from 'next/link';
+import { font } from '@/lib/tokens';
 
 const components = {
   h1: (props: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -57,7 +58,7 @@ const components = {
     />
   ),
   strong: (props: React.HTMLAttributes<HTMLElement>) => (
-    <strong style={{ color: 'var(--text-primary)', fontWeight: 600 }} {...props} />
+    <strong style={{ color: 'var(--text-primary)', fontWeight: font.weight.semibold }} {...props} />
   ),
   em: (props: React.HTMLAttributes<HTMLElement>) => (
     <em {...props} />

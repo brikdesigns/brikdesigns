@@ -13,8 +13,19 @@
  * COMPOSING:
  *   <p style={{ ...text.body, color: color.text.muted }}>Override one prop</p>
  *
- * These map directly to Figma typography styles. See tokens.ts for the
- * Figma style name → CSS variable mapping table.
+ * HEADING WEIGHT — one weight, one token. Every heading preset uses
+ * `font.weight.heading` (`var(--font-weight-heading)` = semibold); there is no
+ * bold(700) heading. The weight is single-sourced through the BDS
+ * `--font-weight-heading` token, so a future policy change is one edit in BDS.
+ * The former bold `heading.lg/md/sm` marketing presets are now semibold.
+ *
+ * WHY THE PRESETS ARE LOCAL (not re-exported from `@brikdesigns/bds`): BDS 0.150.0
+ * exports these preset objects, but under Next 16 / Turbopack they resolve to an
+ * EMPTY object in the React-Server-Component module graph (verified: server-side
+ * `Object.keys(heading)` === []), so `heading.section` etc. would be undefined and
+ * every heading would silently fall back to the global `h1-h6 { font-weight: 700 }`
+ * rule. Defining the presets locally against the shared `font`/`color` tokens keeps
+ * them SSR/RSC-safe. Weight stays single-sourced via `--font-weight-heading`.
  *
  * Mirrors brik-client-portal/src/lib/styles.ts. Differences from the portal
  * version are marked `// brikdesigns:` — namely, no `tab` preset (TabsClient
@@ -93,13 +104,15 @@ export const text = {
 } as const;
 
 // ─── Headings ────────────────────────────────────────────────────────
+// Every preset is semibold via `font.weight.heading` (the shared
+// `--font-weight-heading` token). No bold(700) heading exists.
 
 export const heading = {
   /** Page-level heading (heading/large · 32px) */
   page: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.large,
-    fontWeight: font.weight.semibold,
+    fontWeight: font.weight.heading,
     lineHeight: font.lineHeight.snug,
     color: color.text.primary,
     margin: 0,
@@ -109,7 +122,7 @@ export const heading = {
   section: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.small,
-    fontWeight: font.weight.semibold,
+    fontWeight: font.weight.heading,
     color: color.text.primary,
     margin: `0 0 ${space.md}`,
   } satisfies CSSProperties,
@@ -118,7 +131,7 @@ export const heading = {
   subsection: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.tiny,
-    fontWeight: font.weight.semibold,
+    fontWeight: font.weight.heading,
     color: color.text.primary,
     margin: `${space.md} 0 ${gap.sm}`,
   } satisfies CSSProperties,
@@ -127,36 +140,36 @@ export const heading = {
   card: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.small,
-    fontWeight: font.weight.semibold,
+    fontWeight: font.weight.heading,
     color: color.text.primary,
     margin: 0,
   } satisfies CSSProperties,
 
-  /** heading/lg · 32/110 bold (marketing) — top-level page heading */
+  /** heading/lg · 32/110 (marketing) — top-level page heading */
   lg: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.large,
-    fontWeight: font.weight.bold,
+    fontWeight: font.weight.heading,
     lineHeight: font.lineHeight.tight,
     color: color.text.primary,
     margin: 0,
   } satisfies CSSProperties,
 
-  /** heading/md · 25.3/125 bold (marketing) */
+  /** heading/md · 25.3/125 (marketing) */
   md: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.medium,
-    fontWeight: font.weight.bold,
+    fontWeight: font.weight.heading,
     lineHeight: font.lineHeight.snug,
     color: color.text.primary,
     margin: 0,
   } satisfies CSSProperties,
 
-  /** heading/sm · 20/125 bold (marketing) */
+  /** heading/sm · 20/125 (marketing) */
   sm: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.small,
-    fontWeight: font.weight.bold,
+    fontWeight: font.weight.heading,
     lineHeight: font.lineHeight.snug,
     color: color.text.primary,
     margin: 0,

@@ -10,6 +10,8 @@ name: Verify (lint + token gate + schema parity)
 #    Supabase short-form slugs (brikdesigns#113)
 #  - Heading title-case lint: hardcoded marketing headings must follow the
 #    title-case standard (brik-bds#910); + fixture-based self-test (brikdesigns#491)
+#  - Font-weight lint: weight must be tokenized (`font.weight.*`, no literals /
+#    raw var()) and every heading semibold (composite-typography initiative)
 #  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
 #    src/app/(chromeless)/admin/services/_components/field-configs.ts
 #  - Icon-collection drift: src/lib/icons.generated.json stays in sync with
@@ -84,8 +86,34 @@ jobs:
       - name: Heading title-case lint — self-test (fixtures)
         run: npm run test:lint:heading-case
 
+      - name: Font-weight lint (tokenized weight + semibold headings)
+        run: npm run lint:font-weight
+
       - name: Image-budget lint (public/ asset weight)
         run: npm run lint:images
+
+      # brikdesigns#807. A dynamic segment at a route-group root loses to every
+      # named sibling silently, so the guard's own failure path is asserted too —
+      # a check only ever observed passing is not a proven check.
+      - name: Root dynamic-route lint (no marketing-root catch-all)
+        run: npm run lint:root-dynamic-route
+
+      - name: Root dynamic-route lint — self-test (fixtures + CLI exit codes)
+        run: npm run test:lint:root-dynamic-route
+
+      # brikdesigns#809. An externalized package whose tree CJS-requires an
+      # ESM-only module 500s every on-demand render while the build, `next start`,
+      # and a fresh deploy all stay green — so the guard's own failure path is
+      # asserted too, and the sanitizer it protects is tested for behaviour
+      # rather than for merely loading.
+      - name: Externalized-package require lint (strict CJS, no ESM-only requires)
+        run: npm run lint:server-require-esm
+
+      - name: Externalized-package require lint — self-test (fixtures + CLI exit codes)
+        run: npm run test:lint:server-require-esm
+
+      - name: HTML sanitizer behaviour (XSS corpus + CMS prose preserved)
+        run: npm run test:sanitize
 
       - name: Icon-collection drift (offline Phosphor subset in sync with usage)
         run: npm run gen:icons:check

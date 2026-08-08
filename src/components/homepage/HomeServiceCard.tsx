@@ -30,7 +30,7 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: Hom
           )}
         </Frame>
       }
-      tag={<ServiceTag category={category} variant="icon" size="md" />}
+      tag={<ServiceTag category={category} variant="icon" size="lg" />}
       action={
         <LinkButton
           href={`/services/${routeSlugForServiceLine(slug)}`}
