@@ -1,0 +1,87 @@
+name: Visual mockup baseline (landing routes)
+
+# Gates CMS landing routes against a checked-in baseline PNG — the "wrongness"
+# gate neither existing visual workflow can be (#825). visual-regression.yml
+# compares the deploy-preview against staging, so a defect staging already
+# carries diffs at 0% (#822 survived four days that way). visual-parity.yml
+# compares against Webflow and never fails. This one compares against a blessed
+# baseline that a human verified against the Paper mockup, and BLOCKS: the
+# baseline is captured with the same pipeline, so the pass-case noise floor is
+# ~0% while the #822 dark-canvas defect measured 14.85% against it.
+#
+# Expected failure mode: a PR that redesigns a landing route ON PURPOSE fails
+# here. Re-author the baseline against the preview once the design is approved:
+#   UPDATE_BASELINES=1 npm run visual-mockup -- <deploy-preview-url>
+# then eyeball it against the Paper mockup and commit it with the PR.
+
+on:
+  pull_request:
+    branches:
+      - main
+      - staging
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'next.config.*'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tests/visual-parity/baselines/**'
+      - 'scripts/visual-parity.mjs'
+
+concurrency:
+  group: visual-mockup-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mockup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read
+    env:
+      PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for Netlify deploy-preview
+        id: deploy
+        run: |
+          DEPLOY_URL="https://deploy-preview-${{ github.event.pull_request.number }}--brikdesigns.netlify.app"
+          echo "Polling $DEPLOY_URL for live deploy …"
+          for i in $(seq 1 60); do
+            CODE=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$DEPLOY_URL/" || echo "000")
+            if [ "$CODE" = "200" ]; then
+              echo "Deploy live (HTTP $CODE) on attempt $i."
+              echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "  attempt $i: HTTP $CODE — sleeping 10s"
+            sleep 10
+          done
+          echo "Deploy never reached HTTP 200 after 10 minutes." >&2
+          exit 1
+
+      - name: Compare deploy-preview against mockup baselines
+        env:
+          NETLIFY_URL: ${{ steps.deploy.outputs.url }}
+        run: npm run visual-mockup -- "$NETLIFY_URL"
+
+      - name: Upload report
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: visual-mockup-report
+          path: tests/visual-parity/
+          retention-days: 14
