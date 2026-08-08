@@ -5,15 +5,27 @@ import * as path from 'node:path';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 
-// Two modes share this script:
+// Three modes share this script:
 //   webflow (default) — migration parity: compare the build against the live
 //     Webflow site, using each route's `webflow` path.
 //   self              — regression: compare the build against staging on the
 //     SAME path, so a dependency bump (e.g. a BDS minor) that shifts our own
 //     rendering is caught. See .github/workflows/visual-regression.yml.
+//   mockup            — wrongness gate (#825): compare routes that declare a
+//     `mockup` entry against a checked-in baseline PNG at
+//     tests/visual-parity/baselines/<name>-<viewport>-<theme>.png instead of a
+//     live reference URL. Unlike webflow mode, a missing baseline or a failed
+//     capture exits non-zero — a silently-skipped route is exactly the failure
+//     this mode exists to close (#822 survived because no gate had a reference
+//     for the landing surface). Baselines are authored with UPDATE_BASELINES=1
+//     against a known-good deploy, then verified against the Paper mockup by a
+//     human before being committed. See .github/workflows/visual-mockup.yml.
 const REFERENCE_MODE = process.env.REFERENCE_MODE ?? 'webflow';
 const SELF_MODE = REFERENCE_MODE === 'self';
-const REFERENCE_LABEL = SELF_MODE ? 'Staging' : 'Webflow';
+const MOCKUP_MODE = REFERENCE_MODE === 'mockup';
+const REFERENCE_LABEL = MOCKUP_MODE ? 'Baseline' : SELF_MODE ? 'Staging' : 'Webflow';
+const BASELINE_DIR = path.resolve('tests/visual-parity/baselines');
+const UPDATE_BASELINES = process.env.UPDATE_BASELINES === '1';
 
 const WEBFLOW_URL = process.env.WEBFLOW_URL ?? 'https://www.brikdesigns.com';
 const REFERENCE_URL = process.env.REFERENCE_URL
@@ -22,7 +34,10 @@ const NETLIFY_URL = process.env.NETLIFY_URL ?? process.argv[2];
 const OUT = path.resolve('tests/visual-parity/screenshots');
 
 // Routes with diff % above this value are flagged. Set to 0 to disable hard failure.
-const DIFF_THRESHOLD = parseFloat(process.env.DIFF_THRESHOLD ?? '0');
+// Mockup mode always gates: the baseline is a blessed capture of the same
+// pipeline, so the pass-case noise floor is ~0% while the #822 dark-canvas
+// defect measures 14.85% against it — 5% clears flake with wide margin.
+const DIFF_THRESHOLD = parseFloat(process.env.DIFF_THRESHOLD ?? (MOCKUP_MODE ? '5' : '0'));
 
 if (!NETLIFY_URL) {
   console.error(
@@ -46,6 +61,15 @@ const ROUTES = [
   { netlify: '/contact', webflow: '/contact', name: 'contact' },
   { netlify: '/free-marketing-analysis', webflow: '/brikdown-analysis', name: 'fma' },
   { netlify: '/value', webflow: '/value', name: 'value' },
+  // CMS landing route — no Webflow ancestor (webflow: null skips it in webflow
+  // mode). `mockup` declares which viewport/theme combos have a checked-in
+  // baseline; mockup mode gates exactly those and refuses to run without them.
+  {
+    netlify: '/events/grind-after-graduation',
+    webflow: null,
+    name: 'events-grind-after-graduation',
+    mockup: { viewports: ['desktop'], themes: ['light'] },
+  },
 ];
 
 const VIEWPORTS = [
@@ -57,7 +81,7 @@ const VIEWPORTS = [
 const THEMES = (process.env.THEMES ?? 'light,dark').split(',').map((t) => t.trim());
 
 console.log(`▸ mode:       ${REFERENCE_MODE}`);
-console.log(`▸ reference:  ${REFERENCE_URL} (${REFERENCE_LABEL})`);
+console.log(`▸ reference:  ${MOCKUP_MODE ? path.relative('', BASELINE_DIR) : REFERENCE_URL} (${REFERENCE_LABEL})`);
 console.log(`▸ netlify:    ${NETLIFY_URL}`);
 console.log(`▸ themes:     ${THEMES.join(', ')}`);
 console.log(`▸ threshold:  ${DIFF_THRESHOLD > 0 ? `${DIFF_THRESHOLD}%` : 'off (set DIFF_THRESHOLD to enable)'}`);
@@ -202,20 +226,48 @@ function diffScreenshots(wfPath, nlPath, diffPath) {
 }
 
 const results = [];
+const missingBaselines = [];
 for (const theme of THEMES) {
   for (const viewport of VIEWPORTS) {
     const dir = path.join(OUT, theme, viewport.name);
     fs.mkdirSync(dir, { recursive: true });
     for (const route of ROUTES) {
+      if (MOCKUP_MODE) {
+        if (!route.mockup) continue;
+        if (!route.mockup.viewports.includes(viewport.name)) continue;
+        if (!route.mockup.themes.includes(theme)) continue;
+      } else if (!SELF_MODE && route.webflow == null) {
+        continue; // no legacy Webflow URL to compare against
+      }
       // In self mode both sides render the same path — the reference is
-      // staging, not Webflow, so there is no legacy URL to map to.
-      const refRoute = SELF_MODE ? route.netlify : route.webflow;
+      // staging, not Webflow, so there is no legacy URL to map to. In mockup
+      // mode the reference is a checked-in file, not a URL at all.
+      const baselinePath = path.join(BASELINE_DIR, `${route.name}-${viewport.name}-${theme}.png`);
+      const refRoute = MOCKUP_MODE
+        ? path.relative('', baselinePath)
+        : SELF_MODE ? route.netlify : route.webflow;
       const wfPath  = path.join(dir, `${route.name}-reference.png`);
       const nlPath  = path.join(dir, `${route.name}-netlify.png`);
       const diffPath = path.join(dir, `${route.name}-diff.png`);
       console.log(`▸ ${theme}/${viewport.name}: ${route.name}`);
-      await capture(REFERENCE_URL, refRoute, viewport, theme, wfPath);
-      await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath);
+      if (MOCKUP_MODE) {
+        await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath);
+        if (UPDATE_BASELINES) {
+          if (fs.existsSync(nlPath)) {
+            fs.mkdirSync(BASELINE_DIR, { recursive: true });
+            fs.copyFileSync(nlPath, baselinePath);
+            console.log(`  ✎ baseline written: ${refRoute}`);
+          }
+        } else if (!fs.existsSync(baselinePath)) {
+          missingBaselines.push(baselinePath);
+          console.error(`  ✗ baseline missing: ${baselinePath}`);
+        } else {
+          fs.copyFileSync(baselinePath, wfPath); // reference pane in the report
+        }
+      } else {
+        await capture(REFERENCE_URL, refRoute, viewport, theme, wfPath);
+        await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath);
+      }
       const diff = diffScreenshots(wfPath, nlPath, diffPath);
       if (diff) {
         const flag = diff.diffPct > 5 ? '🔴' : diff.diffPct > 2 ? '🟡' : '🟢';
@@ -368,7 +420,7 @@ ${results
 `;
 fs.writeFileSync(reportPath, html);
 
-const okCount = results.filter((r) => r.wfOk && r.nlOk).length;
+const okCount = results.filter((r) => r.nlOk && (r.wfOk || UPDATE_BASELINES)).length;
 const avgDiff = diffed.length
   ? (diffed.reduce((s, r) => s + r.diffPct, 0) / diffed.length).toFixed(2)
   : '—';
@@ -380,8 +432,27 @@ console.log(`\n✓ ${okCount}/${results.length} captures complete`);
 console.log(`▸ avg diff: ${avgDiff}%  |  worst: ${worstDiff}%`);
 console.log(`▸ open ${reportPath}`);
 
+// Mockup mode never passes silently: a missing baseline or a failed capture is
+// a hard failure, not a skipped comparison. (webflow mode tolerates capture
+// failure by design — that tolerance must not carry over; it is how #822 hid.)
+if (MOCKUP_MODE) {
+  if (missingBaselines.length) {
+    console.error(`\n✗ ${missingBaselines.length} baseline(s) missing — mockup mode refuses to skip:`);
+    missingBaselines.forEach((p) => console.error(`  ${p}`));
+    console.error('  Author against a known-good deploy, then eyeball vs the Paper mockup before committing:');
+    console.error('  UPDATE_BASELINES=1 npm run visual-mockup -- <known-good-url>');
+    process.exit(2);
+  }
+  const failedCaptures = results.filter((r) => !r.nlOk);
+  if (failedCaptures.length) {
+    console.error(`\n✗ ${failedCaptures.length} capture(s) failed — mockup mode treats this as a gate failure:`);
+    failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}] (${NETLIFY_URL}${r.netlifyPath})`));
+    process.exit(1);
+  }
+}
+
 // Hard failure gate — only active when DIFF_THRESHOLD is set
-if (DIFF_THRESHOLD > 0) {
+if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
   const failing = diffed.filter((r) => r.diffPct > DIFF_THRESHOLD);
   if (failing.length) {
     console.error(`\n✗ ${failing.length} route(s) exceed DIFF_THRESHOLD of ${DIFF_THRESHOLD}%:`);
