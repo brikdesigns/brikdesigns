@@ -53,10 +53,14 @@ export interface EventMetaProps {
   fee?: number | null;
 }
 
-/** A single speaker: name + bio (+ optional avatar). */
+/** A single speaker: name + bio (+ optional role, org, avatar). */
 export interface SpeakerProps {
   name: string;
   bio?: string | null;
+  /** Short eyebrow label above the name — e.g. "Host" / "Speaker". */
+  role?: string | null;
+  /** Affiliation shown under the name — e.g. "DDSMatch" / "NDI". */
+  org?: string | null;
   avatar?: { url: string; alt: string } | null;
 }
 
@@ -222,6 +226,8 @@ function parseOneSpeaker(raw: unknown): SpeakerProps | null {
   const props = raw as Record<string, unknown>;
   const name = str(props.name) ?? '';
   const bio = str(props.bio);
+  const role = str(props.role);
+  const org = str(props.org);
   const rawAvatar = props.avatar;
   let avatar: SpeakerProps['avatar'] = null;
   if (rawAvatar && typeof rawAvatar === 'object') {
@@ -229,7 +235,7 @@ function parseOneSpeaker(raw: unknown): SpeakerProps | null {
     if (url) avatar = { url, alt: str((rawAvatar as { alt?: unknown }).alt) ?? '' };
   }
   if (!name && !bio) return null;
-  return { name, bio, avatar };
+  return { name, bio, role, org, avatar };
 }
 
 /**

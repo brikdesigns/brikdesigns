@@ -90,13 +90,6 @@ export function LandingBlocks({
     const hero = heroBlocks[0] ? parseHeroProps(heroBlocks[0].props) : null;
     const trioItems = detailsBlock ? parseDetailsProps(detailsBlock.props).items : [];
     const speakers = speakerBlock ? parseSpeakerBlockProps(speakerBlock.props).speakers : [];
-    if (process.env.NODE_ENV !== 'production' && speakers.length > 1) {
-      // The showcase speaker region is a single featured card (design 3B9-0);
-      // extra speakers are dropped. Warn the author, matching the block parsers.
-      console.warn(
-        `[LandingBlocks] showcase renders one speaker; ${speakers.length} authored, ${speakers.length - 1} dropped.`,
-      );
-    }
     const partners = logoBlocks[0] ? parseLogoStripProps(logoBlocks[0].props) : null;
     // The form lays out two-up inside the wide registration card (#showcase).
     const formContext: BlockContext = { ...context, formColumns: 2 };
@@ -135,8 +128,8 @@ export function LandingBlocks({
           {/* Venue / Hosts / Audience trio — 3-up blue stat cards. */}
           {trioItems.length > 0 && <ShowcaseTrio items={trioItems} />}
 
-          {/* Speaker — green card with a right-column photo. */}
-          {speakers.length > 0 && <ShowcaseSpeaker speaker={speakers[0]} />}
+          {/* Speakers — green card holding a 3-up grid of avatar + role + name + org. */}
+          {speakers.length > 0 && <ShowcaseSpeakers speakers={speakers} />}
 
           {/* Partners — optional yellow heading band (authored on the logo-strip
               block) over the sponsor logo grid. */}
@@ -264,42 +257,38 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
 }
 
 /**
- * showcase speaker — green card, name + bio on the left, a large photo on the
- * right. Diverges from SpeakerBlock's inline 96px avatar. Bio splits on blank
- * lines into paragraphs (same rule as SpeakerBlock).
+ * showcase speakers — one green card holding a 3-up grid of speaker cells, each
+ * a circular avatar over a role eyebrow, name, and org (mirroring the flyer).
+ * Renders every authored speaker; the grid reflows to 1/2 columns below the
+ * showcase breakpoints.
  */
-function ShowcaseSpeaker({ speaker }: { speaker: SpeakerProps }) {
-  const paragraphs = speaker.bio
-    ? speaker.bio
-        .split(/\n{2,}/)
-        .map((p) => p.trim())
-        .filter(Boolean)
-    : [];
-
+function ShowcaseSpeakers({ speakers }: { speakers: SpeakerProps[] }) {
   return (
-    <div className="lp-showcase__card lp-showcase__card--green lp-showcase__speaker">
-      <div className="lp-showcase__speaker-body">
-        <p className="lp-showcase__region-label" style={label.subtitle}>
-          Speaker
-        </p>
-        {speaker.name && <h2 style={heading.section}>{speaker.name}</h2>}
-        {paragraphs.map((para, i) => (
-          <p key={i} style={{ ...text.body, margin: 0 }}>
-            {para}
-          </p>
-        ))}
-      </div>
-      {speaker.avatar?.url && (
-        <div className="lp-showcase__speaker-photo">
-          <Image
-            src={speaker.avatar.url}
-            alt={speaker.avatar.alt || ''}
-            fill
-            sizes="(max-width: 767px) 100vw, 400px"
-            style={{ objectFit: 'cover' }}
-          />
+    <div className="lp-showcase__card lp-showcase__card--green lp-showcase__speakers">
+      {speakers.map((speaker, i) => (
+        <div key={i} className="lp-showcase__speaker">
+          {speaker.avatar?.url && (
+            <div className="lp-showcase__speaker-avatar">
+              <Image
+                src={speaker.avatar.url}
+                alt={speaker.avatar.alt || speaker.name || ''}
+                fill
+                sizes="128px"
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+          )}
+          {speaker.role && (
+            <p className="lp-showcase__region-label" style={label.subtitle}>
+              {speaker.role}
+            </p>
+          )}
+          {speaker.name && <h3 style={heading.card}>{speaker.name}</h3>}
+          {speaker.org && (
+            <p style={{ ...text.body, margin: 0 }}>{speaker.org}</p>
+          )}
         </div>
-      )}
+      ))}
     </div>
   );
 }

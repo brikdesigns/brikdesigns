@@ -116,7 +116,9 @@
   padding-inline: var(--gutter-page);
   display: flex;
   flex-direction: column;
-  gap: var(--gap-xl);
+  /* Generous rhythm between the intro / trio / speaker / partners bands so each
+     region reads as its own section with breathing room. */
+  gap: var(--gap-huge);
 }
 
 /* Base card — generous padding + radius; the hue modifiers set the ground. */
@@ -199,29 +201,37 @@
   margin-top: var(--gap-xs);
 }
 
-/* Speaker — name + bio (left), large photo (right). */
-.lp-showcase__speaker {
+/* Speakers — one green card holding a 3-up grid of speaker cells (circular
+   avatar over role / name / org). Reflows 1 → 2 → 3 columns up the scale. */
+.lp-showcase__speakers {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gap-xl);
-  align-items: center;
 }
-.lp-showcase__speaker-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-.lp-showcase__speaker-photo {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  min-height: 300px;
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
+@media (min-width: 480px) {
+  .lp-showcase__speakers {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 @media (min-width: 768px) {
-  .lp-showcase__speaker {
-    grid-template-columns: 1.5fr 1fr;
+  .lp-showcase__speakers {
+    grid-template-columns: repeat(3, 1fr);
   }
+}
+.lp-showcase__speaker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--gap-xs);
+}
+.lp-showcase__speaker-avatar {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  margin-bottom: var(--gap-sm);
+  border-radius: var(--border-radius-circle);
+  overflow: hidden;
 }
 
 /* Partners — an optional yellow heading band over a grid of sponsor-logo cards.
@@ -254,13 +264,12 @@
     grid-template-columns: repeat(4, 1fr);
   }
 }
-/* One logo card — light, theme-invariant ground to match the dark-locked canvas. */
+/* One logo slot — logos sit directly on the light page canvas with no ground
+   fill (dropped the grey card per the flyer, which floats logos on white). */
 .lp-showcase__logo {
   position: relative;
   height: 96px;
   padding: var(--padding-lg);
-  border-radius: var(--border-radius-lg);
-  background-color: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — theme-invariant light logo ground; no semantic --surface-* fits */
 }
 
 /* Registration form, two-up (EventRegistrationForm columns=2). Single column
