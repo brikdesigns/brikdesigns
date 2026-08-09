@@ -282,7 +282,13 @@ export default async function PlanDetailPage({ params }: Props) {
                 )}
                 {plan.monthly_price_display && (
                   <div
-                    className="plan-cta-panel__price"
+                    // `service-surface` pins inherited text dark on this
+                    // fixed-light tint (the pale surface is `-light` in BOTH
+                    // themes), so the "per month" caption (--text-secondary,
+                    // which is light grey in dark theme) stays AA — the #360
+                    // fixed-on-fixed-light pattern. The price figure sets its
+                    // own service ink explicitly, so it's unaffected.
+                    className="plan-cta-panel__price service-surface"
                     // Price inset carries the plan's pale service tint
                     // (`surface-service-*-light`) instead of the neutral
                     // `--surface-secondary`, so the focal figure reads as
