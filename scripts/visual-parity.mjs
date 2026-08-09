@@ -34,6 +34,15 @@ const REFERENCE_URL = process.env.REFERENCE_URL
 const NETLIFY_URL = process.env.NETLIFY_URL ?? process.argv[2];
 const OUT = path.resolve('tests/visual-parity/screenshots');
 
+// How long a capture waits for every image to finish loading before it gives up
+// and fails (see captureOnce). Sized for a COLD Netlify image transform on a
+// fresh deploy-preview, not a warm one: on PR #838 a `w=3840` source on
+// /services/marketing exceeded 60s on both attempts and failed the gate, and
+// once the edge has the transform the same image resolves in ~30ms.
+// Right-sizing those requests (#835) is the actual cure; this is the headroom
+// that keeps a cold preview from reading as a regression in the meantime.
+const IMAGE_WAIT_MS = parseInt(process.env.IMAGE_WAIT_MS ?? '120000', 10);
+
 // Routes with diff % above this value are flagged. Set to 0 to disable hard failure.
 // Mockup mode always gates: the baseline is a blessed capture of the same
 // pipeline, so the pass-case noise floor is ~0% while the #822 dark-canvas
@@ -119,6 +128,33 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
       document.head.appendChild(el);
     });
   }, DEV_CHROME_CSS);
+  // Force every image to load eagerly. Lazy loading is scheduled by the
+  // browser, not by us: after a full scroll pass an image below the fold can
+  // still be sitting unfetched, and Chromium occasionally never gets round to
+  // it at all — observed on /services/marketing at tablet/dark, where two
+  // images (including a 256px footer logo that serves in 0.24s) were still
+  // incomplete after 20s, while the same route on the same host was clean
+  // minutes later. That scheduler is the nondeterminism #830 chased: a wait
+  // cannot fix a fetch that never starts, only make its absence louder.
+  // Flipping loading to eager starts the fetch immediately, so the image wait
+  // in captureOnce becomes a question of network time rather than of when the
+  // browser felt like asking. The MutationObserver covers images React mounts
+  // after hydration.
+  await page.addInitScript(() => {
+    const eager = (img) => { if (img.loading === 'lazy') img.loading = 'eager'; };
+    const sweep = (root) => {
+      if (root.tagName === 'IMG') eager(root);
+      root.querySelectorAll?.('img[loading="lazy"]').forEach(eager);
+    };
+    document.addEventListener('DOMContentLoaded', () => sweep(document));
+    new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (node.nodeType === 1) sweep(node);
+        }
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  });
   await page.addInitScript((t) => {
     // localStorage can throw when storage is partitioned or blocked. The theme
     // is also emulated via colorScheme on the context, so a failure here is
@@ -183,12 +219,14 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
         await page.waitForFunction(
           () => Array.from(document.images).every((img) => img.complete),
           undefined,
-          { timeout: 60000, polling: 250 },
+          { timeout: IMAGE_WAIT_MS, polling: 250 },
         );
       } catch (e) {
         const stuck = await page.evaluate(() =>
           Array.from(document.images).filter((img) => !img.complete).length);
-        throw new Error(`${stuck} image(s) still loading after 60s — capture would be non-deterministic`);
+        throw new Error(
+          `${stuck} image(s) still loading after ${IMAGE_WAIT_MS / 1000}s — capture would be non-deterministic`,
+        );
       }
       const undecodable = await page.evaluate(async () => {
         const results = await Promise.allSettled(
