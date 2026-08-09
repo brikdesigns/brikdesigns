@@ -1,0 +1,59 @@
+name: fleet-failure-notify
+
+# Pages #alerts-critical the moment a SCHEDULED workflow in this repo finishes with
+# conclusion == failure — one event-driven gate in front of every scheduled cron
+# here, so a red scheduled check is acted on at the failure, not found by a human
+# days later (brikdesigns/brik-llm#2079).
+#
+# workflow_run.workflows takes explicit NAMES, not globs (GitHub Actions docs,
+# verified 2026-08-09), so each scheduled workflow that does not already self-notify
+# is named below. Drift is caught by the fleet gate-coverage read
+# (brik-llm scripts/audit/automation-drift-rate.py + morning-check.sh): any scheduled
+# workflow neither self-notifying nor listed here lands in the `none` tier and
+# surfaces the next morning until it is added.
+#
+# Auth: a channel-scoped #alerts-critical incoming webhook (ALERTS_WEBHOOK_URL). It
+# can ONLY post to that one channel — safe to hold as an Actions secret, including in
+# a public repo. Managed via brik-secrets (purpose: slack-alerts-webhook); mirrors the
+# #alerts-critical route in brik-llm scripts/shared/notify-routes.json.
+
+on:
+  workflow_run:
+    workflows:
+      - "Feedback widget health"
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  page:
+    # Only a failed SCHEDULED run pages. A manual/push run of a listed workflow is
+    # attended; the unattended cron is the gap #2079 closes. success / cancelled /
+    # skipped never page.
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      github.event.workflow_run.event == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      # NOT continue-on-error: if the webhook post fails, this job fails RED so the
+      # notifier's own failure is loud, not silent (brikdesigns/brik-llm#2079). The
+      # notifier deliberately does not list itself under `workflows:` above — a
+      # self-reference would loop forever whenever Slack is the thing that is down.
+      - name: Page #alerts-critical
+        env:
+          ALERTS_WEBHOOK_URL: ${{ secrets.ALERTS_WEBHOOK_URL }}
+          WF_NAME: ${{ github.event.workflow_run.name }}
+          WF_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          WF_URL: ${{ github.event.workflow_run.html_url }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ALERTS_WEBHOOK_URL}" ]; then
+            echo "::error::ALERTS_WEBHOOK_URL is unset — cannot page #alerts-critical" >&2
+            exit 1
+          fi
+          text="Scheduled workflow *${WF_NAME}* FAILED in ${GITHUB_REPOSITORY} (branch ${WF_BRANCH}). Run: <${WF_URL}|view logs>"
+          # -f fails loud on any non-2xx, so a rejected post is a red check.
+          curl -sSf -X POST -H 'Content-type: application/json' \
+            --data "$(jq -n --arg t "$text" '{text:$t}')" \
+            "${ALERTS_WEBHOOK_URL}"
