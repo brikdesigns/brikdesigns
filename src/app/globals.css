@@ -228,6 +228,13 @@ html {
     --icon-md: var(--font-size-100);
     --icon-lg: var(--font-size-200);
 
+    /* ---- Headings render bold (700) site-wide per brand direction. Reassign
+       the single-source heading-weight token (BDS defaults it to semibold);
+       this flips every heading — the `h1-h6` rule and the styles.ts presets,
+       both of which resolve through this token — in one place. Repo-local, so
+       the shared BDS default still governs other client sites. ---- */
+    --font-weight-heading: var(--font-weight-bold);
+
     /* ---- Font-weight bridge aliases (double-hyphen form used by Webflow-
        lifted component CSS that hasn't migrated to canonical single-hyphen). ---- */
     --font-weight--bold: var(--font-weight-bold);
@@ -303,9 +310,9 @@ main {
   flex: 1 0 auto;
 }
 
-/* Headings — semibold per BDS build standard (headings.mdx); every heading
-   weight resolves through the shared --font-weight-heading token. Diverges
-   from the legacy Webflow site (700) that brikdesigns replaces. */
+/* Headings resolve through the shared --font-weight-heading token; this repo
+   reassigns that token to bold (700) in the client-theme layer above, so these
+   render bold site-wide per brand direction. (BDS defaults it to semibold.) */
 h1, h2, h3, h4, h5, h6 {
   font-weight: var(--font-weight-heading);
 }
