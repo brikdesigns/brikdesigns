@@ -23,6 +23,7 @@ import pixelmatch from 'pixelmatch';
 const REFERENCE_MODE = process.env.REFERENCE_MODE ?? 'webflow';
 const SELF_MODE = REFERENCE_MODE === 'self';
 const MOCKUP_MODE = REFERENCE_MODE === 'mockup';
+const WEBFLOW_MODE = !SELF_MODE && !MOCKUP_MODE;
 const REFERENCE_LABEL = MOCKUP_MODE ? 'Baseline' : SELF_MODE ? 'Staging' : 'Webflow';
 const BASELINE_DIR = path.resolve('tests/visual-parity/baselines');
 const UPDATE_BASELINES = process.env.UPDATE_BASELINES === '1';
@@ -171,24 +172,32 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
     // (fn, arg, options) — passing options second makes Playwright treat them
     // as the page-function argument and silently apply its 30s defaults. The
     // height settle below had that bug, which is why its 15s never applied.
-    try {
-      await page.waitForFunction(
-        () => Array.from(document.images).every((img) => img.complete),
-        undefined,
-        { timeout: 60000, polling: 250 },
-      );
-    } catch (e) {
-      const stuck = await page.evaluate(() =>
-        Array.from(document.images).filter((img) => !img.complete).length);
-      throw new Error(`${stuck} image(s) still loading after 60s — capture would be non-deterministic`);
+    //
+    // Skipped in webflow mode: half of that comparison is the live Webflow
+    // site, where images routinely never settle — 9 of the first 10 routes hit
+    // the wait, at ~128s each, and the job blew its 20-minute budget after 10
+    // of 78 comparisons. That mode is a non-blocking eyeball artifact whose
+    // reference we do not control, so it keeps its pre-#830 behaviour.
+    if (!WEBFLOW_MODE) {
+      try {
+        await page.waitForFunction(
+          () => Array.from(document.images).every((img) => img.complete),
+          undefined,
+          { timeout: 60000, polling: 250 },
+        );
+      } catch (e) {
+        const stuck = await page.evaluate(() =>
+          Array.from(document.images).filter((img) => !img.complete).length);
+        throw new Error(`${stuck} image(s) still loading after 60s — capture would be non-deterministic`);
+      }
+      const undecodable = await page.evaluate(async () => {
+        const results = await Promise.allSettled(
+          Array.from(document.images).map((img) => img.decode?.()),
+        );
+        return results.filter((r) => r.status === 'rejected').length;
+      });
+      if (undecodable) console.warn(`  · ${undecodable} image(s) failed to decode`);
     }
-    const undecodable = await page.evaluate(async () => {
-      const results = await Promise.allSettled(
-        Array.from(document.images).map((img) => img.decode?.()),
-      );
-      return results.filter((r) => r.status === 'rejected').length;
-    });
-    if (undecodable) console.warn(`  · ${undecodable} image(s) failed to decode`);
     await page.waitForFunction(
       () => {
         const h = document.body.scrollHeight;
