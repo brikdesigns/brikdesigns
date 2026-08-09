@@ -22,6 +22,9 @@ on:
       - 'next.config.*'
       - 'package.json'
       - 'package-lock.json'
+      # Run when the capture logic this workflow drives changes (#830).
+      - 'scripts/visual-parity.mjs'
+      - '.github/workflows/visual-parity.yml'
 
 concurrency:
   group: visual-parity-${{ github.ref }}

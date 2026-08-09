@@ -23,6 +23,7 @@ import pixelmatch from 'pixelmatch';
 const REFERENCE_MODE = process.env.REFERENCE_MODE ?? 'webflow';
 const SELF_MODE = REFERENCE_MODE === 'self';
 const MOCKUP_MODE = REFERENCE_MODE === 'mockup';
+const WEBFLOW_MODE = !SELF_MODE && !MOCKUP_MODE;
 const REFERENCE_LABEL = MOCKUP_MODE ? 'Baseline' : SELF_MODE ? 'Staging' : 'Webflow';
 const BASELINE_DIR = path.resolve('tests/visual-parity/baselines');
 const UPDATE_BASELINES = process.env.UPDATE_BASELINES === '1';
@@ -152,6 +153,51 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
       // Analytics/beacon polling can keep the network busy indefinitely; the
       // scrollHeight settle below is the real guard, so carry on.
     }
+    // Images must finish loading AND decoding before the screenshot. The height
+    // settle below cannot see them: illustration slots are fixed-size, so
+    // scrollHeight is already final while the images are still in flight, and
+    // the guard passes on empty slots. On a cold cache the capture paints the
+    // slots empty and a warm one paints the images, which reads as ~2.5% on
+    // image-dense pages — the #830 flake, reproduced at 2.55% on
+    // /services/marketing at 375px. The slow ones are the on-demand Netlify
+    // image transforms (`w=3840`); once the edge has them they resolve in
+    // ~30ms, so the retry in capture() is a warm second pass.
+    //
+    // A timeout here FAILS the capture rather than screenshotting a
+    // half-loaded page: a silently-skipped route reads as a pass, which is the
+    // failure mode this gate exists to close. `complete` is true for an image
+    // that failed to load, so a genuinely broken asset can't hang this.
+    //
+    // NOTE the `undefined` third-arg dance: waitForFunction is
+    // (fn, arg, options) — passing options second makes Playwright treat them
+    // as the page-function argument and silently apply its 30s defaults. The
+    // height settle below had that bug, which is why its 15s never applied.
+    //
+    // Skipped in webflow mode: half of that comparison is the live Webflow
+    // site, where images routinely never settle — 9 of the first 10 routes hit
+    // the wait, at ~128s each, and the job blew its 20-minute budget after 10
+    // of 78 comparisons. That mode is a non-blocking eyeball artifact whose
+    // reference we do not control, so it keeps its pre-#830 behaviour.
+    if (!WEBFLOW_MODE) {
+      try {
+        await page.waitForFunction(
+          () => Array.from(document.images).every((img) => img.complete),
+          undefined,
+          { timeout: 60000, polling: 250 },
+        );
+      } catch (e) {
+        const stuck = await page.evaluate(() =>
+          Array.from(document.images).filter((img) => !img.complete).length);
+        throw new Error(`${stuck} image(s) still loading after 60s — capture would be non-deterministic`);
+      }
+      const undecodable = await page.evaluate(async () => {
+        const results = await Promise.allSettled(
+          Array.from(document.images).map((img) => img.decode?.()),
+        );
+        return results.filter((r) => r.status === 'rejected').length;
+      });
+      if (undecodable) console.warn(`  · ${undecodable} image(s) failed to decode`);
+    }
     await page.waitForFunction(
       () => {
         const h = document.body.scrollHeight;
@@ -159,6 +205,7 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
         window.__lastH = h;
         return false;
       },
+      undefined,
       { timeout: 15000, polling: 250 },
     ).catch((e) => console.warn(`  · height did not settle (${e.message.split('\n')[0]})`));
     await page.screenshot({ path: outPath, fullPage: true, animations: 'disabled' });
@@ -447,6 +494,19 @@ if (MOCKUP_MODE) {
   if (failedCaptures.length) {
     console.error(`\n✗ ${failedCaptures.length} capture(s) failed — mockup mode treats this as a gate failure:`);
     failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}] (${NETLIFY_URL}${r.netlifyPath})`));
+    process.exit(1);
+  }
+}
+
+// Self mode blocks, so a capture that never produced both sides must fail the
+// run rather than drop out of `diffed` unnoticed. Since #830 the image guard
+// fails a capture instead of screenshotting a half-loaded page, and without
+// this a route that loses that race twice would read as a pass.
+if (SELF_MODE) {
+  const failedCaptures = results.filter((r) => !r.wfOk || !r.nlOk);
+  if (failedCaptures.length) {
+    console.error(`\n✗ ${failedCaptures.length} capture(s) failed — a skipped route is not a pass:`);
+    failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}]`));
     process.exit(1);
   }
 }

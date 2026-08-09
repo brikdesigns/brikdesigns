@@ -27,6 +27,11 @@ on:
       - 'next.config.*'
       - 'package.json'
       - 'package-lock.json'
+      # The gate must run when its own implementation changes. Without this a
+      # PR editing the capture logic (#830) merges without the check that logic
+      # implements ever executing.
+      - 'scripts/visual-parity.mjs'
+      - '.github/workflows/visual-regression.yml'
 
 concurrency:
   group: visual-regression-${{ github.ref }}
