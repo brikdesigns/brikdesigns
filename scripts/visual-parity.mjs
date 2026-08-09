@@ -128,6 +128,33 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
       document.head.appendChild(el);
     });
   }, DEV_CHROME_CSS);
+  // Force every image to load eagerly. Lazy loading is scheduled by the
+  // browser, not by us: after a full scroll pass an image below the fold can
+  // still be sitting unfetched, and Chromium occasionally never gets round to
+  // it at all — observed on /services/marketing at tablet/dark, where two
+  // images (including a 256px footer logo that serves in 0.24s) were still
+  // incomplete after 20s, while the same route on the same host was clean
+  // minutes later. That scheduler is the nondeterminism #830 chased: a wait
+  // cannot fix a fetch that never starts, only make its absence louder.
+  // Flipping loading to eager starts the fetch immediately, so the image wait
+  // in captureOnce becomes a question of network time rather than of when the
+  // browser felt like asking. The MutationObserver covers images React mounts
+  // after hydration.
+  await page.addInitScript(() => {
+    const eager = (img) => { if (img.loading === 'lazy') img.loading = 'eager'; };
+    const sweep = (root) => {
+      if (root.tagName === 'IMG') eager(root);
+      root.querySelectorAll?.('img[loading="lazy"]').forEach(eager);
+    };
+    document.addEventListener('DOMContentLoaded', () => sweep(document));
+    new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (node.nodeType === 1) sweep(node);
+        }
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  });
   await page.addInitScript((t) => {
     // localStorage can throw when storage is partitioned or blocked. The theme
     // is also emulated via colorScheme on the context, so a failure here is
