@@ -39,6 +39,16 @@ concurrency:
 
 jobs:
   regression:
+    # Skip the staging → main promote PR (#828). Its deploy-preview is built
+    # from staging's HEAD and REFERENCE_URL below *is* staging, so the job
+    # compares a commit against itself: it can only ever report noise, and the
+    # remedy that works is "hit re-run". Training that reflex on the one PR
+    # that reaches production is worse than not running the gate there — the
+    # code has already been gated on the way into staging.
+    #
+    # Keyed on head_ref, not base, so a hotfix branch targeting main still
+    # gets a real comparison against staging.
+    if: github.head_ref != 'staging'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
