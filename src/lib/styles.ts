@@ -14,10 +14,12 @@
  *   <p style={{ ...text.body, color: color.text.muted }}>Override one prop</p>
  *
  * HEADING WEIGHT — one weight, one token. Every heading preset uses
- * `font.weight.heading` (`var(--font-weight-heading)` = semibold); there is no
- * bold(700) heading. The weight is single-sourced through the BDS
- * `--font-weight-heading` token, so a future policy change is one edit in BDS.
- * The former bold `heading.lg/md/sm` marketing presets are now semibold.
+ * `font.weight.heading` (`var(--font-weight-heading)`). brikdesigns renders
+ * headings bold (700) per brand direction: globals.css reassigns
+ * `--font-weight-heading: var(--font-weight-bold)` in the client-theme layer,
+ * so the single-source token flips every heading — presets and the `h1-h6`
+ * rule alike — without touching the shared BDS default (that still governs
+ * other client sites).
  *
  * WHY THE PRESETS ARE LOCAL (not re-exported from `@brikdesigns/bds`): BDS 0.150.0
  * exports these preset objects, but under Next 16 / Turbopack they resolve to an
@@ -104,8 +106,9 @@ export const text = {
 } as const;
 
 // ─── Headings ────────────────────────────────────────────────────────
-// Every preset is semibold via `font.weight.heading` (the shared
-// `--font-weight-heading` token). No bold(700) heading exists.
+// Every preset uses the shared `font.weight.heading` token. brikdesigns
+// reassigns that token to bold (700) in globals.css (client-theme layer), so
+// headings render bold here while the token stays single-sourced.
 
 export const heading = {
   /** Page-level heading (heading/large · 32px) */
