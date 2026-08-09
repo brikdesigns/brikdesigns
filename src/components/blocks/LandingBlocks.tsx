@@ -199,7 +199,7 @@ export function LandingBlocks({
 const showcaseDisplay = {
   fontFamily: font.family.heading,
   fontSize: font.size.heading.xxxLarge,
-  fontWeight: font.weight.heading,
+  fontWeight: font.weight.bold,
   lineHeight: font.lineHeight.tight,
   textTransform: 'uppercase',
   margin: 0,
