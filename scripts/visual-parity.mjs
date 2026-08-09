@@ -34,6 +34,15 @@ const REFERENCE_URL = process.env.REFERENCE_URL
 const NETLIFY_URL = process.env.NETLIFY_URL ?? process.argv[2];
 const OUT = path.resolve('tests/visual-parity/screenshots');
 
+// How long a capture waits for every image to finish loading before it gives up
+// and fails (see captureOnce). Sized for a COLD Netlify image transform on a
+// fresh deploy-preview, not a warm one: on PR #838 a `w=3840` source on
+// /services/marketing exceeded 60s on both attempts and failed the gate, and
+// once the edge has the transform the same image resolves in ~30ms.
+// Right-sizing those requests (#835) is the actual cure; this is the headroom
+// that keeps a cold preview from reading as a regression in the meantime.
+const IMAGE_WAIT_MS = parseInt(process.env.IMAGE_WAIT_MS ?? '120000', 10);
+
 // Routes with diff % above this value are flagged. Set to 0 to disable hard failure.
 // Mockup mode always gates: the baseline is a blessed capture of the same
 // pipeline, so the pass-case noise floor is ~0% while the #822 dark-canvas
@@ -183,12 +192,14 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
         await page.waitForFunction(
           () => Array.from(document.images).every((img) => img.complete),
           undefined,
-          { timeout: 60000, polling: 250 },
+          { timeout: IMAGE_WAIT_MS, polling: 250 },
         );
       } catch (e) {
         const stuck = await page.evaluate(() =>
           Array.from(document.images).filter((img) => !img.complete).length);
-        throw new Error(`${stuck} image(s) still loading after 60s — capture would be non-deterministic`);
+        throw new Error(
+          `${stuck} image(s) still loading after ${IMAGE_WAIT_MS / 1000}s — capture would be non-deterministic`,
+        );
       }
       const undecodable = await page.evaluate(async () => {
         const results = await Promise.allSettled(
