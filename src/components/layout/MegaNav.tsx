@@ -8,7 +8,7 @@ import { Icon } from '@/lib/icon';
 import { ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
-import { routeSlugForServiceLine } from '@/lib/service-line-routes';
+import { routeSlugForServiceLine, SERVICE_LINE_SEGMENTS } from '@/lib/service-line-routes';
 import { ThemeToggle } from './ThemeToggle';
 
 import './MegaNav.css';
@@ -37,6 +37,10 @@ interface SupportPlan {
   price: string;
   description: string;
   imageUrl: string | null;
+  /** Route segment of the plan's marketing service line, or `null` when the CMS
+   *  row has no `marketing_line_id`. Drives the nav tint on `/plans/{slug}`
+   *  (#859) — same column the plan hero tints from. */
+  lineSegment: string | null;
 }
 
 interface IndustryItem {
@@ -54,14 +58,18 @@ export interface MegaNavProps {
 
 type DropdownId = 'services' | 'customers' | 'about' | 'plans' | null;
 
-/* Service-line nav tint (#729). On a `/services/{line}` page the sticky nav
-   adopts that line's darkest surface (`--surface-service-{line}-dark`) with
-   inverted white ink + logo. The route segment equals the token suffix for
-   every line, so it doubles as the modifier-class key. Marketing-first pilot:
-   expand this allowlist to the other four lines once each dark surface is
-   AA-verified (the shared ink/border inversion already clears AA on any
-   `--surface-service-*-dark`). */
-const NAV_TINT_LINES = new Set(['marketing']);
+/* Service-line nav tint (#729; all five lines + plan pages since #858/#859).
+   On a service-line page — or a plan page whose marketing line is set — the
+   sticky nav adopts that line's darkest service surface (e.g.
+   `--surface-service-marketing-dark`) with inverted white ink + logo. The route
+   segment equals the token suffix for every line, so it doubles as the
+   modifier-class key; the background rules live in MegaNav.css.
+
+   Derived from `SERVICE_LINE_SEGMENTS`, not hand-listed: the pilot's hardcoded
+   `Set(['marketing'])` is exactly how four lines stayed neutral for two weeks
+   with CI green (#860). White ink clears AAA on all five darkest surfaces
+   (8.48:1 marketing → 16.34:1 back-office). */
+const NAV_TINT_LINES = new Set(SERVICE_LINE_SEGMENTS);
 
 /* Design Services meganav is parked while we explore a new way to surface
    services (service lines now live in the Services/plans panel). Flip to `true`
@@ -82,12 +90,31 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
   const lastYRef = useRef(0);
   const pathname = usePathname();
 
-  // Service-line tint: match `/services/{segment}` and tint only allow-listed
-  // lines (#729 marketing pilot). Sub-routes like `/services/marketing/seo`
-  // still resolve to the parent line's segment, so the tint persists.
+  // Service-line tint. Two route families resolve to a line:
+  //
+  //   /services/{segment}   — the segment IS the line. Sub-routes like
+  //                           /services/marketing/seo still match the parent
+  //                           segment, so the tint persists on detail pages.
+  //   /plans/{slug}         — the line comes from the plan's marketing_line
+  //                           (#859), the same CMS column the plan hero tints
+  //                           from, so nav and hero can't disagree. A plan with
+  //                           no marketing line set stays untinted rather than
+  //                           guessing — the fallback that hid three NULL rows
+  //                           for weeks (see mapServiceLineSlug).
+  //
+  // The `NAV_TINT_LINES` check is what keeps an unknown segment from emitting a
+  // modifier class with no CSS rule behind it.
   const tintedLine = (() => {
-    const segment = pathname?.match(/^\/services\/([^/]+)/)?.[1];
-    return segment && NAV_TINT_LINES.has(segment) ? segment : null;
+    const serviceSegment = pathname?.match(/^\/services\/([^/]+)/)?.[1];
+    if (serviceSegment) {
+      return NAV_TINT_LINES.has(serviceSegment) ? serviceSegment : null;
+    }
+    const planSlug = pathname?.match(/^\/plans\/([^/]+)/)?.[1];
+    if (planSlug) {
+      const line = supportPlans.find((p) => p.slug === planSlug)?.lineSegment;
+      return line && NAV_TINT_LINES.has(line) ? line : null;
+    }
+    return null;
   })();
 
   // Click-only toggle (matches Webflow data-hover="false")

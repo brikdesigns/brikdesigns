@@ -54,6 +54,12 @@ export async function MegaNavServer() {
     // plan's marketing_line card_image_url, falling back to the plan's own
     // image_url for legacy rows with no marketing line set.
     imageUrl: plan.marketing_line?.card_image_url ?? plan.image_url ?? null,
+    // Nav tint on /plans/{slug} (#859). Read straight off marketing_line — the
+    // same column the plan hero tints from — so the bar and the band can't
+    // disagree. Deliberately NOT routed through mapServiceLineSlug() when the
+    // column is null: that helper warns and falls back to 'brand', which would
+    // paint every line-less plan yellow. No line set means no tint.
+    lineSegment: plan.marketing_line?.slug ? mapServiceLineSlug(plan.marketing_line.slug) : null,
   }));
 
   const industryItems = (industries || []).map((ind) => ({

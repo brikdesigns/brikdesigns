@@ -21,17 +21,44 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-/* ─── Service-line tint (#729) ──────────────────────────────────────
-   On a /services/{line} page the sticky nav adopts that line's darkest
-   surface. `--service` carries the line-agnostic ink + border inversion;
-   the per-line class below sets only the background. White ink clears AA
-   on any --surface-service-*-dark (e.g. 8:1 on marketing's --color-green-
-   darkest #2a5542). Marketing-first pilot — add the other four lines'
-   background rules here (+ NAV_TINT_LINES in MegaNav.tsx) once each dark
-   surface is AA-verified. The open dropdown panels are NOT tinted; they
-   keep --surface-primary. Same values apply in light + dark themes. */
+/* ─── Service-line tint (#729, all five lines #858, plan pages #859) ──
+   On a /services/{line} page — or a /plans/{slug} page whose marketing line
+   is set — the sticky nav adopts that line's darkest surface. `--service`
+   carries the line-agnostic ink + border inversion; the per-line classes
+   below set only the background. The open dropdown panels are NOT tinted;
+   they keep --surface-primary. Same values apply in light + dark themes.
+
+   White ink clears AAA on all five darkest surfaces (contrast against
+   --color-grayscale-white, the value behind --text-on-color-dark):
+
+     marketing    #2a5542   8.48:1
+     brand        #634716   8.59:1
+     information  #314952   9.52:1
+     product      #2b2440  14.69:1
+     back-office  #3f1000  16.34:1
+
+   One rule per line is required, not optional: MegaNav.tsx derives its
+   tinted-line set from SERVICE_LINE_SEGMENTS, so a line with no rule here
+   emits a modifier class with no background. `npm run lint:nav-service-tint`
+   fails on exactly that gap (#860). */
 .mega-nav--service-marketing {
   background-color: var(--surface-service-marketing-dark);
+}
+
+.mega-nav--service-brand {
+  background-color: var(--surface-service-brand-dark);
+}
+
+.mega-nav--service-information {
+  background-color: var(--surface-service-information-dark);
+}
+
+.mega-nav--service-product {
+  background-color: var(--surface-service-product-dark);
+}
+
+.mega-nav--service-back-office {
+  background-color: var(--surface-service-back-office-dark);
 }
 
 .mega-nav--service .mega-nav__utility-icon-wrap,
