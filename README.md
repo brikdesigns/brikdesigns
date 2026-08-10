@@ -31,8 +31,13 @@ Once per clone, on each machine:
 ### Run the dev server
 
 ```bash
-npm run dev
+./scripts/dev-restart.sh
 ```
+
+Use this rather than `npm run dev`: the CMS routes read Supabase, whose
+credentials are resolved from `.env.op` at launch, so a bare `next dev`
+returns 500 on any of them. Add `--fresh` after editing a CMS row in
+Supabase — the Next data cache survives a plain restart.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
