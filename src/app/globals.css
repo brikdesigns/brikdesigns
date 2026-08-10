@@ -228,11 +228,14 @@ html {
     --icon-md: var(--font-size-100);
     --icon-lg: var(--font-size-200);
 
-    /* ---- Headings render bold (700) site-wide per brand direction. Reassign
-       the single-source heading-weight token (BDS defaults it to semibold);
-       this flips every heading — the `h1-h6` rule and the styles.ts presets,
-       both of which resolve through this token — in one place. Repo-local, so
-       the shared BDS default still governs other client sites. ---- */
+    /* ---- Headings render bold (700) site-wide per brand direction. Our own
+       code (the `h1-h6` rule below + the styles.ts presets) uses
+       `--font-weight-bold` directly. This alias override stays only as a bridge
+       for BDS's own components that still read `--font-weight-heading` (semibold
+       by default) internally — e.g. `.bds-content-block__title` — so they render
+       bold too and don't drift below our headings. Repo-local; the shared BDS
+       default still governs other client sites. Retiring the alias entirely is a
+       BDS-side change, deferred to the next token audit. ---- */
     --font-weight-heading: var(--font-weight-bold);
 
     /* ---- Font-weight bridge aliases (double-hyphen form used by Webflow-
@@ -310,11 +313,11 @@ main {
   flex: 1 0 auto;
 }
 
-/* Headings resolve through the shared --font-weight-heading token; this repo
-   reassigns that token to bold (700) in the client-theme layer above, so these
-   render bold site-wide per brand direction. (BDS defaults it to semibold.) */
+/* Headings are bold (700) site-wide per brand direction — use the weight
+   primitive directly (the --font-weight-heading alias is redundant drift; see
+   the client-theme bridge note above). */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: var(--font-weight-heading);
+  font-weight: var(--font-weight-bold);
 }
 
 /* Dark mode logo inversion */

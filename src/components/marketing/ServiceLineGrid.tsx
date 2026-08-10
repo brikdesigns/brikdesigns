@@ -42,7 +42,7 @@ export function ServiceLineGrid({ items }: { items: ServiceLineItem[] }) {
                 style={{
                   fontFamily: 'var(--font-family-heading)',
                   fontSize: 'var(--heading-sm)',
-                  fontWeight: font.weight.heading,
+                  fontWeight: font.weight.bold,
                   lineHeight: 'var(--font-line-height-snug)',
                   color: 'var(--text-primary)',
                   margin: 0,

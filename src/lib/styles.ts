@@ -13,13 +13,14 @@
  * COMPOSING:
  *   <p style={{ ...text.body, color: color.text.muted }}>Override one prop</p>
  *
- * HEADING WEIGHT — one weight, one token. Every heading preset uses
- * `font.weight.heading` (`var(--font-weight-heading)`). brikdesigns renders
- * headings bold (700) per brand direction: globals.css reassigns
- * `--font-weight-heading: var(--font-weight-bold)` in the client-theme layer,
- * so the single-source token flips every heading — presets and the `h1-h6`
- * rule alike — without touching the shared BDS default (that still governs
- * other client sites).
+ * HEADING WEIGHT — bold (700). Every heading preset uses `font.weight.bold`
+ * (`var(--font-weight-bold)`) directly, matching the `h1-h6` rule in
+ * globals.css. The BDS `--font-weight-heading` alias (semibold by default) is
+ * redundant drift, so authored code no longer references it; globals.css keeps
+ * a single `--font-weight-heading: var(--font-weight-bold)` bridge in the
+ * client-theme layer so BDS's own components (e.g. `.bds-content-block__title`,
+ * the one internal consumer) render bold too. A full removal of the alias is a
+ * BDS-side change, deferred to the next token audit.
  *
  * WHY THE PRESETS ARE LOCAL (not re-exported from `@brikdesigns/bds`): BDS 0.150.0
  * exports these preset objects, but under Next 16 / Turbopack they resolve to an
@@ -27,7 +28,7 @@
  * `Object.keys(heading)` === []), so `heading.section` etc. would be undefined and
  * every heading would silently fall back to the global `h1-h6 { font-weight: 700 }`
  * rule. Defining the presets locally against the shared `font`/`color` tokens keeps
- * them SSR/RSC-safe. Weight stays single-sourced via `--font-weight-heading`.
+ * them SSR/RSC-safe.
  *
  * Mirrors brik-client-portal/src/lib/styles.ts. Differences from the portal
  * version are marked `// brikdesigns:` — namely, no `tab` preset (TabsClient
@@ -106,16 +107,16 @@ export const text = {
 } as const;
 
 // ─── Headings ────────────────────────────────────────────────────────
-// Every preset uses the shared `font.weight.heading` token. brikdesigns
-// reassigns that token to bold (700) in globals.css (client-theme layer), so
-// headings render bold here while the token stays single-sourced.
+// Every preset is bold (700) via `font.weight.bold` — see the HEADING WEIGHT
+// note in the file header for why we no longer route through the redundant
+// `--font-weight-heading` alias.
 
 export const heading = {
   /** Page-level heading (heading/large · 32px) */
   page: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.large,
-    fontWeight: font.weight.heading,
+    fontWeight: font.weight.bold,
     lineHeight: font.lineHeight.snug,
     color: color.text.primary,
     margin: 0,
@@ -125,7 +126,7 @@ export const heading = {
   section: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.small,
-    fontWeight: font.weight.heading,
+    fontWeight: font.weight.bold,
     color: color.text.primary,
     margin: `0 0 ${space.md}`,
   } satisfies CSSProperties,
@@ -134,7 +135,7 @@ export const heading = {
   subsection: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.tiny,
-    fontWeight: font.weight.heading,
+    fontWeight: font.weight.bold,
     color: color.text.primary,
     margin: `${space.md} 0 ${gap.sm}`,
   } satisfies CSSProperties,
@@ -143,7 +144,7 @@ export const heading = {
   card: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.small,
-    fontWeight: font.weight.heading,
+    fontWeight: font.weight.bold,
     color: color.text.primary,
     margin: 0,
   } satisfies CSSProperties,
@@ -152,7 +153,7 @@ export const heading = {
   lg: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.large,
-    fontWeight: font.weight.heading,
+    fontWeight: font.weight.bold,
     lineHeight: font.lineHeight.tight,
     color: color.text.primary,
     margin: 0,
@@ -162,7 +163,7 @@ export const heading = {
   md: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.medium,
-    fontWeight: font.weight.heading,
+    fontWeight: font.weight.bold,
     lineHeight: font.lineHeight.snug,
     color: color.text.primary,
     margin: 0,
@@ -172,7 +173,7 @@ export const heading = {
   sm: {
     fontFamily: font.family.heading,
     fontSize: font.size.heading.small,
-    fontWeight: font.weight.heading,
+    fontWeight: font.weight.bold,
     lineHeight: font.lineHeight.snug,
     color: color.text.primary,
     margin: 0,

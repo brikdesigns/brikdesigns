@@ -17,8 +17,8 @@ import type { BlueprintSection } from '@brikdesigns/bds';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
 import { PlanHeroModal } from './PlanHeroModal';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
-import { color, serviceColor } from '@/lib/tokens';
-import { heading, text, label } from '@/lib/styles';
+import { color, serviceColor, font } from '@/lib/tokens';
+import { heading, text } from '@/lib/styles';
 import { SERVICE_LINE_ICON } from '@/lib/service-icons';
 import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
@@ -165,14 +165,22 @@ export default async function PlanDetailPage({ params }: Props) {
     // primary button that doesn't set them falls back to current behaviour, so
     // adding the class is a no-op for non-opted buttons. (BRIK-WEB)
     <div
-      className="service-themed"
+      className="service-themed plan-detail-ctas"
       style={
         {
           // Primary CTAs on this plan page inherit the plan's service-line color
           // (mirrors services/[serviceLineSlug]). #342
-          '--background-brand-primary': audienceTokens.onLight,
-          '--background-inverse': audienceTokens.onLight,
+          // Light-mode fill is the pale base `background-service-*` (`bg`), NOT
+          // the deep `-on-light` step — paired with the dark service-neutral ink
+          // via the `.plan-detail-ctas .bds-button--primary` rule in plans.css so
+          // it clears AA (canonical ServiceLineCard pairing). Dark mode flips to
+          // the pale `onDark` fill + deep `text` ink through the shared
+          // `--service-cta-*-dark` cascade set here at the root.
+          '--background-brand-primary': audienceTokens.bg,
+          '--background-inverse': audienceTokens.bg,
           '--text-brand-primary': audienceTokens.text,
+          '--service-cta-fill-dark': audienceTokens.onDark,
+          '--service-cta-ink-dark': audienceTokens.text,
         } as React.CSSProperties
       }
     >
@@ -256,13 +264,11 @@ export default async function PlanDetailPage({ params }: Props) {
               style={{ backgroundColor: audienceTokens.inverse, '--service-cta-fill-dark': audienceTokens.onDark, '--service-cta-ink-dark': audienceTokens.text } as React.CSSProperties}
             >
               <div className="content-wrapper content-wrapper--center">
-                {/* Eyebrow, not a heading: demote "Get" from heading.lg (32px,
-                    co-equal with the plan name below it) to the uppercase
-                    subtitle-label scale so it reads as a kicker. #674 / BACKLOG-310,526 */}
-                <p style={{ ...label.subtitle, textAlign: 'center', margin: 0 }}>Get</p>
-                {/* heading.md (25px) mirrors the service-detail bottom-CTA plan name
-                    (was heading.lg 32px — 32-vs-20 drift between the two CTA cards). #674 / BACKLOG-526 */}
-                <h2 style={{ ...heading.md, textAlign: 'center' }}>{plan.name}</h2>
+                {/* "Get" reads inline with the plan name as one title
+                    (e.g. "Get Product Design Support") rather than a separate
+                    eyebrow kicker. heading.md (25px) mirrors the service-detail
+                    bottom-CTA plan name. */}
+                <h2 style={{ ...heading.md, textAlign: 'center' }}>Get {plan.name}</h2>
                 {plan.description && (
                   <p
                     style={{
@@ -275,8 +281,25 @@ export default async function PlanDetailPage({ params }: Props) {
                   </p>
                 )}
                 {plan.monthly_price_display && (
-                  <div className="plan-cta-panel__price">
-                    <p style={{ ...heading.md, color: color.text.primary, textAlign: 'center', margin: 0 }}>
+                  <div
+                    // `service-surface` pins inherited text dark on this
+                    // fixed-light tint (the pale surface is `-light` in BOTH
+                    // themes), so the "per month" caption (--text-secondary,
+                    // which is light grey in dark theme) stays AA — the #360
+                    // fixed-on-fixed-light pattern. The price figure sets its
+                    // own service ink explicitly, so it's unaffected.
+                    className="plan-cta-panel__price service-surface"
+                    // Price inset carries the plan's pale service tint
+                    // (`surface-service-*-light`) instead of the neutral
+                    // `--surface-secondary`, so the focal figure reads as
+                    // service-themed. Set here (not in plans.css) because the
+                    // hue is per-plan/dynamic.
+                    style={{ backgroundColor: audienceTokens.surfaceLight }}
+                  >
+                    {/* Price = display-md figure in the plan's service ink
+                        (`text-service-*-on-light`), AA on the pale `-light`
+                        inset above. */}
+                    <p style={{ ...heading.md, fontSize: font.size.display.md, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>
                       {plan.monthly_price_display}
                     </p>
                     <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center', margin: 0 }}>
@@ -356,7 +379,7 @@ export default async function PlanDetailPage({ params }: Props) {
                     // pale `onDark` step + deep `text` ink in dark mode so it pops
                     // on the card's `{hue}-darkest` `-inverse` surface (#648).
                     // Light mode keeps the deep `onLight` fill. (BRIK-WEB)
-                    style={{ '--background-brand-primary': cardTokens.onLight, '--service-cta-fill-dark': cardTokens.onDark, '--service-cta-ink-dark': cardTokens.text } as React.CSSProperties}
+                    style={{ '--background-brand-primary': cardTokens.bg, '--service-cta-fill-dark': cardTokens.onDark, '--service-cta-ink-dark': cardTokens.text } as React.CSSProperties}
                   >
                     Learn More
                   </Button>
