@@ -569,7 +569,22 @@ h1, h2, h3, h4, h5, h6 {
      card text fix, but applied at the section scope rather than per-element.
      Scoped to `.service-surface` (NOT `.service-themed`) because the service-line
      page's `.service-themed` wrapper also contains non-tinted dark sections whose
-     light text is correct. */
+     light text is correct.
+
+     Both roles land on the SAME stop on purpose — do not "restore hierarchy" by
+     lightening secondary. `serviceColor().surface` is the mid-tone 500 step, and
+     950 is the only grayscale stop that clears AA (4.5:1) on all five tints
+     (measured against BDS 0.154.0, brik-bds#1740):
+
+       line          tint      950     800     700
+       brand         #f4d364  11.77    8.63    4.71
+       marketing     #bcff8c  14.62   10.72    5.85
+       information   #8ebbcc   8.31    6.09    3.33
+       product       #9e8bc2   5.68    4.17✗   2.27✗
+       back-office   #e76134   5.05    3.70✗   2.02✗
+
+     If this section ever needs a visible primary/secondary distinction, carry it
+     on weight or size, not color — or move the tint to the pale 100 step first. */
   :root[data-theme="dark"] .service-surface {
     --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see comment; pins inherited heading/body color dark on a fixed-light tint */
     --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above */
@@ -610,7 +625,8 @@ h1, h2, h3, h4, h5, h6 {
   /* …the form card inside a solid section keeps its OWN surface (--surface-primary),
      so restore the normal body text the section pin above whitened: dark in light
      mode (white card), light in dark mode (dark card) — the .service-surface
-     nested-card exception, inverted for the white-text section. */
+     nested-card exception, inverted for the white-text section. The light-mode
+     pair shares one stop deliberately (see the `.service-surface` AA table). */
   .lp-surface-solid .lp-form-card {
     --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark text on the white form card; the section pin above set it white */
     --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above */
@@ -626,7 +642,8 @@ h1, h2, h3, h4, h5, h6 {
      to the mode-invariant darkest grayscale — same fixed-on-fixed-light pattern
      as .service-surface, but theme-invariant (no per-theme branch) because the
      card colours never flip. The layout owns the colour; blocks stay colourless
-     (#429). */
+     (#429). Both text roles share the stop deliberately — same AA constraint as
+     `.service-surface` above (brik-bds#1740); don't lighten secondary. */
   .lp-showcase__card {
     --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink on the fixed-light showcase card hues; same fixed-on-fixed pattern as .service-surface */
     --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above */
