@@ -132,16 +132,16 @@
    the same escape-hatch pattern the brand-kit blocks use in globals.css. Dark
    ink is pinned by .lp-showcase__card (globals.css). */
 .lp-showcase__card--purple {
-  background-color: var(--color-purple-lighter); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* purple exists */
+  background-color: var(--color-purple-300); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* purple exists */
 }
 .lp-showcase__card--blue {
-  background-color: var(--color-blue-lighter); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* blue exists */
+  background-color: var(--color-blue-300); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* blue exists */
 }
 .lp-showcase__card--green {
-  background-color: var(--color-green-light); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* green exists */
+  background-color: var(--color-green-500); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* green exists */
 }
 .lp-showcase__card--yellow {
-  background-color: var(--color-yellow-light); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* yellow exists */
+  background-color: var(--color-yellow-500); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* yellow exists */
 }
 
 /* Hero — photo beside title / subtitle / CTAs (#852). Single column below the

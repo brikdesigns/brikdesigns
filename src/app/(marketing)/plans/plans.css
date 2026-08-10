@@ -32,7 +32,7 @@
    system-green for the black card — same fixed-on-surface pattern the #359/#360
    service fixes use. */
 .plans-discount-badge {
-  color: var(--color-green-darkest); /* bds-lint-ignore token-family — light: #2a5542 on white --surface-primary = 8.5:1; no semantic positive-text token is AA on white, so pair a mode-specific green */
+  color: var(--color-green-950); /* bds-lint-ignore token-family — light: #2a5542 on white --surface-primary = 8.5:1; no semantic positive-text token is AA on white, so pair a mode-specific green */
 }
 :root[data-theme="dark"] .plans-discount-badge {
   color: var(--color-system-green); /* bds-lint-ignore token-family — dark: #27ae60 on black --surface-primary = 6.0:1; the dark-green above would be 2.03:1 dark-on-dark */

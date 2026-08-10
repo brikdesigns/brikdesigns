@@ -94,14 +94,14 @@
   gap: var(--gap-sm);
 }
 
-/* Vibrant "true" brand poppy (--color-poppy-light, #e35335). This decorative
+/* Vibrant "true" brand poppy (--color-poppy-500, #e35335). This decorative
  * aria-hidden glyph is exempt from the AA small-text-contrast pin that keeps
  * the semantic --text-brand-primary on the darker poppy shade (ADR-015), so it
  * uses the base poppy primitive directly — same pattern as --text-link. A
  * --color-* primitive is the sanctioned foreground value here (the family lint
  * blocks surface/background tokens in a `color` slot). */
 .customers-segment-list__check {
-  color: var(--color-poppy-light);
+  color: var(--color-poppy-500);
   flex-shrink: 0;
   margin-top: 2px;
 }

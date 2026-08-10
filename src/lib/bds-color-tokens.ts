@@ -12,7 +12,7 @@ import path from 'node:path';
  * server reload re-parses. No manual list to maintain.
  */
 export interface BdsColorToken {
-  /** CSS variable name e.g. `--color-poppy-light` */
+  /** CSS variable name e.g. `--color-poppy-500` */
   name: string;
   /** Resolved hex (or other CSS color value) e.g. `#e35335` */
   value: string;
