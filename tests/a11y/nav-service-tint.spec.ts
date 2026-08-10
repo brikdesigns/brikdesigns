@@ -37,8 +37,13 @@ async function navLine(page: Page): Promise<string | null> {
   return line ?? null;
 }
 
-/** The line the PAGE claims, from the server-rendered hero. `null` when absent. */
+/** The line the PAGE claims, from the server-rendered hero. `null` when absent.
+ *
+ *  `count()` does not auto-wait, so the nav is awaited first as a barrier: both
+ *  the header and the hero come from the same server-rendered document, so a
+ *  present header means a present hero — or a genuinely audience-less page. */
 async function pageLine(page: Page): Promise<string | null> {
+  await page.locator('header.mega-nav').first().waitFor({ state: 'attached' });
   const el = page.locator('[data-audience]').first();
   if ((await el.count()) === 0) return null;
   return el.getAttribute('data-audience');
@@ -88,12 +93,24 @@ test.describe('nav service tint', () => {
   });
 
   test('every public plan page tints from its own marketing line', async ({ page }) => {
-    await page.goto('/plans');
+    const res = await page.goto('/plans');
+    expect(res?.status(), '/plans must render').toBeLessThan(400);
+
+    // `evaluateAll` resolves against whatever is in the DOM at that instant and
+    // returns [] rather than retrying, so it has to be preceded by a locator
+    // that auto-waits. Without this the test read an empty list on a slow
+    // deploy-preview render and failed on timing, not on the tint.
+    const planLinks = page.locator('a[href^="/plans/"]:not([href="/plans"])');
+    await expect(planLinks.first(), 'the /plans index must link at least one plan').toBeAttached({
+      timeout: 15_000,
+    });
     const hrefs = [
-      ...new Set(await page.locator('a[href^="/plans/"]').evaluateAll((els) =>
-        els.map((el) => (el as HTMLAnchorElement).getAttribute('href')!).filter((h) => h !== '/plans')
-      )),
-    ];
+      ...new Set(
+        await planLinks.evaluateAll((els) =>
+          els.map((el) => (el as HTMLAnchorElement).getAttribute('href')!)
+        )
+      ),
+    ].filter((h) => h !== '/plans');
     expect(hrefs.length, 'the /plans index must link at least one plan').toBeGreaterThan(0);
 
     let tinted = 0;
