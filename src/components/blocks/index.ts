@@ -6,6 +6,7 @@ export { ContentBlockBlock } from './ContentBlockBlock';
 export { ProseBlock } from './ProseBlock';
 export { EventMetaBlock } from './EventMetaBlock';
 export { DetailsBlock } from './DetailsBlock';
+export { ScheduleBlock } from './ScheduleBlock';
 export { SpeakerBlock } from './SpeakerBlock';
 export { LogoStripBlock } from './LogoStripBlock';
 export { CrossReferenceBlock } from './CrossReferenceBlock';
