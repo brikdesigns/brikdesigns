@@ -137,11 +137,26 @@ html {
   :root[data-theme="dark"] .theme-brand-brik {
     /* Brand: brighter dark-mode body-text + secondary surfaces than upstream
        (which uses grayscale-500 / grayscale-700). These were raw #bdbdbd pins;
-       brik-bds#1726 minted the real primitive as part of the 11-step scale, so
-       they resolve through a token now. The canonical stop is grayscale-400 =
-       #b0b0b0, NOT the old hand-picked #bdbdbd — no even OKLCh ramp lands there,
-       so this is a small, deliberate value change (brik-bds#1740). */
-    --text-secondary: var(--color-grayscale-400);
+       brik-bds#1726 minted the gap-filling primitive as part of the 11-step scale.
+
+       --text-secondary takes grayscale-300, NOT grayscale-400. #bdbdbd was
+       hand-picked to just clear AA on the DARK SERVICE surfaces and passed by
+       0.07 (yellow-950 #634716 → 4.57:1, green-950 → 4.51:1). grayscale-400
+       (#b0b0b0) is darker than the value it replaces, so it drops three of them
+       under AA — caught by the axe suite on /services/brand/logo-design. 300
+       (#e0e0e0) clears AA on every surface with margin:
+
+         surface        #bdbdbd   400      300
+         yellow-950        4.57   3.96✗   6.51
+         green-950         4.51   3.91✗   6.42
+         blue-950          5.07   4.39✗   7.21
+         purple-950        7.82   6.78   11.13
+         orange-950        8.70   7.53   12.38
+         grayscale-950     9.17   7.94   13.05
+
+       The non-text pins below (-background-secondary, -border-secondary) do take
+       400 — they carry no foreground of their own. (brik-bds#1740) */
+    --text-secondary: var(--color-grayscale-300);
     --text-muted: var(--color-grayscale-500);
     --background-secondary: var(--color-grayscale-400);
     --border-secondary: var(--color-grayscale-400);
@@ -609,7 +624,7 @@ h1, h2, h3, h4, h5, h6 {
     .event-page__speaker
   ) {
     --text-primary: var(--color-grayscale-100); /* bds-lint-ignore token-family — restores the dark-brand body text the section pin above darkened; #f2f2f2 on the card's own dark surface */
-    --text-secondary: var(--color-grayscale-400); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals ~L141) */
+    --text-secondary: var(--color-grayscale-300); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals ~L141); 300 not 400, see the AA table there */
   }
 
   /* Solid landing surface (LandingBlocks `surface_treatment="solid"`): a full
@@ -633,7 +648,7 @@ h1, h2, h3, h4, h5, h6 {
   }
   :root[data-theme="dark"] .lp-surface-solid .lp-form-card {
     --text-primary: var(--color-grayscale-100); /* bds-lint-ignore token-family — light text on the card's own dark surface in dark mode */
-    --text-secondary: var(--color-grayscale-400); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop */
+    --text-secondary: var(--color-grayscale-300); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop; 300 not 400, see the AA table there */
   }
 
   /* showcase layout (LandingBlocks layout="showcase") — fixed-palette bright
