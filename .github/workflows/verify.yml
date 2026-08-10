@@ -14,6 +14,9 @@ name: Verify (lint + token gate + schema parity)
 #    raw var()) and every heading semibold (composite-typography initiative)
 #  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
 #    src/app/(chromeless)/admin/services/_components/field-configs.ts
+#  - Nav service-tint lint: every service line in the service-token map has a
+#    `.mega-nav--service-{line}` background rule carrying its own darkest
+#    surface, so a derived tinted-line set can't outrun the CSS (brikdesigns#860)
 #  - Icon-collection drift: src/lib/icons.generated.json stays in sync with
 #    `ph:*` usage so no icon falls through to the api.iconify.design CDN
 #    (brikdesigns#626)
@@ -111,6 +114,18 @@ jobs:
 
       - name: Externalized-package require lint — self-test (fixtures + CLI exit codes)
         run: npm run test:lint:server-require-esm
+
+      # brikdesigns#860. The nav's tinted-line set is derived from the service-
+      # token map, so a line with no `.mega-nav--service-{line}` background rule
+      # emits the modifier class with nothing behind it — the nav renders in the
+      # default surface and looks finished. #729 shipped one of five lines that
+      # way and nothing failed for two weeks, so the guard's own failure path is
+      # asserted too.
+      - name: Nav service-tint lint (every service line has a tint rule)
+        run: npm run lint:nav-service-tint
+
+      - name: Nav service-tint lint — self-test (fixtures incl. the #729 state)
+        run: npm run test:lint:nav-service-tint
 
       - name: HTML sanitizer behaviour (XSS corpus + CMS prose preserved)
         run: npm run test:sanitize

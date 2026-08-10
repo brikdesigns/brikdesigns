@@ -20,6 +20,8 @@
     "test:lint:root-dynamic-route": "node scripts/lint-root-dynamic-route.test.mjs",
     "lint:server-require-esm": "node scripts/lint-server-require-esm.mjs",
     "test:lint:server-require-esm": "node scripts/lint-server-require-esm.test.mjs",
+    "lint:nav-service-tint": "node scripts/lint-nav-service-tint.mjs",
+    "test:lint:nav-service-tint": "node scripts/lint-nav-service-tint.test.mjs",
     "test:sanitize": "npx tsx scripts/test-sanitize-html.mjs",
     "repro:on-demand-render": "bash scripts/repro-on-demand-render.sh",
     "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
