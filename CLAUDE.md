@@ -34,7 +34,11 @@ PRs target `staging`. Promote `staging → main` after Netlify preview sign-off.
 
 ## When installing or running locally
 
-`op run --env-file=.env.op -- npm install`
+Install: `op run --env-file=.env.op -- npm install`
+
+Run dev: `./scripts/dev-restart.sh` — always, never a bare `npm run dev`. It injects `.env.op` secrets (without them every CMS route 500s on a missing Supabase client), self-sources the service-account token on headless machines, kills the existing server on the port, and picks a stable per-worktree port. Restart after every code change.
+
+After editing a CMS row in Supabase: `./scripts/dev-restart.sh --fresh`. The Next data cache survives a plain restart and keeps serving the previous payload.
 
 ## Before pushing
 
