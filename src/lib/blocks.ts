@@ -94,6 +94,24 @@ export interface DetailsProps {
   items: DetailItem[];
 }
 
+/** One agenda row — a time on the left, what happens at it on the right. */
+export interface ScheduleItem {
+  /** e.g. "6:30 PM". Optional so an untimed row still renders its label. */
+  time?: string;
+  label: string;
+}
+
+/**
+ * Run-of-show agenda (#852) — an optional heading, the timed rows, and an
+ * optional supporting photo beside them. Rendered as its own region so the
+ * showcase layout can anchor `#schedule` at it.
+ */
+export interface ScheduleProps {
+  title?: string;
+  items: ScheduleItem[];
+  media?: { url: string; alt: string } | null;
+}
+
 /** Sponsor / partner logo row. */
 export interface LogoStripLogo {
   url: string;
@@ -271,6 +289,36 @@ export function parseDetailsProps(props: Record<string, unknown>): DetailsProps 
   return { items };
 }
 
+/** Shared `{ url, alt }` media normalizer — `hero.media`, `schedule.media`. */
+function parseMedia(raw: unknown): { url: string; alt: string } | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const url = str((raw as { url?: unknown }).url);
+  if (!url) return null;
+  return { url, alt: str((raw as { alt?: unknown }).alt) ?? '' };
+}
+
+/**
+ * Normalize a `schedule` block's props. Rows with no label are dropped (a bare
+ * time says nothing); an all-empty block renders nothing.
+ */
+export function parseScheduleProps(props: Record<string, unknown>): ScheduleProps {
+  const raw = Array.isArray(props.items) ? props.items : [];
+  const items: ScheduleItem[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const label = str((item as { label?: unknown }).label);
+    if (!label) continue;
+    const time = str((item as { time?: unknown }).time);
+    items.push(time ? { time, label } : { label });
+  }
+  const out: ScheduleProps = { items };
+  const title = str(props.title);
+  if (title) out.title = title;
+  const media = parseMedia(props.media);
+  if (media) out.media = media;
+  return out;
+}
+
 export function parseLogoStripProps(props: Record<string, unknown>): LogoStripProps {
   const raw = props.logos;
   if (!Array.isArray(raw)) return { logos: [] };
@@ -388,6 +436,13 @@ export interface BlockContext {
 export interface HeroProps {
   eyebrow?: string;
   title: string;
+  /**
+   * Optional italic lead-in set immediately before `title` — the "*Grind*
+   * After Graduation" treatment (#852). Rendered inside the same heading, so
+   * it reads as one sentence to assistive tech. Showcase layout only; the
+   * default HeroBlock ignores it.
+   */
+  titleEmphasis?: string;
   subtitle?: string;
   media?: { url: string; alt: string } | null;
 }
@@ -396,13 +451,12 @@ export function parseHeroProps(props: Record<string, unknown>): HeroProps {
   const out: HeroProps = { title: str(props.title) ?? '' };
   const eyebrow = str(props.eyebrow);
   if (eyebrow) out.eyebrow = eyebrow;
+  const titleEmphasis = str(props.titleEmphasis ?? props.title_emphasis);
+  if (titleEmphasis) out.titleEmphasis = titleEmphasis;
   const subtitle = str(props.subtitle);
   if (subtitle) out.subtitle = subtitle;
-  const rawMedia = props.media;
-  if (rawMedia && typeof rawMedia === 'object') {
-    const url = str((rawMedia as { url?: unknown }).url);
-    if (url) out.media = { url, alt: str((rawMedia as { alt?: unknown }).alt) ?? '' };
-  }
+  const media = parseMedia(props.media);
+  if (media) out.media = media;
   return out;
 }
 

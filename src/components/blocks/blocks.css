@@ -144,23 +144,115 @@
   background-color: var(--color-yellow-500); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* yellow exists */
 }
 
-/* Intro — title + about (left) beside the registration card (right). Single
-   column below the BDS md breakpoint. */
-.lp-showcase__intro {
+/* Hero — photo beside title / subtitle / CTAs (#852). Single column below the
+   BDS md breakpoint, photo first. */
+.lp-showcase__hero {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--gap-xl);
+  gap: var(--gap-huge);
+  align-items: center;
 }
-.lp-showcase__intro-main {
+@media (min-width: 768px) {
+  .lp-showcase__hero {
+    grid-template-columns: 0.85fr 1fr;
+  }
+}
+.lp-showcase__hero-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--aspect-4-3);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+.lp-showcase__hero-main {
   display: flex;
   flex-direction: column;
   gap: var(--gap-xl);
 }
-@media (min-width: 768px) {
-  .lp-showcase__intro {
-    grid-template-columns: 1fr 1.4fr;
-    align-items: start;
+/* Showcase display type — the hero title + the partners heading. One step above
+   the marketing heading scale; steps down twice on the way to phone widths,
+   where a single long word ("Graduation") is wider than the card. */
+.lp-showcase__display {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-huge);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--font-line-height-tight);
+}
+@media (max-width: 767px) {
+  .lp-showcase__display {
+    font-size: var(--heading-xxl);
   }
+}
+@media (max-width: 479px) {
+  .lp-showcase__display {
+    font-size: var(--heading-xl);
+  }
+}
+/* The italic lead-in ("Grind") sits in the same heading as the title. */
+.lp-showcase__title-em {
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+}
+/* CTAs stack full-width so the pair reads as one decision column. */
+.lp-showcase__hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+@media (min-width: 480px) {
+  .lp-showcase__hero-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+/* About — heading full width, prose body in two columns above the md
+   breakpoint (the heading is outside the column flow so it can't fragment). */
+.lp-showcase__about {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+@media (min-width: 768px) {
+  .lp-showcase__about-body {
+    columns: 2;
+    column-gap: var(--gap-huge);
+  }
+}
+
+/* Schedule — agenda rows beside the supporting photo. */
+.lp-schedule {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-huge);
+  align-items: start;
+}
+@media (min-width: 768px) {
+  .lp-schedule {
+    grid-template-columns: 1fr 0.75fr;
+  }
+}
+.lp-schedule__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  margin: 0;
+}
+.lp-schedule__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+.lp-schedule__label {
+  margin: 0;
+}
+.lp-schedule__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--aspect-4-3);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
 }
 
 /* Registration — meta + form stack. The FormBlock's inner .lp-form-card chrome
@@ -234,9 +326,10 @@
   overflow: hidden;
 }
 
-/* Partners — an optional yellow heading band over a grid of sponsor-logo cards.
-   The band title/description are authored on the logo-strip block (showcase
-   only). Logos sit on individual light cards directly on the dark canvas. */
+/* Partners — an optional centered heading over a grid of sponsor logos. The
+   title/description are authored on the logo-strip block (showcase only). The
+   yellow band was dropped in #852: the hero now owns the yellow moment, and the
+   design floats the heading directly on the page canvas. */
 .lp-showcase__partners-wrap {
   display: flex;
   flex-direction: column;
@@ -245,14 +338,9 @@
 .lp-showcase__partners-head {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--gap-md);
-}
-@media (min-width: 768px) {
-  .lp-showcase__partners-head {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
+  text-align: center;
 }
 .lp-showcase__partners {
   display: grid;
@@ -261,7 +349,7 @@
 }
 @media (min-width: 768px) {
   .lp-showcase__partners {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 /* One logo slot — logos sit directly on the light page canvas with no ground

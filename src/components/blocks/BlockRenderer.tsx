@@ -5,6 +5,7 @@ import {
   parseContentBlockProps,
   parseEventMetaProps,
   parseDetailsProps,
+  parseScheduleProps,
   parseSpeakerBlockProps,
   parseLogoStripProps,
   parseCrossReferenceProps,
@@ -17,6 +18,7 @@ import { ContentBlockBlock } from './ContentBlockBlock';
 import { ProseBlock } from './ProseBlock';
 import { EventMetaBlock } from './EventMetaBlock';
 import { DetailsBlock } from './DetailsBlock';
+import { ScheduleBlock } from './ScheduleBlock';
 import { SpeakerBlock } from './SpeakerBlock';
 import { LogoStripBlock } from './LogoStripBlock';
 import { AlertBannerBlock } from './AlertBannerBlock';
@@ -50,6 +52,10 @@ function renderBlock(block: RawBlock, key: number, context: BlockContext) {
     case 'details': {
       const data = parseDetailsProps(props);
       return data.items.length ? <DetailsBlock key={key} {...data} /> : null;
+    }
+    case 'schedule': {
+      const data = parseScheduleProps(props);
+      return data.items.length ? <ScheduleBlock key={key} {...data} /> : null;
     }
     case 'speaker': {
       const data = parseSpeakerBlockProps(props);
