@@ -4,14 +4,14 @@
    title → callout → stats rhythm per pillar.
 
    COLOUR MAPPING (approved palette → BDS tokens, kept literal per sign-off):
-     coral      → --color-poppy-light      (brand primary base)
-     salmon     → --color-poppy-lighter    (light accent)
-     pink       → --color-poppy-lightest   (nearest token to source #FFDCDC)
-     green      → --color-green-dark
-     dark-green → --color-green-darkest
-     gold       → --color-yellow-light
-     lavender   → --color-purple-lighter
-     blue       → --color-blue-light
+     coral      → --color-poppy-500   (brand primary base)
+     salmon     → --color-poppy-300   (light accent)
+     pink       → --color-poppy-100   (nearest token to source #FFDCDC)
+     green      → --color-green-700
+     dark-green → --color-green-950
+     gold       → --color-yellow-500
+     lavender   → --color-purple-300
+     blue       → --color-blue-500
    Band text uses the theme-fixed on-colour tokens (--text-on-color-light/-dark)
    so copy stays legible on every fixed band in both light and dark themes.
 
@@ -31,35 +31,35 @@
 /* Fixed-colour bands (primitives = exact palette match). Text pinned to the
    theme-fixed on-colour tokens. */
 .vband--coral {
-  background-color: var(--color-poppy-light); /* bds-lint-ignore token-family — brand poppy band, exact approved-palette match */
+  background-color: var(--color-poppy-500); /* bds-lint-ignore token-family — brand poppy band, exact approved-palette match */
   color: var(--text-on-color-dark);
 }
 .vband--green {
-  background-color: var(--color-green-dark); /* bds-lint-ignore token-family — approved-palette band */
+  background-color: var(--color-green-700); /* bds-lint-ignore token-family — approved-palette band */
   color: var(--text-on-color-light);
 }
 .vband--dark-green {
-  background-color: var(--color-green-darkest); /* bds-lint-ignore token-family — approved-palette band */
+  background-color: var(--color-green-950); /* bds-lint-ignore token-family — approved-palette band */
   color: var(--text-on-color-dark);
 }
 .vband--gold {
-  background-color: var(--color-yellow-light); /* bds-lint-ignore token-family — approved-palette band */
+  background-color: var(--color-yellow-500); /* bds-lint-ignore token-family — approved-palette band */
   color: var(--text-on-color-light);
 }
 .vband--lavender {
-  background-color: var(--color-purple-lighter); /* bds-lint-ignore token-family — approved-palette band */
+  background-color: var(--color-purple-300); /* bds-lint-ignore token-family — approved-palette band */
   color: var(--text-on-color-light);
 }
 .vband--blue {
-  background-color: var(--color-blue-light); /* bds-lint-ignore token-family — approved-palette band */
+  background-color: var(--color-blue-500); /* bds-lint-ignore token-family — approved-palette band */
   color: var(--text-on-color-light);
 }
 .vband--pink {
-  background-color: var(--color-poppy-lightest); /* bds-lint-ignore token-family — nearest token to source #FFDCDC */
+  background-color: var(--color-poppy-100); /* bds-lint-ignore token-family — nearest token to source #FFDCDC */
   color: var(--text-on-color-light);
 }
 .vband--salmon {
-  background-color: var(--color-poppy-lighter); /* bds-lint-ignore token-family — approved-palette band */
+  background-color: var(--color-poppy-300); /* bds-lint-ignore token-family — approved-palette band */
   color: var(--text-on-color-light);
 }
 
@@ -131,16 +131,16 @@
   box-shadow: var(--box-shadow-md);
 }
 .value-card--green {
-  background-color: var(--color-green-dark); /* bds-lint-ignore token-family — approved-palette card */
+  background-color: var(--color-green-700); /* bds-lint-ignore token-family — approved-palette card */
 }
 .value-card--purple {
-  background-color: var(--color-purple-lighter); /* bds-lint-ignore token-family — approved-palette card */
+  background-color: var(--color-purple-300); /* bds-lint-ignore token-family — approved-palette card */
 }
 .value-card--blue {
-  background-color: var(--color-blue-light); /* bds-lint-ignore token-family — approved-palette card */
+  background-color: var(--color-blue-500); /* bds-lint-ignore token-family — approved-palette card */
 }
 .value-card--gold {
-  background-color: var(--color-yellow-light); /* bds-lint-ignore token-family — approved-palette card */
+  background-color: var(--color-yellow-500); /* bds-lint-ignore token-family — approved-palette card */
 }
 .value-card__icon {
   width: 56px;
@@ -160,7 +160,7 @@
   line-height: 28px;
 }
 .value-card__view {
-  background-color: var(--color-poppy-light); /* bds-lint-ignore token-family — coral action chip on the card */
+  background-color: var(--color-poppy-500); /* bds-lint-ignore token-family — coral action chip on the card */
   color: var(--text-on-color-light);
   border-radius: var(--border-radius-sm);
   padding: 12px 28px;
@@ -197,7 +197,7 @@
 }
 .value-editorial__line--ink {
   margin-top: 24px;
-  color: var(--color-poppy-darkest); /* bds-lint-ignore token-family — deep poppy ink for the second editorial group */
+  color: var(--color-poppy-950); /* bds-lint-ignore token-family — deep poppy ink for the second editorial group */
 }
 
 /* ─── Gold transition ──────────────────────────────────────── */
@@ -279,7 +279,7 @@
 .value-callout__icon {
   width: 72px;
   height: 72px;
-  color: var(--color-poppy-lighter); /* bds-lint-ignore token-family — salmon accent, ≥AA-large on the dark-green band */
+  color: var(--color-poppy-300); /* bds-lint-ignore token-family — salmon accent, ≥AA-large on the dark-green band */
 }
 .value-callout__pre,
 .value-callout__post {
@@ -293,7 +293,7 @@
   font-weight: 800;
   font-size: 104px;
   line-height: 104px;
-  color: var(--color-poppy-lighter); /* bds-lint-ignore token-family — salmon accent, ≥AA-large on the dark-green band */
+  color: var(--color-poppy-300); /* bds-lint-ignore token-family — salmon accent, ≥AA-large on the dark-green band */
 }
 
 /* ─── Sub-callout + stats ──────────────────────────────────── */
@@ -347,7 +347,7 @@
   /* Fixed coral (not theme-aware --text-brand-primary) — the pink band is a
      fixed-light colour in both themes, so the accent must stay fixed too, else
      it flips to a low-contrast salmon in dark mode. */
-  color: var(--color-poppy-light); /* bds-lint-ignore token-family — fixed coral accent on the fixed-light pink band */
+  color: var(--color-poppy-500); /* bds-lint-ignore token-family — fixed coral accent on the fixed-light pink band */
 }
 .value-stat__label {
   font-family: var(--font-family-heading);

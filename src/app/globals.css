@@ -72,56 +72,58 @@ html {
 @layer client-theme {
   /* ── Light mode divergences ─────────────────────────────────── */
   .theme-brand-brik {
-    /* Stronger AA contrast than upstream (--color-grayscale-dark at 5a5a5a
-       passes AA, but brand prefers 8.59:1 via grayscale-darker). Used by
+    /* Stronger AA contrast than upstream (--color-grayscale-700 at 5a5a5a
+       passes AA, but brand prefers 8.59:1 via grayscale-800). Used by
        43+ TS consumers via color.text.secondary + 51+ direct CSS readers. */
-    --text-secondary: var(--color-grayscale-darker);
+    --text-secondary: var(--color-grayscale-800);
 
-    /* Project-local stop between BDS lighter (#e0e0e0) and light (#828282).
-       No canonical primitive at #bdbdbd yet. */
-    --text-muted: #bdbdbd;
+    /* The stop between BDS 300 (#e0e0e0) and 500 (#828282). Was a raw #bdbdbd
+       pin; brik-bds#1726 minted the real primitive as part of the 11-step scale
+       (brik-bds#1740). Note the canonical stop is #b0b0b0, NOT #bdbdbd — no even
+       OKLCh ramp lands on the old hand-picked value. */
+    --text-muted: var(--color-grayscale-400);
 
-    /* Brand: secondary surfaces use tan-lightest. Upstream uses
-       grayscale-lightest for the unbranded baseline. */
-    --surface-secondary: var(--color-tan-lightest);
+    /* Brand: secondary surfaces use tan-100. Upstream uses
+       grayscale-100 for the unbranded baseline. */
+    --surface-secondary: var(--color-tan-100);
 
     /* Brand: brand-secondary surface is white, not the upstream #f1f0ec
-       (raw tan-lightest). Used on the hero / mega-nav surfaces. */
+       (raw tan-100). Used on the hero / mega-nav surfaces. */
     --surface-brand-secondary: var(--color-grayscale-white);
     --background-brand-secondary: var(--color-grayscale-white);
 
     /* Brand: softer red than --color-system-red-light for negative surfaces. */
     --surface-negative: #fdeaea;
 
-    /* Brand: border + brand image backgrounds inherit vibrant poppy-light
+    /* Brand: border + brand image backgrounds inherit vibrant poppy-500
        from BDS theme-brand-brik (BDS-22 / ADR-015 — vibrant Poppy is the
-       brand color; the prior poppy-dark override read blood-red). Removed. */
+       brand color; the prior poppy-700 override read blood-red). Removed. */
 
-    /* Brand: inline body links use poppy-dark (#b0351b → ~7.95:1 on white,
-       AAA) instead of upstream's --color-poppy-light (#e35335 → 3.78:1, AA
-       fail at body-md / body-sm). The "poppy-light" token name is
-       misleading — it's the brand base, not a tinted variant. Caught by
+    /* Brand: inline body links use poppy-700 (#b0351b → ~7.95:1 on white,
+       AAA) instead of upstream's --color-poppy-500 (#e35335 → 3.78:1, AA
+       fail at body-md / body-sm). The retired "poppy-light" alias name was
+       misleading — 500 is the brand base, not a tinted variant. Caught by
        axe on /privacy-policy + /terms when those routes first entered the
        public-routes a11y suite via #302's chromeless/marketing split. */
-    --text-link: var(--color-poppy-dark);
+    --text-link: var(--color-poppy-700);
     /* BDS components (TextLink, Prose) read the raw --text-text-link, not the
        --text-link alias, so the AA pin above doesn't reach them. Mirror it so
-       BDS Prose/TextLink links honor the same poppy-dark AA pin. */
-    --text-text-link: var(--color-poppy-dark);
+       BDS Prose/TextLink links honor the same poppy-700 AA pin. */
+    --text-text-link: var(--color-poppy-700);
     /* Brand: --text-brand-primary is used across the site as SMALL text
        (mega-nav labels, hero/cta descriptions, eyebrows). BDS 0.114.0 flipped
-       it to vibrant poppy-light (#e35335 = 3.78:1, AA fail at those sizes), so
+       it to vibrant poppy-500 (#e35335 = 3.78:1, AA fail at those sizes), so
        pin it dark locally — same call as --text-link, and the small-text carve-
        out ADR-015 prescribes. Vibrant Poppy stays on fills/surfaces/borders. */
-    --text-brand-primary: var(--color-poppy-dark);
+    --text-brand-primary: var(--color-poppy-700);
 
     /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
-    --page-accent: var(--color-tan-lightest);
-    --surface-accent: var(--color-tan-lightest);
+    --page-accent: var(--color-tan-100);
+    --surface-accent: var(--color-tan-100);
     --background-elevated: var(--color-grayscale-white);
     --background-inverse: var(--color-grayscale-white);
     --text-on-footer: var(--color-grayscale-white);
-    --background-image: var(--color-grayscale-lightest);
+    --background-image: var(--color-grayscale-100);
   }
 
   /* ── Dark mode divergences ──────────────────────────────────── */
@@ -134,19 +136,22 @@ html {
      the upstream `:root[data-theme="dark"] .theme-brand-brik` selector. */
   :root[data-theme="dark"] .theme-brand-brik {
     /* Brand: brighter dark-mode body-text + secondary surfaces than upstream
-       (which uses grayscale-light / grayscale-dark). Project-local stop #bdbdbd
-       has no BDS primitive but matches Figma dark-mode spec. */
-    --text-secondary: #bdbdbd;
-    --text-muted: var(--color-grayscale-light);
-    --background-secondary: #bdbdbd;
-    --border-secondary: #bdbdbd;
-    --border-muted: var(--color-grayscale-light);
-    --border-input: var(--color-grayscale-light);
-    --background-secondary-hover: var(--color-grayscale-light);
+       (which uses grayscale-500 / grayscale-700). These were raw #bdbdbd pins;
+       brik-bds#1726 minted the real primitive as part of the 11-step scale, so
+       they resolve through a token now. The canonical stop is grayscale-400 =
+       #b0b0b0, NOT the old hand-picked #bdbdbd — no even OKLCh ramp lands there,
+       so this is a small, deliberate value change (brik-bds#1740). */
+    --text-secondary: var(--color-grayscale-400);
+    --text-muted: var(--color-grayscale-500);
+    --background-secondary: var(--color-grayscale-400);
+    --border-secondary: var(--color-grayscale-400);
+    --border-muted: var(--color-grayscale-500);
+    --border-input: var(--color-grayscale-500);
+    --background-secondary-hover: var(--color-grayscale-500);
 
     /* NOTE: dark `--background-input` intentionally left at the upstream value
        (grayscale-black). An earlier stopgap here lifted it to a raw #4f4f4f so
-       inputs read as filled on the near-black modal, but the field's #bdbdbd
+       inputs read as filled on the near-black modal, but the field's muted-grey
        placeholder on #4f4f4f is only 4.35:1 — a serious WCAG AA failure on the
        /contact + /get-started forms. The fill-visibility fix must be chosen as a
        validated text-on-fill pairing at the token layer; tracked in
@@ -155,12 +160,15 @@ html {
     /* Cascade resets: my light-mode override of these tokens leaks past
        upstream's dark-mode reset because client-theme layer > bds-tokens.
        Restate the desired dark value explicitly. */
-    /* darkest (#333), not darker (#4f4f4f): --text-secondary (#bdbdbd) on it
-       is 6.7:1 (AA); #4f4f4f was 4.35:1 (fail). Mirrors the BDS 0.119.1 fix
-       (brik-bds#1136) — the local restatement here would otherwise shadow it. */
-    --surface-secondary: var(--color-grayscale-darkest);
-    --surface-brand-secondary: var(--color-grayscale-darkest);
-    --background-brand-secondary: var(--color-grayscale-darkest);
+    /* grayscale-950 (#1b1b1b), not a mid stop: --text-secondary
+       (grayscale-400 #b0b0b0) on it is 7.94:1 (AAA); the #4f4f4f this replaced
+       was 4.35:1 (fail). Mirrors the BDS 0.119.1 fix (brik-bds#1136) — the local
+       restatement here would otherwise shadow it. Hexes re-measured against BDS
+       0.154.0; the prior comment's "darkest (#333)" predated brik-bds#827, which
+       darkened the primitives (#333333 is now grayscale-800). */
+    --surface-secondary: var(--color-grayscale-950);
+    --surface-brand-secondary: var(--color-grayscale-950);
+    --background-brand-secondary: var(--color-grayscale-950);
     --background-inverse: var(--color-grayscale-black);
 
     /* Brand: dark-mode negatives use warmer red than --color-system-red. */
@@ -168,33 +176,33 @@ html {
     --surface-negative: #3d1a1a;
     --border-negative: #ff6b6b;
 
-    /* Brand: border + brand image backgrounds inherit vibrant poppy-light
+    /* Brand: border + brand image backgrounds inherit vibrant poppy-500
        from BDS theme-brand-brik (BDS-22 / ADR-015). Removed. */
 
-    /* Brand: inline body links use poppy-lighter (#ffa693 → ~8.5:1 on
-       grayscale-darkest, AAA) instead of the light-mode poppy-dark, which
+    /* Brand: inline body links use poppy-300 (#ffa693 → ~8.5:1 on
+       grayscale-950, AAA) instead of the light-mode poppy-700, which
        drops to ~2.2:1 on dark surfaces. Poppy-lighter is the canonical
        lighter shade — readable on dark, recognizably brand. */
-    --text-link: var(--color-poppy-lighter);
+    --text-link: var(--color-poppy-300);
     /* Mirror onto the raw name BDS components read (see light-mode note). */
-    --text-text-link: var(--color-poppy-lighter);
-    /* Brand: small brand text on dark — poppy-dark would be ~2.2:1 on the
-       near-black surface; use poppy-lighter (readable, on-brand), same as
-       --text-link above. Pairs with the light-mode poppy-dark pin. */
-    --text-brand-primary: var(--color-poppy-lighter);
+    --text-text-link: var(--color-poppy-300);
+    /* Brand: small brand text on dark — poppy-700 would be ~2.2:1 on the
+       near-black surface; use poppy-300 (readable, on-brand), same as
+       --text-link above. Pairs with the light-mode poppy-700 pin. */
+    --text-brand-primary: var(--color-poppy-300);
 
     /* Brand: dark-mode link tone (system-link is too saturated on black). */
     --color-system-link: #6b8aff;
 
     /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
-    --page-accent: var(--color-grayscale-darkest);
-    --surface-accent: var(--color-grayscale-darkest);
-    --background-elevated: var(--color-grayscale-darker);
-    --text-on-footer: var(--color-grayscale-lightest);
-    --background-image: var(--color-grayscale-darker);
+    --page-accent: var(--color-grayscale-950);
+    --surface-accent: var(--color-grayscale-950);
+    --background-elevated: var(--color-grayscale-800);
+    --text-on-footer: var(--color-grayscale-100);
+    --background-image: var(--color-grayscale-800);
     /* BDS canonical sets --background-tertiary in light only — provide a
        dark-mode value here so consumers don't fall through to the light value. */
-    --background-tertiary: var(--color-grayscale-light);
+    --background-tertiary: var(--color-grayscale-500);
   }
 }
 
@@ -346,7 +354,7 @@ h1, h2, h3, h4, h5, h6 {
      for `.bds-footer--inverse` without re-declaring background-color
      directly (which would force us to fight BDS specificity in the
      client-overrides layer). */
-  --bds-footer-surface: var(--color-grayscale-darkest);
+  --bds-footer-surface: var(--color-grayscale-950);
 }
 
 @layer client-overrides {
@@ -399,7 +407,7 @@ h1, h2, h3, h4, h5, h6 {
      above, mirrored for a light surface). */
   .bds-card--borderless .bds-card-title,
   .bds-card--borderless .bds-card-description {
-    color: var(--color-grayscale-darkest);
+    color: var(--color-grayscale-950);
   }
 
   /* #359 — Service-tinted primary buttons.
@@ -471,13 +479,13 @@ h1, h2, h3, h4, h5, h6 {
      --background-brand-primary (base) and --text-brand-primary (the `*-on-light`
      text) each resolve to the medium `-darker` step there, so a ring built from
      either fails WCAG 2.4.11 (3:1) against the fixed-light tint in dark mode
-     (measured 2.4–3.0:1). --color-grayscale-darkest is mode-invariant and clears
+     (measured 2.4–3.0:1). --color-grayscale-950 is mode-invariant and clears
      3:1 on every service tint in both themes — the same fixed-on-fixed-light
      pattern the #360 borderless-card text fix uses for these surfaces. Trades a
      service-hued ring for one that is reliably visible; the leak this kills is
      the off-brand poppy ring on a non-poppy page. */
   .service-themed .bds-button--primary:focus-visible {
-    outline-color: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — every --border-* token is theme-responsive (flips light in the dark root), but the service surfaces are fixed-light in BOTH themes, so only a mode-invariant primitive clears 3:1 in both. Same fixed-on-fixed-light primitive the #360 borderless-card fix uses. */
+    outline-color: var(--color-grayscale-950); /* bds-lint-ignore token-family — every --border-* token is theme-responsive (flips light in the dark root), but the service surfaces are fixed-light in BOTH themes, so only a mode-invariant primitive clears 3:1 in both. Same fixed-on-fixed-light primitive the #360 borderless-card fix uses. */
   }
 
   /* #648 — Mode-aware service-CTA fill on the dark `-inverse` cards.
@@ -502,7 +510,7 @@ h1, h2, h3, h4, h5, h6 {
 
   /* #369 — Dark-theme secondary button label fails AA.
      The dark brand-kit block (globals.css `:root[data-theme="dark"]
-     .theme-brand-brik`) sets a light muted-grey --background-secondary (#bdbdbd)
+     .theme-brand-brik`) sets a light muted-grey --background-secondary (grayscale-400, #b0b0b0)
      for muted TEXT/BORDERS, but BDS's `.bds-button--secondary` reuses that token
      as its FILL while the label stays the near-white --text-primary (#f2f2f2):
      1.68:1 at rest, 3.43:1 on hover (--background-secondary-hover = #828282) —
@@ -510,14 +518,14 @@ h1, h2, h3, h4, h5, h6 {
      dark fill (--background-secondary-pressed = #333 + white label, ~11:1).
      Re-point only the rest + hover secondary-background tokens to dark grayscale
      tiers, scoped to the button element so the global --background-secondary stays
-     #bdbdbd for the chip/menu/table consumers and --text-secondary/-border-secondary
+     grayscale-400 for the chip/menu/table consumers and --text-secondary/-border-secondary
      are untouched. Overriding the --background-* custom props (not background-color)
      mirrors the brand-kit block above and lets BDS's own button rules consume the
      darker fills. Subsumed by #227 if globals.css migrates to consume
      theme-brand-brik from BDS. */
   :root[data-theme="dark"] .theme-brand-brik .bds-button--secondary {
-    --background-secondary: var(--color-grayscale-darker); /* bds-lint-ignore token-family — re-points the secondary-bg token for the button scope only, using the same grayscale primitive family the brand-kit dark block uses for --background-secondary* (lines ~115/119); the Shape-B pairing check fires solely because the selector is component-scoped (.bds-button--secondary), not a bare theme-def block. rest: #4f4f4f → 7.32:1 vs --text-primary #f2f2f2. Shifted one step darker from grayscale-dark after the #1106 ramp sync lightened grayscale-dark to #828282 (3.43:1, AA fail); see brik-bds#1136. */
-    --background-secondary-hover: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above; hover: #333 → 11.29:1 (also shifted one step for #1106) */
+    --background-secondary: var(--color-grayscale-800); /* bds-lint-ignore token-family — re-points the secondary-bg token for the button scope only, using the same grayscale primitive family the brand-kit dark block uses for --background-secondary* (lines ~144/147); the Shape-B pairing check fires solely because the selector is component-scoped (.bds-button--secondary), not a bare theme-def block. rest: #4f4f4f → 7.32:1 vs --text-primary #f2f2f2. Shifted one step darker from grayscale-700 after the #1106 ramp sync lightened it to #828282 (3.43:1, AA fail); see brik-bds#1136. */
+    --background-secondary-hover: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; hover: #333 → 11.29:1 (also shifted one step for #1106) */
   }
 
   /* Inverse (dark-label) buttons. The consumer feeds `--background-inverse` from the
@@ -536,26 +544,26 @@ h1, h2, h3, h4, h5, h6 {
      dark-label pairing decision, not a token bug; revisit if the BDS inverse button moves
      to a white label. */
   :root[data-theme="dark"] [data-audience="brand"] .bds-button--inverse {
-    --background-inverse: var(--color-yellow-darker); /* bds-lint-ignore token-family — pins the dark-label inverse variant to the medium step against the BDS-shipped darkest surface; see comment */
+    --background-inverse: var(--color-yellow-800); /* bds-lint-ignore token-family — pins the dark-label inverse variant to the medium step against the BDS-shipped darkest surface; see comment */
   }
   :root[data-theme="dark"] [data-audience="marketing"] .bds-button--inverse {
-    --background-inverse: var(--color-green-darker); /* bds-lint-ignore token-family — see above */
+    --background-inverse: var(--color-green-800); /* bds-lint-ignore token-family — see above */
   }
   :root[data-theme="dark"] [data-audience="information"] .bds-button--inverse {
-    --background-inverse: var(--color-blue-darker); /* bds-lint-ignore token-family — see above */
+    --background-inverse: var(--color-blue-800); /* bds-lint-ignore token-family — see above */
   }
   :root[data-theme="dark"] [data-audience="product"] .bds-button--inverse {
-    --background-inverse: var(--color-purple-darker); /* bds-lint-ignore token-family — see above */
+    --background-inverse: var(--color-purple-800); /* bds-lint-ignore token-family — see above */
   }
   :root[data-theme="dark"] [data-audience="back-office"] .bds-button--inverse {
-    --background-inverse: var(--color-orange-darker); /* bds-lint-ignore token-family — see above */
+    --background-inverse: var(--color-orange-800); /* bds-lint-ignore token-family — see above */
   }
 
   /* Grayscale heading/body copy that sits directly on a fixed-light service tint.
      `.service-surface` marks the sections whose background is an inline
      `--surface-service-*` / `serviceColor().surface` tint (fixed-light in both
      themes). The theme-responsive --text-primary/-secondary flip near-white in
-     dark mode (#f2f2f2 / #bdbdbd) → 1.05–3.04:1 on the light tints. Re-point the
+     dark mode (grayscale-100 / grayscale-400) → 1.05–3.04:1 on the light tints. Re-point the
      two text tokens to the mode-invariant darkest grayscale primitive for the
      tinted subtree only — same fixed-on-fixed-light pattern as the #360 borderless
      card text fix, but applied at the section scope rather than per-element.
@@ -563,8 +571,8 @@ h1, h2, h3, h4, h5, h6 {
      page's `.service-themed` wrapper also contains non-tinted dark sections whose
      light text is correct. */
   :root[data-theme="dark"] .service-surface {
-    --text-primary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see comment; pins inherited heading/body color dark on a fixed-light tint */
-    --text-secondary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above */
+    --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see comment; pins inherited heading/body color dark on a fixed-light tint */
+    --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above */
   }
 
   /* …but nested components that establish their OWN (dark) surface inside the tint
@@ -574,8 +582,8 @@ h1, h2, h3, h4, h5, h6 {
      are transparent (they sit on the tint) so they're EXCLUDED — their dark text is
      correct and already handled by the #360 rule. Restore the dark-brand text colors
      explicitly (`revert-layer` can't help — --text-* is inherited, so it would just
-     re-inherit the darkest value the section sets above): primary → grayscale-lightest,
-     secondary → the #bdbdbd brand stop the dark brand-kit block sets (globals ~L113). */
+     re-inherit the darkest value the section sets above): primary → grayscale-100,
+     secondary → the grayscale-400 brand stop the dark brand-kit block sets (globals ~L141). */
   :root[data-theme="dark"] .service-surface :is(
     .bds-card:not(.bds-card--borderless),
     .bds-pricing-card,
@@ -585,8 +593,8 @@ h1, h2, h3, h4, h5, h6 {
     .lp-form-card,
     .event-page__speaker
   ) {
-    --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — restores the dark-brand body text the section pin above darkened; #f2f2f2 on the card's own dark surface */
-    --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals ~L113); no BDS primitive exists for it */
+    --text-primary: var(--color-grayscale-100); /* bds-lint-ignore token-family — restores the dark-brand body text the section pin above darkened; #f2f2f2 on the card's own dark surface */
+    --text-secondary: var(--color-grayscale-400); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals ~L141) */
   }
 
   /* Solid landing surface (LandingBlocks `surface_treatment="solid"`): a full
@@ -604,12 +612,12 @@ h1, h2, h3, h4, h5, h6 {
      mode (white card), light in dark mode (dark card) — the .service-surface
      nested-card exception, inverted for the white-text section. */
   .lp-surface-solid .lp-form-card {
-    --text-primary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — dark text on the white form card; the section pin above set it white */
-    --text-secondary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above */
+    --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark text on the white form card; the section pin above set it white */
+    --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above */
   }
   :root[data-theme="dark"] .lp-surface-solid .lp-form-card {
-    --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — light text on the card's own dark surface in dark mode */
-    --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop; no BDS primitive exists for it */
+    --text-primary: var(--color-grayscale-100); /* bds-lint-ignore token-family — light text on the card's own dark surface in dark mode */
+    --text-secondary: var(--color-grayscale-400); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop */
   }
 
   /* showcase layout (LandingBlocks layout="showcase") — fixed-palette bright
@@ -620,8 +628,8 @@ h1, h2, h3, h4, h5, h6 {
      card colours never flip. The layout owns the colour; blocks stay colourless
      (#429). */
   .lp-showcase__card {
-    --text-primary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — dark ink on the fixed-light showcase card hues; same fixed-on-fixed pattern as .service-surface */
-    --text-secondary: var(--color-grayscale-darkest); /* bds-lint-ignore token-family — see above */
+    --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink on the fixed-light showcase card hues; same fixed-on-fixed pattern as .service-surface */
+    --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above */
   }
 
   /* Current-page breadcrumb: de-emphasize it relative to the navigable link

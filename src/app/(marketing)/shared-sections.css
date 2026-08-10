@@ -41,7 +41,7 @@
 .page-hero__tagline {
   font-family: var(--font-family-body);
   font-size: var(--body-xl);
-  /* AA fix: --text-brand-primary (poppy-dark #b0351b) on the brand-yellow
+  /* AA fix: --text-brand-primary (poppy-700 #b0351b) on the brand-yellow
      service-line hero surface (--surface-service-brand = #f4d364) is
      4.26:1 — fails WCAG 2.1 AA (4.5:1) for body-size text. Same pattern
      as --page-hero__description below (PR #81): swap to --text-primary
@@ -243,24 +243,24 @@
 }
 
 /* --surface-service-* tokens are fixed-light in both themes. Pin label + icon
-   to grayscale-darkest so they stay readable in dark mode (where --text-secondary
+   to grayscale-950 so they stay readable in dark mode (where --text-secondary
    and --text-brand-primary resolve to lighter values). Mirrors the homepage
    .section-hero override that pins to --text-on-color-dark on the Brik-orange hero. */
 .service-surface .scroll-down-cta__label,
 .service-surface .scroll-down-cta__icon {
-  color: var(--color-grayscale-darkest);
+  color: var(--color-grayscale-950);
 }
 
 /* The service-plan detail hero (`page-hero-blueprint`, plans/[slug]) is a tinted
    blueprint surface but — unlike the service-detail hero — carries no
    `.service-surface` class, so the scroll-down CTA would otherwise inherit the
    service `--text-brand-primary` (a dark service tint) on a pale service
-   background and lose contrast (brikdesigns#451). Pin it to grayscale-darkest
+   background and lose contrast (brikdesigns#451). Pin it to grayscale-950
    exactly like .service-surface above. Consumer-level legibility fix; token-level
    pairing stays with #437. */
 .page-hero-blueprint .scroll-down-cta__label,
 .page-hero-blueprint .scroll-down-cta__icon {
-  color: var(--color-grayscale-darkest);
+  color: var(--color-grayscale-950);
 }
 
 @keyframes scroll-cta-appear {
@@ -310,13 +310,13 @@
    correct. Token pairing gated in brik-bds contrast-pairings.json (inverse card
    fill). data-audience is always one of the 5 canonical lines (mapServiceLineSlug).
 
-   Text is pinned to the grayscale-darkest primitive, NOT --text-on-color-light:
+   Text is pinned to the grayscale-950 primitive, NOT --text-on-color-light:
    the BDS hero blueprint rebinds --text-on-color-light to grayscale-white per
    audience (so white reads on the `-dark` service surfaces), which would leave
    white-on-light-tint here (1.17:1, axe-flagged). The `-on-dark` fills are all
    light `{hue}-lighter` tints, so darkest text clears AA in every state. */
 :root[data-theme="dark"] .page-hero-blueprint .bds-hero__media-card .bds-button--primary {
-  color: var(--color-grayscale-darkest);
+  color: var(--color-grayscale-950);
 }
 :root[data-theme="dark"] .page-hero-blueprint .bds-hero--with-pricing-card[data-audience="brand"] .bds-hero__media-card .bds-button--primary:not(:hover):not(:active) {
   background-color: var(--background-service-brand-on-dark);
@@ -644,8 +644,8 @@
 :root[data-theme="dark"] .page-section.related-services-band {
   background-color: var(--related-band-dark);
   /* Band is now dark: flip the inherited heading/body text light, overriding the
-     `.service-surface` grayscale-darkest pin (globals.css) that is only correct
+     `.service-surface` grayscale-950 pin (globals.css) that is only correct
      on the light tint. Mirrors that pin's nested-card exception values. */
-  --text-primary: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — light heading/body on the deep service tint; mirrors the .service-surface nested-card exception (globals.css) */
-  --text-secondary: #bdbdbd; /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals.css); no BDS primitive exists for it */
+  --text-primary: var(--color-grayscale-100); /* bds-lint-ignore token-family — light heading/body on the deep service tint; mirrors the .service-surface nested-card exception (globals.css) */
+  --text-secondary: var(--color-grayscale-400); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop (globals.css) */
 }
