@@ -101,6 +101,11 @@
         "div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
       ]
     },
+    "/events/grind-after-graduation": {
+      "color-contrast": [
+        ".bds-button--sm"
+      ]
+    },
     "/free-marketing-analysis": {
       "color-contrast": [
         ".bds-button--sm",
@@ -229,6 +234,11 @@
         ".bds-button--sm",
         ".event-page__form-card > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content",
         "div > div > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
+      ]
+    },
+    "/events/grind-after-graduation": {
+      "color-contrast": [
+        ".bds-button--sm"
       ]
     },
     "/free-marketing-analysis": {
