@@ -29,7 +29,7 @@ import { BlockRenderer } from './BlockRenderer';
  *     Graduation, redesigned in #852). Full-width fixed-palette cards stacked
  *     in a fixed region order: a yellow hero (photo + title + CTAs), a blue
  *     Venue/Admission/Audience trio, a purple schedule (agenda + photo), a
- *     purple about card, the purple registration card, a green speaker card,
+ *     green about card, the purple registration card, a yellow speaker card,
  *     and the partners logo grid. Colors are baked into the layout (no
  *     per-event / per-block color — the section owns them via CSS), so events
  *     opt in with `layout: 'showcase'` and the same block data render
@@ -180,7 +180,7 @@ export function LandingBlocks({
           {(aboutHead.length > 0 || aboutBody.length > 0) && (
             <div
               className={[
-                'lp-showcase__card lp-showcase__card--purple lp-showcase__about',
+                'lp-showcase__card lp-showcase__card--green lp-showcase__about',
                 aboutMedia && 'lp-showcase__about--media',
               ]
                 .filter(Boolean)
@@ -224,7 +224,7 @@ export function LandingBlocks({
             </div>
           )}
 
-          {/* Speakers — green card holding a 3-up grid of avatar + role + name + org. */}
+          {/* Speakers — yellow card holding a 3-up grid of avatar + role + name + org. */}
           {speakers.length > 0 && <ShowcaseSpeakers speakers={speakers} />}
 
           {/* Partners — optional centered heading (authored on the logo-strip
@@ -365,14 +365,14 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
 }
 
 /**
- * showcase speakers — one green card holding a 3-up grid of speaker cells, each
+ * showcase speakers — one yellow card holding a 3-up grid of speaker cells, each
  * a circular avatar over a role eyebrow, name, and org (mirroring the flyer).
  * Renders every authored speaker; the grid reflows to 1/2 columns below the
  * showcase breakpoints.
  */
 function ShowcaseSpeakers({ speakers }: { speakers: SpeakerProps[] }) {
   return (
-    <div className="lp-showcase__card lp-showcase__card--green lp-showcase__speakers-card">
+    <div className="lp-showcase__card lp-showcase__card--yellow lp-showcase__speakers-card">
       <h2 style={heading.sm}>Panel</h2>
       <div className="lp-showcase__speakers">
         {speakers.map((speaker, i) => (

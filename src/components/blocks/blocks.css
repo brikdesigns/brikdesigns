@@ -346,7 +346,7 @@
   margin-top: var(--gap-xs);
 }
 
-/* Speakers — one green card: a "Panel" heading over a 3-up grid of speaker
+/* Speakers — one yellow card: a "Panel" heading over a 3-up grid of speaker
    cells (circular avatar over role / name / org). Grid reflows 1 → 2 → 3
    columns up the scale. */
 .lp-showcase__speakers-card {
