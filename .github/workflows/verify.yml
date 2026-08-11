@@ -131,9 +131,10 @@ jobs:
 
       # brikdesigns#851. A brand override can repoint a page-level text token at a
       # stop that fails AA, and neither existing gate sees it: lint:tokens checks
-      # names, axe checks what a route renders (and --text-muted rendered no text
-      # on any audited route). Light-mode --text-muted sat at 2.17:1 — under even
-      # AA-large — until this check existed. Its own failure path is asserted too.
+      # names not values, and axe — which does score rendered output — reported no
+      # contrast finding on any of the four routes whose form placeholders were
+      # measurably at 2.17:1. Light-mode --text-muted sat under even AA-large
+      # until this check existed. Its own failure path is asserted too.
       - name: Theme contrast lint (page text tokens clear AA on their surface)
         run: npm run lint:theme-contrast
 
