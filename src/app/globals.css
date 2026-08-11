@@ -702,8 +702,28 @@ h1, h2, h3, h4, h5, h6 {
      (#429). Both text roles share the stop deliberately — same AA constraint as
      `.service-surface` above (brik-bds#1740); don't lighten secondary. */
   .lp-showcase__card {
+    /* Set the inherited `color`, not only the tokens (#882). The token pin
+       alone reaches elements whose own rules read --text-primary (BDS controls,
+       block titles) but NOT plain inherited copy: the hero h1/em set no colour,
+       so they kept the page colour and rendered #f2f2f2 on the yellow card at
+       1.30:1 in dark mode. */
+    color: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink on the fixed-light showcase card hues; same fixed-on-fixed pattern as .service-surface */
     --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink on the fixed-light showcase card hues; same fixed-on-fixed pattern as .service-surface */
     --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above */
+  }
+
+  /* …but a control inside a showcase card carries its OWN surface
+     (--background-input / --background-secondary), and unlike the card hues
+     that one DOES flip by theme — so the card's dark-ink pin has to stop at the
+     control boundary. In dark mode the field ground went black while the pinned
+     ink stayed #1b1b1b, shipping the typed value at 1.21:1 and the secondary
+     CTA label at 1.36:1 (#882). Restore the theme's own ink on the controls
+     only: the surrounding labels and copy stay dark because they sit on the
+     bright card, not on the field. Same nested-own-surface exception as
+     `.lp-surface-solid .lp-form-card` above. */
+  :root[data-theme="dark"] .lp-showcase__card :is(.bds-text-input-field, .bds-select, .bds-button) {
+    --text-primary: var(--color-grayscale-100); /* bds-lint-ignore token-family — light ink on the control's own dark surface in dark mode */
+    --text-secondary: var(--color-grayscale-300); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop; 300 not 400, see the AA table there */
   }
 
   /* Current-page breadcrumb: de-emphasize it relative to the navigable link
