@@ -4,6 +4,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
+import { parseDeclaration, evaluateDeclaration } from './lib/visual-change-declaration.mjs';
 
 // Three modes share this script:
 //   webflow (default) — migration parity: compare the build against the live
@@ -48,6 +49,17 @@ const IMAGE_WAIT_MS = parseInt(process.env.IMAGE_WAIT_MS ?? '120000', 10);
 // pipeline, so the pass-case noise floor is ~0% while the #822 dark-canvas
 // defect measures 14.85% against it — 5% clears flake with wide margin.
 const DIFF_THRESHOLD = parseFloat(process.env.DIFF_THRESHOLD ?? (MOCKUP_MODE ? '5' : '0'));
+
+// Intended-visual-change declaration (#856). Self mode only — it exists so a
+// deliberate redesign can pass this gate without turning the gate off, and
+// neither webflow mode (never blocks) nor mockup mode (the baseline IS the
+// declaration) has that problem. Both halves come from the workflow:
+// VISUAL_CHANGE_LABEL is set only when the PR carries the `visual-change`
+// label, VISUAL_CHANGE_BODY is the PR body. A body line without the label
+// declares nothing, and says so rather than failing silently.
+const VISUAL_CHANGE_LABEL = process.env.VISUAL_CHANGE_LABEL === '1';
+const declaredInBody = parseDeclaration(process.env.VISUAL_CHANGE_BODY);
+const DECLARED_ROUTES = SELF_MODE && VISUAL_CHANGE_LABEL ? declaredInBody : [];
 
 if (!NETLIFY_URL) {
   console.error(
@@ -549,12 +561,81 @@ if (SELF_MODE) {
   }
 }
 
-// Hard failure gate — only active when DIFF_THRESHOLD is set
+// Hard failure gate — only active when DIFF_THRESHOLD is set.
+//
+// A `visual-change` declaration (#856) moves routes it names out of `blocking`
+// and into `waived`; everything undeclared still gates at the threshold. The
+// declaration is not a free pass in either direction: a name that matches no
+// route, or a declared route that did not move, fails the run.
 if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
-  const failing = diffed.filter((r) => r.diffPct > DIFF_THRESHOLD);
-  if (failing.length) {
-    console.error(`\n✗ ${failing.length} route(s) exceed DIFF_THRESHOLD of ${DIFF_THRESHOLD}%:`);
-    failing.forEach((r) => console.error(`  ${r.diffPct.toFixed(2)}%  ${r.route} [${r.theme}/${r.viewport}]`));
-    process.exit(1);
+  const { waived, blocking, unmoved, unknown } = evaluateDeclaration({
+    declared: DECLARED_ROUTES,
+    knownRoutes: ROUTES.map((r) => r.name),
+    results,
+    threshold: DIFF_THRESHOLD,
+  });
+
+  const summary = [];
+
+  if (SELF_MODE && !VISUAL_CHANGE_LABEL && declaredInBody.length) {
+    const note =
+      `⚠ ${declaredInBody.length} route(s) declared in the body, but the PR has no ` +
+      '`visual-change` label — the declaration was ignored. Both halves are required.';
+    console.error(`\n${note}`);
+    summary.push(note);
   }
+
+  if (waived.length) {
+    console.log(`\n▸ ${waived.length} capture(s) waived by the visual-change declaration:`);
+    waived.forEach((r) =>
+      console.log(`  ${r.diffPct.toFixed(2).padStart(6)}%  ${r.route} [${r.theme}/${r.viewport}]`),
+    );
+    summary.push(
+      `**Waived by \`visual-change\` declaration** — ${waived.length} capture(s) across ` +
+        `${new Set(waived.map((r) => r.route)).size} declared route(s):`,
+      '',
+      '| Route | Theme/Viewport | Diff |',
+      '| --- | --- | --- |',
+      ...waived.map((r) => `| \`${r.route}\` | ${r.theme}/${r.viewport} | ${r.diffPct.toFixed(2)}% |`),
+    );
+  }
+
+  if (unknown.length) {
+    console.error(`\n✗ ${unknown.length} declared route(s) match no entry in ROUTES:`);
+    unknown.forEach((name) => console.error(`  ${name}`));
+    console.error(`  Valid names: ${ROUTES.map((r) => r.name).join(', ')}`);
+    summary.push(`❌ **Unknown declared route(s):** ${unknown.map((n) => `\`${n}\``).join(', ')}`);
+  }
+
+  if (unmoved.length) {
+    console.error(`\n✗ ${unmoved.length} declared route(s) did not move past ${DIFF_THRESHOLD}%:`);
+    unmoved.forEach((name) => console.error(`  ${name}`));
+    console.error('  A stale declaration is a defect — drop it from the PR body.');
+    summary.push(
+      `❌ **Stale declaration** — ${unmoved.map((n) => `\`${n}\``).join(', ')} ` +
+        `declared but measured at or below ${DIFF_THRESHOLD}%.`,
+    );
+  }
+
+  if (blocking.length) {
+    console.error(`\n✗ ${blocking.length} route(s) exceed DIFF_THRESHOLD of ${DIFF_THRESHOLD}%:`);
+    blocking.forEach((r) =>
+      console.error(`  ${r.diffPct.toFixed(2)}%  ${r.route} [${r.theme}/${r.viewport}]`),
+    );
+    if (SELF_MODE && !DECLARED_ROUTES.length) {
+      console.error(
+        '\n  If these are intentional: add the `visual-change` label to the PR and a\n' +
+          '  `Visual-change: <route-name>, <route-name>` line to its body.',
+      );
+    }
+    summary.push(
+      `❌ **Undeclared regression** — ${blocking.length} capture(s) over ${DIFF_THRESHOLD}%.`,
+    );
+  }
+
+  if (process.env.GITHUB_STEP_SUMMARY && summary.length) {
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary.join('\n')}\n`);
+  }
+
+  if (unknown.length || unmoved.length || blocking.length) process.exit(1);
 }
