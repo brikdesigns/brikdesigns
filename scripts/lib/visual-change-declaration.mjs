@@ -57,8 +57,8 @@ export function parseDeclaration(body) {
 //               capture produced no comparison
 //   threshold   DIFF_THRESHOLD, in percent
 //
-// Returns four disjoint findings. `blocking` and the two defect lists are what
-// the caller exits on; `waived` is what it prints.
+// Returns five disjoint findings. `blocking` and the two defect lists are what
+// the caller exits on; `waived` and `underThreshold` are what it prints.
 export function evaluateDeclaration({ declared = [], knownRoutes = [], results = [], threshold = 0 }) {
   const unknown = declared.filter((name) => !knownRoutes.includes(name));
   const declaredSet = new Set(declared);
@@ -68,11 +68,21 @@ export function evaluateDeclaration({ declared = [], knownRoutes = [], results =
   const waived = over.filter((r) => declaredSet.has(r.route));
   const blocking = over.filter((r) => !declaredSet.has(r.route));
 
-  // A declared route that moved nowhere is a stale declaration. Judge it per
-  // route, not per capture: a redesign that only lands in dark/desktop still
-  // moved the route, and demanding every viewport move would push authors
+  // A declared route that moved nowhere is a stale declaration. "Nowhere" means
+  // NO measurable diff, not "under the threshold" (#880). The first version
+  // derived this from the over-threshold set, so a real change too small to
+  // clear 1% failed the gate for being honestly declared: PR #877 moved three
+  // labels from uppercase to Title Case and measured 0.02–0.05% across all six
+  // captures. That is a change; it is just not 1% of a page's pixels. Failing it
+  // reintroduces the false-red #856 existed to remove, and leaves the author
+  // choosing between a true declaration and a green check.
+  //
+  // Judge per route, not per capture: a redesign that only lands in dark/desktop
+  // still moved the route, and demanding every viewport move would push authors
   // toward declaring less than they changed.
-  const movedRoutes = new Set(waived.map((r) => r.route));
+  const movedRoutes = new Set(
+    results.filter((r) => r.diffPct !== null && r.diffPct > 0).map((r) => r.route),
+  );
   const measuredRoutes = new Set(
     results.filter((r) => r.diffPct !== null).map((r) => r.route),
   );
@@ -83,5 +93,16 @@ export function evaluateDeclaration({ declared = [], knownRoutes = [], results =
       !movedRoutes.has(name),
   );
 
-  return { waived, blocking, unmoved, unknown };
+  // Declared, genuinely moved, but never needed a waiver — the whole route sat
+  // under the threshold. Reported rather than waived: nothing was let through,
+  // so calling it a waiver would overstate what the declaration did.
+  const waivedRoutes = new Set(waived.map((r) => r.route));
+  const underThreshold = declared.filter(
+    (name) =>
+      knownRoutes.includes(name) &&
+      movedRoutes.has(name) &&
+      !waivedRoutes.has(name),
+  );
+
+  return { waived, blocking, unmoved, unknown, underThreshold };
 }

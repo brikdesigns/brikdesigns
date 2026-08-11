@@ -25,8 +25,14 @@ name: Visual regression (staging vs deploy-preview)
 # Declared routes are reported in the job summary and do not fail the job. Every
 # undeclared route still gates at DIFF_THRESHOLD. The declaration is not a free
 # pass in either direction: a name matching no route fails, and so does a
-# declared route that did NOT move — a stale declaration would otherwise decay
-# into a permanent allowlist nobody prunes.
+# declared route that did not move AT ALL — a stale declaration would otherwise
+# decay into a permanent allowlist nobody prunes.
+#
+# "Did not move" means 0.00% on every capture of that route, NOT "stayed under
+# the threshold" (#880). A real change smaller than DIFF_THRESHOLD is still a
+# change: PR #877 moved three labels to Title Case and measured 0.02–0.05%.
+# Declaring it is honest, and the run reports it as declared-and-under-threshold
+# rather than waiving it — nothing was let through, so nothing was waived.
 #
 # This is not `--no-verify`: the comparison still runs, still captures every
 # route, and the waiver is annotated in the run summary rather than hidden.
