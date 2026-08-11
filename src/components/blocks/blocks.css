@@ -207,17 +207,32 @@
   }
 }
 
-/* About — heading full width, prose body in two columns above the md
-   breakpoint (the heading is outside the column flow so it can't fragment). */
+/* About — text (heading + body) stacked; an optional photo joins it as a
+   second column above the md breakpoint (text col-1, photo col-2). Without a
+   photo the card stays a single full-width text column. */
 .lp-showcase__about {
   display: flex;
   flex-direction: column;
   gap: var(--gap-lg);
 }
+.lp-showcase__about-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+.lp-showcase__about-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--aspect-4-3);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
 @media (min-width: 768px) {
-  .lp-showcase__about-body {
-    columns: 2;
-    column-gap: var(--gap-huge);
+  .lp-showcase__about--media {
+    display: grid;
+    grid-template-columns: 1fr 0.85fr;
+    gap: var(--gap-huge);
+    align-items: center;
   }
 }
 
@@ -279,7 +294,7 @@
 }
 @media (min-width: 640px) {
   .lp-showcase__trio {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 .lp-showcase__stat {
@@ -293,8 +308,14 @@
   margin-top: var(--gap-xs);
 }
 
-/* Speakers — one green card holding a 3-up grid of speaker cells (circular
-   avatar over role / name / org). Reflows 1 → 2 → 3 columns up the scale. */
+/* Speakers — one green card: a "Panel" heading over a 3-up grid of speaker
+   cells (circular avatar over role / name / org). Grid reflows 1 → 2 → 3
+   columns up the scale. */
+.lp-showcase__speakers-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
 .lp-showcase__speakers {
   display: grid;
   grid-template-columns: 1fr;
