@@ -211,13 +211,15 @@ export function LandingBlocks({
               id={REGISTER_ANCHOR}
               className="lp-showcase__card lp-showcase__card--purple lp-showcase__registration"
             >
-              {/* Region heading — the registration card's section title
-                  (mirrors the legacy path's hardcoded "Register" heading),
-                  functional chrome, not authored copy. */}
-              <h2 style={heading.section}>
-                Register today
-              </h2>
-              <BlockRenderer blocks={metaBlocks} context={context} />
+              {/* Title + event metadata grouped as one header above the form
+                  (functional chrome — "Register today" mirrors the legacy
+                  path's hardcoded heading, not authored copy). */}
+              <div className="lp-showcase__registration-head">
+                <h2 style={heading.section}>
+                  Register today
+                </h2>
+                <BlockRenderer blocks={metaBlocks} context={context} />
+              </div>
               <BlockRenderer blocks={formBlocks} context={formContext} />
             </div>
           )}
@@ -232,7 +234,7 @@ export function LandingBlocks({
               {(partners.title || partners.description) && (
                 <div className="lp-showcase__partners-head">
                   {partners.title && (
-                    <h2 className={SHOWCASE_DISPLAY_CLASS}>{partners.title}</h2>
+                    <h2 style={heading.sm}>{partners.title}</h2>
                   )}
                   {partners.description && (
                     <p style={{ ...text.body, margin: 0 }}>{partners.description}</p>
@@ -289,9 +291,9 @@ const SCHEDULE_ANCHOR = 'schedule';
 const REGISTER_ANCHOR = 'register';
 
 /**
- * Big display type for the showcase title + partners heading — one step above
- * the marketing heading scale (heading/huge · 45.5px), which HeroBlock's
- * default heading.lg (32px) doesn't reach. Title Case per the #852 design (the
+ * Big display type for the showcase hero title — one step above the marketing
+ * heading scale (heading/huge · 45.5px), which HeroBlock's default heading.lg
+ * (32px) doesn't reach. Title Case per the #852 design (the
  * earlier uppercase transform is gone); colour inherits the card's pinned dark
  * ink.
  *

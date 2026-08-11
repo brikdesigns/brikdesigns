@@ -17,7 +17,7 @@ export function ScheduleBlock({ title, items, media }: ScheduleProps) {
   if (!items.length) return null;
 
   return (
-    <div className="lp-schedule">
+    <div className={`lp-schedule${media ? '' : ' lp-schedule--no-media'}`}>
       <Stack gap="lg" className="lp-schedule__main">
         {title && <h2 style={heading.section}>{title}</h2>}
         <dl className="lp-schedule__list">
