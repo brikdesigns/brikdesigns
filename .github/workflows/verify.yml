@@ -130,5 +130,8 @@ jobs:
       - name: HTML sanitizer behaviour (XSS corpus + CMS prose preserved)
         run: npm run test:sanitize
 
+      - name: Visual-change declaration (waiver still blocks the undeclared)
+        run: npm run test:visual-change
+
       - name: Icon-collection drift (offline Phosphor subset in sync with usage)
         run: npm run gen:icons:check
