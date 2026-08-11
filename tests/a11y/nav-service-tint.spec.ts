@@ -29,6 +29,24 @@ import { SERVICE_LINE_SEGMENTS } from '../../src/lib/service-line-routes';
 
 const TINT_CLASS = 'mega-nav--service';
 
+/** Assert the app's page rendered, retrying until it does.
+ *
+ *  Deliberately NOT an HTTP-status assertion. `res.status()` is a snapshot of one
+ *  response with no retry, and a deploy preview legitimately returns transient
+ *  4xx/5xx under the suite's concurrent load — /plans came back **403** on a run
+ *  where every other route was fine, and /services/product failed once then
+ *  passed on retry. A CDN throttle is not a route defect.
+ *
+ *  `toHaveCount` auto-retries, so this waits out a cold start or hydration flush
+ *  and otherwise fails with "didn't render" rather than a bare status number.
+ *  Same guard, and same reasoning, as public-routes.spec.ts (#341). */
+async function renderGuard(page: Page, path: string) {
+  await expect(
+    page.locator('main'),
+    `${path} did not render a <main> within timeout — transient infra state (cold start, CDN throttle), not a tint failure. See #341.`,
+  ).toHaveCount(1);
+}
+
 /** The line the nav claims, from its modifier class. `null` when untinted. */
 async function navLine(page: Page): Promise<string | null> {
   const cls = (await page.locator('header.mega-nav').first().getAttribute('class')) ?? '';
@@ -58,8 +76,8 @@ test.describe('nav service tint', () => {
 
   for (const line of SERVICE_LINE_SEGMENTS) {
     test(`/services/${line} tints the nav`, async ({ page }) => {
-      const res = await page.goto(`/services/${line}`);
-      expect(res?.status(), `/services/${line} must render`).toBeLessThan(400);
+      await page.goto(`/services/${line}`);
+      await renderGuard(page, `/services/${line}`);
 
       expect(await navLine(page), `nav tint on /services/${line}`).toBe(line);
 
@@ -93,8 +111,8 @@ test.describe('nav service tint', () => {
   });
 
   test('every public plan page tints from its own marketing line', async ({ page }) => {
-    const res = await page.goto('/plans');
-    expect(res?.status(), '/plans must render').toBeLessThan(400);
+    await page.goto('/plans');
+    await renderGuard(page, '/plans');
 
     // `evaluateAll` resolves against whatever is in the DOM at that instant and
     // returns [] rather than retrying, so it has to be preceded by a locator

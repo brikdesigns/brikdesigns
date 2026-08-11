@@ -14,6 +14,8 @@ name: Verify (lint + token gate + schema parity)
 #    raw var()) and every heading semibold (composite-typography initiative)
 #  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
 #    src/app/(chromeless)/admin/services/_components/field-configs.ts
+#  - Theme contrast lint: --text-primary/-secondary/-muted clear WCAG AA on the
+#    surfaces their theme block paints them on, light + dark (brikdesigns#851)
 #  - Nav service-tint lint: every service line in the service-token map has a
 #    `.mega-nav--service-{line}` background rule carrying its own darkest
 #    surface, so a derived tinted-line set can't outrun the CSS (brikdesigns#860)
@@ -126,6 +128,18 @@ jobs:
 
       - name: Nav service-tint lint — self-test (fixtures incl. the #729 state)
         run: npm run test:lint:nav-service-tint
+
+      # brikdesigns#851. A brand override can repoint a page-level text token at a
+      # stop that fails AA, and neither existing gate sees it: lint:tokens checks
+      # names not values, and axe — which does score rendered output — reported no
+      # contrast finding on any of the four routes whose form placeholders were
+      # measurably at 2.17:1. Light-mode --text-muted sat under even AA-large
+      # until this check existed. Its own failure path is asserted too.
+      - name: Theme contrast lint (page text tokens clear AA on their surface)
+        run: npm run lint:theme-contrast
+
+      - name: Theme contrast lint — self-test (fixtures incl. the #851 state)
+        run: npm run test:lint:theme-contrast
 
       - name: HTML sanitizer behaviour (XSS corpus + CMS prose preserved)
         run: npm run test:sanitize
