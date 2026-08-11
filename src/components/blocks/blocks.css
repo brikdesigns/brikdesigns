@@ -230,7 +230,9 @@
 @media (min-width: 768px) {
   .lp-showcase__about--media {
     display: grid;
-    grid-template-columns: 1fr 0.85fr;
+    /* Narrower photo column widens the space between content and image
+       (--gap-huge is already the largest semantic gap token). */
+    grid-template-columns: 1fr 0.7fr;
     gap: var(--gap-huge);
     align-items: center;
   }
@@ -246,6 +248,19 @@
 @media (min-width: 768px) {
   .lp-schedule {
     grid-template-columns: 1fr 0.75fr;
+  }
+  /* No supporting photo — the agenda reclaims the full card width and splits
+     into two columns, filling column-first (with 5 rows: 6:30/7:00/7:10 in
+     col 1, 8:10/8:45 in col 2). */
+  .lp-schedule--no-media {
+    grid-template-columns: 1fr;
+  }
+  .lp-schedule--no-media .lp-schedule__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, auto);
+    grid-auto-flow: column;
+    column-gap: var(--gap-huge);
   }
 }
 .lp-schedule__list {
@@ -275,12 +290,35 @@
 .lp-showcase__registration {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-lg);
+  /* Wider gap sets the title + time metadata group apart from the form. */
+  gap: var(--gap-xl);
+}
+/* Title + event metadata read as one grouped header above the form. */
+.lp-showcase__registration-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
 }
 .lp-showcase__registration .lp-form-card {
   padding: 0;
   background-color: transparent;
   border: none;
+}
+/* Page-scoped overrides of BDS Select internals — NOT a global design-system
+   change — so the idle Select matches its sibling TextInput on this form.
+   Scoped here (not in brik-bds) so every other Select across consumers keeps
+   the compliant default.
+   - Placeholder: BDS pins --text-secondary for WCAG AA (a native select's value
+     is real foreground text; brik-bds#942). Matching the muted TextInput
+     placeholder is an explicit product call for this page and knowingly drops
+     below AA — an accessibility restriction flagged to revisit.
+   - Chevron: scaled up from 0.75em so the bold caret reads heavier beside the
+     inputs. */
+.lp-showcase__registration .bds-select--placeholder {
+  color: var(--text-muted);
+}
+.lp-showcase__registration .bds-select-chevron {
+  font-size: 1em; /* bds-lint-ignore — relative to input font size, not a token */
 }
 .lp-showcase__region-label {
   margin: 0;
@@ -294,7 +332,7 @@
 }
 @media (min-width: 640px) {
   .lp-showcase__trio {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 .lp-showcase__stat {
@@ -308,13 +346,16 @@
   margin-top: var(--gap-xs);
 }
 
-/* Speakers — one green card: a "Panel" heading over a 3-up grid of speaker
+/* Speakers — one yellow card: a "Panel" heading over a 3-up grid of speaker
    cells (circular avatar over role / name / org). Grid reflows 1 → 2 → 3
    columns up the scale. */
 .lp-showcase__speakers-card {
   display: flex;
   flex-direction: column;
   gap: var(--gap-xl);
+  /* Taller panel — extra vertical padding so the Panel band takes up more of
+     the page than the base card padding gives it. */
+  padding-block: var(--padding-huge);
 }
 .lp-showcase__speakers {
   display: grid;
@@ -355,6 +396,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-xl);
+  /* Extra separation from the Panel card above (on top of the container gap). */
+  padding-top: var(--padding-huge);
 }
 .lp-showcase__partners-head {
   display: flex;
@@ -377,8 +420,8 @@
    fill (dropped the grey card per the flyer, which floats logos on white). */
 .lp-showcase__logo {
   position: relative;
-  height: 96px;
-  padding: var(--padding-lg);
+  height: 64px;
+  padding: var(--padding-md);
 }
 
 /* Registration form, two-up (EventRegistrationForm columns=2). Single column
