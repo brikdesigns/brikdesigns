@@ -2,6 +2,7 @@ import Image from 'next/image';
 import type { RawBlock, BlockContext, DetailItem, SpeakerProps, HeroProps } from '@/lib/blocks';
 import type { LandingSurface } from '@/lib/events';
 import {
+  parseContentBlockProps,
   parseDetailsProps,
   parseSpeakerBlockProps,
   parseHeroProps,
@@ -11,7 +12,7 @@ import {
 import { LinkButton } from '@brikdesigns/bds';
 import { Icon } from '@/lib/icon';
 import { heading, label, text } from '@/lib/styles';
-import { color, gap } from '@/lib/tokens';
+import { color, font, gap } from '@/lib/tokens';
 import { BlockRenderer } from './BlockRenderer';
 
 /**
@@ -88,10 +89,12 @@ export function LandingBlocks({
     // rather than via BlockRenderer.
     const heroBlocks = blocks.filter((b) => b.type === 'hero');
     const ctaBlocks = blocks.filter((b) => b.type === 'cta');
-    // The about card leads with its `content-block` heading full-width, then
-    // flows the prose body into two columns — so the heading isn't fragmented.
+    // The about card lays its text (heading + prose body) in the left column;
+    // an optional photo authored on the `content-block` fills the right column
+    // (single column when no photo is set).
     const aboutHead = blocks.filter((b) => b.type === 'content-block');
     const aboutBody = blocks.filter((b) => b.type === 'prose' || b.type === 'rich-content');
+    const aboutMedia = aboutHead[0] ? parseContentBlockProps(aboutHead[0].props).media ?? null : null;
     const metaBlocks = blocks.filter((b) => b.type === 'event-meta');
     const formBlocks = blocks.filter((b) => b.type === 'form');
     const detailsBlock = blocks.find((b) => b.type === 'details');
@@ -147,7 +150,7 @@ export function LandingBlocks({
                         // --background-brand-primary is 3.4:1 and fails the a11y
                         // gate (#429). The BDS variants stay accessible.
                         variant={button.variant ?? (i === 0 ? 'primary' : 'secondary')}
-                        size="lg"
+                        size="md"
                       >
                         {button.label}
                       </LinkButton>
@@ -172,13 +175,30 @@ export function LandingBlocks({
             </div>
           )}
 
-          {/* About — purple card: heading full-width over a two-column body. */}
+          {/* About — purple card: text (heading + body) in the left column, an
+              optional authored photo in the right (single column when unset). */}
           {(aboutHead.length > 0 || aboutBody.length > 0) && (
-            <div className="lp-showcase__card lp-showcase__card--purple lp-showcase__about">
-              <BlockRenderer blocks={aboutHead} context={context} />
-              {aboutBody.length > 0 && (
-                <div className="lp-showcase__about-body">
-                  <BlockRenderer blocks={aboutBody} context={context} />
+            <div
+              className={[
+                'lp-showcase__card lp-showcase__card--purple lp-showcase__about',
+                aboutMedia && 'lp-showcase__about--media',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              <div className="lp-showcase__about-content">
+                <BlockRenderer blocks={aboutHead} context={context} />
+                <BlockRenderer blocks={aboutBody} context={context} />
+              </div>
+              {aboutMedia && (
+                <div className="lp-showcase__about-media">
+                  <Image
+                    src={aboutMedia.url}
+                    alt={aboutMedia.alt}
+                    fill
+                    sizes="(max-width: 767px) 100vw, 45vw"
+                    style={{ objectFit: 'cover' }}
+                  />
                 </div>
               )}
             </div>
@@ -328,7 +348,10 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
             />
           )}
           {item.label && (
-            <span style={label.subtitle} className="lp-showcase__stat-label">
+            <span
+              style={{ ...label.subtitle, fontWeight: font.weight.semibold }}
+              className="lp-showcase__stat-label"
+            >
               {item.label}
             </span>
           )}
@@ -347,8 +370,10 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
  */
 function ShowcaseSpeakers({ speakers }: { speakers: SpeakerProps[] }) {
   return (
-    <div className="lp-showcase__card lp-showcase__card--green lp-showcase__speakers">
-      {speakers.map((speaker, i) => (
+    <div className="lp-showcase__card lp-showcase__card--green lp-showcase__speakers-card">
+      <h2 style={heading.sm}>Panel</h2>
+      <div className="lp-showcase__speakers">
+        {speakers.map((speaker, i) => (
         <div key={i} className="lp-showcase__speaker">
           {speaker.avatar?.url && (
             <div className="lp-showcase__speaker-avatar">
@@ -371,7 +396,8 @@ function ShowcaseSpeakers({ speakers }: { speakers: SpeakerProps[] }) {
             <p style={{ ...text.body, margin: 0 }}>{speaker.org}</p>
           )}
         </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

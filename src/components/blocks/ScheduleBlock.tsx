@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Stack } from '@brikdesigns/bds';
 import { heading, label, text } from '@/lib/styles';
+import { font } from '@/lib/tokens';
 import type { ScheduleProps } from '@/lib/blocks';
 
 /**
@@ -23,11 +24,17 @@ export function ScheduleBlock({ title, items, media }: ScheduleProps) {
           {items.map((item, i) => (
             <div key={i} className="lp-schedule__row">
               {item.time && (
-                <dt className="lp-schedule__time" style={label.subtitle}>
+                <dt
+                  className="lp-schedule__time"
+                  style={{ ...label.subtitle, fontWeight: font.weight.semibold }}
+                >
                   {item.time}
                 </dt>
               )}
-              <dd className="lp-schedule__label" style={text.body}>
+              <dd
+                className="lp-schedule__label"
+                style={{ ...text.body, fontSize: font.size.body.xl }}
+              >
                 {item.label}
               </dd>
             </div>

@@ -43,6 +43,10 @@ export interface ContentBlockProps {
   title?: string;
   subtitle?: string;
   description?: string;
+  /** Optional supporting photo — rendered only by the showcase layout's About
+   *  card (text in col-1, photo in col-2); the default ContentBlockBlock ignores
+   *  it, so split/stacked layouts are unchanged. */
+  media?: { url: string; alt: string } | null;
 }
 
 /** Date / time / fee row. Each field optional; an omitted `fee` hides the
@@ -223,6 +227,8 @@ export function parseContentBlockProps(props: Record<string, unknown>): ContentB
   if (subtitle) out.subtitle = subtitle;
   const description = str(props.description);
   if (description) out.description = description;
+  const media = parseMedia(props.media);
+  if (media) out.media = media;
   return out;
 }
 
