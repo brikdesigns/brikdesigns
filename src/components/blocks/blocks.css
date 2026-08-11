@@ -310,8 +310,12 @@
    the compliant default.
    - Placeholder: BDS pins --text-secondary for WCAG AA (a native select's value
      is real foreground text; brik-bds#942). Matching the muted TextInput
-     placeholder is an explicit product call for this page and knowingly drops
-     below AA — an accessibility restriction flagged to revisit.
+     placeholder is an explicit product call for this page. This used to drop
+     below AA and was flagged to revisit; #851 fixed it at the token instead —
+     light --text-muted moved grayscale-400 → 700, so the rendered placeholder
+     went 2.17:1 → 6.90:1 on the white input surface (9.68:1 in dark). Measured
+     in-browser on /events/grind-after-graduation, both themes. No longer an
+     accessibility exception.
    - Chevron: scaled up from 0.75em so the bold caret reads heavier beside the
      inputs. */
 .lp-showcase__registration .bds-select--placeholder {

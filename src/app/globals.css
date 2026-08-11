@@ -77,11 +77,34 @@ html {
        43+ TS consumers via color.text.secondary + 51+ direct CSS readers. */
     --text-secondary: var(--color-grayscale-800);
 
-    /* The stop between BDS 300 (#e0e0e0) and 500 (#828282). Was a raw #bdbdbd
-       pin; brik-bds#1726 minted the real primitive as part of the 11-step scale
-       (brik-bds#1740). Note the canonical stop is #b0b0b0, NOT #bdbdbd — no even
-       OKLCh ramp lands on the old hand-picked value. */
-    --text-muted: var(--color-grayscale-400);
+    /* grayscale-700, NOT 400. 400 (#b0b0b0) is 2.17:1 on --surface-primary —
+       under AA (4.5) and under even AA-large (3.0). It was a raw #bdbdbd pin
+       (1.88:1) before brik-bds#1740 minted the real primitive, so the 11-step
+       migration improved it and it still failed. #851.
+
+       This is the FORM PLACEHOLDER colour, not a decorative token: BDS pins
+       `.bds-text-input-field::placeholder` and `.bds-text-area-field::placeholder`
+       to --text-muted (dist/styles.css:1489, :1872). Measured in-browser before
+       this change: 27 placeholders across /contact, /get-started,
+       /free-marketing-analysis and /events/grind-after-graduation all rendered at
+       2.17:1 — a live WCAG 1.4.3 failure on every lead-capture form. 700 puts
+       them at 6.90:1. A pseudo-element is invisible to `querySelectorAll` and
+       axe reported no contrast finding on any of those routes, which is how it
+       survived both existing gates; `npm run lint:theme-contrast` is the gate
+       that catches it, at the declaration.
+
+       700 is the LIGHTEST stop clearing AA on both light surfaces this theme
+       renders text on — 600 clears white but misses tan-100 by 0.03:
+
+         surface                       400    500    600    700
+         --surface-primary #ffffff    2.17✗  3.84✗  5.10   6.90
+         --surface-secondary #f1f0ec  1.90✗  3.37✗  4.47✗  6.05
+
+       Still lower-emphasis than --text-secondary (800, 12.63:1), so the
+       muted < secondary < primary ordering holds. The non-text `-muted` pins
+       (--border-muted, --background-secondary) are untouched — they carry no
+       foreground of their own, same carve-out as the dark block below. */
+    --text-muted: var(--color-grayscale-700);
 
     /* Brand: secondary surfaces use tan-100. Upstream uses
        grayscale-100 for the unbranded baseline. */
@@ -157,7 +180,26 @@ html {
        The non-text pins below (-background-secondary, -border-secondary) do take
        400 — they carry no foreground of their own. (brik-bds#1740) */
     --text-secondary: var(--color-grayscale-300);
-    --text-muted: var(--color-grayscale-500);
+
+    /* grayscale-400, NOT 500. 500 (#828282) is 4.48:1 on --surface-secondary
+       (grayscale-950, #1b1b1b — set below) — short of AA by 0.02, per the same
+       table above read down the 500 column. 400 clears it at 7.94:1. #851.
+
+       --surface-secondary is the binding surface here, not --surface-primary:
+       dark --surface-primary is true black (BDS #1689 — surfaces sit flush with
+       the page in dark mode), where even 500 reaches 5.46:1. Same asymmetry as
+       light mode, where white passed and the branded tan-100 was the constraint.
+       `lint:theme-contrast` checks both in both themes.
+
+       Scope note: only 300 clears AA on all five dark SERVICE surfaces (400 is
+       3.91–4.39 on green/yellow/blue-950, the same three that pushed
+       --text-secondary to 300 above) — and 300 is what --text-secondary already
+       uses, so taking it here would collapse muted into secondary. 400 is the
+       right stop for the page surface; muted text on a dark service band is not
+       a --text-muted case, it routes through the service text tokens per
+       service-token-decision-tree.md. There are no such consumers today (see
+       the enumeration on #851). */
+    --text-muted: var(--color-grayscale-400);
     --background-secondary: var(--color-grayscale-400);
     --border-secondary: var(--color-grayscale-400);
     --border-muted: var(--color-grayscale-500);
