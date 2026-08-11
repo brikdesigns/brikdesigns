@@ -350,8 +350,18 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
             />
           )}
           {item.label && (
+            // Title Case, matching the artboard (#855). `label.subtitle` pins
+            // uppercase for the eyebrow role it was named for; the trio labels
+            // read as card titles, so they opt out here rather than the token
+            // dropping a transform every other consumer relies on. The speaker
+            // card's role eyebrow stays uppercase on purpose — it is an eyebrow,
+            // like ShowcaseTitle's.
             <span
-              style={{ ...label.subtitle, fontWeight: font.weight.semibold }}
+              style={{
+                ...label.subtitle,
+                fontWeight: font.weight.semibold,
+                textTransform: 'none',
+              }}
               className="lp-showcase__stat-label"
             >
               {item.label}
