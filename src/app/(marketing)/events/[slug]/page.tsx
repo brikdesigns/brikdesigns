@@ -76,6 +76,7 @@ export default async function EventPage({ params }: Props) {
           blocks={blocks}
           context={{ rowId: event.id, accent, ended, customFields: parseCustomFields(event.form_config) }}
           layout={event.layout}
+          series={event.series}
           surface={landingSurface(event.accent_color_token, event.surface_treatment)}
         />
       ) : (
