@@ -568,7 +568,7 @@ if (SELF_MODE) {
 // declaration is not a free pass in either direction: a name that matches no
 // route, or a declared route that did not move, fails the run.
 if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
-  const { waived, blocking, unmoved, unknown } = evaluateDeclaration({
+  const { waived, blocking, unmoved, unknown, underThreshold } = evaluateDeclaration({
     declared: DECLARED_ROUTES,
     knownRoutes: ROUTES.map((r) => r.name),
     results,
@@ -600,6 +600,18 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
     );
   }
 
+  if (underThreshold.length) {
+    console.log(
+      `\n▸ ${underThreshold.length} declared route(s) moved but stayed under ${DIFF_THRESHOLD}% — ` +
+        'nothing needed waiving:',
+    );
+    underThreshold.forEach((name) => console.log(`  ${name}`));
+    summary.push(
+      `**Declared and under threshold** — ${underThreshold.map((n) => `\`${n}\``).join(', ')} ` +
+        `moved, but no capture exceeded ${DIFF_THRESHOLD}%.`,
+    );
+  }
+
   if (unknown.length) {
     console.error(`\n✗ ${unknown.length} declared route(s) match no entry in ROUTES:`);
     unknown.forEach((name) => console.error(`  ${name}`));
@@ -608,12 +620,12 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
   }
 
   if (unmoved.length) {
-    console.error(`\n✗ ${unmoved.length} declared route(s) did not move past ${DIFF_THRESHOLD}%:`);
+    console.error(`\n✗ ${unmoved.length} declared route(s) did not move at all:`);
     unmoved.forEach((name) => console.error(`  ${name}`));
     console.error('  A stale declaration is a defect — drop it from the PR body.');
     summary.push(
       `❌ **Stale declaration** — ${unmoved.map((n) => `\`${n}\``).join(', ')} ` +
-        `declared but measured at or below ${DIFF_THRESHOLD}%.`,
+        'declared but measured 0.00% on every capture.',
     );
   }
 

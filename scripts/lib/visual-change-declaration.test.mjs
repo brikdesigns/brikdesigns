@@ -109,14 +109,63 @@ check('declaring one route does not waive another', () => {
   assert.deepEqual(r.waived.map((c) => c.route), ['home']);
 });
 
-check('a declared route that did not move is stale', () => {
+check('a declared route that measured 0.00% everywhere is stale', () => {
   const r = evaluateDeclaration({
     declared: ['about'],
     knownRoutes: KNOWN,
-    results: [cap('home', 0), cap('about', 0.2)],
+    results: [cap('home', 0), cap('about', 0, 'light'), cap('about', 0, 'dark')],
     threshold: 1,
   });
   assert.deepEqual(r.unmoved, ['about']);
+  assert.deepEqual(r.underThreshold, []);
+});
+
+// The #880 regression. The first version derived `unmoved` from the
+// over-threshold set, so a real change too small to clear the threshold failed
+// for being honestly declared. These are PR #877's actual measurements: three
+// labels moved from uppercase to Title Case on one route.
+check('a declared route that moved but stayed under threshold is NOT stale', () => {
+  const r = evaluateDeclaration({
+    declared: ['events-grind-after-graduation'],
+    knownRoutes: [...KNOWN, 'events-grind-after-graduation'],
+    results: [
+      cap('events-grind-after-graduation', 0.02, 'light', 'desktop'),
+      cap('events-grind-after-graduation', 0.02, 'dark', 'desktop'),
+      cap('events-grind-after-graduation', 0.04, 'light', 'tablet'),
+      cap('events-grind-after-graduation', 0.04, 'dark', 'tablet'),
+      cap('events-grind-after-graduation', 0.05, 'light', 'mobile'),
+      cap('events-grind-after-graduation', 0.05, 'dark', 'mobile'),
+    ],
+    threshold: 1,
+  });
+  assert.deepEqual(r.unmoved, [], 'a sub-threshold change is still a change');
+  assert.deepEqual(r.underThreshold, ['events-grind-after-graduation']);
+  assert.equal(r.waived.length, 0, 'nothing was over threshold, so nothing was waived');
+  assert.equal(r.blocking.length, 0);
+});
+
+check('a route both over and under threshold counts as waived, not under', () => {
+  const r = evaluateDeclaration({
+    declared: ['home'],
+    knownRoutes: KNOWN,
+    results: [cap('home', 0.3, 'light'), cap('home', 12, 'dark')],
+    threshold: 1,
+  });
+  assert.deepEqual(r.waived.map((c) => c.theme), ['dark']);
+  assert.deepEqual(r.underThreshold, []);
+  assert.deepEqual(r.unmoved, []);
+});
+
+check('an undeclared sub-threshold move is silent — not reported, not blocking', () => {
+  const r = evaluateDeclaration({
+    declared: [],
+    knownRoutes: KNOWN,
+    results: [cap('home', 0.04)],
+    threshold: 1,
+  });
+  assert.deepEqual(r.underThreshold, []);
+  assert.equal(r.blocking.length, 0);
+  assert.deepEqual(r.unmoved, []);
 });
 
 check('a route that moved in only one theme is not stale', () => {
