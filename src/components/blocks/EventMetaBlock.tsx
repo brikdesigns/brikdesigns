@@ -21,19 +21,19 @@ export function EventMetaBlock({ date, time, fee }: EventMetaProps) {
     <Stack gap="sm">
       {date && (
         <Stack as="span" direction="horizontal" gap="xs" align="center" style={itemStyle}>
-          <Icon icon="ph:calendar-blank" width={16} height={16} aria-hidden />
+          <Icon icon="ph:calendar-blank-bold" width={16} height={16} aria-hidden />
           {formatEventDate(date)}
         </Stack>
       )}
       {time && (
         <Stack as="span" direction="horizontal" gap="xs" align="center" style={itemStyle}>
-          <Icon icon="ph:clock" width={16} height={16} aria-hidden />
+          <Icon icon="ph:clock-bold" width={16} height={16} aria-hidden />
           {time}
         </Stack>
       )}
       {showFee && (
         <Stack as="span" direction="horizontal" gap="xs" align="center" style={itemStyle}>
-          <Icon icon="ph:ticket" width={16} height={16} aria-hidden />
+          <Icon icon="ph:ticket-bold" width={16} height={16} aria-hidden />
           {feeLabel(fee ?? null)}
         </Stack>
       )}

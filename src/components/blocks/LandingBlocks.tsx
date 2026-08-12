@@ -9,12 +9,14 @@ import {
   parseHeroProps,
   parseLogoStripProps,
   parseCtaProps,
+  parseFormProps,
 } from '@/lib/blocks';
 import { LinkButton } from '@brikdesigns/bds';
 import { Icon } from '@/lib/icon';
 import { heading, text } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
 import { BlockRenderer } from './BlockRenderer';
+import { ProseBlock } from './ProseBlock';
 
 /**
  * Page-level wrapper for a block-rendered landing page (#423). Owns the
@@ -122,6 +124,11 @@ export function LandingBlocks({
     if (scheduleBlocks.length) renderedAnchors.add(SCHEDULE_ANCHOR);
     const hasRegistration = metaBlocks.length > 0 || formBlocks.length > 0;
     if (hasRegistration) renderedAnchors.add(REGISTER_ANCHOR);
+    // Intro copy for the register head's left column (the "Grab a seat…" lead-in
+    // in the mock) — authored on the form block, rendered beside the meta.
+    const registerIntro = formBlocks[0]
+      ? parseFormProps(formBlocks[0].props).intro
+      : undefined;
     const heroButtons = ctaBlocks
       .flatMap((b) => parseCtaProps(b.props).buttons)
       .filter((b) => !b.href.startsWith('#') || renderedAnchors.has(b.href.slice(1)));
@@ -220,6 +227,10 @@ export function LandingBlocks({
             </div>
           )}
 
+          {/* Speakers (Panel) — blue card holding a 3-up grid of avatar + role +
+              name + org. Sits ABOVE the registration card (the flyer order). */}
+          {speakers.length > 0 && <ShowcaseSpeakers speakers={speakers} />}
+
           {/* Registration — purple card, full width. Anchor target for the
               hero's "Register" CTA. */}
           {hasRegistration && (
@@ -227,21 +238,25 @@ export function LandingBlocks({
               id={REGISTER_ANCHOR}
               className="lp-showcase__card lp-showcase__card--purple lp-showcase__card--corner-tr lp-showcase__registration"
             >
-              {/* Title + event metadata grouped as one header above the form
-                  (functional chrome — "Register today" mirrors the legacy
-                  path's hardcoded heading, not authored copy). */}
+              {/* "Register Today" heading spans the top; below it the intro copy
+                  and the event metadata sit two-up (mock). "Register Today" is
+                  functional chrome, not authored copy. */}
+              <h2 style={heading.lg} className="lp-showcase__registration-title">
+                Register Today
+              </h2>
               <div className="lp-showcase__registration-head">
-                <h2 style={heading.lg}>
-                  Register today
-                </h2>
-                <BlockRenderer blocks={metaBlocks} context={context} />
+                {registerIntro && (
+                  <div className="lp-showcase__registration-intro">
+                    <ProseBlock html={registerIntro} />
+                  </div>
+                )}
+                <div className="lp-showcase__registration-meta">
+                  <BlockRenderer blocks={metaBlocks} context={context} />
+                </div>
               </div>
               <BlockRenderer blocks={formBlocks} context={formContext} />
             </div>
           )}
-
-          {/* Speakers — blue card holding a 3-up grid of avatar + role + name + org. */}
-          {speakers.length > 0 && <ShowcaseSpeakers speakers={speakers} />}
         </div>
 
         {/* Sponsors — a full-width grey band below the card stack: a centered
@@ -385,7 +400,7 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
 function ShowcaseSpeakers({ speakers }: { speakers: SpeakerProps[] }) {
   return (
     <div className="lp-showcase__card lp-showcase__card--blue lp-showcase__card--corner-br lp-showcase__speakers-card">
-      <h2 style={heading.lg}>Panel</h2>
+      <h2 style={heading.lg} className="lp-showcase__panel-title">Panel</h2>
       <div className="lp-showcase__speakers">
         {speakers.map((speaker, i) => (
         <div key={i} className="lp-showcase__speaker">
