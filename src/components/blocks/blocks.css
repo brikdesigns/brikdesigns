@@ -123,16 +123,18 @@
 
 /* Base card — generous padding + radius; the hue modifiers set the ground. */
 .lp-showcase__card {
-  padding: var(--padding-xl);
+  /* Generous padding clears the oversized corner (content stays inside the arc). */
+  padding: var(--padding-huge);
   border-radius: var(--border-radius-800);
 }
 /* Card grounds: the fixed showcase palette. These BDS scale hues have no
    semantic surface/background equivalent, and the layout is dark-locked
    (colours must not flip by theme), so the scale token IS the surface here —
    the same escape-hatch pattern the brand-kit blocks use in globals.css. Dark
-   ink is pinned by .lp-showcase__card (globals.css). */
+   ink is pinned by .lp-showcase__card (globals.css); every ground clears AA
+   with grayscale-950 (brik-bds#1740 table — purple-500 = 5.68:1). */
 .lp-showcase__card--purple {
-  background-color: var(--color-purple-300); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* purple exists */
+  background-color: var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* purple exists */
 }
 .lp-showcase__card--blue {
   background-color: var(--color-blue-300); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* blue exists */
@@ -142,6 +144,49 @@
 }
 .lp-showcase__card--yellow {
   background-color: var(--color-yellow-500); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* yellow exists */
+}
+
+/* One oversized corner per card, rotated per region (the base 24px holds the
+   other three). Raw length — larger than the radius scale ceiling (48px); a
+   deliberate liberty for this layout, stepped down on phones below. */
+.lp-showcase__card--corner-bl { border-bottom-left-radius: 136px; }
+.lp-showcase__card--corner-br { border-bottom-right-radius: 136px; }
+.lp-showcase__card--corner-tr { border-top-right-radius: 136px; }
+
+/* Framed photo — an 8px purple offset ring (matches the register/pill purple)
+   with a small base radius and one oversized corner. The ring is a box-shadow
+   (outside the border box) so the media's own overflow clip doesn't cut it. */
+.lp-showcase__framed {
+  border-radius: var(--border-radius-200);
+  box-shadow: 0 0 0 var(--space-200) var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase photo frame */
+}
+.lp-showcase__framed--corner-br { border-bottom-right-radius: 96px; }
+.lp-showcase__framed--corner-tr { border-top-right-radius: 96px; }
+.lp-showcase__framed--corner-bl { border-bottom-left-radius: 96px; }
+
+/* Phone step-down — a 136px sweep would eat a narrow card. */
+@media (max-width: 767px) {
+  .lp-showcase__card--corner-bl { border-bottom-left-radius: 56px; }
+  .lp-showcase__card--corner-br { border-bottom-right-radius: 56px; }
+  .lp-showcase__card--corner-tr { border-top-right-radius: 56px; }
+  .lp-showcase__framed--corner-br { border-bottom-right-radius: 40px; }
+  .lp-showcase__framed--corner-tr { border-top-right-radius: 40px; }
+  .lp-showcase__framed--corner-bl { border-bottom-left-radius: 40px; }
+  .lp-showcase__schedule .lp-schedule__media { border-bottom-left-radius: 40px; }
+}
+
+/* Eyebrow — a filled purple pill. Dark ink for AA (white on purple-500 is
+   2.6:1 and fails, so the pill keeps the mock's ground and flips text dark). */
+.lp-showcase__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-100) var(--space-300);
+  border-radius: var(--border-radius-800);
+  background-color: var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase eyebrow pill */
+  color: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink AA on the purple-500 pill */
+  font-family: var(--font-family-label);
+  font-size: var(--font-size-75);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Hero — photo beside title / subtitle / CTAs (#852). Single column below the
@@ -154,14 +199,14 @@
 }
 @media (min-width: 768px) {
   .lp-showcase__hero {
-    grid-template-columns: 0.85fr 1fr;
+    /* Title/CTAs left (wider), framed photo right. */
+    grid-template-columns: 1fr 0.85fr;
   }
 }
 .lp-showcase__hero-media {
   position: relative;
   width: 100%;
   aspect-ratio: var(--aspect-4-3);
-  border-radius: var(--border-radius-lg);
   overflow: hidden;
 }
 .lp-showcase__hero-main {
@@ -181,7 +226,8 @@
   gap: var(--gap-xs);
   padding: var(--padding-xs) var(--padding-md);
   border-radius: var(--border-radius-circle);
-  background-color: var(--color-green-light); /* bds-lint-ignore token-family — fixed series-tag ground; no --surface-* green exists */
+  background-color: var(--color-purple-500); /* bds-lint-ignore token-family — fixed series-tag ground (mock purple); no --surface-* purple exists */
+  color: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink AA on the purple-500 pill (white fails: 2.6:1) */
   font-family: var(--font-family-body);
   font-size: var(--body-sm);
   font-weight: var(--font-weight-semibold);
@@ -192,24 +238,27 @@
 .lp-showcase__display {
   margin: 0;
   font-family: var(--font-family-heading);
-  font-size: var(--heading-huge);
+  /* Big editorial scale (mock 81.9px), stepping down twice toward phone widths
+     where a single long word ("Graduation") would overflow the card. */
+  font-size: var(--font-size-1500);
   font-weight: var(--font-weight-heading);
   line-height: var(--font-line-height-tight);
 }
+@media (max-width: 1024px) {
+  .lp-showcase__display {
+    font-size: var(--font-size-1200);
+  }
+}
 @media (max-width: 767px) {
   .lp-showcase__display {
-    font-size: var(--heading-xxl);
+    font-size: var(--font-size-1000);
   }
 }
-@media (max-width: 479px) {
-  .lp-showcase__display {
-    font-size: var(--heading-xl);
-  }
-}
-/* The italic lead-in ("Grind") sits in the same heading as the title. */
+/* The lead-in sits in the same heading and reads as one uniform-bold name
+   (the earlier italic emphasis is dropped to match the mock). */
 .lp-showcase__title-em {
-  font-style: italic;
-  font-weight: var(--font-weight-regular);
+  font-style: normal;
+  font-weight: inherit;
 }
 /* CTAs stack full-width so the pair reads as one decision column. */
 .lp-showcase__hero-actions {
@@ -241,18 +290,21 @@
   position: relative;
   width: 100%;
   aspect-ratio: var(--aspect-4-3);
-  border-radius: var(--border-radius-lg);
   overflow: hidden;
 }
 @media (min-width: 768px) {
   .lp-showcase__about--media {
     display: grid;
-    /* Narrower prose column, larger photo: the index prose reads tighter and
-       the image gets more of the card. gap stays --gap-huge (largest token). */
-    grid-template-columns: 0.8fr 1fr;
+    /* Framed photo left (col-1), text right (col-2) — the mock. */
+    grid-template-columns: 0.9fr 1fr;
     gap: var(--gap-huge);
     align-items: center;
   }
+}
+/* Larger About heading — the BDS ContentBlock title, bumped to the showcase
+   section scale to match the mock (class-based, so this override lands). */
+.lp-showcase__about .bds-content-block__title {
+  font-size: var(--heading-lg); /* bds-lint-ignore — showcase section-heading scale */
 }
 
 /* Schedule — agenda rows beside the supporting photo. */
@@ -301,9 +353,16 @@
   border-radius: var(--border-radius-lg);
   overflow: hidden;
 }
+/* Showcase schedule photo takes the same purple frame + oversized corner as the
+   other showcase media (scoped so the generic ScheduleBlock stays plain). */
+.lp-showcase__schedule .lp-schedule__media {
+  border-radius: var(--border-radius-200);
+  border-bottom-left-radius: 96px;
+  box-shadow: 0 0 0 var(--space-200) var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase photo frame */
+}
 
-/* Registration — meta + form stack. The FormBlock's inner .lp-form-card chrome
-   (dark bg + border) is neutralized so the form reads directly on the card. */
+/* Registration — meta + form stack. The FormBlock's inner .lp-form-card is
+   restyled into the mock's pale-purple inner card with a yellow frame. */
 .lp-showcase__registration {
   display: flex;
   flex-direction: column;
@@ -317,9 +376,11 @@
   gap: var(--gap-md);
 }
 .lp-showcase__registration .lp-form-card {
-  padding: 0;
-  background-color: transparent;
+  padding: var(--padding-xl);
+  background-color: var(--color-purple-100); /* bds-lint-ignore token-family — fixed showcase inner form-card ground (pale purple) */
   border: none;
+  border-radius: var(--border-radius-400);
+  box-shadow: 0 0 0 var(--border-width-300) var(--color-yellow-500); /* bds-lint-ignore token-family — fixed showcase form-card frame (4px yellow, matches mock) */
 }
 /* Page-scoped overrides of BDS Select internals — NOT a global design-system
    change — so the idle Select matches its sibling TextInput on this form.
@@ -341,11 +402,8 @@
 .lp-showcase__registration .bds-select-chevron {
   font-size: 1em; /* bds-lint-ignore — relative to input font size, not a token */
 }
-.lp-showcase__region-label {
-  margin: 0;
-}
 
-/* Trio — Venue / Hosts / Audience as centered stat cards. */
+/* Trio — Venue / Admission / Audience as left-aligned stat cards (mock). */
 .lp-showcase__trio {
   display: grid;
   grid-template-columns: 1fr;
@@ -359,8 +417,8 @@
 .lp-showcase__stat {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
   gap: var(--gap-sm);
 }
 .lp-showcase__stat-label {
@@ -409,16 +467,22 @@
   overflow: hidden;
 }
 
-/* Partners — an optional centered heading over a grid of sponsor logos. The
-   title/description are authored on the logo-strip block (showcase only). The
-   yellow band was dropped in #852: the hero now owns the yellow moment, and the
-   design floats the heading directly on the page canvas. */
-.lp-showcase__partners-wrap {
+/* Sponsors — a full-width grey band (breaks out of the container) holding a
+   centered heading over a grid of white logo cards (mock). surface-secondary is
+   the canonical fixed-light band ground (theme-adaptive); the cards use
+   surface-primary so client logos keep a light backing. */
+.lp-showcase__partners-band {
+  margin-top: var(--gap-huge);
+  padding-block: var(--padding-huge);
+  background-color: var(--surface-secondary);
+}
+.lp-showcase__partners-inner {
+  max-width: var(--content-width-xl);
+  margin-inline: auto;
+  padding-inline: var(--gutter-page);
   display: flex;
   flex-direction: column;
   gap: var(--gap-xl);
-  /* Extra separation from the Panel card above (on top of the container gap). */
-  padding-top: var(--padding-huge);
 }
 .lp-showcase__partners-head {
   display: flex;
@@ -432,17 +496,45 @@
   grid-template-columns: repeat(2, 1fr);
   gap: var(--gap-lg);
 }
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .lp-showcase__partners {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
-/* One logo slot — logos sit directly on the light page canvas with no ground
-   fill (dropped the grey card per the flyer, which floats logos on white). */
+/* One white logo card — the logo is contained inside the padded content box. */
+.lp-showcase__logo-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 2;
+  padding: var(--padding-lg);
+  background-color: var(--surface-primary);
+  border: var(--border-width-50) solid var(--border-muted);
+  border-radius: var(--border-radius-800);
+}
 .lp-showcase__logo {
   position: relative;
-  height: 64px;
-  padding: var(--padding-md);
+  flex: 1;
+  align-self: stretch;
+}
+
+/* Role pill (Panel) — dark ink on the role hue (green Host / purple Speaker);
+   both clear AA with grayscale-950. */
+.lp-showcase__role-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-50) var(--space-300);
+  border-radius: var(--border-radius-100);
+  font-family: var(--font-family-label);
+  font-size: var(--font-size-75);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink AA on both pill hues */
+}
+.lp-showcase__role-pill--host {
+  background-color: var(--color-green-500); /* bds-lint-ignore token-family — fixed showcase role pill */
+}
+.lp-showcase__role-pill--speaker {
+  background-color: var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase role pill */
 }
 
 /* Registration form, two-up (EventRegistrationForm columns=2). Single column
@@ -459,9 +551,4 @@
 }
 .lp-form-grid__full {
   grid-column: 1 / -1;
-}
-
-/* Region labels ("Register today", "Speaker") — small uppercase eyebrow. */
-.lp-showcase__region-label {
-  text-transform: uppercase;
 }
