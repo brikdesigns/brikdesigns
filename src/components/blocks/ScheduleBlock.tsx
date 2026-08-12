@@ -19,7 +19,7 @@ export function ScheduleBlock({ title, items, media }: ScheduleProps) {
   return (
     <div className={`lp-schedule${media ? '' : ' lp-schedule--no-media'}`}>
       <Stack gap="lg" className="lp-schedule__main">
-        {title && <h2 style={heading.section}>{title}</h2>}
+        {title && <h2 style={heading.lg}>{title}</h2>}
         <dl className="lp-schedule__list">
           {items.map((item, i) => (
             <div key={i} className="lp-schedule__row">

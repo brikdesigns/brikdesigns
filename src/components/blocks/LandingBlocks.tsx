@@ -12,8 +12,8 @@ import {
 } from '@/lib/blocks';
 import { LinkButton } from '@brikdesigns/bds';
 import { Icon } from '@/lib/icon';
-import { heading, label, text } from '@/lib/styles';
-import { color, font, gap } from '@/lib/tokens';
+import { heading, text } from '@/lib/styles';
+import { color, gap } from '@/lib/tokens';
 import { BlockRenderer } from './BlockRenderer';
 
 /**
@@ -27,11 +27,12 @@ import { BlockRenderer } from './BlockRenderer';
  *     trailer **below** both columns (sponsors read as their own section, not a
  *     left-column tail — BACKLOG-1129). Matches the legacy fma 2-col pages.
  *   - `layout="showcase"` — the bold multi-color card layout (Grind After
- *     Graduation, redesigned in #852). Full-width fixed-palette cards stacked
- *     in a fixed region order: a yellow hero (photo + title + CTAs), a blue
- *     Venue/Admission/Audience trio, a purple schedule (agenda + photo), a
- *     green about card, the purple registration card, a yellow speaker card,
- *     and the partners logo grid. Colors are baked into the layout (no
+ *     Graduation, restyled to the Paper mock). Each fixed-palette card carries
+ *     one oversized rounded corner and framed (purple-ringed) photos, stacked in
+ *     a fixed region order: a yellow hero (title + CTAs beside a photo), a blue
+ *     Venue/Admission/Audience trio, a yellow schedule (agenda + photo), a green
+ *     about card, the purple registration card, a blue Panel card, and a
+ *     full-width grey sponsors band. Colors are baked into the layout (no
  *     per-event / per-block color — the section owns them via CSS), so events
  *     opt in with `layout: 'showcase'` and the same block data render
  *     differently.
@@ -132,19 +133,7 @@ export function LandingBlocks({
         <div className="lp-showcase__container">
           {/* Hero — yellow card: photo beside title / subtitle / CTAs. */}
           {hero && (hero.title || hero.eyebrow || hero.subtitle || hero.media) && (
-            <div className="lp-showcase__card lp-showcase__card--yellow lp-showcase__hero">
-              {hero.media && (
-                <div className="lp-showcase__hero-media">
-                  <Image
-                    src={hero.media.url}
-                    alt={hero.media.alt}
-                    fill
-                    sizes="(max-width: 767px) 100vw, 45vw"
-                    style={{ objectFit: 'cover' }}
-                    priority
-                  />
-                </div>
-              )}
+            <div className="lp-showcase__card lp-showcase__card--yellow lp-showcase__card--corner-bl lp-showcase__hero">
               <div className="lp-showcase__hero-main">
                 {seriesTag && (
                   <span className="lp-showcase__series-tag">
@@ -173,40 +162,48 @@ export function LandingBlocks({
                   </div>
                 )}
               </div>
+              {hero.media && (
+                <div className="lp-showcase__hero-media lp-showcase__framed lp-showcase__framed--corner-br">
+                  <Image
+                    src={hero.media.url}
+                    alt={hero.media.alt}
+                    fill
+                    sizes="(max-width: 767px) 100vw, 45vw"
+                    style={{ objectFit: 'cover' }}
+                    priority
+                  />
+                </div>
+              )}
             </div>
           )}
 
           {/* Venue / Admission / Audience trio — 3-up blue stat cards. */}
           {trioItems.length > 0 && <ShowcaseTrio items={trioItems} />}
 
-          {/* Schedule — purple card, agenda beside a photo. Anchor target for
-              the hero's "View Schedule" CTA. */}
+          {/* Schedule — yellow card, agenda beside a framed photo. Anchor target
+              for the hero's "View Schedule" CTA. */}
           {scheduleBlocks.length > 0 && (
             <div
               id={SCHEDULE_ANCHOR}
-              className="lp-showcase__card lp-showcase__card--purple lp-showcase__schedule"
+              className="lp-showcase__card lp-showcase__card--yellow lp-showcase__card--corner-bl lp-showcase__schedule"
             >
               <BlockRenderer blocks={scheduleBlocks} context={context} />
             </div>
           )}
 
-          {/* About — purple card: text (heading + body) in the left column, an
-              optional authored photo in the right (single column when unset). */}
+          {/* About — green card: a framed photo in the left column, text
+              (heading + body) in the right (single column when no photo). */}
           {(aboutHead.length > 0 || aboutBody.length > 0) && (
             <div
               className={[
-                'lp-showcase__card lp-showcase__card--green lp-showcase__about',
+                'lp-showcase__card lp-showcase__card--green lp-showcase__card--corner-br lp-showcase__about',
                 aboutMedia && 'lp-showcase__about--media',
               ]
                 .filter(Boolean)
                 .join(' ')}
             >
-              <div className="lp-showcase__about-content">
-                <BlockRenderer blocks={aboutHead} context={context} />
-                <BlockRenderer blocks={aboutBody} context={context} />
-              </div>
               {aboutMedia && (
-                <div className="lp-showcase__about-media">
+                <div className="lp-showcase__about-media lp-showcase__framed lp-showcase__framed--corner-tr">
                   <Image
                     src={aboutMedia.url}
                     alt={aboutMedia.alt}
@@ -216,6 +213,10 @@ export function LandingBlocks({
                   />
                 </div>
               )}
+              <div className="lp-showcase__about-content">
+                <BlockRenderer blocks={aboutHead} context={context} />
+                <BlockRenderer blocks={aboutBody} context={context} />
+              </div>
             </div>
           )}
 
@@ -224,13 +225,13 @@ export function LandingBlocks({
           {hasRegistration && (
             <div
               id={REGISTER_ANCHOR}
-              className="lp-showcase__card lp-showcase__card--purple lp-showcase__registration"
+              className="lp-showcase__card lp-showcase__card--purple lp-showcase__card--corner-tr lp-showcase__registration"
             >
               {/* Title + event metadata grouped as one header above the form
                   (functional chrome — "Register today" mirrors the legacy
                   path's hardcoded heading, not authored copy). */}
               <div className="lp-showcase__registration-head">
-                <h2 style={heading.section}>
+                <h2 style={heading.lg}>
                   Register today
                 </h2>
                 <BlockRenderer blocks={metaBlocks} context={context} />
@@ -239,18 +240,18 @@ export function LandingBlocks({
             </div>
           )}
 
-          {/* Speakers — yellow card holding a 3-up grid of avatar + role + name + org. */}
+          {/* Speakers — blue card holding a 3-up grid of avatar + role + name + org. */}
           {speakers.length > 0 && <ShowcaseSpeakers speakers={speakers} />}
+        </div>
 
-          {/* Partners — optional centered heading (authored on the logo-strip
-              block) over the sponsor logo grid. */}
-          {partners && partners.logos.length > 0 && (
-            <div className="lp-showcase__partners-wrap">
+        {/* Sponsors — a full-width grey band below the card stack: a centered
+            heading over a grid of white logo cards. */}
+        {partners && partners.logos.length > 0 && (
+          <div className="lp-showcase__partners-band">
+            <div className="lp-showcase__partners-inner">
               {(partners.title || partners.description) && (
                 <div className="lp-showcase__partners-head">
-                  {partners.title && (
-                    <h2 style={heading.sm}>{partners.title}</h2>
-                  )}
+                  {partners.title && <h2 style={heading.lg}>{partners.title}</h2>}
                   {partners.description && (
                     <p style={{ ...text.body, margin: 0 }}>{partners.description}</p>
                   )}
@@ -258,14 +259,16 @@ export function LandingBlocks({
               )}
               <div className="lp-showcase__partners">
                 {partners.logos.map((logo, i) => {
-                  const img = (
-                    <Image
-                      src={logo.url}
-                      alt={logo.alt || ''}
-                      fill
-                      sizes="(max-width: 767px) 45vw, 280px"
-                      style={{ objectFit: 'contain' }}
-                    />
+                  const inner = (
+                    <span className="lp-showcase__logo">
+                      <Image
+                        src={logo.url}
+                        alt={logo.alt || ''}
+                        fill
+                        sizes="(max-width: 639px) 45vw, 22vw"
+                        style={{ objectFit: 'contain' }}
+                      />
+                    </span>
                   );
                   return logo.href ? (
                     <a
@@ -274,20 +277,20 @@ export function LandingBlocks({
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={logo.alt || 'Sponsor website'}
-                      className="lp-showcase__logo"
+                      className="lp-showcase__logo-card"
                     >
-                      {img}
+                      {inner}
                     </a>
                   ) : (
-                    <span key={logo.url || i} className="lp-showcase__logo">
-                      {img}
-                    </span>
+                    <div key={logo.url || i} className="lp-showcase__logo-card">
+                      {inner}
+                    </div>
                   );
                 })}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </section>
     );
   }
@@ -328,11 +331,7 @@ const SHOWCASE_DISPLAY_CLASS = 'lp-showcase__display';
 function ShowcaseTitle({ eyebrow, title, titleEmphasis, subtitle }: HeroProps) {
   return (
     <>
-      {eyebrow && (
-        <p style={{ ...label.subtitle, marginBottom: gap.xs, textTransform: 'uppercase' }}>
-          {eyebrow}
-        </p>
-      )}
+      {eyebrow && <span className="lp-showcase__eyebrow">{eyebrow}</span>}
       {(title || titleEmphasis) && (
         <h1 className={SHOWCASE_DISPLAY_CLASS}>
           {titleEmphasis && <em className="lp-showcase__title-em">{titleEmphasis} </em>}
@@ -365,20 +364,8 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
             />
           )}
           {item.label && (
-            // Title Case, matching the artboard (#855). `label.subtitle` pins
-            // uppercase for the eyebrow role it was named for; the trio labels
-            // read as card titles, so they opt out here rather than the token
-            // dropping a transform every other consumer relies on. The speaker
-            // card's role eyebrow stays uppercase on purpose — it is an eyebrow,
-            // like ShowcaseTitle's.
-            <span
-              style={{
-                ...label.subtitle,
-                fontWeight: font.weight.semibold,
-                textTransform: 'none',
-              }}
-              className="lp-showcase__stat-label"
-            >
+            // Card-title weight/size (mock); left-aligned by .lp-showcase__stat.
+            <span style={heading.card} className="lp-showcase__stat-label">
               {item.label}
             </span>
           )}
@@ -397,8 +384,8 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
  */
 function ShowcaseSpeakers({ speakers }: { speakers: SpeakerProps[] }) {
   return (
-    <div className="lp-showcase__card lp-showcase__card--yellow lp-showcase__speakers-card">
-      <h2 style={heading.sm}>Panel</h2>
+    <div className="lp-showcase__card lp-showcase__card--blue lp-showcase__card--corner-br lp-showcase__speakers-card">
+      <h2 style={heading.lg}>Panel</h2>
       <div className="lp-showcase__speakers">
         {speakers.map((speaker, i) => (
         <div key={i} className="lp-showcase__speaker">
@@ -414,9 +401,15 @@ function ShowcaseSpeakers({ speakers }: { speakers: SpeakerProps[] }) {
             </div>
           )}
           {speaker.role && (
-            <p className="lp-showcase__region-label" style={label.subtitle}>
+            <span
+              className={`lp-showcase__role-pill ${
+                /host/i.test(speaker.role)
+                  ? 'lp-showcase__role-pill--host'
+                  : 'lp-showcase__role-pill--speaker'
+              }`}
+            >
               {speaker.role}
-            </p>
+            </span>
           )}
           {speaker.name && <h3 style={heading.card}>{speaker.name}</h3>}
           {speaker.org && (
