@@ -36,6 +36,10 @@ export interface EventRow {
   // "render from the legacy columns" (the 00207 fallback contract, #423).
   blocks: unknown;
   layout: string | null;
+  // Series-category slug (portal migration 00307). brikdesigns owns the visual
+  // identity (label + icon + ground) in SERIES_REGISTRY (@/lib/series) — the DB
+  // stores only the slug, mirroring accent_color_token. Null = no series.
+  series: string | null;
   // Page-level surface treatment for the block render (#423). Optional — the
   // column lands with the portal migration; reads default to 'none' until then.
   surface_treatment?: SurfaceTreatment | null;
