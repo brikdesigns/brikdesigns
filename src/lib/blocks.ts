@@ -486,6 +486,12 @@ export interface FormProps {
   submitLabel?: string;
   /** Label override for the practice/company field (registration variant). */
   companyLabel?: string;
+  /**
+   * Optional sanitized-HTML lead-in shown beside the form (showcase Register
+   * region only — the intro copy in the mock's left column). The default
+   * FormBlock ignores it; the showcase layout renders it in the register head.
+   */
+  intro?: string;
 }
 
 function isFormVariant(value: unknown): value is FormVariant {
@@ -513,6 +519,8 @@ export function parseFormProps(props: Record<string, unknown>): FormProps {
   if (submitLabel) out.submitLabel = submitLabel;
   const companyLabel = str(props.companyLabel ?? props.company_label);
   if (companyLabel) out.companyLabel = companyLabel;
+  const intro = str(props.intro);
+  if (intro) out.intro = intro;
   return out;
 }
 

@@ -279,7 +279,18 @@
 .lp-showcase__about {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: var(--gap-lg);
+}
+/* Taller About + Schedule cards — more vertical presence (requested). The card
+   grows past its content; content stays vertically centred in the added space.
+   Card-only min-heights (raw, not a token) applied at the showcase breakpoint;
+   on phones the stacked content already fills the card. */
+@media (min-width: 768px) {
+  .lp-showcase__about,
+  .lp-showcase__schedule {
+    min-height: 34rem;
+  }
 }
 .lp-showcase__about-content {
   display: flex;
@@ -353,6 +364,13 @@
   border-radius: var(--border-radius-lg);
   overflow: hidden;
 }
+/* Flex column so the agenda/photo grid centres vertically in the taller card
+   (min-height set at the showcase breakpoint above). */
+.lp-showcase__schedule {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 /* Showcase schedule photo takes the same purple frame + oversized corner as the
    other showcase media (scoped so the generic ScheduleBlock stays plain). */
 .lp-showcase__schedule .lp-schedule__media {
@@ -369,8 +387,23 @@
   /* Wider gap sets the title + time metadata group apart from the form. */
   gap: var(--gap-xl);
 }
-/* Title + event metadata read as one grouped header above the form. */
+/* Intro copy (left) + event metadata (right) sit two-up below the title, above
+   the form (mock). Stacks to one column below the showcase breakpoint. */
 .lp-showcase__registration-head {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-lg);
+}
+@media (min-width: 768px) {
+  .lp-showcase__registration-head {
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--gap-huge);
+    align-items: start;
+  }
+}
+/* The intro Prose stacks its paragraphs; the last ("Seating is limited…") is
+   emphasized in the authored HTML. */
+.lp-showcase__registration-intro {
   display: flex;
   flex-direction: column;
   gap: var(--gap-md);
@@ -436,6 +469,10 @@
      the page than the base card padding gives it. */
   padding-block: var(--padding-huge);
 }
+/* Panel heading centred over the speaker grid (mock). */
+.lp-showcase__panel-title {
+  text-align: center;
+}
 .lp-showcase__speakers {
   display: grid;
   grid-template-columns: 1fr;
@@ -467,14 +504,16 @@
   overflow: hidden;
 }
 
-/* Sponsors — a full-width grey band (breaks out of the container) holding a
-   centered heading over a grid of white logo cards (mock). surface-secondary is
-   the canonical fixed-light band ground (theme-adaptive); the cards use
-   surface-primary so client logos keep a light backing. */
+/* Sponsors — a full-width white band (breaks out of the container) holding a
+   centered heading over a grid of white logo cards. surface-primary is the
+   canonical page ground (theme-adaptive); the logo cards carry a --border-muted
+   outline so each still reads as its own tile on the same-colour band. */
 .lp-showcase__partners-band {
   margin-top: var(--gap-huge);
-  padding-block: var(--padding-huge);
-  background-color: var(--surface-secondary);
+  /* Taller band (requested) — 1.5× the base huge block padding; the token is
+     responsive so this scales down on phones. */
+  padding-block: calc(var(--padding-huge) * 1.5);
+  background-color: var(--surface-primary);
 }
 .lp-showcase__partners-inner {
   max-width: var(--content-width-xl);
