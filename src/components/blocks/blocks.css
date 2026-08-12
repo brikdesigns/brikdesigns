@@ -169,6 +169,23 @@
   flex-direction: column;
   gap: var(--gap-xl);
 }
+/* Series tag — a green-light pill (wine icon + label) atop the hero text
+   column (brikdesigns landing-CMS series category). Green-light is a fixed
+   primitive (no --surface-* green equivalent), matching the showcase card
+   grounds' escape-hatch pattern above; dark ink is inherited from the hero
+   card's .lp-showcase__card pin, which reads AA on the light-green ground. */
+.lp-showcase__series-tag {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  padding: var(--padding-xs) var(--padding-md);
+  border-radius: var(--border-radius-circle);
+  background-color: var(--color-green-light); /* bds-lint-ignore token-family — fixed series-tag ground; no --surface-* green exists */
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  font-weight: var(--font-weight-semibold);
+}
 /* Showcase display type — the hero title + the partners heading. One step above
    the marketing heading scale; steps down twice on the way to phone widths,
    where a single long word ("Graduation") is wider than the card. */
@@ -230,9 +247,9 @@
 @media (min-width: 768px) {
   .lp-showcase__about--media {
     display: grid;
-    /* Narrower photo column widens the space between content and image
-       (--gap-huge is already the largest semantic gap token). */
-    grid-template-columns: 1fr 0.7fr;
+    /* Narrower prose column, larger photo: the index prose reads tighter and
+       the image gets more of the card. gap stays --gap-huge (largest token). */
+    grid-template-columns: 0.8fr 1fr;
     gap: var(--gap-huge);
     align-items: center;
   }

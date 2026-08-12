@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import type { RawBlock, BlockContext, DetailItem, SpeakerProps, HeroProps } from '@/lib/blocks';
 import type { LandingSurface } from '@/lib/events';
+import { seriesIdentity } from '@/lib/series';
 import {
   parseContentBlockProps,
   parseDetailsProps,
@@ -43,11 +44,14 @@ export function LandingBlocks({
   blocks,
   context,
   layout,
+  series,
   surface,
 }: {
   blocks: RawBlock[];
   context: BlockContext;
   layout: string | null;
+  /** Series-category slug (showcase layout only); resolved via SERIES_REGISTRY. */
+  series?: string | null;
   surface: LandingSurface;
 }) {
   const sectionClass = ['lp-blocks', surface.className].filter(Boolean).join(' ');
@@ -103,6 +107,9 @@ export function LandingBlocks({
     const logoBlocks = blocks.filter((b) => b.type === 'logo-strip');
 
     const hero = heroBlocks[0] ? parseHeroProps(heroBlocks[0].props) : null;
+    // Series tag — the code-owned identity (label + wine icon) for the event's
+    // series slug; rendered atop the hero text column on a green-light ground.
+    const seriesTag = seriesIdentity(series);
     const trioItems = detailsBlock ? parseDetailsProps(detailsBlock.props).items : [];
     const speakers = speakerBlock ? parseSpeakerBlockProps(speakerBlock.props).speakers : [];
     const partners = logoBlocks[0] ? parseLogoStripProps(logoBlocks[0].props) : null;
@@ -139,7 +146,15 @@ export function LandingBlocks({
                 </div>
               )}
               <div className="lp-showcase__hero-main">
-                <ShowcaseTitle {...hero} />
+                {seriesTag && (
+                  <span className="lp-showcase__series-tag">
+                    <Icon icon={seriesTag.icon} width={18} height={18} aria-hidden />
+                    {seriesTag.label}
+                  </span>
+                )}
+                {/* The series tag is the hero kicker — drop the authored eyebrow
+                    when one renders so the series name isn't shown twice. */}
+                <ShowcaseTitle {...hero} eyebrow={seriesTag ? undefined : hero.eyebrow} />
                 {heroButtons.length > 0 && (
                   <div className="lp-showcase__hero-actions">
                     {heroButtons.map((button, i) => (
