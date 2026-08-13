@@ -35,13 +35,18 @@ const REFERENCE_URL = process.env.REFERENCE_URL
 const NETLIFY_URL = process.env.NETLIFY_URL ?? process.argv[2];
 const OUT = path.resolve('tests/visual-parity/screenshots');
 
-// How long a capture waits for every image to finish loading before it gives up
-// and fails (see captureOnce). Sized for a COLD Netlify image transform on a
-// fresh deploy-preview, not a warm one: on PR #838 a `w=3840` source on
+// Ceiling for the image wait on the FINAL capture attempt; attempt 1 gets half
+// (see capture()). Sized for a COLD Netlify image transform on a fresh
+// deploy-preview, not a warm one: on PR #838 a `w=3840` source on
 // /services/marketing exceeded 60s on both attempts and failed the gate, and
 // once the edge has the transform the same image resolves in ~30ms.
-// Right-sizing those requests (#835) is the actual cure; this is the headroom
-// that keeps a cold preview from reading as a regression in the meantime.
+//
+// The `w=3840` asset-weight cause is FIXED — #835 landed, and a scripted
+// measurement of /services/marketing against staging on 2026-08-13 found all 16
+// images requesting at most 1.6x their rendered width (the three cards it named
+// now render 400x267 and request w=640) and settling in 0.3s at desktop, tablet
+// and mobile. So this budget is no longer covering for oversized sources; it is
+// covering for a cold edge, which is a property of the runner, not the page.
 const IMAGE_WAIT_MS = parseInt(process.env.IMAGE_WAIT_MS ?? '120000', 10);
 
 // Routes with diff % above this value are flagged. Set to 0 to disable hard failure.
@@ -114,7 +119,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const browser = await chromium.launch();
 
-async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) {
+async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs, imageWaitMs) {
   const colorScheme = theme === 'dark' ? 'dark' : 'light';
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
@@ -180,10 +185,21 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
     // `load`, which Netlify deploy previews can take >60s to fire.
     await page.evaluate(async () => {
       await new Promise((r) => requestAnimationFrame(r));
-      const h = document.body.scrollHeight;
-      for (let y = 0; y < h; y += 600) {
+      // Re-read scrollHeight every step. It was sampled ONCE before the loop,
+      // which stops the sweep at the pre-scroll height — so on a page that
+      // grows as content reveals, everything past that point is never scrolled
+      // into view and any `loading="lazy"` image down there stays
+      // `complete === false` forever. That is an unbounded wait no cache
+      // warmth can fix, and it moves between viewports because the document
+      // height does. Bounded by MAX_SCROLL_STEPS so a page that grows on every
+      // scroll (infinite feed) can't spin here.
+      const MAX_SCROLL_STEPS = 200;
+      let y = 0;
+      for (let step = 0; step < MAX_SCROLL_STEPS; step += 1) {
+        if (y >= document.body.scrollHeight) break;
         window.scrollTo(0, y);
         await new Promise((r) => setTimeout(r, 100));
+        y += 600;
       }
       window.scrollTo(0, 0);
       await new Promise((r) => setTimeout(r, 400));
@@ -227,17 +243,50 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
     // of 78 comparisons. That mode is a non-blocking eyeball artifact whose
     // reference we do not control, so it keeps its pre-#830 behaviour.
     if (!WEBFLOW_MODE) {
+      // imageWaitMs, not the module constant: capture() escalates the budget on
+      // its retry, and before this the escalation never reached here — the 60s
+      // -> 90s it passes was consumed by page.goto alone while this wait stayed
+      // pinned at IMAGE_WAIT_MS on BOTH attempts. A cold transform therefore
+      // got the same budget twice and the retry could only ever burn another
+      // full timeout: the #904 job spent 2 x 120s per side on one route and was
+      // cancelled at 25 minutes.
       try {
         await page.waitForFunction(
           () => Array.from(document.images).every((img) => img.complete),
           undefined,
-          { timeout: IMAGE_WAIT_MS, polling: 250 },
+          { timeout: imageWaitMs, polling: 250 },
         );
       } catch (e) {
+        // Name the offenders. A bare count ("1 image(s) still loading") says
+        // nothing about WHICH asset stalled, so every occurrence started from
+        // zero — #904 needed a separate scripted repro just to learn the page
+        // was fine. Print the URL, the rendered box and the requested width so
+        // the next failure is diagnosable from the CI log alone.
         const stuck = await page.evaluate(() =>
-          Array.from(document.images).filter((img) => !img.complete).length);
+          Array.from(document.images)
+            .filter((img) => !img.complete)
+            .map((img) => {
+              const r = img.getBoundingClientRect();
+              const url = img.currentSrc || img.src || '(no src)';
+              let reqW = null;
+              try {
+                reqW = new URL(url, location.href).searchParams.get('w');
+              } catch (parseErr) {
+                reqW = `unparseable (${parseErr.message})`;
+              }
+              return {
+                url,
+                box: `${Math.round(r.width)}x${Math.round(r.height)}`,
+                reqW,
+                lazy: img.loading === 'lazy',
+              };
+            }));
+        const detail = stuck
+          .map((s) => `\n    · ${s.box} req_w=${s.reqW}${s.lazy ? ' lazy' : ''} ${s.url}`)
+          .join('');
         throw new Error(
-          `${stuck} image(s) still loading after ${IMAGE_WAIT_MS / 1000}s — capture would be non-deterministic`,
+          `${stuck.length} image(s) still loading after ${imageWaitMs / 1000}s — `
+          + `capture would be non-deterministic${detail}`,
         );
       }
       const undecodable = await page.evaluate(async () => {
@@ -270,10 +319,22 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
 
 async function capture(baseUrl, route, viewport, theme, outPath) {
   // First attempt with normal headroom; one retry on failure with extra time.
-  let result = await captureOnce(baseUrl, route, viewport, theme, outPath, 60000);
+  //
+  // The retry exists because attempt 1 warms the edge for any on-demand image
+  // transform, so attempt 2 is usually the fast path. Both budgets are passed
+  // explicitly: the nav timeout AND the image wait escalate together. Passing
+  // only the nav timeout (the pre-#904 shape) meant the image wait — the thing
+  // that actually times out — was identical on both attempts, so a retry cost a
+  // second full IMAGE_WAIT_MS without ever granting more headroom.
+  //
+  // Attempt 1 is deliberately shorter than IMAGE_WAIT_MS so a stuck route fails
+  // fast into the warming retry rather than spending the whole budget up front.
+  let result = await captureOnce(
+    baseUrl, route, viewport, theme, outPath, 60000, Math.round(IMAGE_WAIT_MS / 2));
   if (!result.ok) {
     await new Promise((r) => setTimeout(r, 1500));
-    result = await captureOnce(baseUrl, route, viewport, theme, outPath, 90000);
+    result = await captureOnce(
+      baseUrl, route, viewport, theme, outPath, 90000, IMAGE_WAIT_MS);
   }
   if (!result.ok) {
     console.warn(`  ✗ ${baseUrl}${route} [${viewport.name}/${theme}]: ${result.err.message.split('\n')[0]}`);
