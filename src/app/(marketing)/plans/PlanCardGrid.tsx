@@ -15,6 +15,12 @@ interface Plan {
   imageUrl: string | null;
   features: string[];
   serviceLineSlug: string | null;
+  /** is_featured — PricingCard's highlighted/recommended treatment. */
+  highlighted?: boolean;
+  /** CTA label; defaults to "Learn More" (the /plans list-page behaviour). */
+  ctaLabel?: string;
+  /** CTA href; defaults to the plan detail route `/plans/{slug}`. */
+  ctaHref?: string;
 }
 
 export function PlanCardGrid({ plans }: { plans: Plan[] }) {
@@ -61,6 +67,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
                 period={period}
                 description={plan.description}
                 features={plan.features.length > 0 ? plan.features : undefined}
+                highlighted={plan.highlighted}
                 badge={
                   plan.discountLabel ? (
                     <span
@@ -76,7 +83,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
                 }
                 action={
                   <Button
-                    href={`/plans/${plan.slug}`}
+                    href={plan.ctaHref ?? `/plans/${plan.slug}`}
                     variant="primary"
                     size="md"
                     style={{
@@ -84,7 +91,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
                       ...(svcTokens ? { '--background-brand-primary': svcTokens.onLight } : {}),
                     } as React.CSSProperties}
                   >
-                    Learn More
+                    {plan.ctaLabel ?? 'Learn More'}
                   </Button>
                 }
               />
