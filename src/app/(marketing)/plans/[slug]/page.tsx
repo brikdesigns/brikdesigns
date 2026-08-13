@@ -21,6 +21,7 @@ import { color, serviceColor, font } from '@/lib/tokens';
 import { heading, text } from '@/lib/styles';
 import { SERVICE_LINE_ICON } from '@/lib/service-icons';
 import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
+import { PlanCardGrid } from '../PlanCardGrid';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../../shared-sections.css';
 import '../plans.css';
@@ -51,6 +52,25 @@ interface ServicePlanItemRow {
     image_url: string | null;
     service_lines: { slug: string; name: string } | null;
   } | null;
+}
+
+interface ServicePlanTierRow {
+  name: string;
+  description: string | null;
+  monthly_price_display: string | null;
+  annual_price_display: string | null;
+  discount_label: string | null;
+  included_scope: string | null;
+  is_featured: boolean | null;
+  sort_order: number | null;
+}
+
+function tierKeySlug(planSlug: string, tierName: string): string {
+  const suffix = tierName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  return `${planSlug}-${suffix}`;
 }
 
 export default async function PlanDetailPage({ params }: Props) {
@@ -105,6 +125,38 @@ export default async function PlanDetailPage({ params }: Props) {
   const audience = mapServiceLineSlug(marketingLine?.slug ?? dominantLineSlug);
   const audienceTokens = serviceColor(audience);
   const firstLineName = marketingLine?.name ?? dominantLineName;
+
+  // Pricing tiers (#897) — rendered via the shared PlanCardGrid (monthly/annual
+  // toggle + discount badge). Display strings are bare figures; PlanCardGrid
+  // appends the "/month" · "/year" period. is_featured drives PricingCard's
+  // highlighted treatment. Empty when the plan authored no tiers → section hidden.
+  const tiers = (plan.service_plan_tiers ?? []) as ServicePlanTierRow[];
+  const tierCards = tiers
+    .slice()
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map((t) => ({
+      name: t.name,
+      slug: tierKeySlug(plan.slug, t.name),
+      monthlyPrice: t.monthly_price_display ?? '',
+      annualPrice: t.annual_price_display ?? null,
+      discountLabel: t.discount_label,
+      description: t.description ?? '',
+      imageUrl: null,
+      features: (t.included_scope ?? '')
+        .split('\n')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      // null (not the audience slug): PlanCardGrid only uses serviceLineSlug to
+      // inject a `--background-brand-primary: onLight` fill for the list page.
+      // Here the tier cards sit inside the plan page's `.plan-detail-ctas`
+      // cascade, which already pairs a pale service fill with AA-safe dark ink
+      // (plans.css). Injecting the onLight fill would collide with that dark ink
+      // (dark-on-dark "Get Started"). Letting it inherit keeps the button AA.
+      serviceLineSlug: null,
+      highlighted: Boolean(t.is_featured),
+      ctaLabel: 'Get Started',
+      ctaHref: `/get-started?plan=${plan.slug}`,
+    }));
 
   const otherPlans = await getOtherSupportPlans(slug);
 
@@ -223,6 +275,17 @@ export default async function PlanDetailPage({ params }: Props) {
       {/* ═══ What You Get ═══ */}
       {includedServices.length > 0 && (
         <PlanIncludedServices services={includedServices} surfaceInverse={audienceTokens.inverse} />
+      )}
+
+      {/* ═══ Pricing tiers ═══
+       * Titled section shell (CardGrid) wrapping the shared PlanCardGrid — one
+       * BDS PricingCard per authored tier with the monthly/annual toggle. Hidden
+       * entirely when the plan has no tiers, so single-price plans are unchanged.
+       */}
+      {tierCards.length > 0 && (
+        <CardGrid sectionKey="plan-tiers" title="Pricing">
+          <PlanCardGrid plans={tierCards} />
+        </CardGrid>
       )}
 
       {/* ═══ CTA — two-column support-plan panel (Webflow parity) ═══
