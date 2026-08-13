@@ -326,10 +326,27 @@ export const getSupportPlanBySlug = cache(
                image_url,
                service_lines(slug, name)
              )
+           ),
+           service_plan_tiers(
+             name,
+             description,
+             monthly_price_cents,
+             annual_price_cents,
+             monthly_price_display,
+             annual_price_display,
+             discount_label,
+             included_scope,
+             is_featured,
+             sort_order
            )`
         )
         .eq('slug', slug)
         .eq('is_public', true)
+        // Public tiers only + stable order. is_public is enforced by the
+        // service_plan_tiers RLS public-read policy (anon client), so the embed
+        // stays a left join — a plan with zero public tiers still resolves with
+        // an empty `service_plan_tiers` array (existing single-price plans).
+        .order('sort_order', { referencedTable: 'service_plan_tiers', ascending: true })
         .single();
       if (error) throw error;
       return data;
