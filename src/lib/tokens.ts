@@ -101,10 +101,12 @@ export const font = {
   },
 
   // Weight is a real token, not a literal number — the value must reach the
-  // themed CSS cascade. `heading` is the semantic heading-weight token
-  // (`--font-weight-heading` = semibold); ALL headings use it (one weight =
-  // semibold everywhere). `light` maps to `--font-weight-thin` (both 300; BDS
-  // has no `--font-weight-light`).
+  // themed CSS cascade. Headings are bold (700) via `bold`; the lint-font-weight
+  // gate enforces `font.weight.bold` on every heading. `light` maps to
+  // `--font-weight-thin` (both 300; BDS has no `--font-weight-light`).
+  // `heading` (the `--font-weight-heading` alias, semibold by default) is
+  // DEPRECATED drift — no longer referenced by our presets; kept only until the
+  // next token audit retires it. Do not use for new code.
   weight: {
     light: 'var(--font-weight-thin)',
     regular: 'var(--font-weight-regular)',

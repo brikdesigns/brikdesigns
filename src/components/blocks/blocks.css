@@ -116,68 +116,327 @@
   padding-inline: var(--gutter-page);
   display: flex;
   flex-direction: column;
-  gap: var(--gap-xl);
+  /* Generous rhythm between the intro / trio / speaker / partners bands so each
+     region reads as its own section with breathing room. */
+  gap: var(--gap-huge);
 }
 
 /* Base card — generous padding + radius; the hue modifiers set the ground. */
 .lp-showcase__card {
-  padding: var(--padding-xl);
+  /* Generous padding clears the oversized corner (content stays inside the arc). */
+  padding: var(--padding-huge);
   border-radius: var(--border-radius-800);
 }
 /* Card grounds: the fixed showcase palette. These BDS scale hues have no
    semantic surface/background equivalent, and the layout is dark-locked
    (colours must not flip by theme), so the scale token IS the surface here —
    the same escape-hatch pattern the brand-kit blocks use in globals.css. Dark
-   ink is pinned by .lp-showcase__card (globals.css). */
+   ink is pinned by .lp-showcase__card (globals.css); every ground clears AA
+   with grayscale-950 (brik-bds#1740 table — purple-500 = 5.68:1). */
 .lp-showcase__card--purple {
-  background-color: var(--color-purple-lighter); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* purple exists */
+  background-color: var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* purple exists */
 }
 .lp-showcase__card--blue {
-  background-color: var(--color-blue-lighter); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* blue exists */
+  background-color: var(--color-blue-300); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* blue exists */
 }
 .lp-showcase__card--green {
-  background-color: var(--color-green-light); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* green exists */
+  background-color: var(--color-green-500); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* green exists */
 }
 .lp-showcase__card--yellow {
-  background-color: var(--color-yellow-light); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* yellow exists */
+  background-color: var(--color-yellow-500); /* bds-lint-ignore token-family — fixed showcase card ground; no --surface-* yellow exists */
 }
 
-/* Intro — title + about (left) beside the registration card (right). Single
-   column below the BDS md breakpoint. */
-.lp-showcase__intro {
+/* One oversized corner per card, rotated per region (the base 24px holds the
+   other three). Raw length — larger than the radius scale ceiling (48px); a
+   deliberate liberty for this layout, stepped down on phones below. */
+.lp-showcase__card--corner-bl { border-bottom-left-radius: 136px; }
+.lp-showcase__card--corner-br { border-bottom-right-radius: 136px; }
+.lp-showcase__card--corner-tr { border-top-right-radius: 136px; }
+
+/* Framed photo — an 8px purple offset ring (matches the register/pill purple)
+   with a small base radius and one oversized corner. The ring is a box-shadow
+   (outside the border box) so the media's own overflow clip doesn't cut it. */
+.lp-showcase__framed {
+  border-radius: var(--border-radius-200);
+  box-shadow: 0 0 0 var(--space-200) var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase photo frame */
+}
+.lp-showcase__framed--corner-br { border-bottom-right-radius: 96px; }
+.lp-showcase__framed--corner-tr { border-top-right-radius: 96px; }
+.lp-showcase__framed--corner-bl { border-bottom-left-radius: 96px; }
+
+/* Phone step-down — a 136px sweep would eat a narrow card. */
+@media (max-width: 767px) {
+  .lp-showcase__card--corner-bl { border-bottom-left-radius: 56px; }
+  .lp-showcase__card--corner-br { border-bottom-right-radius: 56px; }
+  .lp-showcase__card--corner-tr { border-top-right-radius: 56px; }
+  .lp-showcase__framed--corner-br { border-bottom-right-radius: 40px; }
+  .lp-showcase__framed--corner-tr { border-top-right-radius: 40px; }
+  .lp-showcase__framed--corner-bl { border-bottom-left-radius: 40px; }
+  .lp-showcase__schedule .lp-schedule__media { border-bottom-left-radius: 40px; }
+}
+
+/* Eyebrow — a filled purple pill. Dark ink for AA (white on purple-500 is
+   2.6:1 and fails, so the pill keeps the mock's ground and flips text dark). */
+.lp-showcase__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-100) var(--space-300);
+  border-radius: var(--border-radius-800);
+  background-color: var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase eyebrow pill */
+  color: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink AA on the purple-500 pill */
+  font-family: var(--font-family-label);
+  font-size: var(--font-size-75);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Hero — photo beside title / subtitle / CTAs (#852). Single column below the
+   BDS md breakpoint, photo first. */
+.lp-showcase__hero {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--gap-xl);
+  gap: var(--gap-huge);
+  align-items: center;
 }
-.lp-showcase__intro-main {
+@media (min-width: 768px) {
+  .lp-showcase__hero {
+    /* Title/CTAs left (wider), framed photo right. */
+    grid-template-columns: 1fr 0.85fr;
+  }
+}
+.lp-showcase__hero-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--aspect-4-3);
+  overflow: hidden;
+}
+.lp-showcase__hero-main {
   display: flex;
   flex-direction: column;
   gap: var(--gap-xl);
 }
-@media (min-width: 768px) {
-  .lp-showcase__intro {
-    grid-template-columns: 1fr 1.4fr;
-    align-items: start;
+/* Series tag — a green-light pill (wine icon + label) atop the hero text
+   column (brikdesigns landing-CMS series category). Green-light is a fixed
+   primitive (no --surface-* green equivalent), matching the showcase card
+   grounds' escape-hatch pattern above; dark ink is inherited from the hero
+   card's .lp-showcase__card pin, which reads AA on the light-green ground. */
+.lp-showcase__series-tag {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  padding: var(--padding-xs) var(--padding-md);
+  border-radius: var(--border-radius-circle);
+  background-color: var(--color-purple-500); /* bds-lint-ignore token-family — fixed series-tag ground (mock purple); no --surface-* purple exists */
+  color: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink AA on the purple-500 pill (white fails: 2.6:1) */
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  font-weight: var(--font-weight-semibold);
+}
+/* Showcase display type — the hero title + the partners heading. One step above
+   the marketing heading scale; steps down twice on the way to phone widths,
+   where a single long word ("Graduation") is wider than the card. */
+.lp-showcase__display {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  /* Big editorial scale (mock 81.9px), stepping down twice toward phone widths
+     where a single long word ("Graduation") would overflow the card. */
+  font-size: var(--font-size-1500);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--font-line-height-tight);
+}
+@media (max-width: 1024px) {
+  .lp-showcase__display {
+    font-size: var(--font-size-1200);
   }
 }
-
-/* Registration — meta + form stack. The FormBlock's inner .lp-form-card chrome
-   (dark bg + border) is neutralized so the form reads directly on the card. */
-.lp-showcase__registration {
+@media (max-width: 767px) {
+  .lp-showcase__display {
+    font-size: var(--font-size-1000);
+  }
+}
+/* The lead-in sits in the same heading and reads as one uniform-bold name
+   (the earlier italic emphasis is dropped to match the mock). */
+.lp-showcase__title-em {
+  font-style: normal;
+  font-weight: inherit;
+}
+/* CTAs stack full-width so the pair reads as one decision column. */
+.lp-showcase__hero-actions {
   display: flex;
   flex-direction: column;
   gap: var(--gap-lg);
 }
-.lp-showcase__registration .lp-form-card {
-  padding: 0;
-  background-color: transparent;
-  border: none;
-}
-.lp-showcase__region-label {
-  margin: 0;
+@media (min-width: 480px) {
+  .lp-showcase__hero-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
 }
 
-/* Trio — Venue / Hosts / Audience as centered stat cards. */
+/* About — text (heading + body) stacked; an optional photo joins it as a
+   second column above the md breakpoint (text col-1, photo col-2). Without a
+   photo the card stays a single full-width text column. */
+.lp-showcase__about {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--gap-lg);
+}
+/* Taller About + Schedule cards — more vertical presence (requested). The card
+   grows past its content; content stays vertically centred in the added space.
+   Card-only min-heights (raw, not a token) applied at the showcase breakpoint;
+   on phones the stacked content already fills the card. */
+@media (min-width: 768px) {
+  .lp-showcase__about,
+  .lp-showcase__schedule {
+    min-height: 34rem;
+  }
+}
+.lp-showcase__about-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+.lp-showcase__about-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--aspect-4-3);
+  overflow: hidden;
+}
+@media (min-width: 768px) {
+  .lp-showcase__about--media {
+    display: grid;
+    /* Framed photo left (col-1), text right (col-2) — the mock. */
+    grid-template-columns: 0.9fr 1fr;
+    gap: var(--gap-huge);
+    align-items: center;
+  }
+}
+/* Larger About heading — the BDS ContentBlock title, bumped to the showcase
+   section scale to match the mock (class-based, so this override lands). */
+.lp-showcase__about .bds-content-block__title {
+  font-size: var(--heading-lg); /* bds-lint-ignore — showcase section-heading scale */
+}
+
+/* Schedule — agenda rows beside the supporting photo. */
+.lp-schedule {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-huge);
+  align-items: start;
+}
+@media (min-width: 768px) {
+  .lp-schedule {
+    grid-template-columns: 1fr 0.75fr;
+  }
+  /* No supporting photo — the agenda reclaims the full card width and splits
+     into two columns, filling column-first (with 5 rows: 6:30/7:00/7:10 in
+     col 1, 8:10/8:45 in col 2). */
+  .lp-schedule--no-media {
+    grid-template-columns: 1fr;
+  }
+  .lp-schedule--no-media .lp-schedule__list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, auto);
+    grid-auto-flow: column;
+    column-gap: var(--gap-huge);
+  }
+}
+.lp-schedule__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  margin: 0;
+}
+.lp-schedule__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+.lp-schedule__label {
+  margin: 0;
+}
+.lp-schedule__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--aspect-4-3);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+/* Flex column so the agenda/photo grid centres vertically in the taller card
+   (min-height set at the showcase breakpoint above). */
+.lp-showcase__schedule {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+/* Showcase schedule photo takes the same purple frame + oversized corner as the
+   other showcase media (scoped so the generic ScheduleBlock stays plain). */
+.lp-showcase__schedule .lp-schedule__media {
+  border-radius: var(--border-radius-200);
+  border-bottom-left-radius: 96px;
+  box-shadow: 0 0 0 var(--space-200) var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase photo frame */
+}
+
+/* Registration — meta + form stack. The FormBlock's inner .lp-form-card is
+   restyled into the mock's pale-purple inner card with a yellow frame. */
+.lp-showcase__registration {
+  display: flex;
+  flex-direction: column;
+  /* Wider gap sets the title + time metadata group apart from the form. */
+  gap: var(--gap-xl);
+}
+/* Intro copy (left) + event metadata (right) sit two-up below the title, above
+   the form (mock). Stacks to one column below the showcase breakpoint. */
+.lp-showcase__registration-head {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-lg);
+}
+@media (min-width: 768px) {
+  .lp-showcase__registration-head {
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--gap-huge);
+    align-items: start;
+  }
+}
+/* The intro Prose stacks its paragraphs; the last ("Seating is limited…") is
+   emphasized in the authored HTML. */
+.lp-showcase__registration-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+.lp-showcase__registration .lp-form-card {
+  padding: var(--padding-xl);
+  background-color: var(--color-purple-100); /* bds-lint-ignore token-family — fixed showcase inner form-card ground (pale purple) */
+  border: none;
+  border-radius: var(--border-radius-400);
+  box-shadow: 0 0 0 var(--border-width-300) var(--color-yellow-500); /* bds-lint-ignore token-family — fixed showcase form-card frame (4px yellow, matches mock) */
+}
+/* Page-scoped overrides of BDS Select internals — NOT a global design-system
+   change — so the idle Select matches its sibling TextInput on this form.
+   Scoped here (not in brik-bds) so every other Select across consumers keeps
+   the compliant default.
+   - Placeholder: BDS pins --text-secondary for WCAG AA (a native select's value
+     is real foreground text; brik-bds#942). Matching the muted TextInput
+     placeholder is an explicit product call for this page. This used to drop
+     below AA and was flagged to revisit; #851 fixed it at the token instead —
+     light --text-muted moved grayscale-400 → 700, so the rendered placeholder
+     went 2.17:1 → 6.90:1 on the white input surface (9.68:1 in dark). Measured
+     in-browser on /events/grind-after-graduation, both themes. No longer an
+     accessibility exception.
+   - Chevron: scaled up from 0.75em so the bold caret reads heavier beside the
+     inputs. */
+.lp-showcase__registration .bds-select--placeholder {
+  color: var(--text-muted);
+}
+.lp-showcase__registration .bds-select-chevron {
+  font-size: 1em; /* bds-lint-ignore — relative to input font size, not a token */
+}
+
+/* Trio — Venue / Admission / Audience as left-aligned stat cards (mock). */
 .lp-showcase__trio {
   display: grid;
   grid-template-columns: 1fr;
@@ -191,43 +450,75 @@
 .lp-showcase__stat {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
   gap: var(--gap-sm);
 }
 .lp-showcase__stat-label {
   margin-top: var(--gap-xs);
 }
 
-/* Speaker — name + bio (left), large photo (right). */
-.lp-showcase__speaker {
+/* Speakers — one yellow card: a "Panel" heading over a 3-up grid of speaker
+   cells (circular avatar over role / name / org). Grid reflows 1 → 2 → 3
+   columns up the scale. */
+.lp-showcase__speakers-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+  /* Taller panel — extra vertical padding so the Panel band takes up more of
+     the page than the base card padding gives it. */
+  padding-block: var(--padding-huge);
+}
+/* Panel heading centred over the speaker grid (mock). */
+.lp-showcase__panel-title {
+  text-align: center;
+}
+.lp-showcase__speakers {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--gap-xl);
-  align-items: center;
 }
-.lp-showcase__speaker-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-.lp-showcase__speaker-photo {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  min-height: 300px;
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-}
-@media (min-width: 768px) {
-  .lp-showcase__speaker {
-    grid-template-columns: 1.5fr 1fr;
+@media (min-width: 480px) {
+  .lp-showcase__speakers {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
+@media (min-width: 768px) {
+  .lp-showcase__speakers {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.lp-showcase__speaker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--gap-xs);
+}
+.lp-showcase__speaker-avatar {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  margin-bottom: var(--gap-sm);
+  border-radius: var(--border-radius-circle);
+  overflow: hidden;
+}
 
-/* Partners — an optional yellow heading band over a grid of sponsor-logo cards.
-   The band title/description are authored on the logo-strip block (showcase
-   only). Logos sit on individual light cards directly on the dark canvas. */
-.lp-showcase__partners-wrap {
+/* Sponsors — a full-width white band (breaks out of the container) holding a
+   centered heading over a grid of white logo cards. surface-primary is the
+   canonical page ground (theme-adaptive); the logo cards carry a --border-muted
+   outline so each still reads as its own tile on the same-colour band. */
+.lp-showcase__partners-band {
+  margin-top: var(--gap-huge);
+  /* Taller band (requested) — 1.5× the base huge block padding; the token is
+     responsive so this scales down on phones. */
+  padding-block: calc(var(--padding-huge) * 1.5);
+  background-color: var(--surface-primary);
+}
+.lp-showcase__partners-inner {
+  max-width: var(--content-width-xl);
+  margin-inline: auto;
+  padding-inline: var(--gutter-page);
   display: flex;
   flex-direction: column;
   gap: var(--gap-xl);
@@ -235,32 +526,54 @@
 .lp-showcase__partners-head {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--gap-md);
-}
-@media (min-width: 768px) {
-  .lp-showcase__partners-head {
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: space-between;
-  }
+  text-align: center;
 }
 .lp-showcase__partners {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--gap-lg);
 }
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .lp-showcase__partners {
     grid-template-columns: repeat(4, 1fr);
   }
 }
-/* One logo card — light, theme-invariant ground to match the dark-locked canvas. */
+/* One white logo card — the logo is contained inside the padded content box. */
+.lp-showcase__logo-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 2;
+  padding: var(--padding-lg);
+  background-color: var(--surface-primary);
+  border: var(--border-width-50) solid var(--border-muted);
+  border-radius: var(--border-radius-800);
+}
 .lp-showcase__logo {
   position: relative;
-  height: 96px;
-  padding: var(--padding-lg);
-  border-radius: var(--border-radius-lg);
-  background-color: var(--color-grayscale-lightest); /* bds-lint-ignore token-family — theme-invariant light logo ground; no semantic --surface-* fits */
+  flex: 1;
+  align-self: stretch;
+}
+
+/* Role pill (Panel) — dark ink on the role hue (green Host / purple Speaker);
+   both clear AA with grayscale-950. */
+.lp-showcase__role-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-50) var(--space-300);
+  border-radius: var(--border-radius-100);
+  font-family: var(--font-family-label);
+  font-size: var(--font-size-75);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark ink AA on both pill hues */
+}
+.lp-showcase__role-pill--host {
+  background-color: var(--color-green-500); /* bds-lint-ignore token-family — fixed showcase role pill */
+}
+.lp-showcase__role-pill--speaker {
+  background-color: var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase role pill */
 }
 
 /* Registration form, two-up (EventRegistrationForm columns=2). Single column
@@ -277,9 +590,4 @@
 }
 .lp-form-grid__full {
   grid-column: 1 / -1;
-}
-
-/* Region labels ("Register today", "Speaker") — small uppercase eyebrow. */
-.lp-showcase__region-label {
-  text-transform: uppercase;
 }

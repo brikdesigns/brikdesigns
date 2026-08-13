@@ -12,12 +12,40 @@ name: Visual regression (staging vs deploy-preview)
 # (see the height-settle wait in scripts/visual-parity.mjs), so a threshold of
 # 1% is well clear of capture flake and still catches a colour or spacing shift.
 #
-# Expected failure mode: a PR that changes rendering ON PURPOSE fails here. That
-# is the point — read the artifact, confirm the diff is the change you intended,
-# and merge. Bump DIFF_THRESHOLD only if the noise floor genuinely moves.
+# A PR that changes rendering ON PURPOSE declares it (#856). Two halves, the
+# same shape as `repro:none` in the Brik issue canon — either alone declares
+# nothing:
+#
+#   1. the `visual-change` LABEL on the PR — makes the waiver visible on the board
+#   2. a line in the PR BODY naming the routes, from ROUTES[].name in
+#      scripts/visual-parity.mjs:
+#
+#        Visual-change: events-grind-after-graduation, home
+#
+# Declared routes are reported in the job summary and do not fail the job. Every
+# undeclared route still gates at DIFF_THRESHOLD. The declaration is not a free
+# pass in either direction: a name matching no route fails, and so does a
+# declared route that did not move AT ALL — a stale declaration would otherwise
+# decay into a permanent allowlist nobody prunes.
+#
+# "Did not move" means 0.00% on every capture of that route, NOT "stayed under
+# the threshold" (#880). A real change smaller than DIFF_THRESHOLD is still a
+# change: PR #877 moved three labels to Title Case and measured 0.02–0.05%.
+# Declaring it is honest, and the run reports it as declared-and-under-threshold
+# rather than waiving it — nothing was let through, so nothing was waived.
+#
+# This is not `--no-verify`: the comparison still runs, still captures every
+# route, and the waiver is annotated in the run summary rather than hidden.
+# Bump DIFF_THRESHOLD only if the noise floor genuinely moves.
 
 on:
   pull_request:
+    # `labeled` / `unlabeled` / `edited` are load-bearing for the declaration
+    # (#856): both halves live on the PR itself, so without them a PR that fails
+    # and is then correctly declared stays red until someone hits re-run — and a
+    # re-run reflex is exactly what this gate must not train. `edited` also fires
+    # on a title change, which is a cheap re-run for a rare event.
+    types: [opened, synchronize, reopened, labeled, unlabeled, edited]
     branches:
       - main
       - staging
@@ -27,6 +55,11 @@ on:
       - 'next.config.*'
       - 'package.json'
       - 'package-lock.json'
+      # The gate must run when its own implementation changes. Without this a
+      # PR editing the capture logic (#830) merges without the check that logic
+      # implements ever executing.
+      - 'scripts/visual-parity.mjs'
+      - '.github/workflows/visual-regression.yml'
 
 concurrency:
   group: visual-regression-${{ github.ref }}
@@ -34,6 +67,16 @@ concurrency:
 
 jobs:
   regression:
+    # Skip the staging → main promote PR (#828). Its deploy-preview is built
+    # from staging's HEAD and REFERENCE_URL below *is* staging, so the job
+    # compares a commit against itself: it can only ever report noise, and the
+    # remedy that works is "hit re-run". Training that reflex on the one PR
+    # that reaches production is worse than not running the gate there — the
+    # code has already been gated on the way into staging.
+    #
+    # Keyed on head_ref, not base, so a hotfix branch targeting main still
+    # gets a real comparison against staging.
+    if: github.head_ref != 'staging'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -79,6 +122,12 @@ jobs:
           REFERENCE_MODE: self
           REFERENCE_URL: https://staging--brikdesigns.netlify.app
           DIFF_THRESHOLD: '1'
+          # Both halves of the declaration (#856). The label is resolved here so
+          # the script never has to reach for the GitHub API; the body is passed
+          # through env, not interpolated into the run script, so a PR body can
+          # never inject shell.
+          VISUAL_CHANGE_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'visual-change') && '1' || '0' }}
+          VISUAL_CHANGE_BODY: ${{ github.event.pull_request.body }}
         run: npm run visual-regression -- "$NETLIFY_URL"
 
       - name: Upload report

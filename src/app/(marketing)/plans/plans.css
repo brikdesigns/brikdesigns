@@ -32,7 +32,7 @@
    system-green for the black card — same fixed-on-surface pattern the #359/#360
    service fixes use. */
 .plans-discount-badge {
-  color: var(--color-green-darkest); /* bds-lint-ignore token-family — light: #2a5542 on white --surface-primary = 8.5:1; no semantic positive-text token is AA on white, so pair a mode-specific green */
+  color: var(--color-green-950); /* bds-lint-ignore token-family — light: #2a5542 on white --surface-primary = 8.5:1; no semantic positive-text token is AA on white, so pair a mode-specific green */
 }
 :root[data-theme="dark"] .plans-discount-badge {
   color: var(--color-system-green); /* bds-lint-ignore token-family — dark: #27ae60 on black --surface-primary = 6.0:1; the dark-green above would be 2.03:1 dark-on-dark */
@@ -151,7 +151,10 @@
   width: 100%;
 }
 
-/* Price sits in a subtle inset block so it reads as the focal figure. */
+/* Price sits in a subtle inset block so it reads as the focal figure. The
+   background is the plan's pale service-line light tint, set inline in
+   [slug]/page.tsx (per-plan/dynamic hue) — replaces the former neutral
+   surface-secondary fill. */
 .plan-cta-panel__price {
   display: flex;
   flex-direction: column;
@@ -159,8 +162,23 @@
   gap: var(--gap-tiny);
   width: 100%;
   padding: var(--padding-md);
-  background-color: var(--surface-secondary);
   border-radius: var(--border-radius-md);
+}
+
+/* Plan-detail primary CTAs use the pale base service background fill (driven
+   by --background-brand-primary on the .plan-detail-ctas page root); pair it
+   with the line's deep text ink so white-on-pale is never rendered — the
+   canonical service-button pairing (mirrors ServiceLineCard, AA on all five
+   lines). We reuse the per-button --service-cta-ink-dark handoff (the line's
+   `text` = {hue}-darkest, already set on the page root and per Learn-More card,
+   and the value dark mode also wants): it resolves to each button's OWN line
+   hue and — unlike --text-on-color-light, which the bds-hero__media-card scopes
+   to white — stays dark inside the hero media card. Fallback to the page's
+   --text-brand-primary (also the line's dark ink). Dark on the pale fill (light
+   `bg` / dark `onDark`) clears AA in both themes. */
+.plan-detail-ctas .bds-button--primary,
+.plan-detail-ctas .bds-button--inverse {
+  color: var(--service-cta-ink-dark, var(--text-brand-primary));
 }
 
 @media (max-width: 991px) {

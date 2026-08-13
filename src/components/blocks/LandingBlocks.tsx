@@ -1,11 +1,22 @@
 import Image from 'next/image';
 import type { RawBlock, BlockContext, DetailItem, SpeakerProps, HeroProps } from '@/lib/blocks';
 import type { LandingSurface } from '@/lib/events';
-import { parseDetailsProps, parseSpeakerBlockProps, parseHeroProps, parseLogoStripProps } from '@/lib/blocks';
+import { seriesIdentity } from '@/lib/series';
+import {
+  parseContentBlockProps,
+  parseDetailsProps,
+  parseSpeakerBlockProps,
+  parseHeroProps,
+  parseLogoStripProps,
+  parseCtaProps,
+  parseFormProps,
+} from '@/lib/blocks';
+import { LinkButton } from '@brikdesigns/bds';
 import { Icon } from '@/lib/icon';
-import { heading, label, text } from '@/lib/styles';
-import { color, font, gap } from '@/lib/tokens';
+import { heading, text } from '@/lib/styles';
+import { color, gap } from '@/lib/tokens';
 import { BlockRenderer } from './BlockRenderer';
+import { ProseBlock } from './ProseBlock';
 
 /**
  * Page-level wrapper for a block-rendered landing page (#423). Owns the
@@ -18,12 +29,15 @@ import { BlockRenderer } from './BlockRenderer';
  *     trailer **below** both columns (sponsors read as their own section, not a
  *     left-column tail — BACKLOG-1129). Matches the legacy fma 2-col pages.
  *   - `layout="showcase"` — the bold multi-color card layout (Grind After
- *     Graduation). A dark canvas with fixed-palette bright cards: intro
- *     (title + about, left) beside a registration card (right), a blue
- *     Venue/Hosts/Audience trio, a green speaker card + photo, and a partners
- *     logo grid. Colors are baked into the layout (no per-event / per-block
- *     color — the section owns them via CSS), so events opt in with
- *     `layout: 'showcase'` and the same block data render differently.
+ *     Graduation, restyled to the Paper mock). Each fixed-palette card carries
+ *     one oversized rounded corner and framed (purple-ringed) photos, stacked in
+ *     a fixed region order: a yellow hero (title + CTAs beside a photo), a blue
+ *     Venue/Admission/Audience trio, a yellow schedule (agenda + photo), a green
+ *     about card, the purple registration card, a blue Panel card, and a
+ *     full-width grey sponsors band. Colors are baked into the layout (no
+ *     per-event / per-block color — the section owns them via CSS), so events
+ *     opt in with `layout: 'showcase'` and the same block data render
+ *     differently.
  *   - default — a single stacked column.
  *
  * Both routes (`/events/[slug]`, `/marketing/[slug]`) and the vanity landing
@@ -33,11 +47,14 @@ export function LandingBlocks({
   blocks,
   context,
   layout,
+  series,
   surface,
 }: {
   blocks: RawBlock[];
   context: BlockContext;
   layout: string | null;
+  /** Series-category slug (showcase layout only); resolved via SERIES_REGISTRY. */
+  series?: string | null;
   surface: LandingSurface;
 }) {
   const sectionClass = ['lp-blocks', surface.className].filter(Boolean).join(' ');
@@ -73,80 +90,183 @@ export function LandingBlocks({
   if (layout === 'showcase') {
     // Fixed-slot partition (COMPONENT-MAP idiom, mirroring split): each design
     // region pulls specific block types. The canvas + card colors are owned by
-    // .lp-showcase* CSS — never a per-block color (#429). The trio and speaker
-    // diverge structurally from their default blocks (3-up cards; big
-    // right-column photo), so they're rendered here from parsed props rather
-    // than via BlockRenderer.
+    // .lp-showcase* CSS — never a per-block color (#429). The hero, trio and
+    // speaker diverge structurally from their default blocks (photo + CTA row;
+    // 3-up cards; circular avatars), so they're rendered here from parsed props
+    // rather than via BlockRenderer.
     const heroBlocks = blocks.filter((b) => b.type === 'hero');
-    const introContent = blocks.filter((b) =>
-      b.type === 'content-block' || b.type === 'prose' || b.type === 'rich-content',
-    );
+    const ctaBlocks = blocks.filter((b) => b.type === 'cta');
+    // The about card lays its text (heading + prose body) in the left column;
+    // an optional photo authored on the `content-block` fills the right column
+    // (single column when no photo is set).
+    const aboutHead = blocks.filter((b) => b.type === 'content-block');
+    const aboutBody = blocks.filter((b) => b.type === 'prose' || b.type === 'rich-content');
+    const aboutMedia = aboutHead[0] ? parseContentBlockProps(aboutHead[0].props).media ?? null : null;
     const metaBlocks = blocks.filter((b) => b.type === 'event-meta');
     const formBlocks = blocks.filter((b) => b.type === 'form');
     const detailsBlock = blocks.find((b) => b.type === 'details');
+    const scheduleBlocks = blocks.filter((b) => b.type === 'schedule');
     const speakerBlock = blocks.find((b) => b.type === 'speaker');
     const logoBlocks = blocks.filter((b) => b.type === 'logo-strip');
 
     const hero = heroBlocks[0] ? parseHeroProps(heroBlocks[0].props) : null;
+    // Series tag — the code-owned identity (label + wine icon) for the event's
+    // series slug; rendered atop the hero text column on a green-light ground.
+    const seriesTag = seriesIdentity(series);
     const trioItems = detailsBlock ? parseDetailsProps(detailsBlock.props).items : [];
     const speakers = speakerBlock ? parseSpeakerBlockProps(speakerBlock.props).speakers : [];
-    if (process.env.NODE_ENV !== 'production' && speakers.length > 1) {
-      // The showcase speaker region is a single featured card (design 3B9-0);
-      // extra speakers are dropped. Warn the author, matching the block parsers.
-      console.warn(
-        `[LandingBlocks] showcase renders one speaker; ${speakers.length} authored, ${speakers.length - 1} dropped.`,
-      );
-    }
     const partners = logoBlocks[0] ? parseLogoStripProps(logoBlocks[0].props) : null;
+    // Hero CTA buttons come from the authored `cta` blocks — flattened, and
+    // in-page anchor links dropped when the region they target isn't rendered
+    // (a "View Schedule" button on an event with no schedule block would
+    // scroll nowhere). Only the ids this layout emits count as rendered.
+    const renderedAnchors = new Set<string>();
+    if (scheduleBlocks.length) renderedAnchors.add(SCHEDULE_ANCHOR);
+    const hasRegistration = metaBlocks.length > 0 || formBlocks.length > 0;
+    if (hasRegistration) renderedAnchors.add(REGISTER_ANCHOR);
+    // Intro copy for the register head's left column (the "Grab a seat…" lead-in
+    // in the mock) — authored on the form block, rendered beside the meta.
+    const registerIntro = formBlocks[0]
+      ? parseFormProps(formBlocks[0].props).intro
+      : undefined;
+    const heroButtons = ctaBlocks
+      .flatMap((b) => parseCtaProps(b.props).buttons)
+      .filter((b) => !b.href.startsWith('#') || renderedAnchors.has(b.href.slice(1)));
     // The form lays out two-up inside the wide registration card (#showcase).
     const formContext: BlockContext = { ...context, formColumns: 2 };
 
     return (
       <section className="lp-blocks lp-showcase">
         <div className="lp-showcase__container">
-          {/* Intro row — title + about (left) beside the registration card (right). */}
-          <div className="lp-showcase__intro">
-            <div className="lp-showcase__intro-main">
-              {hero && (hero.title || hero.eyebrow || hero.subtitle) && (
-                <div className="lp-showcase__card lp-showcase__card--purple lp-showcase__title">
-                  <ShowcaseTitle {...hero} />
-                </div>
-              )}
-              {introContent.length > 0 && (
-                <div className="lp-showcase__card lp-showcase__card--purple">
-                  <BlockRenderer blocks={introContent} context={context} />
+          {/* Hero — yellow card: photo beside title / subtitle / CTAs. */}
+          {hero && (hero.title || hero.eyebrow || hero.subtitle || hero.media) && (
+            <div className="lp-showcase__card lp-showcase__card--yellow lp-showcase__card--corner-bl lp-showcase__hero">
+              <div className="lp-showcase__hero-main">
+                {seriesTag && (
+                  <span className="lp-showcase__series-tag">
+                    <Icon icon={seriesTag.icon} width={18} height={18} aria-hidden />
+                    {seriesTag.label}
+                  </span>
+                )}
+                {/* The series tag is the hero kicker — drop the authored eyebrow
+                    when one renders so the series name isn't shown twice. */}
+                <ShowcaseTitle {...hero} eyebrow={seriesTag ? undefined : hero.eyebrow} />
+                {heroButtons.length > 0 && (
+                  <div className="lp-showcase__hero-actions">
+                    {heroButtons.map((button, i) => (
+                      <LinkButton
+                        key={`${button.href}-${i}`}
+                        href={button.href}
+                        // Accent fills are deliberately not used here: white on
+                        // --background-brand-primary is 3.4:1 and fails the a11y
+                        // gate (#429). The BDS variants stay accessible.
+                        variant={button.variant ?? (i === 0 ? 'primary' : 'secondary')}
+                        size="md"
+                      >
+                        {button.label}
+                      </LinkButton>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {hero.media && (
+                <div className="lp-showcase__hero-media lp-showcase__framed lp-showcase__framed--corner-br">
+                  <Image
+                    src={hero.media.url}
+                    alt={hero.media.alt}
+                    fill
+                    sizes="(max-width: 767px) 100vw, 45vw"
+                    style={{ objectFit: 'cover' }}
+                    priority
+                  />
                 </div>
               )}
             </div>
-            {(metaBlocks.length > 0 || formBlocks.length > 0) && (
-              <div className="lp-showcase__card lp-showcase__card--purple lp-showcase__registration">
-                {/* Region heading — the registration card's section title
-                    (mirrors the legacy path's hardcoded "Register" heading),
-                    functional chrome, not authored copy. */}
-                <h2 style={heading.section}>
-                  Register today
-                </h2>
-                <BlockRenderer blocks={metaBlocks} context={context} />
-                <BlockRenderer blocks={formBlocks} context={formContext} />
-              </div>
-            )}
-          </div>
+          )}
 
-          {/* Venue / Hosts / Audience trio — 3-up blue stat cards. */}
+          {/* Venue / Admission / Audience trio — 3-up blue stat cards. */}
           {trioItems.length > 0 && <ShowcaseTrio items={trioItems} />}
 
-          {/* Speaker — green card with a right-column photo. */}
-          {speakers.length > 0 && <ShowcaseSpeaker speaker={speakers[0]} />}
+          {/* Schedule — yellow card, agenda beside a framed photo. Anchor target
+              for the hero's "View Schedule" CTA. */}
+          {scheduleBlocks.length > 0 && (
+            <div
+              id={SCHEDULE_ANCHOR}
+              className="lp-showcase__card lp-showcase__card--yellow lp-showcase__card--corner-bl lp-showcase__schedule"
+            >
+              <BlockRenderer blocks={scheduleBlocks} context={context} />
+            </div>
+          )}
 
-          {/* Partners — optional yellow heading band (authored on the logo-strip
-              block) over the sponsor logo grid. */}
-          {partners && partners.logos.length > 0 && (
-            <div className="lp-showcase__partners-wrap">
+          {/* About — green card: a framed photo in the left column, text
+              (heading + body) in the right (single column when no photo). */}
+          {(aboutHead.length > 0 || aboutBody.length > 0) && (
+            <div
+              className={[
+                'lp-showcase__card lp-showcase__card--green lp-showcase__card--corner-br lp-showcase__about',
+                aboutMedia && 'lp-showcase__about--media',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            >
+              {aboutMedia && (
+                <div className="lp-showcase__about-media lp-showcase__framed lp-showcase__framed--corner-tr">
+                  <Image
+                    src={aboutMedia.url}
+                    alt={aboutMedia.alt}
+                    fill
+                    sizes="(max-width: 767px) 100vw, 45vw"
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
+              )}
+              <div className="lp-showcase__about-content">
+                <BlockRenderer blocks={aboutHead} context={context} />
+                <BlockRenderer blocks={aboutBody} context={context} />
+              </div>
+            </div>
+          )}
+
+          {/* Speakers (Panel) — blue card holding a 3-up grid of avatar + role +
+              name + org. Sits ABOVE the registration card (the flyer order). */}
+          {speakers.length > 0 && <ShowcaseSpeakers speakers={speakers} />}
+
+          {/* Registration — purple card, full width. Anchor target for the
+              hero's "Register" CTA. */}
+          {hasRegistration && (
+            <div
+              id={REGISTER_ANCHOR}
+              className="lp-showcase__card lp-showcase__card--purple lp-showcase__card--corner-tr lp-showcase__registration"
+            >
+              {/* "Register Today" heading spans the top; below it the intro copy
+                  and the event metadata sit two-up (mock). "Register Today" is
+                  functional chrome, not authored copy. */}
+              <h2 style={heading.lg} className="lp-showcase__registration-title">
+                Register Today
+              </h2>
+              <div className="lp-showcase__registration-head">
+                {registerIntro && (
+                  <div className="lp-showcase__registration-intro">
+                    <ProseBlock html={registerIntro} />
+                  </div>
+                )}
+                <div className="lp-showcase__registration-meta">
+                  <BlockRenderer blocks={metaBlocks} context={context} />
+                </div>
+              </div>
+              <BlockRenderer blocks={formBlocks} context={formContext} />
+            </div>
+          )}
+        </div>
+
+        {/* Sponsors — a full-width grey band below the card stack: a centered
+            heading over a grid of white logo cards. */}
+        {partners && partners.logos.length > 0 && (
+          <div className="lp-showcase__partners-band">
+            <div className="lp-showcase__partners-inner">
               {(partners.title || partners.description) && (
-                <div className="lp-showcase__card lp-showcase__card--yellow lp-showcase__partners-head">
-                  {partners.title && (
-                    <h2 style={showcaseDisplay}>{partners.title}</h2>
-                  )}
+                <div className="lp-showcase__partners-head">
+                  {partners.title && <h2 style={heading.lg}>{partners.title}</h2>}
                   {partners.description && (
                     <p style={{ ...text.body, margin: 0 }}>{partners.description}</p>
                   )}
@@ -154,14 +274,16 @@ export function LandingBlocks({
               )}
               <div className="lp-showcase__partners">
                 {partners.logos.map((logo, i) => {
-                  const img = (
-                    <Image
-                      src={logo.url}
-                      alt={logo.alt || ''}
-                      fill
-                      sizes="(max-width: 767px) 45vw, 280px"
-                      style={{ objectFit: 'contain' }}
-                    />
+                  const inner = (
+                    <span className="lp-showcase__logo">
+                      <Image
+                        src={logo.url}
+                        alt={logo.alt || ''}
+                        fill
+                        sizes="(max-width: 639px) 45vw, 22vw"
+                        style={{ objectFit: 'contain' }}
+                      />
+                    </span>
                   );
                   return logo.href ? (
                     <a
@@ -170,20 +292,20 @@ export function LandingBlocks({
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={logo.alt || 'Sponsor website'}
-                      className="lp-showcase__logo"
+                      className="lp-showcase__logo-card"
                     >
-                      {img}
+                      {inner}
                     </a>
                   ) : (
-                    <span key={logo.url || i} className="lp-showcase__logo">
-                      {img}
-                    </span>
+                    <div key={logo.url || i} className="lp-showcase__logo-card">
+                      {inner}
+                    </div>
                   );
                 })}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </section>
     );
   }
@@ -197,35 +319,40 @@ export function LandingBlocks({
   );
 }
 
+/** Fragment ids the showcase regions emit — the hero CTAs' anchor targets. */
+const SCHEDULE_ANCHOR = 'schedule';
+const REGISTER_ANCHOR = 'register';
+
 /**
- * Big uppercase display type for the showcase title + partners heading — one
- * step above the marketing heading scale (heading/huge · 45.5px, semibold via
- * the shared heading weight token), which HeroBlock's default heading.lg (32px)
- * doesn't reach. Colour inherits the card's pinned dark ink.
+ * Big display type for the showcase hero title — one step above the marketing
+ * heading scale (heading/huge · 45.5px), which HeroBlock's default heading.lg
+ * (32px) doesn't reach. Title Case per the #852 design (the
+ * earlier uppercase transform is gone); colour inherits the card's pinned dark
+ * ink.
+ *
+ * A CSS class rather than an inline style object: the size steps down at phone
+ * widths (a single long word overflows the card at 45.5px), and an inline
+ * font-size would win over that media query.
  */
-const showcaseDisplay = {
-  fontFamily: font.family.heading,
-  fontSize: font.size.heading.xxxLarge,
-  fontWeight: font.weight.heading,
-  lineHeight: font.lineHeight.tight,
-  textTransform: 'uppercase',
-  margin: 0,
-} as const;
+const SHOWCASE_DISPLAY_CLASS = 'lp-showcase__display';
 
 /**
  * showcase title — the hero's eyebrow / title / subtitle rendered as the
- * oversized uppercase display headline (semibold), rather than
- * HeroBlock's default marketing heading. Content only; the card owns the surface.
+ * oversized display headline, rather than HeroBlock's default marketing
+ * heading. `titleEmphasis` sets an italic lead-in **inside** the same heading,
+ * so "Grind" + "After Graduation" still reads as one accessible name.
+ * Content only; the card owns the surface.
  */
-function ShowcaseTitle({ eyebrow, title, subtitle }: HeroProps) {
+function ShowcaseTitle({ eyebrow, title, titleEmphasis, subtitle }: HeroProps) {
   return (
     <>
-      {eyebrow && (
-        <p style={{ ...label.subtitle, marginBottom: gap.xs, textTransform: 'uppercase' }}>
-          {eyebrow}
-        </p>
+      {eyebrow && <span className="lp-showcase__eyebrow">{eyebrow}</span>}
+      {(title || titleEmphasis) && (
+        <h1 className={SHOWCASE_DISPLAY_CLASS}>
+          {titleEmphasis && <em className="lp-showcase__title-em">{titleEmphasis} </em>}
+          {title}
+        </h1>
       )}
-      {title && <h1 style={showcaseDisplay}>{title}</h1>}
       {subtitle && <p style={{ ...text.bodyLg, marginTop: gap.sm }}>{subtitle}</p>}
     </>
   );
@@ -252,7 +379,8 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
             />
           )}
           {item.label && (
-            <span style={label.subtitle} className="lp-showcase__stat-label">
+            // Card-title weight/size (mock); left-aligned by .lp-showcase__stat.
+            <span style={heading.card} className="lp-showcase__stat-label">
               {item.label}
             </span>
           )}
@@ -264,42 +392,47 @@ function ShowcaseTrio({ items }: { items: DetailItem[] }) {
 }
 
 /**
- * showcase speaker — green card, name + bio on the left, a large photo on the
- * right. Diverges from SpeakerBlock's inline 96px avatar. Bio splits on blank
- * lines into paragraphs (same rule as SpeakerBlock).
+ * showcase speakers — one yellow card holding a 3-up grid of speaker cells, each
+ * a circular avatar over a role eyebrow, name, and org (mirroring the flyer).
+ * Renders every authored speaker; the grid reflows to 1/2 columns below the
+ * showcase breakpoints.
  */
-function ShowcaseSpeaker({ speaker }: { speaker: SpeakerProps }) {
-  const paragraphs = speaker.bio
-    ? speaker.bio
-        .split(/\n{2,}/)
-        .map((p) => p.trim())
-        .filter(Boolean)
-    : [];
-
+function ShowcaseSpeakers({ speakers }: { speakers: SpeakerProps[] }) {
   return (
-    <div className="lp-showcase__card lp-showcase__card--green lp-showcase__speaker">
-      <div className="lp-showcase__speaker-body">
-        <p className="lp-showcase__region-label" style={label.subtitle}>
-          Speaker
-        </p>
-        {speaker.name && <h2 style={heading.section}>{speaker.name}</h2>}
-        {paragraphs.map((para, i) => (
-          <p key={i} style={{ ...text.body, margin: 0 }}>
-            {para}
-          </p>
+    <div className="lp-showcase__card lp-showcase__card--blue lp-showcase__card--corner-br lp-showcase__speakers-card">
+      <h2 style={heading.lg} className="lp-showcase__panel-title">Panel</h2>
+      <div className="lp-showcase__speakers">
+        {speakers.map((speaker, i) => (
+        <div key={i} className="lp-showcase__speaker">
+          {speaker.avatar?.url && (
+            <div className="lp-showcase__speaker-avatar">
+              <Image
+                src={speaker.avatar.url}
+                alt={speaker.avatar.alt || speaker.name || ''}
+                fill
+                sizes="128px"
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
+          )}
+          {speaker.role && (
+            <span
+              className={`lp-showcase__role-pill ${
+                /host/i.test(speaker.role)
+                  ? 'lp-showcase__role-pill--host'
+                  : 'lp-showcase__role-pill--speaker'
+              }`}
+            >
+              {speaker.role}
+            </span>
+          )}
+          {speaker.name && <h3 style={heading.card}>{speaker.name}</h3>}
+          {speaker.org && (
+            <p style={{ ...text.body, margin: 0 }}>{speaker.org}</p>
+          )}
+        </div>
         ))}
       </div>
-      {speaker.avatar?.url && (
-        <div className="lp-showcase__speaker-photo">
-          <Image
-            src={speaker.avatar.url}
-            alt={speaker.avatar.alt || ''}
-            fill
-            sizes="(max-width: 767px) 100vw, 400px"
-            style={{ objectFit: 'cover' }}
-          />
-        </div>
-      )}
     </div>
   );
 }

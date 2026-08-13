@@ -42,7 +42,7 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-sm)', width: '100%' }}>
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--gap-lg)', width: '100%' }}>
       <TextInput
         size="md"
         fullWidth

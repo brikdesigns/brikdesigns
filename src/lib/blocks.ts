@@ -43,6 +43,10 @@ export interface ContentBlockProps {
   title?: string;
   subtitle?: string;
   description?: string;
+  /** Optional supporting photo — rendered only by the showcase layout's About
+   *  card (text in col-1, photo in col-2); the default ContentBlockBlock ignores
+   *  it, so split/stacked layouts are unchanged. */
+  media?: { url: string; alt: string } | null;
 }
 
 /** Date / time / fee row. Each field optional; an omitted `fee` hides the
@@ -53,10 +57,14 @@ export interface EventMetaProps {
   fee?: number | null;
 }
 
-/** A single speaker: name + bio (+ optional avatar). */
+/** A single speaker: name + bio (+ optional role, org, avatar). */
 export interface SpeakerProps {
   name: string;
   bio?: string | null;
+  /** Short eyebrow label above the name — e.g. "Host" / "Speaker". */
+  role?: string | null;
+  /** Affiliation shown under the name — e.g. "DDSMatch" / "NDI". */
+  org?: string | null;
   avatar?: { url: string; alt: string } | null;
 }
 
@@ -88,6 +96,24 @@ export interface DetailItem {
 /** A stacked list of key/value detail rows (subheader + value + icon). */
 export interface DetailsProps {
   items: DetailItem[];
+}
+
+/** One agenda row — a time on the left, what happens at it on the right. */
+export interface ScheduleItem {
+  /** e.g. "6:30 PM". Optional so an untimed row still renders its label. */
+  time?: string;
+  label: string;
+}
+
+/**
+ * Run-of-show agenda (#852) — an optional heading, the timed rows, and an
+ * optional supporting photo beside them. Rendered as its own region so the
+ * showcase layout can anchor `#schedule` at it.
+ */
+export interface ScheduleProps {
+  title?: string;
+  items: ScheduleItem[];
+  media?: { url: string; alt: string } | null;
 }
 
 /** Sponsor / partner logo row. */
@@ -201,6 +227,8 @@ export function parseContentBlockProps(props: Record<string, unknown>): ContentB
   if (subtitle) out.subtitle = subtitle;
   const description = str(props.description);
   if (description) out.description = description;
+  const media = parseMedia(props.media);
+  if (media) out.media = media;
   return out;
 }
 
@@ -222,6 +250,8 @@ function parseOneSpeaker(raw: unknown): SpeakerProps | null {
   const props = raw as Record<string, unknown>;
   const name = str(props.name) ?? '';
   const bio = str(props.bio);
+  const role = str(props.role);
+  const org = str(props.org);
   const rawAvatar = props.avatar;
   let avatar: SpeakerProps['avatar'] = null;
   if (rawAvatar && typeof rawAvatar === 'object') {
@@ -229,7 +259,7 @@ function parseOneSpeaker(raw: unknown): SpeakerProps | null {
     if (url) avatar = { url, alt: str((rawAvatar as { alt?: unknown }).alt) ?? '' };
   }
   if (!name && !bio) return null;
-  return { name, bio, avatar };
+  return { name, bio, role, org, avatar };
 }
 
 /**
@@ -263,6 +293,36 @@ export function parseDetailsProps(props: Record<string, unknown>): DetailsProps 
     items.push(icon ? { icon, label, value } : { label, value });
   }
   return { items };
+}
+
+/** Shared `{ url, alt }` media normalizer — `hero.media`, `schedule.media`. */
+function parseMedia(raw: unknown): { url: string; alt: string } | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const url = str((raw as { url?: unknown }).url);
+  if (!url) return null;
+  return { url, alt: str((raw as { alt?: unknown }).alt) ?? '' };
+}
+
+/**
+ * Normalize a `schedule` block's props. Rows with no label are dropped (a bare
+ * time says nothing); an all-empty block renders nothing.
+ */
+export function parseScheduleProps(props: Record<string, unknown>): ScheduleProps {
+  const raw = Array.isArray(props.items) ? props.items : [];
+  const items: ScheduleItem[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const label = str((item as { label?: unknown }).label);
+    if (!label) continue;
+    const time = str((item as { time?: unknown }).time);
+    items.push(time ? { time, label } : { label });
+  }
+  const out: ScheduleProps = { items };
+  const title = str(props.title);
+  if (title) out.title = title;
+  const media = parseMedia(props.media);
+  if (media) out.media = media;
+  return out;
 }
 
 export function parseLogoStripProps(props: Record<string, unknown>): LogoStripProps {
@@ -382,6 +442,13 @@ export interface BlockContext {
 export interface HeroProps {
   eyebrow?: string;
   title: string;
+  /**
+   * Optional italic lead-in set immediately before `title` — the "*Grind*
+   * After Graduation" treatment (#852). Rendered inside the same heading, so
+   * it reads as one sentence to assistive tech. Showcase layout only; the
+   * default HeroBlock ignores it.
+   */
+  titleEmphasis?: string;
   subtitle?: string;
   media?: { url: string; alt: string } | null;
 }
@@ -390,13 +457,12 @@ export function parseHeroProps(props: Record<string, unknown>): HeroProps {
   const out: HeroProps = { title: str(props.title) ?? '' };
   const eyebrow = str(props.eyebrow);
   if (eyebrow) out.eyebrow = eyebrow;
+  const titleEmphasis = str(props.titleEmphasis ?? props.title_emphasis);
+  if (titleEmphasis) out.titleEmphasis = titleEmphasis;
   const subtitle = str(props.subtitle);
   if (subtitle) out.subtitle = subtitle;
-  const rawMedia = props.media;
-  if (rawMedia && typeof rawMedia === 'object') {
-    const url = str((rawMedia as { url?: unknown }).url);
-    if (url) out.media = { url, alt: str((rawMedia as { alt?: unknown }).alt) ?? '' };
-  }
+  const media = parseMedia(props.media);
+  if (media) out.media = media;
   return out;
 }
 
@@ -420,6 +486,12 @@ export interface FormProps {
   submitLabel?: string;
   /** Label override for the practice/company field (registration variant). */
   companyLabel?: string;
+  /**
+   * Optional sanitized-HTML lead-in shown beside the form (showcase Register
+   * region only — the intro copy in the mock's left column). The default
+   * FormBlock ignores it; the showcase layout renders it in the register head.
+   */
+  intro?: string;
 }
 
 function isFormVariant(value: unknown): value is FormVariant {
@@ -447,6 +519,8 @@ export function parseFormProps(props: Record<string, unknown>): FormProps {
   if (submitLabel) out.submitLabel = submitLabel;
   const companyLabel = str(props.companyLabel ?? props.company_label);
   if (companyLabel) out.companyLabel = companyLabel;
+  const intro = str(props.intro);
+  if (intro) out.intro = intro;
   return out;
 }
 

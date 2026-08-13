@@ -41,6 +41,29 @@ BASE_BRANCH="staging"
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 WORKTREE_BASE="$(dirname "$PROJECT_ROOT")/brikdesigns-worktrees"
 
+# ── OP_SERVICE_ACCOUNT_TOKEN loader (#813) ──
+# `op run` below needs the token, and brik-mini is headless — no 1Password GUI
+# and no interactive `op signin` — so with nothing in the environment op aborts
+# with "You are not currently signed in" before npm ci ever starts. brik-llm
+# owns the one implementation; source it rather than adding another local copy
+# of the self-source logic. Guarded and cross-repo: this repo can be cloned
+# without its sibling, and the deps assertion after the install still fails
+# loudly if the token turns out to be genuinely missing.
+for _op_wrapper in \
+  "${PROJECT_ROOT}/../../brik/brik-llm/scripts/lib/op-run-wrapper.sh" \
+  "$HOME/Documents/GitHub/brik/brik-llm/scripts/lib/op-run-wrapper.sh"; do
+  if [ -r "$_op_wrapper" ]; then
+    # shellcheck source=/dev/null  # sibling repo, resolved at runtime
+    source "$_op_wrapper"
+    break
+  fi
+done
+unset _op_wrapper
+if ! declare -F rws_load_sa_token >/dev/null 2>&1; then
+  echo -e "${YELLOW}⚠  brik-llm/scripts/lib/op-run-wrapper.sh not found — 'op run'${NC}" >&2
+  echo "   below will only work if OP_SERVICE_ACCOUNT_TOKEN is already set (#813)." >&2
+fi
+
 # ── Must run from the primary worktree on main ──
 # Running new-task.sh from inside another task worktree creates nested state
 # that breaks the one-worktree-per-task contract. The primary worktree is
@@ -231,7 +254,49 @@ fi
 
 # ── Install dependencies ──
 echo -e "${YELLOW}▸ Installing dependencies (op run -- npm ci --prefer-offline)...${NC}"
+# rws_load_sa_token puts the token in THIS process only, from the mode-600 SA
+# file — never the parent shell.
+if declare -F rws_load_sa_token >/dev/null 2>&1; then
+  rws_load_sa_token
+fi
+# Run without aborting so the assertion below can report *why* it failed. The
+# `| tail -1` pipe would otherwise mask the exit code under pipefail and leave
+# the worktree looking fine with an empty node_modules.
+set +e
 op run --env-file=.env.op -- npm ci --prefer-offline 2>&1 | tail -1
+set -e
+
+# ── Assert the install actually populated node_modules ──
+# A worktree with no deps must not look like success: the next command would
+# die on `tsc: command not found` with nothing pointing back to here.
+if [ ! -x node_modules/.bin/tsc ]; then
+  echo ""
+  echo -e "${RED}Error: dependency install did not complete.${NC}"
+  echo ""
+  echo "  The worktree exists but node_modules is empty or incomplete"
+  echo "  (node_modules/.bin/tsc is missing)."
+  echo ""
+  if [ -z "${OP_SERVICE_ACCOUNT_TOKEN:-}" ]; then
+    echo "  OP_SERVICE_ACCOUNT_TOKEN is not set and could not be loaded (#813)."
+    echo "  Expected at ~/.secrets/op-service-account.env, sourced via"
+    echo "  brik-llm/scripts/lib/op-run-wrapper.sh. On a headless machine that"
+    echo "  file IS the only auth path — there is no desktop integration to"
+    echo "  fall back to. Check it exists and is readable, then re-run."
+  else
+    echo "  The token WAS loaded, so this is not #813 — likely the 1Password"
+    echo "  session or the registry itself. Running it directly in your shell"
+    echo "  reliably works."
+  fi
+  echo ""
+  echo "  Finish setup from the worktree, then you're ready:"
+  echo "    cd ${WORKTREE_BASE}/${TASK_NAME}"
+  echo "    set -a; source ~/.secrets/op-service-account.env; set +a"
+  echo "    op run --env-file=.env.op -- npm ci --prefer-offline"
+  echo "    test -x node_modules/.bin/tsc && echo 'deps OK'"
+  echo ""
+  echo -e "${RED}  NOT printing the 'ready' summary — the worktree is not usable yet.${NC}"
+  exit 1
+fi
 
 # ── Summary ──
 echo ""

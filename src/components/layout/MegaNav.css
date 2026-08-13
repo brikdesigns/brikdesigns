@@ -21,17 +21,44 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-/* ─── Service-line tint (#729) ──────────────────────────────────────
-   On a /services/{line} page the sticky nav adopts that line's darkest
-   surface. `--service` carries the line-agnostic ink + border inversion;
-   the per-line class below sets only the background. White ink clears AA
-   on any --surface-service-*-dark (e.g. 8:1 on marketing's --color-green-
-   darkest #2a5542). Marketing-first pilot — add the other four lines'
-   background rules here (+ NAV_TINT_LINES in MegaNav.tsx) once each dark
-   surface is AA-verified. The open dropdown panels are NOT tinted; they
-   keep --surface-primary. Same values apply in light + dark themes. */
+/* ─── Service-line tint (#729, all five lines #858, plan pages #859) ──
+   On a /services/{line} page — or a /plans/{slug} page whose marketing line
+   is set — the sticky nav adopts that line's darkest surface. `--service`
+   carries the line-agnostic ink + border inversion; the per-line classes
+   below set only the background. The open dropdown panels are NOT tinted;
+   they keep --surface-primary. Same values apply in light + dark themes.
+
+   White ink clears AAA on all five darkest surfaces (contrast against
+   --color-grayscale-white, the value behind --text-on-color-dark):
+
+     marketing    #2a5542   8.48:1
+     brand        #634716   8.59:1
+     information  #314952   9.52:1
+     product      #2b2440  14.69:1
+     back-office  #3f1000  16.34:1
+
+   One rule per line is required, not optional: MegaNav.tsx derives its
+   tinted-line set from SERVICE_LINE_SEGMENTS, so a line with no rule here
+   emits a modifier class with no background. `npm run lint:nav-service-tint`
+   fails on exactly that gap (#860). */
 .mega-nav--service-marketing {
   background-color: var(--surface-service-marketing-dark);
+}
+
+.mega-nav--service-brand {
+  background-color: var(--surface-service-brand-dark);
+}
+
+.mega-nav--service-information {
+  background-color: var(--surface-service-information-dark);
+}
+
+.mega-nav--service-product {
+  background-color: var(--surface-service-product-dark);
+}
+
+.mega-nav--service-back-office {
+  background-color: var(--surface-service-back-office-dark);
 }
 
 .mega-nav--service .mega-nav__utility-icon-wrap,
@@ -44,10 +71,41 @@
   color: var(--text-on-color-dark);
 }
 
-.mega-nav--service .mega-nav__utility,
-.mega-nav--service .mega-nav__utility-group + .mega-nav__utility-group,
-.mega-nav--service .mega-nav__utility-toggle {
-  border-color: var(--border-on-color-dark);
+/* Utility-bar dividers adopt the line's own darkest surface — the same value
+   the nav + utility background take above — so the divider melts into the tint
+   and the utility bar reads as one seamless surface with the main nav on a
+   /services or /plans page (#859). One rule per line for the same reason the
+   backgrounds are per-line: the divider colour is the line's surface, not a
+   shared ink. The dark-mode divider overrides at the foot of this file are
+   scoped to the untinted nav so they don't win these back. */
+.mega-nav--service-marketing .mega-nav__utility,
+.mega-nav--service-marketing .mega-nav__utility-group + .mega-nav__utility-group,
+.mega-nav--service-marketing .mega-nav__utility-toggle {
+  border-color: var(--surface-service-marketing-dark); /* bds-lint-ignore token-family — divider is painted the nav's own surface so it melts into the tint; BDS has no per-line border token and matching the surface exactly is the intent */
+}
+
+.mega-nav--service-brand .mega-nav__utility,
+.mega-nav--service-brand .mega-nav__utility-group + .mega-nav__utility-group,
+.mega-nav--service-brand .mega-nav__utility-toggle {
+  border-color: var(--surface-service-brand-dark); /* bds-lint-ignore token-family — divider is painted the nav's own surface so it melts into the tint; BDS has no per-line border token and matching the surface exactly is the intent */
+}
+
+.mega-nav--service-information .mega-nav__utility,
+.mega-nav--service-information .mega-nav__utility-group + .mega-nav__utility-group,
+.mega-nav--service-information .mega-nav__utility-toggle {
+  border-color: var(--surface-service-information-dark); /* bds-lint-ignore token-family — divider is painted the nav's own surface so it melts into the tint; BDS has no per-line border token and matching the surface exactly is the intent */
+}
+
+.mega-nav--service-product .mega-nav__utility,
+.mega-nav--service-product .mega-nav__utility-group + .mega-nav__utility-group,
+.mega-nav--service-product .mega-nav__utility-toggle {
+  border-color: var(--surface-service-product-dark); /* bds-lint-ignore token-family — divider is painted the nav's own surface so it melts into the tint; BDS has no per-line border token and matching the surface exactly is the intent */
+}
+
+.mega-nav--service-back-office .mega-nav__utility,
+.mega-nav--service-back-office .mega-nav__utility-group + .mega-nav__utility-group,
+.mega-nav--service-back-office .mega-nav__utility-toggle {
+  border-color: var(--surface-service-back-office-dark); /* bds-lint-ignore token-family — divider is painted the nav's own surface so it melts into the tint; BDS has no per-line border token and matching the surface exactly is the intent */
 }
 
 /* Hover/active feedback comes from opacity — the brand-poppy ink used off
@@ -869,19 +927,24 @@ button.mega-nav__mobile-link {
 }
 
 /* ─── Dark mode — border overrides ───────────────────────────── */
-/* In dark mode --border-secondary resolves to #bdbdbd which is too faint
+/* In dark mode --border-secondary resolves to grayscale-400 (#b0b0b0), too faint
    against the dark nav surface. Bump to --border-primary for both the
-   utility divider and the dropdown panel border. */
+   utility divider and the dropdown panel border.
 
-:root[data-theme="dark"] .mega-nav__utility {
+   Scoped to the untinted nav via :not(.mega-nav--service): on a tinted
+   /services or /plans page the utility dividers take the line's own surface (so
+   they melt into the tint, above), and these dark-mode rules would otherwise
+   out-specify and reinstate a visible --border-primary divider. */
+
+:root[data-theme="dark"] .mega-nav:not(.mega-nav--service) .mega-nav__utility {
   border-bottom-color: var(--border-primary);
 }
 
-:root[data-theme="dark"] .mega-nav__utility-group + .mega-nav__utility-group {
+:root[data-theme="dark"] .mega-nav:not(.mega-nav--service) .mega-nav__utility-group + .mega-nav__utility-group {
   border-left-color: var(--border-primary);
 }
 
-:root[data-theme="dark"] .mega-nav__utility-toggle {
+:root[data-theme="dark"] .mega-nav:not(.mega-nav--service) .mega-nav__utility-toggle {
   border-left-color: var(--border-primary);
 }
 

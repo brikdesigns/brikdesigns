@@ -47,6 +47,13 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/customers/dental', name: 'Customer detail — dental' },
   { path: '/blog', name: 'Blog index' },
   { path: '/events/demo-spring-webinar', name: 'Event detail — demo webinar' },
+  // Second event route on purpose (#854). demo-spring-webinar renders the
+  // stacked layout; this one renders `layout: showcase` — the bold-card layout
+  // rebuilt in #852 — whose card surfaces, tinted trio, and native
+  // registration form share no CSS with the stacked path. Without it the
+  // showcase layout had no axe coverage at all, which is how #873 sat open as
+  // a contrast defect for weeks after #851 had already fixed it.
+  { path: '/events/grind-after-graduation', name: 'Event detail — showcase layout' },
   { path: '/contact', name: 'Contact' },
   { path: '/get-started', name: 'Get started' },
   { path: '/free-marketing-analysis', name: 'Free marketing analysis' },

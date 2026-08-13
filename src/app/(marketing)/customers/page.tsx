@@ -4,7 +4,7 @@ import { Icon } from '@/lib/icon';
 import { Grid, Card, Button, LinkButton, Frame } from '@brikdesigns/bds';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
-import { color } from '@/lib/tokens';
+import { color, font } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './customers.css';
@@ -60,11 +60,14 @@ const SEGMENTS = [
 // Each card uses one of the four primary service-line surface tokens (skipping
 // back-office per editorial decision — these read as primary public service
 // lines). The mapping is fixed by index so each challenge keeps its color.
+// `quoteMark` is the darker variant of each card's own surface tone (the
+// `-dark` service surface token) so the oversized quotation mark reads as a
+// deeper shade of the card, not the global brand orange.
 const CHALLENGES = [
-  { quote: 'We need to look more professional, but don’t have the budget for a full-time designer', bg: color.service.information.bg },
-  { quote: 'Our marketing materials aren’t consistent with our brand anymore', bg: color.service.marketing.bg },
-  { quote: 'We have a great product, but struggle to explain it simply', bg: color.service.brand.bg },
-  { quote: 'We need high-quality design work, but can’t wait weeks for an agency', bg: color.service.product.bg },
+  { quote: 'We need to look more professional, but don’t have the budget for a full-time designer', bg: color.service.information.bg, quoteMark: color.service.information.surfaceDark },
+  { quote: 'Our marketing materials aren’t consistent with our brand anymore', bg: color.service.marketing.bg, quoteMark: color.service.marketing.surfaceDark },
+  { quote: 'We have a great product, but struggle to explain it simply', bg: color.service.brand.bg, quoteMark: color.service.brand.surfaceDark },
+  { quote: 'We need high-quality design work, but can’t wait weeks for an agency', bg: color.service.product.bg, quoteMark: color.service.product.surfaceDark },
 ];
 
 export const revalidate = 86400;
@@ -123,16 +126,16 @@ export default async function CustomersPage() {
               <Card
                 key={seg.title}
                 preset="display-row"
-                imageWidth="narrow"
+                imageWidth="20%"
                 image={
                   <div className="segment-card__eyebrow">
-                    <span style={{ ...heading.lg, color: color.text.brand, lineHeight: 1 }}>
+                    <span style={{ ...heading.lg, fontSize: font.size.display.md, color: color.text.primary, lineHeight: 1 }}>
                       {String(idx + 1).padStart(2, '0')}
                     </span>
                     {/* label.smBold bakes in white-space: nowrap (intended for
                      * chip-style labels). Override here so the subtitle wraps
                      * inside the narrow image column. */}
-                    <p style={{ ...label.smBold, color: color.text.brand, whiteSpace: 'normal' }}>{seg.subtitle}</p>
+                    <p style={{ ...label.smBold, color: color.text.primary, whiteSpace: 'normal' }}>{seg.subtitle}</p>
                   </div>
                 }
                 title={seg.title}
@@ -143,7 +146,7 @@ export default async function CustomersPage() {
                     <ul className="customers-segment-list">
                       {seg.fits.map((fit) => (
                         <li key={fit} className="customers-segment-list__item" style={{ ...text.bodySm, color: color.text.secondary }}>
-                          <Icon icon="ph:check" className="customers-segment-list__check" aria-hidden="true" />
+                          <Icon icon="ph:check-bold" className="customers-segment-list__check" aria-hidden="true" />
                           {fit}
                         </li>
                       ))}
@@ -217,7 +220,7 @@ export default async function CustomersPage() {
                 className="challenge-card service-surface"
                 style={{ backgroundColor: challenge.bg }}
               >
-                <span className="challenge-card__quote-mark" aria-hidden="true">&ldquo;</span>
+                <span className="challenge-card__quote-mark" style={{ color: challenge.quoteMark }} aria-hidden="true">&ldquo;</span>
                 <p style={text.bodyHuge}>{challenge.quote}</p>
               </Card>
             ))}

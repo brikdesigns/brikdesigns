@@ -4,16 +4,30 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
+import { parseDeclaration, evaluateDeclaration } from './lib/visual-change-declaration.mjs';
 
-// Two modes share this script:
+// Three modes share this script:
 //   webflow (default) — migration parity: compare the build against the live
 //     Webflow site, using each route's `webflow` path.
 //   self              — regression: compare the build against staging on the
 //     SAME path, so a dependency bump (e.g. a BDS minor) that shifts our own
 //     rendering is caught. See .github/workflows/visual-regression.yml.
+//   mockup            — wrongness gate (#825): compare routes that declare a
+//     `mockup` entry against a checked-in baseline PNG at
+//     tests/visual-parity/baselines/<name>-<viewport>-<theme>.png instead of a
+//     live reference URL. Unlike webflow mode, a missing baseline or a failed
+//     capture exits non-zero — a silently-skipped route is exactly the failure
+//     this mode exists to close (#822 survived because no gate had a reference
+//     for the landing surface). Baselines are authored with UPDATE_BASELINES=1
+//     against a known-good deploy, then verified against the Paper mockup by a
+//     human before being committed. See .github/workflows/visual-mockup.yml.
 const REFERENCE_MODE = process.env.REFERENCE_MODE ?? 'webflow';
 const SELF_MODE = REFERENCE_MODE === 'self';
-const REFERENCE_LABEL = SELF_MODE ? 'Staging' : 'Webflow';
+const MOCKUP_MODE = REFERENCE_MODE === 'mockup';
+const WEBFLOW_MODE = !SELF_MODE && !MOCKUP_MODE;
+const REFERENCE_LABEL = MOCKUP_MODE ? 'Baseline' : SELF_MODE ? 'Staging' : 'Webflow';
+const BASELINE_DIR = path.resolve('tests/visual-parity/baselines');
+const UPDATE_BASELINES = process.env.UPDATE_BASELINES === '1';
 
 const WEBFLOW_URL = process.env.WEBFLOW_URL ?? 'https://www.brikdesigns.com';
 const REFERENCE_URL = process.env.REFERENCE_URL
@@ -21,8 +35,31 @@ const REFERENCE_URL = process.env.REFERENCE_URL
 const NETLIFY_URL = process.env.NETLIFY_URL ?? process.argv[2];
 const OUT = path.resolve('tests/visual-parity/screenshots');
 
+// How long a capture waits for every image to finish loading before it gives up
+// and fails (see captureOnce). Sized for a COLD Netlify image transform on a
+// fresh deploy-preview, not a warm one: on PR #838 a `w=3840` source on
+// /services/marketing exceeded 60s on both attempts and failed the gate, and
+// once the edge has the transform the same image resolves in ~30ms.
+// Right-sizing those requests (#835) is the actual cure; this is the headroom
+// that keeps a cold preview from reading as a regression in the meantime.
+const IMAGE_WAIT_MS = parseInt(process.env.IMAGE_WAIT_MS ?? '120000', 10);
+
 // Routes with diff % above this value are flagged. Set to 0 to disable hard failure.
-const DIFF_THRESHOLD = parseFloat(process.env.DIFF_THRESHOLD ?? '0');
+// Mockup mode always gates: the baseline is a blessed capture of the same
+// pipeline, so the pass-case noise floor is ~0% while the #822 dark-canvas
+// defect measures 14.85% against it — 5% clears flake with wide margin.
+const DIFF_THRESHOLD = parseFloat(process.env.DIFF_THRESHOLD ?? (MOCKUP_MODE ? '5' : '0'));
+
+// Intended-visual-change declaration (#856). Self mode only — it exists so a
+// deliberate redesign can pass this gate without turning the gate off, and
+// neither webflow mode (never blocks) nor mockup mode (the baseline IS the
+// declaration) has that problem. Both halves come from the workflow:
+// VISUAL_CHANGE_LABEL is set only when the PR carries the `visual-change`
+// label, VISUAL_CHANGE_BODY is the PR body. A body line without the label
+// declares nothing, and says so rather than failing silently.
+const VISUAL_CHANGE_LABEL = process.env.VISUAL_CHANGE_LABEL === '1';
+const declaredInBody = parseDeclaration(process.env.VISUAL_CHANGE_BODY);
+const DECLARED_ROUTES = SELF_MODE && VISUAL_CHANGE_LABEL ? declaredInBody : [];
 
 if (!NETLIFY_URL) {
   console.error(
@@ -46,6 +83,15 @@ const ROUTES = [
   { netlify: '/contact', webflow: '/contact', name: 'contact' },
   { netlify: '/free-marketing-analysis', webflow: '/brikdown-analysis', name: 'fma' },
   { netlify: '/value', webflow: '/value', name: 'value' },
+  // CMS landing route — no Webflow ancestor (webflow: null skips it in webflow
+  // mode). `mockup` declares which viewport/theme combos have a checked-in
+  // baseline; mockup mode gates exactly those and refuses to run without them.
+  {
+    netlify: '/events/grind-after-graduation',
+    webflow: null,
+    name: 'events-grind-after-graduation',
+    mockup: { viewports: ['desktop'], themes: ['light'] },
+  },
 ];
 
 const VIEWPORTS = [
@@ -57,7 +103,7 @@ const VIEWPORTS = [
 const THEMES = (process.env.THEMES ?? 'light,dark').split(',').map((t) => t.trim());
 
 console.log(`▸ mode:       ${REFERENCE_MODE}`);
-console.log(`▸ reference:  ${REFERENCE_URL} (${REFERENCE_LABEL})`);
+console.log(`▸ reference:  ${MOCKUP_MODE ? path.relative('', BASELINE_DIR) : REFERENCE_URL} (${REFERENCE_LABEL})`);
 console.log(`▸ netlify:    ${NETLIFY_URL}`);
 console.log(`▸ themes:     ${THEMES.join(', ')}`);
 console.log(`▸ threshold:  ${DIFF_THRESHOLD > 0 ? `${DIFF_THRESHOLD}%` : 'off (set DIFF_THRESHOLD to enable)'}`);
@@ -94,6 +140,33 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
       document.head.appendChild(el);
     });
   }, DEV_CHROME_CSS);
+  // Force every image to load eagerly. Lazy loading is scheduled by the
+  // browser, not by us: after a full scroll pass an image below the fold can
+  // still be sitting unfetched, and Chromium occasionally never gets round to
+  // it at all — observed on /services/marketing at tablet/dark, where two
+  // images (including a 256px footer logo that serves in 0.24s) were still
+  // incomplete after 20s, while the same route on the same host was clean
+  // minutes later. That scheduler is the nondeterminism #830 chased: a wait
+  // cannot fix a fetch that never starts, only make its absence louder.
+  // Flipping loading to eager starts the fetch immediately, so the image wait
+  // in captureOnce becomes a question of network time rather than of when the
+  // browser felt like asking. The MutationObserver covers images React mounts
+  // after hydration.
+  await page.addInitScript(() => {
+    const eager = (img) => { if (img.loading === 'lazy') img.loading = 'eager'; };
+    const sweep = (root) => {
+      if (root.tagName === 'IMG') eager(root);
+      root.querySelectorAll?.('img[loading="lazy"]').forEach(eager);
+    };
+    document.addEventListener('DOMContentLoaded', () => sweep(document));
+    new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (node.nodeType === 1) sweep(node);
+        }
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+  });
   await page.addInitScript((t) => {
     // localStorage can throw when storage is partitioned or blocked. The theme
     // is also emulated via colorScheme on the context, so a failure here is
@@ -128,6 +201,53 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
       // Analytics/beacon polling can keep the network busy indefinitely; the
       // scrollHeight settle below is the real guard, so carry on.
     }
+    // Images must finish loading AND decoding before the screenshot. The height
+    // settle below cannot see them: illustration slots are fixed-size, so
+    // scrollHeight is already final while the images are still in flight, and
+    // the guard passes on empty slots. On a cold cache the capture paints the
+    // slots empty and a warm one paints the images, which reads as ~2.5% on
+    // image-dense pages — the #830 flake, reproduced at 2.55% on
+    // /services/marketing at 375px. The slow ones are the on-demand Netlify
+    // image transforms (`w=3840`); once the edge has them they resolve in
+    // ~30ms, so the retry in capture() is a warm second pass.
+    //
+    // A timeout here FAILS the capture rather than screenshotting a
+    // half-loaded page: a silently-skipped route reads as a pass, which is the
+    // failure mode this gate exists to close. `complete` is true for an image
+    // that failed to load, so a genuinely broken asset can't hang this.
+    //
+    // NOTE the `undefined` third-arg dance: waitForFunction is
+    // (fn, arg, options) — passing options second makes Playwright treat them
+    // as the page-function argument and silently apply its 30s defaults. The
+    // height settle below had that bug, which is why its 15s never applied.
+    //
+    // Skipped in webflow mode: half of that comparison is the live Webflow
+    // site, where images routinely never settle — 9 of the first 10 routes hit
+    // the wait, at ~128s each, and the job blew its 20-minute budget after 10
+    // of 78 comparisons. That mode is a non-blocking eyeball artifact whose
+    // reference we do not control, so it keeps its pre-#830 behaviour.
+    if (!WEBFLOW_MODE) {
+      try {
+        await page.waitForFunction(
+          () => Array.from(document.images).every((img) => img.complete),
+          undefined,
+          { timeout: IMAGE_WAIT_MS, polling: 250 },
+        );
+      } catch (e) {
+        const stuck = await page.evaluate(() =>
+          Array.from(document.images).filter((img) => !img.complete).length);
+        throw new Error(
+          `${stuck} image(s) still loading after ${IMAGE_WAIT_MS / 1000}s — capture would be non-deterministic`,
+        );
+      }
+      const undecodable = await page.evaluate(async () => {
+        const results = await Promise.allSettled(
+          Array.from(document.images).map((img) => img.decode?.()),
+        );
+        return results.filter((r) => r.status === 'rejected').length;
+      });
+      if (undecodable) console.warn(`  · ${undecodable} image(s) failed to decode`);
+    }
     await page.waitForFunction(
       () => {
         const h = document.body.scrollHeight;
@@ -135,6 +255,7 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs) 
         window.__lastH = h;
         return false;
       },
+      undefined,
       { timeout: 15000, polling: 250 },
     ).catch((e) => console.warn(`  · height did not settle (${e.message.split('\n')[0]})`));
     await page.screenshot({ path: outPath, fullPage: true, animations: 'disabled' });
@@ -202,20 +323,48 @@ function diffScreenshots(wfPath, nlPath, diffPath) {
 }
 
 const results = [];
+const missingBaselines = [];
 for (const theme of THEMES) {
   for (const viewport of VIEWPORTS) {
     const dir = path.join(OUT, theme, viewport.name);
     fs.mkdirSync(dir, { recursive: true });
     for (const route of ROUTES) {
+      if (MOCKUP_MODE) {
+        if (!route.mockup) continue;
+        if (!route.mockup.viewports.includes(viewport.name)) continue;
+        if (!route.mockup.themes.includes(theme)) continue;
+      } else if (!SELF_MODE && route.webflow == null) {
+        continue; // no legacy Webflow URL to compare against
+      }
       // In self mode both sides render the same path — the reference is
-      // staging, not Webflow, so there is no legacy URL to map to.
-      const refRoute = SELF_MODE ? route.netlify : route.webflow;
+      // staging, not Webflow, so there is no legacy URL to map to. In mockup
+      // mode the reference is a checked-in file, not a URL at all.
+      const baselinePath = path.join(BASELINE_DIR, `${route.name}-${viewport.name}-${theme}.png`);
+      const refRoute = MOCKUP_MODE
+        ? path.relative('', baselinePath)
+        : SELF_MODE ? route.netlify : route.webflow;
       const wfPath  = path.join(dir, `${route.name}-reference.png`);
       const nlPath  = path.join(dir, `${route.name}-netlify.png`);
       const diffPath = path.join(dir, `${route.name}-diff.png`);
       console.log(`▸ ${theme}/${viewport.name}: ${route.name}`);
-      await capture(REFERENCE_URL, refRoute, viewport, theme, wfPath);
-      await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath);
+      if (MOCKUP_MODE) {
+        await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath);
+        if (UPDATE_BASELINES) {
+          if (fs.existsSync(nlPath)) {
+            fs.mkdirSync(BASELINE_DIR, { recursive: true });
+            fs.copyFileSync(nlPath, baselinePath);
+            console.log(`  ✎ baseline written: ${refRoute}`);
+          }
+        } else if (!fs.existsSync(baselinePath)) {
+          missingBaselines.push(baselinePath);
+          console.error(`  ✗ baseline missing: ${baselinePath}`);
+        } else {
+          fs.copyFileSync(baselinePath, wfPath); // reference pane in the report
+        }
+      } else {
+        await capture(REFERENCE_URL, refRoute, viewport, theme, wfPath);
+        await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath);
+      }
       const diff = diffScreenshots(wfPath, nlPath, diffPath);
       if (diff) {
         const flag = diff.diffPct > 5 ? '🔴' : diff.diffPct > 2 ? '🟡' : '🟢';
@@ -368,7 +517,7 @@ ${results
 `;
 fs.writeFileSync(reportPath, html);
 
-const okCount = results.filter((r) => r.wfOk && r.nlOk).length;
+const okCount = results.filter((r) => r.nlOk && (r.wfOk || UPDATE_BASELINES)).length;
 const avgDiff = diffed.length
   ? (diffed.reduce((s, r) => s + r.diffPct, 0) / diffed.length).toFixed(2)
   : '—';
@@ -380,12 +529,125 @@ console.log(`\n✓ ${okCount}/${results.length} captures complete`);
 console.log(`▸ avg diff: ${avgDiff}%  |  worst: ${worstDiff}%`);
 console.log(`▸ open ${reportPath}`);
 
-// Hard failure gate — only active when DIFF_THRESHOLD is set
-if (DIFF_THRESHOLD > 0) {
-  const failing = diffed.filter((r) => r.diffPct > DIFF_THRESHOLD);
-  if (failing.length) {
-    console.error(`\n✗ ${failing.length} route(s) exceed DIFF_THRESHOLD of ${DIFF_THRESHOLD}%:`);
-    failing.forEach((r) => console.error(`  ${r.diffPct.toFixed(2)}%  ${r.route} [${r.theme}/${r.viewport}]`));
+// Mockup mode never passes silently: a missing baseline or a failed capture is
+// a hard failure, not a skipped comparison. (webflow mode tolerates capture
+// failure by design — that tolerance must not carry over; it is how #822 hid.)
+if (MOCKUP_MODE) {
+  if (missingBaselines.length) {
+    console.error(`\n✗ ${missingBaselines.length} baseline(s) missing — mockup mode refuses to skip:`);
+    missingBaselines.forEach((p) => console.error(`  ${p}`));
+    console.error('  Author against a known-good deploy, then eyeball vs the Paper mockup before committing:');
+    console.error('  UPDATE_BASELINES=1 npm run visual-mockup -- <known-good-url>');
+    process.exit(2);
+  }
+  const failedCaptures = results.filter((r) => !r.nlOk);
+  if (failedCaptures.length) {
+    console.error(`\n✗ ${failedCaptures.length} capture(s) failed — mockup mode treats this as a gate failure:`);
+    failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}] (${NETLIFY_URL}${r.netlifyPath})`));
     process.exit(1);
   }
+}
+
+// Self mode blocks, so a capture that never produced both sides must fail the
+// run rather than drop out of `diffed` unnoticed. Since #830 the image guard
+// fails a capture instead of screenshotting a half-loaded page, and without
+// this a route that loses that race twice would read as a pass.
+if (SELF_MODE) {
+  const failedCaptures = results.filter((r) => !r.wfOk || !r.nlOk);
+  if (failedCaptures.length) {
+    console.error(`\n✗ ${failedCaptures.length} capture(s) failed — a skipped route is not a pass:`);
+    failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}]`));
+    process.exit(1);
+  }
+}
+
+// Hard failure gate — only active when DIFF_THRESHOLD is set.
+//
+// A `visual-change` declaration (#856) moves routes it names out of `blocking`
+// and into `waived`; everything undeclared still gates at the threshold. The
+// declaration is not a free pass in either direction: a name that matches no
+// route, or a declared route that did not move, fails the run.
+if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
+  const { waived, blocking, unmoved, unknown, underThreshold } = evaluateDeclaration({
+    declared: DECLARED_ROUTES,
+    knownRoutes: ROUTES.map((r) => r.name),
+    results,
+    threshold: DIFF_THRESHOLD,
+  });
+
+  const summary = [];
+
+  if (SELF_MODE && !VISUAL_CHANGE_LABEL && declaredInBody.length) {
+    const note =
+      `⚠ ${declaredInBody.length} route(s) declared in the body, but the PR has no ` +
+      '`visual-change` label — the declaration was ignored. Both halves are required.';
+    console.error(`\n${note}`);
+    summary.push(note);
+  }
+
+  if (waived.length) {
+    console.log(`\n▸ ${waived.length} capture(s) waived by the visual-change declaration:`);
+    waived.forEach((r) =>
+      console.log(`  ${r.diffPct.toFixed(2).padStart(6)}%  ${r.route} [${r.theme}/${r.viewport}]`),
+    );
+    summary.push(
+      `**Waived by \`visual-change\` declaration** — ${waived.length} capture(s) across ` +
+        `${new Set(waived.map((r) => r.route)).size} declared route(s):`,
+      '',
+      '| Route | Theme/Viewport | Diff |',
+      '| --- | --- | --- |',
+      ...waived.map((r) => `| \`${r.route}\` | ${r.theme}/${r.viewport} | ${r.diffPct.toFixed(2)}% |`),
+    );
+  }
+
+  if (underThreshold.length) {
+    console.log(
+      `\n▸ ${underThreshold.length} declared route(s) moved but stayed under ${DIFF_THRESHOLD}% — ` +
+        'nothing needed waiving:',
+    );
+    underThreshold.forEach((name) => console.log(`  ${name}`));
+    summary.push(
+      `**Declared and under threshold** — ${underThreshold.map((n) => `\`${n}\``).join(', ')} ` +
+        `moved, but no capture exceeded ${DIFF_THRESHOLD}%.`,
+    );
+  }
+
+  if (unknown.length) {
+    console.error(`\n✗ ${unknown.length} declared route(s) match no entry in ROUTES:`);
+    unknown.forEach((name) => console.error(`  ${name}`));
+    console.error(`  Valid names: ${ROUTES.map((r) => r.name).join(', ')}`);
+    summary.push(`❌ **Unknown declared route(s):** ${unknown.map((n) => `\`${n}\``).join(', ')}`);
+  }
+
+  if (unmoved.length) {
+    console.error(`\n✗ ${unmoved.length} declared route(s) did not move at all:`);
+    unmoved.forEach((name) => console.error(`  ${name}`));
+    console.error('  A stale declaration is a defect — drop it from the PR body.');
+    summary.push(
+      `❌ **Stale declaration** — ${unmoved.map((n) => `\`${n}\``).join(', ')} ` +
+        'declared but measured 0.00% on every capture.',
+    );
+  }
+
+  if (blocking.length) {
+    console.error(`\n✗ ${blocking.length} route(s) exceed DIFF_THRESHOLD of ${DIFF_THRESHOLD}%:`);
+    blocking.forEach((r) =>
+      console.error(`  ${r.diffPct.toFixed(2)}%  ${r.route} [${r.theme}/${r.viewport}]`),
+    );
+    if (SELF_MODE && !DECLARED_ROUTES.length) {
+      console.error(
+        '\n  If these are intentional: add the `visual-change` label to the PR and a\n' +
+          '  `Visual-change: <route-name>, <route-name>` line to its body.',
+      );
+    }
+    summary.push(
+      `❌ **Undeclared regression** — ${blocking.length} capture(s) over ${DIFF_THRESHOLD}%.`,
+    );
+  }
+
+  if (process.env.GITHUB_STEP_SUMMARY && summary.length) {
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary.join('\n')}\n`);
+  }
+
+  if (unknown.length || unmoved.length || blocking.length) process.exit(1);
 }

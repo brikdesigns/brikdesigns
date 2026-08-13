@@ -2,10 +2,11 @@
 // Font-weight lint gate for brikdesigns.com (composite-typography initiative).
 //
 // Weight must always reach the themed CSS cascade through the token layer, and
-// every heading must be semibold via the shared heading-weight token. Two repos
-// (portal + brikdesigns) drifted off this: literal `fontWeight: 700`, raw
-// `var(--font-weight-*)` strings, and heading presets pinned to bold — the
-// defect behind the /events/grind-after-graduation two-`<h2>`-at-600-vs-700 bug.
+// every heading must be one weight — bold (700) via `font.weight.bold`, per
+// brand direction. Two repos (portal + brikdesigns) drifted off "one weight":
+// literal `fontWeight: 700`, raw `var(--font-weight-*)` strings, and headings
+// on mixed weights — the defect behind the /events/grind-after-graduation
+// two-`<h2>`-at-600-vs-700 bug.
 //
 // Two fatal checks over `src/lib/styles.ts` + `src/**/*.tsx`:
 //
@@ -15,7 +16,7 @@
 //
 //   (ii) A heading style object (`fontFamily: font.family.heading` or the raw
 //        `'var(--font-family-heading)'` equivalent) whose `fontWeight` is not
-//        the heading token — catches a heading drifting off semibold.
+//        `font.weight.bold` — catches a heading drifting off bold.
 //
 // Escape hatch (rare): add `/* lint-font-weight-ignore */` on the same line.
 //
@@ -35,9 +36,11 @@ const LITERAL_RE = /fontWeight:\s*\d/;
 const RAW_VAR_RE = /fontWeight:\s*['"`]var\(--font-weight-[^)]*\)['"`]/;
 
 // Check (ii): a heading-family marker (typed token or raw var), and whether an
-// object carries the heading weight token.
+// object carries the canonical heading weight (bold/700). The former
+// `--font-weight-heading` alias is retired from authored code (redundant drift);
+// headings now use `font.weight.bold` directly.
 const HEADING_FAMILY_RE = /fontFamily:\s*(?:font\.family\.heading\b|['"`]var\(--font-family-heading\)['"`])/g;
-const HEADING_WEIGHT_OK_RE = /fontWeight:\s*(?:font\.weight\.heading\b|['"`]var\(--font-weight-heading\)['"`])/;
+const HEADING_WEIGHT_OK_RE = /fontWeight:\s*(?:font\.weight\.bold\b|['"`]var\(--font-weight-bold\)['"`])/;
 const ANY_FONT_WEIGHT_RE = /fontWeight:\s*([^,\n}]+)/;
 
 function lineOf(text, index) {
@@ -113,7 +116,7 @@ for (const file of files) {
 }
 
 if (violations.length === 0) {
-  console.log(`OK — ${files.length} files scanned, weight always tokenized, headings semibold.`);
+  console.log(`OK — ${files.length} files scanned, weight always tokenized, headings bold.`);
   process.exit(0);
 }
 
@@ -125,6 +128,6 @@ console.error('\nRules:');
 console.error('  (i)  Weight must come via `font.weight.*` — no literal numbers,');
 console.error('       no raw `--font-weight-*` var() strings in TS/TSX.');
 console.error('  (ii) A heading (`fontFamily: font.family.heading`) must use');
-console.error('       `font.weight.heading` — every heading is semibold.');
+console.error('       `font.weight.bold` — every heading is bold (700).');
 console.error('Escape hatch (rare): add `/* lint-font-weight-ignore */` on the same line.');
 process.exit(1);

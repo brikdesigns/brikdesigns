@@ -17,10 +17,11 @@ import type { BlueprintSection } from '@brikdesigns/bds';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
 import { PlanHeroModal } from './PlanHeroModal';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
-import { color, serviceColor } from '@/lib/tokens';
-import { heading, text, label } from '@/lib/styles';
+import { color, serviceColor, font } from '@/lib/tokens';
+import { heading, text } from '@/lib/styles';
 import { SERVICE_LINE_ICON } from '@/lib/service-icons';
 import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
+import { PlanCardGrid } from '../PlanCardGrid';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../../shared-sections.css';
 import '../plans.css';
@@ -51,6 +52,25 @@ interface ServicePlanItemRow {
     image_url: string | null;
     service_lines: { slug: string; name: string } | null;
   } | null;
+}
+
+interface ServicePlanTierRow {
+  name: string;
+  description: string | null;
+  monthly_price_display: string | null;
+  annual_price_display: string | null;
+  discount_label: string | null;
+  included_scope: string | null;
+  is_featured: boolean | null;
+  sort_order: number | null;
+}
+
+function tierKeySlug(planSlug: string, tierName: string): string {
+  const suffix = tierName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+  return `${planSlug}-${suffix}`;
 }
 
 export default async function PlanDetailPage({ params }: Props) {
@@ -105,6 +125,38 @@ export default async function PlanDetailPage({ params }: Props) {
   const audience = mapServiceLineSlug(marketingLine?.slug ?? dominantLineSlug);
   const audienceTokens = serviceColor(audience);
   const firstLineName = marketingLine?.name ?? dominantLineName;
+
+  // Pricing tiers (#897) — rendered via the shared PlanCardGrid (monthly/annual
+  // toggle + discount badge). Display strings are bare figures; PlanCardGrid
+  // appends the "/month" · "/year" period. is_featured drives PricingCard's
+  // highlighted treatment. Empty when the plan authored no tiers → section hidden.
+  const tiers = (plan.service_plan_tiers ?? []) as ServicePlanTierRow[];
+  const tierCards = tiers
+    .slice()
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map((t) => ({
+      name: t.name,
+      slug: tierKeySlug(plan.slug, t.name),
+      monthlyPrice: t.monthly_price_display ?? '',
+      annualPrice: t.annual_price_display ?? null,
+      discountLabel: t.discount_label,
+      description: t.description ?? '',
+      imageUrl: null,
+      features: (t.included_scope ?? '')
+        .split('\n')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      // null (not the audience slug): PlanCardGrid only uses serviceLineSlug to
+      // inject a `--background-brand-primary: onLight` fill for the list page.
+      // Here the tier cards sit inside the plan page's `.plan-detail-ctas`
+      // cascade, which already pairs a pale service fill with AA-safe dark ink
+      // (plans.css). Injecting the onLight fill would collide with that dark ink
+      // (dark-on-dark "Get Started"). Letting it inherit keeps the button AA.
+      serviceLineSlug: null,
+      highlighted: Boolean(t.is_featured),
+      ctaLabel: 'Get Started',
+      ctaHref: `/get-started?plan=${plan.slug}`,
+    }));
 
   const otherPlans = await getOtherSupportPlans(slug);
 
@@ -165,14 +217,22 @@ export default async function PlanDetailPage({ params }: Props) {
     // primary button that doesn't set them falls back to current behaviour, so
     // adding the class is a no-op for non-opted buttons. (BRIK-WEB)
     <div
-      className="service-themed"
+      className="service-themed plan-detail-ctas"
       style={
         {
           // Primary CTAs on this plan page inherit the plan's service-line color
           // (mirrors services/[serviceLineSlug]). #342
-          '--background-brand-primary': audienceTokens.onLight,
-          '--background-inverse': audienceTokens.onLight,
+          // Light-mode fill is the pale base `background-service-*` (`bg`), NOT
+          // the deep `-on-light` step — paired with the dark service-neutral ink
+          // via the `.plan-detail-ctas .bds-button--primary` rule in plans.css so
+          // it clears AA (canonical ServiceLineCard pairing). Dark mode flips to
+          // the pale `onDark` fill + deep `text` ink through the shared
+          // `--service-cta-*-dark` cascade set here at the root.
+          '--background-brand-primary': audienceTokens.bg,
+          '--background-inverse': audienceTokens.bg,
           '--text-brand-primary': audienceTokens.text,
+          '--service-cta-fill-dark': audienceTokens.onDark,
+          '--service-cta-ink-dark': audienceTokens.text,
         } as React.CSSProperties
       }
     >
@@ -217,6 +277,17 @@ export default async function PlanDetailPage({ params }: Props) {
         <PlanIncludedServices services={includedServices} surfaceInverse={audienceTokens.inverse} />
       )}
 
+      {/* ═══ Pricing tiers ═══
+       * Titled section shell (CardGrid) wrapping the shared PlanCardGrid — one
+       * BDS PricingCard per authored tier with the monthly/annual toggle. Hidden
+       * entirely when the plan has no tiers, so single-price plans are unchanged.
+       */}
+      {tierCards.length > 0 && (
+        <CardGrid sectionKey="plan-tiers" title="Pricing">
+          <PlanCardGrid plans={tierCards} />
+        </CardGrid>
+      )}
+
       {/* ═══ CTA — two-column support-plan panel (Webflow parity) ═══
        * Surface-service-tinted panel carrying the plan's marketing
        * illustration on the left and a neutral price/CTA card on the right.
@@ -256,13 +327,11 @@ export default async function PlanDetailPage({ params }: Props) {
               style={{ backgroundColor: audienceTokens.inverse, '--service-cta-fill-dark': audienceTokens.onDark, '--service-cta-ink-dark': audienceTokens.text } as React.CSSProperties}
             >
               <div className="content-wrapper content-wrapper--center">
-                {/* Eyebrow, not a heading: demote "Get" from heading.lg (32px,
-                    co-equal with the plan name below it) to the uppercase
-                    subtitle-label scale so it reads as a kicker. #674 / BACKLOG-310,526 */}
-                <p style={{ ...label.subtitle, textAlign: 'center', margin: 0 }}>Get</p>
-                {/* heading.md (25px) mirrors the service-detail bottom-CTA plan name
-                    (was heading.lg 32px — 32-vs-20 drift between the two CTA cards). #674 / BACKLOG-526 */}
-                <h2 style={{ ...heading.md, textAlign: 'center' }}>{plan.name}</h2>
+                {/* "Get" reads inline with the plan name as one title
+                    (e.g. "Get Product Design Support") rather than a separate
+                    eyebrow kicker. heading.md (25px) mirrors the service-detail
+                    bottom-CTA plan name. */}
+                <h2 style={{ ...heading.md, textAlign: 'center' }}>Get {plan.name}</h2>
                 {plan.description && (
                   <p
                     style={{
@@ -275,8 +344,25 @@ export default async function PlanDetailPage({ params }: Props) {
                   </p>
                 )}
                 {plan.monthly_price_display && (
-                  <div className="plan-cta-panel__price">
-                    <p style={{ ...heading.md, color: color.text.primary, textAlign: 'center', margin: 0 }}>
+                  <div
+                    // `service-surface` pins inherited text dark on this
+                    // fixed-light tint (the pale surface is `-light` in BOTH
+                    // themes), so the "per month" caption (--text-secondary,
+                    // which is light grey in dark theme) stays AA — the #360
+                    // fixed-on-fixed-light pattern. The price figure sets its
+                    // own service ink explicitly, so it's unaffected.
+                    className="plan-cta-panel__price service-surface"
+                    // Price inset carries the plan's pale service tint
+                    // (`surface-service-*-light`) instead of the neutral
+                    // `--surface-secondary`, so the focal figure reads as
+                    // service-themed. Set here (not in plans.css) because the
+                    // hue is per-plan/dynamic.
+                    style={{ backgroundColor: audienceTokens.surfaceLight }}
+                  >
+                    {/* Price = display-md figure in the plan's service ink
+                        (`text-service-*-on-light`), AA on the pale `-light`
+                        inset above. */}
+                    <p style={{ ...heading.md, fontSize: font.size.display.md, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>
                       {plan.monthly_price_display}
                     </p>
                     <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center', margin: 0 }}>
@@ -356,7 +442,7 @@ export default async function PlanDetailPage({ params }: Props) {
                     // pale `onDark` step + deep `text` ink in dark mode so it pops
                     // on the card's `{hue}-darkest` `-inverse` surface (#648).
                     // Light mode keeps the deep `onLight` fill. (BRIK-WEB)
-                    style={{ '--background-brand-primary': cardTokens.onLight, '--service-cta-fill-dark': cardTokens.onDark, '--service-cta-ink-dark': cardTokens.text } as React.CSSProperties}
+                    style={{ '--background-brand-primary': cardTokens.bg, '--service-cta-fill-dark': cardTokens.onDark, '--service-cta-ink-dark': cardTokens.text } as React.CSSProperties}
                   >
                     Learn More
                   </Button>
