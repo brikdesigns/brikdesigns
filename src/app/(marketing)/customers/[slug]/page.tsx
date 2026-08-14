@@ -302,7 +302,7 @@ export default async function CustomerDetailPage({ params }: Props) {
             <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>
               We&rsquo;re more than a design studio&mdash;we&rsquo;re your strategic marketing partner.
             </p>
-            <div className="customer-stories-list">
+            <div className="story-list">
               {stories.slice(0, 1).map((story: {
                 id: string;
                 slug: string;
