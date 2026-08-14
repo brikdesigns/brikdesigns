@@ -2,12 +2,11 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Icon } from '@/lib/icon';
 import { Grid, Button } from '@brikdesigns/bds';
-import { getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { routeSlugForServiceLine } from '@/lib/service-line-routes';
+import { getServiceCategories, getSupportPlans } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
-import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
+import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import '../shared-sections.css';
 import './about.css';
 
@@ -65,16 +64,27 @@ const PILLARS = [
 ];
 
 export default async function AboutPage() {
-  const categories = await getServiceCategories();
+  const [categories, plans] = await Promise.all([
+    getServiceCategories(),
+    getSupportPlans(),
+  ]);
 
-  const serviceLines = categories
-    .map((cat) => ({
-      name: cat.name,
-      slug: cat.slug,
-      category: mapServiceLineSlug(cat.slug),
-      description: cat.tagline || cat.description || '',
-      imageUrl: cat.card_image_url || null,
-    }));
+  // Support-plan cards for the "Monthly Subscription" band, repurposed from the
+  // home page. Plan cards render the marketing-line illustration, joined
+  // client-side against the already-fetched service lines via
+  // service_plans.marketing_line_id (mirrors src/app/(marketing)/page.tsx).
+  const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
+  const supportPlans = plans.map((plan) => {
+    const marketingLineId = (plan as { marketing_line_id?: string | null }).marketing_line_id;
+    const line = marketingLineId ? serviceLineById.get(marketingLineId) : null;
+    return {
+      name: plan.name,
+      slug: plan.slug,
+      price: plan.monthly_price_display || 'Contact',
+      description: plan.home_description || plan.description || '',
+      image_url: line?.card_image_url ?? plan.image_url ?? null,
+    };
+  });
 
   return (
     <>
@@ -197,25 +207,26 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* ═══ Our Services ═══ */}
-      {/* Webflow: header text + 3-col grid of image cards with "Learn more" buttons */}
+      {/* ═══ Support Plans ("Monthly Subscription") ═══ */}
+      {/* Repurposed from the home page's plans band; replaced the former
+       * "Our Services" grid here. */}
       <section className="page-section">
         <div className="container-lg container-lg--comfortable">
           <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
+            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Monthly Subscription</h2>
             <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
-              From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
+              We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.
             </p>
           </div>
           <Grid columns={3} gap="lg">
-            {serviceLines.map((line) => (
-              <HomeServiceCard
-                key={line.slug}
-                name={line.name}
-                slug={routeSlugForServiceLine(line.slug)}
-                category={line.category}
-                tagline={line.description}
-                imageUrl={line.imageUrl}
+            {supportPlans.map((plan) => (
+              <HomePlanCard
+                key={plan.slug}
+                name={plan.name}
+                slug={plan.slug}
+                price={plan.price}
+                description={plan.description}
+                imageUrl={plan.image_url}
               />
             ))}
           </Grid>
