@@ -10,6 +10,7 @@ import {
   Button,
   Card,
   CardGrid,
+  Cluster,
   Frame,
   Grid,
 } from '@brikdesigns/bds';
@@ -370,9 +371,9 @@ export default async function PlanDetailPage({ params }: Props) {
                     </p>
                   </div>
                 )}
-                <div className="button-wrapper button-wrapper--center">
+                <Cluster gap="md" justify="center">
                   <GetStartedModalButton plan={plan.slug} planName={plan.name} serviceLine={audience} {...(plan.description ? { description: plan.description } : {})} />
-                </div>
+                </Cluster>
               </div>
             </Card>
           </div>

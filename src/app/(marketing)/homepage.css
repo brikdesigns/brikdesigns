@@ -104,16 +104,6 @@
   color: var(--text-on-color-dark);
 }
 
-/* Hero button row keeps row flow at all breakpoints where it would otherwise
-   collapse — overrides the global .button-wrapper { flex-flow: column } rule
-   applied at ≤767px for interior pages. Selector specificity is raised with
-   `.section-hero` so the override beats the later-imported shared-sections.css
-   rule (both single-class otherwise). Falls back to column only at the
-   smallest viewport when the on-color and outline lg buttons can't both fit. */
-.section-hero .hero-button-wrapper {
-  flex-wrap: wrap;
-}
-
 /* ─── Services ("What We Do") ──────────────────────────────── */
 /* Webflow: .section_services — full-width, centered, 100svh min */
 .section-services {
@@ -494,13 +484,6 @@
     padding: var(--padding-huge) 0;
     min-height: calc(100vh - var(--nav-height));
     min-height: calc(100svh - var(--nav-height));
-  }
-
-  /* Override the global .button-wrapper { flex-flow: column } rule that the
-     interior-page cascade applies at ≤767px — the hero needs to stay row
-     down to 480px so the two lg buttons sit side-by-side. */
-  .section-hero .hero-button-wrapper {
-    flex-flow: row;
   }
 
   /* Sections — remove min-height */
