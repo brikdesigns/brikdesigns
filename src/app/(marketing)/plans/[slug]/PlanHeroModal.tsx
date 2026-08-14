@@ -41,7 +41,7 @@ export function PlanHeroModal({
   const [isOpen, setIsOpen] = useState(false);
 
   // Plans have no offering/image — the panel shows the service-line glyph plus
-  // the "Selected plan" label/value. The panel carries that context, so the
+  // the plan name (no caption). The panel carries that context, so the
   // in-form callout is suppressed (`hideOfferingSummary`).
   const showPanel = Boolean(serviceLine && plan);
 
@@ -74,7 +74,6 @@ export function PlanHeroModal({
           {showPanel && serviceLine ? (
             <LeadModalLayout
               serviceLine={serviceLine}
-              label="Selected plan"
               value={
                 planName ||
                 plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())

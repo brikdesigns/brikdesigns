@@ -92,7 +92,7 @@ export function GetStartedModalButton({
               serviceLine={serviceLine}
               imageUrl={offering?.name ? imageUrl : undefined}
               imageAlt={offering?.name ?? planName ?? ''}
-              label={offering?.name ? 'Interested in' : 'Selected plan'}
+              label={offering?.name ? 'Interested in' : undefined}
               value={
                 offering?.name ||
                 planName ||
