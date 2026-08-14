@@ -657,12 +657,14 @@
   gap: var(--gap-md);
 }
 
-/* ─── Plans grid (3-col with image cards) ────────────────────── */
+/* ─── Plans grid (image cards, one column per public plan) ─────── */
 /* Webflow: .layout-nav-support */
+/* 4 cols since Full Stack Support joined the public set (was 3) — a 4th card
+   under a 3-col grid orphan-wrapped to a second row. */
 
 .mega-nav__plans-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--gap-md);
 }
 
