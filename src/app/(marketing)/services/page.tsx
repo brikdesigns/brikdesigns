@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import { Grid } from '@brikdesigns/bds';
+import { Grid, Stack, ContentBlock } from '@brikdesigns/bds';
 import { getServiceCategories, resolveServiceTagCategory, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
-import { text, heading } from '@/lib/styles';
 import { color, serviceColor } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
@@ -64,12 +63,14 @@ export default async function ServicesPage() {
       {/* ═══ Main service lines (3-col grid) ═══ */}
       <section className="page-section">
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
-            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
-              We offer design services at every stage of your business growth — from establishment to maturity.
-            </p>
-          </div>
+          <Stack align="center" className="section-header-narrow" style={{ textAlign: 'center' }}>
+            <ContentBlock
+              size="lg"
+              titleAs="h2"
+              title="Our Services"
+              description="We offer design services at every stage of your business growth — from establishment to maturity."
+            />
+          </Stack>
           <Grid columns={3} gap="md">
             {mainLines.map((cat) => (
               <ServiceLineCard
@@ -98,10 +99,14 @@ export default async function ServicesPage() {
           >
             <div className="container-lg">
               {copy && (
-                <div className="content-wrapper content-wrapper--center" style={{ marginBottom: 'var(--gap-xl)' }}>
-                  <h2 style={{ ...heading.lg, textAlign: 'center' }}>{copy.title}</h2>
-                  <p style={{ ...text.body, color: color.text.primary, textAlign: 'center' }}>{copy.subtitle}</p>
-                </div>
+                <Stack align="center" style={{ textAlign: 'center', marginBottom: 'var(--gap-xl)' }}>
+                  <ContentBlock
+                    size="lg"
+                    titleAs="h2"
+                    title={copy.title}
+                    description={<span style={{ color: color.text.primary }}>{copy.subtitle}</span>}
+                  />
+                </Stack>
               )}
               <ServiceCallout
                 name={cat.name}

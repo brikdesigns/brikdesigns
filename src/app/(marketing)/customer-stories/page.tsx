@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Grid, Button } from '@brikdesigns/bds';
+import { Grid, Button, Stack, ContentBlock } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { CustomerStoriesList } from './CustomerStoriesList';
@@ -72,12 +72,14 @@ export default async function CustomerStoriesPage() {
       {serviceLines && serviceLines.length > 0 && (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <div className="content-wrapper content-wrapper--center content-wrapper--narrow">
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Our Services</h2>
-              <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
-                We offer design services at every stage of your business growth — from brand to back office.
-              </p>
-            </div>
+            <Stack align="center" className="section-header-narrow" style={{ textAlign: 'center' }}>
+              <ContentBlock
+                size="lg"
+                titleAs="h2"
+                title="Our Services"
+                description="We offer design services at every stage of your business growth — from brand to back office."
+              />
+            </Stack>
             <Grid columns={3} gap="md">
               {serviceLines.map((cat) => (
                 <ServiceLineCard
