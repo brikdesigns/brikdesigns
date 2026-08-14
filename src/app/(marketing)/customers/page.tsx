@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Icon } from '@/lib/icon';
-import { Grid, Card, Button, LinkButton, Frame } from '@brikdesigns/bds';
+import { Grid, Card, Button, LinkButton, Frame, Stack, ContentBlock } from '@brikdesigns/bds';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color, font } from '@/lib/tokens';
@@ -97,12 +97,14 @@ export default async function CustomersPage() {
        * Icons drive recognition; the name reads as a label below. */}
       <section className="page-section page-section--accent">
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Know Inside-Out</h2>
-            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
-              We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:
-            </p>
-          </div>
+          <Stack align="center" style={{ textAlign: 'center' }}>
+            <ContentBlock
+              size="lg"
+              titleAs="h2"
+              title="Industries We Know Inside-Out"
+              description={<>We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:</>}
+            />
+          </Stack>
           <Grid columns={3} gap="lg">
             {INDUSTRIES.map((ind) => (
               <Card key={ind.name} variant="elevated" padding="lg" className="industry-know-card">
@@ -169,12 +171,14 @@ export default async function CustomersPage() {
       {industryCards.length > 0 && (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <div className="content-wrapper content-wrapper--center">
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Industries We Serve</h2>
-              <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
-                Explore detailed playbooks for the verticals we work in most.
-              </p>
-            </div>
+            <Stack align="center" style={{ textAlign: 'center' }}>
+              <ContentBlock
+                size="lg"
+                titleAs="h2"
+                title="Industries We Serve"
+                description="Explore detailed playbooks for the verticals we work in most."
+              />
+            </Stack>
             <Grid columns={4}>
               {industryCards.map((ind: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
@@ -205,12 +209,14 @@ export default async function CustomersPage() {
        * source. */}
       <section className="page-section page-section--secondary">
         <div className="container-lg container-lg--comfortable">
-          <div className="content-wrapper content-wrapper--center">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Common Challenges We Solve</h2>
-            <p style={{ ...text.body, color: color.text.secondary, textAlign: 'center' }}>
-              Here are some of the things we hear most often from teams ready to make a change.
-            </p>
-          </div>
+          <Stack align="center" style={{ textAlign: 'center' }}>
+            <ContentBlock
+              size="lg"
+              titleAs="h2"
+              title="Common Challenges We Solve"
+              description="Here are some of the things we hear most often from teams ready to make a change."
+            />
+          </Stack>
           <Grid columns={2}>
             {CHALLENGES.map((challenge) => (
               <Card

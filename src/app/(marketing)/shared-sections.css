@@ -82,28 +82,11 @@
   background-color: var(--surface-accent);
 }
 
-/* ─── Content wrappers ───────────────────────────────────── */
-/* Webflow: .content-wrapper — flex container with gap-md.
-   Composed with modifiers to match Webflow variants. */
-
-.content-wrapper {
-  display: flex;
-  gap: var(--gap-component);
-  width: 100%;
-}
-
-.content-wrapper--center {
-  text-align: center;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.content-wrapper--narrow {
-  width: 80%;
-}
-
-.content-wrapper--center.content-wrapper--narrow {
+/* ─── Section-header width ─────────────────────────────────
+   Narrows a centered ContentBlock section-intro to a 70% column on
+   desktop (replaces the retired Webflow .content-wrapper--narrow);
+   resets to full width at ≤767px (see the mobile block below). */
+.section-header-narrow {
   width: 70%;
 }
 
@@ -488,8 +471,7 @@
     padding: var(--padding-xl) 0;
   }
 
-  .content-wrapper--narrow,
-  .content-wrapper--center.content-wrapper--narrow {
+  .section-header-narrow {
     width: 100%;
   }
 

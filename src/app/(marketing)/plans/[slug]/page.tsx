@@ -11,8 +11,10 @@ import {
   Card,
   CardGrid,
   Cluster,
+  ContentBlock,
   Frame,
   Grid,
+  Stack,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
@@ -327,23 +329,17 @@ export default async function PlanDetailPage({ params }: Props) {
               // card (#648). Light mode unchanged. (BRIK-WEB)
               style={{ backgroundColor: audienceTokens.inverse, '--service-cta-fill-dark': audienceTokens.onDark, '--service-cta-ink-dark': audienceTokens.text } as React.CSSProperties}
             >
-              <div className="content-wrapper content-wrapper--center">
+              <Stack align="center" style={{ textAlign: 'center' }}>
                 {/* "Get" reads inline with the plan name as one title
                     (e.g. "Get Product Design Support") rather than a separate
-                    eyebrow kicker. heading.md (25px) mirrors the service-detail
+                    eyebrow kicker. size="md" (25px) mirrors the service-detail
                     bottom-CTA plan name. */}
-                <h2 style={{ ...heading.md, textAlign: 'center' }}>Get {plan.name}</h2>
-                {plan.description && (
-                  <p
-                    style={{
-                      ...text.body,
-                      color: color.text.secondary,
-                      textAlign: 'center',
-                    }}
-                  >
-                    {plan.description}
-                  </p>
-                )}
+                <ContentBlock
+                  size="md"
+                  titleAs="h2"
+                  title={<>Get {plan.name}</>}
+                  {...(plan.description ? { description: plan.description } : {})}
+                />
                 {plan.monthly_price_display && (
                   <div
                     // `service-surface` pins inherited text dark on this
@@ -374,7 +370,7 @@ export default async function PlanDetailPage({ params }: Props) {
                 <Cluster gap="md" justify="center">
                   <GetStartedModalButton plan={plan.slug} planName={plan.name} serviceLine={audience} {...(plan.description ? { description: plan.description } : {})} />
                 </Cluster>
-              </div>
+              </Stack>
             </Card>
           </div>
         </div>
