@@ -94,16 +94,10 @@ export default async function CustomerDetailPage({ params }: Props) {
   return (
     <>
       {/* Hero — split layout mirroring /services/[serviceLine]: content left
-       * (badge tag, breadcrumb, name, intro_description), industry icon right.
-       * Tagline is reserved for service-plan promotion cards (per design canon)
-       * and is intentionally omitted here.
-       *
-       * The tag-icon now holds the award/primary badge (not the industry icon).
-       * primary_badge_url and secondary_badge_url are a theme pair — primary is
-       * the light-mode artwork, secondary the dark-mode one — swapped purely in
-       * CSS via the `:root[data-theme="dark"]` selector so only one shows at a
-       * time. The industry icon (page.image_url) moves to the 2nd column media,
-       * matching the service-line hero aside.
+       * (breadcrumb, name, intro_description), industry icon right. Tagline is
+       * reserved for service-plan promotion cards (per design canon) and is
+       * intentionally omitted here. The industry icon (page.image_url) sits in
+       * the 2nd column media, matching the service-line hero aside.
        *
        * Fills the viewport with a scroll-down affordance pinned to the fold
        * via .page-hero's `grid-template-rows: 1fr auto`. */}
@@ -112,30 +106,6 @@ export default async function CustomerDetailPage({ params }: Props) {
           <div className="customer-detail-hero">
             <div className="customer-detail-hero__content">
               <BackLink href="/customers">Customers</BackLink>
-              {(page.primary_badge_url || page.secondary_badge_url) && (
-                <div className="customer-detail-hero__tag" aria-hidden="true">
-                  {page.primary_badge_url && (
-                    <Image
-                      src={page.primary_badge_url}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="customer-detail-hero__tag-icon customer-detail-hero__badge--primary"
-                      priority
-                    />
-                  )}
-                  {page.secondary_badge_url && (
-                    <Image
-                      src={page.secondary_badge_url}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="customer-detail-hero__tag-icon customer-detail-hero__badge--secondary"
-                      priority
-                    />
-                  )}
-                </div>
-              )}
               <h1 className="page-hero__title">{page.name}</h1>
               {page.intro_description && (
                 <p className="page-hero__description">{page.intro_description}</p>
