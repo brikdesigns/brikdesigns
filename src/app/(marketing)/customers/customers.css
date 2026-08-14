@@ -3,8 +3,7 @@
 /* ─── Industries We Know — icon-led card ────────────────── */
 /* Vertical stack: icon block at top, name label below. Replaces the prior
  * heading-only card (h3) to better match the icon-led Webflow original.
- * Icon block uses surface-accent for the same tonal anchor as the L3
- * customer-detail-hero__tag. */
+ * Icon block uses surface-accent for a soft tonal anchor. */
 .industry-know-card {
   display: flex;
   flex-direction: column;
@@ -109,7 +108,7 @@
 /* ─── Customer detail page ────────────────────────────────── */
 
 /* Left content column inside the detail hero grid.
- * Icon tag, breadcrumb, h1, and intro text stack with gap-md. */
+ * Breadcrumb, h1, and intro text stack with gap-md. */
 .customer-detail-hero__content {
   display: flex;
   flex-direction: column;
@@ -124,45 +123,6 @@
   gap: var(--gap-xl);
   align-items: center;
   width: 100%;
-}
-
-/* Award badge tag — square accent block holding the CMS award badge.
- * primary_badge_url / secondary_badge_url are a light/dark theme pair; both
- * render in the DOM and the swap below shows exactly one per theme. */
-.customer-detail-hero__tag {
-  width: var(--size-1000);
-  height: var(--size-1000);
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.customer-detail-hero__tag-icon {
-  /* Inset the glyph to 28px inside the 40px accent frame so it matches the
-   * BDS ServiceTag icon variant (28px glyph in a 40px frame) used on the
-   * service pages — BACKLOG-324. */
-  width: var(--size-700);
-  height: var(--size-700);
-  object-fit: contain;
-}
-
-/* Theme-aware badge swap — primary = light mode, secondary = dark mode.
- * Default (light): show primary, hide secondary. Dark: show secondary and
- * hide primary *only when* a secondary exists, so a primary-only page still
- * shows its badge in dark mode rather than an empty tag. */
-.customer-detail-hero__badge--secondary {
-  display: none;
-}
-
-:root[data-theme="dark"] .customer-detail-hero__badge--secondary {
-  display: block;
-}
-
-:root[data-theme="dark"] .customer-detail-hero__tag:has(.customer-detail-hero__badge--secondary) .customer-detail-hero__badge--primary {
-  display: none;
 }
 
 /* Industry-icon media — 2nd column. Square accent surface with the icon
