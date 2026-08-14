@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button } from '@brikdesigns/bds';
+import { Grid, Button, Cluster } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
@@ -68,14 +68,14 @@ export default async function HomePage() {
                 We help small businesses show up better, work smarter, and grow faster—brik by brik.
               </p>
             </div>
-            <div className="button-wrapper hero-button-wrapper">
+            <Cluster gap="md" className="hero-button-wrapper">
               <Button href="/services" variant="on-color" size="lg">
                 Explore Design Services
               </Button>
               <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
                 Let&apos;s Talk
               </Button>
-            </div>
+            </Cluster>
           </div>
         </div>
         <ScrollDownCta />
@@ -143,11 +143,11 @@ export default async function HomePage() {
                 We&apos;ll review your current marketing, systems, and tools — and send you a 3-part plan to fix what&apos;s holding you back.
               </p>
             </div>
-            <div className="button-wrapper button-wrapper--center">
+            <Cluster gap="md" justify="center">
               <Button href="/offers/free-marketing-analysis" variant="primary" size="lg" target="_blank">
                 Get Started
               </Button>
-            </div>
+            </Cluster>
           </div>
           <div className="audit-image">
             <div className="audit__media">
@@ -226,11 +226,11 @@ export default async function HomePage() {
               Starting a new project or want to collaborate with us?
             </p>
           </div>
-          <div className="button-wrapper button-wrapper--center">
+          <Cluster gap="md" justify="center">
             <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
               Let&apos;s Talk
             </Button>
-          </div>
+          </Cluster>
         </div>
       </section>
     </>
