@@ -237,34 +237,9 @@ export default async function CustomerDetailPage({ params }: Props) {
         );
       })}
 
-      {/* Other industries — 3-col display cards. Card uses 1:1 image, title,
-       * description (from tagline copy), and a md "Learn More" button. */}
-      {otherPages.length > 0 && (
-        <section className="page-section">
-          <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Other Industries</h2>
-            <Grid columns={3} gap="lg">
-              {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
-                <Card
-                  key={p.slug}
-                  preset="display"
-                  variant="raised"
-                  title={p.name}
-                  description={p.tagline ?? undefined}
-                  image={p.image_url ? (
-                    <Frame ratio="square" fit="cover">
-                      <Image src={p.image_url} alt={p.name} width={400} height={400} />
-                    </Frame>
-                  ) : undefined}
-                  action={<LinkButton href={`/customers/${p.slug}`} variant="primary" size="md">Learn More</LinkButton>}
-                />
-              ))}
-            </Grid>
-          </div>
-        </section>
-      )}
-
-      {/* Latest Customer Story — single related story (row layout). */}
+      {/* Latest Customer Story — single related story (row layout). Placed
+       * above Other Industries so a related proof-point precedes the lateral
+       * industry nav. */}
       {stories.length > 0 && (
         <section className="page-section page-section--secondary">
           <div className="container-lg container-lg--comfortable">
@@ -300,6 +275,33 @@ export default async function CustomerDetailPage({ params }: Props) {
                 />
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Other industries — 3-col display cards. Card uses 1:1 image, title,
+       * description (from tagline copy), and a md "Learn More" button. */}
+      {otherPages.length > 0 && (
+        <section className="page-section">
+          <div className="container-lg container-lg--comfortable">
+            <h2 style={heading.lg}>Other Industries</h2>
+            <Grid columns={3} gap="lg">
+              {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
+                <Card
+                  key={p.slug}
+                  preset="display"
+                  variant="raised"
+                  title={p.name}
+                  description={p.tagline ?? undefined}
+                  image={p.image_url ? (
+                    <Frame ratio="square" fit="cover">
+                      <Image src={p.image_url} alt={p.name} width={400} height={400} />
+                    </Frame>
+                  ) : undefined}
+                  action={<LinkButton href={`/customers/${p.slug}`} variant="primary" size="md">Learn More</LinkButton>}
+                />
+              ))}
+            </Grid>
           </div>
         </section>
       )}
