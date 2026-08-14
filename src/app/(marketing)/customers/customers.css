@@ -261,14 +261,6 @@
   font-size: var(--heading-sm);
 }
 
-/* Customer stories — vertical list */
-.customer-stories-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-lg);
-  width: 100%;
-}
-
 /* ─── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 991px) {

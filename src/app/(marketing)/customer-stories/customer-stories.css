@@ -47,17 +47,18 @@
 .story-card__content {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-sm);
+  gap: var(--gap-lg);
   padding: var(--padding-lg);
 }
 
 /* Title + description as one tight pair, set apart from the meta grid below
-   (965). The tighter gap-xs binds them; the parent's gap-sm separates the
-   group from the meta and footer. */
+   (965). gap-sm binds them as one coupled unit; the parent's gap-lg separates
+   that group from the meta grid and footer as distinct thoughts (content-rhythm
+   standard — gap-xs is banned in vertical-rhythm positions). */
 .story-card__intro {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-xs);
+  gap: var(--gap-sm);
 }
 
 /* 2-column metadata grid */
