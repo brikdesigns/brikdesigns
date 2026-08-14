@@ -134,7 +134,7 @@
 .cta-card-brand {
   width: 100%;
   max-width: 1280px;
-  min-height: 230px;
+  min-height: 400px;
   margin: 0 var(--padding-lg);
   padding: var(--padding-huge) var(--padding-xl);
   background-color: var(--surface-brand-primary);
