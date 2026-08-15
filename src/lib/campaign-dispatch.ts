@@ -21,15 +21,17 @@ import { PORTAL_BASE_URL } from '@/lib/portal-url';
  */
 
 /**
- * Upper bound on how long a registration will wait on the portal.
+ * Upper bound on the call, so a hung portal cannot hold a function instance
+ * open for its whole lifetime.
  *
- * "Fire and forget" cannot be a floating promise here: this runs in a
- * serverless function, whose execution is torn down once the response is
- * returned, so an un-awaited fetch is liable to be killed before it connects.
- * A bounded await is the honest version — the registrant waits at most this
- * long, and only when the portal is slow or down.
+ * This is a resource bound, not a latency budget: the caller runs this inside
+ * `after()`, so the registrant is never waiting on it. Netlify implements
+ * `next/after` with its `waitUntil` API and documents full support, which is
+ * what keeps the request alive past the response instead of tearing it down
+ * mid-fetch — https://docs.netlify.com/build/frameworks/framework-setup-guides
+ * /nextjs/overview/ (read 2026-08-15).
  */
-const DISPATCH_TIMEOUT_MS = 2500;
+const DISPATCH_TIMEOUT_MS = 10_000;
 
 /**
  * Ask the portal to run a dispatch cycle now. Never throws.
