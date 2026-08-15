@@ -13,6 +13,7 @@ import {
   Grid,
   Button,
   ServiceTag,
+  SectionHeader,
   Stack,
 } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
@@ -333,20 +334,10 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
             {/* Title + description are one tight pair — the container's
              * 36px column gap is meant to separate the block from the grid,
              * not to space a heading from its own subtitle (#456). */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: gap.sm, alignItems: 'center' }}>
-              <h2 style={{ ...heading.lg, textAlign: 'center' }}>Other Customer Stories</h2>
-              <p
-                style={{
-                  ...text.body,
-                  color: color.text.secondary,
-                  textAlign: 'center',
-                  maxWidth: '60ch',
-                  margin: '0 auto',
-                }}
-              >
-                We&apos;re more than a design studio — we&apos;re your strategic marketing partner.
-              </p>
-            </div>
+            <SectionHeader
+              title="Other Customer Stories"
+              description="We're more than a design studio — we're your strategic marketing partner."
+            />
             <Grid columns={3} gap="md" style={{ marginTop: 'var(--gap-lg)' }}>
               {otherStories.map((s) => {
                 const cat = mapServiceLineSlug(s.service_line_slug || 'service');
@@ -431,7 +422,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
           } as React.CSSProperties}
         >
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center' }}>Related Services</h2>
+            <SectionHeader title="Related Services" />
             <Card variant="elevated" padding="lg" style={{ marginTop: 'var(--gap-lg)' }}>
               <Stack direction="horizontal" gap="lg" align="center">
                 {relatedService.image_url && (

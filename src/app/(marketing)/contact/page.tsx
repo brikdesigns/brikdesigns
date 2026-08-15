@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Button, Grid } from '@brikdesigns/bds';
+import { Button, Grid, SectionHeader } from '@brikdesigns/bds';
 import { BookACallButton } from '@/components/marketing/BookACallButton';
 import { ContactForm } from '@/components/marketing/ContactForm';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
@@ -89,12 +89,10 @@ export default async function ContactPage() {
        * surface. ═══ */}
       <section className="contact-plans">
         <div className="contact-plans__container">
-          <div className="contact-plans__header">
-            <h2 style={{ ...heading.lg, margin: 0 }}>Monthly Subscription</h2>
-            <p style={{ ...text.body, color: color.text.secondary, margin: 0 }}>
-              We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.
-            </p>
-          </div>
+          <SectionHeader
+            title="Monthly Subscription"
+            description="We're more than a design studio—we're your strategic marketing partner."
+          />
           <Grid columns={3} gap="lg">
             {supportPlans.map((plan) => (
               <HomePlanCard
