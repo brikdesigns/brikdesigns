@@ -94,16 +94,10 @@ export default async function CustomerDetailPage({ params }: Props) {
   return (
     <>
       {/* Hero — split layout mirroring /services/[serviceLine]: content left
-       * (badge tag, breadcrumb, name, intro_description), industry icon right.
-       * Tagline is reserved for service-plan promotion cards (per design canon)
-       * and is intentionally omitted here.
-       *
-       * The tag-icon now holds the award/primary badge (not the industry icon).
-       * primary_badge_url and secondary_badge_url are a theme pair — primary is
-       * the light-mode artwork, secondary the dark-mode one — swapped purely in
-       * CSS via the `:root[data-theme="dark"]` selector so only one shows at a
-       * time. The industry icon (page.image_url) moves to the 2nd column media,
-       * matching the service-line hero aside.
+       * (breadcrumb, name, intro_description), industry icon right. Tagline is
+       * reserved for service-plan promotion cards (per design canon) and is
+       * intentionally omitted here. The industry icon (page.image_url) sits in
+       * the 2nd column media, matching the service-line hero aside.
        *
        * Fills the viewport with a scroll-down affordance pinned to the fold
        * via .page-hero's `grid-template-rows: 1fr auto`. */}
@@ -112,30 +106,6 @@ export default async function CustomerDetailPage({ params }: Props) {
           <div className="customer-detail-hero">
             <div className="customer-detail-hero__content">
               <BackLink href="/customers">Customers</BackLink>
-              {(page.primary_badge_url || page.secondary_badge_url) && (
-                <div className="customer-detail-hero__tag" aria-hidden="true">
-                  {page.primary_badge_url && (
-                    <Image
-                      src={page.primary_badge_url}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="customer-detail-hero__tag-icon customer-detail-hero__badge--primary"
-                      priority
-                    />
-                  )}
-                  {page.secondary_badge_url && (
-                    <Image
-                      src={page.secondary_badge_url}
-                      alt=""
-                      width={40}
-                      height={40}
-                      className="customer-detail-hero__tag-icon customer-detail-hero__badge--secondary"
-                      priority
-                    />
-                  )}
-                </div>
-              )}
               <h1 className="page-hero__title">{page.name}</h1>
               {page.intro_description && (
                 <p className="page-hero__description">{page.intro_description}</p>
@@ -267,34 +237,9 @@ export default async function CustomerDetailPage({ params }: Props) {
         );
       })}
 
-      {/* Other industries — 3-col display cards. Card uses 1:1 image, title,
-       * description (from tagline copy), and a md "Learn More" button. */}
-      {otherPages.length > 0 && (
-        <section className="page-section">
-          <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Other Industries</h2>
-            <Grid columns={3} gap="lg">
-              {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
-                <Card
-                  key={p.slug}
-                  preset="display"
-                  variant="raised"
-                  title={p.name}
-                  description={p.tagline ?? undefined}
-                  image={p.image_url ? (
-                    <Frame ratio="square" fit="cover">
-                      <Image src={p.image_url} alt={p.name} width={400} height={400} />
-                    </Frame>
-                  ) : undefined}
-                  action={<LinkButton href={`/customers/${p.slug}`} variant="primary" size="md">Learn More</LinkButton>}
-                />
-              ))}
-            </Grid>
-          </div>
-        </section>
-      )}
-
-      {/* Latest Customer Story — single related story (row layout). */}
+      {/* Latest Customer Story — single related story (row layout). Placed
+       * above Other Industries so a related proof-point precedes the lateral
+       * industry nav. */}
       {stories.length > 0 && (
         <section className="page-section page-section--secondary">
           <div className="container-lg container-lg--comfortable">
@@ -302,7 +247,7 @@ export default async function CustomerDetailPage({ params }: Props) {
             <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>
               We&rsquo;re more than a design studio&mdash;we&rsquo;re your strategic marketing partner.
             </p>
-            <div className="customer-stories-list">
+            <div className="story-list">
               {stories.slice(0, 1).map((story: {
                 id: string;
                 slug: string;
@@ -330,6 +275,33 @@ export default async function CustomerDetailPage({ params }: Props) {
                 />
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* Other industries — 3-col display cards. Card uses 1:1 image, title,
+       * description (from tagline copy), and a md "Learn More" button. */}
+      {otherPages.length > 0 && (
+        <section className="page-section">
+          <div className="container-lg container-lg--comfortable">
+            <h2 style={heading.lg}>Other Industries</h2>
+            <Grid columns={3} gap="lg">
+              {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
+                <Card
+                  key={p.slug}
+                  preset="display"
+                  variant="raised"
+                  title={p.name}
+                  description={p.tagline ?? undefined}
+                  image={p.image_url ? (
+                    <Frame ratio="square" fit="cover">
+                      <Image src={p.image_url} alt={p.name} width={400} height={400} />
+                    </Frame>
+                  ) : undefined}
+                  action={<LinkButton href={`/customers/${p.slug}`} variant="primary" size="md">Learn More</LinkButton>}
+                />
+              ))}
+            </Grid>
           </div>
         </section>
       )}

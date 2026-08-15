@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import { Frame, ServiceTag, type ServiceLine } from '@brikdesigns/bds';
-import { color, gap, space, border, serviceColor } from '@/lib/tokens';
+import { gap, space, border, serviceColor } from '@/lib/tokens';
 import { heading, label, text } from '@/lib/styles';
 
 /**
@@ -44,8 +44,9 @@ export function LeadModalLayout({
   /** Drives the fallback `ServiceTag` glyph when there's no image, and the
    *  panel's brand tint (`surfaceLight` surface + `text` for the value). */
   serviceLine: ServiceLine;
-  /** Caption above the value, e.g. "Interested in" / "Selected plan". */
-  label: string;
+  /** Caption above the value, e.g. "Interested in". Omitted (plan modals)
+   *  renders no caption. */
+  label?: string;
   /** Offering / plan name. */
   value: string;
   /** Price, e.g. "$650". */
@@ -62,12 +63,10 @@ export function LeadModalLayout({
   const svc = serviceColor(serviceLine);
 
   return (
-    // `flex-start` (not `stretch`) so the showcase panel sizes to its own
-    // content and both columns align at the top. Stretching matched the panel
-    // to the taller form column, leaving a large empty tinted gap below the
-    // description on desktop (BACKLOG-894). Single-item lines when the columns
-    // wrap on mobile are unaffected.
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: gap.xl, alignItems: 'flex-start' }}>
+    // `stretch` so the showcase panel matches the full height of the taller
+    // form column (reverses BACKLOG-894's `flex-start`, by request). Single-item
+    // lines when the columns wrap on mobile are unaffected.
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: gap.xl, alignItems: 'stretch' }}>
       <aside
         style={{
           flex: '1 1 260px',
@@ -77,7 +76,6 @@ export function LeadModalLayout({
           gap: gap.md,
           padding: space.md,
           backgroundColor: svc.surfaceLight,
-          border: `${border.width.sm} solid ${color.border.muted}`,
           borderRadius: border.radius.lg,
           boxSizing: 'border-box',
         }}
@@ -109,7 +107,7 @@ export function LeadModalLayout({
             saturated dark-mode tint. Hierarchy comes from type scale/weight,
             not color. (#653) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: gap.xs }}>
-          <span style={{ ...label.sm, color: svc.text }}>{panelLabel}</span>
+          {panelLabel && <span style={{ ...label.sm, color: svc.text }}>{panelLabel}</span>}
           <span style={{ ...heading.sm, color: svc.text }}>{value}</span>
           {detail && <span style={{ ...label.sm, color: svc.text }}>{detail}</span>}
           {description && <p style={{ ...text.bodySmall, color: svc.text, marginTop: gap.xs }}>{description}</p>}
