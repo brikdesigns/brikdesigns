@@ -275,20 +275,22 @@ export default async function PlanDetailPage({ params }: Props) {
         <ScrollDownCta />
       </div>
 
-      {/* ═══ What You Get ═══ */}
-      {includedServices.length > 0 && (
-        <PlanIncludedServices services={includedServices} surfaceInverse={audienceTokens.inverse} />
-      )}
-
       {/* ═══ Pricing tiers ═══
        * Titled section shell (CardGrid) wrapping the shared PlanCardGrid — one
-       * BDS PricingCard per authored tier with the monthly/annual toggle. Hidden
-       * entirely when the plan has no tiers, so single-price plans are unchanged.
+       * BDS PricingCard per tier with the monthly/annual toggle. Sits ABOVE
+       * "What You Get" (#927): the fixed Advisory/Managed tiers are the plan's
+       * headline offer, so price leads. Hidden entirely when the plan has no
+       * tiers, so single-price plans are unchanged.
        */}
       {tierCards.length > 0 && (
         <CardGrid sectionKey="plan-tiers" title="Pricing">
           <PlanCardGrid plans={tierCards} />
         </CardGrid>
+      )}
+
+      {/* ═══ What You Get ═══ */}
+      {includedServices.length > 0 && (
+        <PlanIncludedServices services={includedServices} surfaceInverse={audienceTokens.inverse} />
       )}
 
       {/* ═══ CTA — two-column support-plan panel (Webflow parity) ═══
