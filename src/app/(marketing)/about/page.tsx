@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Icon } from '@/lib/icon';
-import { Grid, Button, Stack, ContentBlock } from '@brikdesigns/bds';
+import { Grid, Button, SectionHeader } from '@brikdesigns/bds';
 import { getServiceCategories, getSupportPlans } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -212,14 +212,10 @@ export default async function AboutPage() {
        * "Our Services" grid here. */}
       <section className="page-section">
         <div className="container-lg container-lg--comfortable">
-          <Stack align="center" style={{ textAlign: 'center' }}>
-            <ContentBlock
-              size="lg"
-              titleAs="h2"
-              title="Monthly Subscription"
-              description={<>We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.</>}
-            />
-          </Stack>
+          <SectionHeader
+            title="Monthly Subscription"
+            description={<>We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.</>}
+          />
           <Grid columns={3} gap="lg">
             {supportPlans.map((plan) => (
               <HomePlanCard

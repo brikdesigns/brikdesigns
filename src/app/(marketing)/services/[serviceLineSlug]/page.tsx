@@ -5,7 +5,7 @@ import { getServiceLineBySlug, getServicesByServiceLine, getServiceCategories, g
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
-import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag, Stack, ContentBlock } from '@brikdesigns/bds';
+import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag, SectionHeader } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -167,14 +167,10 @@ export default async function ServiceLinePage({ params }: Props) {
       {supportPlan && (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <Stack align="center" className="section-header-narrow" style={{ textAlign: 'center' }}>
-              <ContentBlock
-                size="lg"
-                titleAs="h2"
-                title="Monthly Support Services"
-                description="Join our monthly support plan to get professional advice without the need for a team."
-              />
-            </Stack>
+            <SectionHeader
+              title="Monthly Support Services"
+              description="Join our monthly support plan to get professional advice without the need for a team."
+            />
             <div
               className="service-detail-support-grid"
               // `--service-cta-fill-dark`/`-ink-dark`: the "Learn more" CTA below
