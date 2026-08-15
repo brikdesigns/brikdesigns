@@ -28,7 +28,7 @@ import {
   PricingCard,
   ServiceTag,
   Stack,
-  ContentBlock,
+  SectionHeader,
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
@@ -716,14 +716,10 @@ export default async function ServiceDetailPage({ params }: Props) {
       {supportPlan && (
         <section className="page-section service-themed" style={{ backgroundColor: serviceTokens.inverse }}>
           <div className="container-lg container-lg--comfortable">
-            <Stack align="center" className="section-header-narrow" style={{ textAlign: 'center' }}>
-              <ContentBlock
-                size="lg"
-                titleAs="h2"
-                title="Want a Partner to Avoid the Full-Time Hassle?"
-                description={<>We&apos;re more than a design studio—we&apos;re your strategic marketing partner.</>}
-              />
-            </Stack>
+            <SectionHeader
+              title="Want a Partner to Avoid the Full-Time Hassle?"
+              description={<>We&apos;re more than a design studio—we&apos;re your strategic marketing partner.</>}
+            />
             <div className="service-detail-support-grid">
               {supportPlan.image_url && (
                 <div className="service-detail-support-grid__media">
