@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Icon } from '@/lib/icon';
-import { Grid, Card, Button, LinkButton, Frame, Stack, ContentBlock } from '@brikdesigns/bds';
+import { Grid, Card, Button, LinkButton, Frame, SectionHeader } from '@brikdesigns/bds';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color, font } from '@/lib/tokens';
@@ -97,14 +97,10 @@ export default async function CustomersPage() {
        * Icons drive recognition; the name reads as a label below. */}
       <section className="page-section page-section--accent">
         <div className="container-lg container-lg--comfortable">
-          <Stack align="center" style={{ textAlign: 'center' }}>
-            <ContentBlock
-              size="lg"
-              titleAs="h2"
-              title="Industries We Know Inside-Out"
-              description={<>We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:</>}
-            />
-          </Stack>
+          <SectionHeader
+            title="Industries We Know Inside-Out"
+            description={<>We don&apos;t just &ldquo;dabble&rdquo;&mdash;we bring depth. Our team has hands-on experience in:</>}
+          />
           <Grid columns={3} gap="lg">
             {INDUSTRIES.map((ind) => (
               <Card key={ind.name} variant="elevated" padding="lg" className="industry-know-card">
@@ -171,14 +167,10 @@ export default async function CustomersPage() {
       {industryCards.length > 0 && (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <Stack align="center" style={{ textAlign: 'center' }}>
-              <ContentBlock
-                size="lg"
-                titleAs="h2"
-                title="Industries We Serve"
-                description="Explore detailed playbooks for the verticals we work in most."
-              />
-            </Stack>
+            <SectionHeader
+              title="Industries We Serve"
+              description="Explore detailed playbooks for the verticals we work in most."
+            />
             <Grid columns={4}>
               {industryCards.map((ind: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
@@ -209,14 +201,10 @@ export default async function CustomersPage() {
        * source. */}
       <section className="page-section page-section--secondary">
         <div className="container-lg container-lg--comfortable">
-          <Stack align="center" style={{ textAlign: 'center' }}>
-            <ContentBlock
-              size="lg"
-              titleAs="h2"
-              title="Common Challenges We Solve"
-              description="Here are some of the things we hear most often from teams ready to make a change."
-            />
-          </Stack>
+          <SectionHeader
+            title="Common Challenges We Solve"
+            description="Here are some of the things we hear most often from teams ready to make a change."
+          />
           <Grid columns={2}>
             {CHALLENGES.map((challenge) => (
               <Card

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Grid, Stack, ContentBlock } from '@brikdesigns/bds';
+import { Grid, SectionHeader } from '@brikdesigns/bds';
 import { getServiceCategories, resolveServiceTagCategory, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { ServiceLineCard, ServiceCallout } from './ServiceLineCard';
 import { color, serviceColor } from '@/lib/tokens';
@@ -63,14 +63,10 @@ export default async function ServicesPage() {
       {/* ═══ Main service lines (3-col grid) ═══ */}
       <section className="page-section">
         <div className="container-lg container-lg--comfortable">
-          <Stack align="center" className="section-header-narrow" style={{ textAlign: 'center' }}>
-            <ContentBlock
-              size="lg"
-              titleAs="h2"
-              title="Our Services"
-              description="We offer design services at every stage of your business growth — from establishment to maturity."
-            />
-          </Stack>
+          <SectionHeader
+            title="Our Services"
+            description="We offer design services at every stage of your business growth — from establishment to maturity."
+          />
           <Grid columns={3} gap="md">
             {mainLines.map((cat) => (
               <ServiceLineCard
@@ -99,14 +95,11 @@ export default async function ServicesPage() {
           >
             <div className="container-lg">
               {copy && (
-                <Stack align="center" style={{ textAlign: 'center', marginBottom: 'var(--gap-xl)' }}>
-                  <ContentBlock
-                    size="lg"
-                    titleAs="h2"
-                    title={copy.title}
-                    description={<span style={{ color: color.text.primary }}>{copy.subtitle}</span>}
-                  />
-                </Stack>
+                <SectionHeader
+                  title={copy.title}
+                  description={<span style={{ color: color.text.primary }}>{copy.subtitle}</span>}
+                  style={{ marginBottom: 'var(--gap-xl)' }}
+                />
               )}
               <ServiceCallout
                 name={cat.name}
