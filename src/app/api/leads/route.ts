@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { notifyOnLead, notifyOnEventRegistration } from '@/lib/notifications';
 import { checkHoneypot, verifyRecaptcha } from '@/lib/spam-protection';
+import { triggerCampaignDispatch } from '@/lib/campaign-dispatch';
 import {
   parseCustomFields,
   isCustomFieldVisible,
@@ -267,6 +268,12 @@ export async function POST(request: Request) {
         });
 
       if (registrationError) throw registrationError;
+
+      // Run the portal's campaign dispatcher now rather than waiting on its
+      // hourly tick, so an `on_registration` step reaches the registrant in
+      // seconds (#3075). Best-effort by construction — the tick is still the
+      // backstop, and the helper swallows every failure.
+      await triggerCampaignDispatch();
 
       // Confirmation email to the registrant — event template only
       // (newsletter welcome is a separate Phase 2 flow). Best-effort: the
