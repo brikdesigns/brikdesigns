@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { notifyOnLead, notifyOnEventRegistration } from '@/lib/notifications';
 import { checkHoneypot, verifyRecaptcha } from '@/lib/spam-protection';
@@ -271,9 +271,12 @@ export async function POST(request: Request) {
 
       // Run the portal's campaign dispatcher now rather than waiting on its
       // hourly tick, so an `on_registration` step reaches the registrant in
-      // seconds (#3075). Best-effort by construction — the tick is still the
-      // backstop, and the helper swallows every failure.
-      await triggerCampaignDispatch();
+      // seconds (#3075). Deferred with `after()` so it runs once the success
+      // response is already on its way — the registrant never waits on the
+      // portal, and Netlify keeps the request alive via waitUntil rather than
+      // killing the fetch mid-flight. Best-effort besides: the tick is still
+      // the backstop, and the helper swallows every failure.
+      after(triggerCampaignDispatch);
 
       // Confirmation email to the registrant — event template only
       // (newsletter welcome is a separate Phase 2 flow). Best-effort: the
