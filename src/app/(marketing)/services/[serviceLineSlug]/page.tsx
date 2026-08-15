@@ -131,9 +131,7 @@ export default async function ServiceLinePage({ params }: Props) {
        * so AA is preserved in both themes. */}
       <section id="services" className="page-section service-surface" style={{ backgroundColor: svcColors.surfaceLight }}>
         <div className="container-lg container-lg--comfortable">
-          <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-            {serviceLine.name} Services
-          </h2>
+          <SectionHeader title={`${serviceLine.name} Services`} style={{ marginBottom: 'var(--gap-lg)' }} />
           <Grid columns={3} gap="lg">
             {services.map((svc) => {
               const cat = mapServiceLineSlug(serviceLine.slug);
@@ -227,9 +225,7 @@ export default async function ServiceLinePage({ params }: Props) {
       {otherServiceLines.length > 0 && (
         <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-              Other Service Lines
-            </h2>
+            <SectionHeader title="Other Service Lines" style={{ marginBottom: 'var(--gap-lg)' }} />
             <Grid columns={3} gap="lg">
               {otherServiceLines.map((cat) => {
                 const catKey = mapServiceLineSlug(cat.slug);

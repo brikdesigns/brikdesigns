@@ -11,6 +11,7 @@ import {
   Frame,
   Grid,
   LinkButton,
+  SectionHeader,
   ServiceTag,
 } from '@brikdesigns/bds';
 import { BackLink } from '@/components/ui/BackLink';
@@ -115,9 +116,7 @@ export default async function BlogPostPage({ params }: Props) {
       {relatedPosts.length > 0 && (
         <section className="page-section page-section--accent">
           <div className="container-lg">
-            <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: gap.lg }}>
-              Keep reading
-            </h2>
+            <SectionHeader title="Keep Reading" style={{ marginBottom: gap.lg }} />
             <Grid columns={3} gap="lg">
               {relatedPosts.map((related) => (
                 <Card key={related.slug} variant="outlined" padding="none" className="blog-card">
@@ -171,9 +170,7 @@ export default async function BlogPostPage({ params }: Props) {
       {relatedServices.length > 0 ? (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: gap.lg }}>
-              Related services
-            </h2>
+            <SectionHeader title="Related Services" style={{ marginBottom: gap.lg }} />
             <Grid columns={3} gap="lg">
               {relatedServices.map((svc) => {
                 const lineSlug = svc.service_lines?.slug;
@@ -200,9 +197,7 @@ export default async function BlogPostPage({ params }: Props) {
       ) : serviceLines.length > 0 ? (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: gap.lg }}>
-              Explore our services
-            </h2>
+            <SectionHeader title="Explore Our Services" style={{ marginBottom: gap.lg }} />
             <Grid columns={3} gap="lg">
               {serviceLines.map((line) => {
                 const lineKey = mapServiceLineSlug(line.slug);
