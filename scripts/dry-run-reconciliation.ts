@@ -63,9 +63,6 @@ const SERVICE_LINES_FIELDS: Array<[string, string]> = [
   ['Main Image', 'card_image_url'],
   ['Support Plan', 'support_plan_slug'],
   ['Support Plan Img', 'support_plan_image_url'],
-  ['Light', 'brand_color_light'],
-  ['Base', 'brand_color_base'],
-  ['Dark', 'brand_color_dark'],
 ];
 
 const SERVICES_FIELDS: Array<[string, string]> = [
