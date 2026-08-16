@@ -101,7 +101,7 @@ export default async function CustomerDetailPage({ params }: Props) {
        *
        * Fills the viewport with a scroll-down affordance pinned to the fold
        * via .page-hero's `grid-template-rows: 1fr auto`. */}
-      <section className="page-hero">
+      <section className="page-hero" data-section="hero">
         <div className="page-hero__container">
           <div className="customer-detail-hero">
             <div className="customer-detail-hero__content">
@@ -173,6 +173,11 @@ export default async function CustomerDetailPage({ params }: Props) {
         return (
           <section
             key={topic.topic_number}
+            // Stable per-section identifier (brikdesigns#942). topic_number is
+            // unique within the page, so `topic-{n}` disambiguates otherwise
+            // identical `section.page-section.service-surface` siblings in
+            // devtools and in change requests.
+            data-section={`topic-${topic.topic_number}`}
             // `service-surface` only when the section carries a fixed-light service
             // tint — a service-line-less topic falls back to the theme-responsive
             // neutral surface, where the light dark-mode text is already correct.
@@ -252,7 +257,7 @@ export default async function CustomerDetailPage({ params }: Props) {
        * above Other Industries so a related proof-point precedes the lateral
        * industry nav. */}
       {stories.length > 0 && (
-        <section className="page-section page-section--secondary">
+        <section className="page-section page-section--secondary" data-section="latest-story">
           <div className="container-lg container-lg--comfortable">
             <SectionHeader
               title="Latest Customer Story"
@@ -293,7 +298,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {/* Other industries — 3-col display cards. Card uses 1:1 image, title,
        * description (from tagline copy), and a md "Learn More" button. */}
       {otherPages.length > 0 && (
-        <section className="page-section">
+        <section className="page-section" data-section="other-industries">
           <div className="container-lg container-lg--comfortable">
             <SectionHeader title="Other Industries" />
             <Grid columns={3} gap="lg">
@@ -318,7 +323,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       )}
 
       {/* CTA */}
-      <section className="cta-section-brand">
+      <section className="cta-section-brand" data-section="cta">
         <div className="cta-card-brand">
           <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
             Get in touch

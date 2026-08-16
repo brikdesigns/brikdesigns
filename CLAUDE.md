@@ -20,6 +20,10 @@ Import tokens from `@/lib/tokens` and `@/lib/styles`. No raw `var(--...)` string
 
 Read `.claude/references/page-anatomy.md`. Short form: identify the target by its **layer** in the page anatomy (Section → Layout → Container → Block → Component), read top-down from the DOM tree — never by selector-name resemblance. A BEM block name containing "card" (e.g. `bds-hero--with-pricing-card`) does **not** make it the card; that's a `<section>` (Section layer). The card is the nested Container element (`aside.bds-hero__media-card`). When a ticket says "card," it means the Container layer. Canonical: [build-standards/page-structure](https://design.brikdesigns.com/docs/build-standards/page-structure) + [composition-layers](https://design.brikdesigns.com/docs/build-standards/composition-layers).
 
+## When adding a top-level `<section>` on a marketing page
+
+Read `.claude/references/section-identification.md`. Short form: every top-level `<section>` in `src/app/(marketing)` carries a stable identifier — `data-section="<key>"` (default; derive mapped keys from the loop's stable key, not its index) or `aria-labelledby` when a heading `id` already exists. Not `bds-*` block names — these are hand-built, not BDS blueprints. Gated by `scripts/lint-section-id.mjs` (pre-commit + `verify.yml`), a ratchet against `scripts/section-id-baseline.json`.
+
 ## When naming CSS classes or TS data-object keys for text roles
 
 Read `.claude/references/naming-conventions.md`. Short form: `__title` and `__description` are canonical; `__heading`, `__subtext`, and `__body` are banned. `heading` is a typography token scale — correct as an import from `styles.ts`, wrong as a class name or data-object key.
