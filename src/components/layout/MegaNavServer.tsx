@@ -1,5 +1,6 @@
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { NAV_COLUMNS } from '@/lib/meganav-columns';
+import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
 import { MegaNav } from './MegaNav';
 
 /**
@@ -50,10 +51,10 @@ export async function MegaNavServer() {
     slug: plan.slug,
     price: plan.monthly_price_display || 'Contact',
     description: plan.home_description || plan.description || '',
-    // Service-line illustration is the single CMS source (#467): prefer the
-    // plan's marketing_line card_image_url, falling back to the plan's own
-    // image_url for legacy rows with no marketing line set.
-    imageUrl: plan.marketing_line?.card_image_url ?? plan.image_url ?? null,
+    // Service-line illustration is the single CMS source (#467): prefer a
+    // per-plan override, then the plan's marketing_line card_image_url, falling
+    // back to the plan's own image_url for legacy rows with no marketing line.
+    imageUrl: PLAN_IMAGE_OVERRIDES[plan.slug] ?? plan.marketing_line?.card_image_url ?? plan.image_url ?? null,
     // Nav tint on /plans/{slug} (#859). Read straight off marketing_line — the
     // same column the plan hero tints from — so the bar and the band can't
     // disagree. Deliberately NOT routed through mapServiceLineSlug() when the
