@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Card, Frame, Grid, LinkButton } from '@brikdesigns/bds';
+import { Card, Frame, Grid, LinkButton, SectionHeader } from '@brikdesigns/bds';
 import { BackLink } from '@/components/ui/BackLink';
 import { text, heading } from '@/lib/styles';
 import { color, font, serviceColor } from '@/lib/tokens';
@@ -243,10 +243,10 @@ export default async function CustomerDetailPage({ params }: Props) {
       {stories.length > 0 && (
         <section className="page-section page-section--secondary">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Latest Customer Story</h2>
-            <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>
-              We&rsquo;re more than a design studio&mdash;we&rsquo;re your strategic marketing partner.
-            </p>
+            <SectionHeader
+              title="Latest Customer Story"
+              description="We’re more than a design studio—we’re your strategic marketing partner."
+            />
             <div className="story-list">
               {stories.slice(0, 1).map((story: {
                 id: string;
@@ -284,7 +284,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       {otherPages.length > 0 && (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Other Industries</h2>
+            <SectionHeader title="Other Industries" />
             <Grid columns={3} gap="lg">
               {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card

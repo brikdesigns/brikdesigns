@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
@@ -37,7 +37,11 @@ export default async function HomePage() {
   // service_plans.marketing_line_id FK introduced in portal migration 00196.
   // Falls back to plan.image_url when marketing_line_id is null/absent.
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
-  const supportPlans = plans.map((plan) => {
+  const supportPlans = plans
+    // Product Support is a niche plan — excluded from the home Monthly
+    // Subscription band (still live on the Plans page and its detail route).
+    .filter((plan) => plan.slug !== 'product-support')
+    .map((plan) => {
     const marketingLineId = (plan as { marketing_line_id?: string | null }).marketing_line_id;
     const line = marketingLineId ? serviceLineById.get(marketingLineId) : null;
     return {
@@ -85,13 +89,11 @@ export default async function HomePage() {
       {/* Webflow: .section_services */}
       <section className="section-services">
         <div className="section-container">
-          <div className="section-header">
-            <h2 className="section-title">What We Do</h2>
-            <p className="section-description">
-              From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better.
-            </p>
-          </div>
-          <Grid columns={3} gap="lg">
+          <SectionHeader
+            title="What We Do"
+            description="From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better."
+          />
+          <Grid columns={5} gap="lg">
             {serviceLines.map((line) => (
               <HomeServiceCard
                 key={line.slug}
@@ -110,12 +112,10 @@ export default async function HomePage() {
       {/* Webflow: .section_service */}
       <section className="section-plans">
         <div className="section-container">
-          <div className="section-header">
-            <h2 className="section-title">Monthly Subscription</h2>
-            <p className="section-description">
-              We&apos;re more than a design studio—we&apos;re your strategic marketing partner.
-            </p>
-          </div>
+          <SectionHeader
+            title="Monthly Subscription"
+            description="We're more than a design studio—we're your strategic marketing partner."
+          />
           <Grid columns={3} gap="lg">
             {supportPlans.map((plan) => (
               <HomePlanCard
@@ -170,9 +170,7 @@ export default async function HomePage() {
       {featuredStory && (
         <section className="section-story">
           <div className="story-container">
-            <div className="section-header">
-              <h2 className="section-title">Latest Customer Story</h2>
-            </div>
+            <SectionHeader title="Latest Customer Story" />
             <div className="story-card">
               <div className="story-image-wrapper">
                 <div className="section-story__media">

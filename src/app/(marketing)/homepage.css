@@ -48,7 +48,9 @@
 .hero-text {
   display: flex;
   flex-flow: column;
-  gap: var(--gap-tiny);
+  /* gap-sm (tight display-title -> lead), not --gap-tiny: tiny collapses to 0px
+     outside the default spacing mode (content-rhythm / ADR-023 ban it vertically). */
+  gap: var(--gap-sm);
   width: 80%;
 }
 
@@ -130,34 +132,9 @@
   gap: 12px; /* Webflow gap--md = space-300 = 12px */
 }
 
-/* Webflow: .content-wrapper.center.narrow — centered text block, 70% width */
-.section-header {
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-  text-align: center;
-  gap: 12px; /* Webflow: gap--md */
-  width: 70%; /* Webflow: .content-wrapper.center.narrow */
-}
-
-/* Webflow: .text_heading-lg.center */
-.section-title {
-  font-family: var(--font-family-heading);
-  font-size: var(--heading-lg);
-  font-weight: 700;
-  line-height: var(--font-line-height-tight);
-  color: var(--text-primary);
-  margin: 0;
-}
-
-/* Webflow: .text_body-md.center */
-.section-description {
-  font-family: var(--font-family-body);
-  font-size: var(--body-md);
-  color: var(--text-secondary);
-  margin: 0;
-  max-width: 600px;
-}
+/* Section intros (title + description) now use the BDS <SectionHeader>
+   component (measure-capped, centered) — the former .section-header /
+   .section-title / .section-description trio is retired (ADR-032). */
 
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
 /* Webflow: .section_service — secondary bg, full-width, centered.
@@ -308,6 +285,7 @@
   padding: var(--padding-xl);
   background-color: var(--surface-primary);
   border-radius: 4px;
+  box-shadow: var(--box-shadow-md);
   width: 100%;
 }
 
@@ -439,12 +417,6 @@
 
 /* ─── Responsive ──────────────────────────────────────────── */
 
-/* Webflow: .section-header width 100% on mobile */
-@media (max-width: 767px) {
-  .section-header {
-    width: 100%;
-  }
-}
 
 /* Webflow: tablet — 991px */
 @media (max-width: 991px) {

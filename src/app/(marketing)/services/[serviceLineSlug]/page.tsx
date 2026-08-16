@@ -5,7 +5,7 @@ import { getServiceLineBySlug, getServicesByServiceLine, getServiceCategories, g
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
-import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag, Stack, ContentBlock } from '@brikdesigns/bds';
+import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag, SectionHeader } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -131,9 +131,7 @@ export default async function ServiceLinePage({ params }: Props) {
        * so AA is preserved in both themes. */}
       <section id="services" className="page-section service-surface" style={{ backgroundColor: svcColors.surfaceLight }}>
         <div className="container-lg container-lg--comfortable">
-          <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-            {serviceLine.name} Services
-          </h2>
+          <SectionHeader title={`${serviceLine.name} Services`} style={{ marginBottom: 'var(--gap-lg)' }} />
           <Grid columns={3} gap="lg">
             {services.map((svc) => {
               const cat = mapServiceLineSlug(serviceLine.slug);
@@ -167,14 +165,10 @@ export default async function ServiceLinePage({ params }: Props) {
       {supportPlan && (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
-            <Stack align="center" className="section-header-narrow" style={{ textAlign: 'center' }}>
-              <ContentBlock
-                size="lg"
-                titleAs="h2"
-                title="Monthly Support Services"
-                description="Join our monthly support plan to get professional advice without the need for a team."
-              />
-            </Stack>
+            <SectionHeader
+              title="Monthly Support Services"
+              description="Join our monthly support plan to get professional advice without the need for a team."
+            />
             <div
               className="service-detail-support-grid"
               // `--service-cta-fill-dark`/`-ink-dark`: the "Learn more" CTA below
@@ -231,9 +225,7 @@ export default async function ServiceLinePage({ params }: Props) {
       {otherServiceLines.length > 0 && (
         <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={{ ...heading.lg, textAlign: 'center', marginBottom: 'var(--gap-lg)' }}>
-              Other Service Lines
-            </h2>
+            <SectionHeader title="Other Service Lines" style={{ marginBottom: 'var(--gap-lg)' }} />
             <Grid columns={3} gap="lg">
               {otherServiceLines.map((cat) => {
                 const catKey = mapServiceLineSlug(cat.slug);

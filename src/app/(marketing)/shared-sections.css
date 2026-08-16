@@ -82,14 +82,6 @@
   background-color: var(--surface-accent);
 }
 
-/* ─── Section-header width ─────────────────────────────────
-   Narrows a centered ContentBlock section-intro to a 70% column on
-   desktop (replaces the retired Webflow .content-wrapper--narrow);
-   resets to full width at ≤767px (see the mobile block below). */
-.section-header-narrow {
-  width: 70%;
-}
-
 /* ─── Brand-color CTA card ───────────────────────────────── */
 /* Centered orange panel inside a section gutter — used at the bottom of
    customer-stories index and industry detail pages. */
@@ -469,10 +461,6 @@
   .page-hero,
   .page-section {
     padding: var(--padding-xl) 0;
-  }
-
-  .section-header-narrow {
-    width: 100%;
   }
 
   .cta-card-brand {
