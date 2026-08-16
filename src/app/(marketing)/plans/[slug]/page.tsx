@@ -287,7 +287,7 @@ export default async function PlanDetailPage({ params }: Props) {
        */}
       {tierCards.length > 0 && (
         <CardGrid sectionKey="plan-tiers" title="Pricing">
-          <PlanCardGrid plans={tierCards} />
+          <PlanCardGrid plans={tierCards} columns={2} />
         </CardGrid>
       )}
 
