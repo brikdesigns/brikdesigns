@@ -301,13 +301,9 @@ async function main() {
       { csv: 'Main Image', sb: 'card_image_url' },
       { csv: 'Support Plan', sb: 'support_plan_slug' },
       { csv: 'Support Plan Img', sb: 'support_plan_image_url' },
-      // BDS-canonical: brand_color_* holds BDS design token strings. CSV holds
-      // legacy raw hex from the original Webflow build and will never be back-
-      // ported (Webflow is being decommissioned). See
-      // `.claude/references/data-canonical-fields.md`.
-      { csv: 'Light', sb: 'brand_color_light', canonicalSupabase: true },
-      { csv: 'Base', sb: 'brand_color_base', canonicalSupabase: true },
-      { csv: 'Dark', sb: 'brand_color_dark', canonicalSupabase: true },
+      // brand_color_* is not audited: the columns are being retired (#934).
+      // Service-line colour comes from `slug` via the BDS ServiceTag (portal
+      // 00321), and the CSV's legacy Webflow hex was never back-ported.
     ],
   });
 
