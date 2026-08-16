@@ -3,6 +3,7 @@ import type { FormProps, BlockContext } from '@/lib/blocks';
 import { EventRegistrationForm } from '@/components/marketing/EventRegistrationForm';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
 import { EventEndedBanner } from '@/components/marketing/EventStatusBanner';
+import { EventCheckoutReturn } from '@/components/marketing/EventCheckoutReturn';
 import { heading } from '@/lib/styles';
 import { gap } from '@/lib/tokens';
 
@@ -25,12 +26,14 @@ export function FormBlock({
   ended,
   customFields,
   columns,
+  fee,
 }: FormProps & {
   rowId: BlockContext['rowId'];
   accent: BlockContext['accent'];
   ended: BlockContext['ended'];
   customFields: BlockContext['customFields'];
   columns?: BlockContext['formColumns'];
+  fee?: BlockContext['fee'];
 }) {
   const form =
     variant === 'lead' ? (
@@ -58,6 +61,7 @@ export function FormBlock({
         companyLabel={companyLabel}
         customFields={customFields}
         columns={columns}
+        fee={fee}
       />
     );
 
@@ -67,6 +71,16 @@ export function FormBlock({
         <EventEndedBanner />
       ) : (
         <>
+          {/* Stripe return state (#899) — mirrors the non-block event page.
+              Only the registration arm can produce it, but rendering it here
+              covers every block layout at once, and it is a no-op without the
+              query param. Suspense for the same prerender reason as the lead
+              form above. */}
+          {variant !== 'lead' && (
+            <Suspense fallback={null}>
+              <EventCheckoutReturn />
+            </Suspense>
+          )}
           {formHeading && <h2 style={{ ...heading.sm, marginBottom: gap.md }}>{formHeading}</h2>}
           {form}
         </>

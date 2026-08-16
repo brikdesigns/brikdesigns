@@ -98,6 +98,14 @@ export interface EventRegistrationFormProps {
    * everywhere else — byte-for-byte unchanged when omitted.
    */
   columns?: 1 | 2;
+  /**
+   * `events.fee` — non-null means the registration owes money, so a successful
+   * submit redirects to Stripe Checkout instead of rendering the success card
+   * (#899). The amount itself is not used here; the portal reads it off the
+   * registration row when it mints the session. Free events pass null and are
+   * byte-for-byte unchanged.
+   */
+  fee?: number | null;
 }
 
 export function EventRegistrationForm({
@@ -108,11 +116,38 @@ export function EventRegistrationForm({
   submitLabel = 'Register',
   customFields = [],
   columns = 1,
+  fee = null,
 }: EventRegistrationFormProps) {
   const isGrid = columns === 2;
   const isNewsletter = variant === 'newsletter';
-  const { isSubmitting, isSuccess, isError, error, submit } = useFormSubmit({
+  const isPaid = fee != null;
+
+  // A paid registration leaves this page for Stripe, so the hook must hand back
+  // the response body rather than flipping to its success card — `onSuccess`
+  // keeps it in `idle` and the redirect happens below. A free registration
+  // passes no callback and behaves exactly as before.
+  const { isSubmitting, isSuccess, isError, error, submit, setError } = useFormSubmit({
     endpoint: '/api/leads',
+    onSuccess: isPaid
+      ? (data) => {
+          const { checkout_url: checkoutUrl } = (data ?? {}) as { checkout_url?: unknown };
+
+          if (typeof checkoutUrl === 'string' && checkoutUrl) {
+            window.location.assign(checkoutUrl);
+            return;
+          }
+
+          // The registration IS saved — /api/leads writes the row before it
+          // calls checkout, and returns 200 either way. So this is not "try
+          // again", which would create a second row; it is "you are on the
+          // list, payment did not start". Saying anything else invites a
+          // duplicate registration for an event that charges.
+          setError(
+            "You're registered, but we couldn't open the payment page. " +
+              'We\'ll email you a payment link — no need to register again.',
+          );
+        }
+      : undefined,
   });
 
   // Custom answers are controlled (the built-ins stay on FormData): a

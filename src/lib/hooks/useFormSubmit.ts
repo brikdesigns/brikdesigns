@@ -14,8 +14,13 @@ export interface UseFormSubmitOptions {
    * hook stays in `idle` instead of transitioning to `success` — use this when
    * the consumer is navigating away on save (e.g. router.push) and shouldn't
    * flash a success card before the route change.
+   *
+   * Receives the parsed response body when there is one, so a consumer that
+   * navigates somewhere the SERVER chose — a Stripe Checkout URL (#899) — can
+   * read it without a second request. Callers that ignore the argument are
+   * unaffected.
    */
-  onSuccess?: () => void;
+  onSuccess?: (data: unknown) => void;
 }
 
 export interface UseFormSubmitResult {
@@ -63,8 +68,25 @@ export function useFormSubmit({
       }
 
       if (onSuccess) {
-        onSuccess();
+        // A success body is not guaranteed to be JSON (or to exist), and a
+        // parse failure must not turn a 2xx into an error — the write already
+        // happened server-side. Undefined is the honest value for "no body",
+        // but it is logged rather than swallowed: a consumer that navigates on
+        // a field of this body (a Stripe URL, #899) fails confusingly without
+        // it, and this is the only place the reason is visible.
+        let data: unknown;
+        try {
+          data = await res.json();
+        } catch (parseError) {
+          console.warn(`[useFormSubmit] ${endpoint} returned an unparseable body:`, parseError);
+        }
+        // Reset BEFORE the callback, not after. `onSuccess` is allowed to end
+        // in an error state — a 2xx whose body is missing the thing the
+        // consumer needed to navigate (#899) — and settling to `idle`
+        // afterwards would silently discard that, leaving the form looking
+        // untouched after a submit that went nowhere.
         setState('idle');
+        onSuccess(data);
       } else {
         setState('success');
       }
