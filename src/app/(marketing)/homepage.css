@@ -285,6 +285,7 @@
   padding: var(--padding-xl);
   background-color: var(--surface-primary);
   border-radius: 4px;
+  box-shadow: var(--box-shadow-md);
   width: 100%;
 }
 
