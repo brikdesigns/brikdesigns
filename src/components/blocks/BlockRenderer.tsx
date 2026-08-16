@@ -83,6 +83,7 @@ function renderBlock(block: RawBlock, key: number, context: BlockContext) {
           ended={context.ended}
           customFields={context.customFields}
           columns={context.formColumns}
+          fee={context.fee}
         />
       );
     case 'cta':

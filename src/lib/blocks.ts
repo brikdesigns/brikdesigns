@@ -433,6 +433,12 @@ export interface BlockContext {
    * lays fields two-up in its wide card; other layouts leave it undefined (1).
    */
   formColumns?: 1 | 2;
+  /**
+   * `events.fee` — page-level like the accent. Non-null sends a successful
+   * registration to Stripe Checkout instead of the success card (#899); the
+   * newsletter form arm ignores it, since a newsletter signup never charges.
+   */
+  fee?: number | null;
 }
 
 // ─── hero ────────────────────────────────────────────────────────────

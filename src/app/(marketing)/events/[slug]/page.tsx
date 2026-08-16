@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getEventBySlug, getPublicEventSlugs } from '@/lib/supabase/queries';
@@ -17,6 +18,7 @@ import { parseBlocks, parseAlertBanner } from '@/lib/blocks';
 import { LandingBlocks, AlertBannerBlock } from '@/components/blocks';
 import { Prose } from '@brikdesigns/bds';
 import { EventRegistrationForm } from '@/components/marketing/EventRegistrationForm';
+import { EventCheckoutReturn } from '@/components/marketing/EventCheckoutReturn';
 import { EventEndedBanner } from '@/components/marketing/EventStatusBanner';
 import { heading, text, label } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
@@ -74,7 +76,7 @@ export default async function EventPage({ params }: Props) {
       {blocks.length > 0 ? (
         <LandingBlocks
           blocks={blocks}
-          context={{ rowId: event.id, accent, ended, customFields: parseCustomFields(event.form_config) }}
+          context={{ rowId: event.id, accent, ended, customFields: parseCustomFields(event.form_config), fee: event.fee }}
           layout={event.layout}
           series={event.series}
           surface={landingSurface(event.accent_color_token, event.surface_treatment)}
@@ -169,6 +171,12 @@ export default async function EventPage({ params }: Props) {
               <EventEndedBanner />
             ) : (
               <>
+                {/* Stripe return state (#899). Suspense is required around
+                    useSearchParams or the route deopts to dynamic — the very
+                    thing the client component exists to avoid. */}
+                <Suspense fallback={null}>
+                  <EventCheckoutReturn />
+                </Suspense>
                 <h2 style={{ ...heading.sm, marginBottom: gap.md }}>Register</h2>
                 <EventRegistrationForm
                   eventId={event.id}
@@ -180,6 +188,7 @@ export default async function EventPage({ params }: Props) {
                     'Practice / Company (optional)',
                   )}
                   customFields={parseCustomFields(event.form_config)}
+                  fee={event.fee}
                 />
               </>
             )}
