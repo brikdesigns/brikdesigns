@@ -22,6 +22,9 @@ name: Verify (lint + token gate + schema parity)
 #  - Icon-collection drift: src/lib/icons.generated.json stays in sync with
 #    `ph:*` usage so no icon falls through to the api.iconify.design CDN
 #    (brikdesigns#626)
+#  - Section-identifier lint: every top-level marketing <section> carries a
+#    stable identifier (data-section / aria-labelledby) so siblings are
+#    addressable; ratchets a per-file baseline of grandfathered debt (brikdesigns#942)
 #
 # Sibling to a11y.yml (which waits for Netlify) and visual-parity.yml
 # (which also waits for Netlify). This one runs on every push and PR.
@@ -140,6 +143,17 @@ jobs:
 
       - name: Theme contrast lint — self-test (fixtures incl. the #851 state)
         run: npm run test:lint:theme-contrast
+
+      # brikdesigns#942. Sibling marketing <section>s collapse to the same generic
+      # utility classes (three `section.page-section.service-surface` on
+      # /customers/[slug]), so none is addressable in devtools or a change request.
+      # This ratchets a per-file baseline: a new un-identified <section> fails,
+      # existing debt is grandfathered and paid down going-forward.
+      - name: Section-identifier lint (every marketing <section> is addressable)
+        run: npm run lint:section-id
+
+      - name: Section-identifier lint — self-test (parser + ratchet fixtures)
+        run: npm run test:lint:section-id
 
       - name: HTML sanitizer behaviour (XSS corpus + CMS prose preserved)
         run: npm run test:sanitize

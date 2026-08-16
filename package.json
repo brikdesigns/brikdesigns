@@ -24,6 +24,8 @@
     "test:lint:nav-service-tint": "node scripts/lint-nav-service-tint.test.mjs",
     "lint:theme-contrast": "node scripts/lint-theme-contrast.mjs",
     "test:lint:theme-contrast": "node scripts/lint-theme-contrast.test.mjs",
+    "lint:section-id": "node scripts/lint-section-id.mjs",
+    "test:lint:section-id": "node scripts/lint-section-id.test.mjs",
     "test:sanitize": "npx tsx scripts/test-sanitize-html.mjs",
     "test:visual-change": "node scripts/lib/visual-change-declaration.test.mjs",
     "repro:on-demand-render": "bash scripts/repro-on-demand-render.sh",
