@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
+import { Card, Cluster, ContentBlock, Stack } from '@brikdesigns/bds';
 import { getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
 import { PlanCardGrid } from './PlanCardGrid';
+import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
+import { color, font, serviceColor } from '@/lib/tokens';
+import { heading, text } from '@/lib/styles';
 import '../shared-sections.css';
 import './plans.css';
 
@@ -36,11 +42,18 @@ export default async function PlansPage() {
       annualPrice: plan.annual_price_display || null,
       discountLabel: plan.discount_label || null,
       description: plan.description || '',
-      imageUrl: marketingLine?.card_image_url || plan.image_url || null,
+      // Per-plan override wins over the line illustration (single source, #467).
+      imageUrl: PLAN_IMAGE_OVERRIDES[plan.slug] ?? marketingLine?.card_image_url ?? plan.image_url ?? null,
       features: [] as string[],
       serviceLineSlug: lineSlug ? mapServiceLineSlug(lineSlug) : null,
     };
   });
+
+  // Product Support is pulled out of the pricing grid and given its own
+  // service-themed feature section below (mirrors the plan-detail CTA panel).
+  const gridPlans = plans.filter((p) => p.slug !== 'product-support');
+  const productPlan = plans.find((p) => p.slug === 'product-support') ?? null;
+  const productTokens = serviceColor('product');
 
   return (
     <>
@@ -59,9 +72,87 @@ export default async function PlansPage() {
       {/* Plan cards */}
       <section className="page-section">
         <div className="container-lg container-lg--comfortable">
-          <PlanCardGrid plans={plans} />
+          <PlanCardGrid plans={gridPlans} />
         </div>
       </section>
+
+      {/* ═══ Product Design Support ═══
+       * Product retainer promoted out of the grid into its own section — the
+       * same two-column service-CTA panel used on the plan detail page
+       * (plan-cta-panel), themed with the product line's purple tokens. The
+       * `service-themed plan-detail-ctas` wrapper carries the service-CTA
+       * cascade (globals.css / plans.css) so the Get Started button clears AA
+       * in both themes. */}
+      {productPlan && (
+        <section
+          data-section="product-support"
+          className="page-section service-themed plan-detail-ctas"
+          style={
+            {
+              '--background-brand-primary': productTokens.bg,
+              '--background-inverse': productTokens.bg,
+              '--text-brand-primary': productTokens.text,
+              '--service-cta-fill-dark': productTokens.onDark,
+              '--service-cta-ink-dark': productTokens.text,
+            } as React.CSSProperties
+          }
+        >
+          <div className="container-lg container-lg--comfortable">
+            <div
+              className="plan-cta-panel"
+              style={{ backgroundColor: productTokens.surfaceLight }}
+            >
+              {productPlan.imageUrl && (
+                <div className="plan-cta-panel__media">
+                  <Image
+                    src={productPlan.imageUrl}
+                    alt=""
+                    fill
+                    sizes="(max-width: 991px) 100vw, 45vw"
+                    style={{ objectFit: 'contain' }}
+                  />
+                </div>
+              )}
+              <Card
+                variant="elevated"
+                padding="lg"
+                className="plan-cta-panel__card"
+                style={{ backgroundColor: productTokens.inverse, '--service-cta-fill-dark': productTokens.onDark, '--service-cta-ink-dark': productTokens.text } as React.CSSProperties}
+              >
+                <Stack align="center" style={{ textAlign: 'center' }}>
+                  <ContentBlock
+                    size="md"
+                    titleAs="h2"
+                    title={<>Get {productPlan.name}</>}
+                    {...(productPlan.description ? { description: productPlan.description } : {})}
+                  />
+                  {productPlan.monthlyPrice && (
+                    <div
+                      className="plan-cta-panel__price service-surface"
+                      style={{ backgroundColor: productTokens.surfaceLight }}
+                    >
+                      <p style={{ ...heading.md, fontSize: font.size.display.md, color: productTokens.text, textAlign: 'center', margin: 0 }}>
+                        {productPlan.monthlyPrice}
+                      </p>
+                      <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center', margin: 0 }}>
+                        per month
+                      </p>
+                    </div>
+                  )}
+                  <Cluster gap="md" justify="center">
+                    <GetStartedModalButton
+                      plan={productPlan.slug}
+                      planName={productPlan.name}
+                      serviceLine="product"
+                      {...(productPlan.description ? { description: productPlan.description } : {})}
+                    />
+                  </Cluster>
+                </Stack>
+              </Card>
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 }

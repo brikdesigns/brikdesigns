@@ -441,11 +441,13 @@
   align-items: flex-start;
 }
 
-/* Webflow: .layout-nav-services-grid = 4-col grid */
+/* Webflow: .layout-nav-services-grid — one column per service line. auto-fit so
+   the five lines lay out on one row at desktop panel width and degrade cleanly
+   if a line drops out (empty-services filter). */
 .mega-nav__services-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: var(--gap-lg);
 }
 
@@ -659,13 +661,49 @@
 
 /* ─── Plans grid (image cards, one column per public plan) ─────── */
 /* Webflow: .layout-nav-support */
-/* 4 cols since Full Stack Support joined the public set (was 3) — a 4th card
-   under a 3-col grid orphan-wrapped to a second row. */
+/* 3 cols: Marketing, Back Office, Full Stack. Product Support was promoted out
+   of the nav into its own /plans section, dropping the grid back to 3. */
 
 .mega-nav__plans-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-md);
+}
+
+/* ─── Plans panel view toggle (Support Plans ⇄ All Services) ───── */
+/* Tiny segmented control at the top of the Services panel; swaps the panel body
+   between the support-plan cards and the standalone-services menu. */
+.mega-nav__view-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  margin-bottom: var(--gap-lg);
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.mega-nav__view-tab {
+  font-family: var(--font-family-label);
+  font-size: var(--label-xs);
+  font-weight: 600;
+  line-height: var(--font-line-height-snug);
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--padding-tiny) var(--padding-sm);
+  border-radius: var(--border-radius-md);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.mega-nav__view-tab:hover {
+  color: var(--text-primary);
+}
+
+.mega-nav__view-tab--active {
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 /* Left region: "Support Plans" heading stacked over the 3-col card grid. */

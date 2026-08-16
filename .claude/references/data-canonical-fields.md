@@ -20,11 +20,9 @@ The CSV is not a long-term peer of Supabase. Once the migration completes and We
 
 These fields are populated in Supabase from BDS token strings. The CSV holds raw values left over from the original Webflow build. Comparing them is noise — they cannot agree by construction, and the CSV side will never be updated (Webflow is being decommissioned).
 
-| Table           | Field(s)                                                    | Stored as                                        |
-|-----------------|-------------------------------------------------------------|--------------------------------------------------|
-| `service_lines` | `brand_color_light`, `brand_color_base`, `brand_color_dark` | BDS token strings (e.g., `--color-orange-light`) |
+**Currently empty.** `service_lines.brand_color_light / _base / _dark` were the only members; they were retired in #934 — service-line colour now comes from `slug` via the BDS `ServiceTag` (portal 00321), so there is no per-line colour column to audit.
 
-The audit script marks these with `canonicalSupabase: true` and skips field-level drift comparison for them.
+The audit script still supports the category: mark a field `canonicalSupabase: true` in `scripts/audit-supabase-drift.ts` and it skips field-level drift comparison for it.
 
 ### Supabase-canonical (CSV pulled in once, then Supabase wins)
 

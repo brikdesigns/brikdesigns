@@ -28,7 +28,6 @@ export default async function HomePage() {
     description: cat.description || '',
     hero_image_url: cat.hero_image_url || null,
     card_image_url: cat.card_image_url || null,
-    brand_color_base: cat.brand_color_base || null,
   }));
 
   // Plan cards render the marketing-line illustration (e.g. the Marketing
