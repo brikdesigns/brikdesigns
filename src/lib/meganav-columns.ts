@@ -57,6 +57,15 @@ export const NAV_COLUMNS: Record<string, NavColumn> = {
       'intake-forms',
     ],
   },
+  product: {
+    tagline: 'Build better products',
+    slugs: [
+      'design-systems',
+      'content-design',
+      'saas',
+      'mobile-app-design',
+    ],
+  },
   // 'back-office' is the DB slug for the Back Office Design line (renamed from
   // 'service' in portal migration 00199). MegaNavServer looks this up by the
   // live service_lines.slug, so the key must match the current slug.
