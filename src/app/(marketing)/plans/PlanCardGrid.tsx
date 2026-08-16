@@ -23,7 +23,15 @@ interface Plan {
   ctaHref?: string;
 }
 
-export function PlanCardGrid({ plans }: { plans: Plan[] }) {
+export function PlanCardGrid({
+  plans,
+  columns = 3,
+}: {
+  plans: Plan[];
+  /** Fixed grid column count. Defaults to 3 (the /plans list page); the plan
+   *  detail page passes 2 for its narrower tier grid. */
+  columns?: 2 | 3;
+}) {
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
 
   return (
@@ -40,7 +48,7 @@ export function PlanCardGrid({ plans }: { plans: Plan[] }) {
         />
       </div>
 
-      <Grid columns={3} gap="md">
+      <Grid columns={columns} gap="md">
         {plans.map((plan) => {
           const price =
             billing === 'annual' && plan.annualPrice ? plan.annualPrice : plan.monthlyPrice;

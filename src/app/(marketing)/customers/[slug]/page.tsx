@@ -180,7 +180,16 @@ export default async function CustomerDetailPage({ params }: Props) {
             style={{ backgroundColor: sectionSurface }}
           >
             <div className="container-lg">
-              <div className="customer-topic-grid">
+              {/* Alternating layout: odd topics (01, 03) sit content-left /
+                  cards-right; even topics (02) stack the card row UNDER the
+                  content block. Cards live in their own `__cards` container so
+                  the content↔cards gap is the block↔block step (--gap-xl) while
+                  card↔card stays --gap-lg (content-rhythm standard). */}
+              <div
+                className={`customer-topic-grid${
+                  topic.topic_number % 2 === 0 ? ' customer-topic-grid--stacked' : ''
+                }`}
+              >
                 <div className="customer-topic-grid__content">
                   <span style={{
                     fontFamily: font.family.display,
@@ -208,29 +217,31 @@ export default async function CustomerDetailPage({ params }: Props) {
                     </div>
                   )}
                 </div>
-                {slots.map((svc, idx) => {
-                  if (!svc) {
-                    return <div key={`empty-${idx}`} className="customer-topic-grid__slot" aria-hidden="true" />;
-                  }
-                  const lineSlug = svc.service_lines?.slug ?? topic.service_line_slug ?? 'brand';
-                  const cat = mapServiceLineSlug(lineSlug);
-                  return (
-                    <div key={svc.id} className="customer-topic-grid__slot">
-                      <ServiceCard
-                        name={svc.name}
-                        slug={svc.slug}
-                        serviceLineSlug={lineSlug}
-                        category={cat as ServiceLine}
-                        tagline={svc.tagline}
-                        description={svc.description}
-                        imageUrl={svc.image_url}
-                        iconServiceName={svc.name}
-                        className="service-card--flat"
-                        showCta
-                      />
-                    </div>
-                  );
-                })}
+                <div className="customer-topic-grid__cards">
+                  {slots.map((svc, idx) => {
+                    if (!svc) {
+                      return <div key={`empty-${idx}`} className="customer-topic-grid__slot" aria-hidden="true" />;
+                    }
+                    const lineSlug = svc.service_lines?.slug ?? topic.service_line_slug ?? 'brand';
+                    const cat = mapServiceLineSlug(lineSlug);
+                    return (
+                      <div key={svc.id} className="customer-topic-grid__slot">
+                        <ServiceCard
+                          name={svc.name}
+                          slug={svc.slug}
+                          serviceLineSlug={lineSlug}
+                          category={cat as ServiceLine}
+                          tagline={svc.tagline}
+                          description={svc.description}
+                          imageUrl={svc.image_url}
+                          iconServiceName={svc.name}
+                          className="service-card--flat"
+                          showCta
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>

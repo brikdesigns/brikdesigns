@@ -215,7 +215,20 @@
 .services-card__media--landscape {
   aspect-ratio: 16/9;
   position: relative;
+  /* Rounded corners on the card image. `overflow: hidden` clips the
+     absolutely-positioned img below to the radius. The base
+     `.services-card__media` radius (services.css) doesn't reach here — this
+     page imports customer-stories.css only, not services.css. */
+  border-radius: var(--border-radius-md);
   overflow: hidden;
+}
+
+/* Story name stepped down from the CardTitle default (--heading-md, 25px),
+   which overpowered the ~405px card. Targets only the h4-tagged titles set on
+   the Other Customer Stories cards — the Related Services cards keep the
+   default h3 size. */
+.services-card h4.bds-card-title {
+  font-size: var(--heading-sm);
 }
 
 .services-card__media--landscape img {

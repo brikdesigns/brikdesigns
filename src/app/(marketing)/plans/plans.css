@@ -58,14 +58,20 @@
   display: grid;
   grid-template-columns: 72px 1fr;
   gap: var(--gap-lg);
-  align-items: flex-start;
+  /* Stretch (not flex-start) so the media column fills the card's full height
+     — the tinted illustration panel runs the height of the container. */
+  align-items: stretch;
 }
 
-/* Square illustration thumbnail. Aspect-ratio + position are owned by the
-   BDS <Frame> wrapper (.bds-frame); this rule adds the radius and the
-   accent fill comes from `.illustration-media-bg`. */
+/* Illustration panel. Base aspect-ratio + position are owned by the BDS
+   <Frame> wrapper (.bds-frame); we release the square ratio and pin the media
+   to the full card height so the tinted panel spans the container. The 72px
+   grid track still fixes the width; the inner image is `object-fit: contain`,
+   so it centres vertically in the taller panel. */
 .plan-service-list-item__media {
   border-radius: var(--border-radius-md);
+  aspect-ratio: auto;
+  height: 100%;
 }
 
 .plan-service-list-item__content {
@@ -122,10 +128,12 @@
 }
 
 /* ─── What You Get — content width ───────────────────────── */
-/* Wider than the default reading column so the service title and the
-   service-line tag sit on one row inside each card without crowding. */
-.plan-what-you-get .bds-card-grid__container {
-  max-width: 768px;
+/* Narrower than the default xl content band (1280px) so the cards read as a
+   focused column. CardGrid composes the centred band on
+   `.bds-blueprint-section__container` (ADR-021) — NOT a `bds-card-grid__container`
+   element, which doesn't exist — so the width override targets that slot. */
+.plan-what-you-get .bds-blueprint-section__container {
+  max-width: 1080px;
 }
 
 /* ─── Bottom CTA — two-column support-plan panel ─────────── */
@@ -149,6 +157,10 @@
 
 .plan-cta-panel__card {
   width: 100%;
+  /* BDS `variant="elevated"` reads flat (shadow removed in brik-bds#1146) —
+     restore a real drop shadow so the focal price/CTA card lifts off the pale
+     service-tinted panel band. */
+  box-shadow: var(--box-shadow-lg);
 }
 
 /* Price sits in a subtle inset block so it reads as the focal figure. The

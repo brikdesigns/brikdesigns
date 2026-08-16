@@ -376,7 +376,10 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                             style={{ alignSelf: 'flex-start' }}
                           />
                         )}
-                        <CardTitle>{s.name || s.client_name}</CardTitle>
+                        {/* h4, not the default h3 — the story name overpowered
+                            the card at --heading-md; the scoped rule in
+                            customer-stories.css steps it to --heading-sm. */}
+                        <CardTitle as="h4">{s.name || s.client_name}</CardTitle>
                         {s.short_description && (
                           <CardDescription>{s.short_description}</CardDescription>
                         )}
