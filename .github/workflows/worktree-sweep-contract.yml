@@ -1,0 +1,65 @@
+name: worktree-sweep-contract
+
+# CI gate for pass-1 classification in sweep-merged-worktrees.sh — the decision
+# that answers "is this worktree safe to delete".
+#
+# `git merge-base --is-ancestor` is REFLEXIVE, so a task branch fresh out of
+# new-task.sh (nothing committed on it yet) reported as "merged into main" and was
+# swept — worktree gone, and with --delete-branches the branch too. It destroyed
+# task/anti-slop-scanner-signal twice in one session on 2026-07-27
+# (brikdesigns/brik-llm#1616). The exposure window is new-task.sh → first commit,
+# which is exactly where a session reads context and plans before writing anything.
+#
+# The gate matters more than the fix. Two plausible repairs are both wrong and
+# both silently break the OTHER direction — dropping real merged worktrees on the
+# floor forever, or resuming the deletions:
+#   - "commits ahead of origin/main": a non-squash-merged branch is also 0 ahead.
+#   - "tip == origin/main": inverts as soon as main advances past a fresh base.
+# The suite asserts all four verdicts so neither direction can regress unnoticed.
+#
+# This repo is the LAST of the four to adopt the reaper (brikdesigns/brik-llm#2254),
+# and it is the one that had no reaper at all — `pr-task.sh` told operators to
+# `rm -rf` the worktree instead, with no dirty, PR, or landed check. So the suite
+# arrives here with no prior local behaviour to compare against, which is exactly
+# why it has to run: byte-parity with brik-llm proves the four copies AGREE, not
+# that they are correct, and a brikdesigns PR is not gated by a brik-llm workflow.
+#
+# NEVER fix the reaper here. Fix it in brik-llm and re-sync; a local edit is
+# reported by brik-llm's reaper-twin-drift gate as DRIFT, not as an improvement.
+#
+# Verify the suite still has teeth (it should print 3 failures, all #1616 cases):
+#   git show <pre-fix-sha>:scripts/sweep-merged-worktrees.sh > /tmp/old.sh
+#   chmod +x /tmp/old.sh
+#   SWEEPER_PATH=/tmp/old.sh bash scripts/__tests__/test-sweep-worktree-classification.sh
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/sweep-merged-worktrees.sh'
+      - 'scripts/__tests__/test-sweep-worktree-classification.sh'
+      - 'scripts/lib/identity-guard.sh'
+      - '.github/workflows/worktree-sweep-contract.yml'
+
+concurrency:
+  group: worktree-sweep-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  worktree-sweep-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pass-1 verdict contract (dry-run only)
+        run: bash scripts/__tests__/test-sweep-worktree-classification.sh
+
+      - name: shellcheck the sweeper, its test, and the fixture guard
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck scripts/sweep-merged-worktrees.sh \
+                     scripts/__tests__/test-sweep-worktree-classification.sh
+          # SC2148: sourced library, no shebang contract.
+          shellcheck -e SC2148 scripts/lib/identity-guard.sh
