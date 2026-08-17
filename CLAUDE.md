@@ -46,7 +46,9 @@ After editing a CMS row in Supabase: `./scripts/dev-restart.sh --fresh`. The Nex
 
 ## Before pushing
 
-Run `npm run build`. Never push to `staging` or `main` without user confirmation.
+Run `op run --env-file=.env.op -- npm run build` — never a bare `npm run build`. Without the injected secrets, page-data collection fails against a missing Supabase client and surfaces as `Failed to collect page data for <some CMS route>` (which route depends on build order), reading like a broken route rather than a missing credential.
+
+Never push to `staging` or `main` without user confirmation.
 
 ## Before building a section
 
