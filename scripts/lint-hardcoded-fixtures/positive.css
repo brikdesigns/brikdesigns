@@ -1,0 +1,11 @@
+/* Fixture: every declaration here is a genuine hardcoded-literal violation. */
+.a {
+  gap: 2px;                 /* spacing, exact token exists (--gap-tiny) */
+  border-radius: 8px;       /* radius, exact token exists */
+  padding: 90px;            /* spacing, NO matching token → design-system gap */
+  color: #ff0000;           /* colour hex */
+  background: rgba(0, 0, 0, 0.5); /* colour rgba */
+  font-size: 30px;          /* typography */
+  line-height: 40px;        /* typography */
+  border-top-width: 3px;    /* border-width, NO matching token */
+}

@@ -11,6 +11,8 @@
     "typecheck": "tsc --noEmit",
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "test:lint:tokens": "node scripts/lint-tokens.test.mjs",
+    "lint:hardcoded": "node scripts/lint-hardcoded.mjs",
+    "test:lint:hardcoded": "node scripts/lint-hardcoded.test.mjs",
     "lint:service-urls": "node scripts/lint-service-urls.mjs",
     "lint:heading-case": "node scripts/lint-heading-case.mjs",
     "test:lint:heading-case": "node scripts/lint-heading-case.test.mjs",

@@ -1,0 +1,28 @@
+# scripts/hardcoded-allowlist.txt
+# Whole-file grandfathering for the hardcoded-literal gate (lint-hardcoded.mjs).
+# One repo-relative path per line; `#` starts a comment.
+#
+# Two kinds of entry:
+#   • Permanent — intentionally literal, signed off. Stays.
+#   • Transitional — not yet migrated; drive this list to zero. Remove a file
+#     once its literals are tokenized and it passes the gate clean.
+#
+# Regenerate the raw snapshot with `npm run lint:hardcoded -- --write-allowlist`
+# (then re-apply the section headers below). See the per-file inventory in the
+# burn-down issue.
+
+# ── Permanent ────────────────────────────────────────────────────────────────
+# 1:1 Paper port, "kept literal per sign-off" (see the file header). The band
+# dimensions are approved absolute values, not design-system decisions.
+src/app/(marketing)/value/value.css
+
+# ── Transitional (burn-down) ─────────────────────────────────────────────────
+# Grandfathered at gate introduction. Tokenize + remove, one file per PR.
+src/app/(marketing)/blog/blog.css
+src/app/(marketing)/customers/customers.css
+src/app/(marketing)/events/events.css
+src/app/(marketing)/homepage.css
+src/app/(marketing)/marketing/marketing.css
+src/app/(marketing)/shared-sections.css
+src/components/blocks/blocks.css
+src/components/layout/MegaNav.css
