@@ -72,15 +72,15 @@ export default async function AboutPage() {
   // Support-plan cards for the "Monthly Subscription" band, repurposed from the
   // home page. Plan cards render the marketing-line illustration, joined
   // client-side against the already-fetched service lines via
-  // service_plans.marketing_line_id (mirrors src/app/(marketing)/page.tsx).
+  // service_plans.display_line_id (mirrors src/app/(marketing)/page.tsx).
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
   const supportPlans = plans
     // Product Support is a niche plan — excluded from the Monthly Subscription
     // band (mirrors the home page; still live on the Plans page).
     .filter((plan) => plan.slug !== 'product-support')
     .map((plan) => {
-    const marketingLineId = (plan as { marketing_line_id?: string | null }).marketing_line_id;
-    const line = marketingLineId ? serviceLineById.get(marketingLineId) : null;
+    const displayLineId = (plan as { display_line_id?: string | null }).display_line_id;
+    const line = displayLineId ? serviceLineById.get(displayLineId) : null;
     return {
       name: plan.name,
       slug: plan.slug,

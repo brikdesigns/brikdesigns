@@ -52,15 +52,15 @@ export async function MegaNavServer() {
     price: plan.monthly_price_display || 'Contact',
     description: plan.home_description || plan.description || '',
     // Service-line illustration is the single CMS source (#467): prefer a
-    // per-plan override, then the plan's marketing_line card_image_url, falling
+    // per-plan override, then the plan's display_line card_image_url, falling
     // back to the plan's own image_url for legacy rows with no marketing line.
-    imageUrl: PLAN_IMAGE_OVERRIDES[plan.slug] ?? plan.marketing_line?.card_image_url ?? plan.image_url ?? null,
-    // Nav tint on /plans/{slug} (#859). Read straight off marketing_line — the
+    imageUrl: PLAN_IMAGE_OVERRIDES[plan.slug] ?? plan.display_line?.card_image_url ?? plan.image_url ?? null,
+    // Nav tint on /plans/{slug} (#859). Read straight off display_line — the
     // same column the plan hero tints from — so the bar and the band can't
     // disagree. Deliberately NOT routed through mapServiceLineSlug() when the
     // column is null: that helper warns and falls back to 'brand', which would
     // paint every line-less plan yellow. No line set means no tint.
-    lineSegment: plan.marketing_line?.slug ? mapServiceLineSlug(plan.marketing_line.slug) : null,
+    lineSegment: plan.display_line?.slug ? mapServiceLineSlug(plan.display_line.slug) : null,
   }));
 
   const industryItems = (industries || []).map((ind) => ({

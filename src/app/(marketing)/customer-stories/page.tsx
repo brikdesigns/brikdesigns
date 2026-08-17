@@ -4,7 +4,7 @@ import type { ServiceLine } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { CustomerStoriesList } from './CustomerStoriesList';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
-import { text, heading } from '@/lib/styles';
+import { text } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
@@ -27,14 +27,14 @@ export default async function CustomerStoriesPage() {
   // Subscription-plan cards for the "Our Services" band, mirroring the home
   // page's Monthly Subscription mapping. Plan cards render the marketing-line
   // illustration, joined client-side against the fetched service lines via
-  // service_plans.marketing_line_id. Product Support is a niche plan — excluded
+  // service_plans.display_line_id. Product Support is a niche plan — excluded
   // here (still live on the Plans page and its detail route).
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
   const supportPlans = plans
     .filter((plan) => plan.slug !== 'product-support')
     .map((plan) => {
-      const marketingLineId = (plan as { marketing_line_id?: string | null }).marketing_line_id;
-      const line = marketingLineId ? serviceLineById.get(marketingLineId) : null;
+      const displayLineId = (plan as { display_line_id?: string | null }).display_line_id;
+      const line = displayLineId ? serviceLineById.get(displayLineId) : null;
       return {
         name: plan.name,
         slug: plan.slug,
@@ -114,13 +114,16 @@ export default async function CustomerStoriesPage() {
 
       <section className="cta-section-brand">
         <div className="cta-card-brand">
-          <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>Get in Touch</h2>
-          <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0, opacity: 0.9 }}>
-            Starting a new project or want to collaborate with us?
-          </p>
-          <Button href="/contact" variant="on-color" size="lg">
-            Let&apos;s Talk
-          </Button>
+          <SectionHeader
+            onColor
+            title="Get in Touch"
+            description="Starting a new project or want to collaborate with us?"
+            actions={
+              <Button href="/contact" variant="on-color" size="lg">
+                Let&apos;s Talk
+              </Button>
+            }
+          />
         </div>
       </section>
     </>
