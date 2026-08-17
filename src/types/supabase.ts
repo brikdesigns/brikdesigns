@@ -1213,6 +1213,9 @@ export type Database = {
       companies: {
         Row: {
           address: string | null
+          address_state_code: string | null
+          address_street: string | null
+          address_suite: string | null
           city: string | null
           company_email: string | null
           contact_email: string | null
@@ -1263,6 +1266,9 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          address_state_code?: string | null
+          address_street?: string | null
+          address_suite?: string | null
           city?: string | null
           company_email?: string | null
           contact_email?: string | null
@@ -1313,6 +1319,9 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          address_state_code?: string | null
+          address_street?: string | null
+          address_suite?: string | null
           city?: string | null
           company_email?: string | null
           contact_email?: string | null
@@ -1382,7 +1391,7 @@ export type Database = {
           faqs: Json | null
           id: string
           keywords: string[] | null
-          missing_information: string[] | null
+          missing_information: Json | null
           nap: Json | null
           platforms: Json
           review_templates: Json | null
@@ -1400,7 +1409,7 @@ export type Database = {
           faqs?: Json | null
           id?: string
           keywords?: string[] | null
-          missing_information?: string[] | null
+          missing_information?: Json | null
           nap?: Json | null
           platforms?: Json
           review_templates?: Json | null
@@ -1418,7 +1427,7 @@ export type Database = {
           faqs?: Json | null
           id?: string
           keywords?: string[] | null
-          missing_information?: string[] | null
+          missing_information?: Json | null
           nap?: Json | null
           platforms?: Json
           review_templates?: Json | null
@@ -3314,6 +3323,7 @@ export type Database = {
           form_config: Json
           hero_image_url: string | null
           id: string
+          industry_slug: string | null
           layout: string | null
           series: string | null
           slug: string
@@ -3338,6 +3348,7 @@ export type Database = {
           form_config?: Json
           hero_image_url?: string | null
           id?: string
+          industry_slug?: string | null
           layout?: string | null
           series?: string | null
           slug: string
@@ -3362,6 +3373,7 @@ export type Database = {
           form_config?: Json
           hero_image_url?: string | null
           id?: string
+          industry_slug?: string | null
           layout?: string | null
           series?: string | null
           slug?: string
@@ -3607,6 +3619,7 @@ export type Database = {
           rank: number | null
           secondary_badge_url: string | null
           slug: string
+          tag: string | null
           tagline: string | null
           updated_at: string
         }
@@ -3622,6 +3635,7 @@ export type Database = {
           rank?: number | null
           secondary_badge_url?: string | null
           slug: string
+          tag?: string | null
           tagline?: string | null
           updated_at?: string
         }
@@ -3637,6 +3651,7 @@ export type Database = {
           rank?: number | null
           secondary_badge_url?: string | null
           slug?: string
+          tag?: string | null
           tagline?: string | null
           updated_at?: string
         }
@@ -4045,9 +4060,9 @@ export type Database = {
           contract_copy: string | null
           created_at: string
           description: string | null
+          frequency: string | null
           has_customer_story: boolean | null
           has_maintenance_add_on: boolean | null
-          has_maintenance_addon: boolean
           has_multiple_offerings: boolean | null
           hero_image_url: string | null
           id: string
@@ -4065,6 +4080,7 @@ export type Database = {
           proposal_copy: string | null
           rank: number | null
           related_service_slug: string | null
+          role: string
           service_id: string
           service_line_id: string
           service_type: string
@@ -4090,9 +4106,9 @@ export type Database = {
           contract_copy?: string | null
           created_at?: string
           description?: string | null
+          frequency?: string | null
           has_customer_story?: boolean | null
           has_maintenance_add_on?: boolean | null
-          has_maintenance_addon?: boolean
           has_multiple_offerings?: boolean | null
           hero_image_url?: string | null
           id?: string
@@ -4110,6 +4126,7 @@ export type Database = {
           proposal_copy?: string | null
           rank?: number | null
           related_service_slug?: string | null
+          role?: string
           service_id: string
           service_line_id: string
           service_type?: string
@@ -4135,9 +4152,9 @@ export type Database = {
           contract_copy?: string | null
           created_at?: string
           description?: string | null
+          frequency?: string | null
           has_customer_story?: boolean | null
           has_maintenance_add_on?: boolean | null
-          has_maintenance_addon?: boolean
           has_multiple_offerings?: boolean | null
           hero_image_url?: string | null
           id?: string
@@ -4155,6 +4172,7 @@ export type Database = {
           proposal_copy?: string | null
           rank?: number | null
           related_service_slug?: string | null
+          role?: string
           service_id?: string
           service_line_id?: string
           service_type?: string
@@ -5312,9 +5330,6 @@ export type Database = {
       }
       service_lines: {
         Row: {
-          brand_color_base: string | null
-          brand_color_dark: string | null
-          brand_color_light: string | null
           card_image_url: string | null
           created_at: string
           description: string | null
@@ -5332,9 +5347,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          brand_color_base?: string | null
-          brand_color_dark?: string | null
-          brand_color_light?: string | null
           card_image_url?: string | null
           created_at?: string
           description?: string | null
@@ -5352,9 +5364,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          brand_color_base?: string | null
-          brand_color_dark?: string | null
-          brand_color_light?: string | null
           card_image_url?: string | null
           created_at?: string
           description?: string | null
@@ -5437,11 +5446,15 @@ export type Database = {
           included_scope: string | null
           is_featured: boolean
           is_public: boolean
+          lens: string
           monthly_price_cents: number | null
           monthly_price_display: string | null
           name: string
           service_plan_id: string
           sort_order: number
+          stripe_annual_price_id: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
           updated_at: string
         }
         Insert: {
@@ -5454,11 +5467,15 @@ export type Database = {
           included_scope?: string | null
           is_featured?: boolean
           is_public?: boolean
+          lens: string
           monthly_price_cents?: number | null
           monthly_price_display?: string | null
           name: string
           service_plan_id: string
           sort_order?: number
+          stripe_annual_price_id?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -5471,11 +5488,15 @@ export type Database = {
           included_scope?: string | null
           is_featured?: boolean
           is_public?: boolean
+          lens?: string
           monthly_price_cents?: number | null
           monthly_price_display?: string | null
           name?: string
           service_plan_id?: string
           sort_order?: number
+          stripe_annual_price_id?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           updated_at?: string
         }
         Relationships: [
