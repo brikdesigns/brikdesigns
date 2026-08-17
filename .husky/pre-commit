@@ -13,6 +13,24 @@ if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
   fi
 fi
 
+# ── Hardcoded-literal lint (raw values in token-governed CSS properties) ──
+# Closes the blind spot in lint-tokens: that gate only checks var() *references*,
+# so a raw literal (`gap: 2px`, `border-radius: 8px`, `color: #fff`) with no
+# token to inspect sails through — the defect behind the /customers/[slug]
+# `.story-meta__item { gap: 2px }` ship. Flags spatial/radius/border/type/colour
+# literals; whole-file grandfathering in scripts/hardcoded-allowlist.txt; per-line
+# escape hatch `/* bds-lint-ignore hardcoded — <reason> */`.
+if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+  if [ -f scripts/lint-hardcoded.mjs ]; then
+    echo "📏 Running hardcoded-literal lint..."
+    if ! node scripts/lint-hardcoded.mjs; then
+      echo ""
+      echo "   Replace the literal(s) above with a token, or grandfather the file."
+      exit 1
+    fi
+  fi
+fi
+
 # ── Heading title-case lint (marketing JSX) ──
 # Stops sentence-case headings from regressing the #490 sweep. Canonical rule:
 # brik-bds#910 (typography.mdx "Heading casing"). Heuristic — see the script for
