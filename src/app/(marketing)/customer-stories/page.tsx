@@ -4,7 +4,7 @@ import type { ServiceLine } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { CustomerStoriesList } from './CustomerStoriesList';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
-import { text, heading } from '@/lib/styles';
+import { text } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
@@ -114,13 +114,16 @@ export default async function CustomerStoriesPage() {
 
       <section className="cta-section-brand">
         <div className="cta-card-brand">
-          <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>Get in Touch</h2>
-          <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0, opacity: 0.9 }}>
-            Starting a new project or want to collaborate with us?
-          </p>
-          <Button href="/contact" variant="on-color" size="lg">
-            Let&apos;s Talk
-          </Button>
+          <SectionHeader
+            onColor
+            title="Get in Touch"
+            description="Starting a new project or want to collaborate with us?"
+            actions={
+              <Button href="/contact" variant="on-color" size="lg">
+                Let&apos;s Talk
+              </Button>
+            }
+          />
         </div>
       </section>
     </>

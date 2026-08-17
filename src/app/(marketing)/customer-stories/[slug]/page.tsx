@@ -474,30 +474,16 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
       {/* ═══ Bottom Get In Touch CTA ═══ */}
       <section className="cta-section-brand">
         <div className="cta-card-brand">
-          <h2
-            style={{
-              ...heading.lg,
-              color: color.text.onColorDark,
-              textAlign: 'center',
-              margin: 0,
-            }}
-          >
-            Get in touch
-          </h2>
-          <p
-            style={{
-              ...text.body,
-              color: color.text.onColorDark,
-              textAlign: 'center',
-              margin: 0,
-              opacity: 0.9,
-            }}
-          >
-            Starting a new project or want to collaborate with us?
-          </p>
-          <Button href="/contact" variant="on-color" size="lg">
-            Let&apos;s Talk
-          </Button>
+          <SectionHeader
+            onColor
+            title="Get in Touch"
+            description="Starting a new project or want to collaborate with us?"
+            actions={
+              <Button href="/contact" variant="on-color" size="lg">
+                Let&apos;s Talk
+              </Button>
+            }
+          />
         </div>
       </section>
     </>
