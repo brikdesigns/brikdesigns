@@ -18,6 +18,7 @@ import {
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
+import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
 import { PlanHeroModal } from './PlanHeroModal';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
 import { color, serviceColor, font } from '@/lib/tokens';
@@ -168,7 +169,7 @@ export default async function PlanDetailPage({ params }: Props) {
   // the plan's marketing_line card_image_url (the single CMS source, #467).
   // The hero's own CTA lives inside the priceCard, so cta is null at the
   // section level (no duplicate "Get Started" buttons stacked).
-  const heroImage = marketingLine?.card_image_url ?? null;
+  const heroImage = PLAN_IMAGE_OVERRIDES[plan.slug] ?? marketingLine?.card_image_url ?? null;
   const heroSection: BlueprintSection = {
     sectionKey: `hero-${plan.slug}`,
     sectionType: 'hero',
@@ -284,7 +285,7 @@ export default async function PlanDetailPage({ params }: Props) {
        */}
       {tierCards.length > 0 && (
         <CardGrid sectionKey="plan-tiers" title="Pricing">
-          <PlanCardGrid plans={tierCards} />
+          <PlanCardGrid plans={tierCards} columns={2} />
         </CardGrid>
       )}
 
@@ -397,6 +398,7 @@ export default async function PlanDetailPage({ params }: Props) {
               // Card illustration = that plan's service-line card_image_url (the
               // single CMS source, #467).
               const otherImage =
+                PLAN_IMAGE_OVERRIDES[other.slug] ??
                 (otherLine as { card_image_url?: string | null } | null)?.card_image_url ?? null;
               const otherTokens = (otherLine as { slug?: string } | null)?.slug
                 ? serviceColor(mapServiceLineSlug((otherLine as { slug: string }).slug))

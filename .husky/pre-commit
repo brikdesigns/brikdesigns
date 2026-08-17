@@ -59,6 +59,23 @@ if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
   fi
 fi
 
+# ── Section-identifier lint (marketing <section> addressability) ──
+# Every top-level marketing <section> needs a stable identifier (data-section /
+# aria-labelledby) so siblings aren't indistinguishable in devtools (#942).
+# Ratchet against scripts/section-id-baseline.json — new un-identified sections
+# fail; existing debt is grandfathered. Escape hatch: `lint-section-id-ignore`
+# in the opening tag. Convention: .claude/references/section-identification.md.
+if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+  if [ -f scripts/lint-section-id.mjs ]; then
+    echo "🧭 Running section-identifier lint..."
+    if ! node scripts/lint-section-id.mjs; then
+      echo ""
+      echo "   Add \`data-section=\"<key>\"\` to the new <section>(s) above before committing."
+      exit 1
+    fi
+  fi
+fi
+
 # ── Secret scan (gitleaks) ──
 # Defense-in-depth for the secret-leak prevention layer. Mirrors the pattern
 # used in brik-bds, brik-client-portal, renew-pms. Runs gitleaks on the staged

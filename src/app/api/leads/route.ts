@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, after } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { notifyOnLead, notifyOnEventRegistration } from '@/lib/notifications';
 import { checkHoneypot, verifyRecaptcha } from '@/lib/spam-protection';
+import { triggerCampaignDispatch } from '@/lib/campaign-dispatch';
+import { fetchEventCheckoutUrl } from '@/lib/event-checkout';
 import {
   parseCustomFields,
   isCustomFieldVisible,
@@ -235,10 +237,14 @@ export async function POST(request: Request) {
     // landing page, record it against the event (FK = the company just made)
     // and look up the title so the notification can name the event.
     let eventTitle: string | undefined;
+    // Stripe Checkout URL for a fee-bearing event (#899). Returned to the form,
+    // which redirects the browser; absent for a free event.
+    let checkoutUrl: string | null = null;
+    let checkoutFailed = false;
     if (event_id) {
       const { data: eventRow, error: eventLookupError } = await supabase
         .from('events')
-        .select('title, template, event_date, event_time, description_html, form_config')
+        .select('title, template, event_date, event_time, description_html, form_config, fee')
         .eq('id', event_id)
         .maybeSingle();
       if (eventLookupError) {
@@ -248,7 +254,7 @@ export async function POST(request: Request) {
       }
       eventTitle = eventRow?.title ?? undefined;
 
-      const { error: registrationError } = await supabase
+      const { data: registrationRow, error: registrationError } = await supabase
         .from('event_registrations')
         .insert({
           event_id,
@@ -264,9 +270,35 @@ export async function POST(request: Request) {
           // than trusted from the post body: this endpoint is public, so an
           // arbitrary client could otherwise write any key into the jsonb.
           custom_answers: sanitizeCustomAnswers(eventRow?.form_config, custom_answers),
-        });
+        })
+        .select('id')
+        .single();
 
       if (registrationError) throw registrationError;
+
+      // Paid event → hand back a Stripe Checkout URL for the form to redirect
+      // to (#899). Awaited, not deferred with `after()` like the dispatch nudge
+      // below: this decides where the registrant's browser goes next, so it is
+      // the one cross-repo call they legitimately wait on.
+      //
+      // A failure here is NOT fatal to the request. The row is already written,
+      // so the registrant is registered-and-unpaid — which is the same state an
+      // abandoned Stripe session leaves, and one the portal already renders as
+      // Unpaid. Reporting it as a 500 would tell them the whole registration
+      // failed and invite a duplicate submission.
+      if (eventRow?.fee != null && registrationRow?.id) {
+        checkoutUrl = await fetchEventCheckoutUrl(registrationRow.id, email);
+        checkoutFailed = checkoutUrl === null;
+      }
+
+      // Run the portal's campaign dispatcher now rather than waiting on its
+      // hourly tick, so an `on_registration` step reaches the registrant in
+      // seconds (#3075). Deferred with `after()` so it runs once the success
+      // response is already on its way — the registrant never waits on the
+      // portal, and Netlify keeps the request alive via waitUntil rather than
+      // killing the fetch mid-flight. Best-effort besides: the tick is still
+      // the backstop, and the helper swallows every failure.
+      after(triggerCampaignDispatch);
 
       // Confirmation email to the registrant — event template only
       // (newsletter welcome is a separate Phase 2 flow). Best-effort: the
@@ -309,6 +341,11 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: "Thanks! We'll be in touch within 1 business day.",
+      // Present only for a fee-bearing event registration (#899). The form
+      // redirects to it; `checkout_unavailable` is how it tells the difference
+      // between a free event and a paid one whose checkout call failed.
+      ...(checkoutUrl ? { checkout_url: checkoutUrl } : {}),
+      ...(checkoutFailed ? { checkout_unavailable: true } : {}),
     });
   } catch (error) {
     console.error('Lead capture error:', error);

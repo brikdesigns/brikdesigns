@@ -28,7 +28,6 @@ export default async function HomePage() {
     description: cat.description || '',
     hero_image_url: cat.hero_image_url || null,
     card_image_url: cat.card_image_url || null,
-    brand_color_base: cat.brand_color_base || null,
   }));
 
   // Plan cards render the marketing-line illustration (e.g. the Marketing
@@ -37,7 +36,11 @@ export default async function HomePage() {
   // service_plans.marketing_line_id FK introduced in portal migration 00196.
   // Falls back to plan.image_url when marketing_line_id is null/absent.
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
-  const supportPlans = plans.map((plan) => {
+  const supportPlans = plans
+    // Product Support is a niche plan — excluded from the home Monthly
+    // Subscription band (still live on the Plans page and its detail route).
+    .filter((plan) => plan.slug !== 'product-support')
+    .map((plan) => {
     const marketingLineId = (plan as { marketing_line_id?: string | null }).marketing_line_id;
     const line = marketingLineId ? serviceLineById.get(marketingLineId) : null;
     return {
@@ -89,7 +92,7 @@ export default async function HomePage() {
             title="What We Do"
             description="From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better."
           />
-          <Grid columns={3} gap="lg">
+          <Grid columns={5} gap="lg">
             {serviceLines.map((line) => (
               <HomeServiceCard
                 key={line.slug}

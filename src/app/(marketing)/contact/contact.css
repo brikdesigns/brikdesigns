@@ -73,14 +73,8 @@
   padding-inline: var(--gutter-page);
 }
 
-.contact-plans__header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--gap-sm);
-  max-width: 600px;
-}
+/* `.contact-plans__header` retired — the band intro is a BDS <SectionHeader>,
+   which owns the centering + `--measure-md` cap (ADR-032). #932 */
 
 /* Responsive */
 @media (max-width: 767px) {

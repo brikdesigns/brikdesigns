@@ -71,7 +71,7 @@ export default async function MarketingPage({ params }: Props) {
       {blocks.length > 0 ? (
         <LandingBlocks
           blocks={blocks}
-          context={{ rowId: event.id, accent, ended, customFields: parseCustomFields(event.form_config) }}
+          context={{ rowId: event.id, accent, ended, customFields: parseCustomFields(event.form_config), fee: event.fee }}
           layout={event.layout}
           surface={landingSurface(event.accent_color_token, event.surface_treatment)}
         />

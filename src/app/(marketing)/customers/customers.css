@@ -182,12 +182,30 @@
  * Cols 2–4 = up to 3 service card slots. Empty slots render as
  * placeholder cells so cards keep a consistent column width even when
  * fewer than 3 services are attached. */
+/* Two groups — content block + card group — nested in their own containers
+ * so the space between them is the block↔block step (--gap-xl, content-rhythm
+ * standard), distinct from the card↔card step (--gap-lg) inside `__cards`.
+ * Default (odd topics): content-left / cards-right at the prior 1:3 ratio. */
 .customer-topic-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--gap-lg);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+  gap: var(--gap-xl);
   align-items: start;
   width: 100%;
+}
+
+/* Even topics: card row sits UNDER the content block (single column, so the
+ * two grid children stack; the --gap-xl row gap separates them). */
+.customer-topic-grid--stacked {
+  grid-template-columns: 1fr;
+}
+
+/* Card group — the 3 service-card slots. Card↔card is the --gap-lg step. */
+.customer-topic-grid__cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--gap-lg);
+  align-items: start;
 }
 
 .customer-topic-grid__content {
@@ -234,24 +252,20 @@
     margin: 0 auto;
   }
 
-  /* Collapse 4-col → 2-col on tablet so content stays on top and cards
-   * pair below. */
-  .customer-topic-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .customer-topic-grid__content {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 767px) {
+  /* Tablet: both variants stack (content on top, cards below); cards pair
+   * 2-up in their own container. */
   .customer-topic-grid {
     grid-template-columns: 1fr;
   }
 
-  .customer-topic-grid__content {
-    grid-column: auto;
+  .customer-topic-grid__cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .customer-topic-grid__cards {
+    grid-template-columns: 1fr;
   }
 
   .customer-topic-grid__slot:empty {

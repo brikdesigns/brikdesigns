@@ -1,14 +1,13 @@
 import type { Metadata } from 'next';
 import { Grid, Button, SectionHeader } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
-import { getCustomerStories, getServiceCategories, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { getCustomerStories, getServiceCategories, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { CustomerStoriesList } from './CustomerStoriesList';
-import { ServiceLineCard } from '../services/ServiceLineCard';
+import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import { text, heading } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
-import '../services/services.css';
 import './customer-stories.css';
 
 export const metadata: Metadata = {
@@ -19,10 +18,31 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function CustomerStoriesPage() {
-  const [stories, serviceLines] = await Promise.all([
+  const [stories, categories, plans] = await Promise.all([
     getCustomerStories(),
     getServiceCategories(),
+    getSupportPlans(),
   ]);
+
+  // Subscription-plan cards for the "Our Services" band, mirroring the home
+  // page's Monthly Subscription mapping. Plan cards render the marketing-line
+  // illustration, joined client-side against the fetched service lines via
+  // service_plans.marketing_line_id. Product Support is a niche plan — excluded
+  // here (still live on the Plans page and its detail route).
+  const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
+  const supportPlans = plans
+    .filter((plan) => plan.slug !== 'product-support')
+    .map((plan) => {
+      const marketingLineId = (plan as { marketing_line_id?: string | null }).marketing_line_id;
+      const line = marketingLineId ? serviceLineById.get(marketingLineId) : null;
+      return {
+        name: plan.name,
+        slug: plan.slug,
+        price: plan.monthly_price_display || 'Contact',
+        description: plan.home_description || plan.description || '',
+        image_url: line?.card_image_url ?? plan.image_url ?? null,
+      };
+    });
 
   return (
     <>
@@ -69,22 +89,22 @@ export default async function CustomerStoriesPage() {
         </div>
       </section>
 
-      {serviceLines && serviceLines.length > 0 && (
+      {supportPlans.length > 0 && (
         <section className="page-section">
           <div className="container-lg container-lg--comfortable">
             <SectionHeader
               title="Our Services"
-              description="We offer design services at every stage of your business growth — from brand to back office."
+              description="Ongoing design support at every stage of your business growth — from marketing to back office."
             />
-            <Grid columns={3} gap="md">
-              {serviceLines.map((cat) => (
-                <ServiceLineCard
-                  key={cat.slug}
-                  name={cat.name}
-                  slug={cat.slug}
-                  category={mapServiceLineSlug(cat.slug)}
-                  tagline={cat.tagline || cat.description || ''}
-                  imageUrl={cat.card_image_url}
+            <Grid columns={3} gap="lg">
+              {supportPlans.map((plan) => (
+                <HomePlanCard
+                  key={plan.slug}
+                  name={plan.name}
+                  slug={plan.slug}
+                  price={plan.price}
+                  description={plan.description}
+                  imageUrl={plan.image_url}
                 />
               ))}
             </Grid>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Card, Frame, Grid, LinkButton } from '@brikdesigns/bds';
+import { Card, Frame, Grid, LinkButton, SectionHeader } from '@brikdesigns/bds';
 import { BackLink } from '@/components/ui/BackLink';
 import { text, heading } from '@/lib/styles';
 import { color, font, serviceColor } from '@/lib/tokens';
@@ -101,7 +101,7 @@ export default async function CustomerDetailPage({ params }: Props) {
        *
        * Fills the viewport with a scroll-down affordance pinned to the fold
        * via .page-hero's `grid-template-rows: 1fr auto`. */}
-      <section className="page-hero">
+      <section className="page-hero" data-section="hero">
         <div className="page-hero__container">
           <div className="customer-detail-hero">
             <div className="customer-detail-hero__content">
@@ -173,6 +173,11 @@ export default async function CustomerDetailPage({ params }: Props) {
         return (
           <section
             key={topic.topic_number}
+            // Stable per-section identifier (brikdesigns#942). topic_number is
+            // unique within the page, so `topic-{n}` disambiguates otherwise
+            // identical `section.page-section.service-surface` siblings in
+            // devtools and in change requests.
+            data-section={`topic-${topic.topic_number}`}
             // `service-surface` only when the section carries a fixed-light service
             // tint — a service-line-less topic falls back to the theme-responsive
             // neutral surface, where the light dark-mode text is already correct.
@@ -180,7 +185,16 @@ export default async function CustomerDetailPage({ params }: Props) {
             style={{ backgroundColor: sectionSurface }}
           >
             <div className="container-lg">
-              <div className="customer-topic-grid">
+              {/* Alternating layout: odd topics (01, 03) sit content-left /
+                  cards-right; even topics (02) stack the card row UNDER the
+                  content block. Cards live in their own `__cards` container so
+                  the content↔cards gap is the block↔block step (--gap-xl) while
+                  card↔card stays --gap-lg (content-rhythm standard). */}
+              <div
+                className={`customer-topic-grid${
+                  topic.topic_number % 2 === 0 ? ' customer-topic-grid--stacked' : ''
+                }`}
+              >
                 <div className="customer-topic-grid__content">
                   <span style={{
                     fontFamily: font.family.display,
@@ -208,29 +222,31 @@ export default async function CustomerDetailPage({ params }: Props) {
                     </div>
                   )}
                 </div>
-                {slots.map((svc, idx) => {
-                  if (!svc) {
-                    return <div key={`empty-${idx}`} className="customer-topic-grid__slot" aria-hidden="true" />;
-                  }
-                  const lineSlug = svc.service_lines?.slug ?? topic.service_line_slug ?? 'brand';
-                  const cat = mapServiceLineSlug(lineSlug);
-                  return (
-                    <div key={svc.id} className="customer-topic-grid__slot">
-                      <ServiceCard
-                        name={svc.name}
-                        slug={svc.slug}
-                        serviceLineSlug={lineSlug}
-                        category={cat as ServiceLine}
-                        tagline={svc.tagline}
-                        description={svc.description}
-                        imageUrl={svc.image_url}
-                        iconServiceName={svc.name}
-                        className="service-card--flat"
-                        showCta
-                      />
-                    </div>
-                  );
-                })}
+                <div className="customer-topic-grid__cards">
+                  {slots.map((svc, idx) => {
+                    if (!svc) {
+                      return <div key={`empty-${idx}`} className="customer-topic-grid__slot" aria-hidden="true" />;
+                    }
+                    const lineSlug = svc.service_lines?.slug ?? topic.service_line_slug ?? 'brand';
+                    const cat = mapServiceLineSlug(lineSlug);
+                    return (
+                      <div key={svc.id} className="customer-topic-grid__slot">
+                        <ServiceCard
+                          name={svc.name}
+                          slug={svc.slug}
+                          serviceLineSlug={lineSlug}
+                          category={cat as ServiceLine}
+                          tagline={svc.tagline}
+                          description={svc.description}
+                          imageUrl={svc.image_url}
+                          iconServiceName={svc.name}
+                          className="service-card--flat"
+                          showCta
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </section>
@@ -241,12 +257,12 @@ export default async function CustomerDetailPage({ params }: Props) {
        * above Other Industries so a related proof-point precedes the lateral
        * industry nav. */}
       {stories.length > 0 && (
-        <section className="page-section page-section--secondary">
+        <section className="page-section page-section--secondary" data-section="latest-story">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Latest Customer Story</h2>
-            <p style={{ ...text.body, color: color.text.primary, margin: 0 }}>
-              We&rsquo;re more than a design studio&mdash;we&rsquo;re your strategic marketing partner.
-            </p>
+            <SectionHeader
+              title="Latest Customer Story"
+              description="We’re more than a design studio—we’re your strategic marketing partner."
+            />
             <div className="story-list">
               {stories.slice(0, 1).map((story: {
                 id: string;
@@ -282,9 +298,9 @@ export default async function CustomerDetailPage({ params }: Props) {
       {/* Other industries — 3-col display cards. Card uses 1:1 image, title,
        * description (from tagline copy), and a md "Learn More" button. */}
       {otherPages.length > 0 && (
-        <section className="page-section">
+        <section className="page-section" data-section="other-industries">
           <div className="container-lg container-lg--comfortable">
-            <h2 style={heading.lg}>Other Industries</h2>
+            <SectionHeader title="Other Industries" />
             <Grid columns={3} gap="lg">
               {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
@@ -307,7 +323,7 @@ export default async function CustomerDetailPage({ params }: Props) {
       )}
 
       {/* CTA */}
-      <section className="cta-section-brand">
+      <section className="cta-section-brand" data-section="cta">
         <div className="cta-card-brand">
           <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
             Get in touch
