@@ -5,7 +5,7 @@ import { getCustomerStories, getServiceCategories, getSupportPlans, mapServiceLi
 import { CustomerStoriesList } from './CustomerStoriesList';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import { text } from '@/lib/styles';
-import { color } from '@/lib/tokens';
+import { color, gap } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './customer-stories.css';
@@ -56,8 +56,12 @@ export default async function CustomerStoriesPage() {
         <ScrollDownCta />
       </section>
 
-      <section className="page-section">
+      <section className="page-section page-section--top">
         <div className="container-lg">
+          <SectionHeader
+            title="Latest Stories"
+            style={{ marginBottom: gap.xl }}
+          />
           {stories && stories.length > 0 ? (
             <CustomerStoriesList
               stories={stories.map((story) => {
@@ -90,7 +94,7 @@ export default async function CustomerStoriesPage() {
       </section>
 
       {supportPlans.length > 0 && (
-        <section className="page-section">
+        <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
             <SectionHeader
               title="Our Services"

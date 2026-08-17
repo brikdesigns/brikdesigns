@@ -82,6 +82,16 @@
   background-color: var(--surface-accent);
 }
 
+/* Top-align the section content instead of vertically centering it in the
+   100vh band. Use when the section's content changes height at runtime (e.g.
+   the customer-stories list re-filtering by industry): centered content
+   re-centers on every change and the whole block jumps up/down. Pinning to
+   flex-start keeps the header + controls at a stable position — only the empty
+   space below the content grows/shrinks. */
+.page-section--top {
+  justify-content: flex-start;
+}
+
 /* ─── Brand-color CTA card ───────────────────────────────── */
 /* Centered orange panel inside a section gutter — used at the bottom of
    customer-stories index and industry detail pages. */
