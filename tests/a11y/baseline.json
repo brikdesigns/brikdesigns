@@ -79,7 +79,7 @@
         ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
         ".bds-card--link.story-card.bds-card > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
-        ".bds-card--outlined.bds-card--padding-md.bds-card--interactive > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
+        ".bds-card--padding-md.bds-card--interactive.bds-card--link > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
         ".bds-content-block--on-color > .bds-content-block__description"
       ]
     },
@@ -204,7 +204,7 @@
         ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
         ".bds-card--link.story-card.bds-card > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
-        ".bds-card--outlined.bds-card--padding-md.bds-card--interactive > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
+        ".bds-card--padding-md.bds-card--interactive.bds-card--link > .story-card__row > .story-card__content > .bds-card-footer > .bds-button--md.bds-button--primary.bds-button",
         ".bds-content-block--on-color > .bds-content-block__description"
       ]
     },
