@@ -33,8 +33,8 @@ export default async function GetStartedPage({ searchParams }: Props) {
     planName = matched?.name ?? '';
     // Resolve the plan's parent service-line so the form's summary card shows
     // the right ServiceTag — same card the modal entry points render (#600).
-    // marketing_line is the CMS-primary line (portal migration 00196).
-    const rawLine = (matched as { marketing_line?: unknown } | undefined)?.marketing_line;
+    // display_line is the CMS-primary line (portal 00196, renamed by 00339).
+    const rawLine = (matched as { display_line?: unknown } | undefined)?.display_line;
     const line = Array.isArray(rawLine) ? rawLine[0] : rawLine;
     const lineSlug = (line as { slug?: string } | null)?.slug;
     if (lineSlug) planServiceLine = mapServiceLineSlug(lineSlug);

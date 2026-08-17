@@ -38,7 +38,7 @@ interface SupportPlan {
   description: string;
   imageUrl: string | null;
   /** Route segment of the plan's marketing service line, or `null` when the CMS
-   *  row has no `marketing_line_id`. Drives the nav tint on `/plans/{slug}`
+   *  row has no `display_line_id`. Drives the nav tint on `/plans/{slug}`
    *  (#859) — same column the plan hero tints from. */
   lineSegment: string | null;
 }
@@ -99,7 +99,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
   //   /services/{segment}   — the segment IS the line. Sub-routes like
   //                           /services/marketing/seo still match the parent
   //                           segment, so the tint persists on detail pages.
-  //   /plans/{slug}         — the line comes from the plan's marketing_line
+  //   /plans/{slug}         — the line comes from the plan's display_line
   //                           (#859), the same CMS column the plan hero tints
   //                           from, so nav and hero can't disagree. A plan with
   //                           no marketing line set stays untinted rather than

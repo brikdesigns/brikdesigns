@@ -33,16 +33,16 @@ export default async function HomePage() {
   // Plan cards render the marketing-line illustration (e.g. the Marketing
   // Design line's card_image_url on the Marketing Support plan card). Joined
   // client-side against the already-fetched `categories` via the
-  // service_plans.marketing_line_id FK introduced in portal migration 00196.
-  // Falls back to plan.image_url when marketing_line_id is null/absent.
+  // service_plans.display_line_id FK introduced in portal 00196, renamed by 00339.
+  // Falls back to plan.image_url when display_line_id is null/absent.
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
   const supportPlans = plans
     // Product Support is a niche plan — excluded from the home Monthly
     // Subscription band (still live on the Plans page and its detail route).
     .filter((plan) => plan.slug !== 'product-support')
     .map((plan) => {
-    const marketingLineId = (plan as { marketing_line_id?: string | null }).marketing_line_id;
-    const line = marketingLineId ? serviceLineById.get(marketingLineId) : null;
+    const displayLineId = (plan as { display_line_id?: string | null }).display_line_id;
+    const line = displayLineId ? serviceLineById.get(displayLineId) : null;
     return {
       name: plan.name,
       slug: plan.slug,
