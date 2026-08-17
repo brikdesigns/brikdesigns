@@ -286,7 +286,7 @@ export const getSupportPlans = cache(
   unstable_cache(
     async () => {
       const supabase = createPublicClient();
-      // service_plans.marketing_line_id (portal migration 00196) is the primary
+      // service_plans.display_line_id (portal 00196, renamed by 00339) is the primary
       // marketing line; brikdesigns joins it client-side against the already-
       // fetched service_lines in the home page (avoiding a PostgREST embed
       // means this query is schema-tolerant before the migration lands).
@@ -296,7 +296,7 @@ export const getSupportPlans = cache(
         // standardize on the service-line illustration over the plan's own
         // marketing image (#454), which clashed with the card treatment.
         .select(
-          '*, marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name, card_image_url)'
+          '*, display_line:service_lines!display_line_id(slug, name, card_image_url)'
         )
         .eq('is_public', true)
         .order('rank', { ascending: true });
@@ -316,7 +316,7 @@ export const getSupportPlanBySlug = cache(
         .from('service_plans')
         .select(
           `*,
-           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name, card_image_url),
+           display_line:service_lines!display_line_id(slug, name, card_image_url),
            service_plan_items(
              sort_order,
              service:services(
@@ -364,7 +364,7 @@ export const getOtherSupportPlans = cache(
         .from('service_plans')
         .select(
           `name, slug, monthly_price_display, description, image_url, discount_label,
-           marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug, name, card_image_url)`
+           display_line:service_lines!display_line_id(slug, name, card_image_url)`
         )
         .eq('is_public', true)
         .neq('slug', excludeSlug)
@@ -380,11 +380,11 @@ export const getOtherSupportPlans = cache(
 // Reverse lookup: given a service UUID, return all public plans that include it.
 // Replaces the legacy service.support_plan_slug denorm column (#206).
 //
-// Embeds `marketing_line` — the *primary* service line for visual identity
-// (portal migration 00196). A plan's services can span multiple lines (e.g.
+// Embeds `display_line` — the *primary* service line for visual identity
+// (portal 00196, renamed by 00339). A plan's services can span multiple lines (e.g.
 // Marketing Support pulls services from Marketing + Information + Brand
 // lines), so the bottom-CTA illustration can't be inferred from the current
-// page's service line — it has to come from the plan's own `marketing_line_id`
+// page's service line — it has to come from the plan's own `display_line_id`
 // pointer. Falls back to plan.image_url client-side when null (legacy
 // Webflow-imported plans).
 export const getSupportPlansByServiceId = cache(
@@ -396,7 +396,7 @@ export const getSupportPlansByServiceId = cache(
         .select(
           `*,
            service_plan_items!inner(service_id, sort_order),
-           marketing_line:service_lines!service_plans_marketing_line_id_fkey(
+           display_line:service_lines!display_line_id(
              slug,
              name,
              card_image_url

@@ -26,15 +26,15 @@ export default async function PlansPage() {
     // Prefer the plan's marketing-line illustration (card_image_url) over its
     // own marketing image (#454). PostgREST returns the embed as object or
     // array — normalize both. Falls back to plan.image_url when unset.
-    const rawLine = (plan as { marketing_line?: unknown }).marketing_line;
-    const marketingLine = Array.isArray(rawLine)
+    const rawLine = (plan as { display_line?: unknown }).display_line;
+    const displayLine = Array.isArray(rawLine)
       ? (rawLine[0] as { slug: string | null; card_image_url: string | null } | undefined) ?? null
       : (rawLine as { slug: string | null; card_image_url: string | null } | null);
-    // The plan's driving service line is its marketing_line (migration 00196) —
+    // The plan's driving service line is its display_line (portal 00196, renamed by 00339) —
     // `getSupportPlans` embeds only that, not the plan's own service_line_id, so
     // `service_lines` is null here. Source the card tint + CTA color from the
     // marketing line, matching the plan detail page (audienceTokens). #BRIK-WEB-47
-    const lineSlug = marketingLine?.slug ?? sl?.slug ?? null;
+    const lineSlug = displayLine?.slug ?? sl?.slug ?? null;
     return {
       name: plan.name,
       slug: plan.slug,
@@ -43,7 +43,7 @@ export default async function PlansPage() {
       discountLabel: plan.discount_label || null,
       description: plan.description || '',
       // Per-plan override wins over the line illustration (single source, #467).
-      imageUrl: PLAN_IMAGE_OVERRIDES[plan.slug] ?? marketingLine?.card_image_url ?? plan.image_url ?? null,
+      imageUrl: PLAN_IMAGE_OVERRIDES[plan.slug] ?? displayLine?.card_image_url ?? plan.image_url ?? null,
       features: [] as string[],
       serviceLineSlug: lineSlug ? mapServiceLineSlug(lineSlug) : null,
     };

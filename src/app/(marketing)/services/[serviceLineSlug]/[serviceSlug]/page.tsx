@@ -225,13 +225,13 @@ export default async function ServiceDetailPage({ params }: Props) {
   // Resolve the support plan's *primary* service line for the bottom-CTA
   // illustration — distinct from this page's `serviceLine`. A plan can span
   // multiple lines (e.g. Marketing Support → Marketing + Information + Brand
-  // services), so the CTA image must come from `service_plans.marketing_line_id`
-  // (portal migration 00196), not the page's current line. PostgREST may
+  // services), so the CTA image must come from `service_plans.display_line_id`
+  // (portal 00196, renamed by 00339), not the page's current line. PostgREST may
   // return the embed as object or array — defensive normalization mirrors
   // the relatedServiceLineSlug pattern above.
   const supportPlanMarketingLine = (() => {
     if (!supportPlan) return null;
-    const raw = (supportPlan as { marketing_line?: unknown }).marketing_line;
+    const raw = (supportPlan as { display_line?: unknown }).display_line;
     if (!raw) return null;
     if (Array.isArray(raw)) return (raw[0] as { slug: string | null; card_image_url: string | null; name: string | null } | undefined) ?? null;
     return raw as { slug: string | null; card_image_url: string | null; name: string | null };

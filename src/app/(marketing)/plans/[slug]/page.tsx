@@ -104,15 +104,15 @@ export default async function PlanDetailPage({ params }: Props) {
   }
   const includedServices: IncludedService[] = Array.from(seenServices.values());
 
-  // Prefer the authoritative marketing_line_id FK for visual identity —
+  // Prefer the authoritative display_line_id FK for visual identity —
   // the same column getOtherSupportPlans uses on the /plans list page.
   // PostgREST may return embedded FK rows as object or array; normalize both.
-  const rawMarketingLine = (plan as { marketing_line?: unknown }).marketing_line;
-  const marketingLine = Array.isArray(rawMarketingLine)
-    ? (rawMarketingLine[0] as { slug: string; name: string; card_image_url: string | null } | undefined) ?? null
-    : (rawMarketingLine as { slug: string; name: string; card_image_url: string | null } | null);
+  const rawDisplayLine = (plan as { display_line?: unknown }).display_line;
+  const displayLine = Array.isArray(rawDisplayLine)
+    ? (rawDisplayLine[0] as { slug: string; name: string; card_image_url: string | null } | undefined) ?? null
+    : (rawDisplayLine as { slug: string; name: string; card_image_url: string | null } | null);
 
-  // Fall back to dominant-included-line heuristic when marketing_line_id is unset.
+  // Fall back to dominant-included-line heuristic when display_line_id is unset.
   const lineCounts = new Map<string, number>();
   for (const svc of includedServices) {
     const slug = svc.service_lines?.slug ?? '';
@@ -126,9 +126,9 @@ export default async function PlanDetailPage({ params }: Props) {
   const dominantLineName =
     includedServices.find((s) => s.service_lines?.slug === dominantLineSlug)?.service_lines?.name ?? '';
 
-  const audience = mapServiceLineSlug(marketingLine?.slug ?? dominantLineSlug);
+  const audience = mapServiceLineSlug(displayLine?.slug ?? dominantLineSlug);
   const audienceTokens = serviceColor(audience);
-  const firstLineName = marketingLine?.name ?? dominantLineName;
+  const firstLineName = displayLine?.name ?? dominantLineName;
 
   // Pricing tiers (#897) — rendered via the shared PlanCardGrid (monthly/annual
   // toggle + discount badge). Display strings are bare figures; PlanCardGrid
@@ -166,10 +166,10 @@ export default async function PlanDetailPage({ params }: Props) {
 
   // Hero mirrors services/[slug] — split column with priceCard overlay
   // driven by the same image source as the meganav + related-plans card:
-  // the plan's marketing_line card_image_url (the single CMS source, #467).
+  // the plan's display_line card_image_url (the single CMS source, #467).
   // The hero's own CTA lives inside the priceCard, so cta is null at the
   // section level (no duplicate "Get Started" buttons stacked).
-  const heroImage = PLAN_IMAGE_OVERRIDES[plan.slug] ?? marketingLine?.card_image_url ?? null;
+  const heroImage = PLAN_IMAGE_OVERRIDES[plan.slug] ?? displayLine?.card_image_url ?? null;
   const heroSection: BlueprintSection = {
     sectionKey: `hero-${plan.slug}`,
     sectionType: 'hero',
@@ -393,7 +393,7 @@ export default async function PlanDetailPage({ params }: Props) {
             {otherPlans.map((other) => {
               // Each card's CTA uses that plan's own service-line color (dynamic),
               // not the current page's — overrides the page-level default. #343
-              const rawOtherLine = (other as { marketing_line?: unknown }).marketing_line;
+              const rawOtherLine = (other as { display_line?: unknown }).display_line;
               const otherLine = Array.isArray(rawOtherLine) ? rawOtherLine[0] : rawOtherLine;
               // Card illustration = that plan's service-line card_image_url (the
               // single CMS source, #467).

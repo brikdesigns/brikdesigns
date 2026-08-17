@@ -1,7 +1,7 @@
 /**
  * Per-plan illustration overrides — keyed by `service_plans.slug`.
  *
- * A plan's card/hero image normally resolves from its marketing_line
+ * A plan's card/hero image normally resolves from its display_line
  * `card_image_url` (the single CMS source, #467). This map lets a plan opt out
  * of that line illustration where marketing wants a bespoke image the CMS
  * line-image can't supply. Applied everywhere the plan surfaces (nav card,

@@ -27,14 +27,14 @@ export default async function CustomerStoriesPage() {
   // Subscription-plan cards for the "Our Services" band, mirroring the home
   // page's Monthly Subscription mapping. Plan cards render the marketing-line
   // illustration, joined client-side against the fetched service lines via
-  // service_plans.marketing_line_id. Product Support is a niche plan — excluded
+  // service_plans.display_line_id. Product Support is a niche plan — excluded
   // here (still live on the Plans page and its detail route).
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
   const supportPlans = plans
     .filter((plan) => plan.slug !== 'product-support')
     .map((plan) => {
-      const marketingLineId = (plan as { marketing_line_id?: string | null }).marketing_line_id;
-      const line = marketingLineId ? serviceLineById.get(marketingLineId) : null;
+      const displayLineId = (plan as { display_line_id?: string | null }).display_line_id;
+      const line = displayLineId ? serviceLineById.get(displayLineId) : null;
       return {
         name: plan.name,
         slug: plan.slug,
