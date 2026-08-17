@@ -3,7 +3,7 @@
 .story-list {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-md);
+  gap: var(--gap-lg);
   width: 100%;
 }
 
