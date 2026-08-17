@@ -21,7 +21,7 @@ import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { MDXRemote } from '@/components/blog/MDXRemote';
 import { heading, text, label } from '@/lib/styles';
-import { color, font, gap, serviceColor } from '@/lib/tokens';
+import { color, gap, serviceColor } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../blog.css';
 
@@ -233,15 +233,16 @@ export default async function BlogPostPage({ params }: Props) {
       {meta.ctaTitle && (
         <section className="cta-section-brand">
           <div className="cta-card-brand">
-            <h2 style={{ ...heading.lg, lineHeight: font.lineHeight.snug, color: color.text.onColorDark, textAlign: 'center' }}>
-              {meta.ctaTitle}
-            </h2>
-            <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', opacity: 0.9 }}>
-              {meta.ctaDescription ?? 'Starting a new project or want to collaborate with us?'}
-            </p>
-            <Button href="/contact" variant="on-color" size="md">
-              Let&apos;s Talk
-            </Button>
+            <SectionHeader
+              onColor
+              title={meta.ctaTitle}
+              description={meta.ctaDescription ?? 'Starting a new project or want to collaborate with us?'}
+              actions={
+                <Button href="/contact" variant="on-color" size="md">
+                  Let&apos;s Talk
+                </Button>
+              }
+            />
           </div>
         </section>
       )}

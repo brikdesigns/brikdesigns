@@ -228,15 +228,16 @@ export default async function CustomersPage() {
        * .cta-card variant). */}
       <section className="cta-section-brand">
         <div className="cta-card-brand">
-          <h2 style={{ ...heading.lg, color: color.text.onColorDark, textAlign: 'center', margin: 0 }}>
-            Get in touch
-          </h2>
-          <p style={{ ...text.body, color: color.text.onColorDark, textAlign: 'center', margin: 0, opacity: 0.9 }}>
-            Starting a new project or want to collaborate with us?
-          </p>
-          <LinkButton href="/contact" variant="on-color" size="lg">
-            Let&apos;s Talk
-          </LinkButton>
+          <SectionHeader
+            onColor
+            title="Get in Touch"
+            description="Starting a new project or want to collaborate with us?"
+            actions={
+              <LinkButton href="/contact" variant="on-color" size="lg">
+                Let&apos;s Talk
+              </LinkButton>
+            }
+          />
         </div>
       </section>
     </>
