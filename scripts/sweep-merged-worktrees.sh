@@ -19,6 +19,9 @@
 #        never removed. `--is-ancestor` is reflexive, so without this a worktree
 #        fresh out of new-task.sh read as "merged into main" and was swept
 #        before its session's first commit (brik-llm#1616).
+#      - DETACHED worktrees (no branch ref at all) are flagged for REVIEW, never
+#        removed (brik-llm#2277). They used to be invisible here — see the block
+#        in pass 1 for why the verdict is FLAG-only.
 #      - Clean+unlanded+no-PR worktrees are flagged for REVIEW.
 #
 # 2. ORPHAN directories under the worktree root that git NO LONGER tracks
@@ -77,7 +80,9 @@
 #
 # Env: BRIK_WORKTREE_ROOT overrides the swept root (default: <primary>-worktrees).
 # Requires: gh (for PR state). Without gh, falls back to ancestor-of-main only
-# for tracked worktrees; orphans need a MERGED PR so they stay flag-only.
+# for tracked worktrees; orphans need a MERGED PR so they stay flag-only. When gh
+# is INSTALLED but its call fails, that same fallback engages and the run says so
+# on stderr — see the warning below (#2277).
 
 set -uo pipefail
 
@@ -99,7 +104,7 @@ while [ $# -gt 0 ]; do
       [ $# -ge 2 ] || { echo -e "${RED}--keep needs a worktree or slug name${NC}" >&2; exit 2; }
       KEEP_LIST+=("$2"); shift ;;
     --json) JSON=true ;;
-    -h|--help) sed -n '2,80p' "$0"; exit 0 ;;   # header ends at the Requires: note
+    -h|--help) sed -n '2,85p' "$0"; exit 0 ;;   # header ends at the Requires: note
     *) echo -e "${RED}Unknown flag: $1${NC}" >&2; exit 2 ;;
   esac
   shift
@@ -128,9 +133,27 @@ SELF_WT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || ech
 git fetch origin main --quiet 2>/dev/null || true
 
 # PR map: headRefName -> best state (MERGED wins).
+#
+# When gh is present but the CALL fails — bad token scope, exhausted GraphQL
+# bucket — PR_JSON stays empty and every branch classifies as "no PR" → KEEP. That
+# is fail-safe, but it used to be SILENT, which made a degraded run indistinguishable
+# from a genuinely clean one (#2277). Errors are surfaced, not swallowed: this is the
+# swallow-stderr shape #1590 exists to kill, and worktree-status.sh already reports
+# the same condition rather than degrading without a word.
+#
+# Self-contained on purpose — worktree-status.sh gets its wording from
+# scripts/lib/gh-error-classify.sh, but this file is byte-identical in four repos
+# and brikdesigns has no copy of that lib, so sourcing it would break the twin.
 PR_JSON=""
 if command -v gh >/dev/null 2>&1; then
-  PR_JSON="$(gh pr list --state all --limit 800 --json number,headRefName,state,mergedAt 2>/dev/null || echo "")"
+  GH_ERR="$(mktemp)"
+  if ! PR_JSON="$(gh pr list --state all --limit 800 --json number,headRefName,state,mergedAt 2>"$GH_ERR")" \
+     || [ -z "$PR_JSON" ]; then
+    PR_JSON=""
+    echo -e "${YELLOW}⚠  'gh pr list' failed — PR state shows '—' for every branch, so nothing below can classify as merged.${NC}" >&2
+    sed 's/^/   /' "$GH_ERR" >&2
+  fi
+  rm -f "$GH_ERR"
 fi
 
 pr_for_branch() {  # $1=branch -> "num|state"
@@ -175,6 +198,40 @@ $JSON || { printf '%-50s %-9s %-9s %s\n' "BRANCH" "DIRTY" "PR" "VERDICT"; printf
 while IFS=$'\t' read -r path ref; do
   [ "$path" = "$PRIMARY" ] && continue
   [ "$path" = "$SELF_WT" ] && { $JSON || printf '%-50s %-9s %-9s %s\n' "$(basename "$path")" "-" "-" "SKIP — running from here"; KEPT=$((KEPT+1)); continue; }
+
+  # DETACHED worktree — `ref` is the `-` sentinel the reader emits when the
+  # porcelain block carried no `branch` line (#2277). Before that, the row was
+  # never printed at all: the sweeper reported `Nothing to remove` with a detached
+  # worktree sitting in the swept root, which reads as the reaper being broken.
+  #
+  # The verdict is FLAG-ONLY — REVIEW, never REMOVE — and it is deliberately
+  # narrower than the two cleanup-merged-worktrees.sh copies this script replaced,
+  # which removed `detached || branch ref missing` outright (portal :125,
+  # brik-bds :146). Every REMOVE in this pass rests on a branch ref: the PR lookup
+  # keys on it and `--is-ancestor` needs a named tip, and those two ARE how "this
+  # landed" gets established. A detached worktree can hold commits whose only
+  # reference is its own HEAD; nothing reachable from here proves they landed, and
+  # removing it makes them unrecoverable. Flagging costs an operator one decision;
+  # the alternative costs the work.
+  if [ "$ref" = "-" ]; then
+    slug="$(basename "$path")"
+    if kept "$slug"; then
+      $JSON || printf '%-50s %-9s %-9s %s\n' "$slug (detached)" "-" "-" "KEEP — --keep"
+      KEPT=$((KEPT+1)); continue
+    fi
+    # Dirty first, matching the branch path below: uncommitted work outranks every
+    # other signal. Redundant while the verdict is FLAG-only, and kept anyway so a
+    # future loosening of that verdict cannot skip the guard.
+    dirty=$(git -C "$path" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$dirty" != "0" ]; then
+      verdict="KEEP — ${dirty} uncommitted change(s), detached HEAD"; KEPT=$((KEPT+1))
+    else
+      verdict="REVIEW — detached HEAD, no branch ref to prove it landed"; REVIEW=$((REVIEW+1))
+    fi
+    $JSON || printf '%-50s %-9s %-9s %s\n' "$slug (detached)" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "-" "$verdict"
+    continue
+  fi
+
   branch="${ref#refs/heads/}"
   if kept "$(basename "$path")" || kept "$branch"; then
     $JSON || printf '%-50s %-9s %-9s %s\n' "$branch" "-" "-" "KEEP — --keep"
@@ -234,7 +291,16 @@ while IFS=$'\t' read -r path ref; do
     verdict="REVIEW — clean, unlanded, no merged PR"; REVIEW=$((REVIEW+1))
   fi
   $JSON || printf '%-50s %-9s %-9s %s\n' "$branch" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "$prnum" "$verdict"
-done < <(git worktree list --porcelain | awk '/^worktree /{wt=$2} /^branch /{print wt"\t"$2}')
+# One row per WORKTREE, not per `branch` line. The old reader printed only inside
+# the `/^branch /` action, and a detached worktree's porcelain block has no such
+# line — `worktree` / `HEAD` / `detached` and nothing else — so the whole row was
+# dropped and no pass ever saw it (#2277). Emitting on the NEXT `worktree` header
+# (plus END for the last block) keeps every worktree, with `-` standing in for the
+# missing ref; the loop above classifies that sentinel.
+done < <(git worktree list --porcelain | awk '
+  /^worktree /{ if (wt != "") print wt "\t" (ref == "" ? "-" : ref); wt=$2; ref="" }
+  /^branch /  { ref=$2 }
+  END         { if (wt != "") print wt "\t" (ref == "" ? "-" : ref) }')
 
 # ── Pass 2: orphan directories git no longer tracks ──
 declare -a REAP_PATHS=() REAP_LABELS=() REAP_KB=()
