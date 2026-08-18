@@ -143,16 +143,21 @@
 .plan-cta-panel {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--gap-xl);
+  gap: var(--gap-huge);
   align-items: center;
-  padding: var(--padding-xl);
+  padding: var(--padding-huge);
   border-radius: var(--border-radius-lg);
 }
 
+/* Illustration reads as a supporting element, not the focal point — cap it well
+   below its 1fr column and centre it (the price/CTA card is the focus). Square
+   ratio via the aspect token rather than a raw `1`. */
 .plan-cta-panel__media {
   position: relative;
-  aspect-ratio: 1;
-  align-self: stretch;
+  aspect-ratio: var(--aspect-square);
+  width: 100%;
+  max-width: 320px;
+  margin-inline: auto;
 }
 
 .plan-cta-panel__card {
@@ -196,12 +201,6 @@
 @media (max-width: 991px) {
   .plan-cta-panel {
     grid-template-columns: 1fr;
-  }
-
-  .plan-cta-panel__media {
-    max-width: 360px;
-    margin-inline: auto;
-    width: 100%;
   }
 }
 

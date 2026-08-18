@@ -314,7 +314,7 @@ export default async function PlanDetailPage({ params }: Props) {
                   src={heroImage}
                   alt=""
                   fill
-                  sizes="(max-width: 991px) 100vw, 45vw"
+                  sizes="320px"
                   style={{ objectFit: 'contain' }}
                 />
               </div>
@@ -362,7 +362,7 @@ export default async function PlanDetailPage({ params }: Props) {
                     {/* Price = display-md figure in the plan's service ink
                         (`text-service-*-on-light`), AA on the pale `-light`
                         inset above. */}
-                    <p style={{ ...heading.md, fontSize: font.size.display.md, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>
+                    <p style={{ ...heading.md, fontSize: font.size.heading.xLarge, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>
                       {plan.monthly_price_display}
                     </p>
                     <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center', margin: 0 }}>

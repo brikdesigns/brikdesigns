@@ -3,14 +3,16 @@
  * audit-plan-data.ts
  *
  * Read-only audit of the `service_plans` table on staging Supabase. Prints each
- * support plan's slug, name, marketing_line_id, joined service_lines.slug, and
+ * support plan's slug, name, display_line_id, joined service_lines.slug, and
  * what the audience cascade would resolve to. Surfaces NULL/wrong service-line
  * affinity so the cascade (--surface-service-*, --background-inverse, etc.)
  * doesn't silently fall back to 'brand'.
  *
  * Repointed from the legacy `plans` table to `service_plans` after the services
  * refactor dropped `plans.service_line_id` (the affinity now lives on
- * `service_plans.marketing_line_id`). The #143 NULL-tint guard is preserved.
+ * `service_plans.display_line_id` — renamed from `marketing_line_id` by portal
+ * migration 00339, same column the live queries embed). The #143 NULL-tint
+ * guard is preserved.
  *
  * Run with staging env sourced:
  *   set -a; source ~/.secrets/supabase-staging.env; set +a
@@ -28,8 +30,8 @@ const CANONICAL = new Set(['brand', 'marketing', 'information', 'product', 'back
 interface PlanRow {
   slug: string;
   name: string;
-  marketing_line_id: string | null;
-  marketing_line: { slug: string; name: string } | null;
+  display_line_id: string | null;
+  display_line: { slug: string; name: string } | null;
 }
 
 async function main() {
@@ -41,7 +43,7 @@ async function main() {
     process.exit(2);
   }
 
-  const endpoint = `${url}/rest/v1/service_plans?select=slug,name,marketing_line_id,marketing_line:service_lines!service_plans_marketing_line_id_fkey(slug,name)&is_public=eq.true&order=rank.asc`;
+  const endpoint = `${url}/rest/v1/service_plans?select=slug,name,display_line_id,display_line:service_lines!display_line_id(slug,name)&is_public=eq.true&order=rank.asc`;
   const resp = await fetch(endpoint, {
     headers: { apikey: key, Authorization: `Bearer ${key}` },
   });
@@ -56,11 +58,11 @@ async function main() {
 
   const broken: PlanRow[] = [];
   for (const row of rows) {
-    const lineSlug = row.marketing_line?.slug ?? null;
+    const lineSlug = row.display_line?.slug ?? null;
     const resolved = lineSlug && CANONICAL.has(lineSlug) ? lineSlug : 'brand (FALLBACK)';
     const ok = lineSlug && CANONICAL.has(lineSlug);
     const flag = ok ? '✓' : '✗';
-    console.log(`  ${flag} ${row.slug.padEnd(28)}  marketing_line_id=${row.marketing_line_id ?? 'NULL'}`);
+    console.log(`  ${flag} ${row.slug.padEnd(28)}  display_line_id=${row.display_line_id ?? 'NULL'}`);
     console.log(`    joined service_lines.slug: ${lineSlug ?? 'NULL'}`);
     console.log(`    audience cascade would resolve to: ${resolved}`);
     console.log();
@@ -74,7 +76,7 @@ async function main() {
 
   console.log('═══ Plans falling back to brand ═══');
   for (const row of broken) {
-    console.log(`  ${row.slug} — fix: UPDATE service_plans SET marketing_line_id = (SELECT id FROM service_lines WHERE slug = '<correct>') WHERE slug = '${row.slug}';`);
+    console.log(`  ${row.slug} — fix: UPDATE service_plans SET display_line_id = (SELECT id FROM service_lines WHERE slug = '<correct>') WHERE slug = '${row.slug}';`);
   }
   process.exit(1);
 }
