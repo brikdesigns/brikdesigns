@@ -240,34 +240,13 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               {open === 'plans' && (
                 <div className="mega-nav__panel mega-nav__panel--plans">
                   <div className="mega-nav__panel-inner">
-                    {/* View switcher pinned to the right of the menu. The panel
-                        serves two service streams: Support Plans (retainers) and
-                        All Services (standalone services grouped by line), swapped
-                        in place rather than via a second nav item. */}
-                    <div className="mega-nav__plans-header">
-                      <div className="mega-nav__view-toggle" role="tablist" aria-label="Service view">
-                        <button
-                          type="button"
-                          role="tab"
-                          aria-selected={!servicesView}
-                          className={`mega-nav__view-tab ${!servicesView ? 'mega-nav__view-tab--active' : ''}`}
-                          onClick={() => setServicesView(false)}
-                        >
-                          Support Plans
-                        </button>
-                        <button
-                          type="button"
-                          role="tab"
-                          aria-selected={servicesView}
-                          className={`mega-nav__view-tab ${servicesView ? 'mega-nav__view-tab--active' : ''}`}
-                          onClick={() => setServicesView(true)}
-                        >
-                          All Services
-                        </button>
-                      </div>
-                    </div>
-
+                    {/* The panel serves two service streams — Support Plans
+                        (retainers) and standalone Services (grouped by line) —
+                        swapped in place. A full-width banner under the grid
+                        cross-links to the other stream (replaces the former
+                        segmented view toggle). */}
                     {!servicesView ? (
+                      <>
                       <div className="mega-nav__panel-row">
                         {/* Col 1: intro — heading + description. Placing the copy
                             in the first column narrows the plan cards to 3 of 4
@@ -304,10 +283,25 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             })}
                         </div>
                       </div>
+                      {/* Full-width cross-link to the standalone-services view. */}
+                      <div className="mega-nav__panel-banner">
+                        <p className="mega-nav__panel-banner-text">
+                          <strong>Interested in individual services?</strong> View our standalone services.
+                        </p>
+                        <button
+                          type="button"
+                          className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}
+                          onClick={() => setServicesView(true)}
+                        >
+                          View Services <ArrowRight />
+                        </button>
+                      </div>
+                      </>
                     ) : (
-                      /* All Services view — every standalone service grouped by
+                      <>
+                      {/* All Services view — every standalone service grouped by
                          line (the previous services menu). Lines with no public
-                         services drop out rather than render an empty column. */
+                         services drop out rather than render an empty column. */}
                       <div className="mega-nav__services-grid">
                         {serviceLines
                           .filter((line) => line.services.length > 0)
@@ -350,6 +344,20 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             </div>
                           ))}
                       </div>
+                      {/* Full-width cross-link back to the support-plan view. */}
+                      <div className="mega-nav__panel-banner">
+                        <p className="mega-nav__panel-banner-text">
+                          <strong>Interested in a monthly support plan?</strong> View our support plans.
+                        </p>
+                        <button
+                          type="button"
+                          className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}
+                          onClick={() => setServicesView(false)}
+                        >
+                          View Service Plan <ArrowRight />
+                        </button>
+                      </div>
+                      </>
                     )}
                   </div>
                 </div>

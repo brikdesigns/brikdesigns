@@ -671,49 +671,31 @@
   gap: var(--gap-md);
 }
 
-/* ─── Plans panel header (view switcher, pinned right) ───── */
-/* The segmented view switcher pinned to the right edge of the menu inner. */
-.mega-nav__plans-header {
+/* ─── Panel cross-link banner (full-width, under the grid) ───── */
+/* Single-line banner spanning the panel inner; cross-links the two service
+   streams (Support Plans ⇄ standalone Services) with a button pinned right.
+   Replaces the former segmented view toggle. */
+.mega-nav__panel-banner {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: var(--gap-md);
-  margin-bottom: var(--gap-lg);
-}
-
-/* ─── Plans panel view toggle (Support Plans ⇄ All Services) ───── */
-/* Tiny segmented control on the panel title line; swaps the panel body
-   between the support-plan cards and the standalone-services menu. */
-.mega-nav__view-toggle {
-  display: inline-flex;
-  gap: 2px;
-  padding: 2px;
+  margin-top: var(--gap-lg);
+  padding: var(--padding-sm) var(--padding-md);
   background-color: var(--surface-secondary);
   border-radius: var(--border-radius-md);
 }
 
-.mega-nav__view-tab {
-  font-family: var(--font-family-label);
-  font-size: var(--label-xs);
-  font-weight: 600;
-  line-height: var(--font-line-height-snug);
+.mega-nav__panel-banner-text {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--padding-tiny) var(--padding-sm);
-  border-radius: var(--border-radius-md);
-  transition: background-color 0.15s, color 0.15s;
 }
 
-.mega-nav__view-tab:hover {
+.mega-nav__panel-banner-text strong {
   color: var(--text-primary);
-}
-
-.mega-nav__view-tab--active {
-  background-color: var(--surface-primary);
-  color: var(--text-primary);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  font-weight: 600;
 }
 
 /* ─── About/Plans card (shared structure) ────────────────────── */
