@@ -526,10 +526,15 @@
    band. `.bds-card` / the element class raises specificity to beat the BDS
    variant border without `!important`. */
 
-/* Flat — blog related-posts grid (accent band). `.blog-card` also renders on
-   the white blog index, so this is scoped to the tinted section only. */
+/* Elevated — blog related-posts grid ("Keep reading", accent band). Card-
+   treatment standard: a card on an accent/colored band carries a slight
+   elevation (shadow) and no border — the outlined ring reads as noise on the
+   tint. `.blog-card` also renders on the white blog index, where the white=
+   border half of the standard applies, so this stays scoped to the tinted
+   section only. (card-treatment standard) */
 .page-section--accent .bds-card.blog-card {
   border: none;
+  box-shadow: var(--box-shadow-md);
 }
 
 /* Elevated — single "Latest Customer Story" card (secondary band). */
