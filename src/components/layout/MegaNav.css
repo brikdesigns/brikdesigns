@@ -403,11 +403,6 @@
   max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
-  /* All dropdown panels render the same height. 541px is the tallest panel
-     (Services → All Services view) measured at the capped inner width
-     (1280px = --content-width-xl); the inner never grows wider, so no panel
-     exceeds this and the shorter panels pad up to match. */
-  min-height: 541px;
 }
 
 .mega-nav__panel-row {
