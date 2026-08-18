@@ -403,6 +403,11 @@
   max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
+  /* All dropdown panels render the same height. 562px is the tallest panel
+     (Services → Support Plans view) measured at the capped inner width
+     (1280px = --content-width-xl); the inner never grows wider, so no panel
+     exceeds this and the shorter Customers/About panels pad up to match. */
+  min-height: 562px;
 }
 
 .mega-nav__panel-row {
@@ -655,7 +660,7 @@
 .mega-nav__about-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-md);
 }
 
@@ -670,14 +675,24 @@
   gap: var(--gap-md);
 }
 
+/* ─── Plans panel header (title + view switcher on one line) ───── */
+/* Panel title sits left, the segmented view switcher pinned to the right edge
+   of the menu inner. */
+.mega-nav__plans-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-bottom: var(--gap-lg);
+}
+
 /* ─── Plans panel view toggle (Support Plans ⇄ All Services) ───── */
-/* Tiny segmented control at the top of the Services panel; swaps the panel body
+/* Tiny segmented control on the panel title line; swaps the panel body
    between the support-plan cards and the standalone-services menu. */
 .mega-nav__view-toggle {
   display: inline-flex;
   gap: 2px;
   padding: 2px;
-  margin-bottom: var(--gap-lg);
   background-color: var(--surface-secondary);
   border-radius: var(--border-radius-md);
 }
@@ -704,51 +719,6 @@
   background-color: var(--surface-primary);
   color: var(--text-primary);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-}
-
-/* Left region: "Support Plans" heading stacked over the 3-col card grid. */
-.mega-nav__plans-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-lg);
-}
-
-/* Right region: "Design Services" heading over the service-line list. */
-.mega-nav__plans-services {
-  flex: 0 0 260px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
-
-/* Service-line highlight list — one row per line (service tag + line name). */
-.mega-nav__line-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-}
-
-.mega-nav__line-link {
-  display: flex;
-  align-items: center;
-  gap: var(--gap-md);
-  padding: var(--padding-tiny) var(--padding-xs);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  font-family: var(--font-family-label);
-  font-size: var(--label-md);
-  font-weight: 600;
-  color: var(--text-primary);
-  transition: background-color 0.15s, color 0.15s;
-}
-
-.mega-nav__line-link:hover {
-  background-color: var(--surface-accent);
-  color: var(--text-brand-primary);
 }
 
 /* ─── About/Plans card (shared structure) ────────────────────── */
