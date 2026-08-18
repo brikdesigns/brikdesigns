@@ -296,7 +296,12 @@ while IFS=$'\t' read -r path ref; do
 # line — `worktree` / `HEAD` / `detached` and nothing else — so the whole row was
 # dropped and no pass ever saw it (#2277). Emitting on the NEXT `worktree` header
 # (plus END for the last block) keeps every worktree, with `-` standing in for the
-# missing ref; the loop above classifies that sentinel.
+# missing ref; the loop above classifies that sentinel. `-` cannot collide with a
+# real value: `ref` is only ever assigned from a `branch refs/heads/…` line.
+#
+# A BARE repo's entry also carries no `branch` line and so also reads `-`. It is
+# always the first entry, which is $PRIMARY, which the loop skips by path before it
+# looks at the ref — so it never reaches the detached branch and is never mislabelled.
 done < <(git worktree list --porcelain | awk '
   /^worktree /{ if (wt != "") print wt "\t" (ref == "" ? "-" : ref); wt=$2; ref="" }
   /^branch /  { ref=$2 }
