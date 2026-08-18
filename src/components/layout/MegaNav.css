@@ -403,11 +403,11 @@
   max-width: var(--content-width-xl);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
-  /* All dropdown panels render the same height. 562px is the tallest panel
-     (Services → Support Plans view) measured at the capped inner width
+  /* All dropdown panels render the same height. 541px is the tallest panel
+     (Services → All Services view) measured at the capped inner width
      (1280px = --content-width-xl); the inner never grows wider, so no panel
-     exceeds this and the shorter Customers/About panels pad up to match. */
-  min-height: 562px;
+     exceeds this and the shorter panels pad up to match. */
+  min-height: 541px;
 }
 
 .mega-nav__panel-row {
@@ -484,7 +484,7 @@
 
 .mega-nav__product-promo-desc {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
   line-height: var(--font-line-height-normal);
   margin: 0;
@@ -580,7 +580,7 @@
 
 .mega-nav__promo-desc {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
   margin: var(--gap-xs) 0;
 }
@@ -639,7 +639,7 @@
 
 .mega-nav__industry-tagline {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
   line-height: var(--font-line-height-moderate);
 }
@@ -670,18 +670,18 @@
    of the nav into its own /plans section, dropping the grid back to 3. */
 
 .mega-nav__plans-grid {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-md);
 }
 
-/* ─── Plans panel header (title + view switcher on one line) ───── */
-/* Panel title sits left, the segmented view switcher pinned to the right edge
-   of the menu inner. */
+/* ─── Plans panel header (view switcher, pinned right) ───── */
+/* The segmented view switcher pinned to the right edge of the menu inner. */
 .mega-nav__plans-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--gap-md);
   margin-bottom: var(--gap-lg);
 }
@@ -748,7 +748,7 @@
 
 .mega-nav__about-card-desc {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
   line-height: var(--font-line-height-moderate);
 }
@@ -790,7 +790,7 @@
 
 .mega-nav__nav-card-desc {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
 }
 

@@ -240,15 +240,11 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               {open === 'plans' && (
                 <div className="mega-nav__panel mega-nav__panel--plans">
                   <div className="mega-nav__panel-inner">
-                    {/* Title + view switcher share one line — switcher pinned
-                        right. The panel serves two service streams: Support Plans
-                        (retainers) and All Services (standalone services grouped
-                        by line), swapped in place rather than via a second nav
-                        item. */}
+                    {/* View switcher pinned to the right of the menu. The panel
+                        serves two service streams: Support Plans (retainers) and
+                        All Services (standalone services grouped by line), swapped
+                        in place rather than via a second nav item. */}
                     <div className="mega-nav__plans-header">
-                      <h3 className="mega-nav__panel-title">
-                        {servicesView ? 'All Services' : 'Support Plans'}
-                      </h3>
                       <div className="mega-nav__view-toggle" role="tablist" aria-label="Service view">
                         <button
                           type="button"
@@ -272,28 +268,41 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                     </div>
 
                     {!servicesView ? (
-                      /* Support Plans — full-width 3-col plan cards. Product
-                         Support is excluded here; it has its own dedicated section
-                         on /plans. Card image is the plan's service-line
-                         card_image_url (single CMS source, #467). */
-                      <div className="mega-nav__plans-grid">
-                        {supportPlans
-                          .filter((plan) => plan.slug !== 'product-support')
-                          .map((plan) => {
-                            const image = plan.imageUrl;
-                            if (!image) return null;
-                            return (
-                              <AboutNavCard
-                                key={plan.slug}
-                                href={`/plans/${plan.slug}`}
-                                image={image}
-                                title={plan.name}
-                                desc={plan.description}
-                                cta="Learn More"
-                                onClick={() => setOpen(null)}
-                              />
-                            );
-                          })}
+                      <div className="mega-nav__panel-row">
+                        {/* Col 1: intro — heading + description. Placing the copy
+                            in the first column narrows the plan cards to 3 of 4
+                            columns, which keeps the panel short. */}
+                        <div className="mega-nav__panel-intro">
+                          <h3 className="mega-nav__panel-title">Support Plans</h3>
+                          <p className="mega-nav__panel-desc">
+                            Get an experienced, done-for-you team to manage your
+                            marketing, back-office systems, or product design —
+                            without the cost of full-time hires.
+                          </p>
+                        </div>
+                        {/* Cols 2–4: plan cards. Product Support is excluded — it
+                            has its own dedicated section on /plans. Card image is
+                            the plan's service-line card_image_url (single CMS
+                            source, #467). */}
+                        <div className="mega-nav__plans-grid">
+                          {supportPlans
+                            .filter((plan) => plan.slug !== 'product-support')
+                            .map((plan) => {
+                              const image = plan.imageUrl;
+                              if (!image) return null;
+                              return (
+                                <AboutNavCard
+                                  key={plan.slug}
+                                  href={`/plans/${plan.slug}`}
+                                  image={image}
+                                  title={plan.name}
+                                  desc={plan.description}
+                                  cta="Learn More"
+                                  onClick={() => setOpen(null)}
+                                />
+                              );
+                            })}
+                        </div>
                       </div>
                     ) : (
                       /* All Services view — every standalone service grouped by
