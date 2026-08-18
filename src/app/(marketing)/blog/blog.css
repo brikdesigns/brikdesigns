@@ -37,6 +37,18 @@
   overflow: hidden;
 }
 
+/* Card-treatment standard — white band → border, no shadow. The blog post
+   "Related Services" / "Explore Our Services" bands sit on the white
+   `.page-section` surface but render their cards with the BDS `raised`
+   variant (elevation), which is too subtle on white and inverts the standard.
+   Restore the border ring and drop the shadow so they match the white=border
+   treatment used across the site. Scoped to these two bands via the section
+   class. (card-treatment standard) */
+.blog-services-band .bds-card {
+  border: var(--border-width-md) solid var(--border-secondary);
+  box-shadow: var(--box-shadow-none);
+}
+
 .blog-card__media {
   position: relative;
   width: 100%;

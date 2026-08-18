@@ -168,7 +168,7 @@ export default async function BlogPostPage({ params }: Props) {
        * display-card pattern from the service-line landing page.
        */}
       {relatedServices.length > 0 ? (
-        <section className="page-section">
+        <section className="page-section blog-services-band">
           <div className="container-lg container-lg--comfortable">
             <SectionHeader title="Related Services" style={{ marginBottom: gap.lg }} />
             <Grid columns={3} gap="lg">
@@ -195,7 +195,7 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         </section>
       ) : serviceLines.length > 0 ? (
-        <section className="page-section">
+        <section className="page-section blog-services-band">
           <div className="container-lg container-lg--comfortable">
             <SectionHeader title="Explore Our Services" style={{ marginBottom: gap.lg }} />
             <Grid columns={3} gap="lg">
