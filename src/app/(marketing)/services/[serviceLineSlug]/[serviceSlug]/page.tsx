@@ -545,7 +545,6 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <Card
                   key={story.slug}
                   preset="display"
-                  variant="raised"
                   className="service-sibling-card"
                   style={{ backgroundColor: serviceTokens.inverse }}
                   image={
@@ -661,7 +660,6 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <Card
                   key={svc.slug}
                   preset="display"
-                  variant="raised"
                   className="service-sibling-card"
                   // Service `-inverse` surface — white in light (== the prior
                   // display-preset fill), `{hue}-darkest` in dark. Siblings are

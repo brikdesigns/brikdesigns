@@ -62,6 +62,10 @@ See `.claude/references/service-url-slug-convention.md`.
 
 See `.claude/references/service-token-decision-tree.md`.
 
+## When setting a card's border/shadow (any `<Card>`)
+
+See `.claude/references/card-treatment.md`. Short form: chrome is **band-derived**, never a `variant` prop — white/default band → border + no shadow; tinted band → shadow + no border. Don't add `variant="raised"/"elevated"` or a per-page override to elevate a card; put the tinted-band section on the "Card chrome by band" rule in `shared-sections.css`. Gated (light theme, every route) by `tests/a11y/card-treatment.spec.ts`.
+
 ## When querying `services` / `service_lines` / `offerings`
 
 See `.claude/references/service-data-sot.md`.

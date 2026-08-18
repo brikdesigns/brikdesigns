@@ -306,7 +306,6 @@ export default async function CustomerDetailPage({ params }: Props) {
                 <Card
                   key={p.slug}
                   preset="display"
-                  variant="raised"
                   title={p.name}
                   description={p.tagline ?? undefined}
                   image={p.image_url ? (

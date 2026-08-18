@@ -209,7 +209,6 @@ export default async function BlogPostPage({ params }: Props) {
                   >
                     <Card
                       preset="display"
-                      variant="raised"
                       title={line.name}
                       description={line.tagline ?? undefined}
                       image={

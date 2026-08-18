@@ -241,7 +241,6 @@ export default async function ServiceLinePage({ params }: Props) {
                   >
                     <Card
                       preset="display"
-                      variant="raised"
                       className="display-card--title-sm"
                       // Service `-inverse` surface — white in light (== the prior
                       // display-preset fill; the elevated shadow keeps it visible

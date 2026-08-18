@@ -16,7 +16,6 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: Hom
   return (
     <Card
       preset="display"
-      variant="raised"
       title={name}
       description={tagline}
       image={
