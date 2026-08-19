@@ -57,7 +57,7 @@ export function CustomerStoryCard({
   const industryIcon = industry ? (INDUSTRY_ICONS[industry] ?? INDUSTRY_ICON_FALLBACK) : null;
 
   return (
-    <Card variant="raised" interactive href={`/customer-stories/${slug}`} className="story-card">
+    <Card interactive href={`/customer-stories/${slug}`} className="story-card">
       <div className="story-card__row">
         {imageUrl && (
           <div className="story-card__media-wrap">

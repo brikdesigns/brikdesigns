@@ -417,7 +417,6 @@ export default async function PlanDetailPage({ params }: Props) {
               <Card
                 key={other.slug}
                 preset="display"
-                variant="raised"
                 className="display-card--title-sm"
                 style={{ backgroundColor: cardTokens.inverse }}
                 image={

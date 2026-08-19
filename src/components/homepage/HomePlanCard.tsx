@@ -15,7 +15,6 @@ export function HomePlanCard({ name, slug, price, description, imageUrl }: HomeP
   return (
     <Card
       preset="display"
-      variant="raised"
       title={name}
       description={description}
       image={
