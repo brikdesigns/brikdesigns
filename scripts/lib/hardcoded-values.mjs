@@ -17,7 +17,7 @@
 //   colour    color, background*, border*-color, fill,     → --text-* / --surface-* /
 //             stroke, outline*, box-shadow, text-shadow       --background-* / --border-* / --color-*
 //   token-definition  a raw colour written straight into a semantic token
-//             (`--text-*`/`--surface-*`/`--background-*`/`--border-*`)  →  var(--color-*)
+//             (`--text-*`/`--surface-*`/`--background-*`/`--border-*`)  →  a --color-* primitive
 //             Semantic tokens must resolve THROUGH a primitive; the value
 //             belongs in the Figma → Style Dictionary chain. `--color-*` is
 //             exempt — the primitive layer is where the chain bottoms out.
@@ -225,7 +225,7 @@ export function findHardcodedViolations(file, text, index) {
           violations.push({
             file, line: i + 1, category: 'token-definition', prop, literal: lit.replace(/\s*\($/, ''),
             snippet: `${prop}: ${value}`.slice(0, 100),
-            suggestion: 'var(--color-*) primitive — add the primitive upstream, don\'t inline the value',
+            suggestion: 'a --color-* primitive — add the primitive upstream, don\'t inline the value',
             dsGap: false,
           });
         }
