@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Grid, PricingCard, SegmentedControl, Button } from '@brikdesigns/bds';
-import { font, gap, serviceColor } from '@/lib/tokens';
+import { font, gap, serviceCtaVars } from '@/lib/tokens';
 
 interface Plan {
   name: string;
@@ -54,10 +54,13 @@ export function PlanCardGrid({
             billing === 'annual' && plan.annualPrice ? plan.annualPrice : plan.monthlyPrice;
           const period =
             billing === 'annual' && plan.annualPrice ? '/year' : '/month';
-          const svcTokens = plan.serviceLineSlug ? serviceColor(plan.serviceLineSlug) : null;
+          const svcVars = plan.serviceLineSlug ? serviceCtaVars(plan.serviceLineSlug) : null;
 
           return (
-            <div key={plan.slug} className="plans-card-wrapper">
+            <div
+              key={plan.slug}
+              className={`plans-card-wrapper${svcVars ? ' service-themed' : ''}`}
+            >
               {plan.imageUrl && (
                 <div className="plans-card-wrapper__media">
                   <Image
@@ -94,10 +97,7 @@ export function PlanCardGrid({
                     href={plan.ctaHref ?? `/plans/${plan.slug}`}
                     variant="primary"
                     size="md"
-                    style={{
-                      width: '100%',
-                      ...(svcTokens ? { '--background-brand-primary': svcTokens.onLight } : {}),
-                    } as React.CSSProperties}
+                    style={{ width: '100%', ...(svcVars ?? {}) }}
                   >
                     {plan.ctaLabel ?? 'Learn More'}
                   </Button>

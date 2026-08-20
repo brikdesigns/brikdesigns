@@ -7,7 +7,7 @@ import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag, SectionHeader } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
-import { color, gap, serviceColor } from '@/lib/tokens';
+import { color, gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../services.css';
 
@@ -79,7 +79,7 @@ export default async function ServiceLinePage({ params }: Props) {
     // cascade (brik-bds#781) — currently no-op here (no breadcrumb on the
     // service-line index), but stays consistent with the service-detail page
     // pattern so a future breadcrumb addition picks up the audience tint.
-    <div data-audience={audience} className="service-themed" style={{ '--background-brand-primary': svcColors.onLight, '--text-brand-primary': svcColors.text } as React.CSSProperties}>
+    <div data-audience={audience} className="service-themed" style={serviceCtaVars(audience)}>
       {/* ═══ Hero ═══ */}
       <section
         className="page-hero service-surface"
@@ -170,12 +170,12 @@ export default async function ServiceLinePage({ params }: Props) {
               description="Join our monthly support plan to get professional advice without the need for a team."
             />
             <div
-              className="service-detail-support-grid"
-              // `--service-cta-fill-dark`/`-ink-dark`: the "Learn more" CTA below
-              // sits on the `-inverse` card; flip it to the pale `onDark` step +
-              // deep `text` ink in dark mode so it pops on the `{hue}-darkest`
-              // card (#648). Light mode unchanged. (BRIK-WEB)
-              style={{ '--background-brand-primary': supportPlanServiceLineColors.onLight, '--text-brand-primary': supportPlanServiceLineColors.text, '--service-cta-fill-dark': supportPlanServiceLineColors.onDark, '--service-cta-ink-dark': supportPlanServiceLineColors.text } as React.CSSProperties}
+              className="service-detail-support-grid service-themed"
+              // Canonical service-CTA cascade (brikdesigns#1001) — the "Learn more"
+              // CTA below sits on the `-inverse` card; the helper's `-dark` handoff
+              // flips it to the pale `onDark` step + deep `text` ink in dark mode so
+              // it pops on the `{hue}-darkest` card (#648). Light mode unchanged.
+              style={serviceCtaVars(mapServiceLineSlug(supportPlanServiceLine.slug))}
             >
               {supportPlan.image_url && (
                 <div className="service-detail-support-grid__media">
@@ -233,11 +233,12 @@ export default async function ServiceLinePage({ params }: Props) {
                 return (
                   <div
                     key={cat.slug}
-                    // Each card's own line hue. `--service-cta-fill-dark`/`-ink-dark`
-                    // flip the "Learn More" CTA to the pale `onDark` step + deep
-                    // `text` ink in dark mode so it pops on the card's `-inverse`
-                    // surface (#648). Light mode unchanged. (BRIK-WEB)
-                    style={{ '--background-brand-primary': catColors.onLight, '--text-brand-primary': catColors.text, '--service-cta-fill-dark': catColors.onDark, '--service-cta-ink-dark': catColors.text } as React.CSSProperties}
+                    className="service-themed"
+                    // Each card's own line hue — canonical service-CTA cascade
+                    // (brikdesigns#1001). The `-dark` handoff flips the "Learn More"
+                    // CTA to the pale `onDark` step + deep `text` ink in dark mode so
+                    // it pops on the card's `-inverse` surface (#648).
+                    style={serviceCtaVars(catKey)}
                   >
                     <Card
                       preset="display"
