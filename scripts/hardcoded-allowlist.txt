@@ -19,7 +19,6 @@ src/app/(marketing)/value/value.css
 # ── Transitional (burn-down) ─────────────────────────────────────────────────
 # Grandfathered at gate introduction. Tokenize + remove, one file per PR.
 src/app/(marketing)/customers/customers.css
-src/app/(marketing)/events/events.css
 src/app/(marketing)/marketing/marketing.css
 src/app/(marketing)/shared-sections.css
 src/components/blocks/blocks.css

@@ -87,7 +87,7 @@
   background-color: var(--surface-primary);
   border: 1px solid var(--border-muted);
   /* top accent color set inline per-event (page.tsx); width/style here. */
-  border-top-width: 3px;
+  border-top-width: var(--border-width-bold);
   border-top-style: solid;
   border-top-color: var(--border-brand-primary);
   border-radius: var(--border-radius-lg);
