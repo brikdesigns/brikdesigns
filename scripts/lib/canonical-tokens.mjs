@@ -14,6 +14,14 @@ import { parseAllowlist } from '@brikdesigns/bds/canonical-check';
 
 const ROOT = process.cwd();
 
+// This gate's per-line escape hatch. The name is REQUIRED: `bds-lint-ignore` is
+// a prefix shared with the hardcoded-literal gate
+// (scripts/lib/hardcoded-values.mjs), and matching the bare marker meant a
+// waiver written for that gate also silenced this one on the same line — the
+// author disposed of a raw `4px` and got a free, invisible token-family waiver
+// with it (#999). Each gate now answers only to its own name.
+export const IGNORE_RE = /bds-lint-ignore\s+token-family\b/;
+
 export const PATHS = {
   bdsTokens: path.join(ROOT, 'node_modules/@brikdesigns/bds/dist/tokens.css'),
   globals: path.join(ROOT, 'src/app/globals.css'),
@@ -182,7 +190,7 @@ export function checkTokenFamilyPairing(line, lineNum, file, { skipShapeB = fals
   if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) {
     return violations;
   }
-  if (line.includes('bds-lint-ignore')) return violations;
+  if (IGNORE_RE.test(line)) return violations;
 
   const isTsx = /\.tsx?$/.test(file);
   const isCss = /\.css$/.test(file);
@@ -325,7 +333,7 @@ export function checkWrapperFamily(text, file) {
       }
       if (expected) {
         const family = classifyTokenFamily(tokenName);
-        if (family && family !== expected && !line.includes('bds-lint-ignore')) {
+        if (family && family !== expected && !IGNORE_RE.test(line)) {
           violations.push({
             file,
             line: i + 1,
