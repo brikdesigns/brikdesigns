@@ -36,6 +36,25 @@ import fs from 'node:fs';
 
 export const IGNORE_RE = /bds-lint-ignore\s+hardcoded/;
 
+// Waiver-form check. Two linters share the `bds-lint-ignore` prefix and each
+// names itself: `hardcoded` (this gate) and `token-family` (lint-tokens.mjs).
+// A waiver that names neither is the trap — `IGNORE_RE` above requires the
+// name, so a bare `bds-lint-ignore` reads on the page as a disposition while
+// suppressing nothing here. Two shipped that way in blocks.css (#996).
+export const KNOWN_LINTERS = ['hardcoded', 'token-family'];
+const MALFORMED_IGNORE_RE = new RegExp(
+  `bds-lint-ignore(?!\\s+(?:${KNOWN_LINTERS.join('|')})\\b)`
+);
+
+/** Lines carrying a `bds-lint-ignore` that names no known linter. */
+export function findMalformedWaivers(file, css) {
+  const out = [];
+  css.split('\n').forEach((line, i) => {
+    if (MALFORMED_IGNORE_RE.test(line)) out.push({ file, line: i + 1, text: line.trim() });
+  });
+  return out;
+}
+
 // ── Property → category ──────────────────────────────────────────────────────
 // Matched against the declaration's property name (lower-cased, trimmed).
 const SPACING_PROP_RE =

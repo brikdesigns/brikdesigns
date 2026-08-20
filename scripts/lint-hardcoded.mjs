@@ -28,7 +28,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'glob';
-import { loadTokenIndex, findHardcodedViolations } from './lib/hardcoded-values.mjs';
+import {
+  loadTokenIndex,
+  findHardcodedViolations,
+  findMalformedWaivers,
+  KNOWN_LINTERS,
+} from './lib/hardcoded-values.mjs';
 
 const ROOT = process.cwd();
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -56,10 +61,33 @@ const allowlist = WRITE_ALLOWLIST ? new Set() : readAllowlist();
 const files = (await glob('src/**/*.css', { ignore: ['**/node_modules/**'] })).sort();
 
 const all = [];
+const malformed = [];
 for (const file of files) {
   const rel = file.replace(/\\/g, '/');
+  const css = fs.readFileSync(file, 'utf8');
+  // Waiver form is checked in EVERY file, allowlisted or not: a whole-file
+  // grandfather masks the literal, so a bare waiver inside one stays invisible
+  // until the file leaves the list — which is how blocks.css:436 survived.
+  malformed.push(...findMalformedWaivers(rel, css));
   if (allowlist.has(rel)) continue;
-  all.push(...findHardcodedViolations(rel, fs.readFileSync(file, 'utf8'), index));
+  all.push(...findHardcodedViolations(rel, css, index));
+}
+
+if (malformed.length > 0 && !WRITE_ALLOWLIST) {
+  console.error(
+    `FAIL — ${malformed.length} bds-lint-ignore waiver(s) naming no known linter ` +
+      `(expected one of: ${KNOWN_LINTERS.join(', ')}):\n`
+  );
+  for (const m of malformed) {
+    console.error(`  ${m.file}:${m.line}`);
+    console.error(`    ${m.text}`);
+  }
+  console.error(
+    '\nA waiver must name the linter it suppresses — `bds-lint-ignore hardcoded` or\n' +
+      '`bds-lint-ignore token-family`. A bare marker suppresses nothing in this gate,\n' +
+      'so it reads as a disposition that was never applied.'
+  );
+  process.exit(1);
 }
 
 if (WRITE_ALLOWLIST) {
