@@ -145,7 +145,18 @@ function preferSemantic(names) {
 function* declarations(line) {
   // Only the part before a trailing comment counts as CSS; keep the comment for
   // the ignore check upstream.
-  for (const chunk of line.split(';')) {
+  for (const raw of line.split(';')) {
+    // Strip the rule's braces so a single-line rule parses like a multi-line
+    // one. `.foo { gap: 7px; }` splits into `.foo { gap: 7px`, whose first
+    // colon belongs to the declaration — but everything left of `{` is the
+    // selector, and without dropping it the property name is `.foo { gap` and
+    // the `^[a-z-]+$` guard below discards the whole declaration. Worse for a
+    // pseudo-class: `a:hover { gap: 7px` yields prop `a`, value `hover { gap:
+    // 7px` — a *parse*, just not of the declaration, so it fails silently.
+    // Take what follows the last `{`, then cut at the first `}` (the closer of
+    // a `;`-less final declaration, or of a preceding rule on the same line).
+    const open = raw.lastIndexOf('{');
+    const chunk = (open === -1 ? raw : raw.slice(open + 1)).split('}')[0];
     const idx = chunk.indexOf(':');
     if (idx === -1) continue;
     const prop = chunk.slice(0, idx).trim().toLowerCase();

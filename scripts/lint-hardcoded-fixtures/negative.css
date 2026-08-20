@@ -35,3 +35,9 @@
   --border-radius-100: 4px;
   --border-width-200: 3px;
 }
+
+/* Single-line rules that ARE tokenized stay clean — the brace-stripping must
+   not manufacture a violation out of the selector or the media condition. */
+.one-line-ok { gap: var(--gap-md); }
+.one-line-ok-pseudo:focus-visible { border-radius: var(--border-radius-sm); }
+@media (max-width: 991px) { .nested-ok { gap: var(--gap-tiny); } }

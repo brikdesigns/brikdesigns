@@ -125,6 +125,36 @@ test('a semantic alias still outranks the numeric step it resolves to', () => {
   assert.equal(r8.suggestion, '--border-radius-sm', 'alias preferred over --border-radius-200');
 });
 
+// A rule written on one line used to be skipped whole: the `;`-split chunk is
+// `.foo { gap: 7px`, whose property name fails the `^[a-z-]+$` guard. The
+// pseudo-class case was worse — `a:hover { gap: 2px` parsed as prop `a`, so it
+// failed silently rather than visibly.
+test('flags literals in single-line rules', () => {
+  const v = findHardcodedViolations('positive.css', read('positive.css'), index);
+  const c = cats(v);
+  assert.ok(c.includes('spacing:gap:7px'), 'single-line rule');
+  assert.ok(c.includes('spacing:gap:6px'), 'first of two decls on one line');
+  assert.ok(c.includes('radius:border-radius:8px'), 'second of two decls on one line');
+  assert.ok(c.includes('radius:border-radius:12px'), 'no trailing semicolon');
+});
+
+test('a selector colon is not mistaken for the declaration colon', () => {
+  const v = findHardcodedViolations('positive.css', read('positive.css'), index);
+  // Both 2px gaps — the multi-line one at the top and the pseudo-class
+  // single-liner — must report `gap`. A leaked selector fragment (`a`, `.foo {
+  // gap`) is the failure this guards, and it shows up as a wrong `prop`.
+  const twos = v.filter((x) => x.literal === '2px' && x.category === 'spacing');
+  assert.equal(twos.length, 2, 'multi-line + single-line pseudo');
+  for (const t of twos) {
+    assert.equal(t.prop, 'gap', `prop is gap, got "${t.prop}"`);
+    assert.equal(t.suggestion, '--gap-tiny');
+  }
+  // No violation anywhere may carry a property the CSS parser wouldn't accept.
+  for (const x of v) {
+    assert.match(x.prop, /^(--)?[a-z][a-z-]*$/, `implausible property "${x.prop}"`);
+  }
+});
+
 // ── detector: semantic-token definitions ─────────────────────────────────────
 test('flags a raw colour written straight into a semantic token', () => {
   const v = findHardcodedViolations('positive.css', read('positive.css'), index);
