@@ -14,6 +14,8 @@ import {
   buildTokenIndex,
   lengthToPx,
   findHardcodedViolations,
+  findMalformedWaivers,
+  KNOWN_LINTERS,
 } from './lib/hardcoded-values.mjs';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -173,6 +175,45 @@ test('does not flag tokens, zero, layout dims, or fluid primitives', () => {
 test('per-line ignore comment suppresses only its own line', () => {
   const v = findHardcodedViolations('escape-hatch.css', read('escape-hatch.css'), index);
   assert.deepEqual(cats(v), ['spacing:padding:5px'], 'only the un-ignored line flags');
+});
+
+// ── waiver form ──────────────────────────────────────────────────────────────
+// A waiver must name the linter it suppresses. A bare `bds-lint-ignore` does
+// not satisfy IGNORE_RE, so it reads as a disposition while suppressing nothing
+// — two shipped that way in blocks.css (#996).
+test('a bare bds-lint-ignore is reported as malformed', () => {
+  const css = '.a { gap: 3px; /* bds-lint-ignore — bare */ }\n';
+  assert.deepEqual(
+    findMalformedWaivers('bare.css', css).map((m) => m.line),
+    [1]
+  );
+});
+
+test('each known linter name is accepted', () => {
+  for (const name of KNOWN_LINTERS) {
+    const css = `.a { gap: 3px; /* bds-lint-ignore ${name} — reason */ }\n`;
+    assert.deepEqual(findMalformedWaivers('ok.css', css), [], `${name} should be accepted`);
+  }
+});
+
+test('an unknown linter name is reported as malformed', () => {
+  const css = '.a { gap: 3px; /* bds-lint-ignore made-up-gate — reason */ }\n';
+  assert.equal(findMalformedWaivers('unknown.css', css).length, 1);
+});
+
+test('a known name is not matched as a prefix of a longer word', () => {
+  const css = '.a { gap: 3px; /* bds-lint-ignore hardcodedish — reason */ }\n';
+  assert.equal(
+    findMalformedWaivers('prefix.css', css).length,
+    1,
+    '`hardcodedish` must not pass as `hardcoded`'
+  );
+});
+
+test('a correctly-formed waiver still suppresses the literal it names', () => {
+  const css = '.a { padding: 5px; /* bds-lint-ignore hardcoded — reason */ }\n';
+  assert.deepEqual(findMalformedWaivers('paired.css', css), []);
+  assert.deepEqual(findHardcodedViolations('paired.css', css, index), []);
 });
 
 // ── run ──────────────────────────────────────────────────────────────────────
