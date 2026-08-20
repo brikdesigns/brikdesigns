@@ -31,10 +31,19 @@ const TOKENS = `
   --gap-tiny: var(--space-50);
   --gap-md: var(--space-200);
   --padding-lg: var(--space-400);
-  --border-radius-200: 4px;
-  --border-radius-400: 8px;
+  /* Mirrors the real BDS shape: a dense numeric scale, only some steps of
+     which have a semantic alias. 4px radius / 3px border are the off-alias
+     steps that used to report as design-system gaps. */
+  --border-radius-100: 4px;
+  --border-radius-200: 8px;
+  --border-radius-400: 12px;
   --border-radius-sm: var(--border-radius-200);
   --border-radius-md: var(--border-radius-400);
+  --border-width-50: 1px;
+  --border-width-100: 2px;
+  --border-width-200: 3px;
+  --border-width-sm: var(--border-width-50);
+  --border-width-md: var(--border-width-100);
   /* --gap-component: a note mentioning 12px that must not swallow the value */
   --gap-component: 12px;
 }
@@ -54,7 +63,7 @@ const cats = (vs) => vs.map((v) => `${v.category}:${v.prop}:${v.literal}`);
 test('resolveTokenValues follows var() indirection to a concrete value', () => {
   const r = resolveTokenValues(TOKENS);
   assert.equal(r.get('--gap-tiny'), '2px');
-  assert.equal(r.get('--border-radius-sm'), '4px');
+  assert.equal(r.get('--border-radius-sm'), '8px');
 });
 
 test('first (:root base) declaration wins over later overrides', () => {
@@ -95,6 +104,33 @@ test('exact-token literals carry a suggestion; unmatched ones flag a DS gap', ()
   const pad90 = v.find((x) => x.literal === '90px');
   assert.equal(pad90.dsGap, true, '90px has no token → design-system gap');
   assert.equal(pad90.suggestion, null);
+});
+
+// The index must cover a family's whole numeric scale, not just its handful of
+// semantic aliases — matching aliases alone reported every off-alias step as a
+// design-system gap and sent the burn-down to invent tokens BDS already ships.
+test('off-alias scale steps resolve to a token, not a design-system gap', () => {
+  assert.deepEqual(index.radius.get(4), ['--border-radius-100']);
+  assert.deepEqual(index.border.get(3), ['--border-width-200']);
+
+  const v = findHardcodedViolations('positive.css', read('positive.css'), index);
+  const bw3 = v.find((x) => x.category === 'border-width' && x.literal === '3px');
+  assert.equal(bw3.dsGap, false, '3px border-width → --border-width-200');
+  assert.equal(bw3.suggestion, '--border-width-200');
+});
+
+test('a semantic alias still outranks the numeric step it resolves to', () => {
+  const v = findHardcodedViolations('positive.css', read('positive.css'), index);
+  const r8 = v.find((x) => x.category === 'radius' && x.literal === '8px');
+  assert.equal(r8.suggestion, '--border-radius-sm', 'alias preferred over --border-radius-200');
+});
+
+// ── detector: semantic-token definitions ─────────────────────────────────────
+test('flags a raw colour written straight into a semantic token', () => {
+  const v = findHardcodedViolations('positive.css', read('positive.css'), index);
+  const c = cats(v);
+  assert.ok(c.includes('token-definition:--surface-negative:#fdeaea'), 'hex in semantic token');
+  assert.ok(c.includes('token-definition:--text-negative:rgb'), 'rgb() in semantic token');
 });
 
 // ── detector: negatives ──────────────────────────────────────────────────────

@@ -7,5 +7,11 @@
   background: rgba(0, 0, 0, 0.5); /* colour rgba */
   font-size: 30px;          /* typography */
   line-height: 40px;        /* typography */
-  border-top-width: 3px;    /* border-width, NO matching token */
+  border-top-width: 3px;    /* border-width, exact scale token exists (--border-width-200) */
+}
+
+/* A semantic token must resolve through a primitive, never hold a raw colour. */
+:root {
+  --surface-negative: #fdeaea;
+  --text-negative: rgb(255, 107, 107);
 }

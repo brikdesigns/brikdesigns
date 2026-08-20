@@ -16,6 +16,11 @@
 //   typography font-size, line-height                       → font-size scale / --font-line-height-*
 //   colour    color, background*, border*-color, fill,     → --text-* / --surface-* /
 //             stroke, outline*, box-shadow, text-shadow       --background-* / --border-* / --color-*
+//   token-definition  a raw colour written straight into a semantic token
+//             (`--text-*`/`--surface-*`/`--background-*`/`--border-*`)  →  var(--color-*)
+//             Semantic tokens must resolve THROUGH a primitive; the value
+//             belongs in the Figma → Style Dictionary chain. `--color-*` is
+//             exempt — the primitive layer is where the chain bottoms out.
 //
 // Deliberately NOT scanned (would be noise, not signal):
 //   • width/height/min-*/max-*/inset/top/left/grid-template — arbitrary layout
@@ -45,6 +50,14 @@ const TYPO_PROP_RE = /^(font-size|line-height)$/;
 // avoid double-flagging hairlines).
 const COLOUR_PROP_RE =
   /^(color|background|background-color|border|border-color|border-(top|right|bottom|left)-color|outline|outline-color|fill|stroke|box-shadow|text-shadow|caret-color|text-decoration-color)$/;
+// Semantic *token definitions*. Every regex above is anchored to a real CSS
+// property name, so a custom property never matched any of them and a raw
+// colour written straight into a semantic token — `--surface-negative:
+// #fdeaea` — was invisible to the gate. A semantic token must resolve THROUGH
+// a primitive: the value belongs in the Figma → Style Dictionary chain, not
+// hand-written in a consumer stylesheet. The primitive layer (`--color-*`) is
+// deliberately outside this set — that IS where the chain bottoms out.
+const SEMANTIC_TOKEN_RE = /^--(text|surface|background|border)-/;
 
 // ── Literal patterns (scanned in the value AFTER stripping var/calc/clamp) ────
 const LENGTH_RE = /-?\d*\.?\d+(px|rem|em)\b/g;
@@ -105,11 +118,17 @@ export function buildTokenIndex(resolved) {
     if (!map.has(px)) map.set(px, []);
     if (!map.get(px).includes(name)) map.get(px).push(name);
   };
+  // Index the WHOLE family, numeric scale steps included — not just the
+  // semantic aliases. BDS ships 17 radius steps and 8 border widths, but only
+  // ~6 aliases each; matching aliases alone made every off-alias value (4px
+  // radius = --border-radius-100, 3px border = --border-width-200) report as
+  // "no token exists", inventing design-system gaps that BDS already fills.
+  // `preferSemantic` still surfaces the alias when one resolves to the same px.
   for (const [name, value] of resolved) {
     const px = lengthToPx(value);
     if (/^--(gap|padding|space)-/.test(name)) add(spacing, px, name);
-    else if (/^--border-radius-(none|sm|md|lg|pill|circle)$/.test(name)) add(radius, px, name);
-    else if (/^--border-width-(none|sm|md|lg|xl|huge)$/.test(name)) add(border, px, name);
+    else if (/^--border-radius-/.test(name)) add(radius, px, name);
+    else if (/^--border-width-/.test(name)) add(border, px, name);
   }
   return { spacing, radius, border };
 }
@@ -198,6 +217,15 @@ export function findHardcodedViolations(file, text, index) {
             file, line: i + 1, category: 'colour', prop, literal: lit.replace(/\s*\($/, ''),
             snippet: `${prop}: ${value}`.slice(0, 100),
             suggestion: '--text-* / --surface-* / --background-* / --border-* / --color-*',
+            dsGap: false,
+          });
+        }
+      } else if (SEMANTIC_TOKEN_RE.test(prop)) {
+        for (const lit of scan.match(COLOUR_RE) ?? []) {
+          violations.push({
+            file, line: i + 1, category: 'token-definition', prop, literal: lit.replace(/\s*\($/, ''),
+            snippet: `${prop}: ${value}`.slice(0, 100),
+            suggestion: 'var(--color-*) primitive — add the primitive upstream, don\'t inline the value',
             dsGap: false,
           });
         }
