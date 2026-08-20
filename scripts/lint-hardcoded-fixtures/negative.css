@@ -25,3 +25,13 @@
 
 /* commented-out CSS must not be scanned */
 /* .c { gap: 2px; color: #fff; } */
+
+:root {
+  /* The primitive layer is where the value chain bottoms out — exempt. */
+  --color-system-red: #eb5757;
+  /* A semantic token pointing at a primitive is the correct shape. */
+  --surface-negative: var(--color-system-red);
+  /* Length scale steps are token definitions, not hardcoded usage. */
+  --border-radius-100: 4px;
+  --border-width-200: 3px;
+}
