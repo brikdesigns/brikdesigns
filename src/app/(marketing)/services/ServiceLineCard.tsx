@@ -6,7 +6,7 @@ import { Card, CardTitle, CardDescription, CardFooter, Stack, Frame, ServiceTag,
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
-import { color, serviceColor } from '@/lib/tokens';
+import { color, serviceCtaVars } from '@/lib/tokens';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 
 interface ServiceLineCardProps {
@@ -25,16 +25,13 @@ interface ServiceLineCardProps {
  * would render a plain `<a>` and regress both).
  */
 export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: ServiceLineCardProps) {
-  // Audience-tinted CTA — the canonical BDS service-button pairing: the service
-  // base fill (`--background-service-{slug}`) + the neutral on-color foreground
-  // (`--text-on-color-light`, black). Verified ≥AA on all five lines (6.16–17.82:1).
-  // This retires the brikdesigns#346 consumer-specific `ctaBg`/`ctaText` pairing
-  // now that the BDS color-pairing foundation (brik-bds#868) documents + gates
-  // the pattern — see design.brikdesigns.com/docs/primitives/color-pairings. (#429)
-  const tokens = serviceColor(category);
+  // Audience-tinted CTA — the canonical service-CTA pairing (brikdesigns#1001):
+  // deep `onLight` fill + the BDS primary's default white label, under a
+  // `service-themed` ancestor. Emitted via `serviceCtaVars` so every service CTA
+  // shares one source (8.48–16.34:1 AA on all five lines, both themes).
   return (
     <Link href={`/services/${routeSlugForServiceLine(slug)}`} className="services-card-link">
-      <Card variant="outlined" padding="md" interactive className="services-card">
+      <Card variant="outlined" padding="md" interactive className="services-card service-themed">
         <div className="services-card__media">
           {imageUrl ? (
             <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -49,7 +46,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
         </div>
         <span
           className={composeButtonClasses({ variant: 'primary', size: 'md' })}
-          style={{ backgroundColor: tokens.bg, color: 'var(--text-on-color-light)', borderColor: tokens.bg }}
+          style={serviceCtaVars(category)}
         >
           Learn more
         </span>
@@ -80,9 +77,8 @@ interface ServiceCalloutProps {
  * which broke the #103 contrast intent (#427; regression from #360).
  */
 export function ServiceCallout({ name, slug, category, description, imageUrl }: ServiceCalloutProps) {
-  const tokens = serviceColor(category);
   return (
-    <Card variant="elevated" padding="lg" className="services-callout-card">
+    <Card variant="elevated" padding="lg" className="services-callout-card service-themed">
       <Stack direction="horizontal" gap="lg" align="center">
         <div className="services-callout-card__media">
           <Frame ratio="square" fit="cover">
@@ -102,7 +98,7 @@ export function ServiceCallout({ name, slug, category, description, imageUrl }: 
               href={`/services/${routeSlugForServiceLine(slug)}`}
               variant="primary"
               size="md"
-              style={{ backgroundColor: tokens.bg, color: 'var(--text-on-color-light)', borderColor: tokens.bg }}
+              style={serviceCtaVars(category)}
             >
               Learn more
             </Button>

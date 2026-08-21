@@ -21,7 +21,7 @@ import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { MDXRemote } from '@/components/blog/MDXRemote';
 import { heading, text, label } from '@/lib/styles';
-import { color, gap, serviceColor } from '@/lib/tokens';
+import { color, gap, serviceCtaVars } from '@/lib/tokens';
 import '../../shared-sections.css';
 import '../blog.css';
 
@@ -201,11 +201,11 @@ export default async function BlogPostPage({ params }: Props) {
             <Grid columns={3} gap="lg">
               {serviceLines.map((line) => {
                 const lineKey = mapServiceLineSlug(line.slug);
-                const lineColors = serviceColor(lineKey);
                 return (
                   <div
                     key={line.slug}
-                    style={{ '--background-brand-primary': lineColors.onLight, '--text-brand-primary': lineColors.text } as React.CSSProperties}
+                    className="service-themed"
+                    style={serviceCtaVars(lineKey)}
                   >
                     <Card
                       preset="display"

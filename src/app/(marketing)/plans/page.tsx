@@ -6,7 +6,7 @@ import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
 import { PlanCardGrid } from './PlanCardGrid';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
-import { color, font, serviceColor } from '@/lib/tokens';
+import { color, font, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { heading, text } from '@/lib/styles';
 import '../shared-sections.css';
 import './plans.css';
@@ -89,11 +89,12 @@ export default async function PlansPage() {
           className="page-section service-themed plan-detail-ctas"
           style={
             {
-              '--background-brand-primary': productTokens.bg,
+              // Canonical service-CTA cascade (brikdesigns#1001) — deep `onLight`
+              // fill + white label; the `Get Started` hero primary reads it. The
+              // `--background-inverse` keeps any inverse-variant CTA on the pale
+              // `bg` fill (retained `.plan-detail-ctas .bds-button--inverse` rule).
+              ...serviceCtaVars('product'),
               '--background-inverse': productTokens.bg,
-              '--text-brand-primary': productTokens.text,
-              '--service-cta-fill-dark': productTokens.onDark,
-              '--service-cta-ink-dark': productTokens.text,
             } as React.CSSProperties
           }
         >
