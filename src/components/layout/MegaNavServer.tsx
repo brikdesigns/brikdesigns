@@ -63,12 +63,18 @@ export async function MegaNavServer() {
     lineSegment: plan.display_line?.slug ? mapServiceLineSlug(plan.display_line.slug) : null,
   }));
 
-  const industryItems = (industries || []).map((ind) => ({
-    name: ind.name,
-    slug: ind.slug,
-    tagline: ind.tagline || '',
-    imageUrl: ind.image_url || null,
-  }));
+  // Nav-only suppression. The row stays public — /customers/saas and the
+  // "Industries We Serve" grid still render it; it's just off the top nav.
+  const NAV_HIDDEN_INDUSTRIES = new Set(['saas']);
+
+  const industryItems = (industries || [])
+    .filter((ind) => !NAV_HIDDEN_INDUSTRIES.has(ind.slug))
+    .map((ind) => ({
+      name: ind.name,
+      slug: ind.slug,
+      tagline: ind.tagline || '',
+      imageUrl: ind.image_url || null,
+    }));
 
   return <MegaNav serviceLines={serviceLines} supportPlans={supportPlans} industries={industryItems} />;
 }

@@ -469,7 +469,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                 onClick={() => toggle('customers')}
                 aria-expanded={open === 'customers'}
               >
-                Who We Work With
+                Industries
                 <ChevronDown />
               </button>
 
@@ -478,7 +478,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
                     {/* Webflow: .inner-wrapper.narrow — left intro */}
                     <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-title">Who We Support</h3>
+                      <h3 className="mega-nav__panel-title">Industries We Serve</h3>
                       <p className="mega-nav__panel-desc">
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
@@ -518,9 +518,9 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               )}
             </div>
 
-            {/* Work — plain link to customer stories */}
+            {/* Results — plain link to customer stories */}
             <Link href="/customer-stories" className="mega-nav__toggle" onClick={() => setOpen(null)}>
-              Work
+              Results
             </Link>
 
             {/* About */}
@@ -599,7 +599,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
             </Link>
           ))}
           <Link href="/industries" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Industries</Link>
-          <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Work</Link>
+          <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Results</Link>
           <Link href="/about" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>About</Link>
           <Link href="/blog" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
           <Link
