@@ -205,11 +205,13 @@
   white-space: nowrap;
 }
 
+/* Glyph box, not text: the rule sizes width/height alongside font-size, so this
+ * belongs to the --icon-* scale (24px = --icon-2xl), not --heading-*. */
 .scroll-down-cta__icon {
   color: var(--text-brand-primary);
-  font-size: 1.5rem;
-  width: 1.5rem;
-  height: 1.5rem;
+  font-size: var(--icon-2xl);
+  width: var(--icon-2xl);
+  height: var(--icon-2xl);
   animation: scroll-cta-bounce 0.8s ease-in-out 1.2s 3;
 }
 
