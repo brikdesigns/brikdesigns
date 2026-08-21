@@ -19,4 +19,3 @@ src/app/(marketing)/value/value.css
 # ── Transitional (burn-down) ─────────────────────────────────────────────────
 # Grandfathered at gate introduction. Tokenize + remove, one file per PR.
 src/components/blocks/blocks.css
-src/components/layout/MegaNav.css
