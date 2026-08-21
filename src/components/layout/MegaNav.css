@@ -602,10 +602,13 @@
   gap: var(--gap-lg);
 }
 
-/* Webflow: .cms-nav-layout — 4-column industry cards */
+/* Webflow: .cms-nav-layout — 3-column industry cards.
+ * Column count tracks the published industry count (3 in nav: SaaS is
+ * filtered in MegaNavServer.tsx). A fixed count higher than the card count
+ * leaves a visible empty column, so re-check this when that filter changes. */
 .mega-nav__customers-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-md);
 }
 
