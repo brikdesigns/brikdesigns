@@ -42,6 +42,10 @@
   gap: inherit;
   width: 100%;
   max-width: var(--content-width-xl);
+  /* margin-inline (not the band's align-items) does the centring, so the
+     left-aligned bands (pillar titles, editorial, transition) still centre
+     their content column at wide widths instead of pinning to the band edge. */
+  margin-inline: auto;
 }
 
 /* Fixed-colour bands (primitives = exact palette match). Text pinned to the
@@ -191,7 +195,7 @@
 .value-editorial {
   align-items: flex-start;
   gap: 8px;
-  padding: 140px 80px 140px 360px;
+  padding: 140px 80px;
 }
 .value-editorial__eyebrow {
   font-family: var(--font-family-label);
@@ -221,7 +225,7 @@
 .value-transition {
   align-items: flex-start;
   gap: 32px;
-  padding: 140px 80px 140px 360px;
+  padding: 140px 80px;
 }
 .value-transition__text {
   font-family: var(--font-family-heading);
