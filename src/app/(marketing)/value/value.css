@@ -24,8 +24,28 @@
 .vband {
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Inner content column. Caps content to the site container width
+   (var(--content-width-xl), 1280px) and centres it so every band lines up with
+   the top-nav and footer instead of running full-bleed. It is also the
+   <Reveal> root: its `.rise` children lift in on scroll (see the motion block
+   at the foot of this sheet). Layout properties (align-items, gap, text-align)
+   inherit from the band so each section's existing rhythm is preserved. */
+.vband__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: inherit;
+  width: 100%;
+  max-width: var(--content-width-xl);
+  /* margin-inline (not the band's align-items) does the centring, so the
+     left-aligned bands (pillar titles, editorial, transition) still centre
+     their content column at wide widths instead of pinning to the band edge. */
+  margin-inline: auto;
 }
 
 /* Fixed-colour bands (primitives = exact palette match). Text pinned to the
@@ -175,7 +195,7 @@
 .value-editorial {
   align-items: flex-start;
   gap: 8px;
-  padding: 140px 80px 140px 360px;
+  padding: 140px 80px;
 }
 .value-editorial__eyebrow {
   font-family: var(--font-family-label);
@@ -205,7 +225,7 @@
 .value-transition {
   align-items: flex-start;
   gap: 32px;
-  padding: 140px 80px 140px 360px;
+  padding: 140px 80px;
 }
 .value-transition__text {
   font-family: var(--font-family-heading);
@@ -343,11 +363,12 @@
   font-size: 72px;
   line-height: 76px;
 }
-.value-stat__value--coral {
-  /* Fixed coral (not theme-aware --text-brand-primary) — the pink band is a
-     fixed-light colour in both themes, so the accent must stay fixed too, else
-     it flips to a low-contrast salmon in dark mode. */
-  color: var(--color-poppy-500); /* bds-lint-ignore token-family — fixed coral accent on the fixed-light pink band */
+.value-stat__value--brand {
+  /* Brand-primary accent, pinned to a fixed value (not theme-aware
+     --text-brand-primary) — the pink band is a fixed-light colour in both
+     themes, so the accent must stay fixed too, else it flips to a low-contrast
+     tint in dark mode. --color-poppy-500 is the brand-primary base. */
+  color: var(--color-poppy-500); /* bds-lint-ignore token-family — fixed brand-primary accent on the fixed-light pink band */
 }
 .value-stat__label {
   font-family: var(--font-family-heading);
@@ -400,6 +421,37 @@
 }
 .value-cta__btn {
   margin-top: 16px;
+}
+
+/* ─── Content reveal ───────────────────────────────────────────
+   Bands render statically (ScrollReveal skips `.vband`, so the coloured surface
+   never fades and never exposes the page ground). Instead the content *inside*
+   each band lifts in on scroll — matching brikdesigns.com/value, whose Webflow
+   source animates its inner containers (slideInBottom: opacity 0→1 +
+   translateY 100px→0, 1000ms, ease-out) while the sections stay put.
+
+   Reveal.tsx toggles `.is-visible` on the `.vband__inner` root when it enters
+   the viewport; its `.rise` children transition in, lightly staggered.
+   Reduced-motion visitors skip all of this and see everything static. */
+@media (prefers-reduced-motion: no-preference) {
+  .vband__inner .rise {
+    opacity: 0;
+    transform: translateY(100px);
+    transition:
+      opacity var(--duration-600) var(--ease-out),
+      transform var(--duration-600) var(--ease-out);
+    will-change: opacity, transform;
+  }
+  .vband__inner.is-visible .rise {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+  /* Stagger successive risen elements within a band. */
+  .vband__inner.is-visible .rise:nth-child(2) { transition-delay: 0.09s; }
+  .vband__inner.is-visible .rise:nth-child(3) { transition-delay: 0.18s; }
+  .vband__inner.is-visible .rise:nth-child(4) { transition-delay: 0.27s; }
+  .vband__inner.is-visible .rise:nth-child(n + 5) { transition-delay: 0.36s; }
 }
 
 /* ─── Responsive ───────────────────────────────────────────── */
