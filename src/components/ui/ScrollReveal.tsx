@@ -52,7 +52,7 @@ export function ScrollReveal() {
           .filter(
             (el) =>
               !el.matches(
-                '.service-surface, .page-section--secondary, .page-section--accent'
+                '.service-surface, .page-section--secondary, .page-section--accent, .vband'
               )
           )
           // Skip anything already (or nearly) on screen at init so the first paint
