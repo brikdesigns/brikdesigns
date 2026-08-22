@@ -652,8 +652,10 @@
   border-color: transparent;
 }
 
-/* ─── About grid (4-col with image cards) ────────────────────── */
+/* ─── About grid (image cards, one column per card) ──────────── */
 /* Webflow: .layout-nav-4-col-about */
+/* 3 cols: Meet Brik, The Value of Design, Blog (MegaNav.tsx). The Webflow
+   source was 4-col; the fourth card never came across. */
 
 .mega-nav__about-grid {
   flex: 1;
