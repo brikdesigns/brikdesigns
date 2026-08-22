@@ -60,4 +60,16 @@ section.bds-hero--with-pricing-card[data-audience]   ← SECTION  (page-role sur
 4. **Confirm against Figma** (the visual ground truth — [visual-ground-truth-workflow.md](./visual-ground-truth-workflow.md)) before building. The frame shows *which* box gets the surface.
 5. **Distrust inherited comments + upstream code that conflate layers** — the prior `shared-sections.css` comment called the Section "the card," and BDS painted the Section; neither made the Section the card.
 
+## When you change how many items a collection renders
+
+**An item-count change is a Layout-layer change.** The Layout layer (`Grid`, `Split`, a `repeat(N, 1fr)` rule) is positioned by a *count*; the items are supplied by data. Those two live in different files, so "remove one card" reads as a one-file edit and isn't.
+
+**The rule: a `repeat(N, …)` grid must render ≥ N children.** Fewer leaves a permanently empty trailing column — dead space no viewport width can fill.
+
+Worked example (#1004 → #1008): filtering SaaS out of the nav dropped the industries panel to 3 cards while `.mega-nav__customers-grid` stayed `repeat(4, 1fr)`. It shipped. The same sweep found `.mega-nav__about-grid` and `.mega-nav__plans-grid` already wrong the same way — the plans rule's own comment said "3 cols … dropping the grid back to 3" while the value stayed 4.
+
+So: when a CMS filter, unpublished row, or removed array entry changes the count, grep the container's layout rule **in the same change** — and read the whole container in the screenshot, not just the element you touched.
+
+Gated by [`tests/a11y/grid-column-fit.spec.ts`](../../tests/a11y/grid-column-fit.spec.ts) (computed columns vs laid-out children, nav panels + main routes).
+
 See also: [naming-conventions.md](./naming-conventions.md) (slot/role names).
