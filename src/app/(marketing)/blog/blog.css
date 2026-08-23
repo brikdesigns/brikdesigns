@@ -1,5 +1,12 @@
 /* ─── Blog — layout only ────────────────────────────────── */
 
+/* Balance the hero lead across its lines so the last line never drops a lone
+   word ("brik.") as a desktop orphan. Scoped to the blog index hero; the shared
+   .page-hero__description (used by every interior hero) is left untouched. */
+.blog-hero__description {
+  text-wrap: balance;
+}
+
 /* Type filter — scrolls horizontally inside its own box on narrow
    viewports so long segment labels never force the page body to scroll. */
 .blog-filter {

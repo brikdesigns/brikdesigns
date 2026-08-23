@@ -1,5 +1,5 @@
 /* ─── Value of Design — full-bleed colour-band layout ────────
-   Ported 1:1 from the approved Paper build (file 01KNEV2…). Each section is a
+   Ported from the approved Paper build (file 01KNEV2…). Each section is a
    full-bleed colour band; the page reads as a vertical sequence of bands with a
    title → callout → stats rhythm per pillar.
 
@@ -11,13 +11,19 @@
      dark-green → --color-green-950
      gold       → --color-yellow-500
      lavender   → --color-purple-300
-     blue       → --color-blue-500
    Band text uses the theme-fixed on-colour tokens (--text-on-color-light/-dark)
    so copy stays legible on every fixed band in both light and dark themes.
 
-   Section entrance motion is handled site-wide by <ScrollReveal> (marketing
-   layout) via the `.scroll-reveal` classes — this sheet is layout + colour
-   only, no per-page motion. */
+   TYPE + SPACING (#1017): the Paper port's literal px ramp is mapped to the
+   nearest BDS tokens. Oversized display type rides --display-fluid-* (whose
+   clamp replaces the hand-rolled breakpoint step-downs); mid-ramp sizes with
+   no semantic token at their step reference the --font-size-* primitive scale
+   directly. Rhythm uses the --gap- and --space- families; the gutter is --gutter-page so
+   /value content aligns with the site container (nav, footer). Heading tokens
+   resolve on the site's expressive scale (layout.tsx sets
+   data-mode-typography="expressive"), so sizes are picked against that column.
+   Icon boxes and band min-heights stay literal — box sizes, not type or
+   rhythm. */
 
 /* ─── Band system ──────────────────────────────────────────── */
 
@@ -27,6 +33,7 @@
   align-items: center;
   width: 100%;
   box-sizing: border-box;
+  padding-inline: var(--gutter-page);
 }
 
 /* Inner content column. Caps content to the site container width
@@ -86,11 +93,11 @@
 /* Shared display type */
 .v-display {
   font-family: var(--font-family-heading);
-  font-weight: 800;
+  font-weight: var(--font-weight-extrabold);
 }
 .v-heading {
   font-family: var(--font-family-heading);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
 }
 
 /* ─── Hero ─────────────────────────────────────────────────── */
@@ -98,35 +105,35 @@
 .value-hero {
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: var(--gap-lg);
   min-height: 760px;
-  padding: 120px 80px;
+  padding-block: var(--space-2300);
   text-align: center;
 }
 .value-hero__title {
-  font-family: var(--font-family-heading);
-  font-weight: 800;
-  font-size: 132px;
-  line-height: 110px;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--display-fluid-xl);
+  line-height: var(--font-line-height-tight);
 }
-.value-hero__sub {
+.value-hero__subtitle {
   font-family: var(--font-family-heading);
-  font-weight: 500;
-  font-size: 30px;
-  line-height: 40px;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--heading-lg);
+  line-height: var(--font-line-height-moderate);
 }
 
 /* ─── Pillar-nav cards ─────────────────────────────────────── */
 
 .value-cards {
   align-items: center;
-  padding: 0 80px 120px 80px;
+  padding-block: 0 var(--space-2300);
 }
 .value-cards__row {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  gap: 32px;
+  gap: var(--gap-huge);
   width: 100%;
 }
 .value-card {
@@ -134,11 +141,11 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
+  gap: var(--gap-xl);
   flex: 1 1 0;
   width: 0;
   min-height: 400px;
-  padding: 36px 32px;
+  padding: var(--space-900) var(--space-800);
   border-radius: var(--border-radius-md);
   color: var(--text-on-color-light);
   text-decoration: none;
@@ -169,44 +176,48 @@
 }
 .value-card__number {
   font-family: var(--font-family-heading);
-  font-weight: 800;
-  font-size: 64px;
-  line-height: 60px;
+  font-weight: var(--font-weight-extrabold);
+  /* Primitive step — sits between --heading-huge and --display-sm with no
+     semantic token at its rung; 1300 (64.7px) is the exact fit. */
+  font-size: var(--font-size-1300);
+  line-height: var(--font-line-height-tight);
 }
 .value-card__title {
   font-family: var(--font-family-heading);
-  font-weight: 700;
-  font-size: 22px;
-  line-height: 28px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--heading-sm);
+  line-height: var(--font-line-height-snug);
 }
 
 /* ─── Editorial "Let's Be Real" ────────────────────────────── */
 
 .value-editorial {
   align-items: flex-start;
-  gap: 8px;
-  padding: 140px 80px;
+  gap: var(--gap-md);
+  padding-block: var(--space-2500);
 }
-.value-editorial__eyebrow {
+.value-editorial__subtitle {
   font-family: var(--font-family-label);
-  /* 700 + 20px qualifies as WCAG "large text" so the white-on-coral eyebrow
-     clears the 3:1 large threshold (3.78:1) rather than failing 4.5:1. */
-  font-weight: 700;
-  font-size: 20px;
-  line-height: 32px;
-  margin-bottom: 16px;
+  /* 700 + 20px (--label-xl) qualifies as WCAG "large text" so the
+     white-on-coral subtitle clears the 3:1 large threshold (3.78:1) rather
+     than failing 4.5:1. */
+  font-weight: var(--font-weight-bold);
+  font-size: var(--label-xl);
+  line-height: var(--font-line-height-normal);
+  margin-bottom: var(--gap-lg);
 }
 .value-editorial__line {
   font-family: var(--font-family-heading);
-  font-weight: 700;
-  font-size: 46px;
-  line-height: 56px;
+  font-weight: var(--font-weight-bold);
+  /* Primitive step — mid-ramp display line with no semantic token at 45.5px. */
+  font-size: var(--font-size-1000);
+  line-height: var(--font-line-height-snug);
 }
 .value-editorial__line--spaced {
-  margin-top: 24px;
+  margin-top: var(--gap-xl);
 }
 .value-editorial__line--ink {
-  margin-top: 24px;
+  margin-top: var(--gap-xl);
   color: var(--color-poppy-950); /* bds-lint-ignore token-family — deep poppy ink for the second editorial group */
 }
 
@@ -214,34 +225,34 @@
 
 .value-transition {
   align-items: flex-start;
-  gap: 32px;
-  padding: 140px 80px;
+  gap: var(--gap-huge);
+  padding-block: var(--space-2500);
 }
 .value-transition__text {
   font-family: var(--font-family-heading);
-  font-weight: 700;
-  font-size: 42px;
-  line-height: 52px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--heading-xl);
+  line-height: var(--font-line-height-snug);
 }
 
 /* ─── Pillar title ─────────────────────────────────────────── */
 
 .value-ptitle {
   align-items: flex-start;
-  gap: 8px;
-  padding: 120px 80px;
+  gap: var(--gap-md);
+  padding-block: var(--space-2300);
 }
 .value-ptitle__num {
-  font-family: var(--font-family-heading);
-  font-weight: 800;
-  font-size: 130px;
-  line-height: 130px;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--display-fluid-xl);
+  line-height: var(--font-line-height-tight);
 }
-.value-ptitle__head {
+.value-ptitle__title {
   font-family: var(--font-family-heading);
-  font-weight: 700;
-  font-size: 60px;
-  line-height: 66px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--heading-huge);
+  line-height: var(--font-line-height-tight);
 }
 
 /* ─── Pillar intro (centred) ───────────────────────────────── */
@@ -249,32 +260,32 @@
 .value-pintro {
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 20px 80px 130px 80px;
+  gap: var(--gap-md);
+  padding-block: var(--space-500) var(--space-2400);
   text-align: center;
 }
 .value-pintro--full {
-  padding: 120px 80px;
+  padding-block: var(--space-2300);
 }
 .value-pintro__text {
   font-family: var(--font-family-heading);
-  font-weight: 700;
-  font-size: 40px;
-  line-height: 52px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--heading-xl);
+  line-height: var(--font-line-height-snug);
 }
 .value-pintro__big {
-  font-family: var(--font-family-heading);
-  font-weight: 800;
-  font-size: 88px;
-  line-height: 96px;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--display-fluid-md);
+  line-height: var(--font-line-height-tight);
 }
 .value-pintro__note {
   font-family: var(--font-family-body);
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 34px;
-  margin-top: 16px;
-  max-width: 900px;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--body-huge);
+  line-height: var(--font-line-height-moderate);
+  margin-top: var(--gap-lg);
+  max-width: var(--measure-lg);
 }
 
 /* ─── Pillar 01 dramatic callout (dark green) ──────────────── */
@@ -282,8 +293,8 @@
 .value-callout {
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  padding: 140px 80px;
+  gap: var(--space-500);
+  padding-block: var(--space-2500);
   text-align: center;
 }
 .value-callout__icon {
@@ -294,15 +305,15 @@
 .value-callout__pre,
 .value-callout__post {
   font-family: var(--font-family-heading);
-  font-weight: 500;
-  font-size: 30px;
-  line-height: 40px;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--heading-lg);
+  line-height: var(--font-line-height-moderate);
 }
 .value-callout__big {
-  font-family: var(--font-family-heading);
-  font-weight: 800;
-  font-size: 104px;
-  line-height: 104px;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--display-fluid-lg);
+  line-height: var(--font-line-height-tight);
   color: var(--color-poppy-300); /* bds-lint-ignore token-family — salmon accent, ≥AA-large on the dark-green band */
 }
 
@@ -310,35 +321,35 @@
 
 .value-statband {
   align-items: center;
-  gap: 90px;
-  padding: 130px 80px;
+  gap: var(--space-2000);
+  padding-block: var(--space-2400);
 }
 .value-statband--flush {
-  gap: 0;
+  gap: var(--gap-none);
 }
 .value-subcallout {
   font-family: var(--font-family-heading);
-  font-weight: 700;
-  font-size: 36px;
-  line-height: 48px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--heading-lg);
+  line-height: var(--font-line-height-moderate);
   text-align: center;
-  max-width: 1040px;
+  max-width: var(--measure-md);
 }
 .value-stats {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 48px;
+  gap: var(--space-1200);
   width: 100%;
 }
 .value-stats--two {
-  gap: 64px;
+  gap: var(--space-1600);
 }
 .value-stat {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
+  gap: var(--gap-lg);
   flex: 1 1 0;
   width: 0;
 }
@@ -348,10 +359,10 @@
   color: var(--text-on-color-light);
 }
 .value-stat__value {
-  font-family: var(--font-family-heading);
-  font-weight: 800;
-  font-size: 72px;
-  line-height: 76px;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-extrabold);
+  font-size: var(--display-sm);
+  line-height: var(--font-line-height-tight);
 }
 .value-stat__value--brand {
   /* Brand-primary accent, pinned to a fixed value (not theme-aware
@@ -362,16 +373,16 @@
 }
 .value-stat__label {
   font-family: var(--font-family-heading);
-  font-weight: 600;
-  font-size: 22px;
-  line-height: 30px;
-  margin-bottom: 8px;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--heading-sm);
+  line-height: var(--font-line-height-moderate);
+  margin-bottom: var(--gap-md);
 }
-.value-stat__desc {
+.value-stat__description {
   font-family: var(--font-family-body);
-  font-weight: 400;
-  font-size: 18px;
-  line-height: 28px;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--body-lg);
+  line-height: var(--font-line-height-normal);
 }
 
 /* ─── Pre-CTA + final CTA ──────────────────────────────────── */
@@ -379,38 +390,39 @@
 .value-precta {
   align-items: center;
   justify-content: center;
-  padding: 130px 80px;
+  padding-block: var(--space-2400);
   text-align: center;
 }
 .value-precta__text {
   font-family: var(--font-family-heading);
-  font-weight: 700;
-  font-size: 40px;
-  line-height: 52px;
-  max-width: 1080px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--heading-xl);
+  line-height: var(--font-line-height-snug);
+  max-width: var(--measure-md);
 }
 .value-cta {
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  padding: 150px 80px;
+  gap: var(--gap-xl);
+  padding-block: var(--space-2700);
   text-align: center;
 }
-.value-cta__head {
+.value-cta__title {
   font-family: var(--font-family-heading);
-  font-weight: 800;
-  font-size: 52px;
-  line-height: 60px;
-  max-width: 1000px;
+  font-weight: var(--font-weight-extrabold);
+  /* Primitive step — nearest rung (51px) to the approved 52px CTA title. */
+  font-size: var(--font-size-1100);
+  line-height: var(--font-line-height-tight);
+  max-width: var(--measure-sm);
 }
-.value-cta__sub {
+.value-cta__subtitle {
   font-family: var(--font-family-body);
-  font-weight: 400;
-  font-size: 24px;
-  line-height: 34px;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--body-huge);
+  line-height: var(--font-line-height-moderate);
 }
 .value-cta__btn {
-  margin-top: 16px;
+  margin-top: var(--gap-lg);
 }
 
 /* ─── Content reveal ───────────────────────────────────────────
@@ -444,13 +456,11 @@
   .vband__inner.is-visible .rise:nth-child(n + 5) { transition-delay: 0.36s; }
 }
 
-/* ─── Responsive ───────────────────────────────────────────── */
+/* ─── Responsive ───────────────────────────────────────────────
+   The oversized display roles (--display-fluid-*) step down on their own
+   clamp; only the fixed-token roles need breakpoint overrides. */
 
 @media (max-width: 991px) {
-  .value-hero__title {
-    font-size: 92px;
-    line-height: 84px;
-  }
   .value-cards__row {
     flex-wrap: wrap;
   }
@@ -458,51 +468,20 @@
     flex: 1 1 40%;
     min-height: 320px;
   }
-  .value-editorial,
-  .value-transition {
-    padding-left: 80px;
-  }
-  .value-ptitle__num {
-    font-size: 96px;
-    line-height: 96px;
-  }
-  .value-ptitle__head,
+  .value-ptitle__title,
   .value-editorial__line,
   .value-transition__text,
   .value-pintro__text,
   .value-precta__text {
-    font-size: 34px;
-    line-height: 44px;
-  }
-  .value-callout__big {
-    font-size: 76px;
-    line-height: 76px;
+    font-size: var(--heading-lg);
+    line-height: var(--font-line-height-snug);
   }
 }
 
 @media (max-width: 767px) {
-  .vband {
-    padding-left: 28px;
-    padding-right: 28px;
-  }
   .value-hero {
     min-height: 520px;
-    padding: 80px 28px;
-  }
-  .value-hero__title {
-    font-size: 64px;
-    line-height: 60px;
-  }
-  .value-editorial,
-  .value-transition,
-  .value-ptitle,
-  .value-callout,
-  .value-statband,
-  .value-precta,
-  .value-cta,
-  .value-pintro {
-    padding-left: 28px;
-    padding-right: 28px;
+    padding-block: var(--space-1800);
   }
   .value-card {
     flex: 1 1 100%;
@@ -512,7 +491,7 @@
   .value-stats,
   .value-stats--two {
     flex-direction: column;
-    gap: 40px;
+    gap: var(--space-1000);
   }
   .value-stat {
     width: 100%;
