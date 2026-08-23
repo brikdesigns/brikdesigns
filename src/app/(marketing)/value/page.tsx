@@ -80,19 +80,25 @@ const CARDS = [
   { num: '04', title: 'Design is a Business Essential', variant: 'gold', Icon: Briefcase },
 ];
 
+/* Heading elements follow outline intent (build-standards/html-semantics):
+   the hero title is the page <h1>, each pillar title and the final CTA title
+   are <h2> outline nodes. Card titles, stat values, and editorial display
+   lines are decorative repetition — they keep their BEM role on non-heading
+   elements. */
+
 export default function ValuePage() {
   return (
     <>
       {/* 1 · Hero */}
-      <section className="vband vband--coral value-hero">
+      <section data-section="hero" className="vband vband--coral value-hero">
         <Reveal className="vband__inner">
-          <div className="value-hero__title rise">Why Design?</div>
-          <div className="value-hero__sub rise">In 4 steps</div>
+          <h1 className="value-hero__title rise">Why Design?</h1>
+          <p className="value-hero__subtitle rise">In 4 steps</p>
         </Reveal>
       </section>
 
       {/* 2 · Pillar-nav cards */}
-      <section className="vband vband--coral value-cards">
+      <section data-section="pillar-nav" className="vband vband--coral value-cards">
         <Reveal className="vband__inner">
           <div className="value-cards__row rise">
             {CARDS.map((c) => (
@@ -108,9 +114,9 @@ export default function ValuePage() {
       </section>
 
       {/* 3 · Editorial "Let's Be Real" */}
-      <section className="vband vband--coral value-editorial">
+      <section data-section="editorial" className="vband vband--coral value-editorial">
         <Reveal className="vband__inner">
-          <div className="value-editorial__eyebrow rise">Let&apos;s Be Real</div>
+          <p className="value-editorial__subtitle rise">Let&apos;s Be Real</p>
           <div className="value-editorial__line rise">
             Design is more than<br />just making things<br />look pretty
           </div>
@@ -124,7 +130,7 @@ export default function ValuePage() {
       </section>
 
       {/* 4 · Gold transition */}
-      <section className="vband vband--gold value-transition">
+      <section data-section="transition" className="vband vband--gold value-transition">
         <Reveal className="vband__inner">
           <div className="value-transition__text rise">
             Yet, so many businesses<br />treat design as an afterthought<br />instead of the powerhouse<br />that it really is.
@@ -136,15 +142,15 @@ export default function ValuePage() {
       </section>
 
       {/* 5 · Pillar 01 title */}
-      <section id="value-01" className="vband vband--green value-ptitle">
+      <section id="value-01" data-section="pillar-01-title" className="vband vband--green value-ptitle">
         <Reveal className="vband__inner">
           <div className="value-ptitle__num rise">01</div>
-          <div className="value-ptitle__head rise">First Impressions<br />Are Everything</div>
+          <h2 className="value-ptitle__title rise">First Impressions<br />Are Everything</h2>
         </Reveal>
       </section>
 
       {/* 6 · Pillar 01 dramatic callout */}
-      <section className="vband vband--dark-green value-callout">
+      <section data-section="pillar-01-callout" className="vband vband--dark-green value-callout">
         <Reveal className="vband__inner">
           <span className="value-callout__icon rise"><Timer /></span>
           <div className="value-callout__pre rise">You have about</div>
@@ -154,7 +160,7 @@ export default function ValuePage() {
       </section>
 
       {/* 7 + 8 · Pillar 01 sub-callout + stats */}
-      <section className="vband vband--pink value-statband">
+      <section data-section="pillar-01-stats" className="vband vband--pink value-statband">
         <Reveal className="vband__inner">
           <div className="value-subcallout rise">
             If your design is cluttered, outdated, or just plain unappealing you&apos;re losing potential customers before they even give you a chance.
@@ -162,30 +168,30 @@ export default function ValuePage() {
           <div className="value-stats rise">
             <div className="value-stat">
               <div className="value-stat__value value-stat__value--brand">75%</div>
-              <p className="value-stat__desc">of website credibility comes from design. If your site looks unprofessional, people won&apos;t trust your business.</p>
+              <p className="value-stat__description">of website credibility comes from design. If your site looks unprofessional, people won&apos;t trust your business.</p>
             </div>
             <div className="value-stat">
               <div className="value-stat__value value-stat__value--brand">42%</div>
-              <p className="value-stat__desc">of users leave a website because of poor functionality. Even the best product in the world won&apos;t sell if users struggle to navigate your site.</p>
+              <p className="value-stat__description">of users leave a website because of poor functionality. Even the best product in the world won&apos;t sell if users struggle to navigate your site.</p>
             </div>
             <div className="value-stat">
               <div className="value-stat__value value-stat__value--brand">50%</div>
-              <p className="value-stat__desc">of consumers believe website design is crucial to a business&apos;s brand. It&apos;s not just about looks—it&apos;s about perception.</p>
+              <p className="value-stat__description">of consumers believe website design is crucial to a business&apos;s brand. It&apos;s not just about looks—it&apos;s about perception.</p>
             </div>
           </div>
         </Reveal>
       </section>
 
       {/* 9 · Pillar 02 title */}
-      <section id="value-02" className="vband vband--lavender value-ptitle">
+      <section id="value-02" data-section="pillar-02-title" className="vband vband--lavender value-ptitle">
         <Reveal className="vband__inner">
           <div className="value-ptitle__num rise">02</div>
-          <div className="value-ptitle__head rise">Good Design =<br />More Conversions</div>
+          <h2 className="value-ptitle__title rise">Good Design =<br />More Conversions</h2>
         </Reveal>
       </section>
 
       {/* 10 · Pillar 02 intro */}
-      <section className="vband vband--lavender value-pintro">
+      <section data-section="pillar-02-intro" className="vband vband--lavender value-pintro">
         <Reveal className="vband__inner">
           <div className="value-pintro__text rise">
             Want more leads, sign-ups, and sales?<br />Design can get you there.
@@ -194,38 +200,38 @@ export default function ValuePage() {
       </section>
 
       {/* 11 · Pillar 02 stats */}
-      <section className="vband vband--pink value-statband value-statband--flush">
+      <section data-section="pillar-02-stats" className="vband vband--pink value-statband value-statband--flush">
         <Reveal className="vband__inner">
           <div className="value-stats rise">
             <div className="value-stat">
               <div className="value-stat__value value-stat__value--brand">200%</div>
               <div className="value-stat__label">conversion rates</div>
-              <p className="value-stat__desc">Strong UI/UX design can increase conversion rates by up to 200%. That means a well-thought-out, user-friendly design could literally double your results.</p>
+              <p className="value-stat__description">Strong UI/UX design can increase conversion rates by up to 200%. That means a well-thought-out, user-friendly design could literally double your results.</p>
             </div>
             <div className="value-stat">
               <div className="value-stat__value value-stat__value--brand">60%</div>
               <div className="value-stat__label">of consumers</div>
-              <p className="value-stat__desc">avoid brands with unattractive logos—even if they have great reviews. Looks do matter when it comes to credibility.</p>
+              <p className="value-stat__description">avoid brands with unattractive logos—even if they have great reviews. Looks do matter when it comes to credibility.</p>
             </div>
             <div className="value-stat">
               <div className="value-stat__value value-stat__value--brand">32%</div>
               <div className="value-stat__label">more revenue</div>
-              <p className="value-stat__desc">Businesses that embrace design generate 32% more revenue and 56% higher shareholder returns. This isn&apos;t a nice-to-have—it&apos;s a must-have for growth.</p>
+              <p className="value-stat__description">Businesses that embrace design generate 32% more revenue and 56% higher shareholder returns. This isn&apos;t a nice-to-have—it&apos;s a must-have for growth.</p>
             </div>
           </div>
         </Reveal>
       </section>
 
       {/* 12 · Pillar 03 title */}
-      <section id="value-03" className="vband vband--blue value-ptitle">
+      <section id="value-03" data-section="pillar-03-title" className="vband vband--blue value-ptitle">
         <Reveal className="vband__inner">
           <div className="value-ptitle__num rise">03</div>
-          <div className="value-ptitle__head rise">People Crave<br />Visually Appealing Content</div>
+          <h2 className="value-ptitle__title rise">People Crave<br />Visually Appealing Content</h2>
         </Reveal>
       </section>
 
       {/* 13 · Pillar 03 intro */}
-      <section className="vband vband--blue value-pintro">
+      <section data-section="pillar-03-intro" className="vband vband--blue value-pintro">
         <Reveal className="vband__inner">
           <div className="value-pintro__text rise">Humans are visual creatures.<br />We process images</div>
           <div className="value-pintro__big rise">60,000x</div>
@@ -237,32 +243,32 @@ export default function ValuePage() {
       </section>
 
       {/* 14 · Pillar 03 stats */}
-      <section className="vband vband--gold value-statband value-statband--flush">
+      <section data-section="pillar-03-stats" className="vband vband--gold value-statband value-statband--flush">
         <Reveal className="vband__inner">
           <div className="value-stats value-stats--two rise">
             <div className="value-stat">
               <span className="value-stat__icon"><PieChart /></span>
               <div className="value-stat__value">61%</div>
-              <p className="value-stat__desc">of marketers believe visuals are the key to a successful campaign.</p>
+              <p className="value-stat__description">of marketers believe visuals are the key to a successful campaign.</p>
             </div>
             <div className="value-stat">
               <div className="value-stat__value">Abandon</div>
-              <p className="value-stat__desc">Users will leave a website if they have a bad experience with how it looks. If your visuals aren&apos;t drawing people in, they&apos;re pushing them away.</p>
+              <p className="value-stat__description">Users will leave a website if they have a bad experience with how it looks. If your visuals aren&apos;t drawing people in, they&apos;re pushing them away.</p>
             </div>
           </div>
         </Reveal>
       </section>
 
       {/* 15 · Pillar 04 title */}
-      <section id="value-04" className="vband vband--gold value-ptitle">
+      <section id="value-04" data-section="pillar-04-title" className="vband vband--gold value-ptitle">
         <Reveal className="vband__inner">
           <div className="value-ptitle__num rise">04</div>
-          <div className="value-ptitle__head rise">Design is a<br />Business Essential</div>
+          <h2 className="value-ptitle__title rise">Design is a<br />Business Essential</h2>
         </Reveal>
       </section>
 
       {/* 16 · Pillar 04 intro (brand) */}
-      <section className="vband vband--coral value-pintro value-pintro--full">
+      <section data-section="pillar-04-intro" className="vband vband--coral value-pintro value-pintro--full">
         <Reveal className="vband__inner">
           <div className="value-pintro__text rise">
             Want more leads, sign-ups, and sales?<br />Design can get you there.
@@ -271,25 +277,25 @@ export default function ValuePage() {
       </section>
 
       {/* 17 · Pillar 04 stats */}
-      <section className="vband vband--gold value-statband value-statband--flush">
+      <section data-section="pillar-04-stats" className="vband vband--gold value-statband value-statband--flush">
         <Reveal className="vband__inner">
           <div className="value-stats value-stats--two rise">
             <div className="value-stat">
               <span className="value-stat__icon"><Eye /></span>
               <div className="value-stat__value">61%</div>
-              <p className="value-stat__desc">of marketers believe visuals are the key to a successful campaign. Users will leave a website if they have a bad experience with how it looks. If your visuals aren&apos;t drawing people in, they&apos;re pushing them away.</p>
+              <p className="value-stat__description">of marketers believe visuals are the key to a successful campaign. Users will leave a website if they have a bad experience with how it looks. If your visuals aren&apos;t drawing people in, they&apos;re pushing them away.</p>
             </div>
             <div className="value-stat">
               <span className="value-stat__icon"><Crown /></span>
               <div className="value-stat__value">50%</div>
-              <p className="value-stat__desc">of consumers believe website design is crucial to a business&apos;s brand. It&apos;s not just about looks—it&apos;s about perception.</p>
+              <p className="value-stat__description">of consumers believe website design is crucial to a business&apos;s brand. It&apos;s not just about looks—it&apos;s about perception.</p>
             </div>
           </div>
         </Reveal>
       </section>
 
       {/* 18 · Pre-CTA */}
-      <section className="vband vband--salmon value-precta">
+      <section data-section="pre-cta" className="vband vband--salmon value-precta">
         <Reveal className="vband__inner">
           <div className="value-precta__text rise">
             Whether you need a fresh new look, a website that wows, or branding that speaks to your audience, we&apos;ve got you covered.
@@ -298,10 +304,10 @@ export default function ValuePage() {
       </section>
 
       {/* 19 · Final CTA */}
-      <section className="vband vband--coral value-cta">
+      <section data-section="cta" className="vband vband--coral value-cta">
         <Reveal className="vband__inner">
-          <div className="value-cta__head rise">Ready to see what great design can do for you?</div>
-          <div className="value-cta__sub rise">Let&apos;s make something amazing together.</div>
+          <h2 className="value-cta__title rise">Ready to see what great design can do for you?</h2>
+          <p className="value-cta__subtitle rise">Let&apos;s make something amazing together.</p>
           <div className="value-cta__btn rise">
             <Button href="/contact" variant="on-color" size="lg">Let&apos;s Talk</Button>
           </div>
