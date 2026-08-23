@@ -15,6 +15,11 @@
 # 1:1 Paper port, "kept literal per sign-off" (see the file header). The band
 # dimensions are approved absolute values, not design-system decisions.
 src/app/(marketing)/value/value.css
+# Nav elevation kept literal per operator sign-off: #994's token adoption
+# (--shadow-sm / --shadow-overlay) visibly changed the nav shadows and was
+# reverted. Neither BDS shadow token matches the tuned values (see the two
+# box-shadow comments in the file). Padding/radius tokens from #994 stay.
+src/components/layout/MegaNav.css
 
 # ── Transitional (burn-down) ─────────────────────────────────────────────────
 # Grandfathered at gate introduction. Tokenize + remove, one file per PR.
