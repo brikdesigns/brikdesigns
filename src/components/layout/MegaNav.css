@@ -684,10 +684,10 @@
   gap: var(--gap-md);
 }
 
-/* ─── Panel cross-link banner (full-width, under the grid) ───── */
-/* Single-line banner spanning the panel inner; cross-links the two service
-   streams (Support Plans ⇄ standalone Services) with a button pinned right.
-   Replaces the former segmented view toggle. */
+/* ─── Panel view-toggle banner (full-width, under the grid) ───── */
+/* Single-line banner spanning the panel inner; a ToggleSwitch pinned right
+   swaps the two service streams (off = Support Plans, on = standalone
+   Services). Replaces the former cross-link button. */
 .mega-nav__panel-banner {
   display: flex;
   align-items: center;
