@@ -9,6 +9,7 @@ import { ServiceTag, ToggleSwitch } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { routeSlugForServiceLine, SERVICE_LINE_SEGMENTS } from '@/lib/service-line-routes';
+import { serviceCtaVars } from '@/lib/tokens';
 import { ThemeToggle } from './ThemeToggle';
 
 import './MegaNav.css';
@@ -279,6 +280,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                                   desc={plan.description}
                                   cta="Learn More"
                                   onClick={() => setOpen(null)}
+                                  serviceLineSlug={plan.lineSegment}
                                 />
                               );
                             })}
@@ -623,18 +625,31 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
  * AboutNavCard — matches Webflow .list-item.comfortable structure:
  * image frame (accent bg) + title + description + "Learn More →" button
  * Used in About and Support Plans dropdowns.
+ *
+ * `serviceLineSlug` opts the CTA into the canonical service-line treatment
+ * (brikdesigns#1001): a filled `primary` carrying `serviceCtaVars`, identical to
+ * the CTA on the /plans/{slug} card this links to. Support-plan cards pass it;
+ * the About-panel cards (no service line) omit it and keep the neutral
+ * `secondary` nav chrome.
  */
-function AboutNavCard({ href, image, title, desc, cta, onClick }: {
+function AboutNavCard({ href, image, title, desc, cta, onClick, serviceLineSlug }: {
   href: string; image: string; title: string; desc: string; cta: string; onClick: () => void;
+  serviceLineSlug?: string | null;
 }) {
+  const svcVars = serviceLineSlug ? serviceCtaVars(serviceLineSlug) : undefined;
   return (
-    <Link href={href} className="mega-nav__about-card" onClick={onClick}>
+    <Link
+      href={href}
+      className={`mega-nav__about-card${svcVars ? ' service-themed' : ''}`}
+      onClick={onClick}
+      style={svcVars}
+    >
       <div className="mega-nav__about-card-media">
         <Image src={image} alt={title} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
       <span className="mega-nav__about-card-title">{title}</span>
       <span className="mega-nav__about-card-desc">{desc}</span>
-      <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}>{cta} <ArrowRight /></span>
+      <span className={composeButtonClasses({ variant: svcVars ? 'primary' : 'secondary', size: 'sm' })}>{cta} <ArrowRight /></span>
     </Link>
   );
 }

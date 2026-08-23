@@ -743,8 +743,13 @@
   line-height: var(--font-line-height-moderate);
 }
 
-/* About card CTAs now use BDS .bds-button--secondary.bds-button--sm */
-.mega-nav__about-card .bds-button--secondary {
+/* About card CTAs use BDS .bds-button--sm. Two variants share this layout:
+   `--secondary` (About panel, no service line) and `--primary` (Support Plans
+   cards, tinted by service line via serviceCtaVars — brikdesigns#1001). The
+   layout rule must cover BOTH, or the plan CTAs lose their bottom-alignment and
+   stretch to the card width. */
+.mega-nav__about-card .bds-button--secondary,
+.mega-nav__about-card .bds-button--primary {
   margin-top: auto;
   align-self: flex-start;
 }
@@ -806,6 +811,16 @@
   height: 14px;
   flex-shrink: 0;
   color: var(--text-brand-primary);
+}
+
+/* Inside a FILLED primary CTA the arrow must ride the button's own label ink,
+   not --text-brand-primary. On a service-themed plan card serviceCtaVars sets
+   --text-brand-primary to the line's deep `text` step — the same deep family as
+   the button's `onLight` fill — so a brand-tinted arrow renders dark-on-dark.
+   currentColor inherits the BDS primary label (white in light) and the
+   `--service-cta-ink-dark` flip in dark mode, staying legible in both. */
+.bds-button--primary .mega-nav__arrow-icon {
+  color: currentColor;
 }
 
 /* ─── Mobile toggle ───────────────────────────────────────────── */
