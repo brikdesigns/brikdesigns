@@ -56,11 +56,23 @@ test.describe('Grid column fit — no empty trailing column', () => {
       // On a 500 or a blank shell there are no grids to measure, so the sweep
       // below returns [] and the assertion passes — the exact builds most
       // likely to be broken are the ones this spec would bless. #1021.
-      const response = await page.goto(surface.path);
-      expect(response, `${surface.path} returned no response`).toBeTruthy();
+      //
+      // Retried, not single-shot: against a Netlify deploy-preview the edge
+      // serves a transient 403 for a few seconds after publish, so a one-shot
+      // check reddens the build on CDN flap rather than on a real defect. A
+      // genuinely broken page returns non-2xx on every attempt and still fails.
+      const ATTEMPTS = 4;
+      let status = 0;
+      for (let attempt = 1; attempt <= ATTEMPTS; attempt += 1) {
+        const response = await page.goto(surface.path);
+        expect(response, `${surface.path} returned no response`).toBeTruthy();
+        status = response!.status();
+        if (status < 400) break;
+        if (attempt < ATTEMPTS) await page.waitForTimeout(2000 * attempt);
+      }
       expect(
-        response!.status(),
-        `${surface.path} returned HTTP ${response!.status()} — the page did not render, so this spec proves nothing about its grids`
+        status,
+        `${surface.path} returned HTTP ${status} on all ${ATTEMPTS} attempts — the page did not render, so this spec proves nothing about its grids`
       ).toBeLessThan(400);
       await page.waitForLoadState('networkidle');
 
