@@ -96,12 +96,12 @@ export default function ValuePage() {
         <Reveal className="vband__inner">
           <div className="value-cards__row rise">
             {CARDS.map((c) => (
-              <a key={c.num} href={`#value-${c.num}`} className={`value-card value-card--${c.variant}`}>
+              <div key={c.num} className={`value-card value-card--${c.variant}`}>
                 <span className="value-card__icon"><c.Icon /></span>
                 <span className="value-card__number">{c.num}</span>
                 <span className="value-card__title">{c.title}</span>
-                <span className="value-card__view">View</span>
-              </a>
+                <Button href={`#value-${c.num}`} variant="on-color" size="md" label={`View — ${c.title}`}>View</Button>
+              </div>
             ))}
           </div>
         </Reveal>

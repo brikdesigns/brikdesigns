@@ -179,16 +179,6 @@
   font-size: 22px;
   line-height: 28px;
 }
-.value-card__view {
-  background-color: var(--color-poppy-500); /* bds-lint-ignore token-family — coral action chip on the card */
-  color: var(--text-on-color-light);
-  border-radius: var(--border-radius-sm);
-  padding: 12px 28px;
-  font-family: var(--font-family-label);
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 20px;
-}
 
 /* ─── Editorial "Let's Be Real" ────────────────────────────── */
 
