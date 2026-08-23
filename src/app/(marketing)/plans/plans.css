@@ -56,22 +56,20 @@
 
 .plan-service-list-item {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 80px 1fr;
   gap: var(--gap-lg);
-  /* Stretch (not flex-start) so the media column fills the card's full height
-     — the tinted illustration panel runs the height of the container. */
-  align-items: stretch;
+  /* Media is a fixed 80×80 square pinned to the top of the card; content flows
+     beside it. `start` (not `stretch`) keeps the square from being pulled to
+     the card's full min-height. */
+  align-items: start;
 }
 
-/* Illustration panel. Base aspect-ratio + position are owned by the BDS
-   <Frame> wrapper (.bds-frame); we release the square ratio and pin the media
-   to the full card height so the tinted panel spans the container. The 72px
-   grid track still fixes the width; the inner image is `object-fit: contain`,
-   so it centres vertically in the taller panel. */
+/* Illustration panel — fixed 80×80 square (1:1). The 80px grid track fixes the
+   width; aspect-ratio:1 (matching the <Frame ratio="square">) fixes the height.
+   The inner image is `object-fit: contain`, so it centres within the panel. */
 .plan-service-list-item__media {
   border-radius: var(--border-radius-md);
-  aspect-ratio: auto;
-  height: 100%;
+  aspect-ratio: 1;
 }
 
 .plan-service-list-item__content {

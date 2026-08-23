@@ -90,7 +90,7 @@ export function PlanIncludedServices({
                       src={svc.image_url}
                       alt={svc.name}
                       fill
-                      sizes="72px"
+                      sizes="80px"
                       style={{ objectFit: 'contain' }}
                     />
                   </Frame>
