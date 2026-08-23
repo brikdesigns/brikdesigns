@@ -17,12 +17,12 @@
 }
 
 /* Subtle drop-shadow once the page has scrolled, lifting the bar off content.
-   #994: was a raw `0 2px 8px rgba(0,0,0,0.06)`. Same offset and alpha as
-   --shadow-sm, blur 8px vs the token's 4px — adopting the token tightens the
-   shadow slightly. BDS's shadow block is explicit that components should use
-   these instead of raw rgba (tokens.css § Shadow Semantic Tokens). */
+   Intentionally literal: #994 swapped this to --shadow-sm, but neither BDS
+   shadow token matches the nav's tuned elevation (sm halves the blur,
+   overlay quadruples the panel depth) — reverted on operator sign-off,
+   file re-allowlisted in scripts/hardcoded-allowlist.txt. */
 .mega-nav--scrolled {
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 /* ─── Service-line tint (#729, all five lines #858, plan pages #859) ──
@@ -389,11 +389,11 @@
   min-width: 100vw;
   background-color: var(--surface-primary);
   border-bottom: 1px solid var(--border-secondary);
-  /* #994: was a raw two-layer `0 12px 16px -4px rgba(0,0,0,.08), 0 4px 6px
-     -2px rgba(0,0,0,.03)`. --shadow-overlay is BDS's named elevated-panel
-     shadow (Modal, Dialog, Sheet) — the dropdown is the same kind of surface.
-     Deeper and softer than the two-layer stack it replaces. */
-  box-shadow: var(--shadow-overlay);
+  /* Intentionally literal two-layer shadow: #994's --shadow-overlay (Modal/
+     Dialog depth) read far heavier than the dropdown's tuned elevation —
+     reverted on operator sign-off, file re-allowlisted in
+     scripts/hardcoded-allowlist.txt. */
+  box-shadow: 0 12px 16px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
   padding: var(--padding-xl) 0;
   animation: megaNavFadeIn 0.15s ease;
   z-index: 101;
