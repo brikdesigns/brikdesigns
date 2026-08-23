@@ -52,7 +52,28 @@ type Offender = {
 test.describe('Grid column fit — no empty trailing column', () => {
   for (const surface of SURFACES) {
     test(`${surface.name} (${surface.path})`, async ({ page }) => {
-      await page.goto(surface.path);
+      // An empty offender list means "no violations" ONLY if the page rendered.
+      // On a 500 or a blank shell there are no grids to measure, so the sweep
+      // below returns [] and the assertion passes — the exact builds most
+      // likely to be broken are the ones this spec would bless. #1021.
+      //
+      // Retried, not single-shot: against a Netlify deploy-preview the edge
+      // serves a transient 403 for a few seconds after publish, so a one-shot
+      // check reddens the build on CDN flap rather than on a real defect. A
+      // genuinely broken page returns non-2xx on every attempt and still fails.
+      const ATTEMPTS = 4;
+      let status = 0;
+      for (let attempt = 1; attempt <= ATTEMPTS; attempt += 1) {
+        const response = await page.goto(surface.path);
+        expect(response, `${surface.path} returned no response`).toBeTruthy();
+        status = response!.status();
+        if (status < 400) break;
+        if (attempt < ATTEMPTS) await page.waitForTimeout(2000 * attempt);
+      }
+      expect(
+        status,
+        `${surface.path} returned HTTP ${status} on all ${ATTEMPTS} attempts — the page did not render, so this spec proves nothing about its grids`
+      ).toBeLessThan(400);
       await page.waitForLoadState('networkidle');
 
       if (surface.open) {
@@ -68,7 +89,7 @@ test.describe('Grid column fit — no empty trailing column', () => {
           .toBeGreaterThan(0);
       }
 
-      const offenders: Offender[] = await page.evaluate(() => {
+      const { offenders, measured } = await page.evaluate(() => {
         /** A readable identity for a node: tag + its first few classes. */
         const describe = (el: Element) => {
           const cls = Array.from(el.classList).slice(0, 3).join('.');
@@ -76,6 +97,9 @@ test.describe('Grid column fit — no empty trailing column', () => {
         };
 
         const found: Offender[] = [];
+        /** Grids that were actually laid out and measurable — the proof the
+         *  sweep had something to look at. */
+        let measured = 0;
 
         for (const el of Array.from(document.querySelectorAll('*'))) {
           const style = getComputedStyle(el);
@@ -93,6 +117,8 @@ test.describe('Grid column fit — no empty trailing column', () => {
           const columns = tracks.split(/\s+/).length;
           if (columns < 2) continue;
 
+          measured += 1;
+
           // Count only children that occupy a grid cell. Absolutely positioned
           // children are out of flow and take no track.
           const children = Array.from(el.children).filter((child) => {
@@ -105,8 +131,17 @@ test.describe('Grid column fit — no empty trailing column', () => {
           }
         }
 
-        return found;
+        return { offenders: found, measured };
       });
+
+      // Second half of the #1021 fix: a 200 that renders a shell with no
+      // multi-column grid (renamed container, CSS that failed to load) would
+      // still sweep zero elements. Every surface listed here is chosen because
+      // it HAS such a grid, so finding none means the spec did not run.
+      expect(
+        measured,
+        `${surface.name}: swept 0 multi-column grids — this surface is listed because it has at least one, so the page did not render as expected`
+      ).toBeGreaterThan(0);
 
       expect(
         offenders,
