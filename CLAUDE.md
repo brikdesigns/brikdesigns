@@ -68,7 +68,7 @@ See `.claude/references/service-token-decision-tree.md`.
 
 ## When setting a card's border/shadow (any `<Card>`)
 
-See `.claude/references/card-treatment.md`. Short form: chrome is **band-derived**, never a `variant` prop — white/default band → border + no shadow; tinted band → shadow + no border. Don't add `variant="raised"/"elevated"` or a per-page override to elevate a card; put the tinted-band section on the "Card chrome by band" rule in `shared-sections.css`. Gated (light theme, every route) by `tests/a11y/card-treatment.spec.ts`.
+See `.claude/references/card-treatment.md`. Short form: chrome is **band-derived**, never a `variant` prop — white/default band → border + no shadow; light tint → shadow + no border; **dark band (luminance < 0.18) → border + no shadow**, because an 8%-black `--box-shadow-md` is invisible on a dark surface. Band luminance decides, not the theme: the service tints are fixed-light in both themes and keep their shadow in dark mode. Don't add `variant="raised"/"elevated"` or a per-page override to elevate a card; put the tinted-band section on the "Card chrome by band" rule in `shared-sections.css`. Gated (both themes, every route) by `tests/a11y/card-treatment.spec.ts`.
 
 ## When querying `services` / `service_lines` / `offerings`
 
