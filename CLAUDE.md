@@ -48,6 +48,8 @@ RUN `./scripts/dev-restart.sh` for dev — ALWAYS, never a bare `npm run dev` (i
 
 After editing a CMS row in Supabase: `./scripts/dev-restart.sh --fresh`. The Next data cache survives a plain restart and keeps serving the previous payload.
 
+`dev-restart.sh` refuses to start when the installed `@brikdesigns/bds` does not satisfy `package.json` — a stale install 500s every route on `Export <Name> doesn't exist in target module`, which reads like a broken import rather than a missing `npm ci`. Fix with `op run --env-file=.env.op -- npm ci`; never work around the check.
+
 ## Before pushing
 
 RUN `op run --env-file=.env.op -- npm run build` — never a bare `npm run build`; without the injected secrets, page-data collection fails as `Failed to collect page data for <CMS route>`, which reads like a broken route but is a missing credential.
