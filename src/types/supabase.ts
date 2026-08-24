@@ -4055,12 +4055,11 @@ export type Database = {
         Row: {
           active: boolean
           base_price_cents: number | null
-          billing_frequency: string | null
           card_image_url: string | null
           contract_copy: string | null
           created_at: string
           description: string | null
-          frequency: string | null
+          frequency: string
           has_customer_story: boolean | null
           has_maintenance_add_on: boolean | null
           has_multiple_offerings: boolean | null
@@ -4101,12 +4100,11 @@ export type Database = {
         Insert: {
           active?: boolean
           base_price_cents?: number | null
-          billing_frequency?: string | null
           card_image_url?: string | null
           contract_copy?: string | null
           created_at?: string
           description?: string | null
-          frequency?: string | null
+          frequency: string
           has_customer_story?: boolean | null
           has_maintenance_add_on?: boolean | null
           has_multiple_offerings?: boolean | null
@@ -4147,12 +4145,11 @@ export type Database = {
         Update: {
           active?: boolean
           base_price_cents?: number | null
-          billing_frequency?: string | null
           card_image_url?: string | null
           contract_copy?: string | null
           created_at?: string
           description?: string | null
-          frequency?: string | null
+          frequency?: string
           has_customer_story?: boolean | null
           has_maintenance_add_on?: boolean | null
           has_multiple_offerings?: boolean | null
@@ -5523,13 +5520,13 @@ export type Database = {
           created_at: string
           description: string | null
           discount_label: string | null
+          display_line_id: string | null
           home_description: string | null
           icon_url: string | null
           id: string
           image_url: string | null
           is_featured: boolean
           is_public: boolean
-          marketing_line_id: string | null
           monthly_price_cents: number | null
           monthly_price_display: string | null
           name: string
@@ -5549,13 +5546,13 @@ export type Database = {
           created_at?: string
           description?: string | null
           discount_label?: string | null
+          display_line_id?: string | null
           home_description?: string | null
           icon_url?: string | null
           id?: string
           image_url?: string | null
           is_featured?: boolean
           is_public?: boolean
-          marketing_line_id?: string | null
           monthly_price_cents?: number | null
           monthly_price_display?: string | null
           name: string
@@ -5575,13 +5572,13 @@ export type Database = {
           created_at?: string
           description?: string | null
           discount_label?: string | null
+          display_line_id?: string | null
           home_description?: string | null
           icon_url?: string | null
           id?: string
           image_url?: string | null
           is_featured?: boolean
           is_public?: boolean
-          marketing_line_id?: string | null
           monthly_price_cents?: number | null
           monthly_price_display?: string | null
           name?: string
@@ -5597,8 +5594,8 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "service_plans_marketing_line_id_fkey"
-            columns: ["marketing_line_id"]
+            foreignKeyName: "service_plans_display_line_id_fkey"
+            columns: ["display_line_id"]
             isOneToOne: false
             referencedRelation: "service_lines"
             referencedColumns: ["id"]

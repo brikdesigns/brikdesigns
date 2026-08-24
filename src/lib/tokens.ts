@@ -278,6 +278,34 @@ export function serviceColor(category: string) {
   return color.service[key] ?? color.service['back-office'];
 }
 
+/**
+ * The canonical CSS-var bundle for a service-line primary CTA — the single
+ * source for tinting a `<Button variant="primary">` by service line.
+ *
+ * Emits the measured-strongest pairing (brikdesigns#1001): the deep `onLight`
+ * fill (`{hue}-950`) under the BDS primary's default white label
+ * (`--text-on-color-dark`), which clears WCAG AA at 8.48–16.34:1 on all five
+ * lines in both themes. The `-dark` handoff vars keep the shared dark-mode
+ * cascade wired; `--text-brand-primary` tints any `--outline`/`--ghost`
+ * sibling in the same block (it is a no-op on `--primary` itself).
+ *
+ * PAIRING CONTRACT: the consuming element (or an ancestor) MUST carry
+ * `className="service-themed"` — the hover/active/focus + dark-mode rules in
+ * `globals.css` (`.service-themed .bds-button--primary`) key off it. Set the
+ * bundle on the same element or any ancestor of the button; custom properties
+ * inherit. Do NOT hand-roll `--background-brand-primary` or an inline
+ * `backgroundColor` for a service CTA — use this helper.
+ */
+export function serviceCtaVars(category: string): React.CSSProperties {
+  const t = serviceColor(category);
+  return {
+    '--background-brand-primary': t.onLight,
+    '--text-brand-primary': t.text,
+    '--service-cta-fill-dark': t.onDark,
+    '--service-cta-ink-dark': t.text,
+  } as React.CSSProperties;
+}
+
 // ─── Spacing (Padding) ──────────────────────────────────────────────
 
 export const space = {

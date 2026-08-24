@@ -20,6 +20,10 @@ Import tokens from `@/lib/tokens` and `@/lib/styles`. No raw `var(--...)` string
 
 Read `.claude/references/page-anatomy.md`. Short form: identify the target by its **layer** in the page anatomy (Section → Layout → Container → Block → Component), read top-down from the DOM tree — never by selector-name resemblance. A BEM block name containing "card" (e.g. `bds-hero--with-pricing-card`) does **not** make it the card; that's a `<section>` (Section layer). The card is the nested Container element (`aside.bds-hero__media-card`). When a ticket says "card," it means the Container layer. Canonical: [build-standards/page-structure](https://design.brikdesigns.com/docs/build-standards/page-structure) + [composition-layers](https://design.brikdesigns.com/docs/build-standards/composition-layers).
 
+## When changing how many items a list or grid renders
+
+Read the "When you change how many items a collection renders" section of `.claude/references/page-anatomy.md`. Short form: an item-count change is a layout change — a `repeat(N, …)` grid must render at least N children, so grep the container's layout rule in the same change. Gated by `tests/a11y/grid-column-fit.spec.ts`.
+
 ## When adding a top-level `<section>` on a marketing page
 
 Read `.claude/references/section-identification.md`. Short form: every top-level `<section>` in `src/app/(marketing)` carries a stable identifier — `data-section="<key>"` (default; derive mapped keys from the loop's stable key, not its index) or `aria-labelledby` when a heading `id` already exists. Not `bds-*` block names — these are hand-built, not BDS blueprints. Gated by `scripts/lint-section-id.mjs` (pre-commit + `verify.yml`), a ratchet against `scripts/section-id-baseline.json`.
@@ -46,7 +50,9 @@ After editing a CMS row in Supabase: `./scripts/dev-restart.sh --fresh`. The Nex
 
 ## Before pushing
 
-Run `npm run build`. Never push to `staging` or `main` without user confirmation.
+Run `op run --env-file=.env.op -- npm run build` — never a bare `npm run build`. Without the injected secrets, page-data collection fails against a missing Supabase client and surfaces as `Failed to collect page data for <some CMS route>` (which route depends on build order), reading like a broken route rather than a missing credential.
+
+Never push to `staging` or `main` without user confirmation.
 
 ## Before building a section
 
@@ -59,6 +65,10 @@ See `.claude/references/service-url-slug-convention.md`.
 ## When writing service-tier CSS
 
 See `.claude/references/service-token-decision-tree.md`.
+
+## When setting a card's border/shadow (any `<Card>`)
+
+See `.claude/references/card-treatment.md`. Short form: chrome is **band-derived**, never a `variant` prop — white/default band → border + no shadow; tinted band → shadow + no border. Don't add `variant="raised"/"elevated"` or a per-page override to elevate a card; put the tinted-band section on the "Card chrome by band" rule in `shared-sections.css`. Gated (light theme, every route) by `tests/a11y/card-treatment.spec.ts`.
 
 ## When querying `services` / `service_lines` / `offerings`
 

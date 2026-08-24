@@ -1,5 +1,12 @@
 /* ─── Blog — layout only ────────────────────────────────── */
 
+/* Balance the hero lead across its lines so the last line never drops a lone
+   word ("brik.") as a desktop orphan. Scoped to the blog index hero; the shared
+   .page-hero__description (used by every interior hero) is left untouched. */
+.blog-hero__description {
+  text-wrap: balance;
+}
+
 /* Type filter — scrolls horizontally inside its own box on narrow
    viewports so long segment labels never force the page body to scroll. */
 .blog-filter {
@@ -37,6 +44,11 @@
   overflow: hidden;
 }
 
+/* The blog post "Related Services" / "Explore Our Services" bands sit on the
+   white `.page-section` surface; their cards now inherit the bordered, no-
+   shadow BDS default (card-treatment standard) — no per-band override needed
+   since the `variant="raised"` that used to force elevation was removed. */
+
 .blog-card__media {
   position: relative;
   width: 100%;
@@ -61,7 +73,7 @@
 .blog-card__meta-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-sm);
 }
 
 /* ─── Blog post detail — narrow article column ──────────── */
@@ -79,7 +91,7 @@
 .blog-post__meta-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-sm);
 }
 
 .blog-post__media {

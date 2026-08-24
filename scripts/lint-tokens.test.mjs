@@ -365,6 +365,41 @@ test('CSS Shape A: bds-lint-ignore suppresses', () => {
   assert.equal(v.length, 0);
 });
 
+// `bds-lint-ignore` is a prefix shared with the hardcoded-literal gate. Before
+// #999 this gate matched the bare marker, so the other gate's waiver silenced
+// this one on the same line. Each name must now suppress only its own gate.
+test('CSS Shape A: another gate\'s waiver does NOT suppress', () => {
+  const v = checkTokenFamilyPairing(
+    '  background-color: var(--text-primary); /* bds-lint-ignore hardcoded — unrelated gate */',
+    1, 'test.css'
+  );
+  assert.equal(v.length, 1, 'a `hardcoded` waiver must not suppress a token-family violation');
+});
+
+test('CSS Shape A: a bare bds-lint-ignore does NOT suppress', () => {
+  const v = checkTokenFamilyPairing(
+    '  background-color: var(--text-primary); /* bds-lint-ignore — names no gate */',
+    1, 'test.css'
+  );
+  assert.equal(v.length, 1);
+});
+
+test('CSS Shape A: token-family is not matched as a word prefix', () => {
+  const v = checkTokenFamilyPairing(
+    '  background-color: var(--text-primary); /* bds-lint-ignore token-families — typo */',
+    1, 'test.css'
+  );
+  assert.equal(v.length, 1, '`token-families` must not pass as `token-family`');
+});
+
+test('Rule 6: another gate\'s waiver does NOT suppress', () => {
+  const v = checkWrapperFamily(
+    "const color = {\n  surface: {\n    tertiary: 'var(--background-tertiary)', /* bds-lint-ignore hardcoded — unrelated gate */\n  },\n} as const;",
+    'tokens.ts'
+  );
+  assert.equal(v.length, 1);
+});
+
 test('CSS Shape A: comment line skipped', () => {
   const v = checkTokenFamilyPairing('  /* background-color: var(--text-primary); */', 1, 'test.css');
   assert.equal(v.length, 0);

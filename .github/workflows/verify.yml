@@ -85,6 +85,17 @@ jobs:
       - name: Token lint — self-test (family rule fixtures)
         run: npm run test:lint:tokens
 
+      # lint:tokens only inspects `var(--…)` references, so a raw literal
+      # (`gap: 2px`, `border-radius: 8px`, `--surface-negative: #fdeaea`) has no
+      # token to inspect and sails through. This gate closes that. It ran only
+      # in .husky/pre-commit until now — bypassable by --no-verify, a GitHub web
+      # edit, or a clone where `prepare` never installed the hook (#983).
+      - name: Hardcoded-literal lint (raw values in token-governed properties)
+        run: npm run lint:hardcoded
+
+      - name: Hardcoded-literal lint — self-test (detector fixtures)
+        run: npm run test:lint:hardcoded
+
       - name: Service-URL lint (no hardcoded long-form Webflow slugs)
         run: npm run lint:service-urls
 

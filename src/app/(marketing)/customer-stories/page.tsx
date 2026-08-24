@@ -5,7 +5,7 @@ import { getCustomerStories, getServiceCategories, getSupportPlans, mapServiceLi
 import { CustomerStoriesList } from './CustomerStoriesList';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import { text } from '@/lib/styles';
-import { color } from '@/lib/tokens';
+import { color, gap } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './customer-stories.css';
@@ -41,6 +41,9 @@ export default async function CustomerStoriesPage() {
         price: plan.monthly_price_display || 'Contact',
         description: plan.home_description || plan.description || '',
         image_url: line?.card_image_url ?? plan.image_url ?? null,
+        // Same display-line join drives the CTA tint — the card links to
+        // /plans/{slug}, whose own CTAs are tinted from this line (#1001).
+        service_line_slug: line?.slug ?? null,
       };
     });
 
@@ -56,8 +59,12 @@ export default async function CustomerStoriesPage() {
         <ScrollDownCta />
       </section>
 
-      <section className="page-section">
+      <section className="page-section page-section--top">
         <div className="container-lg">
+          <SectionHeader
+            title="Latest Stories"
+            style={{ marginBottom: gap.xl }}
+          />
           {stories && stories.length > 0 ? (
             <CustomerStoriesList
               stories={stories.map((story) => {
@@ -90,7 +97,7 @@ export default async function CustomerStoriesPage() {
       </section>
 
       {supportPlans.length > 0 && (
-        <section className="page-section">
+        <section className="page-section page-section--accent">
           <div className="container-lg container-lg--comfortable">
             <SectionHeader
               title="Our Services"
@@ -105,6 +112,7 @@ export default async function CustomerStoriesPage() {
                   price={plan.price}
                   description={plan.description}
                   imageUrl={plan.image_url}
+                  serviceLineSlug={plan.service_line_slug}
                 />
               ))}
             </Grid>

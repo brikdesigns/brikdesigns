@@ -16,7 +16,11 @@
   transform: translateY(-100%);
 }
 
-/* Subtle drop-shadow once the page has scrolled, lifting the bar off content. */
+/* Subtle drop-shadow once the page has scrolled, lifting the bar off content.
+   Intentionally literal: #994 swapped this to --shadow-sm, but neither BDS
+   shadow token matches the nav's tuned elevation (sm halves the blur,
+   overlay quadruples the panel depth) — reverted on operator sign-off,
+   file re-allowlisted in scripts/hardcoded-allowlist.txt. */
 .mega-nav--scrolled {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
@@ -385,8 +389,12 @@
   min-width: 100vw;
   background-color: var(--surface-primary);
   border-bottom: 1px solid var(--border-secondary);
+  /* Intentionally literal two-layer shadow: #994's --shadow-overlay (Modal/
+     Dialog depth) read far heavier than the dropdown's tuned elevation —
+     reverted on operator sign-off, file re-allowlisted in
+     scripts/hardcoded-allowlist.txt. */
   box-shadow: 0 12px 16px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
-  padding: 2rem 0;
+  padding: var(--padding-xl) 0;
   animation: megaNavFadeIn 0.15s ease;
   z-index: 101;
   display: flex;
@@ -479,7 +487,7 @@
 
 .mega-nav__product-promo-desc {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
   line-height: var(--font-line-height-normal);
   margin: 0;
@@ -529,7 +537,7 @@
   /* #355: drop the L/R item padding (live Webflow .mega-nav-link is 0) — keep a
      little vertical room so the hover surface still reads as a row. */
   padding: var(--padding-tiny) 0;
-  border-radius: 4px;
+  border-radius: var(--border-radius-100);
   text-decoration: none;
   font-family: var(--font-family-label);
   font-size: var(--label-sm);
@@ -575,7 +583,7 @@
 
 .mega-nav__promo-desc {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
   margin: var(--gap-xs) 0;
 }
@@ -602,10 +610,13 @@
   gap: var(--gap-lg);
 }
 
-/* Webflow: .cms-nav-layout — 4-column industry cards */
+/* Webflow: .cms-nav-layout — 3-column industry cards.
+ * Column count tracks the published industry count (3 in nav: SaaS is
+ * filtered in MegaNavServer.tsx). A fixed count higher than the card count
+ * leaves a visible empty column, so re-check this when that filter changes. */
 .mega-nav__customers-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-md);
 }
 
@@ -634,7 +645,7 @@
 
 .mega-nav__industry-tagline {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
   line-height: var(--font-line-height-moderate);
 }
@@ -649,13 +660,15 @@
   border-color: transparent;
 }
 
-/* ─── About grid (4-col with image cards) ────────────────────── */
+/* ─── About grid (image cards, one column per card) ──────────── */
 /* Webflow: .layout-nav-4-col-about */
+/* 3 cols: Meet Brik, The Value of Design, Blog (MegaNav.tsx). The Webflow
+   source was 4-col; the fourth card never came across. */
 
 .mega-nav__about-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-md);
 }
 
@@ -665,90 +678,37 @@
    of the nav into its own /plans section, dropping the grid back to 3. */
 
 .mega-nav__plans-grid {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-md);
 }
 
-/* ─── Plans panel view toggle (Support Plans ⇄ All Services) ───── */
-/* Tiny segmented control at the top of the Services panel; swaps the panel body
-   between the support-plan cards and the standalone-services menu. */
-.mega-nav__view-toggle {
-  display: inline-flex;
-  gap: 2px;
-  padding: 2px;
-  margin-bottom: var(--gap-lg);
+/* ─── Panel view-toggle banner (full-width, under the grid) ───── */
+/* Single-line banner spanning the panel inner; a ToggleSwitch pinned right
+   swaps the two service streams (off = Support Plans, on = standalone
+   Services). Replaces the former cross-link button. */
+.mega-nav__panel-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-md);
+  margin-top: var(--gap-lg);
+  padding: var(--padding-sm) var(--padding-md);
   background-color: var(--surface-secondary);
   border-radius: var(--border-radius-md);
 }
 
-.mega-nav__view-tab {
-  font-family: var(--font-family-label);
-  font-size: var(--label-xs);
-  font-weight: 600;
-  line-height: var(--font-line-height-snug);
-  color: var(--text-secondary);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: var(--padding-tiny) var(--padding-sm);
-  border-radius: var(--border-radius-md);
-  transition: background-color 0.15s, color 0.15s;
-}
-
-.mega-nav__view-tab:hover {
-  color: var(--text-primary);
-}
-
-.mega-nav__view-tab--active {
-  background-color: var(--surface-primary);
-  color: var(--text-primary);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-}
-
-/* Left region: "Support Plans" heading stacked over the 3-col card grid. */
-.mega-nav__plans-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-lg);
-}
-
-/* Right region: "Design Services" heading over the service-line list. */
-.mega-nav__plans-services {
-  flex: 0 0 260px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
-
-/* Service-line highlight list — one row per line (service tag + line name). */
-.mega-nav__line-list {
-  list-style: none;
+.mega-nav__panel-banner-text {
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  color: var(--text-secondary);
 }
 
-.mega-nav__line-link {
-  display: flex;
-  align-items: center;
-  gap: var(--gap-md);
-  padding: var(--padding-tiny) var(--padding-xs);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  font-family: var(--font-family-label);
-  font-size: var(--label-md);
-  font-weight: 600;
+.mega-nav__panel-banner-text strong {
   color: var(--text-primary);
-  transition: background-color 0.15s, color 0.15s;
-}
-
-.mega-nav__line-link:hover {
-  background-color: var(--surface-accent);
-  color: var(--text-brand-primary);
+  font-weight: 600;
 }
 
 /* ─── About/Plans card (shared structure) ────────────────────── */
@@ -778,13 +738,18 @@
 
 .mega-nav__about-card-desc {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
   line-height: var(--font-line-height-moderate);
 }
 
-/* About card CTAs now use BDS .bds-button--secondary.bds-button--sm */
-.mega-nav__about-card .bds-button--secondary {
+/* About card CTAs use BDS .bds-button--sm. Two variants share this layout:
+   `--secondary` (About panel, no service line) and `--primary` (Support Plans
+   cards, tinted by service line via serviceCtaVars — brikdesigns#1001). The
+   layout rule must cover BOTH, or the plan CTAs lose their bottom-alignment and
+   stretch to the card width. */
+.mega-nav__about-card .bds-button--secondary,
+.mega-nav__about-card .bds-button--primary {
   margin-top: auto;
   align-self: flex-start;
 }
@@ -820,7 +785,7 @@
 
 .mega-nav__nav-card-desc {
   font-family: var(--font-family-body);
-  font-size: var(--body-xs);
+  font-size: var(--body-sm);
   color: var(--text-secondary);
 }
 
@@ -846,6 +811,16 @@
   height: 14px;
   flex-shrink: 0;
   color: var(--text-brand-primary);
+}
+
+/* Inside a FILLED primary CTA the arrow must ride the button's own label ink,
+   not --text-brand-primary. On a service-themed plan card serviceCtaVars sets
+   --text-brand-primary to the line's deep `text` step — the same deep family as
+   the button's `onLight` fill — so a brand-tinted arrow renders dark-on-dark.
+   currentColor inherits the BDS primary label (white in light) and the
+   `--service-cta-ink-dark` flip in dark mode, staying legible in both. */
+.bds-button--primary .mega-nav__arrow-icon {
+  color: currentColor;
 }
 
 /* ─── Mobile toggle ───────────────────────────────────────────── */

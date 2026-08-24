@@ -56,22 +56,20 @@
 
 .plan-service-list-item {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 80px 1fr;
   gap: var(--gap-lg);
-  /* Stretch (not flex-start) so the media column fills the card's full height
-     — the tinted illustration panel runs the height of the container. */
-  align-items: stretch;
+  /* Media is a fixed 80×80 square pinned to the top of the card; content flows
+     beside it. `start` (not `stretch`) keeps the square from being pulled to
+     the card's full min-height. */
+  align-items: start;
 }
 
-/* Illustration panel. Base aspect-ratio + position are owned by the BDS
-   <Frame> wrapper (.bds-frame); we release the square ratio and pin the media
-   to the full card height so the tinted panel spans the container. The 72px
-   grid track still fixes the width; the inner image is `object-fit: contain`,
-   so it centres vertically in the taller panel. */
+/* Illustration panel — fixed 80×80 square (1:1). The 80px grid track fixes the
+   width; aspect-ratio:1 (matching the <Frame ratio="square">) fixes the height.
+   The inner image is `object-fit: contain`, so it centres within the panel. */
 .plan-service-list-item__media {
   border-radius: var(--border-radius-md);
-  aspect-ratio: auto;
-  height: 100%;
+  aspect-ratio: 1;
 }
 
 .plan-service-list-item__content {
@@ -143,16 +141,21 @@
 .plan-cta-panel {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--gap-xl);
+  gap: var(--gap-huge);
   align-items: center;
-  padding: var(--padding-xl);
+  padding: var(--padding-huge);
   border-radius: var(--border-radius-lg);
 }
 
+/* Illustration reads as a supporting element, not the focal point — cap it well
+   below its 1fr column and centre it (the price/CTA card is the focus). Square
+   ratio via the aspect token rather than a raw `1`. */
 .plan-cta-panel__media {
   position: relative;
-  aspect-ratio: 1;
-  align-self: stretch;
+  aspect-ratio: var(--aspect-square);
+  width: 100%;
+  max-width: 320px;
+  margin-inline: auto;
 }
 
 .plan-cta-panel__card {
@@ -177,18 +180,18 @@
   border-radius: var(--border-radius-md);
 }
 
-/* Plan-detail primary CTAs use the pale base service background fill (driven
-   by --background-brand-primary on the .plan-detail-ctas page root); pair it
-   with the line's deep text ink so white-on-pale is never rendered — the
-   canonical service-button pairing (mirrors ServiceLineCard, AA on all five
-   lines). We reuse the per-button --service-cta-ink-dark handoff (the line's
-   `text` = {hue}-darkest, already set on the page root and per Learn-More card,
-   and the value dark mode also wants): it resolves to each button's OWN line
-   hue and — unlike --text-on-color-light, which the bds-hero__media-card scopes
-   to white — stays dark inside the hero media card. Fallback to the page's
-   --text-brand-primary (also the line's dark ink). Dark on the pale fill (light
-   `bg` / dark `onDark`) clears AA in both themes. */
-.plan-detail-ctas .bds-button--primary,
+/* Plan-detail INVERSE CTAs use the pale base service background fill (driven by
+   --background-inverse on the .plan-detail-ctas root); pair it with the line's
+   deep text ink so white-on-pale is never rendered. We reuse the per-button
+   --service-cta-ink-dark handoff (the line's `text` = {hue}-darkest): it resolves
+   to each button's OWN line hue and — unlike --text-on-color-light, which the
+   bds-hero__media-card scopes to white — stays dark inside the hero media card.
+   Fallback to --text-brand-primary (also the line's dark ink).
+
+   PRIMARY CTAs are intentionally NOT pinned here: brikdesigns#1001 moved them to
+   the canonical deep `onLight` fill + BDS default white label (`serviceCtaVars`),
+   which the shared `.service-themed .bds-button--primary` cascade in globals.css
+   already handles in both themes. Pinning dark ink here would render dark-on-deep. */
 .plan-detail-ctas .bds-button--inverse {
   color: var(--service-cta-ink-dark, var(--text-brand-primary));
 }
@@ -196,12 +199,6 @@
 @media (max-width: 991px) {
   .plan-cta-panel {
     grid-template-columns: 1fr;
-  }
-
-  .plan-cta-panel__media {
-    max-width: 360px;
-    margin-inline: auto;
-    width: 100%;
   }
 }
 

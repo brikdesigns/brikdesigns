@@ -32,7 +32,7 @@ import {
 } from '@brikdesigns/bds';
 import type { BlueprintSection } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
-import { color, serviceColor } from '@/lib/tokens';
+import { color, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../../../shared-sections.css';
 import '../../services.css';
@@ -207,8 +207,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   // business-card [brand] recommends layout-design [information]). Its CTA must
   // carry the add-on's own service-line color, not the page's — same per-card
   // pattern as the Other-Plans CTAs (#343/#570). Surface tint stays on the
-  // page's band; only the button overrides `--background-brand-primary`. #569
-  const relatedServiceTokens = serviceColor(mapServiceLineSlug(relatedServiceLineSlug));
+  // page's band; the button's tint comes from `serviceCtaVars(...)` at the CTA. #569
 
   // Support plan — a service can belong to multiple plans (1:M plan→service via
   // service_plan_items); we render the highest-ranked one. Replaces the legacy
@@ -239,10 +238,8 @@ export default async function ServiceDetailPage({ params }: Props) {
 
   // The support-plan CTA carries the plan's *own* service-line color (its
   // marketing line), not this page's line — same per-card pattern as the add-on
-  // and Other-Plans CTAs (#569/#343). #BRIK-WEB-47
-  const supportPlanTokens = supportPlanMarketingLine?.slug
-    ? serviceColor(mapServiceLineSlug(supportPlanMarketingLine.slug))
-    : null;
+  // and Other-Plans CTAs (#569/#343); tint applied via `serviceCtaVars(...)` at
+  // the CTA. #BRIK-WEB-47
 
   // Service-line tokens drive two scoped cascades:
   //   - Page-level: --text-brand-primary so eyebrows / breadcrumbs / accent
@@ -416,7 +413,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           // (BACKLOG-938). On the white `-inverse` card the `-on-light` dark ink
           // reads as the line colour; dark mode reverts to the default light
           // text via the card-chrome nested-card carve-out (see shared-sections).
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text, '--service-price-ink': serviceTokens.text } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, ...serviceCtaVars(serviceLineKey), '--service-price-ink': serviceTokens.text } as React.CSSProperties}
         >
           {/* gap="md" matches the index 3-col grids (detail-page grids were the
               lone gap="lg" outliers). #674 / BACKLOG-415 */}
@@ -491,7 +488,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="story"
           title={relatedStories.length === 1 ? 'Related Customer Story' : 'Related Customer Stories'}
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, ...serviceCtaVars(serviceLineKey) } as React.CSSProperties}
         >
           {relatedStory && relatedStories.length === 1 && (
             /* Single focal story. elevated (not borderless): shadow + service
@@ -545,7 +542,6 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <Card
                   key={story.slug}
                   preset="display"
-                  variant="raised"
                   className="service-sibling-card"
                   style={{ backgroundColor: serviceTokens.inverse }}
                   image={
@@ -588,7 +584,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="addon"
           title="Recommended Add-On Service"
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, ...serviceCtaVars(serviceLineKey) } as React.CSSProperties}
         >
           {/* elevated (not borderless): shadow + service `-inverse` fill keeps the
               row-card contained on the service-tint band — white in light (== the
@@ -631,7 +627,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                     href={`/services/${routeSlugForServiceLine(relatedServiceLineSlug)}/${relatedService.slug}`}
                     variant="primary"
                     size="md"
-                    style={{ '--background-brand-primary': relatedServiceTokens.onLight, '--service-cta-fill-dark': relatedServiceTokens.onDark, '--service-cta-ink-dark': relatedServiceTokens.text } as React.CSSProperties}
+                    style={serviceCtaVars(mapServiceLineSlug(relatedServiceLineSlug))}
                   >
                     Learn More
                   </Button>
@@ -648,7 +644,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           sectionKey="other-services"
           title={`Other ${serviceLine?.name || ''} Services`.replace(/\s+/g, ' ').trim()}
           className="service-themed service-surface"
-          style={{ background: serviceTokens.surfaceLight, '--background-brand-primary': serviceTokens.onLight, '--service-cta-fill-dark': serviceTokens.onDark, '--service-cta-ink-dark': serviceTokens.text } as React.CSSProperties}
+          style={{ background: serviceTokens.surfaceLight, ...serviceCtaVars(serviceLineKey) } as React.CSSProperties}
         >
           {/* gap="lg": staging review wanted more air between the sibling cards
               (BACKLOG-896). Diverges from the index 3-col grids' gap="md" (the
@@ -661,7 +657,6 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <Card
                   key={svc.slug}
                   preset="display"
-                  variant="raised"
                   className="service-sibling-card"
                   // Service `-inverse` surface — white in light (== the prior
                   // display-preset fill), `{hue}-darkest` in dark. Siblings are
@@ -750,7 +745,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   href={`/plans/${supportPlan.slug}`}
                   variant="primary"
                   size="md"
-                  style={supportPlanTokens ? ({ '--background-brand-primary': supportPlanTokens.onLight, '--service-cta-fill-dark': supportPlanTokens.onDark, '--service-cta-ink-dark': supportPlanTokens.text } as React.CSSProperties) : undefined}
+                  style={supportPlanMarketingLine?.slug ? serviceCtaVars(mapServiceLineSlug(supportPlanMarketingLine.slug)) : undefined}
                 >
                   Learn More
                 </Button>

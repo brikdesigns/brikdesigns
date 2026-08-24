@@ -33,7 +33,6 @@
     "src/app/(marketing)/services/[serviceLineSlug]/loading.tsx": 1,
     "src/app/(marketing)/services/[serviceLineSlug]/page.tsx": 4,
     "src/app/(marketing)/services/page.tsx": 3,
-    "src/app/(marketing)/terms/page.tsx": 1,
-    "src/app/(marketing)/value/page.tsx": 19
+    "src/app/(marketing)/terms/page.tsx": 1
   }
 }

@@ -82,6 +82,16 @@
   background-color: var(--surface-accent);
 }
 
+/* Top-align the section content instead of vertically centering it in the
+   100vh band. Use when the section's content changes height at runtime (e.g.
+   the customer-stories list re-filtering by industry): centered content
+   re-centers on every change and the whole block jumps up/down. Pinning to
+   flex-start keeps the header + controls at a stable position — only the empty
+   space below the content grows/shrinks. */
+.page-section--top {
+  justify-content: flex-start;
+}
+
 /* ─── Brand-color CTA card ───────────────────────────────── */
 /* Centered orange panel inside a section gutter — used at the bottom of
    customer-stories index and industry detail pages. */
@@ -195,11 +205,13 @@
   white-space: nowrap;
 }
 
+/* Glyph box, not text: the rule sizes width/height alongside font-size, so this
+ * belongs to the --icon-* scale (24px = --icon-2xl), not --heading-*. */
 .scroll-down-cta__icon {
   color: var(--text-brand-primary);
-  font-size: 1.5rem;
-  width: 1.5rem;
-  height: 1.5rem;
+  font-size: var(--icon-2xl);
+  width: var(--icon-2xl);
+  height: var(--icon-2xl);
   animation: scroll-cta-bounce 0.8s ease-in-out 1.2s 3;
 }
 
@@ -468,20 +480,12 @@
   }
 }
 
-/* ─── Chrome-stripped card (backlog #275–#277 / #482) ───────────────
-   Staging review asked to drop the border ring from the service-line
-   services grid, the customer-topic grids, and the monthly-support card.
-   Owner treatment: keep the surface-primary fill, remove only the border +
-   shadow (NOT the BDS transparent `borderless` variant — the fill is load-
-   bearing on the lighter service tints). The display preset / outlined card
-   already ship no shadow; the border is all that's removed. `.bds-card`
-   raises specificity so this beats the BDS variant border without !important.
-   Filled (non-borderless) cards on a `.service-surface` tint already get the
-   correct dark-mode text via globals.css (the #360 fixed-light handling). */
-.bds-card.service-card--flat {
-  border: none;
-  box-shadow: none;
-}
+/* `.service-card--flat` is retained only as a marker for the title-size rule
+   below. Card chrome (border/shadow) is now band-derived — see the "Card chrome
+   by band" block further down — so this class no longer strips border or shadow
+   itself (that used to be the source of white-band cards silently losing their
+   border). Gated by tests/a11y/card-treatment.spec.ts + .claude/references/
+   card-treatment.md. */
 
 /* Service display-card titles shrink to heading-sm so they sit one step below
    the section heading (heading-lg), establishing the section→card hierarchy.
@@ -501,36 +505,45 @@
   font-size: var(--heading-sm);
 }
 
-/* ─── Card chrome overrides on tinted bands ───────────────────────────
-   Per-surface border/shadow tweaks for cards on non-default bands. These
-   shed the outlined gray border ring on a tint (#333/#367/#368); the
-   surface-primary fill is load-bearing there, so it's kept — never the
-   transparent `borderless` variant.
+/* ─── Card chrome by band — the card-treatment standard ───────────────────
+   THE single source of truth for card border/shadow, enforced by
+   tests/a11y/card-treatment.spec.ts (measured, light + dark, every route) and
+   documented in .claude/references/card-treatment.md.
 
-   Display-card GRIDS now get their elevation from the BDS `raised` variant
-   (surface-primary fill + `--box-shadow-md`, brik-bds 0.144) applied in TSX,
-   NOT from this block. What remains below are the component-specific
-   exceptions that can't use that variant: `PricingCard` (no `raised`
-   variant — a `Card`-only prop) and the `.service-card--flat` grid own their
-   shadow at site level, and blog related-posts stay borderless on the accent
-   band. `.bds-card` / the element class raises specificity to beat the BDS
-   variant border without `!important`. */
+     • Default (white) band `.page-section` → BDS bordered default: a border,
+       no shadow. Nothing is declared here for it — that IS the component
+       default, so a card landing on white with no override is already correct.
+     • Tinted bands (`--secondary`, `--accent`, `.service-surface`) → drop the
+       gray border ring (it reads as noise on a tint) and add a containment
+       shadow.
 
-/* Flat — blog related-posts grid (accent band). `.blog-card` also renders on
-   the white blog index, so this is scoped to the tinted section only. */
-.page-section--accent .bds-card.blog-card {
-  border: none;
-}
+   Chrome is band-derived, NOT a per-card `variant` prop. This is the fix for
+   the recurring #360→#558→#799→#970 regression: a card can no longer ship the
+   wrong chrome by carrying `variant="raised"` onto a white band, because the
+   variant no longer decides — the band does. Borderless cards are transparent
+   by design (they dissolve into the tint, keeping the globals.css #360 text
+   handling), so they're excluded. The `:not()` also lifts specificity to
+   (0,3,0), beating any BDS variant border without `!important`.
 
-/* Elevated — single "Latest Customer Story" card (secondary band). */
-.page-section--secondary .bds-card.story-card {
+   The tinted-band selectors below include bespoke section classes
+   (`.contact-plans`, `.section-plans`) that paint `--surface-secondary`
+   WITHOUT the `.page-section--secondary` modifier. That's the fragile part —
+   any new bespoke tinted section must be added here. The measured gate
+   (card-treatment.spec.ts) exists precisely so a missed one FAILS CI by name
+   instead of shipping as a silent white-treatment card on a tint. */
+.page-section--secondary .bds-card:not(.bds-card--borderless),
+.page-section--accent .bds-card:not(.bds-card--borderless),
+.service-surface .bds-card:not(.bds-card--borderless),
+.contact-plans .bds-card:not(.bds-card--borderless),
+.section-plans .bds-card:not(.bds-card--borderless) {
   border: none;
   box-shadow: var(--box-shadow-md);
 }
 
-/* Elevated — service pricing tiers (service tint). The featured tier keeps its
-   brand-colored ring as intentional emphasis; only the plain tiers shed the
-   gray border and gain the containment shadow. */
+/* Service pricing tiers use `.bds-pricing-card` (a distinct class, not
+   `.bds-card`), so the band rule above doesn't reach them: the plain tiers get
+   the same tint treatment here; the featured tier keeps its brand-colored ring
+   as intentional emphasis. */
 .service-surface .bds-pricing-card:not(.bds-pricing-card--highlighted) {
   border: none;
   box-shadow: var(--box-shadow-md);
@@ -549,31 +562,11 @@
   color: var(--text-primary);
 }
 
-/* Elevated — the service-line services grid (service tint). The base
-   `.service-card--flat` treatment strips border AND shadow, which reads as a
-   calm flat field on a mid-tint band. But every service line's `surfaceLight`
-   ramp is near-white (`#f8fdff` information, `#fffee1` brand, …), so a flat
-   `#fff` card has no visible edge and its top image reads as detached
-   (BACKLOG-875 / #708). Restore the containment shadow — same treatment the
-   pricing-tier grid above already uses on this exact surface — without bringing
-   back the gray border ring. Scoped to `.service-surface` so off-tint flat
-   usages (e.g. the monthly-support card on the white band) stay shadowless.
-   3-class selector beats the 2-class `.bds-card.service-card--flat` shadow:none
-   above without `!important`. */
-.service-surface .bds-card.service-card--flat {
-  box-shadow: var(--box-shadow-md);
-}
-
-/* Elevated — the lone row-cards on the service-detail tint ("Recommended
-   Add-On Service" + "Related Customer Story"). Both always intended shadow
-   containment via BDS `variant="elevated"` (#427/#360), but brik-bds#1146
-   (BDS 0.132) removed the cast shadow from the elevated variant globally,
-   leaving these focal cards flat on their bands (BACKLOG-895). The focal tier
-   of the on-tint standard owns the shadow at site level now, same as
-   .story-card above. */
-.service-surface .bds-card.service-row-card {
-  box-shadow: var(--box-shadow-md);
-}
+/* The service-line services grid (`.service-card--flat`), the service-detail
+   row-cards (`.service-row-card`), the sibling/related grids
+   (`.service-sibling-card`) and the "Other Service Lines / Support Plans"
+   grids (`.display-card--title-sm`) all sit on `.service-surface` and are now
+   elevated by the band rule above — no per-class shadow override needed. */
 
 /* ─── Related Services band — dark-mode deep-tint conversion (#671 / 322) ──
    The customer-story "Related Services" section tints with the pale

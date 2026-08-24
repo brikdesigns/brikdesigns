@@ -1,0 +1,5 @@
+/* Fixture: the per-line escape hatch suppresses an otherwise-valid violation. */
+.d {
+  gap: 7px; /* bds-lint-ignore hardcoded — odd one-off, no token abides */
+  padding: 5px; /* NOT ignored — should still flag */
+}

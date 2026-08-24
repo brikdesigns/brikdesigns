@@ -116,7 +116,7 @@ html {
     --background-brand-secondary: var(--color-grayscale-white);
 
     /* Brand: softer red than --color-system-red-light for negative surfaces. */
-    --surface-negative: #fdeaea;
+    --surface-negative: #fdeaea; /* bds-lint-ignore hardcoded — no primitive holds this value; disposition tracked in #984 */
 
     /* Brand: border + brand image backgrounds inherit vibrant poppy-500
        from BDS theme-brand-brik (BDS-22 / ADR-015 — vibrant Poppy is the
@@ -229,9 +229,9 @@ html {
     --background-inverse: var(--color-grayscale-black);
 
     /* Brand: dark-mode negatives use warmer red than --color-system-red. */
-    --text-negative: #ff6b6b;
-    --surface-negative: #3d1a1a;
-    --border-negative: #ff6b6b;
+    --text-negative: #ff6b6b; /* bds-lint-ignore hardcoded — no primitive holds this value; disposition tracked in #984 */
+    --surface-negative: #3d1a1a; /* bds-lint-ignore hardcoded — see above (#984) */
+    --border-negative: #ff6b6b; /* bds-lint-ignore hardcoded — see above (#984) */
 
     /* Brand: border + brand image backgrounds inherit vibrant poppy-500
        from BDS theme-brand-brik (BDS-22 / ADR-015). Removed. */

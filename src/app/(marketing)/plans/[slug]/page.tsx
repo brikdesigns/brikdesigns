@@ -21,7 +21,7 @@ import { GetStartedModalButton } from '@/components/marketing/GetStartedModalBut
 import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
 import { PlanHeroModal } from './PlanHeroModal';
 import { defaultClientFacts, defaultMarketingTheme } from '@/lib/blueprint-helpers';
-import { color, serviceColor, font } from '@/lib/tokens';
+import { color, serviceColor, serviceCtaVars, font } from '@/lib/tokens';
 import { heading, text } from '@/lib/styles';
 import { SERVICE_LINE_ICON } from '@/lib/service-icons';
 import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
@@ -225,18 +225,13 @@ export default async function PlanDetailPage({ params }: Props) {
       style={
         {
           // Primary CTAs on this plan page inherit the plan's service-line color
-          // (mirrors services/[serviceLineSlug]). #342
-          // Light-mode fill is the pale base `background-service-*` (`bg`), NOT
-          // the deep `-on-light` step — paired with the dark service-neutral ink
-          // via the `.plan-detail-ctas .bds-button--primary` rule in plans.css so
-          // it clears AA (canonical ServiceLineCard pairing). Dark mode flips to
-          // the pale `onDark` fill + deep `text` ink through the shared
-          // `--service-cta-*-dark` cascade set here at the root.
-          '--background-brand-primary': audienceTokens.bg,
+          // via the canonical service-CTA helper — deep `onLight` fill + the BDS
+          // default white label (brikdesigns#1001, mirrors services/[serviceLineSlug]).
+          // `--background-inverse` keeps any inverse-variant CTA on the pale `bg`
+          // fill, paired with dark ink by the retained `.plan-detail-ctas
+          // .bds-button--inverse` rule in plans.css.
+          ...serviceCtaVars(audience),
           '--background-inverse': audienceTokens.bg,
-          '--text-brand-primary': audienceTokens.text,
-          '--service-cta-fill-dark': audienceTokens.onDark,
-          '--service-cta-ink-dark': audienceTokens.text,
         } as React.CSSProperties
       }
     >
@@ -314,7 +309,7 @@ export default async function PlanDetailPage({ params }: Props) {
                   src={heroImage}
                   alt=""
                   fill
-                  sizes="(max-width: 991px) 100vw, 45vw"
+                  sizes="320px"
                   style={{ objectFit: 'contain' }}
                 />
               </div>
@@ -362,7 +357,7 @@ export default async function PlanDetailPage({ params }: Props) {
                     {/* Price = display-md figure in the plan's service ink
                         (`text-service-*-on-light`), AA on the pale `-light`
                         inset above. */}
-                    <p style={{ ...heading.md, fontSize: font.size.display.md, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>
+                    <p style={{ ...heading.md, fontSize: font.size.heading.xLarge, color: audienceTokens.text, textAlign: 'center', margin: 0 }}>
                       {plan.monthly_price_display}
                     </p>
                     <p style={{ ...text.bodySm, color: color.text.secondary, textAlign: 'center', margin: 0 }}>
@@ -400,8 +395,11 @@ export default async function PlanDetailPage({ params }: Props) {
               const otherImage =
                 PLAN_IMAGE_OVERRIDES[other.slug] ??
                 (otherLine as { card_image_url?: string | null } | null)?.card_image_url ?? null;
+              const otherSlug = (otherLine as { slug?: string } | null)?.slug
+                ? mapServiceLineSlug((otherLine as { slug: string }).slug)
+                : audience;
               const otherTokens = (otherLine as { slug?: string } | null)?.slug
-                ? serviceColor(mapServiceLineSlug((otherLine as { slug: string }).slug))
+                ? serviceColor(otherSlug)
                 : null;
               // Resolve the card hue once — its OWN line, falling back to the
               // page line — and drive both the `-inverse` surface and the CTA
@@ -417,7 +415,6 @@ export default async function PlanDetailPage({ params }: Props) {
               <Card
                 key={other.slug}
                 preset="display"
-                variant="raised"
                 className="display-card--title-sm"
                 style={{ backgroundColor: cardTokens.inverse }}
                 image={
@@ -439,11 +436,11 @@ export default async function PlanDetailPage({ params }: Props) {
                     href={`/plans/${other.slug}`}
                     variant="primary"
                     size="md"
-                    // `--service-cta-fill-dark`/`-ink-dark` flip this CTA to the
-                    // pale `onDark` step + deep `text` ink in dark mode so it pops
+                    // Canonical service-CTA cascade (brikdesigns#1001): deep `onLight`
+                    // fill + white label in light mode; the `-dark` handoff flips it to
+                    // the pale `onDark` step + deep `text` ink in dark mode so it pops
                     // on the card's `{hue}-darkest` `-inverse` surface (#648).
-                    // Light mode keeps the deep `onLight` fill. (BRIK-WEB)
-                    style={{ '--background-brand-primary': cardTokens.bg, '--service-cta-fill-dark': cardTokens.onDark, '--service-cta-ink-dark': cardTokens.text } as React.CSSProperties}
+                    style={serviceCtaVars(otherSlug)}
                   >
                     Learn More
                   </Button>

@@ -5,10 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Icon } from '@/lib/icon';
-import { ServiceTag } from '@brikdesigns/bds';
+import { ServiceTag, ToggleSwitch } from '@brikdesigns/bds';
 import type { ServiceLine as BdsServiceLine } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { routeSlugForServiceLine, SERVICE_LINE_SEGMENTS } from '@/lib/service-line-routes';
+import { serviceCtaVars } from '@/lib/tokens';
 import { ThemeToggle } from './ThemeToggle';
 
 import './MegaNav.css';
@@ -240,85 +241,69 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               {open === 'plans' && (
                 <div className="mega-nav__panel mega-nav__panel--plans">
                   <div className="mega-nav__panel-inner">
-                    {/* View toggle — the panel serves two service streams:
-                        Support Plans (retainers) and All Services (standalone
-                        services grouped by line). Switching the view keeps both
-                        in one menu rather than a second nav item. */}
-                    <div className="mega-nav__view-toggle" role="tablist" aria-label="Service view">
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={!servicesView}
-                        className={`mega-nav__view-tab ${!servicesView ? 'mega-nav__view-tab--active' : ''}`}
-                        onClick={() => setServicesView(false)}
-                      >
-                        Support Plans
-                      </button>
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={servicesView}
-                        className={`mega-nav__view-tab ${servicesView ? 'mega-nav__view-tab--active' : ''}`}
-                        onClick={() => setServicesView(true)}
-                      >
-                        All Services
-                      </button>
-                    </div>
-
+                    {/* The panel serves two service streams — Support Plans
+                        (retainers) and standalone Services (grouped by line) —
+                        swapped in place. A full-width banner under the grid
+                        carries a ToggleSwitch: off = Support Plans (default),
+                        on = standalone Services (replaces the former
+                        cross-link button). */}
                     {!servicesView ? (
+                      <>
                       <div className="mega-nav__panel-row">
-                        {/* Left: Support Plans heading + plan cards. Card metadata
-                            drives off Supabase; the image is the plan's service-line
-                            card_image_url (single CMS source, #467) resolved in
-                            MegaNavServer. Product Support is excluded here — it has
-                            its own dedicated section on /plans. */}
-                        <div className="mega-nav__plans-main">
+                        {/* Col 1: intro — heading + description. Placing the copy
+                            in the first column narrows the plan cards to 3 of 4
+                            columns, which keeps the panel short. */}
+                        <div className="mega-nav__panel-intro">
                           <h3 className="mega-nav__panel-title">Support Plans</h3>
-                          <div className="mega-nav__plans-grid">
-                            {supportPlans
-                              .filter((plan) => plan.slug !== 'product-support')
-                              .map((plan) => {
-                                const image = plan.imageUrl;
-                                if (!image) return null;
-                                return (
-                                  <AboutNavCard
-                                    key={plan.slug}
-                                    href={`/plans/${plan.slug}`}
-                                    image={image}
-                                    title={plan.name}
-                                    desc={plan.description}
-                                    cta="Learn More"
-                                    onClick={() => setOpen(null)}
-                                  />
-                                );
-                              })}
-                          </div>
+                          <p className="mega-nav__panel-desc">
+                            Get an experienced, done-for-you team to manage your
+                            marketing, back-office systems, or product design —
+                            without the cost of full-time hires.
+                          </p>
                         </div>
-
-                        {/* Right: highlight services by service line — one row per
-                            line (service tag + line name), all lines incl. product. */}
-                        <div className="mega-nav__plans-services">
-                          <h3 className="mega-nav__panel-title">Design Services</h3>
-                          <ul className="mega-nav__line-list">
-                            {serviceLines.map((line) => (
-                              <li key={line.slug}>
-                                <Link
-                                  href={`/services/${routeSlugForServiceLine(line.slug)}`}
-                                  className="mega-nav__line-link"
+                        {/* Cols 2–4: plan cards. Product Support is excluded — it
+                            has its own dedicated section on /plans. Card image is
+                            the plan's service-line card_image_url (single CMS
+                            source, #467). */}
+                        <div className="mega-nav__plans-grid">
+                          {supportPlans
+                            .filter((plan) => plan.slug !== 'product-support')
+                            .map((plan) => {
+                              const image = plan.imageUrl;
+                              if (!image) return null;
+                              return (
+                                <AboutNavCard
+                                  key={plan.slug}
+                                  href={`/plans/${plan.slug}`}
+                                  image={image}
+                                  title={plan.name}
+                                  desc={plan.description}
+                                  cta="Learn More"
                                   onClick={() => setOpen(null)}
-                                >
-                                  <ServiceTag category={line.category} variant="icon" size="lg" />
-                                  <span>{line.name}</span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
+                                  serviceLineSlug={plan.lineSegment}
+                                />
+                              );
+                            })}
                         </div>
                       </div>
+                      {/* Full-width banner: toggle on to reveal the standalone-services view. */}
+                      <div className="mega-nav__panel-banner">
+                        <p className="mega-nav__panel-banner-text">
+                          <strong>Interested in individual services?</strong> View our standalone services.
+                        </p>
+                        <ToggleSwitch
+                          label="View Services"
+                          size="sm"
+                          checked={servicesView}
+                          onChange={(e) => setServicesView(e.target.checked)}
+                        />
+                      </div>
+                      </>
                     ) : (
-                      /* All Services view — every standalone service grouped by
+                      <>
+                      {/* All Services view — every standalone service grouped by
                          line (the previous services menu). Lines with no public
-                         services drop out rather than render an empty column. */
+                         services drop out rather than render an empty column. */}
                       <div className="mega-nav__services-grid">
                         {serviceLines
                           .filter((line) => line.services.length > 0)
@@ -361,6 +346,20 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             </div>
                           ))}
                       </div>
+                      {/* Same banner, services view: toggle off to return to the
+                          support-plan view (the panel's default). */}
+                      <div className="mega-nav__panel-banner">
+                        <p className="mega-nav__panel-banner-text">
+                          <strong>Interested in a monthly support plan?</strong> View our support plans.
+                        </p>
+                        <ToggleSwitch
+                          label="View Services"
+                          size="sm"
+                          checked={servicesView}
+                          onChange={(e) => setServicesView(e.target.checked)}
+                        />
+                      </div>
+                      </>
                     )}
                   </div>
                 </div>
@@ -472,7 +471,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                 onClick={() => toggle('customers')}
                 aria-expanded={open === 'customers'}
               >
-                Who We Work With
+                Industries
                 <ChevronDown />
               </button>
 
@@ -481,7 +480,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                   <div className="mega-nav__panel-inner mega-nav__panel-row">
                     {/* Webflow: .inner-wrapper.narrow — left intro */}
                     <div className="mega-nav__panel-intro">
-                      <h3 className="mega-nav__panel-title">Who We Support</h3>
+                      <h3 className="mega-nav__panel-title">Industries We Serve</h3>
                       <p className="mega-nav__panel-desc">
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
@@ -521,9 +520,9 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               )}
             </div>
 
-            {/* Work — plain link to customer stories */}
+            {/* Results — plain link to customer stories */}
             <Link href="/customer-stories" className="mega-nav__toggle" onClick={() => setOpen(null)}>
-              Work
+              Results
             </Link>
 
             {/* About */}
@@ -550,12 +549,11 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         support—without the full-time overhead.
                       </p>
                     </div>
-                    {/* Webflow: .layout-nav-4-col-about — 4 cards with images */}
+                    {/* Webflow: .layout-nav-4-col-about — 3 cards with images */}
                     <div className="mega-nav__about-grid">
                       <AboutNavCard href="/about" image="/images/brik_designs_4x.webp" title="Meet Brik" desc="Learn about the company and the Brik team" cta="Learn More" onClick={() => setOpen(null)} />
                       <AboutNavCard href="/value" image="/images/value_of_design_4x.webp" title="The Value of Design" desc="Learn the value of design in four steps" cta="Learn More" onClick={() => setOpen(null)} />
                       <AboutNavCard href="/blog" image="/images/blogs_4x.webp" title="Blog" desc="Stories, insights, and lessons learned from building our business" cta="View Posts" onClick={() => setOpen(null)} />
-                      <AboutNavCard href="/customer-stories" image="/images/customer_stories_2x.webp" title="Customer Stories" desc="Stories, insights, and lessons learned from building our business" cta="View Stories" onClick={() => setOpen(null)} />
                     </div>
                   </div>
                 </div>
@@ -603,7 +601,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
             </Link>
           ))}
           <Link href="/industries" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Industries</Link>
-          <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Work</Link>
+          <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Results</Link>
           <Link href="/about" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>About</Link>
           <Link href="/blog" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
           <Link
@@ -627,18 +625,31 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
  * AboutNavCard — matches Webflow .list-item.comfortable structure:
  * image frame (accent bg) + title + description + "Learn More →" button
  * Used in About and Support Plans dropdowns.
+ *
+ * `serviceLineSlug` opts the CTA into the canonical service-line treatment
+ * (brikdesigns#1001): a filled `primary` carrying `serviceCtaVars`, identical to
+ * the CTA on the /plans/{slug} card this links to. Support-plan cards pass it;
+ * the About-panel cards (no service line) omit it and keep the neutral
+ * `secondary` nav chrome.
  */
-function AboutNavCard({ href, image, title, desc, cta, onClick }: {
+function AboutNavCard({ href, image, title, desc, cta, onClick, serviceLineSlug }: {
   href: string; image: string; title: string; desc: string; cta: string; onClick: () => void;
+  serviceLineSlug?: string | null;
 }) {
+  const svcVars = serviceLineSlug ? serviceCtaVars(serviceLineSlug) : undefined;
   return (
-    <Link href={href} className="mega-nav__about-card" onClick={onClick}>
+    <Link
+      href={href}
+      className={`mega-nav__about-card${svcVars ? ' service-themed' : ''}`}
+      onClick={onClick}
+      style={svcVars}
+    >
       <div className="mega-nav__about-card-media">
         <Image src={image} alt={title} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       </div>
       <span className="mega-nav__about-card-title">{title}</span>
       <span className="mega-nav__about-card-desc">{desc}</span>
-      <span className={composeButtonClasses({ variant: 'secondary', size: 'sm' })}>{cta} <ArrowRight /></span>
+      <span className={composeButtonClasses({ variant: svcVars ? 'primary' : 'secondary', size: 'sm' })}>{cta} <ArrowRight /></span>
     </Link>
   );
 }

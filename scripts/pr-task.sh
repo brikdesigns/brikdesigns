@@ -338,10 +338,22 @@ echo "  Commits: $COMMITS_AHEAD ahead of ${BASE_BRANCH}"
 echo ""
 
 # ── Worktree cleanup hint ──
+# Points at the reaper, NOT a bare `rm -rf`. The hint this replaces ran no dirty
+# check, no PR check and no landed check, so an operator or agent following it on
+# an unmerged or uncommitted worktree lost that work with no recovery path — and
+# this repo had no reaper to fall back on, so there was no safe alternative to
+# offer. That is the whole of brikdesigns/brik-llm#1634 problem 1; after
+# brikdesigns/brik-llm#2254 the reaper exists here, so the hint can name it.
+# It decides on PR state plus an ancestor test plus a reflog not-started guard,
+# and is dry-run by default.
 WORKTREE_DIR=$(git rev-parse --show-toplevel)
 if [[ "$WORKTREE_DIR" == *"worktrees"* ]]; then
-  echo -e "  ${YELLOW}Cleanup (run after PR is merged):${NC}"
-  echo "    rm -rf ${WORKTREE_DIR}"
-  echo "    cd $(dirname "$WORKTREE_DIR")/../brikdesigns && git worktree prune"
+  echo -e "  ${YELLOW}Cleanup (run after PR is merged, from the primary worktree):${NC}"
+  echo "    cd $(dirname "$WORKTREE_DIR")/../brikdesigns"
+  echo "    ./scripts/sweep-merged-worktrees.sh                            # dry-run first"
+  echo "    ./scripts/sweep-merged-worktrees.sh --apply --delete-branches"
+  echo ""
+  echo "  Dry-run by default — nothing moves until --apply. OPEN PRs, dirty"
+  echo "  worktrees and not-yet-started branches are spared automatically."
   echo ""
 fi

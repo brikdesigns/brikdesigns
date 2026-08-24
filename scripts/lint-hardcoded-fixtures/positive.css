@@ -1,0 +1,25 @@
+/* Fixture: every declaration here is a genuine hardcoded-literal violation. */
+.a {
+  gap: 2px;                 /* spacing, exact token exists (--gap-tiny) */
+  border-radius: 8px;       /* radius, exact token exists */
+  padding: 90px;            /* spacing, NO matching token → design-system gap */
+  color: #ff0000;           /* colour hex */
+  background: rgba(0, 0, 0, 0.5); /* colour rgba */
+  font-size: 30px;          /* typography */
+  line-height: 40px;        /* typography */
+  border-top-width: 3px;    /* border-width, exact scale token exists (--border-width-200) */
+}
+
+/* A semantic token must resolve through a primitive, never hold a raw colour. */
+:root {
+  --surface-negative: #fdeaea;
+  --text-negative: rgb(255, 107, 107);
+}
+
+/* Single-line rules — the braces must not hide the declaration. */
+.one-line { gap: 7px; }
+.one-line-multi { gap: 6px; border-radius: 8px; }
+/* Pseudo-class: the selector's own colon must not be read as the declaration's. */
+.one-line-pseudo:hover { gap: 2px; }
+/* No trailing semicolon — the `}` closes the declaration. */
+.one-line-bare { border-radius: 12px }

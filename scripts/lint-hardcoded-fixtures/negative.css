@@ -1,0 +1,43 @@
+/* Fixture: nothing here should be flagged. */
+.b {
+  gap: var(--gap-md);                 /* tokenized */
+  padding: var(--padding-lg) var(--padding-md);
+  border-radius: var(--border-radius-sm);
+  margin: 0;                          /* zero is a no-op */
+  inset: 0px;                         /* zero */
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px var(--color-neutral-900); /* colour is tokenized; length in shadow is not a colour literal */
+
+  /* layout dimensions — deliberately out of scope, no token equivalent */
+  width: 340px;
+  min-height: 260px;
+  grid-template-columns: 340px 1fr;
+  aspect-ratio: 4/3;
+
+  /* fluid primitives — the sanctioned escape when a token can't abide */
+  font-size: clamp(2.25rem, 1rem + 3vw, 3rem);
+  padding-top: calc(var(--padding-huge) + var(--gap-lg));
+
+  /* non-length units are never spacing/typography literals */
+  transition: 0.2s ease;
+  transform: translateY(20px);
+}
+
+/* commented-out CSS must not be scanned */
+/* .c { gap: 2px; color: #fff; } */
+
+:root {
+  /* The primitive layer is where the value chain bottoms out — exempt. */
+  --color-system-red: #eb5757;
+  /* A semantic token pointing at a primitive is the correct shape. */
+  --surface-negative: var(--color-system-red);
+  /* Length scale steps are token definitions, not hardcoded usage. */
+  --border-radius-100: 4px;
+  --border-width-200: 3px;
+}
+
+/* Single-line rules that ARE tokenized stay clean — the brace-stripping must
+   not manufacture a violation out of the selector or the media condition. */
+.one-line-ok { gap: var(--gap-md); }
+.one-line-ok-pseudo:focus-visible { border-radius: var(--border-radius-sm); }
+@media (max-width: 991px) { .nested-ok { gap: var(--gap-tiny); } }
