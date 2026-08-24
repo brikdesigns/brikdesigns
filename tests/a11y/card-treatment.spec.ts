@@ -33,12 +33,24 @@ import { test, expect } from '@playwright/test';
  *   • .bds-pricing-card--highlighted — the featured pricing tier keeps its
  *     brand-colored ring on a tint as intentional emphasis (shared-sections.css).
  *
- * LIGHT THEME ONLY. The standard is literally about "white backgrounds" — a
- * light-mode concept. In dark mode there are no white bands (some sections even
- * flip white→deep-tint by theme, e.g. plan-detail "What You Get"), and a subtle
- * border, not a shadow, is the correct card definition since box-shadow barely
- * reads on a dark surface. Dark-mode card chrome is a separate standard; this
- * gate does not adjudicate it. Skipped on the `-dark` project.
+ * BOTH THEMES (#980), classified by measured band LUMINANCE, not by theme:
+ *
+ *   • Band is DARK  → border, no shadow. A shadow cannot define a card here:
+ *     --box-shadow-md is rgba(0,0,0,0.08) and --surface-primary is rgb(0,0,0)
+ *     in the dark root, so ~50 cards across these routes were rendering with
+ *     no boundary at all. --border-secondary (rgb(176,176,176)) reads.
+ *   • Band is WHITE (== --surface-primary) → border, no shadow. Unchanged.
+ *   • Band is a LIGHT TINT → shadow, no border. Unchanged.
+ *
+ * Luminance, not `data-theme`, is the discriminator because the two are not the
+ * same question. Some bands are PALE in dark mode — the service `-on-dark`
+ * steps measure rgb(196,176,235) and rgb(255,173,146) — and a dark shadow reads
+ * fine on those (those two figures are two such bands, not the whole set). A
+ * first cut of this gate asserted "border everywhere in dark" and correctly
+ * failed on five routes, across five distinct pale band values — the
+ * information, product, marketing, back-office and brand `-on-dark` steps. The
+ * rule is about whether a dark shadow has a light enough surface to read
+ * against, which is a property of the band, in either theme.
  */
 
 // Mirror of src/app/sitemap.ts statics + one instance per dynamic [slug]
@@ -53,6 +65,10 @@ const ROUTES: { path: string; name: string }[] = [
   { path: '/plans', name: 'Plans' },
   { path: '/plans/back-office-support', name: 'Plan detail — back-office' },
   { path: '/customer-stories', name: 'Customer stories index' },
+  // Story DETAIL was never covered, though #971 listed two violations on it
+  // ("Other Customer Stories" outlined-on-accent, "Related Services" flat).
+  // Both measured clean at pickup — this route pins that.
+  { path: '/customer-stories/birdwell-mutlak-dentistry-website', name: 'Customer story detail' },
   { path: '/customers', name: 'Customers' },
   { path: '/customers/dental', name: 'Customer detail — dental' },
   { path: '/blog', name: 'Blog index' },
@@ -65,7 +81,7 @@ const ROUTES: { path: string; name: string }[] = [
 interface CardFinding {
   card: string;
   section: string;
-  band: 'default' | 'tint';
+  band: 'default' | 'tint' | 'dark';
   bandBg: string;
   hasBorder: boolean;
   hasShadow: boolean;
@@ -75,10 +91,7 @@ interface CardFinding {
 test.describe('Card-treatment standard — border/shadow by band', () => {
   for (const route of ROUTES) {
     test(`${route.name} (${route.path}) cards follow the band standard`, async ({ page }, testInfo) => {
-      test.skip(
-        testInfo.project.name.endsWith('-dark'),
-        'Card-treatment standard is a light-mode (white background) concept; dark-mode card definition follows a different rule.',
-      );
+      const isDark = testInfo.project.name.endsWith('-dark');
       await page.goto(route.path, { waitUntil: 'load' });
       await expect(page.locator('main')).toHaveCount(1);
 
@@ -124,13 +137,30 @@ test.describe('Card-treatment standard — border/shadow by band', () => {
             }
             el = el.parentElement;
           }
-          const band: 'default' | 'tint' =
-            norm(bandBg) === norm(surfacePrimary) ? 'default' : 'tint';
+          // Relative luminance (WCAG 2.x formula) of the band, so "can a dark
+          // shadow read against this?" is measured rather than inferred from
+          // the theme. 0.18 sits well below the palest dark-mode tint measured
+          // (rgb(196,176,235) ≈ 0.50) and well above the lightest dark neutral
+          // (rgb(27,27,27) ≈ 0.01), so it is nowhere near either cluster.
+          const lum = (c: string) => {
+            const m = c.match(/rgba?\(([^)]+)\)/);
+            if (!m) return 1;
+            const [r, g, b] = m[1].split(',').map((p) => parseFloat(p.trim()) / 255);
+            const f = (v: number) =>
+              v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+          };
+          const isDarkBand = lum(bandBg) < 0.18;
+          const band: 'default' | 'tint' | 'dark' = isDarkBand
+            ? 'dark'
+            : norm(bandBg) === norm(surfacePrimary)
+              ? 'default'
+              : 'tint';
 
+          // A shadow only defines a card on a light-enough surface. On a dark
+          // band the border is the only thing that reads, whatever the theme.
           const ok =
-            band === 'default'
-              ? hasBorder && !hasShadow
-              : !hasBorder && hasShadow;
+            band === 'tint' ? !hasBorder && hasShadow : hasBorder && !hasShadow;
           if (ok) continue;
 
           // Best-effort human label: the card's own classes + nearest section id.
@@ -148,9 +178,7 @@ test.describe('Card-treatment standard — border/shadow by band', () => {
             hasBorder,
             hasShadow,
             expected:
-              band === 'default'
-                ? 'border + no shadow'
-                : 'shadow + no border',
+              band === 'tint' ? 'shadow + no border' : 'border + no shadow',
           });
         }
         return out;
@@ -166,9 +194,12 @@ test.describe('Card-treatment standard — border/shadow by band', () => {
           .join('\n');
         expect(
           findings,
-          `Cards violating the card-treatment standard on ${route.path}:\n${summary}\n\n` +
-            `Standard: white/default band → border + no shadow; tinted band → shadow + no border.\n` +
-            `Fix in CSS (band-derived), not a per-card variant. See .claude/references/card-treatment.md.`,
+          `Cards violating the card-treatment standard on ${route.path} (${isDark ? 'dark' : 'light'}):\n${summary}\n\n` +
+            `Standard, by measured band luminance: dark band → border + no shadow (a dark\n` +
+            `shadow is invisible there); white band → border + no shadow; light tint →\n` +
+            `shadow + no border.\n` +
+            `Fix in CSS (in the "Card chrome by band" block in shared-sections.css), not a\n` +
+            `per-card variant. See .claude/references/card-treatment.md.`,
         ).toHaveLength(0);
       }
     });

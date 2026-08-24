@@ -7,11 +7,31 @@ by a `variant` prop. This is the single source of truth; it is enforced by
 | Band | Background | Card chrome |
 |---|---|---|
 | **Default (white)** | `--surface-primary` | **border, no shadow** |
-| **Tinted** | `--surface-secondary` / `--surface-accent` / service tint | **shadow, no border** |
+| **Light tint** | `--surface-secondary` / `--surface-accent` / service tint | **shadow, no border** |
+| **Dark** | any band whose relative luminance < 0.18 | **border, no shadow** |
 
-Light mode only — "white background" is a light-mode concept. Dark mode has no
-white bands (some sections flip white→deep-tint by theme), and a subtle border,
-not a shadow, is the correct card definition there. The gate skips dark.
+Both themes are gated (#980). The discriminator is the band's measured
+**luminance**, not `data-theme`, because a shadow only defines a card when the
+surface underneath is light enough for a dark shadow to read against:
+
+```css
+--box-shadow-md:    rgba(0, 0, 0, 0.08);  /* 8% black, both themes */
+--surface-primary:  rgb(0, 0, 0);         /* dark root */
+--border-secondary: rgb(176, 176, 176);   /* dark root */
+```
+
+An 8%-black shadow over black is **invisible**. Roughly 50 cards across the
+audited routes rendered no-border/shadow in dark mode before #980; the ones on a
+band that goes dark had no visible boundary at all.
+
+The theme is the wrong question because some bands stay **pale in dark mode**:
+the service tints are fixed-light in both themes (`.service-surface` measures
+rgb(178,227,245) … rgb(255,236,172) in the dark root), and a dark shadow reads
+fine on those. A rule written as "border everywhere in dark" borders those
+pale-band cards and fails the dark project on five routes — `/services`,
+`/services/brand`, `/services/brand/logo-design`,
+`/services/back-office/crm-setup-and-data-cleanup`, `/customers/dental` — over
+five distinct pale band values. The gate catches it.
 
 ## How it's implemented
 
@@ -20,6 +40,10 @@ not a shadow, is the correct card definition there. The gate skips dark.
 - **Tinted band** = one CSS rule in `src/app/(marketing)/shared-sections.css`
   (search "Card chrome by band") strips the border and adds `--box-shadow-md`
   for every `.bds-card` on a tinted section.
+- **Dark band** = a `:root[data-theme="dark"]` rule directly below it restores
+  the BDS `--outlined` values (border, no shadow) for the tinted sections whose
+  neutral surface goes dark. It deliberately omits `.service-surface` and
+  `.plan-cta-panel`, which stay pale in dark mode and keep their elevation.
 
 Do **not** set `variant="raised"` or `variant="elevated"` to elevate a card, and
 do **not** add a per-page CSS override to fix one section's chrome. Both are how

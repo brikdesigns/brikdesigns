@@ -507,15 +507,24 @@
 
 /* ─── Card chrome by band — the card-treatment standard ───────────────────
    THE single source of truth for card border/shadow, enforced by
-   tests/a11y/card-treatment.spec.ts (measured, light + dark, every route) and
-   documented in .claude/references/card-treatment.md.
+   tests/a11y/card-treatment.spec.ts (measured, every route, light + dark —
+   each theme against its own rule) and documented in
+   .claude/references/card-treatment.md.
 
+   In LIGHT mode every band is pale, so the band alone decides:
      • Default (white) band `.page-section` → BDS bordered default: a border,
        no shadow. Nothing is declared here for it — that IS the component
        default, so a card landing on white with no override is already correct.
      • Tinted bands (`--secondary`, `--accent`, `.service-surface`) → drop the
        gray border ring (it reads as noise on a tint) and add a containment
        shadow.
+
+   DARK mode is band-derived too, on the band's measured LUMINANCE rather than
+   on the theme: a dark band gets the border back, a band that stays pale in
+   dark mode keeps its shadow. "Border everywhere in dark" is the wrong rule —
+   it borders the pale-band cards and failed the dark project on five routes.
+   See the `[data-theme]` rule below the pricing-card block for the measurement
+   (#980).
 
    Chrome is band-derived, NOT a per-card `variant` prop. This is the fix for
    the recurring #360→#558→#799→#970 regression: a card can no longer ship the
@@ -547,6 +556,59 @@
 .service-surface .bds-pricing-card:not(.bds-pricing-card--highlighted) {
   border: none;
   box-shadow: var(--box-shadow-md);
+}
+
+/* ─── Dark mode: border defines a card on a DARK band (#980) ──────────────
+   The band-derived rule above trades the border for a containment shadow on a
+   tint. That trade depends on something the light-mode framing left implicit:
+   a shadow only defines a card when the surface underneath is light enough for
+   a dark shadow to read against. Measured in the dark root:
+
+     --box-shadow-md   rgba(0, 0, 0, 0.08) 0 2px 6px
+     --surface-primary rgb(0, 0, 0)
+     --border-secondary rgb(176, 176, 176)
+
+   An 8%-black shadow over pure black is invisible. Roughly 50 cards across the
+   audited routes rendered no-border/shadow in dark mode; every one of those
+   sitting on a band that goes DARK had no visible boundary at all, while the
+   border reads clearly. The ones on a band that stays pale were fine — see the
+   exclusions below.
+
+   But "dark theme" is NOT the condition — surface luminance is. Some bands are
+   PALE in dark mode: the service `-on-dark` steps resolve to light tints
+   (measured rgb(196,176,235) on /plans, rgb(255,173,146) on the plan detail),
+   and a dark shadow reads perfectly well on those. Writing this rule as
+   "border everywhere in dark" bordered cards like those — the gate caught it
+   (routes listed below), which is why it is scoped to the dark NEUTRAL surfaces
+   rather than to `[data-theme="dark"]` wholesale.
+
+   Restores the BDS `--outlined` values verbatim rather than inventing a
+   dark-specific border, so a card's chrome here is the component default and
+   the light-mode tint swap simply does not apply.
+
+   Two groups are deliberately ABSENT, both because they stay pale in dark mode
+   and so keep their elevation:
+
+     • `.service-surface` — the service tints are fixed-light in BOTH themes
+       (measured rgb(178,227,245) information … rgb(255,236,172) brand in the
+       dark root), which is also why the `.bds-pricing-card` rule above needs no
+       dark counterpart.
+     • `.plan-cta-panel` — paints a pale service tint in dark mode.
+
+   Listing them here rather than leaving it implicit: an earlier cut of this
+   rule included `.service-surface`, which bordered cards sitting on bands that
+   stay pale in dark mode and failed the dark project on five routes —
+   /services, /services/brand, /services/brand/logo-design,
+   /services/back-office/crm-setup-and-data-cleanup, /customers/dental — across
+   five distinct pale band values (the information, product, marketing,
+   back-office and brand `-on-dark` steps). Gated by card-treatment.spec.ts,
+   which classifies by measured band luminance in both themes. */
+:root[data-theme="dark"] .page-section--secondary .bds-card:not(.bds-card--borderless),
+:root[data-theme="dark"] .page-section--accent .bds-card:not(.bds-card--borderless),
+:root[data-theme="dark"] .contact-plans .bds-card:not(.bds-card--borderless),
+:root[data-theme="dark"] .section-plans .bds-card:not(.bds-card--borderless) {
+  border: var(--border-width-md) solid var(--border-secondary);
+  box-shadow: var(--box-shadow-none);
 }
 
 /* Price ink follows the service line (BACKLOG-938 / #726). In light mode the

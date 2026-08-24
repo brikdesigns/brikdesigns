@@ -18,19 +18,19 @@ Import tokens from `@/lib/tokens` and `@/lib/styles`. No raw `var(--...)` string
 
 ## When locating the element to change on a page (surface, appearance, layout)
 
-Read `.claude/references/page-anatomy.md`. Short form: identify the target by its **layer** in the page anatomy (Section → Layout → Container → Block → Component), read top-down from the DOM tree — never by selector-name resemblance. A BEM block name containing "card" (e.g. `bds-hero--with-pricing-card`) does **not** make it the card; that's a `<section>` (Section layer). The card is the nested Container element (`aside.bds-hero__media-card`). When a ticket says "card," it means the Container layer. Canonical: [build-standards/page-structure](https://design.brikdesigns.com/docs/build-standards/page-structure) + [composition-layers](https://design.brikdesigns.com/docs/build-standards/composition-layers).
+Read [`.claude/references/page-anatomy.md`](.claude/references/page-anatomy.md) — identify the target by its **layer** (Section → Layout → Container → Block → Component) read top-down from the DOM, never by selector-name resemblance (a `card` in a BEM name is still its layer; "card" in a ticket means the Container) → [build-standards/page-structure](https://design.brikdesigns.com/docs/build-standards/page-structure).
 
 ## When changing how many items a list or grid renders
 
-Read the "When you change how many items a collection renders" section of `.claude/references/page-anatomy.md`. Short form: an item-count change is a layout change — a `repeat(N, …)` grid must render at least N children, so grep the container's layout rule in the same change. Gated by `tests/a11y/grid-column-fit.spec.ts`.
+Read [`page-anatomy.md`](.claude/references/page-anatomy.md) § "When you change how many items a collection renders" — an item-count change is a layout change, so a `repeat(N, …)` grid must render ≥N children; grep the container's layout rule in the same change (gated by `tests/a11y/grid-column-fit.spec.ts`).
 
 ## When adding a top-level `<section>` on a marketing page
 
-Read `.claude/references/section-identification.md`. Short form: every top-level `<section>` in `src/app/(marketing)` carries a stable identifier — `data-section="<key>"` (default; derive mapped keys from the loop's stable key, not its index) or `aria-labelledby` when a heading `id` already exists. Not `bds-*` block names — these are hand-built, not BDS blueprints. Gated by `scripts/lint-section-id.mjs` (pre-commit + `verify.yml`), a ratchet against `scripts/section-id-baseline.json`.
+Read [`section-identification.md`](.claude/references/section-identification.md) — every top-level `<section>` in `src/app/(marketing)` carries a stable id (`data-section="<key>"` by default, or `aria-labelledby` when a heading `id` exists), never a `bds-*` block name (gated by `scripts/lint-section-id.mjs`, a ratchet against `scripts/section-id-baseline.json`).
 
 ## When naming CSS classes or TS data-object keys for text roles
 
-Read `.claude/references/naming-conventions.md`. Short form: `__title` and `__description` are canonical; `__heading`, `__subtext`, and `__body` are banned. `heading` is a typography token scale — correct as an import from `styles.ts`, wrong as a class name or data-object key.
+Read [`naming-conventions.md`](.claude/references/naming-conventions.md) — `__title` / `__description` are canonical, while `__heading` / `__subtext` / `__body` are banned (`heading` is a typography token to import from `styles.ts`, never a class name or data-object key).
 
 ## When modifying `src/app/globals.css`
 
@@ -38,19 +38,21 @@ Declare `@layer bds-tokens, bds-components, client-theme, client-overrides;` bef
 
 ## When opening a PR
 
-PRs target `staging`. Promote `staging → main` after Netlify preview sign-off. Repo enforces merge-commit only — never squash or rebase. Query brik-rag for `brikdesigns merge-commit invariant` before any promote-PR action.
+USE merge-commit only — NEVER squash or rebase; target `staging` for PRs and promote `staging → main` only after Netlify preview sign-off → `brik-rag query "brikdesigns merge-commit invariant"` before any promote-PR.
 
 ## When installing or running locally
 
 Install: `op run --env-file=.env.op -- npm install`
 
-Run dev: `./scripts/dev-restart.sh` — always, never a bare `npm run dev`. It injects `.env.op` secrets (without them every CMS route 500s on a missing Supabase client), self-sources the service-account token on headless machines, kills the existing server on the port, and picks a stable per-worktree port. Restart after every code change.
+RUN `./scripts/dev-restart.sh` for dev — ALWAYS, never a bare `npm run dev` (it injects `.env.op` secrets, self-sources the headless token, kills the port's server, and picks a stable per-worktree port); restart after every code change.
 
 After editing a CMS row in Supabase: `./scripts/dev-restart.sh --fresh`. The Next data cache survives a plain restart and keeps serving the previous payload.
 
+`dev-restart.sh` refuses to start when the installed `@brikdesigns/bds` does not satisfy `package.json` — a stale install 500s every route on `Export <Name> doesn't exist in target module`, which reads like a broken import rather than a missing `npm ci`. Fix with `op run --env-file=.env.op -- npm ci`; never work around the check.
+
 ## Before pushing
 
-Run `op run --env-file=.env.op -- npm run build` — never a bare `npm run build`. Without the injected secrets, page-data collection fails against a missing Supabase client and surfaces as `Failed to collect page data for <some CMS route>` (which route depends on build order), reading like a broken route rather than a missing credential.
+RUN `op run --env-file=.env.op -- npm run build` — never a bare `npm run build`; without the injected secrets, page-data collection fails as `Failed to collect page data for <CMS route>`, which reads like a broken route but is a missing credential.
 
 Never push to `staging` or `main` without user confirmation.
 
@@ -68,7 +70,7 @@ See `.claude/references/service-token-decision-tree.md`.
 
 ## When setting a card's border/shadow (any `<Card>`)
 
-See `.claude/references/card-treatment.md`. Short form: chrome is **band-derived**, never a `variant` prop — white/default band → border + no shadow; tinted band → shadow + no border. Don't add `variant="raised"/"elevated"` or a per-page override to elevate a card; put the tinted-band section on the "Card chrome by band" rule in `shared-sections.css`. Gated (light theme, every route) by `tests/a11y/card-treatment.spec.ts`.
+See [`card-treatment.md`](.claude/references/card-treatment.md) — card chrome is derived from the band's measured **luminance**, never a `variant` prop (white band → border + no shadow; light tint → shadow + no border; dark band, lum < 0.18 → border + no shadow, since an 8%-black `--box-shadow-md` is invisible on a dark surface); luminance decides and not the theme, because the service tints are fixed-light in BOTH themes and keep their shadow in dark mode; never `variant="raised"/"elevated"` or a per-page override, instead put the section on the "Card chrome by band" rule in `shared-sections.css` (gated both themes by `tests/a11y/card-treatment.spec.ts`).
 
 ## When querying `services` / `service_lines` / `offerings`
 
@@ -92,4 +94,4 @@ Default Sonnet 4.6. Escalate to Opus for IA / nav taxonomy / refactors >5 files 
 
 ## Brand
 
-Font: Poppins 300–700. ThemeProvider: `applyToBody={false}`. Color rationale (poppy-dark vs poppy-light): brik-rag `brikdesigns brand poppy color rationale`.
+USE Poppins 300–700 and `ThemeProvider applyToBody={false}` → color rationale (poppy-dark vs poppy-light): `brik-rag query "brikdesigns brand poppy color rationale"`.
