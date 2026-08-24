@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { SERVICE_LINE_SEGMENTS } from '../../src/lib/service-line-routes';
+import { gotoRendered } from './lib/goto-rendered';
 
 /**
  * Nav service-tint coverage — every service-line and plan route tints.
@@ -29,23 +30,19 @@ import { SERVICE_LINE_SEGMENTS } from '../../src/lib/service-line-routes';
 
 const TINT_CLASS = 'mega-nav--service';
 
-/** Assert the app's page rendered, retrying until it does.
+/* Navigation + render preconditions live in ./lib/goto-rendered (#1030).
  *
- *  Deliberately NOT an HTTP-status assertion. `res.status()` is a snapshot of one
- *  response with no retry, and a deploy preview legitimately returns transient
- *  4xx/5xx under the suite's concurrent load — /plans came back **403** on a run
- *  where every other route was fine, and /services/product failed once then
- *  passed on retry. A CDN throttle is not a route defect.
+ * This spec's #341 objection was to a SINGLE-SHOT status assertion: `res.status()`
+ * is a snapshot of one response with no retry, and a deploy preview legitimately
+ * returns transient 4xx/5xx under the suite's concurrent load — /plans came back
+ * **403** on a run where every other route was fine, and /services/product failed
+ * once then passed on retry. A CDN throttle is not a route defect.
  *
- *  `toHaveCount` auto-retries, so this waits out a cold start or hydration flush
- *  and otherwise fails with "didn't render" rather than a bare status number.
- *  Same guard, and same reasoning, as public-routes.spec.ts (#341). */
-async function renderGuard(page: Page, path: string) {
-  await expect(
-    page.locator('main'),
-    `${path} did not render a <main> within timeout — transient infra state (cold start, CDN throttle), not a tint failure. See #341.`,
-  ).toHaveCount(1);
-}
+ * `gotoRendered` retries the status before asserting on it, so that objection is
+ * answered rather than overruled: a throttle clears within the attempts, a
+ * genuinely broken route fails all of them. It keeps the auto-retrying `<main>`
+ * guard the local helper used to be, which is what waits out a cold start or a
+ * hydration flush. */
 
 /** The line the nav claims, from its modifier class. `null` when untinted. */
 async function navLine(page: Page): Promise<string | null> {
@@ -76,8 +73,7 @@ test.describe('nav service tint', () => {
 
   for (const line of SERVICE_LINE_SEGMENTS) {
     test(`/services/${line} tints the nav`, async ({ page }) => {
-      await page.goto(`/services/${line}`);
-      await renderGuard(page, `/services/${line}`);
+      await gotoRendered(page, `/services/${line}`);
 
       expect(await navLine(page), `nav tint on /services/${line}`).toBe(line);
 
@@ -99,20 +95,19 @@ test.describe('nav service tint', () => {
   test('a service detail page keeps its parent line tint', async ({ page }) => {
     // Sub-routes match the parent segment, so the tint must persist one level
     // down. Discovered from the line page rather than hardcoded.
-    await page.goto('/services/brand');
+    await gotoRendered(page, '/services/brand');
     const detail = await page
       .locator('a[href^="/services/brand/"]')
       .first()
       .getAttribute('href');
     expect(detail, 'a brand service detail link must exist to test against').toBeTruthy();
 
-    await page.goto(detail!);
+    await gotoRendered(page, detail!);
     expect(await navLine(page), `nav tint on ${detail}`).toBe('brand');
   });
 
   test('every public plan page tints from its own marketing line', async ({ page }) => {
-    await page.goto('/plans');
-    await renderGuard(page, '/plans');
+    await gotoRendered(page, '/plans');
 
     // `evaluateAll` resolves against whatever is in the DOM at that instant and
     // returns [] rather than retrying, so it has to be preceded by a locator
@@ -133,7 +128,7 @@ test.describe('nav service tint', () => {
 
     let tinted = 0;
     for (const href of hrefs) {
-      await page.goto(href);
+      await gotoRendered(page, href);
       const nav = await navLine(page);
       if (nav === null) continue; // no marketing_line on the CMS row — see below
       tinted += 1;
@@ -151,7 +146,7 @@ test.describe('nav service tint', () => {
 
   test('a route with no service line is not tinted', async ({ page }) => {
     // The negative case. Without it, a rule that tinted everything would pass.
-    await page.goto('/');
+    await gotoRendered(page, '/');
     expect(await navLine(page), 'home must not be tinted').toBeNull();
   });
 });

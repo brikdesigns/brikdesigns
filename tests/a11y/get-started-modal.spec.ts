@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { gotoRendered } from './lib/goto-rendered';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
@@ -47,7 +48,7 @@ const isModalBaselined = (theme: 'light' | 'dark', ruleId: string, selector: str
   (CONTRAST_DEBT[theme][ruleId] ?? []).map(normalizeSelector).includes(normalizeSelector(selector));
 
 async function openModal(page: Page) {
-  await page.goto(PLAN_PATH, { waitUntil: 'load' });
+  await gotoRendered(page, PLAN_PATH, { waitUntil: 'load' });
   // The cta-panel trigger is a <button> ("Get Started"); the hero CTA is an
   // <a> (url-only, brik-bds#843), so role=button matches only the trigger.
   const trigger = page.getByRole('button', { name: 'Get Started' });
