@@ -45,10 +45,12 @@ import { test, expect } from '@playwright/test';
  * Luminance, not `data-theme`, is the discriminator because the two are not the
  * same question. Some bands are PALE in dark mode — the service `-on-dark`
  * steps measure rgb(196,176,235) and rgb(255,173,146) — and a dark shadow reads
- * fine on those. A first cut of this gate asserted "border everywhere in dark"
- * and correctly failed on exactly those two cards; the rule is about whether a
- * dark shadow has a light enough surface to read against, which is a property
- * of the band, in either theme.
+ * fine on those (those two figures are two such bands, not the whole set). A
+ * first cut of this gate asserted "border everywhere in dark" and correctly
+ * failed on five routes, across five distinct pale band values — the
+ * information, product, marketing, back-office and brand `-on-dark` steps. The
+ * rule is about whether a dark shadow has a light enough surface to read
+ * against, which is a property of the band, in either theme.
  */
 
 // Mirror of src/app/sitemap.ts statics + one instance per dynamic [slug]

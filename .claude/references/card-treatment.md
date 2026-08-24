@@ -26,8 +26,11 @@ across the audited routes rendered with no boundary at all in dark mode.
 The theme is the wrong question because some bands stay **pale in dark mode**:
 the service tints are fixed-light in both themes (`.service-surface` measures
 rgb(178,227,245) … rgb(255,236,172) in the dark root), and a dark shadow reads
-fine on those. A rule written as "border everywhere in dark" puts a border on
-five pale-tint cards; the gate catches it.
+fine on those. A rule written as "border everywhere in dark" borders 25 cards on
+pale bands — five distinct band values across `/services`, `/services/brand`,
+`/services/brand/logo-design`,
+`/services/back-office/crm-setup-and-data-cleanup` and `/customers/dental`; the
+gate catches it.
 
 ## How it's implemented
 
