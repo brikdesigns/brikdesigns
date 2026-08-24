@@ -20,17 +20,18 @@ surface underneath is light enough for a dark shadow to read against:
 --border-secondary: rgb(176, 176, 176);   /* dark root */
 ```
 
-An 8%-black shadow over black is **invisible** — before #980 roughly 50 cards
-across the audited routes rendered with no boundary at all in dark mode.
+An 8%-black shadow over black is **invisible**. Roughly 50 cards across the
+audited routes rendered no-border/shadow in dark mode before #980; the ones on a
+band that goes dark had no visible boundary at all.
 
 The theme is the wrong question because some bands stay **pale in dark mode**:
 the service tints are fixed-light in both themes (`.service-surface` measures
 rgb(178,227,245) … rgb(255,236,172) in the dark root), and a dark shadow reads
-fine on those. A rule written as "border everywhere in dark" borders 25 cards on
-pale bands — five distinct band values across `/services`, `/services/brand`,
-`/services/brand/logo-design`,
-`/services/back-office/crm-setup-and-data-cleanup` and `/customers/dental`; the
-gate catches it.
+fine on those. A rule written as "border everywhere in dark" borders those
+pale-band cards and fails the dark project on five routes — `/services`,
+`/services/brand`, `/services/brand/logo-design`,
+`/services/back-office/crm-setup-and-data-cleanup`, `/customers/dental` — over
+five distinct pale band values. The gate catches it.
 
 ## How it's implemented
 
