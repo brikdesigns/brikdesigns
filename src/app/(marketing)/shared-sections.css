@@ -522,9 +522,9 @@
    DARK mode is band-derived too, on the band's measured LUMINANCE rather than
    on the theme: a dark band gets the border back, a band that stays pale in
    dark mode keeps its shadow. "Border everywhere in dark" is the wrong rule —
-   it bordered 25 cards on pale bands and failed the dark project on five
-   routes. See the `[data-theme]` rule below the pricing-card block for the
-   measurement (#980).
+   it borders the pale-band cards and failed the dark project on five routes.
+   See the `[data-theme]` rule below the pricing-card block for the measurement
+   (#980).
 
    Chrome is band-derived, NOT a per-card `variant` prop. This is the fix for
    the recurring #360→#558→#799→#970 regression: a card can no longer ship the
