@@ -41,6 +41,9 @@ export default async function CustomerStoriesPage() {
         price: plan.monthly_price_display || 'Contact',
         description: plan.home_description || plan.description || '',
         image_url: line?.card_image_url ?? plan.image_url ?? null,
+        // Same display-line join drives the CTA tint — the card links to
+        // /plans/{slug}, whose own CTAs are tinted from this line (#1001).
+        service_line_slug: line?.slug ?? null,
       };
     });
 
@@ -109,6 +112,7 @@ export default async function CustomerStoriesPage() {
                   price={plan.price}
                   description={plan.description}
                   imageUrl={plan.image_url}
+                  serviceLineSlug={plan.service_line_slug}
                 />
               ))}
             </Grid>
