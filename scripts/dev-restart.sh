@@ -146,6 +146,37 @@ if [[ "$FRESH" == true ]]; then
   rm -rf .next
 fi
 
+# 4b. Fail loudly when the installed BDS does not satisfy package.json (#1021).
+#     A stale node_modules 500s EVERY route on `Export <Name> doesn't exist in
+#     target module` — which reads as a broken component or a bad import, not as
+#     a missing `npm ci`. Seen 2026-08-23: staging had moved to ^0.167.0 while
+#     the primary worktree still had 0.155.1 installed, so `SectionHeader` was
+#     absent and the whole marketing surface 500'd. Same class as the missing-
+#     secrets stall in #857 above: a setup fault wearing a code fault's error.
+#
+#     Deliberately advisory-free — this exits non-zero rather than warning,
+#     because a dev server that cannot render any route is not worth starting.
+BDS_WANT=$(node -p "require('./package.json').dependencies['@brikdesigns/bds']" 2>/dev/null || echo "")
+if [[ -n "$BDS_WANT" ]]; then
+  # Path form, not the bare specifier: the package's `exports` map blocks
+  # `require('@brikdesigns/bds/package.json')` outright.
+  BDS_HAVE=$(node -p "require('./node_modules/@brikdesigns/bds/package.json').version" 2>/dev/null || echo "")
+  if [[ -z "$BDS_HAVE" ]]; then
+    printf '%b\n' "${RED}✗ @brikdesigns/bds is not installed (package.json wants ${BDS_WANT}).${NC}" >&2
+    printf '%b\n' "  Fix: op run --env-file=.env.op -- npm ci" >&2
+    exit 1
+  fi
+  # semver check via npm's own matcher — no hand-rolled range parsing.
+  if ! node -e "process.exit(require('semver').satisfies('$BDS_HAVE','$BDS_WANT')?0:1)" 2>/dev/null; then
+    printf '%b\n' "${RED}✗ Installed @brikdesigns/bds ${BDS_HAVE} does not satisfy ${BDS_WANT}.${NC}" >&2
+    printf '%b\n' "  Every CMS route will 500 on \`Export <Name> doesn't exist in target module\`," >&2
+    printf '%b\n' "  which reads like a broken import rather than a stale install." >&2
+    printf '%b\n' "  Fix: op run --env-file=.env.op -- npm ci" >&2
+    exit 1
+  fi
+  printf '%b\n' "${GREEN}✓ @brikdesigns/bds ${BDS_HAVE} satisfies ${BDS_WANT}${NC}"
+fi
+
 # 5. Start under op run. --no-masking keeps op from redacting substrings of the
 #    injected values where they collide with ordinary dev-server output.
 LOG="/tmp/brikdesigns-dev-${PORT}.log"
