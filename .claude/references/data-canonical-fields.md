@@ -1,5 +1,7 @@
 # Data canonical-fields policy
 
+**last-verified:** 2026-08-25
+
 `audit:cms-drift` compares Supabase rows against Webflow CSV exports. The comparison itself is neutral — this doc encodes the **policy** for which side is canonical for each kind of field, so future contributors don't reflexively "fix" a divergence in the wrong direction.
 
 ## The framing

@@ -1,6 +1,8 @@
 # Service-token decision tree
 
-Read this **before** writing any CSS that tints a section, card, badge, tag, button, border, or text by service-line audience. The canonical names live in `node_modules/@brikdesigns/bds/dist/tokens.css` (search for "Service-line tokens"); this file is the agent-facing decision rule that maps those names to use.
+**last-verified:** 2026-08-25
+
+Read this **before** writing any CSS that tints a section, card, badge, tag, button, border, or text by service-line audience. The canonical names live in `node_modules/@brikdesigns/bds/dist/tokens.css` (grep for `-service-`); this file is the agent-facing decision rule that maps those names to use.
 
 > The recurring confusion isn't "what tokens exist" — it's "the same color ramp maps to two families with different intents." Either compiles. The wrong family is silently wrong until canon shifts.
 
@@ -233,7 +235,7 @@ Always import from `@/lib/tokens`. Hand-rolled hex hardcodes a single mode, can 
 
 ## Source of truth
 
-- **Canon definition** — `node_modules/@brikdesigns/bds/dist/tokens.css` lines 980–1130 (light mode) and 1132+ (dark-mode overrides). Read the comment block at line 980 for the authoritative description.
+- **Canon definition** — `node_modules/@brikdesigns/bds/dist/tokens.css`: the `-service-` tokens live in the light-mode `:root` block (surface at ~492/572, text/border/background at ~505–560) and are overridden in the `:root[data-theme="dark"]` block (opens at ~604, service overrides at ~718). Grep `-service-` for the authoritative list.
 - **Typed wrappers** — [`src/lib/tokens.ts`](../../src/lib/tokens.ts) `color.service.*`
 - **Component map** — [`COMPONENT-MAP.md`](../../COMPONENT-MAP.md)
 - **CSS layer order** — [`src/app/globals.css`](../../src/app/globals.css)

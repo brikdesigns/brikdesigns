@@ -1,5 +1,7 @@
 # Card treatment standard
 
+**last-verified:** 2026-08-25
+
 The border/shadow chrome of a `<Card>` is decided by the **band it sits on**, not
 by a `variant` prop. This is the single source of truth; it is enforced by
 `tests/a11y/card-treatment.spec.ts`.

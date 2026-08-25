@@ -1,5 +1,5 @@
 ---
-last-verified: 2026-06-27
+last-verified: 2026-08-25
 ---
 
 # Image optimization standard
