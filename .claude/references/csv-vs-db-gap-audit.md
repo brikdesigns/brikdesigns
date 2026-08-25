@@ -1,5 +1,7 @@
 # CSV vs DB Gap Audit
 
+**last-verified:** 2026-08-25
+
 Generated: 2026-05-24. Source of truth: Webflow CSV exports in `content/csv/`; DB schema from `src/types/supabase.ts` (project `lmhzpzobdkstzpvsqest`).
 
 **Legend:** ✓ = column present in DB with matching semantics | ~ = partial match (different shape, single vs many, or split across columns) | ✗ = no DB home
@@ -61,14 +63,14 @@ CSV headers: `Name, Slug, Collection ID, Locale ID, Item ID, Archived, Draft, Cr
 | Description | ✓ | `service_lines.description` |
 | Hero | ✓ | `service_lines.hero_image_url` |
 | Main Image | ✓ | `service_lines.card_image_url` |
-| Primary Badge - light | ~ | `service_lines.brand_color_light` / `color_light` store the hex; no badge image URL column named "primary badge" |
+| Primary Badge - light | ✗ | No badge image URL column; the legacy `brand_color_*` hex columns were retired (#934) — service-line colour now derives from `slug` via the BDS ServiceTag |
 | Secondary Badge | ✗ | No secondary badge image URL on `service_lines` |
 | Services | ✓ | Represented by child rows in `services` table via `services.service_line_id` FK |
 | Support Plan | ✓ | `service_lines.support_plan_slug` |
 | Support Plan Img | ✓ | `service_lines.support_plan_image_url` |
-| Light | ✓ | `service_lines.color_light` / `brand_color_light` |
-| Base | ✓ | `service_lines.color_base` / `brand_color_base` |
-| Dark | ✓ | `service_lines.color_dark` / `brand_color_dark` |
+| Light | ✗ | `brand_color_light` retired (#934); colour derives from `slug` via the BDS ServiceTag |
+| Base | ✗ | `brand_color_base` retired (#934); colour derives from `slug` via the BDS ServiceTag |
+| Dark | ✗ | `brand_color_dark` retired (#934); colour derives from `slug` via the BDS ServiceTag |
 | Rank | ✓ | `service_lines.rank` |
 
 ---
@@ -125,9 +127,9 @@ CSV headers: `Name, Slug, Collection ID, Locale ID, Item ID, Archived, Draft, Cr
 | Date Published | ✓ | `blog_posts.published_at` (same as Published On) |
 | Main Image | ✓ | `blog_posts.featured_image_url` |
 | Featured? | ✓ | `blog_posts.featured` (bool) |
-| Service | ✗ | No `service_slug` or service FK on `blog_posts`; relationship not modelled |
+| Service | ✓ | `blog_posts.primary_service_id` (FK to `services`) |
 | Color | ✗ | No color field on `blog_posts` |
-| Category | ✗ | No `category` column; `tags` array is closest but semantically different |
+| Category | ~ | `blog_posts.primary_category_id` (FK to `service_lines`, not a dedicated category table); `tags` array also present |
 | Section 1 | ~ | No separate section columns; all body content flattened into single `blog_posts.content` field |
 | Section 2 | ~ | See Section 1 — collapsed into `content` |
 | Section 3 | ~ | See Section 1 — collapsed into `content` |
@@ -160,11 +162,11 @@ CSV headers: `Name, Slug, Collection ID, Locale ID, Item ID, Archived, Draft, Cr
 | Short Description | ✓ | `customer_stories.short_description` |
 | Hero Image | ✓ | `customer_stories.hero_image_url` |
 | Hero Video | ✓ | `customer_stories.hero_video_url` |
-| Industry Badge | ✓ | `customer_stories.industry_badge_url` |
+| Industry Badge | ✗ | No `industry_badge_url` column on `customer_stories` |
 | Industry | ✓ | `customer_stories.industry` (text) + `industry_slug` |
 | Thumbnail | ✓ | `customer_stories.thumbnail_url` |
 | Client Logo | ✓ | `customer_stories.client_logo_url` |
-| Client Icon | ✓ | `customer_stories.client_icon_url` |
+| Client Icon | ✗ | No `client_icon_url` column on `customer_stories` |
 | Launch Date | ✓ | `customer_stories.launch_date` |
 | Date Icon | ✗ | No date icon URL on `customer_stories` |
 | URL | ✓ | `customer_stories.website_url` |
@@ -180,7 +182,7 @@ CSV headers: `Name, Slug, Collection ID, Locale ID, Item ID, Archived, Draft, Cr
 | Results Photo | ✓ | `customer_stories.results_photo_url` |
 | Service | ~ | `customer_stories.service_slug` (single text); CSV primary service — partial coverage |
 | Service Line | ✓ | `customer_stories.service_line_slug` |
-| Service Line Icon | ✓ | `customer_stories.service_line_icon_url` |
+| Service Line Icon | ✗ | No `service_line_icon_url` column on `customer_stories` |
 | Service Lines | ✗ | No multi-service-line array; only single `service_line_slug` — CSV self-reference for multiple lines not modelled |
 | Services | ~ | `customer_story_services` junction table covers many services; singular `service_slug` column creates duplication risk |
 | Service Icon | ✗ | No service icon URL on `customer_stories` |
@@ -281,9 +283,9 @@ No corresponding table exists in the DB schema. All columns are ✗.
 | Surface | Key gaps |
 |---|---|
 | `services` | `is_featured`, `has_multiple_offerings`, `has_maintenance_add_on` exist on `offerings` not `services`; secondary badge URL; `not_included in support plan`; `published_at` missing |
-| `service_lines` | Secondary badge image URL missing; `published_at` missing |
+| `service_lines` | Secondary badge image URL missing; `Light`/`Base`/`Dark` hex columns retired (#934, colour from `slug`); `published_at` missing |
 | `offerings` | Icon URL dropped from primary table (in `offerings_legacy` only); `price_model`, `is_standalone`, `has_tier_options`, `tier_rank` all legacy-only; `Offering Tab Group` unmapped |
-| `blog_posts` | No service FK; no `color`, `category` (tags array not equivalent); Sections 1–3 collapsed into single `content`; date/duration icons and animation field missing |
-| `customer_stories` | Multi-`service_lines` array not modelled (only single `service_line_slug`); `service_icon`, `date_icon`, `url_icon`, `custom_code` missing; `published_at` missing |
+| `blog_posts` | `Service`→`primary_service_id` FK and `Category`→`primary_category_id` FK (→ `service_lines`) now modelled; no `color`; Sections 1–3 collapsed into single `content`; date/duration icons and animation field missing |
+| `customer_stories` | Multi-`service_lines` array not modelled (only single `service_line_slug`); `industry_badge`, `client_icon`, `service_line_icon`, `service_icon`, `date_icon`, `url_icon`, `custom_code` missing; `published_at` missing |
 | `industry_pages` | `Clients` reference (→ customer stories) not modelled; `Web Templates` reference not modelled |
 | `templates` | Entire collection has no DB table — full schema needed before this surface can be built |
