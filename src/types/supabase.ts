@@ -14,7 +14,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.1"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -258,6 +258,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "agreements_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "v_proposal_activity"
+            referencedColumns: ["proposal_id"]
+          },
+          {
             foreignKeyName: "agreements_template_id_fkey"
             columns: ["template_id"]
             isOneToOne: false
@@ -269,6 +276,8 @@ export type Database = {
       backlog_items: {
         Row: {
           actual: string | null
+          assignee_agent_name: string | null
+          assignee_user_id: string | null
           change_type: string | null
           company_id: string | null
           component: string | null
@@ -287,6 +296,7 @@ export type Database = {
           page: string | null
           page_url: string | null
           product: string | null
+          product_id: string | null
           project_id: string | null
           screenshot_url: string | null
           section: string | null
@@ -297,6 +307,8 @@ export type Database = {
         }
         Insert: {
           actual?: string | null
+          assignee_agent_name?: string | null
+          assignee_user_id?: string | null
           change_type?: string | null
           company_id?: string | null
           component?: string | null
@@ -315,6 +327,7 @@ export type Database = {
           page?: string | null
           page_url?: string | null
           product?: string | null
+          product_id?: string | null
           project_id?: string | null
           screenshot_url?: string | null
           section?: string | null
@@ -325,6 +338,8 @@ export type Database = {
         }
         Update: {
           actual?: string | null
+          assignee_agent_name?: string | null
+          assignee_user_id?: string | null
           change_type?: string | null
           company_id?: string | null
           component?: string | null
@@ -343,6 +358,7 @@ export type Database = {
           page?: string | null
           page_url?: string | null
           product?: string | null
+          product_id?: string | null
           project_id?: string | null
           screenshot_url?: string | null
           section?: string | null
@@ -379,6 +395,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_engagement_activity"
             referencedColumns: ["engagement_id"]
+          },
+          {
+            foreignKeyName: "backlog_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "backlog_items_project_id_fkey"
@@ -1192,6 +1215,13 @@ export type Database = {
             columns: ["collection_id"]
             isOneToOne: false
             referencedRelation: "cms_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cms_entries_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "cms_public_v1_collections"
             referencedColumns: ["id"]
           },
           {
@@ -2197,6 +2227,13 @@ export type Database = {
             foreignKeyName: "content_review_feedback_page_id_fkey"
             columns: ["page_id"]
             isOneToOne: false
+            referencedRelation: "cms_public_v1_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_review_feedback_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
             referencedRelation: "project_pages"
             referencedColumns: ["id"]
           },
@@ -2205,6 +2242,13 @@ export type Database = {
             columns: ["review_id"]
             isOneToOne: false
             referencedRelation: "content_reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_review_feedback_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "cms_public_v1_sections"
             referencedColumns: ["id"]
           },
           {
@@ -2354,6 +2398,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_versions_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "cms_public_v1_sections"
             referencedColumns: ["id"]
           },
           {
@@ -2700,6 +2751,7 @@ export type Database = {
         Row: {
           author_email: string | null
           author_name: string
+          backlog_item_id: string | null
           change_type: string | null
           client_completed_at: string | null
           comment: string
@@ -2721,6 +2773,7 @@ export type Database = {
         Insert: {
           author_email?: string | null
           author_name: string
+          backlog_item_id?: string | null
           change_type?: string | null
           client_completed_at?: string | null
           comment: string
@@ -2742,6 +2795,7 @@ export type Database = {
         Update: {
           author_email?: string | null
           author_name?: string
+          backlog_item_id?: string | null
           change_type?: string | null
           client_completed_at?: string | null
           comment?: string
@@ -2761,6 +2815,13 @@ export type Database = {
           viewport_width?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "design_feedback_backlog_item_id_fkey"
+            columns: ["backlog_item_id"]
+            isOneToOne: false
+            referencedRelation: "backlog_items"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "design_feedback_review_id_fkey"
             columns: ["review_id"]
@@ -3013,61 +3074,6 @@ export type Database = {
         }
         Relationships: []
       }
-      engagement_strategies: {
-        Row: {
-          competitive_positioning: Json
-          created_at: string
-          engagement_id: string
-          id: string
-          notes: string | null
-          problems: Json
-          service_slug: string
-          updated_at: string
-        }
-        Insert: {
-          competitive_positioning?: Json
-          created_at?: string
-          engagement_id: string
-          id?: string
-          notes?: string | null
-          problems?: Json
-          service_slug: string
-          updated_at?: string
-        }
-        Update: {
-          competitive_positioning?: Json
-          created_at?: string
-          engagement_id?: string
-          id?: string
-          notes?: string | null
-          problems?: Json
-          service_slug?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "engagement_strategies_engagement_id_fkey"
-            columns: ["engagement_id"]
-            isOneToOne: false
-            referencedRelation: "company_services"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "engagement_strategies_engagement_id_fkey"
-            columns: ["engagement_id"]
-            isOneToOne: false
-            referencedRelation: "engagements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "engagement_strategies_engagement_id_fkey"
-            columns: ["engagement_id"]
-            isOneToOne: false
-            referencedRelation: "v_engagement_activity"
-            referencedColumns: ["engagement_id"]
-          },
-        ]
-      }
       engagements: {
         Row: {
           cadence: string | null
@@ -3180,6 +3186,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "proposals"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_services_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "v_proposal_activity"
+            referencedColumns: ["proposal_id"]
           },
           {
             foreignKeyName: "engagements_company_service_plan_id_fkey"
@@ -3792,6 +3805,8 @@ export type Database = {
           embedding: string
           field_path: string
           id: string
+          last_validated_at: string | null
+          superseded_by: string | null
           text: string
           text_tsv: unknown
         }
@@ -3802,6 +3817,8 @@ export type Database = {
           embedding: string
           field_path: string
           id: string
+          last_validated_at?: string | null
+          superseded_by?: string | null
           text: string
           text_tsv?: unknown
         }
@@ -3812,6 +3829,8 @@ export type Database = {
           embedding?: string
           field_path?: string
           id?: string
+          last_validated_at?: string | null
+          superseded_by?: string | null
           text?: string
           text_tsv?: unknown
         }
@@ -3821,6 +3840,13 @@ export type Database = {
             columns: ["corpus_id"]
             isOneToOne: false
             referencedRelation: "knowledge_corpora"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_embeddings_superseded_by_fkey"
+            columns: ["superseded_by"]
+            isOneToOne: false
+            referencedRelation: "knowledge_embeddings"
             referencedColumns: ["id"]
           },
         ]
@@ -4211,90 +4237,6 @@ export type Database = {
           },
         ]
       }
-      offerings_legacy: {
-        Row: {
-          category_id: string | null
-          created_at: string
-          description: string | null
-          has_tier_options: boolean | null
-          icon_url: string | null
-          id: string
-          is_public: boolean | null
-          is_standalone: boolean | null
-          is_tier_option: boolean
-          name: string
-          price_cents: number | null
-          price_display: string | null
-          price_model: string | null
-          related_service_slug: string | null
-          service_id: string | null
-          slug: string
-          sort_order: number | null
-          tier_rank: number | null
-          updated_at: string
-          what_you_get: string | null
-        }
-        Insert: {
-          category_id?: string | null
-          created_at?: string
-          description?: string | null
-          has_tier_options?: boolean | null
-          icon_url?: string | null
-          id?: string
-          is_public?: boolean | null
-          is_standalone?: boolean | null
-          is_tier_option?: boolean
-          name: string
-          price_cents?: number | null
-          price_display?: string | null
-          price_model?: string | null
-          related_service_slug?: string | null
-          service_id?: string | null
-          slug: string
-          sort_order?: number | null
-          tier_rank?: number | null
-          updated_at?: string
-          what_you_get?: string | null
-        }
-        Update: {
-          category_id?: string | null
-          created_at?: string
-          description?: string | null
-          has_tier_options?: boolean | null
-          icon_url?: string | null
-          id?: string
-          is_public?: boolean | null
-          is_standalone?: boolean | null
-          is_tier_option?: boolean
-          name?: string
-          price_cents?: number | null
-          price_display?: string | null
-          price_model?: string | null
-          related_service_slug?: string | null
-          service_id?: string | null
-          slug?: string
-          sort_order?: number | null
-          tier_rank?: number | null
-          updated_at?: string
-          what_you_get?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "offerings_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "service_lines"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "offerings_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "offerings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       onboarding_invites: {
         Row: {
           company_id: string
@@ -4410,6 +4352,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "page_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "cms_public_v1_pages"
             referencedColumns: ["id"]
           },
           {
@@ -4580,6 +4529,84 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          company_id: string
+          created_at: string
+          engagement_id: string | null
+          id: string
+          is_active: boolean
+          is_promotable: boolean
+          name: string
+          project_id: string | null
+          repo: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          engagement_id?: string | null
+          id?: string
+          is_active?: boolean
+          is_promotable?: boolean
+          name: string
+          project_id?: string | null
+          repo?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          engagement_id?: string | null
+          id?: string
+          is_active?: boolean
+          is_promotable?: boolean
+          name?: string
+          project_id?: string | null
+          repo?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "company_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "v_engagement_activity"
+            referencedColumns: ["engagement_id"]
+          },
+          {
+            foreignKeyName: "products_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company_id: string | null
@@ -4742,6 +4769,13 @@ export type Database = {
             foreignKeyName: "project_pages_parent_id_fkey"
             columns: ["parent_id"]
             isOneToOne: false
+            referencedRelation: "cms_public_v1_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_pages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
             referencedRelation: "project_pages"
             referencedColumns: ["id"]
           },
@@ -4853,6 +4887,7 @@ export type Database = {
           notion_page_id: string | null
           phase: string | null
           production_url: string | null
+          public_cms_read: boolean
           release_id: string | null
           site_status: string | null
           slug: string
@@ -4879,6 +4914,7 @@ export type Database = {
           notion_page_id?: string | null
           phase?: string | null
           production_url?: string | null
+          public_cms_read?: boolean
           release_id?: string | null
           site_status?: string | null
           slug: string
@@ -4905,6 +4941,7 @@ export type Database = {
           notion_page_id?: string | null
           phase?: string | null
           production_url?: string | null
+          public_cms_read?: boolean
           release_id?: string | null
           site_status?: string | null
           slug?: string
@@ -5016,6 +5053,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "proposals"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proposal_items_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "v_proposal_activity"
+            referencedColumns: ["proposal_id"]
           },
           {
             foreignKeyName: "proposal_items_service_id_fkey"
@@ -5282,45 +5326,6 @@ export type Database = {
             columns: ["report_set_id"]
             isOneToOne: false
             referencedRelation: "report_sets"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      service_bundle_items: {
-        Row: {
-          child_offering_id: string
-          created_at: string | null
-          id: string
-          parent_offering_id: string
-          sort_order: number | null
-        }
-        Insert: {
-          child_offering_id: string
-          created_at?: string | null
-          id?: string
-          parent_offering_id: string
-          sort_order?: number | null
-        }
-        Update: {
-          child_offering_id?: string
-          created_at?: string | null
-          id?: string
-          parent_offering_id?: string
-          sort_order?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "service_bundle_items_child_offering_id_fkey"
-            columns: ["child_offering_id"]
-            isOneToOne: false
-            referencedRelation: "offerings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "service_bundle_items_parent_offering_id_fkey"
-            columns: ["parent_offering_id"]
-            isOneToOne: false
-            referencedRelation: "offerings"
             referencedColumns: ["id"]
           },
         ]
@@ -6299,6 +6304,227 @@ export type Database = {
       }
     }
     Views: {
+      cms_public_v1_collections: {
+        Row: {
+          collection_type: string | null
+          description: string | null
+          field_schema: Json | null
+          has_categories: boolean | null
+          has_tags: boolean | null
+          id: string | null
+          is_orderable: boolean | null
+          name: string | null
+          project_id: string | null
+          singular_name: string | null
+          slug: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          collection_type?: string | null
+          description?: string | null
+          field_schema?: Json | null
+          has_categories?: boolean | null
+          has_tags?: boolean | null
+          id?: string | null
+          is_orderable?: boolean | null
+          name?: string | null
+          project_id?: string | null
+          singular_name?: string | null
+          slug?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          collection_type?: string | null
+          description?: string | null
+          field_schema?: Json | null
+          has_categories?: boolean | null
+          has_tags?: boolean | null
+          id?: string | null
+          is_orderable?: boolean | null
+          name?: string | null
+          project_id?: string | null
+          singular_name?: string | null
+          slug?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cms_collections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cms_public_v1_entries: {
+        Row: {
+          categories: string[] | null
+          collection_id: string | null
+          collection_slug: string | null
+          data: Json | null
+          id: string | null
+          is_featured: boolean | null
+          project_id: string | null
+          published_at: string | null
+          slug: string | null
+          sort_order: number | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cms_entries_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "cms_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cms_entries_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "cms_public_v1_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cms_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cms_public_v1_pages: {
+        Row: {
+          depth: number | null
+          id: string | null
+          in_nav: boolean | null
+          nav_label: string | null
+          nav_order: number | null
+          no_index: boolean | null
+          og_description: string | null
+          og_image_url: string | null
+          og_title: string | null
+          page_type: string | null
+          parent_id: string | null
+          path: string | null
+          project_id: string | null
+          seo_canonical: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string | null
+          sort_order: number | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          depth?: number | null
+          id?: string | null
+          in_nav?: boolean | null
+          nav_label?: string | null
+          nav_order?: number | null
+          no_index?: boolean | null
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
+          page_type?: string | null
+          parent_id?: string | null
+          path?: string | null
+          project_id?: string | null
+          seo_canonical?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          depth?: number | null
+          id?: string | null
+          in_nav?: boolean | null
+          nav_label?: string | null
+          nav_order?: number | null
+          no_index?: boolean | null
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
+          page_type?: string | null
+          parent_id?: string | null
+          path?: string | null
+          project_id?: string | null
+          seo_canonical?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string | null
+          sort_order?: number | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_pages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "cms_public_v1_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_pages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "project_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_pages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cms_public_v1_sections: {
+        Row: {
+          content: Json | null
+          display_name: string | null
+          id: string | null
+          page_id: string | null
+          page_path: string | null
+          project_id: string | null
+          section_key: string | null
+          section_type: string | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "cms_public_v1_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "page_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "project_pages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "page_sections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_services: {
         Row: {
           cadence: string | null
@@ -6384,6 +6610,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "proposals"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_services_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "v_proposal_activity"
+            referencedColumns: ["proposal_id"]
           },
           {
             foreignKeyName: "engagements_company_service_plan_id_fkey"
@@ -6649,11 +6882,40 @@ export type Database = {
         }
         Relationships: []
       }
+      v_proposal_activity: {
+        Row: {
+          company_id: string | null
+          company_name: string | null
+          company_slug: string | null
+          event_kind: string | null
+          occurred_at: string | null
+          proposal_id: string | null
+          proposal_status: string | null
+          proposal_title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "proposals_client_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      apply_company_primary_contact: {
+        Args: { target_company_id: string }
+        Returns: undefined
+      }
       derive_industry_slug: {
         Args: { p_industry: string; p_sub_industry: string }
         Returns: string
+      }
+      finalize_client_assessment: {
+        Args: { p_assessment_id: string }
+        Returns: undefined
       }
       forget_memory_chunk: { Args: { p_chunk_id: string }; Returns: number }
       get_company_role: { Args: { p_company_id: string }; Returns: string }
@@ -6701,6 +6963,10 @@ export type Database = {
       }
       is_brik_admin: { Args: never; Returns: boolean }
       is_company_member: { Args: { p_company_id: string }; Returns: boolean }
+      is_project_publicly_readable: {
+        Args: { p_project_id: string }
+        Returns: boolean
+      }
       log_retrieval_returned: {
         Args: {
           retrieval_id: string
@@ -6784,6 +7050,13 @@ export type Database = {
           text: string
         }[]
       }
+      memory_staleness_flags: {
+        Args: { p_chunk_ids: string[] }
+        Returns: {
+          id: string
+          superseded_by: string
+        }[]
+      }
       merge_vendors: {
         Args: { p_canonical: string; p_loser: string }
         Returns: undefined
@@ -6804,6 +7077,10 @@ export type Database = {
       reorder_industry_page_topics: {
         Args: { p_industry_page_id: string; p_ordered_ids: string[] }
         Returns: number
+      }
+      supersede_memory_chunk: {
+        Args: { p_chunk_id: string; p_superseded_by: string }
+        Returns: Json
       }
       update_page_section_content: {
         Args: {
