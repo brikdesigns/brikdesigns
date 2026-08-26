@@ -69,6 +69,13 @@ next-env.d.ts
 # Git worktrees managed by new-task.sh (tracked as untracked by primary)
 /.claude/worktrees/
 
+# Claude Code writes timestamped backups beside its settings file
+# (settings.local.json.bak.20260823-210025). Untracked, they make new-task.sh
+# refuse the worktree AFTER it has already claimed the ticket against the
+# session budget, so the failed attempt spends budget. Same gap fixed in
+# brikdesigns/brik-bds#2030; brik-llm already carries the narrower form.
+.claude/*.bak.*
+
 # Generated BDS inspector manifest — copied from the installed @brikdesigns/bds
 # by `postinstall`. Ignoring it without a generator is what made
 # /bds-manifest.json 404 in production (brikdesigns/brik-bds#1552); the copy step
