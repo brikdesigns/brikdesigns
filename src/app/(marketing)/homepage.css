@@ -199,8 +199,8 @@
 
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
 /* Webflow: .section_service — secondary bg, full-width, centered.
-   min-height matches the neighboring full-viewport bands (.page-section) —
-   this was the only homepage band without one, which is
+   min-height matches the neighboring full-viewport bands (.section-audit,
+   .page-section) — this was the only homepage band without one, which is
    why it read cramped (BACKLOG-868). Content centers in the taller band. */
 .section-plans {
   padding: var(--padding-huge) 0;
@@ -253,6 +253,268 @@
   width: 100%;
 }
 
+/* ─── Marketing Audit CTA ─────────────────────────────────── */
+/* Webflow: .section_marketing-audit — full-width, centered, 100vh min */
+.section-audit {
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Webflow: .cms-item-audit — row, stretch, surface-primary bg, no gap at base */
+.audit-layout {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  max-width: var(--content-width-xl);
+  margin-inline: auto;
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-sm);
+}
+
+/* Webflow: .inner-wrapper.center.comfortable.stacked — left column, 70% max, vertically centered */
+.audit-content {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 70%;
+  padding: var(--padding-xl);
+  gap: var(--gap-lg);
+}
+
+/* Webflow: .content-wrapper.center — centered text block, gap--md = 12px */
+.audit-text {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--gap-component);
+}
+
+/* Webflow: .text_heading-lg */
+.audit-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-lg);
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Webflow: .text_body-md.center */
+.audit-description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0;
+  line-height: var(--font-line-height-normal);
+}
+
+/* Webflow: .inner-wrapper — right column with image */
+.audit-image {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Webflow: .img-frame-service — square, accent bg, border-radius-md = 8px */
+.audit__media {
+  aspect-ratio: 1;
+  width: 100%;
+  background-color: var(--surface-accent);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 1280px) {
+  .audit-layout {
+    gap: var(--gap-xl);
+    overflow: hidden;
+  }
+}
+
+/* ─── Customer Story ──────────────────────────────────────── */
+/* Webflow: .section_customer-story — accent bg, full-width, 100vh min */
+.section-story {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-accent);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Webflow: .container-lg.comfortable — gap-xl (36px) */
+.story-container {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  gap: var(--gap-comfortable);
+  width: 100%;
+  max-width: var(--content-width-xl);
+  margin-inline: auto;
+  padding-inline: var(--gutter-page);
+}
+
+/* Webflow: .cms-item-story — row, space-between, gap-lg (24px), white bg, sm radius */
+.story-card {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gap-xl);
+  padding: var(--padding-xl);
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-100);
+  box-shadow: var(--box-shadow-md);
+  width: 100%;
+}
+
+/* Webflow: .inner-wrapper — left image column */
+.story-image-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+/* Webflow: .img-frame-landscape — aspect 3/2, md radius (8px) */
+.section-story__media {
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.section-story__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Webflow: .badge-wrapper.floating — absolute, bottom-left */
+.story-badge {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-tiny);
+  background-color: var(--surface-primary);
+  padding-right: var(--padding-sm);
+  border-radius: var(--border-radius-100);
+  z-index: 1;
+}
+
+/* Webflow: .inner-wrapper.v-center.stacked — right text column, gap space-md = 8px */
+.story-content {
+  flex: 1;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  gap: var(--gap-md);
+  height: 100%;
+}
+
+/* Webflow: .text_heading-md */
+.story-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-md);
+  font-weight: 700;
+  line-height: var(--font-line-height-snug);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Webflow: .text_body-md */
+.story-description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-normal);
+  margin: 0;
+}
+
+/* ─── CTA ("Get in Touch") ────────────────────────────────── */
+/* Webflow: .section_cta — white outer, centered, full-width */
+.section-cta {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Webflow: .container-cta — brand bg, lg radius, 1080px max, centered, gap-huge (48px) */
+.cta-card {
+  z-index: 100;
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--gap-md);
+  max-width: 1080px; /* Webflow: .container-cta base */
+  width: 100%;
+  height: 100%;
+  background-color: var(--surface-brand-primary);
+  border-radius: var(--border-radius-md);
+  padding: var(--padding-huge);
+}
+
+/* Webflow: .inner-wrapper._90.center.stacked → .content-wrapper.center */
+.cta-inner {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  gap: var(--gap-component);
+  max-width: var(--content-width-xl);
+  text-align: center;
+}
+
+/* Webflow: .text_heading-lg.center.on-color-dark */
+.cta-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-lg);
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-on-color-dark);
+  margin: 0;
+}
+
+/* Webflow: .text_body-lg.center.on-color-dark */
+.cta-description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  line-height: var(--font-line-height-normal);
+  color: var(--text-on-color-dark);
+  margin: 0;
+}
+
+
 /* ─── Responsive ──────────────────────────────────────────── */
 
 
@@ -265,6 +527,25 @@
 
   /* Tablet hero size is handled by the base clamp() (fluid down to the
      floor); no discrete override here — see the .hero-title base rule. */
+
+  /* Audit — stack vertically */
+  .audit-layout {
+    flex-direction: column;
+    max-width: 704px;
+  }
+
+  .audit-content {
+    max-width: 100%;
+  }
+
+  /* Story — stack vertically */
+  .story-card {
+    flex-direction: column;
+  }
+
+  .story-image-wrapper {
+    width: 100%;
+  }
 }
 
 /* Webflow: mobile landscape — 767px */
@@ -278,8 +559,15 @@
   }
 
   /* Sections — remove min-height */
-  .section-services {
+  .section-services,
+  .section-audit,
+  .section-story {
     min-height: auto;
+  }
+
+  /* Audit */
+  .audit-layout {
+    max-width: 504px;
   }
 }
 
@@ -302,4 +590,13 @@
     align-items: stretch;
   }
 
+  .audit-layout {
+    flex-direction: column;
+    width: 100%;
+    max-width: none;
+  }
+
+  .story-card {
+    padding: var(--padding-md);
+  }
 }
