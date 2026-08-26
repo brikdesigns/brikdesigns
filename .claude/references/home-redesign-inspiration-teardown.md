@@ -29,7 +29,7 @@ All proposed tokens/components below were validated **absent** from `node_module
 | Mockup section | Pattern | Decision |
 |---|---|---|
 | Services (Marketing / Back-Office toggle) | peer switch | **Tabs / SegmentedControl** |
-| Industries (Dental / Real Estate / Small Business) | peers, but Figma drew accordion | **Reconsider Tabs** (peers); accordion OK only if mobile-sequence framing wins |
+| Industries (Dental / Real Estate / Small Business) | peers, but Figma drew accordion | **Tabs** (ratified 2026-08-26 — peers, not a sequence) |
 | Tooling | **LogoTicker** (new) | Lightweight |
 | Workflow (z-index bg) | **Z-Index Media Band** (+ optional **Ambient Field**, Premium — allowed) | GSAP only if pinned/parallax |
 
