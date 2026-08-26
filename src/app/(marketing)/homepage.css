@@ -136,6 +136,67 @@
    component (measure-capped, centered) — the former .section-header /
    .section-title / .section-description trio is retired (ADR-032). */
 
+/* ─── Problem ("Does this sound familiar?") ─────────────────── */
+/* R2 section (Figma node 25768:9531): a single tinted Card on the white page
+   band holding a 3-col grid of 6 pain points. The Card keeps the BDS default
+   border (white band → border, no shadow — card-treatment.md); the
+   surface-secondary fill is the panel treatment, separate from chrome. */
+.section-problem {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100svh;
+}
+
+.problem-card {
+  width: 100%;
+  background-color: var(--surface-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+.problem__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.problem-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Decorative brand rule above each pain point (Figma "Line 13", 24px). */
+.problem-item__rule {
+  width: 24px;
+  height: 3px;
+  background-color: var(--surface-brand-primary);
+}
+
+.problem-item__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.problem-item__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-relaxed);
+  margin: 0;
+}
+
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
 /* Webflow: .section_service — secondary bg, full-width, centered.
    min-height matches the neighboring full-viewport bands (.section-audit,
@@ -151,6 +212,45 @@
   width: 100%;
   min-height: 100vh;
   position: relative;
+}
+
+/* ─── Problem-CTA ("Sound like you?") ───────────────────────── */
+/* R2 brand band (Figma node 25805:3001): centered SectionHeader intro + two
+   CTAs, bridging Problem → Services. Intro rhythm + on-color text are owned by
+   <SectionHeader onColor> (ADR-023/032); this rule only paints the band. */
+.section-problem-cta {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-brand-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* ─── Pricing ("Monthly Subscription") ──────────────────────── */
+/* R2 pricing band (Figma node 25768:7667): header row (SectionHeader intro +
+   CTA) over 3 BDS PricingCards, on the brand band. Card chrome is band-derived
+   in shared-sections.css ("Card chrome by band"). */
+.section-pricing {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-brand-primary);
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Header row: SectionHeader intro left, brand CTA right; wraps on narrow. */
+.pricing-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--gap-lg);
+  width: 100%;
 }
 
 /* ─── Marketing Audit CTA ─────────────────────────────────── */

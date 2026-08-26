@@ -553,7 +553,8 @@
    `.bds-card`), so the band rule above doesn't reach them: the plain tiers get
    the same tint treatment here; the featured tier keeps its brand-colored ring
    as intentional emphasis. */
-.service-surface .bds-pricing-card:not(.bds-pricing-card--highlighted) {
+.service-surface .bds-pricing-card:not(.bds-pricing-card--highlighted),
+.section-pricing .bds-pricing-card:not(.bds-pricing-card--highlighted) {
   border: none;
   box-shadow: var(--box-shadow-md);
 }

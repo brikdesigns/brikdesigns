@@ -1,15 +1,44 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, Card, PricingCard } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
-import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
 import './shared-sections.css';
 
 export const revalidate = 3600;
+
+// R2 "Does this sound familiar?" pain points (Homepage-R2 Notion doc).
+// Row-major order mirrors the Figma layout (node 25768:9531): row 1 across,
+// then row 2. Figma placeholder text is ignored — this is the real copy.
+const PROBLEMS = [
+  {
+    title: 'Leads come in and go quiet',
+    description: 'No system to follow up, so they slip away every time.',
+  },
+  {
+    title: 'Marketing happens when you get to it',
+    description: 'No real plan, just reaction.',
+  },
+  {
+    title: "Your systems work because you're running them",
+    description: 'The moment you step away, things slip.',
+  },
+  {
+    title: 'Nothing is written down',
+    description: "Every process lives in someone's head.",
+  },
+  {
+    title: 'Vendors and tools for everything, but nothing connects',
+    description: "Marketing doesn't talk to ops.",
+  },
+  {
+    title: 'You built this to grow, not to babysit it',
+    description: 'But here you are.',
+  },
+];
 
 export default async function HomePage() {
   const [categories, allServices, plans, stories] = await Promise.all([
@@ -66,25 +95,62 @@ export default async function HomePage() {
           <div className="hero-layout">
             <div className="hero-text">
               <h1 className="hero-title">
-                Marketing That Works.
+                Stop managing the business.
                 <br />
-                Design That Builds.
+                Start growing it.
               </h1>
               <p className="hero-description">
-                We help small businesses show up better, work smarter, and grow faster—brik by brik.
+                Most business owners spend more time running their marketing and managing their operations than actually doing the work. Brik takes both off your plate — so leads get followed up, your team has a process, and you can spend your time on patients and clients, not on the systems holding everything together.
               </p>
             </div>
             <Cluster gap="md" className="hero-button-wrapper">
-              <Button href="/services" variant="on-color" size="lg">
-                Explore Design Services
+              <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+                Start with a Free BrikDown Analysis
               </Button>
-              <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
-                Let&apos;s Talk
+              <Button href="/get-started" variant="outline" size="lg" className="hero-btn-on-dark">
+                See How It Works
               </Button>
             </Cluster>
           </div>
         </div>
         <ScrollDownCta />
+      </section>
+
+      {/* ═══ Problem ("Does this sound familiar?") ═══ */}
+      <section className="section-problem" data-section="problems">
+        <div className="section-container">
+          <Card padding="lg" className="problem-card">
+            <h2 className="problem__title">Does this sound familiar?</h2>
+            <Grid columns={3} gap="lg">
+              {PROBLEMS.map((problem) => (
+                <div key={problem.title} className="problem-item">
+                  <span className="problem-item__rule" aria-hidden="true" />
+                  <h3 className="problem-item__title">{problem.title}</h3>
+                  <p className="problem-item__description">{problem.description}</p>
+                </div>
+              ))}
+            </Grid>
+          </Card>
+        </div>
+      </section>
+
+      {/* ═══ Problem-CTA ("Sound like you?") ═══ */}
+      <section className="section-problem-cta" data-section="problem-cta">
+        <SectionHeader
+          onColor
+          title="Sound like you?"
+          description="That's exactly what we uncover in the BrikDown."
+          actions={
+            <Cluster gap="md" justify="center">
+              <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+                Schedule Your Free BrikDown
+              </Button>
+              <Button href="/get-started" variant="outline" size="lg" className="hero-btn-on-dark">
+                See How It Works
+              </Button>
+            </Cluster>
+          }
+        />
       </section>
 
       {/* ═══ Services ("What We Do") ═══ */}
@@ -110,24 +176,36 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ═══ Support Plans ("Monthly Subscription") ═══ */}
-      {/* Webflow: .section_service */}
-      <section className="section-plans">
+      {/* ═══ Pricing ("Monthly Subscription") ═══ */}
+      {/* R2 pricing band (Figma node 25768:7667): header (title + description +
+          CTA) over 3 BDS PricingCards, on the brand band. Tiers come from
+          getSupportPlans() (DB); the retired HomePlanCard path is gone here. */}
+      <section className="section-pricing" data-section="pricing">
         <div className="section-container">
-          <SectionHeader
-            title="Monthly Subscription"
-            description="We're more than a design studio—we're your strategic marketing partner."
-          />
+          <div className="pricing-header">
+            <SectionHeader
+              onColor
+              align="start"
+              title="Monthly Subscription"
+              description="We're more than a design studio—we're your strategic marketing partner."
+            />
+            <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+              Get Your Free BrikDown
+            </Button>
+          </div>
           <Grid columns={3} gap="lg">
             {supportPlans.map((plan) => (
-              <HomePlanCard
+              <PricingCard
                 key={plan.slug}
-                name={plan.name}
-                slug={plan.slug}
+                title={plan.name}
                 price={plan.price}
+                period="/month"
                 description={plan.description}
-                imageUrl={plan.image_url}
-                serviceLineSlug={plan.service_line_slug}
+                action={
+                  <Button href={`/plans/${plan.slug}`} variant="primary" size="md">
+                    Learn More
+                  </Button>
+                }
               />
             ))}
           </Grid>

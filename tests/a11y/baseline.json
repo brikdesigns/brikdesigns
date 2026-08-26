@@ -41,6 +41,8 @@
       "color-contrast": [
         ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
+        ".bds-section-header--center.bds-section-header.bds-section-header--measure-md > .bds-content-block--on-color.bds-content-block.bds-content-block--lg > .bds-content-block__description",
+        ".bds-section-header--start > .bds-content-block--on-color.bds-content-block.bds-content-block--lg > .bds-content-block__description",
         ".button-wrapper--center.button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
         ".cta-description",
         ".hero-button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
@@ -166,6 +168,8 @@
       "color-contrast": [
         ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
+        ".bds-section-header--center.bds-section-header.bds-section-header--measure-md > .bds-content-block--on-color.bds-content-block.bds-content-block--lg > .bds-content-block__description",
+        ".bds-section-header--start > .bds-content-block--on-color.bds-content-block.bds-content-block--lg > .bds-content-block__description",
         ".button-wrapper--center.button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
         ".cta-description",
         ".hero-button-wrapper > .bds-button--outline.hero-btn-on-dark[href$=\"contact\"] > .bds-button__content",
