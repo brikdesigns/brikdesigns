@@ -66,20 +66,20 @@ export default async function HomePage() {
           <div className="hero-layout">
             <div className="hero-text">
               <h1 className="hero-title">
-                Marketing That Works.
+                Stop managing the business.
                 <br />
-                Design That Builds.
+                Start growing it.
               </h1>
               <p className="hero-description">
-                We help small businesses show up better, work smarter, and grow faster—brik by brik.
+                Most business owners spend more time running their marketing and managing their operations than actually doing the work. Brik takes both off your plate — so leads get followed up, your team has a process, and you can spend your time on patients and clients, not on the systems holding everything together.
               </p>
             </div>
             <Cluster gap="md" className="hero-button-wrapper">
-              <Button href="/services" variant="on-color" size="lg">
-                Explore Design Services
+              <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+                Start with a Free BrikDown Analysis
               </Button>
-              <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
-                Let&apos;s Talk
+              <Button href="/get-started" variant="outline" size="lg" className="hero-btn-on-dark">
+                See How It Works
               </Button>
             </Cluster>
           </div>
