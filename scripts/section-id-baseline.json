@@ -23,7 +23,7 @@
     "src/app/(marketing)/events/[slug]/page.tsx": 1,
     "src/app/(marketing)/get-started/page.tsx": 2,
     "src/app/(marketing)/marketing/[slug]/page.tsx": 1,
-    "src/app/(marketing)/page.tsx": 5,
+    "src/app/(marketing)/page.tsx": 2,
     "src/app/(marketing)/plans/[slug]/loading.tsx": 1,
     "src/app/(marketing)/plans/[slug]/page.tsx": 1,
     "src/app/(marketing)/plans/page.tsx": 2,

@@ -1,8 +1,6 @@
-import Image from 'next/image';
 import Link from 'next/link';
-import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader, Card, PricingCard } from '@brikdesigns/bds';
-import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
@@ -41,11 +39,10 @@ const PROBLEMS = [
 ];
 
 export default async function HomePage() {
-  const [categories, allServices, plans, stories] = await Promise.all([
+  const [categories, allServices, plans] = await Promise.all([
     getServiceCategories(),
     getServices(),
     getSupportPlans(),
-    getCustomerStories(),
   ]);
 
   const serviceLines = categories.map((cat) => ({
@@ -83,8 +80,6 @@ export default async function HomePage() {
       service_line_slug: line?.slug ?? null,
     };
   });
-
-  const featuredStory = stories[0];
 
   return (
     <>
@@ -212,106 +207,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ═══ Free Marketing Analysis CTA ═══ */}
-      {/* Webflow: .section_marketing-audit → .cms-item-audit (row: text left + image right) */}
-      <section className="section-audit">
-        <div className="audit-layout">
-          <div className="audit-content">
-            <div className="audit-text">
-              <h3 className="audit-title">Not sure what you need yet?</h3>
-              <h3 className="audit-title">Start with a <strong><em>free</em></strong> marketing assessment.</h3>
-              <p className="audit-description">
-                We&apos;ll review your current marketing, systems, and tools — and send you a 3-part plan to fix what&apos;s holding you back.
-              </p>
-            </div>
-            <Cluster gap="md" justify="center">
-              <Button href="/offers/free-marketing-analysis" variant="primary" size="lg" target="_blank">
-                Get Started
-              </Button>
-            </Cluster>
-          </div>
-          <div className="audit-image">
-            <div className="audit__media">
-              <Image
-                src="/images/3d-form-robot.png"
-                alt="3D clay form illustration"
-                width={1008}
-                height={1008}
-                quality={90}
-                sizes="(max-width: 991px) 100vw, 50vw"
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ Customer Story ═══ */}
-      {/* Webflow: .section_customer-story → .container-lg.comfortable → .cms-item-story (row card) */}
-      {featuredStory && (
-        <section className="section-story">
-          <div className="story-container">
-            <SectionHeader title="Latest Customer Story" />
-            <div className="story-card">
-              <div className="story-image-wrapper">
-                <div className="section-story__media">
-                  {featuredStory.hero_image_url ? (
-                    <Image
-                      src={featuredStory.hero_image_url}
-                      alt={featuredStory.client_name || 'Customer story'}
-                      width={600}
-                      height={400}
-                      priority
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
-                    />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-secondary)', position: 'absolute', top: 0, left: 0 }} />
-                  )}
-                  {featuredStory.award_label && (
-                    <div className="story-badge">
-                      <Image src="/images/choice.svg" alt="" width={16} height={16} className="icon-md" />
-                      <span style={label.tiny}>{featuredStory.award_label}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="story-content">
-                <div>
-                  <h3 className="story-title">
-                    {featuredStory.name || featuredStory.client_name}
-                  </h3>
-                  <p className="story-description">
-                    {featuredStory.short_description || featuredStory.quote || ''}
-                  </p>
-                </div>
-                <div>
-                  <Button href={`/customer-stories/${featuredStory.slug}`} variant="primary" size="md">
-                    Read Story
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ═══ CTA ("Get in Touch") ═══ */}
-      {/* Webflow: .section_cta → .container-cta → .inner-wrapper._90.center.stacked */}
-      <section className="section-cta">
-        <div className="cta-card">
-          <div className="cta-inner">
-            <h2 className="cta-title">Get in Touch</h2>
-            <p className="cta-description">
-              Starting a new project or want to collaborate with us?
-            </p>
-          </div>
-          <Cluster gap="md" justify="center">
-            <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
-              Let&apos;s Talk
-            </Button>
-          </Cluster>
-        </div>
-      </section>
     </>
   );
 }
