@@ -141,31 +141,29 @@ export interface AlertBannerData {
 }
 
 /** BDS Banner tone vocabulary (mirrors @brikdesigns/bds BannerProps['tone']). */
-export type BannerToneName = 'announcement' | 'warning' | 'error' | 'information';
+export type BannerToneName = 'announcement' | 'warning' | 'negative' | 'info' | 'positive';
 
 /**
  * Map the data-model tone to a BDS Banner tone.
  *
- * `info` → `information` and `warning` → `warning` are exact. BDS Banner has
- * **no `success` or `neutral` tone** (its vocabulary is announcement / warning
- * / error / information), so both fall back to `information`. We deliberately
- * do NOT map `success` → `announcement`: BDS gives `announcement` the
- * `role="banner"` landmark (for persistent marketing notices), whereas the
- * status tones get `role="alert"` — the correct semantics for a transient
- * contextual notice. `information` keeps the alert role and the quieter
- * secondary surface. A dedicated Banner `success`/`neutral` tone is the proper
- * fix — a flagged BDS gap, never a per-block color override (catalogue
- * Foundation Gate; #429). Revisit when that BDS addition lands.
+ * `info` → `info` and `warning` → `warning` are exact. `success` and `neutral`
+ * both fall back to `info`. We deliberately do NOT map `success` → `announcement`:
+ * BDS gives `announcement` the `role="banner"` landmark (for persistent marketing
+ * notices), whereas the status tones get `role="alert"` — the correct semantics
+ * for a transient contextual notice. `info` keeps the alert role and the quieter
+ * secondary surface. BDS 0.171.0 added a `positive` tone (role="status"); adopting
+ * it for `success` changes the rendered banner and stays a deliberate design
+ * decision, tracked separately (#429), not a side effect of a dependency bump.
  */
 const TONE_TO_BANNER: Record<AlertTone, BannerToneName> = {
-  info: 'information',
+  info: 'info',
   warning: 'warning',
-  success: 'information',
-  neutral: 'information',
+  success: 'info',
+  neutral: 'info',
 };
 
 export function toBannerTone(tone: AlertTone): BannerToneName {
-  return TONE_TO_BANNER[tone] ?? 'information';
+  return TONE_TO_BANNER[tone] ?? 'info';
 }
 
 // ─── Parsing (untyped jsonb → typed surface) ─────────────────────────
