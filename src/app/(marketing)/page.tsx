@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, Card } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
@@ -10,6 +10,36 @@ import './homepage.css';
 import './shared-sections.css';
 
 export const revalidate = 3600;
+
+// R2 "Does this sound familiar?" pain points (Homepage-R2 Notion doc).
+// Row-major order mirrors the Figma layout (node 25768:9531): row 1 across,
+// then row 2. Figma placeholder text is ignored — this is the real copy.
+const PROBLEMS = [
+  {
+    title: 'Leads come in and go quiet',
+    description: 'No system to follow up, so they slip away every time.',
+  },
+  {
+    title: 'Marketing happens when you get to it',
+    description: 'No real plan, just reaction.',
+  },
+  {
+    title: "Your systems work because you're running them",
+    description: 'The moment you step away, things slip.',
+  },
+  {
+    title: 'Nothing is written down',
+    description: "Every process lives in someone's head.",
+  },
+  {
+    title: 'Vendors and tools for everything, but nothing connects',
+    description: "Marketing doesn't talk to ops.",
+  },
+  {
+    title: 'You built this to grow, not to babysit it',
+    description: 'But here you are.',
+  },
+];
 
 export default async function HomePage() {
   const [categories, allServices, plans, stories] = await Promise.all([
@@ -85,6 +115,24 @@ export default async function HomePage() {
           </div>
         </div>
         <ScrollDownCta />
+      </section>
+
+      {/* ═══ Problem ("Does this sound familiar?") ═══ */}
+      <section className="section-problem" data-section="problems">
+        <div className="section-container">
+          <Card padding="lg" className="problem-card">
+            <h2 className="problem__title">Does this sound familiar?</h2>
+            <Grid columns={3} gap="lg">
+              {PROBLEMS.map((problem) => (
+                <div key={problem.title} className="problem-item">
+                  <span className="problem-item__rule" aria-hidden="true" />
+                  <h3 className="problem-item__title">{problem.title}</h3>
+                  <p className="problem-item__description">{problem.description}</p>
+                </div>
+              ))}
+            </Grid>
+          </Card>
+        </div>
       </section>
 
       {/* ═══ Services ("What We Do") ═══ */}
