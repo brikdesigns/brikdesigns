@@ -97,6 +97,14 @@ const AUDIT = (lines: readonly string[]): CtaFinding[] => {
   ) as HTMLElement[];
 
   for (const cta of ctas) {
+    // EXEMPT: the R2 home pricing band (`data-section="pricing"`). Its design
+    // (Figma node 25768:7667, brikdesigns#1060) specifies uniform brand-poppy
+    // primary CTAs across all three cards — a deliberate brand band, NOT the
+    // per-service-line tint this gate enforces on every other /plans/{slug}
+    // primary CTA. Operator-ratified 2026-08-26. Both the `/` route case and
+    // the mega-nav case load `/`, so this one skip covers both. Every OTHER
+    // plan CTA on the page is still audited.
+    if (cta.closest('section[data-section="pricing"]')) continue;
     // Only buttons — plain text/card links carry no fill to assert on.
     if (!cta.classList.contains('bds-button') && !cta.querySelector('.bds-button')) continue;
     const btn = (cta.classList.contains('bds-button')

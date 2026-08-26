@@ -1,10 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader, Card } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, Card, PricingCard } from '@brikdesigns/bds';
 import { label } from '@/lib/styles';
 import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
-import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
 import './shared-sections.css';
@@ -135,6 +134,25 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ═══ Problem-CTA ("Sound like you?") ═══ */}
+      <section className="section-problem-cta" data-section="problem-cta">
+        <SectionHeader
+          onColor
+          title="Sound like you?"
+          description="That's exactly what we uncover in the BrikDown."
+          actions={
+            <Cluster gap="md" justify="center">
+              <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+                Schedule Your Free BrikDown
+              </Button>
+              <Button href="/get-started" variant="outline" size="lg" className="hero-btn-on-dark">
+                See How It Works
+              </Button>
+            </Cluster>
+          }
+        />
+      </section>
+
       {/* ═══ Services ("What We Do") ═══ */}
       {/* Webflow: .section_services */}
       <section className="section-services">
@@ -158,24 +176,36 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ═══ Support Plans ("Monthly Subscription") ═══ */}
-      {/* Webflow: .section_service */}
-      <section className="section-plans">
+      {/* ═══ Pricing ("Monthly Subscription") ═══ */}
+      {/* R2 pricing band (Figma node 25768:7667): header (title + description +
+          CTA) over 3 BDS PricingCards, on the brand band. Tiers come from
+          getSupportPlans() (DB); the retired HomePlanCard path is gone here. */}
+      <section className="section-pricing" data-section="pricing">
         <div className="section-container">
-          <SectionHeader
-            title="Monthly Subscription"
-            description="We're more than a design studio—we're your strategic marketing partner."
-          />
+          <div className="pricing-header">
+            <SectionHeader
+              onColor
+              align="start"
+              title="Monthly Subscription"
+              description="We're more than a design studio—we're your strategic marketing partner."
+            />
+            <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+              Get Your Free BrikDown
+            </Button>
+          </div>
           <Grid columns={3} gap="lg">
             {supportPlans.map((plan) => (
-              <HomePlanCard
+              <PricingCard
                 key={plan.slug}
-                name={plan.name}
-                slug={plan.slug}
+                title={plan.name}
                 price={plan.price}
+                period="/month"
                 description={plan.description}
-                imageUrl={plan.image_url}
-                serviceLineSlug={plan.service_line_slug}
+                action={
+                  <Button href={`/plans/${plan.slug}`} variant="primary" size="md">
+                    Learn More
+                  </Button>
+                }
               />
             ))}
           </Grid>

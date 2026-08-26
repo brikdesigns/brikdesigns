@@ -214,6 +214,45 @@
   position: relative;
 }
 
+/* ─── Problem-CTA ("Sound like you?") ───────────────────────── */
+/* R2 brand band (Figma node 25805:3001): centered SectionHeader intro + two
+   CTAs, bridging Problem → Services. Intro rhythm + on-color text are owned by
+   <SectionHeader onColor> (ADR-023/032); this rule only paints the band. */
+.section-problem-cta {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-brand-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* ─── Pricing ("Monthly Subscription") ──────────────────────── */
+/* R2 pricing band (Figma node 25768:7667): header row (SectionHeader intro +
+   CTA) over 3 BDS PricingCards, on the brand band. Card chrome is band-derived
+   in shared-sections.css ("Card chrome by band"). */
+.section-pricing {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-brand-primary);
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Header row: SectionHeader intro left, brand CTA right; wraps on narrow. */
+.pricing-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
 /* Webflow: .section_marketing-audit — full-width, centered, 100vh min */
 .section-audit {
