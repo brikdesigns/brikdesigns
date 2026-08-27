@@ -119,6 +119,21 @@
   min-height: 100svh;
 }
 
+/* R2 Services — Marketing/Back-Office SegmentedControl over a card grid (#1053).
+   The section stays on the white --surface-primary band, so the cards keep the
+   BDS default bordered chrome (card-treatment.md — no override here). */
+.services-tabs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-component);
+  width: 100%;
+}
+
+.services-tabs__grid {
+  width: 100%;
+}
+
 /* Webflow: .container-lg.center — column flex, centered items */
 .section-container {
   display: flex;
