@@ -152,6 +152,43 @@
   width: 100%;
 }
 
+/* ─── Tooling ("Tools we know") ──────────────────────────────── */
+/* R2 section (Figma 25768:6728 title + 25833:3022 logos): a left-aligned
+   header over a single monochrome logo ticker, on the white --surface-primary
+   band (matches Services/Industries). No min-height — the ticker is a short
+   band, not a full-viewport section (Industries pattern). The Marquee is a
+   sibling of the container, not inside it, so the row bleeds edge-to-edge like
+   the full-width Figma logo frame while the header stays in the page gutter. */
+.section-tooling {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: var(--gap-component);
+}
+
+/* Stretch the header block so align="start" sits it at the page gutter rather
+   than centering the measure-capped block. */
+.section-container--tooling {
+  align-items: stretch;
+}
+
+/* Ticker item: a pre-monochromed (single-color) brand SVG. The source glyphs
+   are black; tint to a muted grey on the light band and invert to a muted
+   light on the dark band so the row reads as one neutral strip in both themes
+   (base.org "trusted by" treatment). Marquee sizes the item height via its
+   own logoHeight prop. */
+.tooling-logo {
+  opacity: 0.55;
+}
+
+[data-theme="dark"] .tooling-logo {
+  filter: invert(1);
+  opacity: 0.7;
+}
+
 /* Webflow: .container-lg.center — column flex, centered items */
 .section-container {
   display: flex;
