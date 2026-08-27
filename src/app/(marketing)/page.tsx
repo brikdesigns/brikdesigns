@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, ZIndexMediaBand } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { TOOLING_LOGOS } from '@/lib/home-tooling';
+import { WORKFLOW_STEPS } from '@/lib/home-workflow';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
@@ -246,6 +247,41 @@ export default async function HomePage() {
           ))}
         </Marquee>
       </section>
+
+      {/* ═══ Workflow ("Simple from day one") ═══ */}
+      {/* R2 section (Figma node 25800:3081): three sequential engagement steps as
+          an alternating timeline (content ⇄ media, row by row) over a BDS
+          ZIndexMediaBand — the primitive owns the stacking recipe so the section
+          need only supply content. Copy from the Homepage-R2 Notion doc
+          ("Simple from day one."). One primary CTA at the section end (Notion is
+          the content SoT — the placeholder Figma per-row buttons are ignored;
+          design-decisions "one primary per surface"). The per-step illustration
+          is deferred: the source graphic is placeholder art, so the media panel
+          renders as a neutral tinted surface until real step art lands (#1073). */}
+      <ZIndexMediaBand as="section" className="section-workflow" data-section="workflow">
+        <div className="section-container">
+          <SectionHeader title="Simple from day one." />
+          <ol className="workflow-timeline">
+            {WORKFLOW_STEPS.map((step, i) => (
+              <li
+                key={step.id}
+                className="workflow-step"
+                data-lead={i % 2 === 0 ? 'content' : 'media'}
+              >
+                <div className="workflow-step__body">
+                  <span className="workflow-step__label">Step {i + 1}</span>
+                  <h3 className="workflow-step__title">{step.title}</h3>
+                  <p className="workflow-step__description">{step.description}</p>
+                </div>
+                <div className="workflow-step__media" aria-hidden="true" />
+              </li>
+            ))}
+          </ol>
+          <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+            Get Your Free BrikDown — Start with Step 1
+          </Button>
+        </div>
+      </ZIndexMediaBand>
 
       {/* ═══ Pricing ("Monthly Subscription") ═══ */}
       {/* R2 pricing band (Figma node 25768:7667): header (title + description +

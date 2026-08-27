@@ -298,6 +298,111 @@
   width: 100%;
 }
 
+/* ─── Workflow ("Simple from day one") ──────────────────────── */
+/* R2 section (Figma node 25800:3081): three sequential engagement steps as an
+   alternating timeline over a BDS ZIndexMediaBand, on the white
+   --surface-primary band (matches Tooling above). The band primitive owns the
+   stacking context; this section paints the surface + provides the timeline. */
+.section-workflow {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* The timeline column. `position: relative` hosts the central connector spine
+   (::before); the opaque step cards cover it, so the spine reads only in the
+   gaps between rows — the mockup's timeline connector. */
+.workflow-timeline {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: var(--content-width-wide);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-huge);
+}
+
+.workflow-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: var(--border-width-md) solid var(--border-primary);
+  z-index: 0;
+}
+
+/* Step card: two equal halves — a text body and a decorative media panel —
+   split at the vertical center (where the spine runs). White band → bordered,
+   no shadow (card-treatment.md). Opaque so it covers the spine except in the
+   gaps. */
+.workflow-step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  border: var(--border-width-sm) solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-primary);
+  overflow: clip;
+}
+
+/* Alternating rhythm: even rows lead with content (media right), odd rows lead
+   with media (content right). DOM order stays body → media (the media is
+   aria-hidden decoration), so only the visual order flips. */
+.workflow-step[data-lead='media'] .workflow-step__body {
+  order: 2;
+}
+
+.workflow-step__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--gap-component);
+  padding: var(--padding-xl);
+}
+
+.workflow-step__label {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  font-weight: 600;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-brand-primary);
+}
+
+.workflow-step__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-md);
+  font-weight: 700;
+  line-height: var(--font-line-height-snug);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.workflow-step__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-relaxed);
+  margin: 0;
+}
+
+/* Media panel — decorative half. Real per-step illustration is deferred
+   (#1073); until it lands the panel is a neutral tinted surface that holds the
+   alternating layout. min-height keeps the empty panel from collapsing shorter
+   than its text half. */
+.workflow-step__media {
+  background-color: var(--surface-secondary);
+  min-height: 260px;
+}
+
 /* ─── Pricing ("Monthly Subscription") ──────────────────────── */
 /* R2 pricing band (Figma node 25768:7667): header row (SectionHeader intro +
    CTA) over 3 BDS PricingCards, on the brand band. Card chrome is band-derived
@@ -615,6 +720,23 @@
 
   .story-image-wrapper {
     width: 100%;
+  }
+
+  /* Workflow — collapse the two-up timeline to a single content column. The
+     central spine and the (currently art-less) media panel are both dropped:
+     a centered spine is meaningless once the cards are full-width, and an empty
+     tinted half-strip reads as unfinished stacked. Both return with the desktop
+     grid; real step art (#1072) can revisit the stacked treatment. */
+  .workflow-timeline::before {
+    display: none;
+  }
+
+  .workflow-step {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-step__media {
+    display: none;
   }
 }
 
