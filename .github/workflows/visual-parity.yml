@@ -97,4 +97,4 @@ jobs:
         with:
           name: visual-parity-report
           path: tests/visual-parity/
-          retention-days: 2
+          retention-days: 1
