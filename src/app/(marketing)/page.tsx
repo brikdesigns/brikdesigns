@@ -177,15 +177,17 @@ export default async function HomePage() {
       {/* ═══ Problem-CTA ("Sound like you?") ═══ */}
       <section className="section-problem-cta" data-section="problem-cta">
         <SectionHeader
-          onColor
           title="Sound like you?"
           description="That's exactly what we uncover in the BrikDown."
           actions={
             <Cluster gap="md" justify="center">
-              <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+              <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
                 Schedule Your Free BrikDown
               </Button>
-              <Button href="/get-started" variant="outline" size="lg" className="hero-btn-on-dark">
+              {/* on-color (white fill, dark ink, theme-stable) — the accent band
+                  is fixed-light in both themes, and a brand `outline` would put
+                  orange-on-purple at ~1:1. Matches the Figma white secondary. */}
+              <Button href="/get-started" variant="on-color" size="lg">
                 See How It Works
               </Button>
             </Cluster>
@@ -292,12 +294,11 @@ export default async function HomePage() {
         <div className="section-container">
           <div className="pricing-header">
             <SectionHeader
-              onColor
               align="start"
               title="Monthly Subscription"
               description="We're more than a design studio—we're your strategic marketing partner."
             />
-            <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+            <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
               Get Your Free BrikDown
             </Button>
           </div>
