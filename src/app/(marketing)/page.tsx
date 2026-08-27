@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader, Card, PricingCard } from '@brikdesigns/bds';
-import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
+import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
+import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
 import './shared-sections.css';
@@ -45,15 +47,31 @@ export default async function HomePage() {
     getSupportPlans(),
   ]);
 
-  const serviceLines = categories.map((cat) => ({
-    id: cat.id,
-    name: cat.name,
-    slug: cat.slug,
-    category: mapServiceLineSlug(cat.slug),
-    tagline: cat.tagline || '',
-    description: cat.description || '',
-    hero_image_url: cat.hero_image_url || null,
-    card_image_url: cat.card_image_url || null,
+  // R2 Services section: two peer card grids (Marketing / Back-Office) toggled
+  // by a SegmentedControl. Each tab's card content is sourced from existing
+  // `services` rows via the curated slug map in `home-services-tabs.ts`; the
+  // line slug (from the row's own `service_lines` join, not hard-coded) drives
+  // both the ServiceTag category and the `/services/{line}/{slug}` route, so the
+  // back-office slug quirk (`service` → `/services/back-office`) resolves itself.
+  const serviceBySlug = new Map(allServices.map((svc) => [svc.slug, svc]));
+  const servicesTabs = HOME_SERVICES_TABS.map((tab) => ({
+    id: tab.id,
+    label: tab.label,
+    cards: tab.serviceSlugs
+      .map((slug) => serviceBySlug.get(slug))
+      .filter((svc): svc is NonNullable<typeof svc> => Boolean(svc))
+      .map((svc) => {
+        const lineSlug =
+          (svc.service_lines as { slug?: string } | null)?.slug ?? '';
+        return {
+          slug: svc.slug,
+          name: svc.name,
+          serviceLineSlug: routeSlugForServiceLine(lineSlug),
+          category: mapServiceLineSlug(lineSlug),
+          description: svc.description ?? null,
+          imageUrl: svc.image_url ?? null,
+        };
+      }),
   }));
 
   // Plan cards render the marketing-line illustration (e.g. the Marketing
@@ -148,26 +166,17 @@ export default async function HomePage() {
         />
       </section>
 
-      {/* ═══ Services ("What We Do") ═══ */}
-      {/* Webflow: .section_services */}
-      <section className="section-services">
+      {/* ═══ Services ("Marketing AND back office") ═══ */}
+      {/* R2 section (Figma node 25768:6723): a Marketing / Back-Office
+          SegmentedControl toggling two peer card grids. Copy from Homepage-R2
+          Notion ("Marketing AND back office. One team for both."). */}
+      <section className="section-services" data-section="services">
         <div className="section-container">
           <SectionHeader
-            title="What We Do"
-            description="From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better."
+            title="Marketing AND back office. One team for both."
+            description="Most agencies only do marketing. Most operations consultants don't touch marketing. Brik does both — so your marketing and your operations are actually working together."
           />
-          <Grid columns={5} gap="lg">
-            {serviceLines.map((line) => (
-              <HomeServiceCard
-                key={line.slug}
-                name={line.name}
-                slug={line.slug}
-                category={line.category}
-                tagline={line.tagline}
-                imageUrl={line.card_image_url}
-              />
-            ))}
-          </Grid>
+          <HomeServicesTabs tabs={servicesTabs} />
         </div>
       </section>
 
