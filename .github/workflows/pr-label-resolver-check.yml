@@ -1,0 +1,71 @@
+name: PR Label Resolver Check
+
+# Locks the resolver that decides which labels pr-task.sh applies to a PR
+# (scripts/lib/pr-labels.sh, brikdesigns#1012).
+#
+# pr-label-gate.yml enforces the outcome — every PR carries an `area:*`. This is
+# the other half: the script that PRODUCES that label. The two are written in
+# different languages against the same `^area:` prefix, so the only thing
+# keeping them aligned is a test that fails when one drifts. The test asserts
+# the agreement directly, including that the gate's dependabot stamp is a label
+# this repo actually has.
+#
+# The load-bearing assertion is the one that fails SILENTLY and costs more than
+# the label it was about: every name must be existence-checked before it reaches
+# `gh pr edit`, because ONE unknown label aborts the whole call and takes every
+# other label with it. brikdesigns has neither `enhancement` nor `bug`, so an
+# unchecked Type label would also drop the inherited `area:*` the gate requires
+# — turning a cosmetic miss into a red PR.
+#
+# pr-task.sh is in the paths list because it is the resolver's caller — a change
+# that stops sourcing the lib, or moves the area gate back after the push, must
+# re-run this.
+#
+# Cheap and hermetic: bash only, no npm ci, no build, no network. Base branch is
+# staging here (staging-first flow), so the push trigger watches staging.
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/lib/pr-labels.sh'
+      - 'scripts/__tests__/test-pr-labels.sh'
+      - 'scripts/pr-task.sh'
+      - '.github/workflows/pr-label-gate.yml'
+      - '.github/workflows/pr-label-resolver-check.yml'
+  push:
+    branches: [staging, main]
+    paths:
+      - 'scripts/lib/pr-labels.sh'
+      - 'scripts/__tests__/test-pr-labels.sh'
+      - 'scripts/pr-task.sh'
+      - '.github/workflows/pr-label-gate.yml'
+      - '.github/workflows/pr-label-resolver-check.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: pr-label-resolver-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-label-resolver:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Runs on ubuntu here and on darwin locally, which is the point: the lib
+      # uses `grep -qxF` and POSIX bracket classes rather than GNU-only
+      # constructs, because a GNU-only pattern would pass this job while
+      # resolving the wrong labels on the machine that actually opens the PR.
+      - name: Resolver contract holds
+        run: bash scripts/__tests__/test-pr-labels.sh < /dev/null
+
+      # --severity=warning: pr-task.sh predates this gate and carries SC1091
+      # (unfollowed `source`) plus style notes. Warning-and-above keeps real
+      # findings failing without demanding an unrelated cleanup in this PR.
+      - name: shellcheck the resolver + its caller
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck --severity=warning \
+                     scripts/lib/pr-labels.sh \
+                     scripts/__tests__/test-pr-labels.sh \
+                     scripts/pr-task.sh
