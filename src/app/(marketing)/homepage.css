@@ -428,6 +428,102 @@
   width: 100%;
 }
 
+/* ─── Testimonials ("What clients say") ─────────────────────── */
+/* R2 section (Figma node 25157:16902): three alternating rows — a client logo
+   tile beside a quote + attribution — on the white --surface-primary band. */
+.section-testimonials {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.testimonial-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+/* Row card: a tinted panel holding a square media tile + the quote body. Tinted
+   band → containment shadow, no border ring (card-treatment.md). */
+.testimonial-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 327px) 1fr;
+  align-items: center;
+  gap: var(--gap-xl);
+  padding: var(--padding-xl);
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+}
+
+/* Alternating rhythm: even rows lead with the media tile (quote right), odd rows
+   lead with the quote (tile right). DOM order stays media → quote; only the
+   visual order flips. */
+.testimonial-row[data-lead='quote'] .testimonial-row__media {
+  order: 2;
+}
+
+/* Square logo tile — white surface on the tinted card. Placeholder until real
+   client logos land; the label reads as a template, not a brand. */
+.testimonial-row__media {
+  aspect-ratio: 1;
+  width: 100%;
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.testimonial-row__logo-placeholder {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-secondary);
+}
+
+.testimonial-row__body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+.testimonial-row__quote {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  font-style: italic;
+  line-height: var(--font-line-height-relaxed);
+  color: var(--text-primary);
+}
+
+.testimonial-row__attribution {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.testimonial-row__author {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.testimonial-row__business {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+}
+
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
 /* Webflow: .section_marketing-audit — full-width, centered, 100vh min */
 .section-audit {
@@ -737,6 +833,21 @@
 
   .workflow-step__media {
     display: none;
+  }
+
+  /* Testimonials — stack the tile above the quote; cap the (otherwise
+     full-width) media tile so it doesn't become a giant square when it loses
+     its column. */
+  .testimonial-row {
+    grid-template-columns: 1fr;
+  }
+
+  .testimonial-row[data-lead='quote'] .testimonial-row__media {
+    order: 0;
+  }
+
+  .testimonial-row__media {
+    max-width: 240px;
   }
 }
 
