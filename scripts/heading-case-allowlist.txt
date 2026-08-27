@@ -11,3 +11,9 @@
 # comment on the same line works too.
 #
 # (Currently empty — the #490 sweep + #491 cleanup left no standing exceptions.)
+
+# R2 home section headers — deliberate sentence-case brand voice (matches the
+# period-terminated siblings "Simple from day one." / "Tools we know."); this one
+# carries no terminal period in the Figma/Notion source, so it needs an explicit
+# entry rather than the punctuation heuristic. See #1052.
+What clients say

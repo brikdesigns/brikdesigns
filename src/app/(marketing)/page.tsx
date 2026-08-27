@@ -7,6 +7,7 @@ import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { TOOLING_LOGOS } from '@/lib/home-tooling';
 import { WORKFLOW_STEPS } from '@/lib/home-workflow';
+import { TESTIMONIALS } from '@/lib/home-testimonials';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
@@ -316,6 +317,42 @@ export default async function HomePage() {
               />
             ))}
           </Grid>
+        </div>
+      </section>
+
+      {/* ═══ Testimonials ("What clients say") ═══ */}
+      {/* R2 section (Figma node 25157:16902): three alternating rows, each a
+          client logo tile beside a quote + attribution, on the white
+          --surface-primary band. PLACEHOLDER copy (TESTIMONIALS) — the R2 Notion
+          doc reserves real quotes until 2–3 client engagements exist, so the
+          bracketed template ships the structure without fabricating a client
+          fact. Real quotes + client logos replace the placeholders before
+          launch. Figma uses a `CardTestimonial`-shaped quote, but that BDS
+          component is a vertical card with no logo/horizontal slot, so the row
+          is hand-built (matches the Workflow alternating-row pattern above). */}
+      <section className="section-testimonials" data-section="testimonials">
+        <div className="section-container">
+          <SectionHeader title="What clients say" />
+          <ol className="testimonial-rows">
+            {TESTIMONIALS.map((t, i) => (
+              <li
+                key={t.id}
+                className="testimonial-row"
+                data-lead={i % 2 === 0 ? 'media' : 'quote'}
+              >
+                <div className="testimonial-row__media" aria-hidden="true">
+                  <span className="testimonial-row__logo-placeholder">Client logo</span>
+                </div>
+                <figure className="testimonial-row__body">
+                  <blockquote className="testimonial-row__quote">{t.quote}</blockquote>
+                  <figcaption className="testimonial-row__attribution">
+                    <span className="testimonial-row__author">{t.authorName}</span>
+                    <span className="testimonial-row__business">{t.businessType}</span>
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
