@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader, Card, PricingCard } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
+import { TOOLING_LOGOS } from '@/lib/home-tooling';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
@@ -216,6 +217,35 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ═══ Tooling ("Tools we know") ═══ */}
+      {/* R2 section (Figma node 25768:6728 title + 25833:3022 logos): a
+          left-aligned header over a single monochrome logo ticker (BDS
+          Marquee), base.org "trusted by" style. Copy + tool list from the
+          Homepage-R2 Notion doc. Only the 8 tools with a license-clean
+          monochrome SVG render today; the other 13 are deferred (see
+          home-tooling.ts). Marquee handles the seamless loop + the
+          prefers-reduced-motion static-row fallback. */}
+      <section className="section-tooling" data-section="tooling">
+        <div className="section-container section-container--tooling">
+          <SectionHeader
+            align="start"
+            title="Tools we know."
+            description="These are the platforms we work in. We start with what you have — fill what's missing and cut what's not earning its cost."
+          />
+        </div>
+        <Marquee className="tooling-marquee" logoHeight={36} pauseOnHover>
+          {TOOLING_LOGOS.map((logo) => (
+            <img
+              key={logo.src}
+              className="tooling-logo"
+              src={logo.src}
+              alt={logo.name}
+              loading="lazy"
+            />
+          ))}
+        </Marquee>
+      </section>
 
       {/* ═══ Pricing ("Monthly Subscription") ═══ */}
       {/* R2 pricing band (Figma node 25768:7667): header (title + description +
