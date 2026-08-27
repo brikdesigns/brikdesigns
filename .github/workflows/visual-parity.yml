@@ -10,12 +10,15 @@ name: Visual parity (Webflow vs Netlify)
 # we add pixel-diff thresholds + a baseline.
 
 on:
-  pull_request:
+  # Moved off pull_request 2026-08-26 (#1062, brik-llm#2713): this suite is
+  # non-blocking by design, and running it per-PR was a top share of the org's
+  # exhausted Actions minutes. It now tracks on merge + nightly + on demand.
+  push:
     branches:
       - main
       - staging
     # Only run the expensive Playwright screenshot job when something
-    # visually renderable changed. Script / workflow / doc PRs skip it.
+    # visually renderable changed. Script / workflow / doc pushes skip it.
     paths:
       - 'src/**'
       - 'public/**'
@@ -25,6 +28,9 @@ on:
       # Run when the capture logic this workflow drives changes (#830).
       - 'scripts/visual-parity.mjs'
       - '.github/workflows/visual-parity.yml'
+  schedule:
+    - cron: '17 7 * * *'
+  workflow_dispatch:
 
 concurrency:
   group: visual-parity-${{ github.ref }}
@@ -55,10 +61,16 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Wait for Netlify deploy-preview
+      - name: Wait for Netlify deploy
         id: deploy
         run: |
-          DEPLOY_URL="https://deploy-preview-${{ github.event.pull_request.number }}--brikdesigns.netlify.app"
+          # Branch deploy for staging, production site otherwise (schedule /
+          # dispatch / push to main). Both verified serving 2026-08-26.
+          if [ "${{ github.ref_name }}" = "staging" ]; then
+            DEPLOY_URL="https://staging--brikdesigns.netlify.app"
+          else
+            DEPLOY_URL="https://brikdesigns.netlify.app"
+          fi
           echo "Polling $DEPLOY_URL for live deploy …"
           for i in $(seq 1 60); do
             CODE=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$DEPLOY_URL/" || echo "000")
@@ -85,4 +97,4 @@ jobs:
         with:
           name: visual-parity-report
           path: tests/visual-parity/
-          retention-days: 14
+          retention-days: 2
