@@ -136,11 +136,14 @@
 
 /* ─── Industries ("Where we do our best work") ──────────────── */
 /* R2 section (Figma 25768:6527): MediaTabs peer selector + synced illustration,
-   on the white --surface-primary band (matches Services). MediaTabs owns its
-   own internal layout; the section just provides the band + container rhythm. */
+   on the soft-yellow accent band the mockup tints it (fill surface/accent-yellow,
+   #f4d364). MediaTabs owns its own internal layout; the section just provides the
+   band + container rhythm. The accent surface is fixed-light in both themes (like
+   the service tints), so on-band text is pinned dark in the dark root — see
+   shared-sections.css "Accent band on-color text". */
 .section-industries {
   padding: var(--padding-huge) 0;
-  background-color: var(--surface-primary);
+  background-color: var(--surface-accent-yellow);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -285,12 +288,16 @@
 }
 
 /* ─── Problem-CTA ("Sound like you?") ───────────────────────── */
-/* R2 brand band (Figma node 25805:3001): centered SectionHeader intro + two
-   CTAs, bridging Problem → Services. Intro rhythm + on-color text are owned by
-   <SectionHeader onColor> (ADR-023/032); this rule only paints the band. */
+/* R2 accent band (Figma node 25805:3001): centered SectionHeader intro + two
+   CTAs, bridging Problem → Services. The mockup fills this band with the soft
+   accent purple (fill surface/accent-purple, #9e8bc2), not brand orange — a
+   mid-tone light tint, so the intro drops onColor (white, AA-large only on this
+   fill) for the default dark text. Fixed-light in both themes → on-band text is
+   pinned dark in the dark root (shared-sections.css "Accent band on-color text").
+   This rule only paints the band. */
 .section-problem-cta {
   padding: var(--padding-huge) 0;
-  background-color: var(--surface-brand-primary);
+  background-color: var(--surface-accent-purple);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -405,11 +412,15 @@
 
 /* ─── Pricing ("Monthly Subscription") ──────────────────────── */
 /* R2 pricing band (Figma node 25768:7667): header row (SectionHeader intro +
-   CTA) over 3 BDS PricingCards, on the brand band. Card chrome is band-derived
-   in shared-sections.css ("Card chrome by band"). */
+   CTA) over 3 BDS PricingCards, on the soft accent-purple band the mockup tints
+   it (fill surface/accent-purple, #9e8bc2) — not brand orange. A mid-tone light
+   tint, so the intro drops onColor for the default dark text (Figma shows dark
+   header ink here). Card chrome is band-derived in shared-sections.css ("Card
+   chrome by band"); on-band text is pinned dark in the dark root ("Accent band
+   on-color text") since the accent surface is fixed-light in both themes. */
 .section-pricing {
   padding: var(--padding-huge) 0;
-  background-color: var(--surface-brand-primary);
+  background-color: var(--surface-accent-purple);
   display: flex;
   flex-flow: column;
   justify-content: center;
