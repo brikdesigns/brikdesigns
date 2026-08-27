@@ -134,6 +134,24 @@
   width: 100%;
 }
 
+/* ─── Industries ("Where we do our best work") ──────────────── */
+/* R2 section (Figma 25768:6527): MediaTabs peer selector + synced illustration,
+   on the white --surface-primary band (matches Services). MediaTabs owns its
+   own internal layout; the section just provides the band + container rhythm. */
+.section-industries {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.industries-tabs {
+  width: 100%;
+}
+
 /* Webflow: .container-lg.center — column flex, centered items */
 .section-container {
   display: flex;

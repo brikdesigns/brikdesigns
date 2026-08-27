@@ -1,8 +1,10 @@
 import Link from 'next/link';
-import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader, Card, PricingCard } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
+import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
+import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
@@ -41,11 +43,33 @@ const PROBLEMS = [
 ];
 
 export default async function HomePage() {
-  const [categories, allServices, plans] = await Promise.all([
+  const [categories, allServices, plans, industryPages] = await Promise.all([
     getServiceCategories(),
     getServices(),
     getSupportPlans(),
+    getIndustryPages(),
   ]);
+
+  // R2 Industries section: MediaTabs (Dental / Real Estate / Small Business).
+  // Blurb = curated R2 copy (HOME_INDUSTRIES); illustration = industry_pages
+  // row's image_url joined by slug (DB is SoT for imagery). Any industry whose
+  // row is missing or image-less is dropped rather than rendering an empty panel.
+  const industryBySlug = new Map(
+    (industryPages as { slug: string; name: string; image_url: string | null }[]).map(
+      (row) => [row.slug, row],
+    ),
+  );
+  const industriesTabs = HOME_INDUSTRIES.map((industry) => {
+    const row = industryBySlug.get(industry.slug);
+    if (!row?.image_url) return null;
+    return {
+      id: industry.slug,
+      label: industry.label,
+      description: industry.description,
+      imageUrl: row.image_url,
+      alt: `${row.name} illustration`,
+    };
+  }).filter((tab): tab is NonNullable<typeof tab> => tab !== null);
 
   // R2 Services section: two peer card grids (Marketing / Back-Office) toggled
   // by a SegmentedControl. Each tab's card content is sourced from existing
@@ -179,6 +203,19 @@ export default async function HomePage() {
           <HomeServicesTabs tabs={servicesTabs} />
         </div>
       </section>
+
+      {/* ═══ Industries ("Where we do our best work") ═══ */}
+      {/* R2 section (Figma node 25768:6527): MediaTabs peer selector (Dental /
+          Real Estate / Small Business) + synced illustration panel. Blurbs from
+          Homepage-R2 Notion; illustrations from industry_pages.image_url. */}
+      {industriesTabs.length > 0 && (
+        <section className="section-industries" data-section="industries">
+          <div className="section-container">
+            <SectionHeader title="Where we do our best work." />
+            <HomeIndustriesTabs tabs={industriesTabs} />
+          </div>
+        </section>
+      )}
 
       {/* ═══ Pricing ("Monthly Subscription") ═══ */}
       {/* R2 pricing band (Figma node 25768:7667): header (title + description +
