@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, ZIndexMediaBand } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
+import { serviceColor } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
@@ -303,20 +304,31 @@ export default async function HomePage() {
             </Button>
           </div>
           <Grid columns={3} gap="lg">
-            {supportPlans.map((plan) => (
-              <PricingCard
-                key={plan.slug}
-                title={plan.name}
-                price={plan.price}
-                period="/month"
-                description={plan.description}
-                action={
-                  <Button href={`/plans/${plan.slug}`} variant="primary" size="md">
-                    Learn More
-                  </Button>
-                }
-              />
-            ))}
+            {supportPlans.map((plan) => {
+              // R2 tints each card with its plan's pale service-line surface
+              // step (Figma node 25768:7701) — same datum that tints the plan's
+              // detail-page CTA (#1001). `.section-pricing .bds-pricing-card`
+              // in shared-sections.css pins the on-card text dark in both themes
+              // (the tint is fixed-light) and keeps the band-derived chrome.
+              const tint = plan.service_line_slug
+                ? serviceColor(mapServiceLineSlug(plan.service_line_slug)).surfaceLight
+                : undefined;
+              return (
+                <PricingCard
+                  key={plan.slug}
+                  title={plan.name}
+                  price={plan.price}
+                  period="/month"
+                  description={plan.description}
+                  style={tint ? { backgroundColor: tint } : undefined}
+                  action={
+                    <Button href={`/plans/${plan.slug}`} variant="primary" size="md">
+                      Learn More
+                    </Button>
+                  }
+                />
+              );
+            })}
           </Grid>
         </div>
       </section>
