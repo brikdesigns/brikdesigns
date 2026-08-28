@@ -8,7 +8,7 @@ import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { TOOLING_LOGOS } from '@/lib/home-tooling';
-import { WORKFLOW_STEPS } from '@/lib/home-workflow';
+import { WORKFLOW_STEPS, WORKFLOW_IMAGE_WIDTHS } from '@/lib/home-workflow';
 import { TESTIMONIALS } from '@/lib/home-testimonials';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
@@ -271,9 +271,10 @@ export default async function HomePage() {
           need only supply content. Copy from the Homepage-R2 Notion doc
           ("Simple from day one."). One primary CTA at the section end (Notion is
           the content SoT — the placeholder Figma per-row buttons are ignored;
-          design-decisions "one primary per surface"). The per-step illustration
-          is deferred: the source graphic is placeholder art, so the media panel
-          renders as a neutral tinted surface until real step art lands (#1073). */}
+          design-decisions "one primary per surface"). Each step's media panel
+          carries its design-source illustration in a 1:1 slot (#1073). The panel
+          stays aria-hidden decoration — the step title + description carry the
+          meaning — so the <img> is alt="". */}
       <ZIndexMediaBand
         as="section"
         className="section-workflow"
@@ -294,7 +295,23 @@ export default async function HomePage() {
                   <h3 className="workflow-step__title">{step.title}</h3>
                   <p className="workflow-step__description">{step.description}</p>
                 </div>
-                <div className="workflow-step__media" aria-hidden="true" />
+                <div className="workflow-step__media" aria-hidden="true">
+                  <img
+                    className="workflow-step__image"
+                    src={`/images/workflow/${step.imageBase}_2x.webp`}
+                    srcSet={WORKFLOW_IMAGE_WIDTHS.map(
+                      (w, d) => `/images/workflow/${step.imageBase}_${d + 1}x.webp ${w}w`,
+                    ).join(', ')}
+                    /* Desktop: the panel is half of the ~1024px timeline. Below
+                       991px the step stacks and the panel becomes a full-width
+                       320px-tall band (see homepage.css), so the source width
+                       needed still tracks the card width, not the height. */
+                    sizes="(max-width: 991px) 100vw, 512px"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
               </li>
             ))}
           </ol>
@@ -370,9 +387,24 @@ export default async function HomePage() {
                 className="testimonial-row"
                 data-lead={i % 2 === 0 ? 'media' : 'quote'}
               >
-                <div className="testimonial-row__media" aria-hidden="true">
-                  <span className="testimonial-row__logo-placeholder">Client logo</span>
-                </div>
+                {/* Real client logomark when one exists, else the template
+                    tile. The logo IS the client's name, so it takes an alt and
+                    the tile is not aria-hidden in that branch. */}
+                {t.logoSrc ? (
+                  <div className="testimonial-row__media">
+                    <img
+                      className="testimonial-row__logo"
+                      src={t.logoSrc}
+                      alt={t.logoAlt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                ) : (
+                  <div className="testimonial-row__media" aria-hidden="true">
+                    <span className="testimonial-row__logo-placeholder">Client logo</span>
+                  </div>
+                )}
                 <figure className="testimonial-row__body">
                   <blockquote className="testimonial-row__quote">{t.quote}</blockquote>
                   <figcaption className="testimonial-row__attribution">
