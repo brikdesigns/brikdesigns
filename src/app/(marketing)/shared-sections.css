@@ -582,6 +582,26 @@
   --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; the default --text-secondary gray is ~2.4:1 on the mid-tone accent-purple, an AA fail */
 }
 
+/* R2 pricing cards carry a PER-CARD pale service-line tint (page.tsx sets an
+   inline service `surfaceLight` background via serviceColor() — Figma node
+   25768:7701). That tint is fixed-light in BOTH themes, but the card's own text
+   rides --text-primary/-secondary, which flip near-white in the dark root and
+   vanish on the still-light fill. Pin both to the mode-invariant darkest
+   grayscale so the card copy clears AA on the pale tint in both themes — same
+   fixed-on-fixed-light pattern as the `.pricing-header` intro pin above and the
+   `.service-surface` pin (globals.css). Both roles share the 950 stop
+   deliberately: the "5 hours per month" period is BDS secondary gray (~3.5:1 on
+   the cream/mint tint, an AA fail), so it must darken too — carry any hierarchy
+   on weight/size, not color. The card is fixed-light in both themes (no dark
+   nested surface), so this needs NO per-theme branch, unlike the
+   `.service-surface` nested-card carve-out. Chrome stays band-derived (shadow/
+   no-border) via the `.section-pricing .bds-pricing-card` rule above; gated by
+   card-treatment.spec.ts + public-routes.spec.ts (axe), both themes. */
+.section-pricing .bds-pricing-card {
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-card copy on a fixed-light service tint; --text-primary flips near-white in dark, so a mode-invariant dark primitive is the one value clearing AA in both themes (mirrors the .service-surface pin, globals.css) */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; BDS secondary gray is ~3.5:1 on the pale cream/mint tint, an AA fail */
+}
+
 /* MediaTabs colors the active tab label with --text-brand-primary — #b0351b in
    light (4.25:1 on the accent-yellow band, just under AA) and a light poppy in
    dark (1.28:1). The inactive labels already ride the dark --text-primary pin
