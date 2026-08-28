@@ -553,9 +553,64 @@
    `.bds-card`), so the band rule above doesn't reach them: the plain tiers get
    the same tint treatment here; the featured tier keeps its brand-colored ring
    as intentional emphasis. */
-.service-surface .bds-pricing-card:not(.bds-pricing-card--highlighted) {
+.service-surface .bds-pricing-card:not(.bds-pricing-card--highlighted),
+.section-pricing .bds-pricing-card:not(.bds-pricing-card--highlighted) {
   border: none;
   box-shadow: var(--box-shadow-md);
+}
+
+/* ─── Accent band on-color text (R2 home) ────────────────────────────────
+   The R2 home accent bands paint the soft accent purple (#9e8bc2) and yellow
+   (#f4d364) surfaces — Figma nodes 25805:3001, 25768:6527, 25768:7667. These are
+   mid-tone tints and fixed-light in BOTH themes (they alias the light purple /
+   yellow color primitives, the same fixed primitives the service tints ride).
+   That breaks the default intro text two ways: the default secondary text token
+   (mid-gray) is only ~2.4:1 on the mid-tone purple — below AA — and both the
+   primary + secondary text tokens flip near-white in the dark root, unreadable
+   on the still-light fill. Pin both to the mode-invariant grayscale-950
+   primitive so the intro clears AA in both themes; this is the dark-text
+   analogue of the onColor (white) treatment these bands dropped, and mirrors the
+   .service-surface pin in globals.css.
+
+   Scoped to the section intro — and, on Industries, the MediaTabs label/blurb
+   that sit directly on the band — NOT the whole section, so the pin never
+   reaches the PricingCards: those carry their own surface and text. */
+.section-problem-cta,
+.section-pricing .pricing-header,
+.section-industries {
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band intro text on a fixed-light accent tint; every --text-* token flips near-white in the dark root, so only a mode-invariant primitive clears AA in both themes (mirrors the .service-surface pin, globals.css) */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; the default --text-secondary gray is ~2.4:1 on the mid-tone accent-purple, an AA fail */
+}
+
+/* R2 pricing cards carry a PER-CARD pale service-line tint (page.tsx sets an
+   inline service `surfaceLight` background via serviceColor() — Figma node
+   25768:7701). That tint is fixed-light in BOTH themes, but the card's own text
+   rides --text-primary/-secondary, which flip near-white in the dark root and
+   vanish on the still-light fill. Pin both to the mode-invariant darkest
+   grayscale so the card copy clears AA on the pale tint in both themes — same
+   fixed-on-fixed-light pattern as the `.pricing-header` intro pin above and the
+   `.service-surface` pin (globals.css). Both roles share the 950 stop
+   deliberately: the "5 hours per month" period is BDS secondary gray (~3.5:1 on
+   the cream/mint tint, an AA fail), so it must darken too — carry any hierarchy
+   on weight/size, not color. The card is fixed-light in both themes (no dark
+   nested surface), so this needs NO per-theme branch, unlike the
+   `.service-surface` nested-card carve-out. Chrome stays band-derived (shadow/
+   no-border) via the `.section-pricing .bds-pricing-card` rule above; gated by
+   card-treatment.spec.ts + public-routes.spec.ts (axe), both themes. */
+.section-pricing .bds-pricing-card {
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-card copy on a fixed-light service tint; --text-primary flips near-white in dark, so a mode-invariant dark primitive is the one value clearing AA in both themes (mirrors the .service-surface pin, globals.css) */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; BDS secondary gray is ~3.5:1 on the pale cream/mint tint, an AA fail */
+}
+
+/* MediaTabs colors the active tab label with --text-brand-primary — #b0351b in
+   light (4.25:1 on the accent-yellow band, just under AA) and a light poppy in
+   dark (1.28:1). The inactive labels already ride the dark --text-primary pin
+   above, but the active one takes this brand hook instead, so pin it dark too on
+   the yellow band. The "selected" affordance survives via TabBar's brand
+   left-border rule (--border-brand-primary) + the auto-advance progress bar —
+   both unaffected. Gated by public-routes.spec.ts (axe, both themes). */
+.section-industries .bds-tab-bar-item[aria-selected='true'] {
+  color: var(--color-grayscale-950); /* bds-lint-ignore token-family — active MediaTab label on the fixed-light accent-yellow band; --text-brand-primary flips light in dark (1.28:1) and is only 4.25:1 in light, so a mode-invariant dark primitive is the one value that clears AA in both themes */
 }
 
 /* ─── Dark mode: border defines a card on a DARK band (#980) ──────────────

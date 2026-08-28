@@ -1,33 +1,108 @@
-import Image from 'next/image';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getServiceCategories, getServices, getSupportPlans, getCustomerStories, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader } from '@brikdesigns/bds';
-import { label } from '@/lib/styles';
-import { HomeServiceCard } from '@/components/homepage/HomeServiceCard';
-import { HomePlanCard } from '@/components/homepage/HomePlanCard';
+import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, ZIndexMediaBand, BackgroundPattern } from '@brikdesigns/bds';
+import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
+import { serviceColor } from '@/lib/tokens';
+import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
+import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
+import { HOME_INDUSTRIES } from '@/lib/home-industries';
+import { TOOLING_LOGOS } from '@/lib/home-tooling';
+import { WORKFLOW_STEPS } from '@/lib/home-workflow';
+import { TESTIMONIALS } from '@/lib/home-testimonials';
+import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
 import './shared-sections.css';
 
+export const metadata: Metadata = { alternates: { canonical: '/' } };
+
 export const revalidate = 3600;
 
+// R2 "Does this sound familiar?" pain points (Homepage-R2 Notion doc).
+// Row-major order mirrors the Figma layout (node 25768:9531): row 1 across,
+// then row 2. Figma placeholder text is ignored — this is the real copy.
+const PROBLEMS = [
+  {
+    title: 'Leads come in and go quiet',
+    description: 'No system to follow up, so they slip away every time.',
+  },
+  {
+    title: 'Marketing happens when you get to it',
+    description: 'No real plan, just reaction.',
+  },
+  {
+    title: "Your systems work because you're running them",
+    description: 'The moment you step away, things slip.',
+  },
+  {
+    title: 'Nothing is written down',
+    description: "Every process lives in someone's head.",
+  },
+  {
+    title: 'Vendors and tools for everything, but nothing connects',
+    description: "Marketing doesn't talk to ops.",
+  },
+  {
+    title: 'You built this to grow, not to babysit it',
+    description: 'But here you are.',
+  },
+];
+
 export default async function HomePage() {
-  const [categories, allServices, plans, stories] = await Promise.all([
+  const [categories, allServices, plans, industryPages] = await Promise.all([
     getServiceCategories(),
     getServices(),
     getSupportPlans(),
-    getCustomerStories(),
+    getIndustryPages(),
   ]);
 
-  const serviceLines = categories.map((cat) => ({
-    id: cat.id,
-    name: cat.name,
-    slug: cat.slug,
-    category: mapServiceLineSlug(cat.slug),
-    tagline: cat.tagline || '',
-    description: cat.description || '',
-    hero_image_url: cat.hero_image_url || null,
-    card_image_url: cat.card_image_url || null,
+  // R2 Industries section: MediaTabs (Dental / Real Estate / Small Business).
+  // Blurb = curated R2 copy (HOME_INDUSTRIES); illustration = industry_pages
+  // row's image_url joined by slug (DB is SoT for imagery). Any industry whose
+  // row is missing or image-less is dropped rather than rendering an empty panel.
+  const industryBySlug = new Map(
+    (industryPages as { slug: string; name: string; image_url: string | null }[]).map(
+      (row) => [row.slug, row],
+    ),
+  );
+  const industriesTabs = HOME_INDUSTRIES.map((industry) => {
+    const row = industryBySlug.get(industry.slug);
+    if (!row?.image_url) return null;
+    return {
+      id: industry.slug,
+      label: industry.label,
+      description: industry.description,
+      imageUrl: row.image_url,
+      alt: `${row.name} illustration`,
+    };
+  }).filter((tab): tab is NonNullable<typeof tab> => tab !== null);
+
+  // R2 Services section: two peer card grids (Marketing / Back-Office) toggled
+  // by a SegmentedControl. Each tab's card content is sourced from existing
+  // `services` rows via the curated slug map in `home-services-tabs.ts`; the
+  // line slug (from the row's own `service_lines` join, not hard-coded) drives
+  // both the ServiceTag category and the `/services/{line}/{slug}` route, so the
+  // back-office slug quirk (`service` → `/services/back-office`) resolves itself.
+  const serviceBySlug = new Map(allServices.map((svc) => [svc.slug, svc]));
+  const servicesTabs = HOME_SERVICES_TABS.map((tab) => ({
+    id: tab.id,
+    label: tab.label,
+    cards: tab.serviceSlugs
+      .map((slug) => serviceBySlug.get(slug))
+      .filter((svc): svc is NonNullable<typeof svc> => Boolean(svc))
+      .map((svc) => {
+        const lineSlug =
+          (svc.service_lines as { slug?: string } | null)?.slug ?? '';
+        return {
+          slug: svc.slug,
+          name: svc.name,
+          serviceLineSlug: routeSlugForServiceLine(lineSlug),
+          category: mapServiceLineSlug(lineSlug),
+          description: svc.description ?? null,
+          imageUrl: svc.image_url ?? null,
+        };
+      }),
   }));
 
   // Plan cards render the marketing-line illustration (e.g. the Marketing
@@ -55,8 +130,6 @@ export default async function HomePage() {
     };
   });
 
-  const featuredStory = stories[0];
-
   return (
     <>
       {/* ═══ Hero ═══ */}
@@ -66,20 +139,20 @@ export default async function HomePage() {
           <div className="hero-layout">
             <div className="hero-text">
               <h1 className="hero-title">
-                Marketing That Works.
+                Stop managing the business.
                 <br />
-                Design That Builds.
+                Start growing it.
               </h1>
               <p className="hero-description">
-                We help small businesses show up better, work smarter, and grow faster—brik by brik.
+                Most business owners spend more time running their marketing and managing their operations than actually doing the work. Brik takes both off your plate — so leads get followed up, your team has a process, and you can spend your time on patients and clients, not on the systems holding everything together.
               </p>
             </div>
             <Cluster gap="md" className="hero-button-wrapper">
-              <Button href="/services" variant="on-color" size="lg">
-                Explore Design Services
+              <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+                Start with a Free BrikDown Analysis
               </Button>
-              <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
-                Let&apos;s Talk
+              <Button href="/get-started" variant="outline" size="lg" className="hero-btn-on-dark">
+                See How It Works
               </Button>
             </Cluster>
           </div>
@@ -87,153 +160,232 @@ export default async function HomePage() {
         <ScrollDownCta />
       </section>
 
-      {/* ═══ Services ("What We Do") ═══ */}
-      {/* Webflow: .section_services */}
-      <section className="section-services">
+      {/* ═══ Problem ("Does this sound familiar?") ═══ */}
+      <section className="section-problem" data-section="problems">
         <div className="section-container">
-          <SectionHeader
-            title="What We Do"
-            description="From branding to websites to behind-the-scenes systems, we help you build a business that looks good and works better."
-          />
-          <Grid columns={5} gap="lg">
-            {serviceLines.map((line) => (
-              <HomeServiceCard
-                key={line.slug}
-                name={line.name}
-                slug={line.slug}
-                category={line.category}
-                tagline={line.tagline}
-                imageUrl={line.card_image_url}
-              />
-            ))}
-          </Grid>
+          <Card padding="lg" className="problem-card">
+            <h2 className="problem__title">Does this sound familiar?</h2>
+            <Grid columns={3} gap="lg">
+              {PROBLEMS.map((problem) => (
+                <div key={problem.title} className="problem-item">
+                  <span className="problem-item__rule" aria-hidden="true" />
+                  <h3 className="problem-item__title">{problem.title}</h3>
+                  <p className="problem-item__description">{problem.description}</p>
+                </div>
+              ))}
+            </Grid>
+          </Card>
         </div>
       </section>
 
-      {/* ═══ Support Plans ("Monthly Subscription") ═══ */}
-      {/* Webflow: .section_service */}
-      <section className="section-plans">
-        <div className="section-container">
-          <SectionHeader
-            title="Monthly Subscription"
-            description="We're more than a design studio—we're your strategic marketing partner."
-          />
-          <Grid columns={3} gap="lg">
-            {supportPlans.map((plan) => (
-              <HomePlanCard
-                key={plan.slug}
-                name={plan.name}
-                slug={plan.slug}
-                price={plan.price}
-                description={plan.description}
-                imageUrl={plan.image_url}
-                serviceLineSlug={plan.service_line_slug}
-              />
-            ))}
-          </Grid>
-        </div>
-      </section>
-
-      {/* ═══ Free Marketing Analysis CTA ═══ */}
-      {/* Webflow: .section_marketing-audit → .cms-item-audit (row: text left + image right) */}
-      <section className="section-audit">
-        <div className="audit-layout">
-          <div className="audit-content">
-            <div className="audit-text">
-              <h3 className="audit-title">Not sure what you need yet?</h3>
-              <h3 className="audit-title">Start with a <strong><em>free</em></strong> marketing assessment.</h3>
-              <p className="audit-description">
-                We&apos;ll review your current marketing, systems, and tools — and send you a 3-part plan to fix what&apos;s holding you back.
-              </p>
-            </div>
+      {/* ═══ Problem-CTA ("Sound like you?") ═══ */}
+      <section className="section-problem-cta" data-section="problem-cta">
+        <SectionHeader
+          title="Sound like you?"
+          description="That's exactly what we uncover in the BrikDown."
+          actions={
             <Cluster gap="md" justify="center">
-              <Button href="/offers/free-marketing-analysis" variant="primary" size="lg" target="_blank">
-                Get Started
+              <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+                Schedule Your Free BrikDown
+              </Button>
+              {/* on-color (white fill, dark ink, theme-stable) — the accent band
+                  is fixed-light in both themes, and a brand `outline` would put
+                  orange-on-purple at ~1:1. Matches the Figma white secondary. */}
+              <Button href="/get-started" variant="on-color" size="lg">
+                See How It Works
               </Button>
             </Cluster>
-          </div>
-          <div className="audit-image">
-            <div className="audit__media">
-              <Image
-                src="/images/3d-form-robot.png"
-                alt="3D clay form illustration"
-                width={1008}
-                height={1008}
-                quality={90}
-                sizes="(max-width: 991px) 100vw, 50vw"
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-              />
-            </div>
-          </div>
+          }
+        />
+      </section>
+
+      {/* ═══ Services ("Marketing AND back office") ═══ */}
+      {/* R2 section (Figma node 25768:6723): a Marketing / Back-Office
+          SegmentedControl toggling two peer card grids. Copy from Homepage-R2
+          Notion ("Marketing AND back office. One team for both."). */}
+      <section className="section-services" data-section="services">
+        <div className="section-container">
+          <SectionHeader
+            align="start"
+            title="Marketing AND back office. One team for both."
+            description="Most agencies only do marketing. Most operations consultants don't touch marketing. Brik does both — so your marketing and your operations are actually working together."
+          />
+          <HomeServicesTabs tabs={servicesTabs} />
         </div>
       </section>
 
-      {/* ═══ Customer Story ═══ */}
-      {/* Webflow: .section_customer-story → .container-lg.comfortable → .cms-item-story (row card) */}
-      {featuredStory && (
-        <section className="section-story">
-          <div className="story-container">
-            <SectionHeader title="Latest Customer Story" />
-            <div className="story-card">
-              <div className="story-image-wrapper">
-                <div className="section-story__media">
-                  {featuredStory.hero_image_url ? (
-                    <Image
-                      src={featuredStory.hero_image_url}
-                      alt={featuredStory.client_name || 'Customer story'}
-                      width={600}
-                      height={400}
-                      priority
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
-                    />
-                  ) : (
-                    <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--surface-secondary)', position: 'absolute', top: 0, left: 0 }} />
-                  )}
-                  {featuredStory.award_label && (
-                    <div className="story-badge">
-                      <Image src="/images/choice.svg" alt="" width={16} height={16} className="icon-md" />
-                      <span style={label.tiny}>{featuredStory.award_label}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="story-content">
-                <div>
-                  <h3 className="story-title">
-                    {featuredStory.name || featuredStory.client_name}
-                  </h3>
-                  <p className="story-description">
-                    {featuredStory.short_description || featuredStory.quote || ''}
-                  </p>
-                </div>
-                <div>
-                  <Button href={`/customer-stories/${featuredStory.slug}`} variant="primary" size="md">
-                    Read Story
-                  </Button>
-                </div>
-              </div>
-            </div>
+      {/* ═══ Industries ("Where we do our best work") ═══ */}
+      {/* R2 section (Figma node 25768:6527): MediaTabs peer selector (Dental /
+          Real Estate / Small Business) + synced illustration panel. Blurbs from
+          Homepage-R2 Notion; illustrations from industry_pages.image_url. */}
+      {industriesTabs.length > 0 && (
+        <section className="section-industries" data-section="industries">
+          <div className="section-container">
+            <SectionHeader title="Where we do our best work." />
+            <HomeIndustriesTabs tabs={industriesTabs} />
           </div>
         </section>
       )}
 
-      {/* ═══ CTA ("Get in Touch") ═══ */}
-      {/* Webflow: .section_cta → .container-cta → .inner-wrapper._90.center.stacked */}
-      <section className="section-cta">
-        <div className="cta-card">
-          <div className="cta-inner">
-            <h2 className="cta-title">Get in Touch</h2>
-            <p className="cta-description">
-              Starting a new project or want to collaborate with us?
-            </p>
-          </div>
-          <Cluster gap="md" justify="center">
-            <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
-              Let&apos;s Talk
+      {/* ═══ Tooling ("Tools we know") ═══ */}
+      {/* R2 section (Figma node 25768:6728 title + 25833:3022 logos): a
+          left-aligned header over a single monochrome logo ticker (BDS
+          Marquee), base.org "trusted by" style. Copy + tool list from the
+          Homepage-R2 Notion doc. Only the 8 tools with a license-clean
+          monochrome SVG render today; the other 13 are deferred (see
+          home-tooling.ts). Marquee handles the seamless loop + the
+          prefers-reduced-motion static-row fallback. */}
+      <section className="section-tooling" data-section="tooling">
+        <div className="section-container section-container--tooling">
+          <SectionHeader
+            align="start"
+            title="Tools we know."
+            description="These are the platforms we work in. We start with what you have — fill what's missing and cut what's not earning its cost."
+          />
+        </div>
+        <Marquee className="tooling-marquee" logoHeight={36} pauseOnHover>
+          {/* Only 8 license-clean logos exist (13 deferred, see home-tooling.ts),
+              so one pass is ~320px — far short of the viewport, leaving the row
+              inset instead of edge-to-edge (#1093). Repeat the set so each
+              Marquee group exceeds a wide desktop and the loop reads full-bleed
+              and seamless. The duplicate group Marquee adds is aria-hidden, so
+              the repeat only multiplies decorative copies, not announced items. */}
+          {Array.from({ length: 6 }).flatMap((_, pass) =>
+            TOOLING_LOGOS.map((logo) => (
+              <img
+                key={`${pass}-${logo.src}`}
+                className="tooling-logo"
+                src={logo.src}
+                alt={logo.name}
+                loading="lazy"
+              />
+            ))
+          )}
+        </Marquee>
+      </section>
+
+      {/* ═══ Workflow ("Simple from day one") ═══ */}
+      {/* R2 section (Figma node 25800:3081): three sequential engagement steps as
+          an alternating timeline (content ⇄ media, row by row) over a BDS
+          ZIndexMediaBand — the primitive owns the stacking recipe so the section
+          need only supply content. Copy from the Homepage-R2 Notion doc
+          ("Simple from day one."). One primary CTA at the section end (Notion is
+          the content SoT — the placeholder Figma per-row buttons are ignored;
+          design-decisions "one primary per surface"). The per-step illustration
+          is deferred: the source graphic is placeholder art, so the media panel
+          renders as a neutral tinted surface until real step art lands (#1073). */}
+      <ZIndexMediaBand
+        as="section"
+        className="section-workflow"
+        data-section="workflow"
+        graphic={<BackgroundPattern variant="line-grid" />}
+      >
+        <div className="section-container">
+          <SectionHeader title="Simple from day one." />
+          <ol className="workflow-timeline">
+            {WORKFLOW_STEPS.map((step, i) => (
+              <li
+                key={step.id}
+                className="workflow-step"
+                data-lead={i % 2 === 0 ? 'content' : 'media'}
+              >
+                <div className="workflow-step__body">
+                  <span className="workflow-step__label">Step {i + 1}</span>
+                  <h3 className="workflow-step__title">{step.title}</h3>
+                  <p className="workflow-step__description">{step.description}</p>
+                </div>
+                <div className="workflow-step__media" aria-hidden="true" />
+              </li>
+            ))}
+          </ol>
+          <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+            Get Your Free BrikDown — Start with Step 1
+          </Button>
+        </div>
+      </ZIndexMediaBand>
+
+      {/* ═══ Pricing ("Monthly Subscription") ═══ */}
+      {/* R2 pricing band (Figma node 25768:7667): header (title + description +
+          CTA) over 3 BDS PricingCards, on the brand band. Tiers come from
+          getSupportPlans() (DB); the retired HomePlanCard path is gone here. */}
+      <section className="section-pricing" data-section="pricing">
+        <div className="section-container">
+          <div className="pricing-header">
+            <SectionHeader
+              align="start"
+              title="Monthly Subscription"
+              description="We're more than a design studio—we're your strategic marketing partner."
+            />
+            <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+              Get Your Free BrikDown
             </Button>
-          </Cluster>
+          </div>
+          <Grid columns={3} gap="lg">
+            {supportPlans.map((plan) => {
+              // R2 tints each card with its plan's pale service-line surface
+              // step (Figma node 25768:7701) — same datum that tints the plan's
+              // detail-page CTA (#1001). `.section-pricing .bds-pricing-card`
+              // in shared-sections.css pins the on-card text dark in both themes
+              // (the tint is fixed-light) and keeps the band-derived chrome.
+              const tint = plan.service_line_slug
+                ? serviceColor(mapServiceLineSlug(plan.service_line_slug)).surfaceLight
+                : undefined;
+              return (
+                <PricingCard
+                  key={plan.slug}
+                  title={plan.name}
+                  price={plan.price}
+                  period="/month"
+                  description={plan.description}
+                  style={tint ? { backgroundColor: tint } : undefined}
+                  action={
+                    <Button href={`/plans/${plan.slug}`} variant="primary" size="md">
+                      Learn More
+                    </Button>
+                  }
+                />
+              );
+            })}
+          </Grid>
         </div>
       </section>
+
+      {/* ═══ Testimonials ("What clients say") ═══ */}
+      {/* R2 section (Figma node 25157:16902): three alternating rows, each a
+          client logo tile beside a quote + attribution, on the white
+          --surface-primary band. PLACEHOLDER copy (TESTIMONIALS) — the R2 Notion
+          doc reserves real quotes until 2–3 client engagements exist, so the
+          bracketed template ships the structure without fabricating a client
+          fact. Real quotes + client logos replace the placeholders before
+          launch. Figma uses a `CardTestimonial`-shaped quote, but that BDS
+          component is a vertical card with no logo/horizontal slot, so the row
+          is hand-built (matches the Workflow alternating-row pattern above). */}
+      <section className="section-testimonials" data-section="testimonials">
+        <div className="section-container">
+          <SectionHeader title="What clients say" />
+          <ol className="testimonial-rows">
+            {TESTIMONIALS.map((t, i) => (
+              <li
+                key={t.id}
+                className="testimonial-row"
+                data-lead={i % 2 === 0 ? 'media' : 'quote'}
+              >
+                <div className="testimonial-row__media" aria-hidden="true">
+                  <span className="testimonial-row__logo-placeholder">Client logo</span>
+                </div>
+                <figure className="testimonial-row__body">
+                  <blockquote className="testimonial-row__quote">{t.quote}</blockquote>
+                  <figcaption className="testimonial-row__attribution">
+                    <span className="testimonial-row__author">{t.authorName}</span>
+                    <span className="testimonial-row__business">{t.businessType}</span>
+                  </figcaption>
+                </figure>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
     </>
   );
 }

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { gotoRendered, expectMeasured } from './lib/goto-rendered';
 
 /**
  * Grid column-fit gate — brikdesigns.com.
@@ -57,23 +58,10 @@ test.describe('Grid column fit — no empty trailing column', () => {
       // below returns [] and the assertion passes — the exact builds most
       // likely to be broken are the ones this spec would bless. #1021.
       //
-      // Retried, not single-shot: against a Netlify deploy-preview the edge
-      // serves a transient 403 for a few seconds after publish, so a one-shot
-      // check reddens the build on CDN flap rather than on a real defect. A
-      // genuinely broken page returns non-2xx on every attempt and still fails.
-      const ATTEMPTS = 4;
-      let status = 0;
-      for (let attempt = 1; attempt <= ATTEMPTS; attempt += 1) {
-        const response = await page.goto(surface.path);
-        expect(response, `${surface.path} returned no response`).toBeTruthy();
-        status = response!.status();
-        if (status < 400) break;
-        if (attempt < ATTEMPTS) await page.waitForTimeout(2000 * attempt);
-      }
-      expect(
-        status,
-        `${surface.path} returned HTTP ${status} on all ${ATTEMPTS} attempts — the page did not render, so this spec proves nothing about its grids`
-      ).toBeLessThan(400);
+      // The retried status assertion this spec introduced in #1022 now lives in
+      // the shared helper (#1030), so every spec in the directory carries it
+      // rather than this one alone.
+      await gotoRendered(page, surface.path);
       await page.waitForLoadState('networkidle');
 
       if (surface.open) {
@@ -138,10 +126,9 @@ test.describe('Grid column fit — no empty trailing column', () => {
       // multi-column grid (renamed container, CSS that failed to load) would
       // still sweep zero elements. Every surface listed here is chosen because
       // it HAS such a grid, so finding none means the spec did not run.
-      expect(
-        measured,
-        `${surface.name}: swept 0 multi-column grids — this surface is listed because it has at least one, so the page did not render as expected`
-      ).toBeGreaterThan(0);
+      // Now the shared assertion (#1030). A missing CMS slug on this app returns
+      // 200 with an empty <main> (#1036), which only this check can catch.
+      expectMeasured(measured, surface.name, 'multi-column grids');
 
       expect(
         offenders,

@@ -10,6 +10,7 @@ import '../shared-sections.css';
 import './customers.css';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/customers' },
   title: 'Customers | Who We Work With',
   description: 'Brik helps healthcare, real estate, SaaS, and small businesses with senior-level design and strategic marketing support.',
 };

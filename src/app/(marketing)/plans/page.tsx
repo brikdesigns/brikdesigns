@@ -12,6 +12,7 @@ import '../shared-sections.css';
 import './plans.css';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/plans' },
   title: 'Support Plans | Monthly Marketing & Design Subscriptions',
   description: 'Monthly subscription plans for ongoing marketing, design, and back-office support — without the cost of full-time hires.',
 };

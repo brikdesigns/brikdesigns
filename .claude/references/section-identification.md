@@ -1,5 +1,7 @@
 # Section Identification — make every marketing `<section>` addressable
 
+**last-verified:** 2026-08-25
+
 Hand-built marketing sections on this site carry generic utility classes
 (`page-section`, `page-section service-surface`), not blueprint BEM block names.
 On `/customers/[slug]` all three topic sections render as

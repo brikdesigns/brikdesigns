@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { gotoRendered } from './lib/goto-rendered';
 
 /**
  * Service-CTA tint gate — brikdesigns.com.
@@ -96,6 +97,14 @@ const AUDIT = (lines: readonly string[]): CtaFinding[] => {
   ) as HTMLElement[];
 
   for (const cta of ctas) {
+    // EXEMPT: the R2 home pricing band (`data-section="pricing"`). Its design
+    // (Figma node 25768:7667, brikdesigns#1060) specifies uniform brand-poppy
+    // primary CTAs across all three cards — a deliberate brand band, NOT the
+    // per-service-line tint this gate enforces on every other /plans/{slug}
+    // primary CTA. Operator-ratified 2026-08-26. Both the `/` route case and
+    // the mega-nav case load `/`, so this one skip covers both. Every OTHER
+    // plan CTA on the page is still audited.
+    if (cta.closest('section[data-section="pricing"]')) continue;
     // Only buttons — plain text/card links carry no fill to assert on.
     if (!cta.classList.contains('bds-button') && !cta.querySelector('.bds-button')) continue;
     const btn = (cta.classList.contains('bds-button')
@@ -141,8 +150,10 @@ const report = (findings: CtaFinding[], where: string) =>
 test.describe('Service-CTA tint — support-plan CTAs adopt their line color', () => {
   for (const route of ROUTES) {
     test(`${route.name} (${route.path})`, async ({ page }) => {
-      await page.goto(route.path, { waitUntil: 'load' });
-      await expect(page.locator('main')).toHaveCount(1);
+      // #1030: 8 of these 9 passed against a 500 that rendered a <main>, so the
+      // presence guard alone was not enough — the retried status half catches an
+      // error page that keeps the layout.
+      await gotoRendered(page, route.path, { waitUntil: 'load' });
 
       const findings = await page.evaluate(AUDIT, SERVICE_LINES);
       expect(findings, report(findings, route.path)).toHaveLength(0);
@@ -150,7 +161,7 @@ test.describe('Service-CTA tint — support-plan CTAs adopt their line color', (
   }
 
   test('Mega-nav Support Plans panel', async ({ page }) => {
-    await page.goto('/', { waitUntil: 'load' });
+    await gotoRendered(page, '/', { waitUntil: 'load' });
     // The panel is closed at rest — the plan cards only mount once the Plans
     // dropdown is open, so an unopened-nav sweep would report zero CTAs and
     // pass vacuously. Assert the cards exist before measuring.

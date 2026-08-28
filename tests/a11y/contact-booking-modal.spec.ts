@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { gotoRendered } from './lib/goto-rendered';
 import AxeBuilder from '@axe-core/playwright';
 
 /**
@@ -22,7 +23,7 @@ const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 
 async function openModal(page: Page) {
-  await page.goto(CONTACT_PATH, { waitUntil: 'load' });
+  await gotoRendered(page, CONTACT_PATH, { waitUntil: 'load' });
   const trigger = page.getByRole('button', { name: 'Book a Call' });
   await trigger.click();
   const dialog = page.getByRole('dialog');
@@ -54,7 +55,7 @@ test.describe('Contact booking modal — #483', () => {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       await route.continue();
     });
-    await page.goto(CONTACT_PATH, { waitUntil: 'load' });
+    await gotoRendered(page, CONTACT_PATH, { waitUntil: 'load' });
     await page.getByRole('button', { name: 'Book a Call' }).click();
 
     // Spinner (BDS Spinner is role="status") is shown while the iframe loads.

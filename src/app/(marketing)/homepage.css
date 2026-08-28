@@ -107,9 +107,11 @@
 }
 
 /* ─── Services ("What We Do") ──────────────────────────────── */
-/* Webflow: .section_services — full-width, centered, 100svh min */
+/* Webflow: .section_services — full-width, 100svh min. R2: 80px block padding
+   (--space-1800 primitive, #1091) and left-aligned content (header + control
+   sit at the container gutter, cards fill the measure). */
 .section-services {
-  padding: var(--padding-huge) 0;
+  padding: var(--space-1800) 0;
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
@@ -117,6 +119,98 @@
   align-items: center;
   width: 100%;
   min-height: 100svh;
+}
+
+/* Left-align the section content: stretch the measure-capped container so the
+   start-aligned SectionHeader and the SegmentedControl sit at the left gutter
+   rather than centering (mirrors .section-container--tooling). */
+.section-services .section-container {
+  align-items: stretch;
+}
+
+/* R2 Services — Marketing/Back-Office SegmentedControl over a card grid (#1053).
+   The section stays on the white --surface-primary band, so the cards keep the
+   BDS default bordered chrome (card-treatment.md — no override here). */
+.services-tabs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-component);
+  width: 100%;
+}
+
+.services-tabs__grid {
+  width: 100%;
+}
+
+/* ─── Industries ("Where we do our best work") ──────────────── */
+/* R2 section (Figma 25768:6527): MediaTabs peer selector + synced illustration,
+   on the soft-yellow accent band the mockup tints it (fill surface/accent-yellow,
+   #f4d364). MediaTabs owns its own internal layout; the section just provides the
+   band + container rhythm. The accent surface is fixed-light in both themes (like
+   the service tints), so on-band text is pinned dark in the dark root — see
+   shared-sections.css "Accent band on-color text". */
+.section-industries {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-accent-yellow);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.industries-tabs {
+  width: 100%;
+}
+
+/* R2 refinement (#1092): the synced illustration sits in a white rounded panel
+   rather than floating on the band. The band is the soft-yellow accent tint, so
+   the panel takes a containment shadow and no border (light tint → shadow,
+   card-treatment.md). The accent surface is fixed-light in both themes, so the
+   shadow stays legible in dark mode (same reasoning as the service tints). */
+.industries-tabs .bds-media-tabs__media {
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-md);
+  overflow: hidden;
+}
+
+/* ─── Tooling ("Tools we know") ──────────────────────────────── */
+/* R2 section (Figma 25768:6728 title + 25833:3022 logos): a left-aligned
+   header over a single monochrome logo ticker, on the white --surface-primary
+   band (matches Services/Industries). No min-height — the ticker is a short
+   band, not a full-viewport section (Industries pattern). The Marquee is a
+   sibling of the container, not inside it, so the row bleeds edge-to-edge like
+   the full-width Figma logo frame while the header stays in the page gutter. */
+.section-tooling {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: var(--gap-component);
+}
+
+/* Stretch the header block so align="start" sits it at the page gutter rather
+   than centering the measure-capped block. */
+.section-container--tooling {
+  align-items: stretch;
+}
+
+/* Ticker item: a pre-monochromed (single-color) brand SVG. The source glyphs
+   are black; tint to a muted grey on the light band and invert to a muted
+   light on the dark band so the row reads as one neutral strip in both themes
+   (base.org "trusted by" treatment). Marquee sizes the item height via its
+   own logoHeight prop. */
+.tooling-logo {
+  opacity: 0.55;
+}
+
+[data-theme="dark"] .tooling-logo {
+  filter: invert(1);
+  opacity: 0.7;
 }
 
 /* Webflow: .container-lg.center — column flex, centered items */
@@ -136,6 +230,67 @@
    component (measure-capped, centered) — the former .section-header /
    .section-title / .section-description trio is retired (ADR-032). */
 
+/* ─── Problem ("Does this sound familiar?") ─────────────────── */
+/* R2 section (Figma node 25768:9531): a single tinted Card on the white page
+   band holding a 3-col grid of 6 pain points. The Card keeps the BDS default
+   border (white band → border, no shadow — card-treatment.md); the
+   surface-secondary fill is the panel treatment, separate from chrome. */
+.section-problem {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100svh;
+}
+
+.problem-card {
+  width: 100%;
+  background-color: var(--surface-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+.problem__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.problem-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* Decorative brand rule above each pain point (Figma "Line 13", 24px). */
+.problem-item__rule {
+  width: 24px;
+  height: 3px;
+  background-color: var(--surface-brand-primary);
+}
+
+.problem-item__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.problem-item__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-relaxed);
+  margin: 0;
+}
+
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
 /* Webflow: .section_service — secondary bg, full-width, centered.
    min-height matches the neighboring full-viewport bands (.section-audit,
@@ -151,6 +306,254 @@
   width: 100%;
   min-height: 100vh;
   position: relative;
+}
+
+/* ─── Problem-CTA ("Sound like you?") ───────────────────────── */
+/* R2 accent band (Figma node 25805:3001): centered SectionHeader intro + two
+   CTAs, bridging Problem → Services. The mockup fills this band with the soft
+   accent purple (fill surface/accent-purple, #9e8bc2), not brand orange — a
+   mid-tone light tint, so the intro drops onColor (white, AA-large only on this
+   fill) for the default dark text. Fixed-light in both themes → on-band text is
+   pinned dark in the dark root (shared-sections.css "Accent band on-color text").
+   This rule only paints the band. */
+.section-problem-cta {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-accent-purple);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* ─── Workflow ("Simple from day one") ──────────────────────── */
+/* R2 section (Figma node 25800:3081): three sequential engagement steps as an
+   alternating timeline over a BDS ZIndexMediaBand, on the white
+   --surface-primary band (matches Tooling above). The band primitive owns the
+   stacking context; this section paints the surface + provides the timeline. */
+.section-workflow {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* The timeline column. `position: relative` hosts the central connector spine
+   (::before); the opaque step cards cover it, so the spine reads only in the
+   gaps between rows — the mockup's timeline connector. */
+.workflow-timeline {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: var(--content-width-wide);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-huge);
+}
+
+.workflow-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: var(--border-width-md) solid var(--border-primary);
+  z-index: 0;
+}
+
+/* Step card: two equal halves — a text body and a decorative media panel —
+   split at the vertical center (where the spine runs). White band → bordered,
+   no shadow (card-treatment.md). Opaque so it covers the spine except in the
+   gaps. */
+.workflow-step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  border: var(--border-width-sm) solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-primary);
+  overflow: clip;
+}
+
+/* Alternating rhythm: even rows lead with content (media right), odd rows lead
+   with media (content right). DOM order stays body → media (the media is
+   aria-hidden decoration), so only the visual order flips. */
+.workflow-step[data-lead='media'] .workflow-step__body {
+  order: 2;
+}
+
+.workflow-step__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--gap-component);
+  padding: var(--padding-xl);
+}
+
+.workflow-step__label {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  font-weight: 600;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-brand-primary);
+}
+
+.workflow-step__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-md);
+  font-weight: 700;
+  line-height: var(--font-line-height-snug);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.workflow-step__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-relaxed);
+  margin: 0;
+}
+
+/* Media panel — decorative half. Real per-step illustration is deferred
+   (#1073); until it lands the panel is a neutral tinted surface that holds the
+   alternating layout. min-height keeps the empty panel from collapsing shorter
+   than its text half. */
+.workflow-step__media {
+  background-color: var(--surface-secondary);
+  min-height: 260px;
+}
+
+/* ─── Pricing ("Monthly Subscription") ──────────────────────── */
+/* R2 pricing band (Figma node 25768:7667): header row (SectionHeader intro +
+   CTA) over 3 BDS PricingCards, on the soft accent-purple band the mockup tints
+   it (fill surface/accent-purple, #9e8bc2) — not brand orange. A mid-tone light
+   tint, so the intro drops onColor for the default dark text (Figma shows dark
+   header ink here). Card chrome is band-derived in shared-sections.css ("Card
+   chrome by band"); on-band text is pinned dark in the dark root ("Accent band
+   on-color text") since the accent surface is fixed-light in both themes. */
+.section-pricing {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-accent-purple);
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Header row: SectionHeader intro left, brand CTA right; wraps on narrow. */
+.pricing-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+/* ─── Testimonials ("What clients say") ─────────────────────── */
+/* R2 section (Figma node 25157:16902): three alternating rows — a client logo
+   tile beside a quote + attribution — on the white --surface-primary band. */
+.section-testimonials {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.testimonial-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+/* Row card: a tinted panel holding a square media tile + the quote body. Tinted
+   band → containment shadow, no border ring (card-treatment.md). */
+.testimonial-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 327px) 1fr;
+  align-items: center;
+  gap: var(--gap-xl);
+  padding: var(--padding-xl);
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+}
+
+/* Alternating rhythm: even rows lead with the media tile (quote right), odd rows
+   lead with the quote (tile right). DOM order stays media → quote; only the
+   visual order flips. */
+.testimonial-row[data-lead='quote'] .testimonial-row__media {
+  order: 2;
+}
+
+/* Square logo tile — white surface on the tinted card. Placeholder until real
+   client logos land; the label reads as a template, not a brand. */
+.testimonial-row__media {
+  aspect-ratio: 1;
+  width: 100%;
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.testimonial-row__logo-placeholder {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--text-secondary);
+}
+
+.testimonial-row__body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+.testimonial-row__quote {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  font-style: italic;
+  line-height: var(--font-line-height-relaxed);
+  color: var(--text-primary);
+}
+
+.testimonial-row__attribution {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.testimonial-row__author {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.testimonial-row__business {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
 }
 
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
@@ -445,6 +848,38 @@
 
   .story-image-wrapper {
     width: 100%;
+  }
+
+  /* Workflow — collapse the two-up timeline to a single content column. The
+     central spine and the (currently art-less) media panel are both dropped:
+     a centered spine is meaningless once the cards are full-width, and an empty
+     tinted half-strip reads as unfinished stacked. Both return with the desktop
+     grid; real step art (#1072) can revisit the stacked treatment. */
+  .workflow-timeline::before {
+    display: none;
+  }
+
+  .workflow-step {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-step__media {
+    display: none;
+  }
+
+  /* Testimonials — stack the tile above the quote; cap the (otherwise
+     full-width) media tile so it doesn't become a giant square when it loses
+     its column. */
+  .testimonial-row {
+    grid-template-columns: 1fr;
+  }
+
+  .testimonial-row[data-lead='quote'] .testimonial-row__media {
+    order: 0;
+  }
+
+  .testimonial-row__media {
+    max-width: 240px;
   }
 }
 

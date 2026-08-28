@@ -76,7 +76,8 @@
 #   ./scripts/sweep-merged-worktrees.sh --keep foo         # spare worktree/branch 'foo'
 #   ./scripts/sweep-merged-worktrees.sh --apply --sweep-remote-refs
 #                                                          # also delete landed origin/task/* refs
-#   ./scripts/sweep-merged-worktrees.sh --json             # human table suppressed (audit)
+#   ./scripts/sweep-merged-worktrees.sh --json             # one JSON object on stdout, then exit
+#                                                          # (always a dry-run read; never mutates)
 #
 # Env: BRIK_WORKTREE_ROOT overrides the swept root (default: <primary>-worktrees).
 # Requires: gh (for PR state). Without gh, falls back to ancestor-of-main only
@@ -109,6 +110,15 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+
+# --json is an audit READ, so pairing it with a mutation is a usage error, not a
+# preference to resolve. Silently downgrading --apply to a dry-run would be worse than
+# the ANSI-prose bug this flag started with (#2609): the caller asked for a reap, saw
+# exit 0 and a clean payload, and nothing was reaped.
+if $JSON && { $APPLY || $SWEEP_REMOTE_REFS; }; then
+  echo -e "${RED}--json reports; it does not reap. Drop --apply/--sweep-remote-refs, or drop --json.${NC}" >&2
+  exit 2
+fi
 
 # kept NAME — 0 when --keep spared it. Matched on the SLUG (a worktree's basename,
 # a branch's `task/` suffix) so one `--keep foo` spares the worktree, its directory
@@ -190,6 +200,17 @@ human_size() {  # $1=KB -> human string
   awk -v k="$1" 'BEGIN{ if(k>=1048576) printf "%.1f GB", k/1048576; else if(k>=1024) printf "%.0f MB", k/1024; else printf "%d KB", k }'
 }
 
+# --json rows accumulate as TSV and are serialised by python3 at the end (#2609).
+# Hand-escaping a verdict like `KEEP — PR #123 open` into JSON from shell is exactly
+# how a payload ends up unparseable, which is the bug this flag started with. python3
+# is already a dependency of this script — see the PR-map reader below.
+JSON_ROWS=""
+json_row() {  # $1=pass, $2.. = that pass's fields, in table order
+  $JSON || return 0
+  local IFS=$'\t'
+  JSON_ROWS+="$*"$'\n'
+}
+
 declare -a REMOVE_PATHS=() REMOVE_BRANCHES=() REMOVE_LABELS=()
 KEPT=0 REVIEW=0
 
@@ -197,7 +218,7 @@ $JSON || { printf '%-50s %-9s %-9s %s\n' "BRANCH" "DIRTY" "PR" "VERDICT"; printf
 
 while IFS=$'\t' read -r path ref; do
   [ "$path" = "$PRIMARY" ] && continue
-  [ "$path" = "$SELF_WT" ] && { $JSON || printf '%-50s %-9s %-9s %s\n' "$(basename "$path")" "-" "-" "SKIP — running from here"; KEPT=$((KEPT+1)); continue; }
+  [ "$path" = "$SELF_WT" ] && { $JSON || printf '%-50s %-9s %-9s %s\n' "$(basename "$path")" "-" "-" "SKIP — running from here"; json_row worktree "$(basename "$path")" "-" "-" "SKIP — running from here"; KEPT=$((KEPT+1)); continue; }
 
   # DETACHED worktree — `ref` is the `-` sentinel the reader emits when the
   # porcelain block carried no `branch` line (#2277). Before that, the row was
@@ -217,6 +238,7 @@ while IFS=$'\t' read -r path ref; do
     slug="$(basename "$path")"
     if kept "$slug"; then
       $JSON || printf '%-50s %-9s %-9s %s\n' "$slug (detached)" "-" "-" "KEEP — --keep"
+      json_row worktree "$slug (detached)" "-" "-" "KEEP — --keep"
       KEPT=$((KEPT+1)); continue
     fi
     # Dirty first, matching the branch path below: uncommitted work outranks every
@@ -229,12 +251,14 @@ while IFS=$'\t' read -r path ref; do
       verdict="REVIEW — detached HEAD, no branch ref to prove it landed"; REVIEW=$((REVIEW+1))
     fi
     $JSON || printf '%-50s %-9s %-9s %s\n' "$slug (detached)" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "-" "$verdict"
+    json_row worktree "$slug (detached)" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "-" "$verdict"
     continue
   fi
 
   branch="${ref#refs/heads/}"
   if kept "$(basename "$path")" || kept "$branch"; then
     $JSON || printf '%-50s %-9s %-9s %s\n' "$branch" "-" "-" "KEEP — --keep"
+    json_row worktree "$branch" "-" "-" "KEEP — --keep"
     KEPT=$((KEPT+1)); continue
   fi
   dirty=$(git -C "$path" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
@@ -291,6 +315,7 @@ while IFS=$'\t' read -r path ref; do
     verdict="REVIEW — clean, unlanded, no merged PR"; REVIEW=$((REVIEW+1))
   fi
   $JSON || printf '%-50s %-9s %-9s %s\n' "$branch" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "$prnum" "$verdict"
+  json_row worktree "$branch" "$([ "$dirty" = 0 ] && echo clean || echo "DIRTY")" "$prnum" "$verdict"
 # One row per WORKTREE, not per `branch` line. The old reader printed only inside
 # the `/^branch /` action, and a detached worktree's porcelain block has no such
 # line — `worktree` / `HEAD` / `detached` and nothing else — so the whole row was
@@ -321,6 +346,7 @@ if [ -d "$WORKTREE_ROOT" ]; then
     slug="$(basename "$abs")"; branch="task/$slug"
     if kept "$slug"; then
       $JSON || printf '%-50s %-11s %s\n' "$slug" "-" "FLAG — --keep"
+      json_row orphan "$slug" "-" "FLAG — --keep"
       ORPHAN_FLAG=$((ORPHAN_FLAG+1)); continue
     fi
     kb=$(du -sk "$abs" 2>/dev/null | awk '{print $1}'); kb=${kb:-0}
@@ -338,6 +364,7 @@ if [ -d "$WORKTREE_ROOT" ]; then
       verdict="FLAG — no merged PR for $branch"; ORPHAN_FLAG=$((ORPHAN_FLAG+1))
     fi
     $JSON || printf '%-50s %-11s %s\n' "$slug" "$(human_size "$kb")" "$verdict"
+    json_row orphan "$slug" "$kb" "$verdict"
   done
 fi
 nr=${#REAP_PATHS[@]}
@@ -372,6 +399,7 @@ while IFS= read -r branch; do
   fi
   $JSON || { [ "$BRANCH_HEADER_SHOWN" = "no" ] && { echo; printf '%-50s %-9s %s\n' "WORKTREE-LESS BRANCH" "PR" "VERDICT"; printf '%.0s─' {1..110}; echo; BRANCH_HEADER_SHOWN=yes; }
              printf '%-50s %-9s %s\n' "$branch" "$prnum" "$verdict"; }
+  json_row branch "$branch" "$prnum" "$verdict"
 # A bare prefix, not a glob: for-each-ref matches "completely or from the
 # beginning up to a slash", so this catches task/<slug> and task/<a>/<b> alike,
 # where `refs/heads/task/*` would need one pattern per nesting depth.
@@ -413,11 +441,70 @@ if $SWEEP_REMOTE_REFS; then
     esac
     $JSON || { [ "$REF_HEADER_SHOWN" = "no" ] && { echo; printf '%-50s %-9s %s\n' "ORPHAN REMOTE REF" "PR" "VERDICT"; printf '%.0s─' {1..110}; echo; REF_HEADER_SHOWN=yes; }
                printf '%-50s %-9s %s\n' "origin/$branch" "$prnum" "$verdict"; }
+    json_row remote_ref "origin/$branch" "$prnum" "$verdict"
   done < <(git for-each-ref --format='%(refname:lstrip=3)' refs/remotes/origin/task)
 fi
 nrf=${#DELETE_REF_NAMES[@]}
 
 n=${#REMOVE_PATHS[@]}
+
+# --json emits the payload and exits: a machine caller wants one object on stdout, and
+# the apply-phase progress lines below are prose by nature. Every diagnostic in this
+# script already goes to stderr, so stdout is single-format here without redirecting
+# anything (#2609).
+if $JSON; then
+  ROWS="$JSON_ROWS" \
+  N="$n" KEPT="$KEPT" REVIEW="$REVIEW" NR="$nr" ORPHAN_KB="$ORPHAN_REAP_KB" \
+  ORPHAN_FLAG="$ORPHAN_FLAG" NB="$nb" BRANCH_KEPT="$BRANCH_KEPT" NRF="$nrf" \
+  REF_KEPT="$REF_KEPT" \
+  DELETE_BRANCHES="$($DELETE_BRANCHES && echo true || echo false)" \
+  SWEEP_REFS="$($SWEEP_REMOTE_REFS && echo true || echo false)" \
+  REPO="$(basename "$PRIMARY")" \
+  python3 -c '
+import json, os
+FIELDS = {
+    "worktree":   (["name", "dirty", "pr", "verdict"], "worktrees"),
+    "orphan":     (["name", "size_kb", "verdict"], "orphans"),
+    "branch":     (["branch", "pr", "verdict"], "worktree_less_branches"),
+    "remote_ref": (["ref", "pr", "verdict"], "orphan_remote_refs"),
+}
+out = {key: [] for _, key in FIELDS.values()}
+for line in os.environ["ROWS"].splitlines():
+    if not line:
+        continue
+    kind, *values = line.split("\t")
+    names, key = FIELDS[kind]
+    row = dict(zip(names, values))
+    # The verdict string carries the REASON the human table shows ("KEEP — PR 123
+    # open"). Split it so a caller can filter on the decision without parsing prose,
+    # and keep the full string so nothing is lost.
+    verdict = row.get("verdict", "")
+    row["decision"] = verdict.split(" — ", 1)[0].strip()
+    out[key].append(row)
+print(json.dumps({
+    "repo": os.environ["REPO"],
+    "dry_run": True,
+    "delete_branches": os.environ["DELETE_BRANCHES"] == "true",
+    "sweep_remote_refs": os.environ["SWEEP_REFS"] == "true",
+    **out,
+    "summary": {
+        "worktrees_removable": int(os.environ["N"]),
+        "worktrees_kept": int(os.environ["KEPT"]),
+        "worktrees_review": int(os.environ["REVIEW"]),
+        "orphans_reapable": int(os.environ["NR"]),
+        "orphans_reapable_kb": int(os.environ["ORPHAN_KB"]),
+        "orphans_flagged": int(os.environ["ORPHAN_FLAG"]),
+        "branches_deletable": int(os.environ["NB"]),
+        "branches_kept": int(os.environ["BRANCH_KEPT"]),
+        "remote_refs_deletable": int(os.environ["NRF"]),
+        "remote_refs_kept": int(os.environ["REF_KEPT"]),
+    },
+}, indent=2))
+'
+  git worktree prune 2>/dev/null || true
+  exit 0
+fi
+
 echo
 echo -e "${CYAN}Summary:${NC} ${n} worktree(s) removable · ${KEPT} kept · ${REVIEW} need review · ${nr} orphan(s) reapable ($(human_size "$ORPHAN_REAP_KB")) · ${ORPHAN_FLAG} orphan(s) flagged · ${nb} worktree-less branch(es) deletable · ${BRANCH_KEPT} kept · ${nrf} remote ref(s) deletable · ${REF_KEPT} kept"
 

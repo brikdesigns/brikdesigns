@@ -41,6 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${plan.name} | Support Plans`,
       description: plan.description ?? undefined,
+      alternates: { canonical: `/plans/${slug}` },
     };
   } catch {
     return { title: 'Plan Not Found' };

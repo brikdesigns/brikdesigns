@@ -30,9 +30,18 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# ── Label resolver (pure, offline, tested by __tests__/test-pr-labels.sh) ──
+# GitHub does NOT copy a linked issue's labels onto its PR, so PRs opened here
+# were born label-less and fell off the project board (#1012). The resolution
+# policy lives in lib/pr-labels.sh; this script supplies it with live data.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/lib/pr-labels.sh
+source "${SCRIPT_DIR}/lib/pr-labels.sh"
+
 # ── Base branch config ──
 # staging-first flow: task branches PR to staging; staging → main promoted on sign-off.
 BASE_BRANCH="staging"
+AREA_OVERRIDE=""
 
 # ── Parse flags ──
 POSITIONAL_ARGS=()
@@ -40,6 +49,13 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --base)
       BASE_BRANCH="$2"
+      shift 2
+      ;;
+    --area)
+      # Set the area:* label explicitly, for work whose linked issue carries no
+      # area:* (or whose branch references no issue). Accept a bare word too.
+      AREA_OVERRIDE="$2"
+      [[ "$AREA_OVERRIDE" == area:* ]] || AREA_OVERRIDE="area:${AREA_OVERRIDE}"
       shift 2
       ;;
     --skip-ui-check)
@@ -239,6 +255,73 @@ if [ -n "$EXISTING_PR" ]; then
   exit 0
 fi
 
+# ── Build PR title (needed by the label resolver below, before the push) ──
+if [ $# -ge 1 ]; then
+  PR_TITLE="$1"
+else
+  # Auto-generate from branch name: task/bds-theme-interaction-tokens → bds: theme interaction tokens
+  SCOPE=$(echo "$BRANCH" | sed 's|task/||' | cut -d'-' -f1)
+  DESC=$(echo "$BRANCH" | sed 's|task/[a-z]*-||' | tr '-' ' ')
+  PR_TITLE="${SCOPE}: ${DESC}"
+fi
+
+# ── Resolve project-tracking labels (before pushing anything) ──
+# GitHub does NOT copy a linked issue's labels onto its PR, so PRs opened by this
+# script were born label-less and fell off the board (#1012). Resolve here:
+#   - a Type label from the conventional-commit prefix, IF this repo has one
+#     (brikdesigns has neither `enhancement` nor `bug` — label_known drops them)
+#   - the area:* / size:* / theme:* labels of every issue the commit range refs
+#   - an explicit --area override
+# The policy lives in lib/pr-labels.sh (pure, offline, tested). This block only
+# supplies it with live data: the repo's label list and each issue's labels.
+LABELS_TO_ADD=()
+
+# Repo label list, resolved once up front (fix 3: before any branch that reads
+# it, or set -u aborts). Captured into a var, never piped to `grep -q` (fix 2).
+REPO_LABELS=$(gh label list --limit 200 --json name --jq '.[].name')
+
+TYPE_LABEL=$(type_label_for_title "$PR_TITLE")
+if [ -n "$TYPE_LABEL" ] && label_known "$TYPE_LABEL" "$REPO_LABELS"; then
+  LABELS_TO_ADD+=("$TYPE_LABEL")
+fi
+
+if [ -n "$AREA_OVERRIDE" ]; then
+  # Existence-check the override too — `gh pr edit` silently drops an unknown
+  # label, which reintroduces the label-less PR this guard exists to prevent.
+  if ! label_known "$AREA_OVERRIDE" "$REPO_LABELS"; then
+    echo -e "${RED}✗ --area '${AREA_OVERRIDE}' is not an existing label in this repo.${NC}"
+    echo -e "${RED}  Valid area labels:${NC}"
+    grep '^area:' <<< "$REPO_LABELS" | sed 's/^/    /'
+    exit 1
+  fi
+  LABELS_TO_ADD+=("$AREA_OVERRIDE")
+fi
+
+# Inherit the area:* / size:* / theme:* of every issue the commit range refs.
+# This repo has no rendered issue-link block (see lib/pr-labels.sh header), so
+# the refs are read straight off the commit subjects and bodies.
+COMMIT_REFS_TEXT=$(git log --format='%s%n%b' "origin/${BASE_BRANCH}..HEAD")
+for ref_num in $(refs_from_commit_range "$COMMIT_REFS_TEXT"); do
+  ISSUE_LABELS=$(gh issue view "$ref_num" --json labels --jq '.labels[].name' 2>/dev/null || true)
+  for l in $(inheritable_labels "$ISSUE_LABELS"); do
+    if label_known "$l" "$REPO_LABELS"; then
+      LABELS_TO_ADD+=("$l")
+    fi
+  done
+done
+
+# Gate: never open a PR that pr-label-gate will immediately fail. Refuse before
+# the push, so a label-less PR is never created in the first place.
+if ! has_area_label "$(printf '%s\n' "${LABELS_TO_ADD[@]+"${LABELS_TO_ADD[@]}"}")"; then
+  echo -e "${RED}✗ No area:* label could be resolved for this PR.${NC}"
+  echo -e "${RED}  The pr-label-gate CI check requires one. Either:${NC}"
+  echo -e "${RED}    - re-run with --area area:<x>   (e.g. --area area:infra), or${NC}"
+  echo -e "${RED}    - add an area:* label to a linked issue, then re-run.${NC}"
+  echo -e "${YELLOW}  Valid area labels:${NC}"
+  grep '^area:' <<< "$REPO_LABELS" | sed 's/^/    /'
+  exit 1
+fi
+
 # ── Sync with base (catches semantic conflicts from parallel work) ──
 # When another agent's PR has merged to base while this branch was in flight,
 # `git push` would succeed but CI would fail on a semantic conflict (e.g. new
@@ -268,6 +351,7 @@ fi
 # Worktrees created via new-task.sh inherit upstream from origin/<base>, so
 # the upstream branch name doesn't match the local branch. Detect that case
 # and re-set upstream to origin/<branch> so plain `git push` works thereafter.
+# shellcheck disable=SC1083  # `@{u}` is git's upstream shorthand, not a brace expansion
 UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")
 EXPECTED_UPSTREAM="origin/${BRANCH}"
 if [ -z "$UPSTREAM" ] || [ "$UPSTREAM" != "$EXPECTED_UPSTREAM" ]; then
@@ -276,21 +360,12 @@ if [ -z "$UPSTREAM" ] || [ "$UPSTREAM" != "$EXPECTED_UPSTREAM" ]; then
 else
   # Check if local is ahead of remote
   LOCAL=$(git rev-parse HEAD)
+  # shellcheck disable=SC1083  # `@{u}` is git's upstream shorthand
   REMOTE=$(git rev-parse @{u} 2>/dev/null || echo "")
   if [ "$LOCAL" != "$REMOTE" ]; then
     echo -e "${YELLOW}~ Pushing new commits to origin...${NC}"
     git push
   fi
-fi
-
-# ── Build PR title ──
-if [ $# -ge 1 ]; then
-  PR_TITLE="$1"
-else
-  # Auto-generate from branch name: task/bds-theme-interaction-tokens → bds: theme interaction tokens
-  SCOPE=$(echo "$BRANCH" | sed 's|task/||' | cut -d'-' -f1)
-  DESC=$(echo "$BRANCH" | sed 's|task/[a-z]*-||' | tr '-' ' ')
-  PR_TITLE="${SCOPE}: ${DESC}"
 fi
 
 # ── Build PR body from commit log ──
@@ -324,6 +399,24 @@ if ! PR_URL=$(gh pr create --base "${BASE_BRANCH}" --title "$PR_TITLE" --body "$
   echo -e "${RED}  or open the PR manually:${NC}"
   echo "    gh pr create --base ${BASE_BRANCH} --head ${BRANCH} --title \"$PR_TITLE\""
   exit 1
+fi
+
+# ── Apply the resolved labels ──
+# One `gh pr edit` for everything resolved before the push: the inherited
+# area:* / size:* / theme:* and the Type label. The has_area_label gate above
+# guarantees an area:* is present, so this can never re-open the label-less
+# hole. pr-label-gate re-runs on `labeled`, so the PR flips green as they land.
+PR_NUMBER=$(gh pr view "$BRANCH" --json number --jq '.number' 2>/dev/null || echo "")
+UNIQUE=$(dedupe_labels "$(printf '%s\n' "${LABELS_TO_ADD[@]+"${LABELS_TO_ADD[@]}"}")")
+if [ -n "$UNIQUE" ]; then
+  ADD_ARGS=()
+  while IFS= read -r l; do [ -n "$l" ] && ADD_ARGS+=(--add-label "$l"); done <<< "$UNIQUE"
+  if [ ${#ADD_ARGS[@]} -gt 0 ] && [ -n "$PR_NUMBER" ] && gh pr edit "$PR_NUMBER" "${ADD_ARGS[@]}" >/dev/null 2>&1; then
+    echo -e "${GREEN}✓ Labels applied: $(echo "$UNIQUE" | tr '\n' ' ')${NC}"
+  else
+    echo -e "${RED}⚠ Could not apply labels — pr-label-gate will fail. Apply manually:${NC}"
+    echo -e "${RED}    gh pr edit ${PR_NUMBER:-<n>} $(echo "$UNIQUE" | sed 's/^/--add-label /' | tr '\n' ' ')${NC}"
+  fi
 fi
 
 echo ""

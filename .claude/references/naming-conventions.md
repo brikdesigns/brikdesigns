@@ -1,5 +1,7 @@
 # Slot & Role Naming Conventions
 
+**last-verified:** 2026-08-25
+
 Canonical reference for naming CSS classes, BEM slots, and TypeScript data-object properties that represent text roles on this site. Grounded in [design.brikdesigns.com/docs/primitives/naming-conventions](https://design.brikdesigns.com/docs/primitives/naming-conventions).
 
 ## Canonical slot names

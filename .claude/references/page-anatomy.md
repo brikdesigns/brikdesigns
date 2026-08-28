@@ -1,5 +1,7 @@
 # Page Anatomy — locate change targets by layer, not by selector name
 
+**last-verified:** 2026-08-25
+
 Canonical source: **[Build Standards](https://design.brikdesigns.com/docs/build-standards)** — read [Page Structure](https://design.brikdesigns.com/docs/build-standards/page-structure) and [Composition Layers](https://design.brikdesigns.com/docs/build-standards/composition-layers) first. This file is the consumer-side application + the one antipattern that has bitten us; it does not restate the canon.
 
 ## The five layers (canonical)

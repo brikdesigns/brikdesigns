@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { gotoRendered, expectMeasured } from './lib/goto-rendered';
 
 /**
  * Card-treatment gate — brikdesigns.com.
@@ -55,7 +56,10 @@ import { test, expect } from '@playwright/test';
 
 // Mirror of src/app/sitemap.ts statics + one instance per dynamic [slug]
 // family — kept in sync with public-routes.spec.ts PUBLIC_ROUTES.
-const ROUTES: { path: string; name: string }[] = [
+// `cards: false` opts a route out of the swept-something precondition below.
+// Both event templates are prose/media layouts with no opaque cards — measured
+// 0 on 2026-08-24 — so requiring one there would fail on a healthy page.
+const ROUTES: { path: string; name: string; cards?: false }[] = [
   { path: '/', name: 'Home' },
   { path: '/about', name: 'About' },
   { path: '/services', name: 'Services index' },
@@ -73,8 +77,8 @@ const ROUTES: { path: string; name: string }[] = [
   { path: '/customers/dental', name: 'Customer detail — dental' },
   { path: '/blog', name: 'Blog index' },
   { path: '/blog/overwhelmed-in-your-business-how-to-move-forward', name: 'Blog post' },
-  { path: '/events/demo-spring-webinar', name: 'Event detail — stacked' },
-  { path: '/events/grind-after-graduation', name: 'Event detail — showcase' },
+  { path: '/events/demo-spring-webinar', name: 'Event detail — stacked', cards: false },
+  { path: '/events/grind-after-graduation', name: 'Event detail — showcase', cards: false },
   { path: '/contact', name: 'Contact' },
 ];
 
@@ -92,10 +96,12 @@ test.describe('Card-treatment standard — border/shadow by band', () => {
   for (const route of ROUTES) {
     test(`${route.name} (${route.path}) cards follow the band standard`, async ({ page }, testInfo) => {
       const isDark = testInfo.project.name.endsWith('-dark');
-      await page.goto(route.path, { waitUntil: 'load' });
-      await expect(page.locator('main')).toHaveCount(1);
+      // #1030: this spec passed 16/16 against a 500 that rendered a <main>, so
+      // the presence guard alone was not enough — the retried status half is
+      // what catches an error page that keeps the layout.
+      await gotoRendered(page, route.path, { waitUntil: 'load' });
 
-      const findings: CardFinding[] = await page.evaluate(() => {
+      const { findings, measured } = await page.evaluate(() => {
         // Resolve --surface-primary to an rgb string via a throwaway element.
         const probe = document.createElement('div');
         probe.style.backgroundColor = 'var(--surface-primary)';
@@ -181,8 +187,13 @@ test.describe('Card-treatment standard — border/shadow by band', () => {
               band === 'tint' ? 'shadow + no border' : 'border + no shadow',
           });
         }
-        return out;
+        return { findings: out, measured: cards.length };
       });
+
+      // A clean sweep only means something if there was something to sweep.
+      // A missing CMS slug renders an empty <main> with HTTP 200 (#1036), which
+      // the status half of gotoRendered cannot see.
+      if (route.cards !== false) expectMeasured(measured, route.path, 'cards');
 
       if (findings.length > 0) {
         const summary = findings

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { gotoRendered } from './lib/goto-rendered';
 
 /**
  * Public-route WCAG 2.1 AA audit — brikdesigns.com.
@@ -173,21 +174,15 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
       // sites with continuous network activity (lazy images, analytics).
       // 'load' waits for CSS + images, which is what axe needs for first-
       // paint contrast / alt-text rules.
-      await page.goto(route.path, { waitUntil: 'load' });
-
-      // Render guard (#341). Every public route renders exactly one <main>.
-      // If it's absent, the document is NOT the app's page — it's a transient
-      // infra/blank state (e.g. a Netlify function cold-start/error page, which
-      // has its own `.branding`/`.footer` chrome and no <main>). Running axe
-      // against that emits confusing `landmark-one-main` / `region` findings
-      // that look like real structure debt but aren't. The toHaveCount assertion
-      // auto-retries until the page renders (covering a hydration-timing flush)
-      // and otherwise fails loudly here — "route didn't render" — instead of
-      // leaking landmark noise into the report. See brikdesigns #341.
-      await expect(
-        page.locator('main'),
-        `${route.path} did not render a <main> within timeout — the page is in a transient/error state (infra cold-start or blank flash), not real a11y debt. See #341.`,
-      ).toHaveCount(1);
+      // Render guard (#341) + retried status (#1030), both in the shared helper.
+      // Every public route renders exactly one <main>. If it's absent, the
+      // document is NOT the app's page — it's a transient infra/blank state
+      // (e.g. a Netlify function cold-start/error page, which has its own
+      // `.branding`/`.footer` chrome and no <main>). Running axe against that
+      // emits confusing `landmark-one-main` / `region` findings that look like
+      // real structure debt but aren't. The status half additionally catches an
+      // error page that DOES render a <main>, which the guard alone cannot see.
+      await gotoRendered(page, route.path, { waitUntil: 'load' });
 
       // Exclude Netlify deploy-preview admin overlays and the Brik Dev Bar
       // (`.bdb-bar`) — a dev/staging-only toolbar injected client-side when

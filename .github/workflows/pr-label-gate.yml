@@ -1,0 +1,105 @@
+name: pr-label-gate
+
+# Pre-merge gate: every PR must carry at least one `area:*` label so it stays
+# trackable on the project board. GitHub does NOT copy a linked issue's labels
+# onto its PR, so PRs opened by `pr-task.sh` were shipping label-less — 7 of the
+# last 12 merged PRs here carried zero labels before #1012 filed it.
+# `pr-task.sh` now inherits and applies them on the happy path; this gate is the
+# backstop for PRs opened any other way (web UI, other agents, sibling repos).
+#
+# Re-runs on `labeled`/`unlabeled` so a PR flips green the moment a label lands
+# (including pr-task.sh's own post-create labeling). Canon:
+# brik-llm/.claude/references/issue-style.md § Tagging axes.
+#
+# Ported from brikdesigns/brik-bds/.github/workflows/pr-label-gate.yml (#1979).
+# One divergence: bds stamps dependabot `area:tooling`, a label brikdesigns does
+# not have — this repo's nearest equivalent is `area:infra` (verify with
+# `gh label list | grep '^area:'` before changing it; an unknown label makes
+# `gh pr edit` a no-op and re-opens the label-less hole).
+#
+# Dependabot exception: dependabot only ever applies `dependencies` and
+# `javascript`, and it has no way to be taught an `area:*`, so every dependency
+# batch would stall this gate. Rather than exempt those PRs — which would drop
+# them off the board, the exact failure this gate prevents — we stamp them
+# `area:infra` and then evaluate normally.
+#
+# Why `pull_request_target` and not `pull_request`: dependabot-authored runs of
+# `push` / `pull_request` / `pull_request_review` / `pull_request_review_comment`
+# get a READ-ONLY GITHUB_TOKEN regardless of the `permissions:` block, so
+# `gh pr edit --add-label` 403s. `pull_request_target` is explicitly excluded
+# from that restriction and honors `permissions:` normally.
+#
+# The usual `pull_request_target` hazard is running untrusted PR code with a
+# privileged token. That does not apply here: this workflow has NO checkout step
+# and executes nothing from the PR. It reads and writes labels via the API and
+# nothing else. The workflow definition is always taken from the base branch, so
+# a PR cannot alter this gate to attack itself.
+#
+# Labeling happens in-job, before the check step, so this does NOT depend on the
+# label event re-triggering the workflow — GitHub suppresses events authored by
+# GITHUB_TOKEN.
+
+on:
+  pull_request_target:
+    types: [opened, edited, labeled, unlabeled, synchronize, reopened, ready_for_review]
+
+# If `require-area-label` is ever promoted to a REQUIRED context, a cancelled
+# check-run is not an absent one: protection can go on reporting the context as
+# `expected` afterwards, and a green re-run does not clear it — only a new head
+# SHA does (brik-llm#2094). `queue: max` is the other half: the default
+# `queue: single` lets a newer run evict the PENDING one, leaving a check-suite
+# that never started a job and carries zero check-runs (brik-llm#2176). This
+# workflow's `labeled`/`unlabeled` types mean one multi-label `gh pr edit`
+# delivers N events, so it is squarely in that blast radius.
+#
+# `queue: max` and `cancel-in-progress: true` together are a workflow validation
+# error, so the two lines change as a pair.
+concurrency:
+  group: pr-label-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+  queue: max
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  require-area-label:
+    runs-on: ubuntu-latest
+    steps:
+      # continue-on-error: a labeling failure must not mask the gate itself.
+      # If this step fails, the check below still runs and emits the actionable
+      # "add area:<x>" error rather than an opaque token failure.
+      - name: Auto-apply area:infra to dependabot PRs
+        if: github.actor == 'dependabot[bot]'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          if gh pr view "$PR" --repo "$REPO" --json labels --jq '.labels[].name' | grep -q '^area:'; then
+            echo "area:* label already present — leaving it alone."
+            exit 0
+          fi
+          echo "dependabot PR with no area:* label — applying area:infra."
+          if ! gh pr edit "$PR" --repo "$REPO" --add-label area:infra; then
+            echo "::warning title=Auto-label failed::Could not apply area:infra to PR #$PR. Check that this workflow still runs on pull_request_target with pull-requests: write — a downgrade to pull_request gives dependabot runs a read-only token and this will 403."
+            exit 1
+          fi
+
+      - name: Require at least one area:* label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          labels=$(gh pr view "$PR" --repo "$REPO" --json labels --jq '.labels[].name')
+          echo "PR #$PR labels:"
+          echo "${labels:-  (none)}" | sed 's/^/  - /'
+          if echo "$labels" | grep -q '^area:'; then
+            echo "✓ area:* label present — project-trackable."
+          else
+            echo "::error title=Missing area:* label::PR #$PR has no area:* label. Project tracking requires one. Add it with: gh pr edit $PR --add-label area:<x>  (run pr-task.sh to apply automatically from the linked issue)."
+            exit 1
+          fi

@@ -94,12 +94,13 @@ type Props = { params: Promise<{ serviceLineSlug: string; serviceSlug: string }>
 export const revalidate = 86400;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { serviceSlug } = await params;
+  const { serviceLineSlug, serviceSlug } = await params;
   try {
     const service = await getServiceBySlug(serviceSlug);
     return {
       title: `${service.name} | Design Services`,
       description: service.tagline || service.description || undefined,
+      alternates: { canonical: `/services/${serviceLineSlug}/${serviceSlug}` },
     };
   } catch {
     return { title: 'Service Not Found' };

@@ -136,4 +136,4 @@ jobs:
         with:
           name: visual-regression-report
           path: tests/visual-parity/
-          retention-days: 14
+          retention-days: 1

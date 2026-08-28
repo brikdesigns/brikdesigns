@@ -10,6 +10,7 @@ import '../homepage.css';
 import './blog.css';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/blog' },
   title: 'Blog | Tips, Guides & Insights for Small Businesses',
   description: 'Practical tips on branding, marketing, design systems, and running a small business — from the Brik Designs team.',
 };

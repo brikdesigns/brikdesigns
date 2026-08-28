@@ -4,6 +4,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import './value.css';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/value' },
   title: 'The Value of Design | Why Design Matters for Your Business',
   description:
     'Learn the value of design in 4 steps. From first impressions to conversions, discover why design is the secret weapon behind every successful brand.',

@@ -1,6 +1,7 @@
 ---
 name: visual-ground-truth-workflow
 description: Step-by-step protocol for agents reading live Webflow pages before writing any section code. Prevents CSS-from-memory failures. READ before building any page section.
+last-verified: 2026-08-25
 ---
 
 # Visual Ground-Truth Workflow

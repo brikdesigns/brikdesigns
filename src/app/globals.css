@@ -270,13 +270,20 @@ html {
    ================================================================ */
 @layer client-theme {
   :root {
-    /* System palette — Figma values. Diverge from BDS canon (which sources
-       from a different system color set). */
+    /* System palette — Figma values.
+
+       `--color-system-blue` is deliberately NOT here. It used to be, at
+       #2f80ed, and that copy went stale: brik-bds#2056 darkened the Figma
+       variable to #2461b4 for WCAG AA (tokens/figma-tokens.css is the pull
+       output), this block kept the old value, and since `--background-info`
+       derives from it a solid `info` Badge painted --text-on-color-dark (white)
+       at 3.87:1 — under AA 4.5:1. Inheriting BDS gives 6.10:1. Adding it back
+       reopens brikdesigns#1079; the info pair is gated in
+       scripts/lint-theme-contrast.mjs. */
     --color-system-link: #0034ea;
     --color-system-red: #eb5757;
     --color-system-green: #27ae60;
     --color-system-yellow: #f2c94c;
-    --color-system-blue: #2f80ed;
     --color-system-orange: #f2994a;
 
     /* BDS bridge alias — kept for component CSS that still references the

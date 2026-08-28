@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { serviceLineSlug } = await params;
   try {
     const line = await getServiceLineBySlug(serviceLineSlug);
-    return { title: `${line.name} | Design Services`, description: line.tagline || line.description || undefined };
+    return { title: `${line.name} | Design Services`, description: line.tagline || line.description || undefined, alternates: { canonical: `/services/${serviceLineSlug}` } };
   } catch {
     return { title: 'Services' };
   }

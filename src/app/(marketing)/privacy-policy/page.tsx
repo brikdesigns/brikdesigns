@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/privacy-policy' },
   title: 'Privacy Policy',
   description:
     'How Brik Designs collects, uses, and protects information about visitors to brikdesigns.com.',
