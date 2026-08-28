@@ -522,9 +522,20 @@
 
 /* Alternating rhythm: even rows lead with the media tile (quote right), odd rows
    lead with the quote (tile right). DOM order stays media → quote; only the
-   visual order flips. */
+   visual order flips. The tracks are reversed (not swapped by `order`) so the
+   media tile always lands in the CAPPED 327px track — an `order` swap would drop
+   it into the 1fr track, and `aspect-ratio: 1` would then blow it up to a giant
+   square wider than the other rows' tiles (#1096 kept them uniform). */
+.testimonial-row[data-lead='quote'] {
+  grid-template-columns: 1fr minmax(220px, 327px);
+}
+
+.testimonial-row[data-lead='quote'] .testimonial-row__body {
+  grid-column: 1;
+}
+
 .testimonial-row[data-lead='quote'] .testimonial-row__media {
-  order: 2;
+  grid-column: 2;
 }
 
 /* Square logo tile — white surface on the tinted card. Holds a real client
@@ -928,13 +939,17 @@
 
   /* Testimonials — stack the tile above the quote; cap the (otherwise
      full-width) media tile so it doesn't become a giant square when it loses
-     its column. */
-  .testimonial-row {
+     its column. One column means the quote-lead track reversal + explicit
+     grid-column placement must reset, else the media is placed into a
+     nonexistent second column. */
+  .testimonial-row,
+  .testimonial-row[data-lead='quote'] {
     grid-template-columns: 1fr;
   }
 
+  .testimonial-row[data-lead='quote'] .testimonial-row__body,
   .testimonial-row[data-lead='quote'] .testimonial-row__media {
-    order: 0;
+    grid-column: auto;
   }
 
   .testimonial-row__media {
