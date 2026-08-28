@@ -234,10 +234,23 @@
   max-width: var(--site-content-width);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
-  /* R3 (#1114): fixed 48px between section blocks. --space-1200 primitive, not
-     a --gap-* step — gap tokens shift with the spacing mode (--gap-xl is 24px in
-     the default mode home renders in), and the design calls for a stable 48px in
-     every mode (same reason the hero reaches for --space-1600/1800 directly). */
+  gap: var(--gap-xl);
+}
+
+/* R3 (#1114): fixed 48px between the home page's section blocks. Scoped to the
+   seven home sections rather than the bare .section-container, because that
+   class is shared — the Blog page (blog/page.tsx) reuses it under .section-plans
+   and must keep its own spacing. --space-1200 primitive, not a --gap-* step:
+   gap tokens shift with the spacing mode (--gap-xl is 24px in the mode home
+   renders in) and the design needs a stable 48px in every mode (same reason the
+   hero reaches for --space-1600/1800 directly). */
+.section-problem .section-container,
+.section-services .section-container,
+.section-industries .section-container,
+.section-tooling .section-container,
+.section-workflow .section-container,
+.section-pricing .section-container,
+.section-testimonials .section-container {
   gap: var(--space-1200);
 }
 
