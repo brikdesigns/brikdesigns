@@ -193,14 +193,18 @@
    the full-width Figma logo frame while the header stays in the page gutter.
    R2 polish: 80px block padding — the --space-1800 primitive, not
    --padding-huge (48px in the default spacing mode). Same primitive and same
-   reason as Services (#1091), so the two white bands share a block rhythm. */
+   reason as Services (#1091), so the two white bands share a block rhythm.
+   min-height: 100vh matches the Monthly Subscription band (.section-pricing) so
+   the two share a full-viewport height; content centers in the taller band. */
 .section-tooling {
   padding: var(--space-1800) 0;
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 100%;
+  min-height: 100vh;
   gap: var(--gap-xl);
 }
 
@@ -417,8 +421,11 @@
 }
 
 /* Step card: two equal halves — a text body and a decorative media panel —
-   split at the vertical center (where the spine runs). White band → bordered,
-   no shadow (card-treatment.md). Opaque so it covers the spine except in the
+   split at the vertical center (where the spine runs). Bordered plus a subtle
+   --box-shadow-sm elevation to lift each step off the white band and its
+   connector spine. This is a hand-built <li>, not a <Card>, so it's outside the
+   card-treatment.md luminance rule (and its gate); the elevation is a
+   deliberate call for the timeline. Opaque so it covers the spine except in the
    gaps. */
 .workflow-step {
   position: relative;
@@ -429,6 +436,7 @@
   border: var(--border-width-sm) solid var(--border-primary);
   border-radius: var(--border-radius-md);
   background-color: var(--surface-primary);
+  box-shadow: var(--box-shadow-sm);
   overflow: clip;
 }
 
