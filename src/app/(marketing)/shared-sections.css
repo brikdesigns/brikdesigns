@@ -607,6 +607,13 @@
   --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; BDS secondary gray is ~3.5:1 on the pale cream/mint tint, an AA fail */
 }
 
+/* R3 (#1114): the home pricing tiers take a larger --body-lg description than
+   the BDS default, scoped to the home band so the /plans + /services pricing
+   grids keep their own sizing. */
+.section-pricing .bds-pricing-card__description {
+  font-size: var(--body-lg);
+}
+
 /* MediaTabs colors the active tab label with --text-brand-primary — poppy-700
    #b0351b in light, poppy-300 #ffa693 in dark. On the current accent-yellow fill
    (#f7e190) that measures 4.78:1 in light — clearing AA, where the R2 mockup's
