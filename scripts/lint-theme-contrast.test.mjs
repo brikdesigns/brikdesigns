@@ -27,6 +27,8 @@ import { spawnSync } from 'node:child_process';
 import {
   AA,
   CHECKS,
+  TONE_PAIRS,
+  TONE_LAYERS,
   contrast,
   declarations,
   blockDeclarations,
@@ -262,11 +264,65 @@ test('dark checks --surface-secondary, the binding dark surface', () => {
   assert.ok(dark.surfaces.includes('--surface-primary'));
 });
 
+// ── Component-pinned tone pairs (brikdesigns#1079) ──────────────────────────
+//
+// The #1079 state was a local override of a `--color-system-*` PRIMITIVE, which
+// the page-ramp half cannot see: it walks semantic text/surface tokens only. The
+// first version of this addition reused `CHECKS[0].layers` and passed with the
+// stale value still in the file — a green check over the exact thing it was
+// added to catch — so the layer list is asserted here, not just the ratio.
+
+test('TONE_LAYERS includes globals.css\'s own :root — where primitive overrides live', () => {
+  const cssRoot = TONE_LAYERS.some((l) => l.file === 'css' && l.selector === ':root');
+  assert.ok(cssRoot, 'without css :root, a local --color-system-* override is invisible');
+});
+
+test('TONE_LAYERS puts the local :root ABOVE both bds blocks (layer order beats specificity)', () => {
+  const at = (file, selector) =>
+    TONE_LAYERS.findIndex((l) => l.file === file && l.selector === selector);
+  assert.ok(at('css', ':root') > at('bds', ':root'));
+  assert.ok(at('css', ':root') > at('bds', '.theme-brand-brik'));
+});
+
+test('the tone pairs are the ones BDS actually hard-pairs, not a cross-product', () => {
+  const pairs = TONE_PAIRS.map((p) => `${p.fg}|${p.bg}`);
+  assert.ok(pairs.includes('--text-on-color-dark|--background-info'));
+  assert.ok(pairs.includes('--text-info|--surface-info'));
+  // A tone foreground on a page surface is a pair nothing renders; asserting it
+  // would produce a failure no code can cause.
+  assert.ok(!pairs.some((p) => p.endsWith('|--surface-primary')));
+});
+
+test('the #1079 value fails and the BDS canonical value passes, on the solid Badge pair', () => {
+  // white on the stale local #2f80ed vs the canonical #2461b4.
+  assert.ok(contrast('#ffffff', '#2f80ed') < AA, 'the shipped defect must be flagged');
+  assert.ok(contrast('#ffffff', '#2461b4') >= AA, 'inheriting BDS must not be a false positive');
+});
+
+test('a local :root primitive override reaches the tone cascade', () => {
+  const bds = ':root {\n  --color-system-blue: #2461b4;\n  --background-info: var(--color-system-blue);\n}\n';
+  const css = '@layer client-theme {\n  :root {\n    --color-system-blue: #2f80ed;\n  }\n}\n';
+  const cascade = new Map();
+  for (const { file, selector } of TONE_LAYERS) {
+    const block = blockDeclarations(file === 'css' ? css : bds, selector);
+    if (!block) continue;
+    for (const [k, v] of block) cascade.set(k, v);
+  }
+  const primitives = declarations(bds);
+  const hex = resolveHex(
+    cascade.get('--background-info') ?? primitives.get('--background-info') ?? null,
+    cascade,
+    primitives
+  );
+  assert.equal(hex, '#2f80ed', 'the local override must win, or the gate cannot see #1079');
+});
+
 test('the real gate passes on the real files', () => {
   const r = spawnSync(process.execPath, ['scripts/lint-theme-contrast.mjs'], { encoding: 'utf8' });
   assert.equal(r.status, 0, `gate failed on the repo:\n${r.stderr || r.stdout}`);
-  // 3 text tokens × 2 surfaces × 2 themes.
-  assert.match(r.stdout, /12 text\/surface pair\(s\) clear AA/);
+  // 3 text tokens × 2 surfaces × 2 themes, plus the 2 component-pinned
+  // TONE_PAIRS (theme-invariant, so one pass each) — brikdesigns#1079.
+  assert.match(r.stdout, /14 text\/surface pair\(s\) clear AA/);
 });
 
 for (const { name, fn } of tests) {
