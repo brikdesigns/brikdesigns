@@ -39,6 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // appends the site suffix. Appending it here too double-suffixes (#587).
     title: event.title,
     description,
+    alternates: { canonical: `/marketing/${slug}` },
     openGraph: {
       title: event.title,
       description,

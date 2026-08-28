@@ -51,6 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // appends the site suffix. Appending it here too double-suffixes (#587).
       title: `${page.name} Customers`,
       description: page.tagline || `Brik Designs works with ${page.name} businesses.`,
+      alternates: { canonical: `/customers/${slug}` },
     };
   } catch {
     return { title: 'Not Found' };

@@ -11,6 +11,7 @@ import '../shared-sections.css';
 import './customer-stories.css';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/customer-stories' },
   title: 'Customer Stories | Brik Design Portfolio & Client Projects',
   description: 'Explore Brik\'s portfolio of brand, marketing, service, and product design. See how we build impactful design for our customers, brik by brik.',
 };

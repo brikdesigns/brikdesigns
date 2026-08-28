@@ -12,7 +12,12 @@ export const metadata: Metadata = {
   },
   description:
     'Build a better business — brik by brik. Brik Designs helps small businesses grow with smart branding, marketing, product, and service design. One-time or subscription-based.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://brikdesigns.com'),
+  // Canonical host is the post-cutover www origin, hardcoded to match
+  // sitemap.ts + robots.ts (both `https://www.brikdesigns.com`). NOT read from
+  // NEXT_PUBLIC_SITE_URL — that resolves to the apex locally and is unset per
+  // env, which would emit apex canonicals that disagree with the sitemap at the
+  // #371 DNS cutover. Indexing stays disabled until then (robots.ts).
+  metadataBase: new URL('https://www.brikdesigns.com'),
   openGraph: {
     type: 'website',
     siteName: 'Brik Designs',
