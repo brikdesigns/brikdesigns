@@ -94,11 +94,24 @@
 
 
 
-/* R3: the dark-hero button + ScrollDownCta color overrides are retired with the
-   brand band (#1114). On the white --surface-primary hero the BDS default
-   outline button and default scroll-cue colors read correctly, so both buttons
-   use plain variants and the cue falls through to its --text-secondary label /
-   --text-brand-primary icon defaults. */
+/* R3 (#1114): the home hero re-themed to the white --surface-primary band, so
+   its own buttons dropped .hero-btn-on-dark and the .section-hero ScrollDownCta
+   color override was retired. The .hero-btn-on-dark rule below stays — the Blog
+   hero (blog/page.tsx, which also imports this file) still rides a dark band and
+   uses it for a white-outline button. */
+
+/* Webflow: .button-tertiary-md on a dark hero — override BDS outline colors for
+   a dark bg. Used by the Blog hero (the home hero no longer opts in). */
+.hero-btn-on-dark.bds-button--outline {
+  color: var(--text-on-color-dark);
+  border-color: var(--text-on-color-dark); /* bds-lint-ignore token-family — --border-inverse flips to black in dark mode (--color-grayscale-black), making the border invisible on the fixed-dark hero surface. --text-on-color-dark is invariantly white in both themes. #393 */
+}
+
+.hero-btn-on-dark.bds-button--outline:hover:not(:disabled) {
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  filter: none;
+}
 
 /* ─── Services ("What We Do") ──────────────────────────────── */
 /* Webflow: .section_services — full-width, 100svh min. R2: 80px block padding
