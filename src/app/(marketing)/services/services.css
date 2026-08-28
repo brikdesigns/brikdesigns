@@ -16,7 +16,7 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: flex-start;
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
   height: 100%;
 }
 

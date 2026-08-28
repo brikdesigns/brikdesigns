@@ -317,9 +317,7 @@ html {
     --font-line-height--100: var(--font-line-height-tight);
 
     /* ---- Project-local gap extensions (no BDS primitive at these stops) ---- */
-    /* --gap-component: Webflow's gap-md (12px) for in-card stacks.
-       --gap-comfortable: section-block gap (36px), no exact space primitive. */
-    --gap-component: var(--space-300);
+    /* --gap-comfortable: section-block gap (36px), no exact space primitive. */
     --gap-comfortable: 36px;
 
     /* ---- Project-local box-shadow scale (custom alpha values; BDS exports
