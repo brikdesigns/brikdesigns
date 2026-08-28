@@ -9,11 +9,14 @@
 // never assert a checkable client fact without a source). Replace `quote` /
 // `authorName` / `businessType` with real, sourced testimonials before launch.
 //
-// ⚠ PRODUCTION-PROMOTE BLOCKER: row 1 now carries a REAL client logomark
-// (Birdwell Mutlak) beside a placeholder quote and a bracketed `[Client name]`.
-// That pairing reads as a testimonial Birdwell never gave, so this section must
-// not reach production until row 1's quote + attribution are real and sourced —
-// or the logo comes back out. Staging preview only. Tracked on #1047.
+// ⚠ PRODUCTION-PROMOTE BLOCKER: every row now carries the SAME real client
+// logomark (Birdwell Mutlak) beside a placeholder quote and a bracketed
+// `[Client name]` — a temporary "same logo in each card" placeholder so the
+// rows share one asset until real, per-client logos + sourced quotes land.
+// That pairing reads as three testimonials Birdwell never gave, so this section
+// must not reach production until each row's quote + attribution are real and
+// sourced and each row carries its own client's logo — or the logos come back
+// out. Staging preview only. Tracked on #1047.
 
 export interface Testimonial {
   id: string;
@@ -42,6 +45,8 @@ export const TESTIMONIALS: Testimonial[] = [
       '[Client quote — what the BrikDown revealed, and what changed in real terms after.]',
     authorName: '[Client name]',
     businessType: '[Business type]',
+    logoSrc: '/logos/clients/birdwell-mutlak.svg',
+    logoAlt: 'Birdwell Mutlak',
   },
   {
     id: 'placeholder-3',
@@ -49,5 +54,7 @@ export const TESTIMONIALS: Testimonial[] = [
       '[Client quote — the before, the a-ha, and the after, in the client’s own words.]',
     authorName: '[Client name]',
     businessType: '[Business type]',
+    logoSrc: '/logos/clients/birdwell-mutlak.svg',
+    logoAlt: 'Birdwell Mutlak',
   },
 ];
