@@ -7,6 +7,7 @@ import HomePage from '../page';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/how-it-works' },
   title: 'How It Works | Brik Designs',
   description:
     'How Brik takes marketing and back-office operations off your plate — so leads get followed up, your team has a process, and you can focus on the work.',

@@ -11,6 +11,7 @@ import '../shared-sections.css';
 import './about.css';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/about' },
   title: 'About Brik Designs | Your Marketing & Design Partner',
   description: 'Meet the team behind Brik Designs. We help businesses thrive through practical design, streamlined systems, and strategic creative support.',
 };

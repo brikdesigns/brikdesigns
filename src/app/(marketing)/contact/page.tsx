@@ -11,6 +11,7 @@ import '../shared-sections.css';
 import './contact.css';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/contact' },
   title: 'Contact Brik Designs | Start Your Project or Ask a Question',
   description: 'Let\'s build something together. Reach out to Brik Designs for a quote, consultation, or to learn how we can support your business — brik by brik.',
 };

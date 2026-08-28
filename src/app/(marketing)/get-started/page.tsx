@@ -13,6 +13,7 @@ import {
 import '../shared-sections.css';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/get-started' },
   title: 'Get Started | Tell Us About Your Project',
   description: 'Start your project with Brik Designs. Tell us about your business, your goals, and what you need — and we\'ll take it from there.',
 };

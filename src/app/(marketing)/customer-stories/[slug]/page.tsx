@@ -57,6 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${story.client_name || story.name} — Customer Story`,
       description: story.short_description || undefined,
+      alternates: { canonical: `/customer-stories/${slug}` },
     };
   } catch {
     return { title: 'Story Not Found' };

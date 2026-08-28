@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, ZIndexMediaBand } from '@brikdesigns/bds';
@@ -13,6 +14,8 @@ import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
 import './shared-sections.css';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 export const revalidate = 3600;
 

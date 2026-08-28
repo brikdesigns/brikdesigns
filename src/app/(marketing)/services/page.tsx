@@ -8,6 +8,7 @@ import '../shared-sections.css';
 import './services.css';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/services' },
   title: 'Design Services | Branding, Marketing, Web & Back-Office',
   description: 'Brik Designs offers branding, marketing, information, product, and back-office design services for small businesses — one-time or subscription-based.',
 };
