@@ -337,11 +337,17 @@ export const width = {
   default: 'var(--content-width-default)',
   /** 1024px — feature sections, grids */
   wide: 'var(--content-width-wide)',
-  /** 1280px — hero bands, wide layouts. Canonical site-wide container max
-   *  (replaces the retired project-local --site-container-max). */
+  /** 1280px — hero bands, wide layouts */
   xl: 'var(--content-width-xl)',
   /** 100% — full-bleed (use sparingly; prefer explicit widths) */
   full: 'var(--content-width-full)',
+  /** 1440px — the site content band max: nav, footer, .container-lg,
+   *  page-hero, blocks, and every marketing section point here so they stay
+   *  flush-aligned (ADR-025). Project-local — BDS's ladder stops at
+   *  --content-width-xl (1280px), so there is no canonical 1440px step; see
+   *  the declaration note in globals.css. Section background surfaces stay
+   *  100% wide and bleed edge-to-edge; only the inner band is capped. */
+  site: 'var(--site-content-width)',
 } as const;
 
 // ─── Gap (between elements) ─────────────────────────────────────────

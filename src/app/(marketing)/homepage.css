@@ -22,7 +22,15 @@
 
 /* Webflow: .container-hero — column flex, left-aligned. flex:1 reserves the
    container's natural vertical share so the trailing ScrollDownCta doesn't
-   push hero content up off-center. */
+   push hero content up off-center.
+
+   R2 polish: 64px inset on all four sides. --space-1600 (64px) is the
+   primitive, used directly because no --padding-* step resolves to 64px in the
+   default spacing mode (--padding-huge is 48px here, 80px only in
+   `comfortable`) — the same reason #1091 reached for --space-1800 on Services.
+   The inline inset deliberately overrides --gutter-page (32px): the hero band
+   is the one container the design insets further than the shared page gutter,
+   so the hero text starts inboard of the nav logo by design. */
 .hero-container {
   z-index: 100;
   display: flex;
@@ -31,9 +39,9 @@
   align-items: flex-start;
   flex: 1;
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding: var(--space-1600);
 }
 
 /* Webflow: .layout-wrapper-hero.comfortable — gap-xl between text block and buttons */
@@ -182,9 +190,12 @@
    band (matches Services/Industries). No min-height — the ticker is a short
    band, not a full-viewport section (Industries pattern). The Marquee is a
    sibling of the container, not inside it, so the row bleeds edge-to-edge like
-   the full-width Figma logo frame while the header stays in the page gutter. */
+   the full-width Figma logo frame while the header stays in the page gutter.
+   R2 polish: 80px block padding — the --space-1800 primitive, not
+   --padding-huge (48px in the default spacing mode). Same primitive and same
+   reason as Services (#1091), so the two white bands share a block rhythm. */
 .section-tooling {
-  padding: var(--padding-huge) 0;
+  padding: var(--space-1800) 0;
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
@@ -220,7 +231,7 @@
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
   gap: var(--gap-component);
@@ -422,13 +433,27 @@
   margin: 0;
 }
 
-/* Media panel — decorative half. Real per-step illustration is deferred
-   (#1073); until it lands the panel is a neutral tinted surface that holds the
-   alternating layout. min-height keeps the empty panel from collapsing shorter
-   than its text half. */
+/* Media panel — decorative half, holding the step's illustration in a 1:1 slot
+   (#1073). The tinted surface doubles as the letterbox fill and as the backdrop
+   while the image loads. min-height keeps the panel from collapsing shorter than
+   its text half at wide viewports, where the square is the smaller of the two. */
 .workflow-step__media {
   background-color: var(--surface-secondary);
   min-height: 260px;
+  aspect-ratio: 1;
+}
+
+/* `contain`, not `cover`: the source frames are 2140×1840 (ratio 1.16), and
+   covering the square crops ~14% off the sides — enough to slice the phone and
+   card frames off at the panel edges (measured on the live page, not estimated).
+   Contained, each illustration renders whole and the ~36px letterbox bands are
+   invisible because the export's own background matches --surface-secondary.
+   A true 1:1 re-export would remove the fit-scaling entirely (follow-up). */
+.workflow-step__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* ─── Pricing ("Monthly Subscription") ──────────────────────── */
@@ -502,8 +527,9 @@
   order: 2;
 }
 
-/* Square logo tile — white surface on the tinted card. Placeholder until real
-   client logos land; the label reads as a template, not a brand. */
+/* Square logo tile — white surface on the tinted card. Holds a real client
+   logomark when the row has one, else the template label (which reads as a
+   template, not a brand). */
 .testimonial-row__media {
   aspect-ratio: 1;
   width: 100%;
@@ -512,6 +538,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--padding-xl);
+}
+
+/* Client logomark — contained (never cropped) inside the square tile, capped
+   well short of the edges by the tile's own padding so wordmarks of different
+   aspect ratios read at a consistent optical weight (#1096 did the same for
+   the R2 logo tiles). */
+.testimonial-row__logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* The tile is --surface-primary, which flips to near-black in the dark theme,
+   and the source logomarks are black-inked — the exact failure in #893. Invert
+   on the dark root so the mark stays legible, matching the .tooling-logo
+   treatment above. */
+[data-theme='dark'] .testimonial-row__logo {
+  filter: invert(1);
 }
 
 .testimonial-row__logo-placeholder {
@@ -578,7 +624,7 @@
   align-items: stretch;
   gap: 0;
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
   background-color: var(--surface-primary);
   border-radius: var(--border-radius-sm);
@@ -673,7 +719,7 @@
   align-items: center;
   gap: var(--gap-comfortable);
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
 }
@@ -794,7 +840,7 @@
   flex-flow: column;
   align-items: center;
   gap: var(--gap-component);
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   text-align: center;
 }
 
@@ -851,10 +897,11 @@
   }
 
   /* Workflow — collapse the two-up timeline to a single content column. The
-     central spine and the (currently art-less) media panel are both dropped:
-     a centered spine is meaningless once the cards are full-width, and an empty
-     tinted half-strip reads as unfinished stacked. Both return with the desktop
-     grid; real step art (#1072) can revisit the stacked treatment. */
+     central spine is dropped: it is meaningless once the cards are full-width.
+     The media panel now HOLDS the real step illustration (#1073), so it stays
+     visible stacked (it was hidden only because an empty tinted half-strip read
+     as unfinished) — capped and centered so a full-measure square doesn't
+     dominate the scroll. Keep the cap in step with the <img sizes> in page.tsx. */
   .workflow-timeline::before {
     display: none;
   }
@@ -863,8 +910,20 @@
     grid-template-columns: 1fr;
   }
 
+  /* Cap the HEIGHT, not the width: the panel keeps spanning the card so its
+     tint reads edge-to-edge under the rounded clip (a width cap would strand
+     bare card-white beside it), while the contained illustration centers in the
+     shorter band instead of growing as tall as the card is wide.
+     Keep this in step with the <img sizes> in page.tsx. */
   .workflow-step__media {
-    display: none;
+    aspect-ratio: auto;
+    height: 320px;
+  }
+
+  /* The alternating rhythm has no meaning in one column — always copy first,
+     matching DOM order. */
+  .workflow-step[data-lead='media'] .workflow-step__body {
+    order: 0;
   }
 
   /* Testimonials — stack the tile above the quote; cap the (otherwise
@@ -888,9 +947,17 @@
   /* Hero — keeps --gutter-page padding-inline at every breakpoint so content
      never runs flush to the viewport edge (was: padding: 0 → edge-to-edge). */
   .section-hero {
-    padding: var(--padding-huge) 0;
+    padding: 0;
     min-height: calc(100vh - var(--nav-height));
     min-height: calc(100svh - var(--nav-height));
+  }
+
+  /* Step the hero's 64px desktop inset back to the shared page gutter: 64px on
+     each side of a 375px viewport leaves the title 247px to wrap in. The block
+     inset also moves onto the container here so it can't stack with a second
+     inset on .section-hero (which is why that rule's padding is now 0). */
+  .hero-container {
+    padding: var(--padding-huge) var(--gutter-page);
   }
 
   /* Sections — remove min-height */

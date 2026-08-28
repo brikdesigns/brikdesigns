@@ -24,7 +24,7 @@
 
 .page-hero__container {
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
   align-self: center;
@@ -128,7 +128,7 @@
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
 }

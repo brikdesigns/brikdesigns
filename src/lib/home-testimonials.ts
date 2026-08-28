@@ -7,14 +7,23 @@
 // required" until then). These entries are intentionally bracketed so they read
 // as a template, never as a fabricated client quote (Brik provenance doctrine:
 // never assert a checkable client fact without a source). Replace `quote` /
-// `authorName` / `businessType` with real, sourced testimonials before launch;
-// swap the tinted placeholder tile for the real client logo/photo.
+// `authorName` / `businessType` with real, sourced testimonials before launch.
+//
+// ⚠ PRODUCTION-PROMOTE BLOCKER: row 1 now carries a REAL client logomark
+// (Birdwell Mutlak) beside a placeholder quote and a bracketed `[Client name]`.
+// That pairing reads as a testimonial Birdwell never gave, so this section must
+// not reach production until row 1's quote + attribution are real and sourced —
+// or the logo comes back out. Staging preview only. Tracked on #1047.
 
 export interface Testimonial {
   id: string;
   quote: string;
   authorName: string;
   businessType: string;
+  /** Client logomark under /logos/clients/. Absent → the placeholder tile. */
+  logoSrc?: string;
+  /** Accessible name for the logomark. Required whenever `logoSrc` is set. */
+  logoAlt?: string;
 }
 
 export const TESTIMONIALS: Testimonial[] = [
@@ -24,6 +33,8 @@ export const TESTIMONIALS: Testimonial[] = [
       '[Client quote — a specific outcome: time saved, revenue found, or something they no longer have to do themselves.]',
     authorName: '[Client name]',
     businessType: '[Business type]',
+    logoSrc: '/logos/clients/birdwell-mutlak.svg',
+    logoAlt: 'Birdwell Mutlak',
   },
   {
     id: 'placeholder-2',

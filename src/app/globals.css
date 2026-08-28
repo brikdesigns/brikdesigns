@@ -337,6 +337,18 @@ html {
        page-hero, blocks, footer), flush-aligned at every breakpoint. History:
        was a one-off `clamp(1rem, 5vw, 2rem)` (32px desktop) — 8px wider than
        BDS sections, which misaligned the nav logo from page content. ---- */
+    /* ---- Site content width (project-local; BDS token gap). ----
+       The inner content band max — the max-width leg of the container recipe
+       above. BDS's --content-width-* ladder tops out at --content-width-xl
+       (1280px) then jumps to --content-width-full (100%), so there is no
+       canonical 1440px step to reference. Declared here (not as an invented
+       --content-width-2xl) so the name reads as project-local rather than BDS
+       canon; every consumer container — nav, footer, .container-lg, page-hero,
+       blocks, marketing sections — points at THIS name so they stay
+       flush-aligned (ADR-025). Section background surfaces stay width: 100%
+       and bleed edge-to-edge; only the inner band is capped.
+       Token-gap follow-up: a BDS --content-width-2xl would retire this. */
+    --site-content-width: 1440px;
     /* Height of the sticky nav — used to offset hero min-height so the
        scroll-down CTA stays within the viewport on initial load. */
     --nav-height: 6rem;
