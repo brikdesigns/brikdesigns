@@ -136,10 +136,11 @@
 
 /* ─── Industries ("Where we do our best work") ──────────────── */
 /* R2 section (Figma 25768:6527): MediaTabs peer selector + synced illustration,
-   on the soft-yellow accent band the mockup tints it (fill surface/accent-yellow,
-   #f4d364). MediaTabs owns its own internal layout; the section just provides the
-   band + container rhythm. The accent surface is fixed-light in both themes (like
-   the service tints), so on-band text is pinned dark in the dark root — see
+   on the yellow accent band (fill surface/accent-yellow). The token resolves to
+   #f7e190 today; the R2 mockup used #f4d364 — see the Problem-CTA band above for
+   the Brand Kit re-point. MediaTabs owns its own internal layout; the section
+   just provides the band + container rhythm. The accent surface is fixed-light
+   in both themes, so on-band text is pinned dark in the dark root — see
    shared-sections.css "Accent band on-color text". */
 .section-industries {
   padding: var(--padding-huge) 0;
@@ -289,12 +290,16 @@
 
 /* ─── Problem-CTA ("Sound like you?") ───────────────────────── */
 /* R2 accent band (Figma node 25805:3001): centered SectionHeader intro + two
-   CTAs, bridging Problem → Services. The mockup fills this band with the soft
-   accent purple (fill surface/accent-purple, #9e8bc2), not brand orange — a
-   mid-tone light tint, so the intro drops onColor (white, AA-large only on this
-   fill) for the default dark text. Fixed-light in both themes → on-band text is
-   pinned dark in the dark root (shared-sections.css "Accent band on-color text").
-   This rule only paints the band. */
+   CTAs, bridging Problem → Services. Filled with accent purple
+   (fill surface/accent-purple), not brand orange.
+   The token now resolves to #e9d8fc, a pale tint. It read #9e8bc2 when this
+   band was built — the R2 mockup value — and the ❖ Brik Brand Kit has since
+   re-pointed surface/accent-{hue} onto the system palette
+   (color/system/purple-light), which BDS mirrors 1:1 as of v0.175.0
+   (brik-bds#2066). Read live from the Brand Kit 2026-08-27, both modes.
+   Still fixed-light in both themes, so on-band text stays pinned dark in the
+   dark root (shared-sections.css "Accent band on-color text") — a paler fill
+   only widens that margin. This rule only paints the band. */
 .section-problem-cta {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-accent-purple);
@@ -412,12 +417,14 @@
 
 /* ─── Pricing ("Monthly Subscription") ──────────────────────── */
 /* R2 pricing band (Figma node 25768:7667): header row (SectionHeader intro +
-   CTA) over 3 BDS PricingCards, on the soft accent-purple band the mockup tints
-   it (fill surface/accent-purple, #9e8bc2) — not brand orange. A mid-tone light
-   tint, so the intro drops onColor for the default dark text (Figma shows dark
-   header ink here). Card chrome is band-derived in shared-sections.css ("Card
-   chrome by band"); on-band text is pinned dark in the dark root ("Accent band
-   on-color text") since the accent surface is fixed-light in both themes. */
+   CTA) over 3 BDS PricingCards, tinted with accent purple
+   (fill surface/accent-purple) — not brand orange.
+   Same token, same history as the Problem-CTA band above: #9e8bc2 in the R2
+   mockup, #e9d8fc today. The intro still drops onColor for the default dark
+   text (Figma shows dark header ink here). Card chrome is band-derived in
+   shared-sections.css ("Card chrome by band"); on-band text is pinned dark in
+   the dark root ("Accent band on-color text") since the accent surface is
+   fixed-light in both themes. */
 .section-pricing {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-accent-purple);
