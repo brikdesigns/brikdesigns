@@ -83,6 +83,52 @@ export const CHECKS = [
 ];
 export const TEXT_TOKENS = ['--text-primary', '--text-secondary', '--text-muted'];
 
+/** Tone pairs a COMPONENT pins, checked in addition to the page-level ramp above
+ *  (brikdesigns#1079).
+ *
+ *  The cross-product in TEXT_TOKENS × surfaces is the right shape for page copy,
+ *  where any text token can land on any surface. It is the wrong shape here: BDS
+ *  hard-pairs each tone's foreground with its own background, so `--text-info` on
+ *  `--surface-primary` is a pair nothing renders, and asserting it would produce
+ *  a failure no code can cause. These are the exact pairs from
+ *  `dist/styles.css`, read off the two `.bds-badge--tone-info` rules.
+ *
+ *  Why this axis needed its own gate: `--background-info` derives from the
+ *  `--color-system-blue` PRIMITIVE, and a brand override of a primitive is
+ *  invisible to a gate that only walks semantic text/surface tokens. brikdesigns
+ *  carried #2f80ed locally after brik-bds#2056 darkened the canonical value to
+ *  #2461b4, so the solid info Badge sat at 3.87:1 and nothing in this repo saw
+ *  it. Latent at the time — the two info surfaces were both dormant — which is
+ *  precisely why a gate and not a one-off fix.
+ *
+ *  Theme-invariant: `dist/tokens.css` declares the info family once
+ *  (`--background-info` / `--text-info` / `--surface-info`), so both themes
+ *  resolve the same hexes and one pass covers them. If BDS ever gives the family
+ *  a per-theme block, move these into CHECKS. */
+export const TONE_PAIRS = [
+  { fg: '--text-on-color-dark', bg: '--background-info', what: 'solid info Badge' },
+  { fg: '--text-info', bg: '--surface-info', what: 'soft info Badge' },
+];
+
+/** Cascade for TONE_PAIRS, lowest precedence first.
+ *
+ *  It is NOT `CHECKS[0].layers`. That list omits globals.css's own `:root`
+ *  block, which is where this repo overrides `--color-system-*` PRIMITIVES —
+ *  the exact declaration #1079 was about. Reusing the page-ramp layers made the
+ *  gate pass with the stale #2f80ed still in the file, which is worse than no
+ *  gate: a green check over the thing it was added to catch.
+ *
+ *  `@layer client-theme` is declared after the bds layers in globals.css, so a
+ *  local `:root` beats a BDS `.theme-brand-brik` — layer order outranks
+ *  specificity. Hence css `:root` sits above both bds blocks, and css
+ *  `.theme-brand-brik` above it on specificity within the same layer. */
+export const TONE_LAYERS = [
+  { file: 'bds', selector: ':root' },
+  { file: 'bds', selector: '.theme-brand-brik' },
+  { file: 'css', selector: ':root' },
+  { file: 'css', selector: '.theme-brand-brik' },
+];
+
 /** The globals.css block each theme's own overrides live in — the one a rename
  *  must fail loudly on, since that is the file this repo controls. */
 export const OWN_BLOCK = {
@@ -255,6 +301,50 @@ function main() {
           problems.push(
             `${theme}: ${textToken} (${fg}) on ${surfaceToken} (${bg}) is ` +
               `${ratio.toFixed(2)}:1 — under AA ${AA}:1.`
+          );
+        }
+      }
+    }
+  }
+
+  // Component-pinned tone pairs, over TONE_LAYERS — which unlike the page-ramp
+  // layers includes globals.css's own `:root`, where the `--color-system-*`
+  // primitive overrides live. One pass covers both themes: the info family is
+  // declared once in BDS and is theme-invariant (see TONE_PAIRS).
+  {
+    const cascade = new Map();
+    let missingLayer = false;
+    for (const { file, selector } of TONE_LAYERS) {
+      const block = blockDeclarations(sources[file], selector);
+      if (!block) {
+        problems.push(
+          `tone: no \`${selector} {\` block in ${file === 'css' ? CSS_PATH : TOKENS_PATH} ` +
+            `— TONE_LAYERS is stale, so the tone pairs assert nothing. Update this script.`
+        );
+        missingLayer = true;
+        break;
+      }
+      for (const [k, v] of block) cascade.set(k, v);
+    }
+    if (!missingLayer) {
+      for (const { fg, bg, what } of TONE_PAIRS) {
+        const bgHex = resolveHex(cascade.get(bg) ?? primitives.get(bg) ?? null, cascade, primitives);
+        const fgHex = resolveHex(cascade.get(fg) ?? primitives.get(fg) ?? null, cascade, primitives);
+        if (!bgHex || !fgHex) {
+          problems.push(
+            `tone: could not resolve ${fg} (${fgHex ?? 'unresolved'}) on ${bg} ` +
+              `(${bgHex ?? 'unresolved'}) — the ${what} pair is not being asserted.`
+          );
+          continue;
+        }
+        checked += 1;
+        const ratio = contrast(fgHex, bgHex);
+        if (ratio < AA) {
+          problems.push(
+            `tone: ${fg} (${fgHex}) on ${bg} (${bgHex}) is ${ratio.toFixed(2)}:1 — ` +
+              `under AA ${AA}:1. That is the ${what}. If a local ` +
+              `--color-system-* override is in globals.css, drop it and inherit ` +
+              `BDS rather than re-picking a hex here (brikdesigns#1079).`
           );
         }
       }
