@@ -142,6 +142,24 @@ SELF_WT="$(git -C "$(dirname "$0")" rev-parse --show-toplevel 2>/dev/null || ech
 
 git fetch origin main --quiet 2>/dev/null || true
 
+# Pass 4 reads refs/remotes/origin/task/*, and those refs outlive the branches
+# they name: GitHub's delete-branch-on-merge, `gh pr merge --delete-branch` and
+# another session's sweep all remove the remote branch without touching this
+# checkout. The stale ref was then offered for deletion, the push failed, and —
+# because the delete is one batch — it took every genuinely-live orphan ref with
+# it. The only prune in the old script ran inside the SUCCESS branch, the one
+# path where it was no longer needed, so the failure never self-healed
+# (brik-llm#2333).
+#
+# Scoped to the task namespace, not a bare `git fetch --prune origin`: the fetch
+# above is deliberately `origin main`, and pruning all of origin is a much bigger
+# read on every run. Confined to the pass that needs it — a sweep without
+# --sweep-remote-refs still makes exactly the one fetch it always did.
+if $SWEEP_REMOTE_REFS; then
+  git fetch origin --prune --quiet \
+    '+refs/heads/task/*:refs/remotes/origin/task/*' 2>/dev/null || true
+fi
+
 # PR map: headRefName -> best state (MERGED wins).
 #
 # When gh is present but the CALL fails — bad token scope, exhausted GraphQL
@@ -624,19 +642,64 @@ fi
 # needs BOTH --apply and the opt-in flag; `git push --delete` is batched into one
 # invocation because each push is a network round trip and a shared-quota call.
 ref_deleted=0
+ref_failed=0
+# "already gone" is SUCCESS for a delete, not an error. The prune above closes the
+# common case, but a concurrent sweep on the other machine can still remove a ref
+# between that prune and this push, so the condition has to be tolerated here too
+# rather than only prevented upstream.
+ref_already_gone() {
+  case "$1" in
+    *"remote ref does not exist"*) return 0 ;;
+    *"remote ref"*"does not exist"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 if $SWEEP_REMOTE_REFS && [ "$nrf" -gt 0 ]; then
   echo -e "${YELLOW}▸ Deleting ${nrf} orphan remote ref(s)...${NC}"
+  # Batch first: each push is a network round trip against a shared quota, and the
+  # batch is one call for the whole set.
   if err="$(git push origin --delete "${DELETE_REF_NAMES[@]}" 2>&1)"; then
     for i in "${!DELETE_REF_NAMES[@]}"; do
       echo -e "  ${GREEN}✓${NC} origin/${DELETE_REF_NAMES[$i]} (${DELETE_REF_LABELS[$i]})"
     done
     ref_deleted=$nrf
-    git fetch --prune origin --quiet 2>/dev/null || true
   else
-    echo -e "  ${RED}✗${NC} remote ref delete failed; nothing removed" >&2
-    printf '%s\n' "$err" | sed 's/^/        /' >&2
+    # A batched delete is all-or-nothing, so ONE ref that was already gone used to
+    # block every live orphan beside it — and the run before this fix printed
+    # "nothing removed" while still exiting 0. Retry individually; the extra round
+    # trips are paid only on the failure path.
+    echo -e "${YELLOW}  batch delete failed — retrying each ref individually${NC}" >&2
+    for i in "${!DELETE_REF_NAMES[@]}"; do
+      rname="${DELETE_REF_NAMES[$i]}"
+      if err1="$(git push origin --delete "$rname" 2>&1)"; then
+        echo -e "  ${GREEN}✓${NC} origin/${rname} (${DELETE_REF_LABELS[$i]})"
+        ref_deleted=$((ref_deleted+1))
+      elif ref_already_gone "$err1"; then
+        echo -e "  ${GREEN}✓${NC} origin/${rname} (already gone on the remote)"
+        ref_deleted=$((ref_deleted+1))
+      else
+        echo -e "  ${RED}✗${NC} origin/${rname} — delete failed" >&2
+        printf '%s\n' "$err1" | sed 's/^/        /' >&2
+        ref_failed=$((ref_failed+1))
+      fi
+    done
   fi
+  # Unconditional, not success-only: after a partial run the local refs are the
+  # input to the NEXT run, and leaving them stale is what made this non-self-healing.
+  git fetch origin --prune --quiet \
+    '+refs/heads/task/*:refs/remotes/origin/task/*' 2>/dev/null || true
 fi
 
 git worktree prune 2>/dev/null || true
 echo -e "${GREEN}Done — removed ${removed}/${n} worktree(s), reaped ${reaped}/${nr} orphan(s), deleted ${deleted}/${nb} branch(es), ${ref_deleted}/${nrf} remote ref(s).${NC}"
+
+# A pass that was asked to run and could not do its work must not report success.
+# The old script printed "nothing removed" and exited 0, so a scheduled caller
+# read a failed sweep as a clean one — which is why this went unnoticed for weeks
+# (brik-llm#2333). Scoped to the remote-ref pass: it is the pass this ticket
+# evidenced, and widening the exit contract to passes 1-3 would change the
+# contract for every consumer repo in one undiscussed step.
+if [ "$ref_failed" -gt 0 ]; then
+  echo -e "${RED}✗ ${ref_failed} remote ref(s) could not be deleted — exiting non-zero so a scheduled caller sees it.${NC}" >&2
+  exit 1
+fi
