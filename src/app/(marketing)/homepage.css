@@ -107,9 +107,11 @@
 }
 
 /* ─── Services ("What We Do") ──────────────────────────────── */
-/* Webflow: .section_services — full-width, centered, 100svh min */
+/* Webflow: .section_services — full-width, 100svh min. R2: 80px block padding
+   (--space-1800 primitive, #1091) and left-aligned content (header + control
+   sit at the container gutter, cards fill the measure). */
 .section-services {
-  padding: var(--padding-huge) 0;
+  padding: var(--space-1800) 0;
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
@@ -119,13 +121,20 @@
   min-height: 100svh;
 }
 
+/* Left-align the section content: stretch the measure-capped container so the
+   start-aligned SectionHeader and the SegmentedControl sit at the left gutter
+   rather than centering (mirrors .section-container--tooling). */
+.section-services .section-container {
+  align-items: stretch;
+}
+
 /* R2 Services — Marketing/Back-Office SegmentedControl over a card grid (#1053).
    The section stays on the white --surface-primary band, so the cards keep the
    BDS default bordered chrome (card-treatment.md — no override here). */
 .services-tabs {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--gap-component);
   width: 100%;
 }
@@ -153,6 +162,18 @@
 
 .industries-tabs {
   width: 100%;
+}
+
+/* R2 refinement (#1092): the synced illustration sits in a white rounded panel
+   rather than floating on the band. The band is the soft-yellow accent tint, so
+   the panel takes a containment shadow and no border (light tint → shadow,
+   card-treatment.md). The accent surface is fixed-light in both themes, so the
+   shadow stays legible in dark mode (same reasoning as the service tints). */
+.industries-tabs .bds-media-tabs__media {
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-md);
+  overflow: hidden;
 }
 
 /* ─── Tooling ("Tools we know") ──────────────────────────────── */
