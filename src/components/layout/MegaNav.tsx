@@ -223,6 +223,11 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
           <div className="mega-nav__right-group">
           <div className="mega-nav__menu-wrapper">
             <div className="mega-nav__menu">
+            {/* How it Works — plain link, listed first */}
+            <Link href="/how-it-works" className="mega-nav__toggle" onClick={() => setOpen(null)}>
+              How it Works
+            </Link>
+
             {/* Support Plans */}
             <div
               className="mega-nav__dropdown"
@@ -365,6 +370,11 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                 </div>
               )}
             </div>
+
+            {/* Results — plain link to customer stories */}
+            <Link href="/customer-stories" className="mega-nav__toggle" onClick={() => setOpen(null)}>
+              Results
+            </Link>
 
             {/* Design Services — parked (SHOW_DESIGN_SERVICES_NAV). Kept intact
                 so it can be restored once we settle the new services surface. */}
@@ -520,11 +530,6 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               )}
             </div>
 
-            {/* Results — plain link to customer stories */}
-            <Link href="/customer-stories" className="mega-nav__toggle" onClick={() => setOpen(null)}>
-              Results
-            </Link>
-
             {/* About */}
             <div
               className="mega-nav__dropdown"
@@ -585,6 +590,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="mega-nav__mobile-menu">
+          <Link href="/how-it-works" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>How it Works</Link>
           <Link href="/plans" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Services</Link>
           {SHOW_DESIGN_SERVICES_NAV && (
             <Link href="/services" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Design Services</Link>
@@ -600,8 +606,8 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               {line.name}
             </Link>
           ))}
-          <Link href="/industries" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Industries</Link>
           <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Results</Link>
+          <Link href="/industries" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Industries</Link>
           <Link href="/about" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>About</Link>
           <Link href="/blog" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>
           <Link
