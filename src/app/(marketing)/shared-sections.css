@@ -560,14 +560,19 @@
 }
 
 /* ─── Accent band on-color text (R2 home) ────────────────────────────────
-   The R2 home accent bands paint the soft accent purple (#9e8bc2) and yellow
-   (#f4d364) surfaces — Figma nodes 25805:3001, 25768:6527, 25768:7667. These are
-   mid-tone tints and fixed-light in BOTH themes (they alias the light purple /
-   yellow color primitives, the same fixed primitives the service tints ride).
-   That breaks the default intro text two ways: the default secondary text token
-   (mid-gray) is only ~2.4:1 on the mid-tone purple — below AA — and both the
-   primary + secondary text tokens flip near-white in the dark root, unreadable
-   on the still-light fill. Pin both to the mode-invariant grayscale-950
+   The R2 home accent bands paint the accent purple (#e9d8fc) and yellow
+   (#f7e190) surfaces — Figma nodes 25805:3001, 25768:6527, 25768:7667. Those
+   two hexes are the ❖ Brik Brand Kit's current values (color/system/{purple,
+   yellow}-light, read live 2026-08-27); the R2 mockup used the mid-tones
+   #9e8bc2 / #f4d364, and BDS moved onto the system palette in v0.175.0
+   (brik-bds#2066). Both are still fixed-light in BOTH themes — note they now
+   alias the SYSTEM palette, not the light purple / yellow primitives the
+   service tints ride, so the two families no longer move together.
+   The dark root is what breaks the default intro text: the primary + secondary
+   text tokens flip near-white there, unreadable on a still-light fill
+   (1.34:1 on the purple, 1.30:1 on the yellow). In light the paler tints now
+   clear AA on their own — 5.15:1 for the default secondary gray on the purple,
+   where #9e8bc2 did not. Pin both to the mode-invariant grayscale-950
    primitive so the intro clears AA in both themes; this is the dark-text
    analogue of the onColor (white) treatment these bands dropped, and mirrors the
    .service-surface pin in globals.css.
@@ -578,8 +583,8 @@
 .section-problem-cta,
 .section-pricing .pricing-header,
 .section-industries {
-  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band intro text on a fixed-light accent tint; every --text-* token flips near-white in the dark root, so only a mode-invariant primitive clears AA in both themes (mirrors the .service-surface pin, globals.css) */
-  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; the default --text-secondary gray is ~2.4:1 on the mid-tone accent-purple, an AA fail */
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band intro text on a fixed-light accent tint; every --text-* token flips near-white in the dark root (1.34:1 on accent-purple, 1.30:1 on accent-yellow), so only a mode-invariant primitive clears AA in both themes (mirrors the .service-surface pin, globals.css) */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above. The DARK root is now the only reason this pin is needed: on the current #e9d8fc fill the default --text-secondary (#5a5a5a) measures 5.15:1 and clears AA in light. It did not on the R2 mockup's #9e8bc2 — the paler Brand Kit tint (brik-bds#2066, v0.175.0) fixed the light-mode half. Keep the pin; the dark-root flip is unchanged. */
 }
 
 /* R2 pricing cards carry a PER-CARD pale service-line tint (page.tsx sets an
@@ -602,13 +607,16 @@
   --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; BDS secondary gray is ~3.5:1 on the pale cream/mint tint, an AA fail */
 }
 
-/* MediaTabs colors the active tab label with --text-brand-primary — #b0351b in
-   light (4.25:1 on the accent-yellow band, just under AA) and a light poppy in
-   dark (1.28:1). The inactive labels already ride the dark --text-primary pin
-   above, but the active one takes this brand hook instead, so pin it dark too on
-   the yellow band. The "selected" affordance survives via TabBar's brand
-   left-border rule (--border-brand-primary) + the auto-advance progress bar —
-   both unaffected. Gated by public-routes.spec.ts (axe, both themes). */
+/* MediaTabs colors the active tab label with --text-brand-primary — poppy-700
+   #b0351b in light, poppy-300 #ffa693 in dark. On the current accent-yellow fill
+   (#f7e190) that measures 4.78:1 in light — clearing AA, where the R2 mockup's
+   #f4d364 gave 4.26:1 and did not — but 1.45:1 in dark, which does not. The
+   inactive labels already ride the dark --text-primary pin above, but the active
+   one takes this brand hook instead, so pin it dark too on the yellow band: the
+   dark root is what the pin is for. The "selected" affordance survives via
+   TabBar's brand left-border rule (--border-brand-primary) + the auto-advance
+   progress bar — both unaffected. Gated by public-routes.spec.ts (axe, both
+   themes). */
 .section-industries .bds-tab-bar-item[aria-selected='true'] {
   color: var(--color-grayscale-950); /* bds-lint-ignore token-family — active MediaTab label on the fixed-light accent-yellow band; --text-brand-primary flips light in dark (1.28:1) and is only 4.25:1 in light, so a mode-invariant dark primitive is the one value that clears AA in both themes */
 }
