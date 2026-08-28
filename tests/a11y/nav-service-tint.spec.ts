@@ -54,13 +54,22 @@ async function navLine(page: Page): Promise<string | null> {
 
 /** The line the PAGE claims, from the server-rendered hero. `null` when absent.
  *
- *  `count()` does not auto-wait, so the nav is awaited first as a barrier: both
- *  the header and the hero come from the same server-rendered document, so a
- *  present header means a present hero — or a genuinely audience-less page. */
+ *  Auto-waits for the hero's `[data-audience]` rather than barriering on the
+ *  header and assuming header-present ⇒ hero-present. That assumption held for
+ *  a single synchronous document but broke on a streamed deploy-preview render,
+ *  where the header attaches first and a bare `count()` read the hero as absent
+ *  — a spurious `null` that failed the nav↔hero agreement assertion on a route
+ *  whose server HTML actually agreed (#1088). `mapServiceLineSlug` is total, so
+ *  a real mismatch would resolve a line, never `null`; only a lagging render
+ *  produced one. A genuinely audience-less page still resolves `null`, just
+ *  after the wait times out rather than before it begins. */
 async function pageLine(page: Page): Promise<string | null> {
-  await page.locator('header.mega-nav').first().waitFor({ state: 'attached' });
   const el = page.locator('[data-audience]').first();
-  if ((await el.count()) === 0) return null;
+  try {
+    await el.waitFor({ state: 'attached', timeout: 15_000 });
+  } catch {
+    return null;
+  }
   return el.getAttribute('data-audience');
 }
 
