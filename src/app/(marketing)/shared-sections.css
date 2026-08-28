@@ -549,6 +549,18 @@
   box-shadow: var(--box-shadow-md);
 }
 
+/* Card border-width standard: wherever a card IS bordered, the ring is 3px this
+   theme (--border-width-200) rather than the BDS 2px --border-width-md default.
+   WIDTH only — the band rules above (and the dark-band rule below) still own
+   WHETHER a card is bordered and its color; a `border-width` property, not a
+   token redefinition, so it stays clear of ADR-013 and leaves inputs/buttons/
+   tabs on the default md weight. Unlayered like the rest of this SOT so it beats
+   the BDS variant's shorthand; on border:none cards it's an inert no-op. Card-
+   only starting point (home updates) — reassess before widening the standard. */
+.bds-card:not(.bds-card--borderless) {
+  border-width: var(--border-width-200);
+}
+
 /* Service pricing tiers use `.bds-pricing-card` (a distinct class, not
    `.bds-card`), so the band rule above doesn't reach them: the plain tiers get
    the same tint treatment here; the featured tier keeps its brand-colored ring
@@ -662,7 +674,7 @@
 :root[data-theme="dark"] .page-section--accent .bds-card:not(.bds-card--borderless),
 :root[data-theme="dark"] .contact-plans .bds-card:not(.bds-card--borderless),
 :root[data-theme="dark"] .section-plans .bds-card:not(.bds-card--borderless) {
-  border: var(--border-width-md) solid var(--border-secondary);
+  border: var(--border-width-200) solid var(--border-secondary);
   box-shadow: var(--box-shadow-none);
 }
 
