@@ -9,7 +9,7 @@
    .page-hero on interior pages). min-height subtracts --nav-height so the
    sticky header doesn't push the trailing ScrollDownCta below the fold. */
 .section-hero {
-  background-color: var(--surface-brand-primary);
+  background-color: var(--surface-primary);
   display: flex;
   flex-flow: column;
   justify-content: center;
@@ -62,7 +62,8 @@
   width: 80%;
 }
 
-/* Webflow: .text_display-sm.on-color-dark */
+/* R3: hero re-themed to the white --surface-primary band (#1114) — title takes
+   default dark --text-primary (was --text-on-color-dark on the retired brand band). */
 .hero-title {
   font-family: var(--font-family-display);
   /* Display treatment → display-family + display-scale size (#534).
@@ -75,44 +76,29 @@
   font-size: clamp(2.25rem, 1rem + 4.6vw, var(--display-sm));
   font-weight: 700;
   line-height: var(--font-line-height-tight);
-  color: var(--text-on-color-dark);
+  color: var(--text-primary);
   margin: 0;
 }
 
-/* Webflow: .text_body-huge.on-color-dark */
+/* R3: lead paragraph on the white hero band takes --text-secondary (was
+   --text-on-color-dark on the retired brand band). */
 .hero-description {
   font-family: var(--font-family-body);
   font-size: var(--body-xl);
   font-weight: 400;
   line-height: var(--font-line-height-normal);
-  color: var(--text-on-color-dark);
+  color: var(--text-secondary);
   margin: 0;
 }
 
 
 
 
-/* Webflow: .button-tertiary-md on dark hero — override BDS outline colors for dark bg */
-.hero-btn-on-dark.bds-button--outline {
-  color: var(--text-on-color-dark);
-  border-color: var(--text-on-color-dark); /* bds-lint-ignore token-family — --border-inverse flips to black in dark mode (--color-grayscale-black), making the border invisible on the fixed-dark hero surface. --text-on-color-dark is invariantly white in both themes. #393 */
-}
-
-.hero-btn-on-dark.bds-button--outline:hover:not(:disabled) {
-  background-color: var(--surface-primary);
-  color: var(--text-primary);
-  filter: none;
-}
-
-/* Scoped overrides for the ScrollDownCta inside the brand hero — on the poppy
-   --surface-brand-primary backdrop the default --text-secondary label and
-   --text-brand-primary icon are both low-contrast. Invert both to white
-   (--text-on-color-dark stays white in either theme). #356. The ≤767px hide
-   rule still applies via the global cascade. */
-.section-hero .scroll-down-cta__label,
-.section-hero .scroll-down-cta__icon {
-  color: var(--text-on-color-dark);
-}
+/* R3: the dark-hero button + ScrollDownCta color overrides are retired with the
+   brand band (#1114). On the white --surface-primary hero the BDS default
+   outline button and default scroll-cue colors read correctly, so both buttons
+   use plain variants and the cue falls through to its --text-secondary label /
+   --text-brand-primary icon defaults. */
 
 /* ─── Services ("What We Do") ──────────────────────────────── */
 /* Webflow: .section_services — full-width, 100svh min. R2: 80px block padding
@@ -235,7 +221,11 @@
   max-width: var(--site-content-width);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
-  gap: var(--gap-xl);
+  /* R3 (#1114): fixed 48px between section blocks. --space-1200 primitive, not
+     a --gap-* step — gap tokens shift with the spacing mode (--gap-xl is 24px in
+     the default mode home renders in), and the design calls for a stable 48px in
+     every mode (same reason the hero reaches for --space-1600/1800 directly). */
+  gap: var(--space-1200);
 }
 
 /* Section intros (title + description) now use the BDS <SectionHeader>
@@ -263,7 +253,12 @@
   background-color: var(--surface-secondary);
   display: flex;
   flex-direction: column;
-  gap: var(--gap-xl);
+  /* R3 (#1114): xl inset. BDS CardPadding caps at 'lg', so the card renders
+     padding="none" and the token inset is applied here. */
+  padding: var(--padding-xl);
+  /* R3 (#1114): 48px between the card title and the pain-point grid. --space-1200
+     primitive for a mode-stable 48px (see the .section-container note above). */
+  gap: var(--space-1200);
 }
 
 .problem__title {
@@ -340,6 +335,19 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+}
+
+/* R3 (#1114): give the accent CTA bridge real vertical presence on desktop — it
+   was the only home band with no min-height, so it read cramped between the
+   full-viewport Problem and Services bands. A 60svh floor + 80px block padding
+   (--space-1800, the same 80px step Services uses) enlarges it without claiming
+   a full viewport like the content bands. Scoped to ≥992px so the mobile band
+   stays compact; content stays centered via the base flex rule. */
+@media (min-width: 992px) {
+  .section-problem-cta {
+    min-height: 60svh;
+    padding-block: var(--space-1800);
+  }
 }
 
 /* ─── Workflow ("Simple from day one") ──────────────────────── */
@@ -537,12 +545,20 @@
   grid-template-columns: 1fr minmax(220px, 327px);
 }
 
+/* Pin both items to the single grid row (#1114). DOM order is media → body, so
+   the media (explicit column 2) advances the sparse auto-placement cursor past
+   column 1; the body (explicit column 1) then can't be placed in row 1 and drops
+   to an implicit row 2, stacking the pair and inflating the row (measured 525px
+   vs 391px on the media-lead rows). An explicit `grid-row: 1` keeps them side by
+   side. */
 .testimonial-row[data-lead='quote'] .testimonial-row__body {
   grid-column: 1;
+  grid-row: 1;
 }
 
 .testimonial-row[data-lead='quote'] .testimonial-row__media {
   grid-column: 2;
+  grid-row: 1;
 }
 
 /* Square logo tile — white surface on the tinted card. Holds a real client
@@ -947,8 +963,8 @@
   /* Testimonials — stack the tile above the quote; cap the (otherwise
      full-width) media tile so it doesn't become a giant square when it loses
      its column. One column means the quote-lead track reversal + explicit
-     grid-column placement must reset, else the media is placed into a
-     nonexistent second column. */
+     grid-column/grid-row placement must reset, else the media is placed into a
+     nonexistent second column and the row-1 pin overlaps the stacked items. */
   .testimonial-row,
   .testimonial-row[data-lead='quote'] {
     grid-template-columns: 1fr;
@@ -957,6 +973,7 @@
   .testimonial-row[data-lead='quote'] .testimonial-row__body,
   .testimonial-row[data-lead='quote'] .testimonial-row__media {
     grid-column: auto;
+    grid-row: auto;
   }
 
   .testimonial-row__media {

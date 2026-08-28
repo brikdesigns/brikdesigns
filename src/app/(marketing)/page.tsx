@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, ZIndexMediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
-import { serviceColor } from '@/lib/tokens';
+import { serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
@@ -148,10 +148,10 @@ export default async function HomePage() {
               </p>
             </div>
             <Cluster gap="md" className="hero-button-wrapper">
-              <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+              <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
                 Start with a Free BrikDown Analysis
               </Button>
-              <Button href="/get-started" variant="outline" size="lg" className="hero-btn-on-dark">
+              <Button href="/get-started" variant="outline" size="lg">
                 See How It Works
               </Button>
             </Cluster>
@@ -163,7 +163,9 @@ export default async function HomePage() {
       {/* ═══ Problem ("Does this sound familiar?") ═══ */}
       <section className="section-problem" data-section="problems">
         <div className="section-container">
-          <Card padding="lg" className="problem-card">
+          {/* padding driven by CSS (--padding-xl) — BDS CardPadding caps at 'lg'
+              (#1114); the .problem-card rule sets the xl inset. */}
+          <Card padding="none" className="problem-card">
             <h2 className="problem__title">Does this sound familiar?</h2>
             <Grid columns={3} gap="lg">
               {PROBLEMS.map((problem) => (
@@ -344,17 +346,27 @@ export default async function HomePage() {
               // detail-page CTA (#1001). `.section-pricing .bds-pricing-card`
               // in shared-sections.css pins the on-card text dark in both themes
               // (the tint is fixed-light) and keeps the band-derived chrome.
-              const tint = plan.service_line_slug
-                ? serviceColor(mapServiceLineSlug(plan.service_line_slug)).surfaceLight
+              const category = plan.service_line_slug
+                ? mapServiceLineSlug(plan.service_line_slug)
+                : null;
+              const tint = category ? serviceColor(category).surfaceLight : undefined;
+              // R3 (#1114): the "Learn More" primary is themed to the card's own
+              // service line — serviceCtaVars() sets the brand-primary fill/ink
+              // handoff vars and `.service-themed` opts the button into the
+              // dark-mode fill rule (globals.css), the canonical service-button
+              // path used on the service-detail pricing grid.
+              const cardStyle = category
+                ? { backgroundColor: tint, ...serviceCtaVars(category) }
                 : undefined;
               return (
                 <PricingCard
                   key={plan.slug}
+                  className={category ? 'service-themed' : undefined}
                   title={plan.name}
                   price={plan.price}
                   period="/month"
                   description={plan.description}
-                  style={tint ? { backgroundColor: tint } : undefined}
+                  style={cardStyle}
                   action={
                     <Button href={`/plans/${plan.slug}`} variant="primary" size="md">
                       Learn More
