@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, ZIndexMediaBand } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, ZIndexMediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceColor } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
@@ -203,6 +203,7 @@ export default async function HomePage() {
       <section className="section-services" data-section="services">
         <div className="section-container">
           <SectionHeader
+            align="start"
             title="Marketing AND back office. One team for both."
             description="Most agencies only do marketing. Most operations consultants don't touch marketing. Brik does both — so your marketing and your operations are actually working together."
           />
@@ -240,15 +241,23 @@ export default async function HomePage() {
           />
         </div>
         <Marquee className="tooling-marquee" logoHeight={36} pauseOnHover>
-          {TOOLING_LOGOS.map((logo) => (
-            <img
-              key={logo.src}
-              className="tooling-logo"
-              src={logo.src}
-              alt={logo.name}
-              loading="lazy"
-            />
-          ))}
+          {/* Only 8 license-clean logos exist (13 deferred, see home-tooling.ts),
+              so one pass is ~320px — far short of the viewport, leaving the row
+              inset instead of edge-to-edge (#1093). Repeat the set so each
+              Marquee group exceeds a wide desktop and the loop reads full-bleed
+              and seamless. The duplicate group Marquee adds is aria-hidden, so
+              the repeat only multiplies decorative copies, not announced items. */}
+          {Array.from({ length: 6 }).flatMap((_, pass) =>
+            TOOLING_LOGOS.map((logo) => (
+              <img
+                key={`${pass}-${logo.src}`}
+                className="tooling-logo"
+                src={logo.src}
+                alt={logo.name}
+                loading="lazy"
+              />
+            ))
+          )}
         </Marquee>
       </section>
 
@@ -262,7 +271,12 @@ export default async function HomePage() {
           design-decisions "one primary per surface"). The per-step illustration
           is deferred: the source graphic is placeholder art, so the media panel
           renders as a neutral tinted surface until real step art lands (#1073). */}
-      <ZIndexMediaBand as="section" className="section-workflow" data-section="workflow">
+      <ZIndexMediaBand
+        as="section"
+        className="section-workflow"
+        data-section="workflow"
+        graphic={<BackgroundPattern variant="line-grid" />}
+      >
         <div className="section-container">
           <SectionHeader title="Simple from day one." />
           <ol className="workflow-timeline">
