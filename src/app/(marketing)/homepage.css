@@ -143,7 +143,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
   width: 100%;
 }
 
@@ -201,7 +201,7 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
 }
 
 /* Stretch the header block so align="start" sits it at the page gutter rather
@@ -234,7 +234,7 @@
   max-width: var(--site-content-width);
   margin-inline: auto;
   padding-inline: var(--gutter-page);
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
 }
 
 /* Section intros (title + description) now use the BDS <SectionHeader>
@@ -404,7 +404,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
   padding: var(--padding-xl);
 }
 
@@ -658,7 +658,7 @@
   flex-flow: column;
   align-items: center;
   text-align: center;
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
 }
 
 /* Webflow: .text_heading-lg */
@@ -850,7 +850,7 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
   max-width: var(--site-content-width);
   text-align: center;
 }
@@ -882,7 +882,7 @@
 @media (max-width: 991px) {
   .hero-text {
     width: 100%;
-    gap: var(--gap-component);
+    gap: var(--gap-xl);
   }
 
   /* Tablet hero size is handled by the base clamp() (fluid down to the
