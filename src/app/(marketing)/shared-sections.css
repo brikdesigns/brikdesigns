@@ -561,7 +561,8 @@
 .page-section--accent .bds-card:not(.bds-card--borderless),
 .service-surface .bds-card:not(.bds-card--borderless),
 .contact-plans .bds-card:not(.bds-card--borderless),
-.section-plans .bds-card:not(.bds-card--borderless) {
+.section-plans .bds-card:not(.bds-card--borderless),
+.hiw-practice .bds-card:not(.bds-card--borderless) {
   border: none;
   box-shadow: var(--box-shadow-md);
 }
