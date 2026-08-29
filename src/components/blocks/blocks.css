@@ -60,7 +60,7 @@
   padding: var(--padding-xl);
   background-color: var(--surface-primary);
   border: 1px solid var(--border-muted);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   text-align: left;
 }
 
