@@ -63,16 +63,18 @@ export default async function HowItWorksPage() {
     <>
       {/* ═══ Hero ═══ */}
       {/* Figma node 25790:14435 — full-bleed blue band (surface/accent-blue),
-          headline + lead. The frame renders white ink on the blue; we ship dark
-          ink instead, following the site's ratified accent-band AA treatment
-          (shared-sections.css "Accent band on-color text") — white on #8ebbcc is
-          ~1.9:1. The orange emphasis + white-text treatment is a copy/contrast
-          decision deferred with the rest of the real copy (#1121). */}
+          headline + lead. The frame renders white ink with orange emphasis words;
+          white on #8ebbcc is ~1.9:1 (AA fail). Per operator decision on #1127 we
+          keep the band and darken the ink instead of the band: base ink stays the
+          mode-invariant dark primitive, and the Figma orange emphasis is restored
+          with poppy-800 (#7d1d09, 4.94:1 on the band — the deepest brand orange
+          that clears AA-body in both themes). */}
       <section className="hiw-hero" data-section="hero">
         <div className="hiw-hero__container">
           <div className="hiw-hero__text">
             <h1 className="hiw-hero__title">
-              No surprises. Here&rsquo;s exactly how it works.
+              No <span className="hiw-hero__em">surprises</span>. Here&rsquo;s exactly how it{' '}
+              <span className="hiw-hero__em">works</span>.
             </h1>
             <p className="hiw-hero__description">
               Every client starts with a free BrikDown Analysis — no obligation to go
@@ -182,7 +184,13 @@ export default async function HowItWorksPage() {
           </div>
           <Grid columns={2} gap="lg">
             {PRACTICE_CARDS.map((card) => (
-              <Card key={card.id} padding="lg">
+              // A card deep-links to its customer story when one exists (#1128);
+              // Renew Dental has no story yet, so it renders display-only.
+              <Card
+                key={card.id}
+                padding="lg"
+                {...(card.href ? { interactive: true, href: card.href } : {})}
+              >
                 <CardTitle>{card.title}</CardTitle>
                 <CardDescription>{card.description}</CardDescription>
               </Card>

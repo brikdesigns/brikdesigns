@@ -87,6 +87,14 @@
   margin: 0;
 }
 
+/* Figma emphasis words ("surprises", "works") — the frame renders these in
+   orange. poppy-800 is the deepest brand poppy that clears AA-body on the
+   fixed-light accent-blue band (4.94:1 on #8ebbcc); brighter poppy-500 is
+   ~1.8:1. Mode-invariant primitive for the same reason the hero ink is (#1127). */
+.hiw-hero__em {
+  color: var(--color-poppy-800); /* bds-lint-ignore token-family — on-band orange emphasis on the fixed-light accent-blue tint; the semantic accent-orange/red text tokens resolve to poppy-500 (~1.8:1 here), only this darkened primitive clears AA-body in both themes */
+}
+
 /* ─── Process ("Simple From Day One.") ─────────────────────── */
 /* Figma node 25880:4743 — light band hosting a vertical timeline of the new
    split cards. */
