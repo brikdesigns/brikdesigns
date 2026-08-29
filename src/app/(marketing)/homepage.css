@@ -382,7 +382,7 @@
 
 /* ─── Workflow ("Simple from day one") ──────────────────────── */
 /* R2 section (Figma node 25800:3081): three sequential engagement steps as an
-   alternating timeline over a BDS ZIndexMediaBand, on the white
+   alternating timeline over a BDS MediaBand, on the white
    --surface-primary band (matches Tooling above). The band primitive owns the
    stacking context; this section paints the surface + provides the timeline. */
 .section-workflow {

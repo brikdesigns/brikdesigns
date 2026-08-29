@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, ZIndexMediaBand, BackgroundPattern } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
@@ -269,7 +269,7 @@ export default async function HomePage() {
       {/* ═══ Workflow ("Simple from day one") ═══ */}
       {/* R2 section (Figma node 25800:3081): three sequential engagement steps as
           an alternating timeline (content ⇄ media, row by row) over a BDS
-          ZIndexMediaBand — the primitive owns the stacking recipe so the section
+          MediaBand — the primitive owns the stacking recipe so the section
           need only supply content. Copy from the Homepage-R2 Notion doc
           ("Simple from day one."). One primary CTA at the section end (Notion is
           the content SoT — the placeholder Figma per-row buttons are ignored;
@@ -277,7 +277,7 @@ export default async function HomePage() {
           carries its design-source illustration in a 1:1 slot (#1073). The panel
           stays aria-hidden decoration — the step title + description carry the
           meaning — so the <img> is alt="". */}
-      <ZIndexMediaBand
+      <MediaBand
         as="section"
         className="section-workflow"
         data-section="workflow"
@@ -321,7 +321,7 @@ export default async function HomePage() {
             Get Your Free BrikDown — Start with Step 1
           </Button>
         </div>
-      </ZIndexMediaBand>
+      </MediaBand>
 
       {/* ═══ Pricing ("Monthly Subscription") ═══ */}
       {/* R2 pricing band (Figma node 25768:7667): header (title + description +

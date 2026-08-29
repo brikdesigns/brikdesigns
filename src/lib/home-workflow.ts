@@ -1,6 +1,6 @@
 // R2 "Simple from day one." Workflow section (Homepage-R2 Notion doc).
 // Three sequential engagement steps rendered as an alternating timeline over a
-// BDS ZIndexMediaBand (#1056). Copy is the real R2 content, verbatim from the
+// BDS MediaBand (#1056). Copy is the real R2 content, verbatim from the
 // Notion doc — the Figma placeholder text ("Healthcare Dashboard POC",
 // duplicated titles) is ignored.
 //
