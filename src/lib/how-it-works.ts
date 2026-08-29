@@ -152,11 +152,15 @@ export interface PracticeCard {
   id: string;
   title: string;
   description: string;
+  /** Deep-link to this practice's customer story, when one is published. Cards
+   *  without an href stay display-only (the section CTA covers the index). */
+  href?: string;
 }
 
 // "What it looks like in practice" — two case studies, verbatim from the Notion
-// content SoT. Cards are display-only for now; per-story links wait on the
-// customer-story slugs (the section CTA points at the /customer-stories index).
+// content SoT. A card gets a per-story link only once its customer_stories slug
+// exists (#1128): Vale Partners is published (`vale-partners-website`); Renew
+// Dental has no story yet, so it stays display-only until one is.
 export const PRACTICE_CARDS: PracticeCard[] = [
   {
     id: 'renew-dental',
@@ -169,5 +173,6 @@ export const PRACTICE_CARDS: PracticeCard[] = [
     title: 'How Vale Partners rebuilt their brand, website, and operations from the ground up',
     description:
       'A boutique commercial real estate brokerage in Brentwood, TN mid-rebrand — Brik built their brand identity, website, CRM, and agent onboarding from scratch, and made them run without the founders having to touch them.',
+    href: '/customer-stories/vale-partners-website',
   },
 ];

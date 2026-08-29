@@ -184,7 +184,13 @@ export default async function HowItWorksPage() {
           </div>
           <Grid columns={2} gap="lg">
             {PRACTICE_CARDS.map((card) => (
-              <Card key={card.id} padding="lg">
+              // A card deep-links to its customer story when one exists (#1128);
+              // Renew Dental has no story yet, so it renders display-only.
+              <Card
+                key={card.id}
+                padding="lg"
+                {...(card.href ? { interactive: true, href: card.href } : {})}
+              >
                 <CardTitle>{card.title}</CardTitle>
                 <CardDescription>{card.description}</CardDescription>
               </Card>
