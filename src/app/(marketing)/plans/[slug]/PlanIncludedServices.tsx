@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import {
+  BackgroundPattern,
   Card,
   CardGrid,
   Frame,
@@ -60,6 +61,11 @@ export function PlanIncludedServices({
       className="plan-what-you-get"
       style={{ backgroundColor: surfaceInverse }}
     >
+      {/* Line-grid texture behind the cards, matching the home "Simple from day
+         one" workflow band (page.tsx MediaBand graphic). CardGrid has no
+         `graphic` slot, so the pattern is a decorative inset-0 layer inside the
+         container; plans.css lifts the header + content above it (z-index). */}
+      <BackgroundPattern variant="line-grid" />
       {showSegments && (
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: gap.xl }}>
           <SegmentedControl

@@ -132,6 +132,18 @@
    element, which doesn't exist — so the width override targets that slot. */
 .plan-what-you-get .bds-blueprint-section__container {
   max-width: 1080px;
+  /* Positioned parent for the decorative line-grid <BackgroundPattern> (first
+     child, inset:0, z-index:0) — mirrors the home workflow MediaBand recipe. */
+  position: relative;
+}
+
+/* Lift the header + segmented control + card list above the pattern layer.
+   BackgroundPattern is positioned z-index:0, so static siblings would paint
+   under it; every real-content child gets its own z-index:1 (per the
+   BackgroundPattern usage contract). */
+.plan-what-you-get .bds-blueprint-section__container > *:not(.bds-background-pattern) {
+  position: relative;
+  z-index: 1;
 }
 
 /* ─── Bottom CTA — two-column support-plan panel ─────────── */
