@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { Accordion, Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader } from '@brikdesigns/bds';
 import { PROCESS_STEPS, PRACTICE_CARDS } from '@/lib/how-it-works';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
+import { getManagedPlanPrices } from '@/lib/supabase/queries';
+import { CheckIcon } from '@/components/how-it-works/CheckIcon';
+import { ProcessFoundationTiers } from '@/components/how-it-works/ProcessFoundationTiers';
 import '../shared-sections.css';
 import './how-it-works.css';
 
@@ -16,25 +19,46 @@ export const metadata: Metadata = {
 
 const BRIKDOWN_HREF = '/offers/brikdown-analysis';
 
-// Inline check glyph for the process-card checklist. App-local (this whole card
-// style lives outside BDS per #1121) and self-contained so it never waits on the
-// Iconify offline subset — the BDS <Icon> falls through to a CDN fetch for a
-// ph:* glyph not yet bundled, which would flash an empty box on first paint.
-function CheckIcon() {
+// Step-3 mode icons — inline SVG (self-contained, no Iconify subset dependency,
+// same reasoning as CheckIcon). Advisory = chat, Managed = gear.
+function ChatIcon() {
   return (
-    <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true" focusable="false">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
       <path
-        d="M4.5 10.5l3.5 3.5 7.5-8"
+        d="M4 5.5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 3.5V16.5H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z"
         stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinecap="round"
+        strokeWidth="1.8"
         strokeLinejoin="round"
       />
     </svg>
   );
 }
 
-export default function HowItWorksPage() {
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export default async function HowItWorksPage() {
+  // Managed monthly price per plan slug — the Step-2 segmented control shows
+  // each service line's Managed price (DB is the pricing SoT, #1123).
+  const plans = await getManagedPlanPrices();
+  const managedPriceBySlug = new Map(
+    plans.map((plan) => [
+      plan.slug,
+      plan.service_plan_tiers.find((tier) => tier.name === 'Managed')?.monthly_price_display ?? null,
+    ]),
+  );
+
   return (
     <>
       {/* ═══ Hero ═══ */}
@@ -58,19 +82,23 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* ═══ Process ("Simple From Day One.") ═══ */}
+      {/* ═══ Process ("Three steps. One team. Total clarity.") ═══ */}
       {/* Figma node 25880:4743 — a vertical timeline of three NEW split cards
-          (app-local, outside BDS per #1121): left = step label + title + prose +
-          CTA; right = a 2×2 checklist. The central spine (::before) connects the
-          cards through the gaps and, inside each card, reads as the divider
-          between the two panes (see how-it-works.css). */}
+          (app-local, outside BDS per #1121). Left pane is shared (step label +
+          title + prose + CTA); the right pane differs per step (#1123):
+            • checklist  — a 2×2 checklist (Step 1)
+            • tiers      — a SegmentedControl over the service-line plans, each
+                           showing its Managed monthly price + bullets (Step 2)
+            • engagement — two stacked mode sub-cards, Advisory / Managed (Step 3)
+          The central spine (::before) connects the cards through the gaps and,
+          inside each card, reads as the divider between the panes. */}
       <section className="hiw-process" data-section="process">
         <div className="hiw-container">
           <SectionHeader title="Three steps. One team. Total clarity." />
           <ol className="hiw-timeline">
             {PROCESS_STEPS.map((step) => (
               <li key={step.id} className="hiw-step">
-                <article className="hiw-card">
+                <article className="hiw-card" data-kind={step.kind}>
                   <div className="hiw-card__content">
                     <p className="hiw-card__step">{step.step}</p>
                     <h3 className="hiw-card__title">{step.title}</h3>
@@ -85,18 +113,50 @@ export default function HowItWorksPage() {
                       {step.cta.label}
                     </Button>
                   </div>
-                  <div className="hiw-card__checklist">
-                    {step.checklist.map((item) => (
-                      <div key={item.title} className="hiw-check">
-                        <span className="hiw-check__icon" aria-hidden="true">
-                          <CheckIcon />
-                        </span>
-                        <div className="hiw-check__text">
-                          <p className="hiw-check__title">{item.title}</p>
-                          <p className="hiw-check__description">{item.description}</p>
-                        </div>
+
+                  <div className="hiw-card__pane">
+                    {step.kind === 'checklist' && (
+                      <div className="hiw-card__checklist">
+                        {step.checklist.map((item) => (
+                          <div key={item.title} className="hiw-check">
+                            <span className="hiw-check__icon" aria-hidden="true">
+                              <CheckIcon />
+                            </span>
+                            <div className="hiw-check__text">
+                              <p className="hiw-check__title">{item.title}</p>
+                              <p className="hiw-check__description">{item.description}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+
+                    {step.kind === 'tiers' && (
+                      <ProcessFoundationTiers
+                        segments={step.segments.map((segment) => ({
+                          id: segment.id,
+                          label: segment.label,
+                          tierLabel: segment.tierLabel,
+                          price: managedPriceBySlug.get(segment.planSlug) ?? null,
+                          bullets: segment.bullets,
+                        }))}
+                      />
+                    )}
+
+                    {step.kind === 'engagement' && (
+                      <div className="hiw-modes">
+                        {step.modes.map((mode) => (
+                          <div key={mode.id} className="hiw-mode">
+                            <span className="hiw-mode__icon" aria-hidden="true">
+                              {mode.id === 'advisory' ? <ChatIcon /> : <GearIcon />}
+                            </span>
+                            <h4 className="hiw-mode__title">{mode.title}</h4>
+                            <p className="hiw-mode__description">{mode.description}</p>
+                            <p className="hiw-mode__best-for">{mode.bestFor}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </article>
               </li>
