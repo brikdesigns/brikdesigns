@@ -425,15 +425,16 @@
    --box-shadow-sm elevation to lift each step off the white band and its
    connector spine. This is a hand-built <li>, not a <Card>, so it's outside the
    card-treatment.md luminance rule (and its gate); the elevation is a
-   deliberate call for the timeline. Opaque so it covers the spine except in the
-   gaps. */
+   deliberate call for the timeline. Border width matches the card standard
+   (--border-width-200 / 3px) so the timeline steps read as cards alongside the
+   real <Card>s. Opaque so it covers the spine except in the gaps. */
 .workflow-step {
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: stretch;
-  border: var(--border-width-sm) solid var(--border-primary);
+  border: var(--border-width-200) solid var(--border-primary);
   border-radius: var(--border-radius-md);
   background-color: var(--surface-primary);
   box-shadow: var(--box-shadow-sm);
