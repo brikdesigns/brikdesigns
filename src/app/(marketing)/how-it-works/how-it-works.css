@@ -151,7 +151,7 @@
   align-items: stretch;
   background-color: var(--surface-primary);
   border: var(--border-width-200) solid var(--border-primary);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   box-shadow: var(--box-shadow-sm);
   overflow: clip;
 }
