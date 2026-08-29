@@ -27,10 +27,15 @@ interface ServiceCardProps {
    *  dark so the card carries the line identity on the tinted band. Matches the
    *  service-detail inverse-card convention (#645). Opt-in per usage. */
   surfaceInverse?: boolean;
+  /** Content inset. `'inset'` (default) frames the image and text together in a
+   *  `--padding-huge` (48px) inset — the card-vertical mockup. `'flush'` bleeds
+   *  the image to the card edges (the prior bare preset-display look). See the
+   *  `.service-card--inset` rule in shared-sections.css. */
+  mediaTreatment?: 'inset' | 'flush';
 }
 
 export function ServiceCard({
-  name, slug, serviceLineSlug, category, tagline, imageUrl, description, showCta, iconServiceName, className, surfaceInverse,
+  name, slug, serviceLineSlug, category, tagline, imageUrl, description, showCta, iconServiceName, className, surfaceInverse, mediaTreatment = 'inset',
 }: ServiceCardProps) {
   const href = `/services/${serviceLineSlug}/${slug}`;
   const tagProps = iconServiceName ? { serviceName: iconServiceName } : {};
@@ -38,7 +43,7 @@ export function ServiceCard({
   return (
     <Card
       preset="display"
-      className={['service-themed', className].filter(Boolean).join(' ')}
+      className={['service-themed', `service-card--${mediaTreatment}`, className].filter(Boolean).join(' ')}
       {...(surfaceInverse ? { style: { backgroundColor: serviceColor(category).inverse } } : {})}
       title={name}
       description={description ?? tagline ?? undefined}

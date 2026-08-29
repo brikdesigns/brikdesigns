@@ -495,6 +495,23 @@
   font-size: var(--heading-sm);
 }
 
+/* ServiceCard content inset (card-vertical mockup). BDS preset='display'
+   bleeds the media to the card edge and pads only the text body
+   (--padding-lg). `.service-card--inset` (ServiceCard's default) instead frames
+   the image AND text together in a --padding-huge (48px) inset. The 48px lives
+   on the flush-media root as padding; the body's own --padding-lg is zeroed so
+   the frame isn't doubled, and --gap-xl preserves the prior 24px image↔text
+   separation (the old body padding-top). `.service-card--flush` keeps the bleed
+   and needs no rule — it IS the bare BDS preset. */
+.service-card--inset.bds-card--preset-display {
+  padding: var(--padding-huge);
+  gap: var(--gap-xl);
+}
+
+.service-card--inset .bds-card__preset-display-body {
+  padding: 0;
+}
+
 /* Same heading-sm normalization for the "Other Support Plans" / "Other Service
    Lines" display grids, whose cards keep their own chrome (elevated / -inverse
    fill) and so can't reuse `.service-card--flat` (that also strips border +
