@@ -194,14 +194,20 @@
   margin: 0;
 }
 
-/* Right pane — the 2×2 checklist. Its border-left is the in-card divider that
-   sits over the central spine. */
+/* Right pane — light-grey fill (two-tone split vs. the white left pane, #1123).
+   Its border-left is the in-card divider that sits over the central spine. Holds
+   whichever right-pane treatment the step uses (checklist / tiers / modes). */
+.hiw-card__pane {
+  padding: var(--padding-xl);
+  border-left: var(--border-width-md) solid var(--border-primary);
+  background-color: var(--surface-secondary);
+}
+
+/* 2×2 checklist (Step 1, and the tiers pane below the price). */
 .hiw-card__checklist {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--gap-xl);
-  padding: var(--padding-xl);
-  border-left: var(--border-width-md) solid var(--border-primary);
 }
 
 .hiw-check {
@@ -237,6 +243,111 @@
   font-size: var(--body-sm);
   color: var(--text-secondary);
   line-height: var(--font-line-height-relaxed);
+  margin: 0;
+}
+
+/* ─── Step 2 tiers pane (SegmentedControl → price → checklist, #1123) ─────── */
+.hiw-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+.hiw-tiers__control {
+  width: 100%;
+}
+
+.hiw-tiers__price {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.hiw-tiers__tier-label {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  font-weight: 600;
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Big price. Heading family/scale (not display) so it pairs family↔size under
+   ADR-013; --heading-huge (57.5px) matches the Figma price weight in the pane. */
+.hiw-tiers__amount {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-xs);
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-huge);
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-brand-primary);
+  margin: 0;
+}
+
+.hiw-tiers__cadence {
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* ─── Step 3 engagement modes (stacked sub-cards, #1123) ─────────────────── */
+.hiw-modes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+/* White sub-card on the grey pane — light surface → containment shadow, no
+   border (the card-treatment.md tint rule; hand-built, so not a <Card> and
+   outside that gate). Dark mode is handled below. */
+.hiw-mode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding: var(--padding-lg);
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+}
+
+/* Dark mode: the pane goes dark (--surface-secondary) and the sub-card goes
+   near-black (--surface-primary), so an 8%-black shadow is invisible (#980).
+   Swap the shadow for a border, mirroring shared-sections.css dark-band rule. */
+:root[data-theme='dark'] .hiw-mode {
+  border: var(--border-width-200) solid var(--border-secondary);
+  box-shadow: var(--box-shadow-none);
+}
+
+.hiw-mode__icon {
+  display: inline-flex;
+  color: var(--text-brand-primary);
+}
+
+.hiw-mode__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.hiw-mode__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-relaxed);
+  margin: 0;
+}
+
+.hiw-mode__best-for {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  font-weight: 600;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -368,8 +479,9 @@
     max-width: 100%;
   }
 
-  /* Collapse the split card to a single column: content over checklist. The
-     spine and the in-card divider are meaningless once the panes stack. */
+  /* Collapse the split card to a single column: content over right pane. The
+     spine and the in-card divider are meaningless once the panes stack — the
+     divider moves to the top edge of the pane. */
   .hiw-timeline::before {
     display: none;
   }
@@ -378,7 +490,7 @@
     grid-template-columns: 1fr;
   }
 
-  .hiw-card__checklist {
+  .hiw-card__pane {
     border-left: none;
     border-top: var(--border-width-md) solid var(--border-primary);
   }

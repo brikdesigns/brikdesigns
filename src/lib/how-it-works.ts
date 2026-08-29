@@ -1,38 +1,67 @@
-// How It Works page content (brikdesigns#1121 — HIW rebuild, structure-first).
-// Figma frame: node 25790-14431 (Brik-Website).
-//
-// Copy source: the Notion "How It Works" page (content SoT).
-// Step 1 + PRACTICE_CARDS carry the real Notion copy. Steps 2 & 3 keep
-// PLACEHOLDER copy on purpose: their real content (Foundation's two pricing
-// tiers; Engagement's Advisory/Managed modes) does not fit the uniform 2×2
-// checklist card, so their structure is held for a follow-up decision (#1121).
-
-export interface ProcessChecklistItem {
-  /** Short topic label naming what the step examines/produces. */
-  title: string;
-  /** One-line expansion of the topic. */
-  description: string;
-}
-
-export interface ProcessStep {
-  /** Stable key — drives the section's data-section id and React key. */
-  id: string;
-  /** Ordinal label rendered above the title ("Step 1"). */
-  step: string;
-  /** Step name. */
-  title: string;
-  /** Body paragraphs (Figma shows two per step). */
-  paragraphs: string[];
-  /** Per-step primary CTA (faithful to the Figma frame — one button per card). */
-  cta: { label: string; href: string };
-  /** 2×2 checklist rendered in the card's right pane. Exactly four items. */
-  checklist: ProcessChecklistItem[];
-}
+// How It Works page content (brikdesigns#1121, #1123).
+// Figma frame: node 25790-14431 → process 25880-4743 (style + structure only;
+// Figma copy/data are placeholder — Notion is the copy SoT, Supabase the data
+// SoT). Each process step has a distinct right pane, so ProcessStep is a
+// discriminated union on `kind`:
+//   • checklist   — Step 1: a 2×2 checklist
+//   • tiers       — Step 2: a SegmentedControl over service-line plans, each
+//                   showing its Managed monthly price (pulled live) + bullets
+//   • engagement  — Step 3: two stacked mode sub-cards (Advisory / Managed)
 
 const BRIKDOWN_HREF = '/offers/brikdown-analysis';
 
+export interface ProcessChecklistItem {
+  title: string;
+  description: string;
+}
+
+// Step 2 segment — one service line offered as a plan. Price is NOT stored
+// here; it is resolved live from service_plan_tiers (Managed) by planSlug.
+export interface FoundationSegment {
+  id: string;
+  /** SegmentedControl label. */
+  label: string;
+  /** service_plans.slug → the Managed monthly price shown in the block. */
+  planSlug: string;
+  /** Price-block heading above the price. */
+  tierLabel: string;
+  /** Detail bullets for this segment. */
+  bullets: ProcessChecklistItem[];
+}
+
+// Step 3 engagement mode — a sub-card.
+export interface EngagementMode {
+  id: string;
+  title: string;
+  description: string;
+  bestFor: string;
+}
+
+interface ProcessStepBase {
+  id: string;
+  /** Ordinal + cadence label rendered above the title ("Step 1 — Free"). */
+  step: string;
+  title: string;
+  paragraphs: string[];
+  cta: { label: string; href: string };
+}
+
+export type ProcessStep =
+  | (ProcessStepBase & { kind: 'checklist'; checklist: ProcessChecklistItem[] })
+  | (ProcessStepBase & { kind: 'tiers'; segments: FoundationSegment[] })
+  | (ProcessStepBase & { kind: 'engagement'; modes: EngagementMode[] });
+
+// Marketing and Back Office share their Foundation details for now (#1123) —
+// one list referenced by both segments.
+const SINGLE_SIDE_BULLETS: ProcessChecklistItem[] = [
+  { title: 'Strategy + 90-day action plan', description: 'Built for your chosen side of the business.' },
+  { title: 'Knowledge base', description: 'Documented and built out for that side.' },
+  { title: 'The foundation for Step 3', description: 'Everything the ongoing engagement is built on.' },
+];
+
 export const PROCESS_STEPS: ProcessStep[] = [
   {
+    kind: 'checklist',
     id: 'brikdown-analysis',
     step: 'Step 1 — Free',
     title: 'The BrikDown Analysis',
@@ -49,35 +78,72 @@ export const PROCESS_STEPS: ProcessStep[] = [
     ],
   },
   {
-    id: 'one-time-investment',
-    step: 'Step 2',
-    title: 'One-Time Investment',
+    kind: 'tiers',
+    id: 'foundation',
+    step: 'Step 2 — One-time investment',
+    title: 'Foundation',
     paragraphs: [
-      'We build the foundation — the brand, the site, and the systems that connect marketing to operations — as a single, scoped project.',
-      'One clear price, one timeline, one team. You approve the plan before anything starts.',
+      'Foundation is where we go deep before the ongoing work begins. Through weekly calls and Brik’s own research, we map every relevant area of your business — marketing, sales, operations, tech stack, team structure, KPIs, and service management — and document it into a pre-structured knowledge base built for your engagement.',
+      'You walk away with a clear 90-day action plan and everything Step 3 needs to hit the ground running. Foundation is required before Step 3 and typically takes 3–4 weeks.',
     ],
-    cta: { label: 'Get Your Free BrikDown', href: BRIKDOWN_HREF },
-    checklist: [
-      { title: 'Brand & site', description: 'The public-facing foundation, built to convert and easy to run.' },
-      { title: 'Systems', description: 'The tools that follow up, track, and keep the process moving.' },
-      { title: 'Handover', description: 'Everything documented, so the process does not live in one person.' },
-      { title: 'Timeline', description: 'A scoped delivery date you can plan the rest of the year around.' },
+    cta: { label: 'Start with your free BrikDown', href: BRIKDOWN_HREF },
+    segments: [
+      {
+        id: 'full-stack',
+        label: 'Full Stack',
+        planSlug: 'full-stack-support',
+        tierLabel: 'Full Stack · Managed',
+        bullets: [
+          { title: 'Marketing strategy + 90-day plan', description: 'Built for your business.' },
+          { title: 'Back office strategy + 90-day plan', description: 'Built for your business.' },
+          { title: 'Knowledge base', description: 'Built out across marketing and back office.' },
+          { title: 'The foundation for Step 3', description: 'Everything the ongoing engagement is built on.' },
+        ],
+      },
+      {
+        id: 'marketing',
+        label: 'Marketing',
+        planSlug: 'marketing-support',
+        tierLabel: 'Marketing · Managed',
+        bullets: SINGLE_SIDE_BULLETS,
+      },
+      {
+        id: 'back-office',
+        label: 'Back Office',
+        planSlug: 'back-office-support',
+        tierLabel: 'Back Office · Managed',
+        bullets: SINGLE_SIDE_BULLETS,
+      },
     ],
   },
   {
-    id: 'engagement',
-    step: 'Step 3',
-    title: 'Engagement',
+    kind: 'engagement',
+    id: 'ongoing-engagement',
+    step: 'Step 3 — Monthly',
+    title: 'Ongoing Engagement',
     paragraphs: [
-      'Once the foundation is live, we stay on as your ongoing marketing and operations partner — running what we built and improving it over time.',
-      'A predictable monthly subscription. Cancel or scale as your needs change.',
+      'This is where the real work happens. You choose how deep you want Brik involved — Advisory if you want to keep your team executing, Managed if you want us to take it off your plate entirely.',
+      'You can start Advisory and move to Managed, or run one side Advisory and the other Managed. We build the engagement around what makes sense for your business.',
+      'Not sure which level is right? That’s exactly what the BrikDown figures out — no commitment until you’re ready to move forward.',
     ],
-    cta: { label: 'Get Your Free BrikDown', href: BRIKDOWN_HREF },
-    checklist: [
-      { title: 'Marketing', description: 'Campaigns and content that keep the pipeline full month over month.' },
-      { title: 'Operations', description: 'The back office running quietly in the background, off your plate.' },
-      { title: 'Reporting', description: 'Clear numbers each month, so you always know what is working.' },
-      { title: 'Support', description: 'One team to call — no vendor juggling, no dropped handoffs.' },
+    cta: { label: 'See all plans and pricing', href: '/plans' },
+    modes: [
+      {
+        id: 'advisory',
+        title: 'Advisory (you execute)',
+        description:
+          'You and your team do the work — Brik gives you the direction. We meet regularly, review what’s working, adjust the plan, and make sure you’re always moving toward the right things.',
+        bestFor:
+          'Best for: owners who have a team to execute but need a clear strategy and someone to hold the plan accountable.',
+      },
+      {
+        id: 'managed',
+        title: 'Managed (we execute)',
+        description:
+          'Brik handles it. Campaigns, content, follow-up, workflows, systems — we take care of the execution and report back on results. Your team stays focused on patients and clients.',
+        bestFor:
+          'Best for: owners who want it off their plate entirely, or who don’t have internal capacity to execute consistently.',
+      },
     ],
   },
 ];
