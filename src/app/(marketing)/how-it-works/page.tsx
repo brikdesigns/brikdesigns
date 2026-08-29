@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Accordion, Button, Card, CardTitle, CardDescription, Grid, SectionHeader } from '@brikdesigns/bds';
+import { Accordion, Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader } from '@brikdesigns/bds';
 import { PROCESS_STEPS, PRACTICE_CARDS } from '@/lib/how-it-works';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import '../shared-sections.css';
@@ -66,7 +66,7 @@ export default function HowItWorksPage() {
           between the two panes (see how-it-works.css). */}
       <section className="hiw-process" data-section="process">
         <div className="hiw-container">
-          <SectionHeader title="Simple From Day One." />
+          <SectionHeader title="Three steps. One team. Total clarity." />
           <ol className="hiw-timeline">
             {PROCESS_STEPS.map((step) => (
               <li key={step.id} className="hiw-step">
@@ -115,12 +115,9 @@ export default function HowItWorksPage() {
           <div className="hiw-practice__header">
             <div className="hiw-practice__heading">
               <h2 className="hiw-section-title">What It Looks Like In Practice</h2>
-              <p className="hiw-section-description">
-                The same process, applied to real engagements.
-              </p>
             </div>
-            <Button href={BRIKDOWN_HREF} variant="primary" size="lg">
-              Get Your Free BrikDown
+            <Button href="/customer-stories" variant="primary" size="lg">
+              See all results
             </Button>
           </div>
           <Grid columns={2} gap="lg">
@@ -142,7 +139,11 @@ export default function HowItWorksPage() {
           dark in how-it-works.css (fixed-light yellow tint, same as home). */}
       <section className="hiw-industries" data-section="industries">
         <div className="hiw-container">
-          <SectionHeader align="start" title="Where we do our best work." />
+          <SectionHeader
+            align="start"
+            title="Where we do our best work."
+            description="We work most closely with dental practices, property management and real estate firms, and small businesses."
+          />
           <div className="hiw-industries__layout">
             <Accordion
               className="hiw-industries__accordion"
@@ -167,13 +168,24 @@ export default function HowItWorksPage() {
           card (.cta-section-brand / .cta-card-brand, shared-sections.css). */}
       <section className="cta-section-brand" data-section="cta">
         <div className="cta-card-brand">
-          <h2 className="hiw-cta__title">Let&rsquo;s build something.</h2>
+          <h2 className="hiw-cta__title">Ready to see what fits?</h2>
           <p className="hiw-cta__description">
-            Start with a free BrikDown — see exactly what we&rsquo;d do, before you commit to anything.
+            You work directly with Abbey and Nick throughout — from the BrikDown to Foundation
+            to ongoing. We keep our client list focused so every engagement gets our full attention.
           </p>
-          <Button href="/contact" variant="on-color" size="lg">
-            Let&rsquo;s Talk
-          </Button>
+          <Cluster gap="md" justify="center">
+            <Button href={BRIKDOWN_HREF} variant="on-color" size="lg">
+              Get your free BrikDown
+            </Button>
+            <Button
+              href="/plans"
+              variant="outline"
+              size="lg"
+              className="hiw-cta__btn-outline"
+            >
+              See all plans
+            </Button>
+          </Cluster>
         </div>
       </section>
     </>

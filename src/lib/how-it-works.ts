@@ -1,11 +1,11 @@
 // How It Works page content (brikdesigns#1121 — HIW rebuild, structure-first).
 // Figma frame: node 25790-14431 (Brik-Website).
 //
-// PLACEHOLDER COPY. Like the home TESTIMONIALS block, this ships the section
-// STRUCTURE without treating the Figma placeholder text as final marketing
-// copy. Notion is the content SoT; real copy lands in a follow-up. The process
-// step NAMES (BrikDown Analysis / One-Time Investment / Engagement) and the
-// CTA labels are process-structural — not client facts — so they stand.
+// Copy source: the Notion "How It Works" page (content SoT).
+// Step 1 + PRACTICE_CARDS carry the real Notion copy. Steps 2 & 3 keep
+// PLACEHOLDER copy on purpose: their real content (Foundation's two pricing
+// tiers; Engagement's Advisory/Managed modes) does not fit the uniform 2×2
+// checklist card, so their structure is held for a follow-up decision (#1121).
 
 export interface ProcessChecklistItem {
   /** Short topic label naming what the step examines/produces. */
@@ -34,18 +34,18 @@ const BRIKDOWN_HREF = '/offers/brikdown-analysis';
 export const PROCESS_STEPS: ProcessStep[] = [
   {
     id: 'brikdown-analysis',
-    step: 'Step 1',
-    title: 'BrikDown Analysis',
+    step: 'Step 1 — Free',
+    title: 'The BrikDown Analysis',
     paragraphs: [
-      'A short conversation about where your marketing and operations stand today. We look at what is working, what is not, and where the effort is going.',
-      'You walk away with a clear picture of your biggest opportunities — no cost and no obligation to go further.',
+      'A free 60-minute call where we look at your marketing and your operations together. We ask the right questions, find out where you’re losing time and money, and tell you exactly what to fix first.',
+      'You walk away with a clear picture of your biggest opportunities — at no cost and no obligation. Most clients tell us it’s the most useful 60 minutes they’ve spent on the business.',
     ],
-    cta: { label: 'Book Your Free BrikDown', href: BRIKDOWN_HREF },
+    cta: { label: 'Book your free BrikDown', href: BRIKDOWN_HREF },
     checklist: [
-      { title: 'Lead generation', description: 'How you are currently getting new clients — and where leads are slipping.' },
-      { title: 'Follow-up', description: 'What happens after a lead comes in, and how much of it is manual.' },
-      { title: 'Operations', description: 'The systems your team relies on, and the ones living in someone’s head.' },
-      { title: 'Reporting', description: 'What you can see today, and the numbers you are flying blind on.' },
+      { title: 'Lead generation', description: 'How you’re currently getting new patients or clients — and where leads are slipping.' },
+      { title: 'Existing marketing efforts', description: 'What marketing is happening, what isn’t, and what’s actually worth doing.' },
+      { title: 'Existing operations', description: 'How your operations run — scheduling, follow-up, onboarding, internal processes.' },
+      { title: 'Team check', description: 'Where your team is losing time to tasks that should be automated or documented.' },
     ],
   },
   {
@@ -88,19 +88,20 @@ export interface PracticeCard {
   description: string;
 }
 
-// "What It Looks Like In Practice" — two example cards (Figma renders two
-// placeholder cards side by side). PLACEHOLDER content; real examples follow.
+// "What it looks like in practice" — two case studies, verbatim from the Notion
+// content SoT. Cards are display-only for now; per-story links wait on the
+// customer-story slugs (the section CTA points at the /customer-stories index).
 export const PRACTICE_CARDS: PracticeCard[] = [
   {
-    id: 'example-1',
-    title: 'Example one',
+    id: 'renew-dental',
+    title: 'How Renew Dental stopped training new hires by hand',
     description:
-      'A short before/after of a real engagement — what was slipping, what we built, and what changed. Replaced with a live client example before launch.',
+      'A growing dental practice in Clarksville, TN — Brik built their training system, centralized their tools, and gave the team a real playbook to run from.',
   },
   {
-    id: 'example-2',
-    title: 'Example two',
+    id: 'vale-partners',
+    title: 'How Vale Partners rebuilt their brand, website, and operations from the ground up',
     description:
-      'A second engagement in a different industry, showing the same process applied to a different set of problems. Replaced with a live client example before launch.',
+      'A boutique commercial real estate brokerage in Brentwood, TN mid-rebrand — Brik built their brand identity, website, CRM, and agent onboarding from scratch, and made them run without the founders having to touch them.',
   },
 ];

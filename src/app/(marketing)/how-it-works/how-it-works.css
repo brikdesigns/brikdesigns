@@ -346,6 +346,21 @@
   margin: 0;
 }
 
+/* Secondary CTA ("See all plans") — white outline on the fixed brand-orange
+   panel. Mirrors homepage.css .hero-btn-on-dark: --border-inverse flips black
+   in dark mode (invisible on the orange), so pin border + label to the
+   invariantly-white --text-on-color-dark. */
+.hiw-cta__btn-outline.bds-button--outline {
+  color: var(--text-on-color-dark);
+  border-color: var(--text-on-color-dark); /* bds-lint-ignore token-family — white outline on the fixed brand-orange CTA panel; --border-inverse flips black in dark and vanishes, --text-on-color-dark is invariantly white (matches homepage.css .hero-btn-on-dark) */
+}
+
+.hiw-cta__btn-outline.bds-button--outline:hover:not(:disabled) {
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  filter: none;
+}
+
 /* ─── Responsive ───────────────────────────────────────────── */
 
 @media (max-width: 991px) {
