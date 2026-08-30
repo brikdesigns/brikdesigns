@@ -34,6 +34,22 @@
  *   - Scan   → page-wide JSON violation report copied to clipboard
  *
  * Keyboard:  Cmd/Ctrl + Shift + I  toggles inspect mode.  ESC closes.
+ *
+ * Violation-set contract (brik-bds#2170): the inspector's violation set is
+ * DEFINED to equal the token linter's error set (scripts/lint-tokens.js
+ * --errors-only), so a green CI implies a clean inspector scan. Two mechanisms
+ * hold that equality:
+ *   1. bds-lint-ignore parity — the linter suppresses any source line carrying
+ *      the marker, but the marker is a CSS comment stripped from the runtime
+ *      CSSOM the inspector reads. The BDS manifest's `lint_ignores` array
+ *      (built by scripts/build-inspector-manifest.mjs) carries the extracted
+ *      { selector, property } exception set; auditProp drops any violation
+ *      whose declaring rule is in it (see setLintIgnores / isLintIgnored).
+ *   2. Stale-build guard — a dev server mid-build (broken HMR: index.json 500,
+ *      empty story iframe) applies none of the stylesheets, so reads return
+ *      browser defaults the inspector would mis-flag. A violation is only
+ *      emitted once the document's stylesheets have resolved (auditReady /
+ *      stylesheetsResolved).
  */
 
 (function () {
@@ -75,7 +91,7 @@
     // --easing- is the Style-Dictionary primitive export. See tokens.css.
     '--transition-', '--motion-', '--duration-', '--easing-', '--ease-',
     '--delay-', '--iteration-', '--stagger-',
-    '--icon-', '--size-', '--content-width-', '--aspect-', '--blur-radius-',
+    '--icon-', '--size-', '--content-width-', '--gutter-', '--measure-', '--aspect-', '--blur-radius-',
     '--layout-', '--page-', '--state-', '--tooltip-', '--bds-',
     '--breakpoint-', '--z-', '--interaction-',
   ];
@@ -109,33 +125,54 @@
   };
 
   // ── BDS Tokens (Brik Design System — standalone inline values) ─────────
-  // Names match figma-tokens.css exactly; values inlined for zero-dependency
-  // deploy. Mirror the T block in feedback-widget.js — keep them in sync.
+  // Values inlined for zero-dependency deploy: the css block below is built at
+  // module init, synchronously, long before the optional manifest fetch lands.
+  // Mirror the T block in feedback-widget.js — keep them in sync.
+  //
+  // Entries annotated with a `--color-*` token are GENERATED: run
+  // `npm run gen:widget-tokens` to re-sync them, and `:check` gates them in CI
+  // (scripts/gen-widget-tokens.mjs). Everything else here is hand-maintained.
   const T = {
     // Primitives
-    colorPoppyLight:       '#e35335', // --color-poppy-light
-    colorPoppyDark:        '#b0351b', // --color-poppy-dark
-    colorPoppyLightest:    '#ffefeb', // --color-poppy-lightest
-    colorPoppyLighter:     '#ffa693', // --color-poppy-lighter
+    // poppy-500 is 3.78:1 against white — it clears the 3:1 non-text threshold
+    // for outlines and borders, and fails AA for anything carrying a label.
+    // Fills and text that carry a label use poppy-700 (6.23:1), hovering to
+    // poppy-800 (10.24:1). Same split #1576 made in feedback-widget.js.
+    colorPoppyLight:       '#e35335', // --color-poppy-500
+    colorPoppyDark:        '#b0351b', // --color-poppy-700
+    colorPoppyDarker:      '#7d1d09', // --color-poppy-800
+    colorPoppyLightest:    '#ffefeb', // --color-poppy-100
+    colorPoppyLighter:     '#ffa693', // --color-poppy-300
     colorGrayscaleWhite:   '#ffffff', // --color-grayscale-white
-    colorGrayscaleLightest:'#f7f7f7', // --color-grayscale-lightest
-    colorGrayscaleLighter: '#e0e0e0', // --color-grayscale-lighter
-    colorGrayscaleLight:   '#bdbdbd', // --color-grayscale-light
-    colorGrayscaleDark:    '#828282', // --color-grayscale-dark
-    colorGrayscaleDarker:  '#4f4f4f', // --color-grayscale-darker
-    colorGrayscaleDarkest: '#333333', // --color-grayscale-darkest
-    colorTanLightest:      '#f1f0ec', // --color-tan-lightest
+    colorGrayscaleLightest:'#f2f2f2', // --color-grayscale-100
+    colorGrayscaleLighter: '#e0e0e0', // --color-grayscale-300
+    // Muted text ON the near-black pill/panel chrome. Not grayscale-500: that
+    // is the muted stop for LIGHT surfaces, and on grayscale-950 it measures
+    // 4.48:1 — under AA for the 10.26px pill meta. 400 is 7.94:1, and is the
+    // stop #1737 minted for the hand-pinned #bdbdbd this chrome used to carry.
+    colorGrayscaleMuted:   '#b0b0b0', // --color-grayscale-400
+    colorGrayscaleDark:    '#5a5a5a', // --color-grayscale-700
+    colorGrayscaleDarker:  '#333333', // --color-grayscale-800
+    colorGrayscaleDarkest: '#1b1b1b', // --color-grayscale-950
+    colorTanLightest:      '#f1f0ec', // --color-tan-100
     // Semantic surfaces (light theme — inspector mirrors feedback widget)
     backgroundBrandPrimary: '#e35335', // --background-brand-primary
-    interactionBrandHover:  '#b0351b', // --interaction-background-brand-primary-hover
     textPrimary:   '#333333', // --text-primary
     textSecondary: '#4f4f4f', // --text-secondary
+    // --text-muted (#828282) is 3.84:1 on white — sanctioned at AA-LARGE only
+    // (tokens/contrast-pairings.json). Every label in this panel is 10–12px, so
+    // nothing here qualifies; they use --text-secondary (7.44:1) instead. The
+    // entry stays because the panel may yet need a large-text muted role.
     textMuted:     '#828282', // --text-muted
     textInverse:   '#ffffff', // --text-inverse
     borderPrimary: '#e0e0e0', // --border-primary
-    // Status (kept neutral to BDS — used for OK/warn states in panel)
-    statusOk:   '#3aa86b',
-    statusWarn: '#e3a335',
+    // Status. Each carries white text or sits on white, so each is picked to
+    // clear AA 4.5:1 rather than to match the 6-step status hues.
+    colorGreenLightest:    '#f8fff3', // --color-green-100
+    statusOk:   '#437f4e', // --color-green-900
+    statusWarn: '#795e1f', // --color-yellow-900
+    // Standalone by necessity: BDS has no red ramp, and --color-system-red
+    // (#eb5757) is 3.30:1 on this panel's white. #d83a3a is 4.58:1.
     statusErr:  '#d83a3a',
     // Typography
     fontFamily:         "'Poppins', system-ui, sans-serif",
@@ -168,6 +205,79 @@
   let hoveredEl = null;
   let lockedEl = null;
   let rulesIndex = null;
+  // Number of document.styleSheets present when rulesIndex was last built —
+  // rebuild when it changes so an index cached before the story's stylesheets
+  // loaded (broken/mid-build HMR) doesn't persist stale. See #2170.
+  let rulesIndexSheetCount = -1;
+
+  // ── Lint-ignore parity (#2170) ──────────────────────────────────────────
+  // The token linter (scripts/lint-tokens.js) suppresses any SOURCE line
+  // carrying a `bds-lint-ignore` marker. That marker is a CSS comment and never
+  // survives into the runtime CSSOM this inspector reads, so without a bridge
+  // the inspector re-flags all ~178 sanctioned exceptions the linter passes and
+  // its count can never reach zero on a clean tree. The BDS manifest carries the
+  // extracted exception set as `lint_ignores: [{ selector, property }]`
+  // (scripts/build-inspector-manifest.mjs extractLintIgnores); we index it by
+  // normalized-selector + property and drop any violation whose declaring rule
+  // is listed, so the inspector's violation set equals the linter's error set.
+  //   null  → manifest not yet loaded (never suppress on unknown)
+  //   Set   → the loaded exception keys
+  let lintIgnoreIndex = null;
+
+  // MUST stay byte-identical to `normalizeSelector` in
+  // scripts/build-inspector-manifest.mjs — the manifest stores selectors
+  // normalized by that copy and we compare runtime origin selectors against
+  // them here. Strip spaces around child/sibling combinators, collapse the
+  // rest, so `.a > .b` (source) and `.a>.b` (CSSOM) compare equal.
+  function normalizeSelector(sel) {
+    return sel.replace(/\s*([>+~])\s*/g, '$1').replace(/\s+/g, ' ').trim();
+  }
+
+  // Build the exception index from a manifest `lint_ignores` array. Exposed on
+  // window.BrikInspect for host/test injection (no manifest fetch in a test DOM).
+  function setLintIgnores(list) {
+    const set = new Set();
+    if (Array.isArray(list)) {
+      for (const e of list) {
+        if (!e || !e.selector || !e.property) continue;
+        set.add(`${normalizeSelector(e.selector)} ${e.property}`);
+      }
+    }
+    lintIgnoreIndex = set;
+  }
+
+  // True when `prop` on the rule identified by `originSelector` carries a
+  // `bds-lint-ignore` in source. Unknown baseline (manifest not loaded) → false:
+  // we only ever SUPPRESS a violation on a known exception, never invent one.
+  function isLintIgnored(originSelector, prop) {
+    if (!lintIgnoreIndex || !originSelector) return false;
+    return lintIgnoreIndex.has(`${normalizeSelector(originSelector)} ${prop}`);
+  }
+
+  // ── Stale/incomplete-build guard (#2170) ────────────────────────────────
+  // A dev server mid-build (broken HMR: index.json 500, empty story iframe, or
+  // a reload in flight) has not applied the component/token stylesheets, so
+  // declared/computed reads return browser defaults the inspector would mis-flag
+  // as raw-value violations (the phantom `font-size: 16px` on a correctly-
+  // tokenized notification title). A violation is only emitted once the
+  // document's stylesheets have resolved — the `load` event, i.e.
+  // `document.readyState === 'complete'`, fires only after every stylesheet has
+  // loaded and parsed, and drops back to 'loading'/'interactive' while an HMR
+  // reload is in flight. We deliberately do NOT probe individual <link>.sheet:
+  // a cross-origin or slow-but-benign link reads null and would suppress every
+  // real violation on an otherwise-ready page.
+  function stylesheetsResolved() {
+    return document.readyState === 'complete';
+  }
+  // A trustworthy violation verdict needs BOTH: (1) stylesheets resolved — else
+  // the read is a mid-build phantom (above); and (2) the lint-ignore baseline
+  // loaded — else the inspector cannot honor the linter's exceptions and would
+  // re-flag all ~178 of them. `lintIgnoreIndex === null` means the manifest
+  // fetch has not resolved yet (or 404'd on an older consumer); we withhold the
+  // verdict rather than emit those known-false positives (#2170).
+  function auditReady() {
+    return stylesheetsResolved() && lintIgnoreIndex !== null;
+  }
 
   // ── BDS inspector manifest ──────────────────────────────────────────────
   // Optional runtime manifest exported by BDS at build time. Lets the inspect
@@ -185,6 +295,11 @@
       const res = await fetch(MANIFEST_URL, { cache: 'no-cache' });
       if (!res.ok) return;
       manifest = await res.json();
+      // Load the lint-ignore exception baseline (#2170). Older manifests lack
+      // the field — leave the index null (never suppress) rather than empty.
+      if (manifest && Array.isArray(manifest.lint_ignores)) {
+        setLintIgnores(manifest.lint_ignores);
+      }
       // Expose for debugging + cross-widget reuse (e.g. the Events slot could
       // enrich its display with token/component context in a future iteration).
       if (typeof window !== 'undefined') window.__brikInspectManifest = manifest;
@@ -257,8 +372,8 @@
       box-sizing: border-box; -webkit-appearance: none; appearance: none;
     }
     .bi-btn:hover { background: ${T.colorGrayscaleDarker}; transform: translateY(-1px); }
-    .bi-btn--active { background: ${T.backgroundBrandPrimary}; }
-    .bi-btn--active:hover { background: ${T.interactionBrandHover}; }
+    .bi-btn--active { background: ${T.colorPoppyDark}; }
+    .bi-btn--active:hover { background: ${T.colorPoppyDarker}; }
 
     .bi-outline {
       position: fixed; pointer-events: none; z-index: 2147483640;
@@ -287,7 +402,7 @@
     .bi-pill__tag { color: ${T.colorPoppyLighter}; }
     .bi-pill__class { color: ${T.colorTanLightest}; }
     .bi-pill__size {
-      color: ${T.colorGrayscaleLight};
+      color: ${T.colorGrayscaleMuted};
       font-size: ${T.fontSizeXs};
     }
     .bi-pill__badge {
@@ -298,7 +413,7 @@
       letter-spacing: 0.04em; text-transform: uppercase;
     }
     .bi-pill__badge--bds  { background: ${T.statusOk}; color: ${T.colorGrayscaleWhite}; }
-    .bi-pill__badge--warn { background: ${T.backgroundBrandPrimary}; color: ${T.colorGrayscaleWhite}; }
+    .bi-pill__badge--warn { background: ${T.colorPoppyDark}; color: ${T.colorGrayscaleWhite}; }
 
     .bi-panel {
       position: fixed; top: 76px; left: ${T.space600};
@@ -330,7 +445,7 @@
     }
     .bi-panel__close {
       background: transparent; border: none;
-      color: ${T.textMuted};
+      color: ${T.textSecondary};
       font-size: 20px; cursor: pointer; padding: 0 ${T.space100};
       line-height: 1; flex-shrink: 0;
     }
@@ -345,7 +460,7 @@
       font-family: ${T.fontFamily};
       font-size: ${T.fontSizeXs};
       font-weight: ${T.fontWeightBold};
-      color: ${T.textMuted};
+      color: ${T.textSecondary};
       text-transform: uppercase;
       letter-spacing: 0.08em;
       margin-bottom: ${T.space200};
@@ -357,7 +472,7 @@
       font-family: ${T.fontFamilyMono};
     }
     .bi-row__label {
-      color: ${T.textMuted};
+      color: ${T.textSecondary};
       flex: 0 0 110px;
       font-size: ${T.fontSizeSm};
     }
@@ -367,10 +482,10 @@
       word-break: break-word;
       color: ${T.textPrimary};
     }
-    .bi-token { color: ${T.backgroundBrandPrimary}; font-weight: ${T.fontWeightMedium}; }
+    .bi-token { color: ${T.colorPoppyDark}; font-weight: ${T.fontWeightMedium}; }
     .bi-token--unknown { color: ${T.statusWarn}; }
     .bi-computed {
-      color: ${T.textMuted};
+      color: ${T.textSecondary};
       font-size: ${T.fontSizeXs};
       margin-left: ${T.space200};
     }
@@ -397,7 +512,7 @@
       display: inline-flex; align-items: center; gap: ${T.space100};
     }
     .bi-stat--warn { background: ${T.colorPoppyLightest}; color: ${T.colorPoppyDark}; }
-    .bi-stat--ok   { background: rgba(58,168,107,0.12); color: #1f7a4a; }
+    .bi-stat--ok   { background: ${T.colorGreenLightest}; color: ${T.statusOk}; }
 
     .bi-class-chip {
       display: inline-block;
@@ -409,7 +524,7 @@
       color: ${T.textSecondary};
     }
     .bi-class-chip--bds {
-      background: rgba(58,168,107,0.12); color: #1f7a4a;
+      background: ${T.colorGreenLightest}; color: ${T.statusOk};
     }
 
     .bi-actions {
@@ -430,9 +545,9 @@
       transition: background 0.12s ease, color 0.12s ease;
     }
     .bi-action-btn:hover {
-      background: ${T.backgroundBrandPrimary};
+      background: ${T.colorPoppyDark};
       color: ${T.colorGrayscaleWhite};
-      border-color: ${T.backgroundBrandPrimary};
+      border-color: ${T.colorPoppyDark};
     }
   `;
 
@@ -955,6 +1070,16 @@
     // Exposed for regression tests (cascade-keyword skip — #1615). Not part of
     // the public surface; consumers use detectContext / the report event.
     window.BrikInspect.getDeclaredValue = getDeclaredValue;
+    // Exposed for the lint-ignore parity + stale-build regression tests (#2170)
+    // and for a host to inject the exception set without a manifest fetch.
+    window.BrikInspect.auditProp = auditProp;
+    window.BrikInspect.setLintIgnores = setLintIgnores;
+    window.BrikInspect.isLintIgnored = isLintIgnored;
+    window.BrikInspect.stylesheetsResolved = stylesheetsResolved;
+    // Missing-type gate (#2119) — computed-value check for a text-holding
+    // leaf slot that never declared font-family/font-size and fell through to
+    // the UA default. See the function's own doc comment for the design.
+    window.BrikInspect.auditMissingType = auditMissingType;
     // Drive inspect on/off from a host that owns the DevBar slot (host-managed
     // mode — see registerWithDevBar). Idempotent: no-op when already in the
     // requested state. Lets the BDS Storybook InspectWidget bind the slot's
@@ -965,7 +1090,10 @@
 
   // ── Stylesheet rule index ───────────────────────────────────────────────
   function buildRulesIndex() {
-    if (rulesIndex) return rulesIndex;
+    // Rebuild when the stylesheet count changes so a cache built before the
+    // story's stylesheets loaded (mid-build HMR) can't persist stale (#2170).
+    const count = document.styleSheets.length;
+    if (rulesIndex && rulesIndexSheetCount === count) return rulesIndex;
     const rules = [];
     for (const sheet of Array.from(document.styleSheets)) {
       let sheetRules;
@@ -974,6 +1102,7 @@
       walkRules(sheetRules, rules);
     }
     rulesIndex = rules;
+    rulesIndexSheetCount = count;
     return rules;
   }
 
@@ -1037,20 +1166,6 @@
     return VALID_TOKEN_PREFIXES.some((p) => name.startsWith(p));
   }
 
-  // A fully-transparent fill (`transparent`, `rgba(…, 0)`, `hsla(…, 0)`,
-  // `#00000000`) means "no fill" — a CSS keyword, not a brand color that needs a
-  // token. The browser normalizes `transparent` / `background: none` / an unset
-  // background to `rgba(0, 0, 0, 0)` in computed + declared values, so counting
-  // it as a hardcoded color is a false positive (mega-nav toggles, form cards,
-  // native inputs all surfaced this way).
-  function isTransparent(v) {
-    return (
-      /^\s*transparent\s*$/i.test(v) ||
-      /^#0{6,8}$/i.test(v) ||
-      /\b(?:rgba|hsla)\s*\([^)]*,\s*0(?:\.0+)?\s*\)/i.test(v)
-    );
-  }
-
   function findHardcodedFragments(raw) {
     const stripped = raw.replace(/var\([^)]*\)/g, '');
     const hits = [];
@@ -1066,7 +1181,7 @@
     }
     const px = stripped.match(new RegExp(RAW_PX_RE.source, 'g'));
     if (px) hits.push(...px.filter((v) => v !== '0px' && v !== '1px'));
-    return hits.filter((h) => !isTransparent(h));
+    return hits;
   }
 
   function auditProp(el, prop) {
@@ -1076,6 +1191,13 @@
     const raw = declared ? declared.value : '';
     const tokens = extractTokens(raw);
     const hardcoded = raw ? findHardcodedFragments(raw) : [];
+    // Source carries a bds-lint-ignore on this declaration → the linter passes
+    // it, so the inspector must too (#2170). Origin 'inline' is never a
+    // source-CSS rule and so is never in the exception set.
+    const lintIgnored =
+      declared && declared.origin && declared.origin !== 'inline'
+        ? isLintIgnored(declared.origin, prop)
+        : false;
     return {
       prop,
       declared: declared ? declared.value.trim() : null,
@@ -1084,7 +1206,12 @@
       tokens,
       unknownTokens: tokens.filter((t) => !isValidToken(t)),
       hardcoded,
-      isViolation: hardcoded.length > 0 && tokens.length === 0,
+      lintIgnored,
+      // Equal-to-the-linter's-error-set (#2170): a raw value is a violation only
+      // when it is NOT a sanctioned bds-lint-ignore exception AND the build is
+      // ready (stylesheets resolved — otherwise the read is a mid-build phantom).
+      isViolation:
+        hardcoded.length > 0 && tokens.length === 0 && !lintIgnored && auditReady(),
     };
   }
 
@@ -1122,6 +1249,156 @@
       }
     }
     return audits.filter((a) => !drop.has(a.prop));
+  }
+
+  // ── Missing-type gate (#2119) ────────────────────────────────────────────
+  //
+  // A text-holding leaf slot (`__content`/`__body`/`__description`/`__caption`,
+  // and equally any other leaf) that declares only `color` or only a margin/
+  // padding never trips `scripts/lint-tokens.js` or `auditProp` above — both
+  // flag a raw value that IS present in source, and this bug is the opposite
+  // shape: a declaration that is ABSENT. The root case (Collapsible, #2118)
+  // revealed content that inherited the browser's UA serif because no
+  // ancestor ever set a token font-family. The only way to catch an absence
+  // is to read the COMPUTED value after the whole cascade has run, so this
+  // gate is deliberately runtime, not source-static.
+  //
+  // Design:
+  //  - "text-holding leaf" = an element with at least one direct child TEXT
+  //    node carrying non-whitespace content (isTextLeaf). A pure-layout
+  //    wrapper that only holds ELEMENT children (its own text-bearing
+  //    children own their own tokens) is not a leaf and is skipped — this is
+  //    what quietly clears ActivityTimeline `__content`, FileCard `__body`,
+  //    Features `__content`, Cta `__message`, and the four "arbitrary caller
+  //    content" wrappers (SheetSection/DataSection/MediaBand `__content`,
+  //    Sheet `__body`) found by the #2119 audit without a single exception:
+  //    none of them hold a direct text node, so none is ever asked to carry
+  //    a font declaration in the first place.
+  //  - The "token value" a computed style must match is resolved AT RUNTIME
+  //    from `:root`'s own computed style, not hardcoded — so a per-theme
+  //    override (a client theme swapping the body/heading/label face) is
+  //    honored automatically instead of the gate silently going stale.
+  //  - font-family is the ONLY signal that decides `isViolation`. It is the
+  //    robust one: the UA fallback (serif) reads nothing like any BDS token
+  //    family, so there is no ambiguity. font-size is NOT reliable the same
+  //    way — `--body-md` resolves to the same 16px the UA default also
+  //    happens to use for body text, so a raw computed-size compare cannot
+  //    tell "tokenized at --body-md" from "never tokenized, sitting on the UA
+  //    16px default" without false-flagging every legitimately-tokenized
+  //    16px leaf. font-size is exposed on the result for a human/agent to
+  //    eyeball, but never flips `isViolation` on its own. This is a
+  //    deliberate, documented tradeoff, not an oversight.
+  //  - Gated behind the SAME two primitives #2170 introduced rather than a
+  //    third parallel baseline: `auditReady()` (withholds until the build is
+  //    fully resolved and the lint-ignore baseline has loaded) and
+  //    `isLintIgnored(selector, 'font-family')` (drops a known, tracked
+  //    exception — e.g. CollapsibleCard's `__content`, deliberately left
+  //    unfixed for its own cleanup issue per #2119's own scope split; see
+  //    the `setLintIgnores` call sites that register it).
+
+  // Only the three BODY/HEADING/LABEL font-family tokens per #2119's scope
+  // (display/subtitle families exist in tokens/figma-tokens.css too, but the
+  // ticket named exactly these three — today all five resolve to the same
+  // literal "Poppins", so this is not a gap in practice; broadening it is a
+  // one-line follow-up if a theme ever diverges display/subtitle from body).
+  const TYPE_FAMILY_VARS = [
+    '--font-family-body', '--font-family-heading', '--font-family-label',
+  ];
+
+  // Every body/heading/label/subtitle/display SIZE token in
+  // tokens/figma-tokens.css. Diagnostic only (see the design note above) —
+  // never gates `isViolation`.
+  const TYPE_SIZE_VARS = [
+    '--body-tiny', '--body-xs', '--body-sm', '--body-md', '--body-lg', '--body-xl', '--body-huge',
+    '--heading-tiny', '--heading-sm', '--heading-md', '--heading-lg', '--heading-xl', '--heading-xxl', '--heading-huge',
+    '--label-tiny', '--label-xs', '--label-sm', '--label-md', '--label-lg', '--label-xl',
+    '--subtitle-sm', '--subtitle-md', '--subtitle-lg',
+    '--display-sm', '--display-md', '--display-lg', '--display-xl',
+  ];
+
+  // Read a custom property's CASCADE-RESOLVED value off `:root` (chained
+  // `var()` references — e.g. `--body-md: var(--font-size-100)` — resolve
+  // through, so this returns the real px/family value, not the raw alias).
+  function rootTokenValue(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  }
+
+  function resolveTokenFamilies() {
+    return TYPE_FAMILY_VARS.map(rootTokenValue).filter(Boolean);
+  }
+
+  function resolveTokenSizes() {
+    const set = new Set();
+    for (const v of TYPE_SIZE_VARS) {
+      const val = rootTokenValue(v);
+      if (val) set.add(val);
+    }
+    return set;
+  }
+
+  // True when the element's own font-family (a full stack, e.g.
+  // `Poppins, system-ui, sans-serif`) contains at least one of the resolved
+  // token families. Substring/case-insensitive: computed serialization may or
+  // may not quote a face name, and may carry the whole fallback stack.
+  function familyMatchesToken(computedFamily, tokenFamilies) {
+    if (!computedFamily) return false;
+    const lower = computedFamily.toLowerCase();
+    return tokenFamilies.some((f) => f && lower.includes(f.toLowerCase()));
+  }
+
+  // A text-holding leaf: at least one direct child TEXT node with
+  // non-whitespace content. A wrapper holding only ELEMENT children (its own
+  // text-bearing descendants own their own tokens) is NOT a leaf — skip it
+  // rather than mis-flag a pure layout/composition slot.
+  function isTextLeaf(el) {
+    if (!el || el.nodeType !== 1) return false;
+    for (const child of el.childNodes) {
+      if (child.nodeType === 3 && child.textContent && child.textContent.trim() !== '') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Fallback attribution when there is no CSSOM declaration to point at at
+  // all — the exact "missing declaration" case this gate exists for.
+  // `getDeclaredValue` only matches rules whose selector matches `el`
+  // directly, so the common break (nothing, anywhere, ever set font-family)
+  // yields no origin. The element's own class list is how these leaf slots
+  // are named in source CSS (`.bds-collapsible-card__content { … }`), so it
+  // is the natural exception-baseline key for a missing rule.
+  function ownClassSelector(el) {
+    const classes = Array.from(el.classList || []);
+    return classes.length ? '.' + classes.join('.') : null;
+  }
+
+  function auditMissingType(el) {
+    if (!isTextLeaf(el)) return null;
+
+    const cs = getComputedStyle(el);
+    const computed = cs.getPropertyValue('font-family').trim();
+    const tokenFamilies = resolveTokenFamilies();
+    const matchesToken = familyMatchesToken(computed, tokenFamilies);
+
+    // Prefer the real declaring rule when one directly matches `el`; fall
+    // back to the element's own class selector only for the true "nothing
+    // ever declared this" case (see ownClassSelector above).
+    const declared = getDeclaredValue(el, 'font-family');
+    const winningSelector = declared ? declared.origin : ownClassSelector(el);
+    const lintIgnored =
+      winningSelector && winningSelector !== 'inline'
+        ? isLintIgnored(winningSelector, 'font-family')
+        : false;
+
+    return {
+      prop: 'font-family',
+      computed,
+      // Diagnostic only — see the design note above for why font-size never
+      // gates isViolation.
+      sizeComputed: cs.getPropertyValue('font-size').trim(),
+      tokenSizes: resolveTokenSizes(),
+      isViolation: !matchesToken && !lintIgnored && auditReady(),
+    };
   }
 
   // ── UI: toolbar + outline + pill + panel ────────────────────────────────
@@ -1350,8 +1627,12 @@
           : '';
         return `var(<span class="${cls}"${titleAttr}>${token}</span>`;
       });
-      for (const h of a.hardcoded) {
-        val = val.replace(h, `<span class="bi-hardcoded">${escapeHtml(h)}</span>`);
+      // A bds-lint-ignore'd raw value is a sanctioned exception, not a
+      // violation (#2170) — show it plainly rather than in violation red.
+      if (!a.lintIgnored) {
+        for (const h of a.hardcoded) {
+          val = val.replace(h, `<span class="bi-hardcoded">${escapeHtml(h)}</span>`);
+        }
       }
       parts.push(val);
     }
@@ -1422,7 +1703,7 @@
       <div class="bi-panel__section">
         <div class="bi-panel__section-title">Accessibility</div>
         ${(contrastBadge || aaaBadge) ? `<div class="bi-summary" style="margin-bottom:8px;">${contrastBadge}${aaaBadge}</div>` : ''}
-        ${issueRows || (issues.length === 0 && contrast?.passesAA ? '<div class="bi-row"><span class="bi-row__value" style="color:#3aa86b;">No runtime accessibility issues detected.</span></div>' : '')}
+        ${issueRows || (issues.length === 0 && contrast?.passesAA ? '<div class="bi-row"><span class="bi-row__value" style="color:${T.statusOk};">No runtime accessibility issues detected.</span></div>' : '')}
       </div>
     `;
   }
@@ -1490,9 +1771,20 @@
         });
       }
     }
+    // Readiness guard (#2170): auditProp withholds violations until the
+    // stylesheets resolve AND the lint-ignore baseline loads, so a scan run
+    // before either reports zero. Say which, rather than let "0 violations"
+    // read as a clean pass.
+    const sheetsReady = stylesheetsResolved();
+    const baselineReady = lintIgnoreIndex !== null;
+    const ready = sheetsReady && baselineReady;
+    const notReadyReason = !sheetsReady
+      ? 'stylesheets unresolved (build not ready)'
+      : 'lint-ignore baseline not loaded (manifest pending)';
     const report = {
       url: location.href,
       scannedAt: new Date().toISOString(),
+      buildReady: ready,
       totals: {
         scanned,
         bdsComponents: bdsCount,
@@ -1504,6 +1796,7 @@
     navigator.clipboard.writeText(JSON.stringify(report, null, 2));
     alert(
       `Brik Inspect — Page scan\n\n` +
+      (ready ? '' : `⚠ Not ready — ${notReadyReason}; violations withheld.\n\n`) +
       `${scanned} elements scanned\n` +
       `${bdsCount} BDS components found\n` +
       `${report.totals.totalViolations} violations across ${violations.length} elements\n\n` +
