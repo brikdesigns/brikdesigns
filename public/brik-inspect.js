@@ -1067,9 +1067,11 @@
   if (typeof window !== 'undefined') {
     window.BrikInspect = window.BrikInspect || {};
     window.BrikInspect.detectContext = detectReportContext;
-    // Exposed for regression tests (cascade-keyword skip — #1615). Not part of
-    // the public surface; consumers use detectContext / the report event.
+    // Exposed for regression tests (cascade-keyword skip — #1615; declared-value
+    // specificity / var()-shorthand / !important — #2195). Not part of the
+    // public surface; consumers use detectContext / the report event.
     window.BrikInspect.getDeclaredValue = getDeclaredValue;
+    window.BrikInspect.calcSpecificity = calcSpecificity;
     // Exposed for the lint-ignore parity + stale-build regression tests (#2170)
     // and for a host to inject the exception set without a manifest fetch.
     window.BrikInspect.auditProp = auditProp;
@@ -1120,38 +1122,115 @@
   }
 
   function calcSpecificity(sel) {
-    const ids = (sel.match(/#[\w-]+/g) || []).length;
-    const classes = (sel.match(/\.[\w-]+|\[[^\]]+\]|:(?!:)[\w-]+(?:\([^)]*\))?/g) || []).length;
-    const elements = (sel.match(/(?:^|[\s>+~])([a-z][\w-]*)/gi) || []).length;
-    return ids * 10000 + classes * 100 + elements;
+    let s = sel;
+    let ids = 0;
+    let classes = 0;
+    let elements = 0;
+
+    // `:where()` contributes nothing — strip it and its argument entirely.
+    s = s.replace(/:where\([^)]*\)/gi, ' ');
+    // `:is()` / `:matches()` / `:not()` contribute the specificity of their
+    // most specific argument (selectors-4). Fold that in, then remove the
+    // functional part so its parentheses aren't recounted below.
+    s = s.replace(/:(?:is|matches|not)\(([^)]*)\)/gi, (_m, args) => {
+      let win = [0, 0, 0];
+      let winScore = -1;
+      for (const arg of args.split(',')) {
+        const p = specificityParts(arg);
+        const score = p[0] * 10000 + p[1] * 100 + p[2];
+        if (score > winScore) { winScore = score; win = p; }
+      }
+      ids += win[0]; classes += win[1]; elements += win[2];
+      return ' ';
+    });
+
+    const base = specificityParts(s);
+    return (ids + base[0]) * 10000 + (classes + base[1]) * 100 + (elements + base[2]);
+  }
+
+  // [ids, classes, elements] for a selector with the functional pseudo-classes
+  // already stripped by calcSpecificity. Pseudo-elements (`::before`, and the
+  // legacy single-colon `:before` / `:after` / `:first-line` / `:first-letter`)
+  // count as ELEMENTS, not classes — the old `:(?!:)` lookahead only excluded
+  // the first of the two colons, so `::before` scored as a class (100).
+  function specificityParts(sel) {
+    let s = sel;
+    const pseudoElRe = /::[\w-]+|:(?:before|after|first-line|first-letter)\b/gi;
+    const pseudoEls = (s.match(pseudoElRe) || []).length;
+    s = s.replace(pseudoElRe, ' ');
+    const ids = (s.match(/#[\w-]+/g) || []).length;
+    const classes = (s.match(/\.[\w-]+|\[[^\]]+\]|:[\w-]+(?:\([^)]*\))?/g) || []).length;
+    const elements = (s.match(/(?:^|[\s>+~])[a-z][\w-]*/gi) || []).length + pseudoEls;
+    return [ids, classes, elements];
+  }
+
+  // Longhands the panel inspects (AUDIT_PROPS) that a `var()`-bearing shorthand
+  // leaves empty: `border: 3px solid var(--x)` is stored as a pending-
+  // substitution value, so the `border-color` / `border-width` longhands
+  // serialize to "" and only the shorthand carries the token. Read it back off
+  // the shorthand instead of reporting the reset's `currentcolor`. (#2195)
+  const SHORTHAND_FALLBACK = {
+    'border-color': 'border',
+    'border-width': 'border',
+    'background-color': 'background',
+  };
+
+  // Read `prop` off a CSSStyleDeclaration, falling back to its var()-bearing
+  // shorthand when the longhand is empty. Returns { value, important } or null.
+  function readDeclared(style, prop) {
+    let value = style.getPropertyValue(prop);
+    let priorityProp = prop;
+    if (!value && SHORTHAND_FALLBACK[prop]) {
+      priorityProp = SHORTHAND_FALLBACK[prop];
+      value = style.getPropertyValue(priorityProp);
+    }
+    if (!value) return null;
+    return { value, important: style.getPropertyPriority(priorityProp) === 'important' };
+  }
+
+  // Does candidate `a` outrank `b` under the cascade order applied here:
+  // `!important` first, then higher specificity, then later source order.
+  function winsCascade(a, b) {
+    if (a.important !== b.important) return a.important;
+    if (a.specificity !== b.specificity) return a.specificity > b.specificity;
+    return a.order >= b.order; // equal specificity → later source order wins
   }
 
   function getDeclaredValue(el, prop) {
+    const candidates = [];
+
+    // Inline styles participate at the highest specificity, but an `!important`
+    // rule still beats a non-important inline value — so inline is a candidate,
+    // not an unconditional early return.
     if (el.style) {
-      const inline = el.style.getPropertyValue(prop);
-      if (inline) return { value: inline, origin: 'inline' };
+      const inline = readDeclared(el.style, prop);
+      if (inline) {
+        candidates.push({ value: inline.value, origin: 'inline', specificity: Infinity, important: inline.important, order: -1 });
+      }
     }
+
     const rules = buildRulesIndex();
-    let best = null;
-    for (const rule of rules) {
+    rules.forEach((rule, order) => {
       let matches = false;
-      try { matches = el.matches(rule.selector); } catch (e) { continue; }
-      if (!matches) continue;
-      const val = rule.style.getPropertyValue(prop);
-      if (!val) continue;
+      try { matches = el.matches(rule.selector); } catch (e) { return; }
+      if (!matches) return;
+      const declared = readDeclared(rule.style, prop);
+      if (!declared) return;
       // `revert` / `revert-layer` are cascade-control keywords, not design
       // decisions — they explicitly defer to a lower layer/origin. Consumers
       // that bridge Tailwind preflight back to BDS layers (the portal's
       // `[class*="bds-"] { all: revert-layer }`) otherwise mask every real
       // token, surfacing a wall of "revert-layer" in the panel. Skip them so
       // the underlying token rule wins. See brik-client-portal#1615.
-      const trimmed = val.trim();
-      if (trimmed === 'revert' || trimmed === 'revert-layer') continue;
-      if (!best || rule.specificity >= best.specificity) {
-        best = { value: val, origin: rule.selector, specificity: rule.specificity };
-      }
-    }
-    return best;
+      const trimmed = declared.value.trim();
+      if (trimmed === 'revert' || trimmed === 'revert-layer') return;
+      candidates.push({ value: declared.value, origin: rule.selector, specificity: rule.specificity, important: declared.important, order });
+    });
+
+    if (!candidates.length) return null;
+    // A blind `>=` ignored `!important` and, on a mis-scored specificity tie,
+    // handed the win to source order — masking the higher-specificity rule.
+    return candidates.reduce((best, c) => (winsCascade(c, best) ? c : best));
   }
 
   function extractTokens(raw) {
