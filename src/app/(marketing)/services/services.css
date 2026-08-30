@@ -138,7 +138,7 @@
   display: flex;
   padding: var(--padding-lg);
   border: var(--border-width-sm) solid var(--border-secondary);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   text-decoration: none;
   transition: border-color 0.15s;
   width: 100%;
@@ -183,7 +183,7 @@
   padding: var(--padding-xl);
   background-color: var(--surface-primary);
   border: var(--border-width-sm) solid var(--border-secondary);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
   width: 100%;
 }
 

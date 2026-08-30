@@ -90,5 +90,5 @@
   border-top-width: var(--border-width-bold);
   border-top-style: solid;
   border-top-color: var(--border-brand-primary);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
 }

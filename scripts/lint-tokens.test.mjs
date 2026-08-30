@@ -19,6 +19,7 @@ import {
   checkWrapperFamily,
   classifyTokenFamily,
   tokenFamilyMatchesAllowlist,
+  findDeadDeclarations,
 } from './lib/canonical-tokens.mjs';
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -567,6 +568,50 @@ test('Rule 6: unknown-intent namespaces/keys are skipped (text, system)', () => 
     'tokens.ts'
   );
   assert.equal(v.length, 0);
+});
+
+// ── Rule 8: dead project-local declarations ─────────────────────────────────
+const DEAD_GLOBALS = [
+  ':root {',
+  '  --text-primary: var(--color-grayscale-950);', // canonical rebind — exempt
+  '  --background-elevated: var(--color-grayscale-white);', // dead: non-canonical, unreferenced
+  '  --bds-hero-media-bg: var(--surface-primary);', // --bds-* hook — exempt
+  '  --gap-comfortable: 36px;', // non-canonical but referenced below — alive
+  '  --nav-height: 6rem;', // non-canonical, unreferenced → dead',
+  '}',
+  '.foo { gap: var(--gap-comfortable); }',
+].join('\n');
+
+const CANON = new Set(['--text-primary', '--color-grayscale-950', '--surface-primary']);
+
+test('Rule 8: flags a non-canonical, unreferenced declaration', () => {
+  const referenced = new Set(['--gap-comfortable']);
+  const dead = findDeadDeclarations({ globalsText: DEAD_GLOBALS, canonical: CANON, referenced });
+  const names = dead.map((d) => d.token).sort();
+  assert.deepEqual(names, ['--background-elevated', '--nav-height']);
+});
+
+test('Rule 8: canonical rebinds and --bds-* hooks are exempt', () => {
+  const dead = findDeadDeclarations({ globalsText: DEAD_GLOBALS, canonical: CANON, referenced: new Set(['--gap-comfortable']) });
+  const names = dead.map((d) => d.token);
+  assert.ok(!names.includes('--text-primary'));
+  assert.ok(!names.includes('--bds-hero-media-bg'));
+});
+
+test('Rule 8: a referenced local token is alive', () => {
+  const dead = findDeadDeclarations({
+    globalsText: DEAD_GLOBALS,
+    canonical: CANON,
+    referenced: new Set(['--gap-comfortable', '--nav-height', '--background-elevated']),
+  });
+  assert.equal(dead.length, 0);
+});
+
+test('Rule 8: reports each dead token once, at its first declaration', () => {
+  const doubled = ':root {\n  --dead-x: 1px;\n}\n:root[data-theme="dark"] {\n  --dead-x: 2px;\n}';
+  const dead = findDeadDeclarations({ globalsText: doubled, canonical: new Set(), referenced: new Set() });
+  assert.equal(dead.length, 1);
+  assert.equal(dead[0].line, 2);
 });
 
 run();

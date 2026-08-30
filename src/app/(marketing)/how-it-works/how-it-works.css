@@ -1,0 +1,549 @@
+/* ─── How It Works page (brikdesigns#1121) ─────────────────────
+   Structure-first build of the Figma "How It Works" frame (node 25790-14431).
+   Band colors map to the same accent-surface tokens the home R2 sections use;
+   the "Simple From Day One." split card is a NEW app-local card style (outside
+   BDS per #1121), built here rather than as a BDS primitive.
+   ──────────────────────────────────────────────────────────── */
+
+/* Shared page container — mirrors homepage.css .section-container (max-width +
+   fluid gutter + column rhythm) without importing the whole home stylesheet. */
+.hiw-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: var(--site-content-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter-page);
+  gap: var(--space-1200);
+}
+
+/* Shared left-aligned section title/description (Practice header). */
+.hiw-section-title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-lg);
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.hiw-section-description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-normal);
+  margin: 0;
+}
+
+/* ─── Hero ─────────────────────────────────────────────────── */
+/* Figma node 25790:14435 — full-bleed blue band. The accent-blue tint is
+   fixed-light in both themes, so on-band ink is pinned to the mode-invariant
+   darkest grayscale (every --text-* flips near-white in the dark root — the
+   same treatment as shared-sections.css "Accent band on-color text"). */
+.hiw-hero {
+  background-color: var(--surface-accent-blue);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  min-height: 60svh;
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band hero ink on the fixed-light accent-blue tint; --text-* flips near-white in the dark root (~1.9:1 white-on-#8ebbcc), only a mode-invariant dark primitive clears AA in both themes */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — hero lead, same reasoning as --text-primary above */
+}
+
+.hiw-hero__container {
+  width: 100%;
+  max-width: var(--site-content-width);
+  margin-inline: auto;
+  padding: var(--space-1600) var(--gutter-page);
+}
+
+.hiw-hero__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  max-width: 60%;
+}
+
+.hiw-hero__title {
+  font-family: var(--font-family-display);
+  /* Same display-scale clamp as the home hero (homepage.css .hero-title):
+     --display-sm is the smallest display token, so the step-down is a fluid
+     clamp() rather than a nonexistent sub-display token. */
+  font-size: clamp(2.25rem, 1rem + 4.6vw, var(--display-sm));
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.hiw-hero__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-xl);
+  font-weight: 400;
+  line-height: var(--font-line-height-normal);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Figma emphasis words ("surprises", "works") — the frame renders these in
+   orange. poppy-800 is the deepest brand poppy that clears AA-body on the
+   fixed-light accent-blue band (4.94:1 on #8ebbcc); brighter poppy-500 is
+   ~1.8:1. Mode-invariant primitive for the same reason the hero ink is (#1127). */
+.hiw-hero__em {
+  color: var(--color-poppy-800); /* bds-lint-ignore token-family — on-band orange emphasis on the fixed-light accent-blue tint; the semantic accent-orange/red text tokens resolve to poppy-500 (~1.8:1 here), only this darkened primitive clears AA-body in both themes */
+}
+
+/* ─── Process ("Simple From Day One.") ─────────────────────── */
+/* Figma node 25880:4743 — light band hosting a vertical timeline of the new
+   split cards. */
+.hiw-process {
+  background-color: var(--surface-secondary);
+  padding: var(--space-1800) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Timeline column. `position: relative` hosts the central connector spine
+   (::before); the opaque cards cover it, so the spine reads in the gaps between
+   cards as the connector — same recipe as homepage.css .workflow-timeline.
+   The cards span the full page container width (--site-content-width, matching
+   .hiw-container) rather than the narrower reading cap. */
+.hiw-timeline {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: var(--site-content-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-huge);
+}
+
+.hiw-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: var(--border-width-md) solid var(--border-primary);
+  z-index: 0;
+}
+
+.hiw-step {
+  position: relative;
+  z-index: 1;
+}
+
+/* The new split card. Two equal panes: content ⇄ checklist, split at the
+   vertical center where the spine runs — so the pane divider (checklist
+   border-left) sits exactly over the hidden spine, and the connector reads as
+   one continuous line through the cards and the gaps. App-local (outside BDS
+   per #1121), so it is outside the card-treatment.md luminance rule and its
+   gate — the border + subtle elevation is a deliberate call for the timeline,
+   matching the home workflow steps. Opaque so it covers the spine. */
+.hiw-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  background-color: var(--surface-primary);
+  border: var(--border-width-200) solid var(--border-primary);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-sm);
+  overflow: clip;
+}
+
+.hiw-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  padding: var(--padding-xl);
+}
+
+/* The per-step CTA hugs the content's left edge rather than stretching the
+   full pane width (the content column is align: stretch for the text blocks). */
+.hiw-card__content > .bds-button {
+  align-self: flex-start;
+}
+
+.hiw-card__step {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  font-weight: 600;
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--text-brand-primary);
+  margin: 0;
+}
+
+.hiw-card__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-lg);
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.hiw-card__prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.hiw-card__paragraph {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-relaxed);
+  margin: 0;
+}
+
+/* Right pane — light-grey fill (two-tone split vs. the white left pane, #1123).
+   Its border-left is the in-card divider that sits over the central spine. Holds
+   whichever right-pane treatment the step uses (checklist / tiers / modes). */
+.hiw-card__pane {
+  padding: var(--padding-xl);
+  border-left: var(--border-width-md) solid var(--border-primary);
+  background-color: var(--surface-secondary);
+}
+
+/* 2×2 checklist (Step 1, and the tiers pane below the price). */
+.hiw-card__checklist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+}
+
+.hiw-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-sm);
+}
+
+.hiw-check__icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-brand-primary);
+}
+
+.hiw-check__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.hiw-check__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.hiw-check__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-relaxed);
+  margin: 0;
+}
+
+/* ─── Step 2 tiers pane (SegmentedControl → price → checklist, #1123) ─────── */
+.hiw-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+.hiw-tiers__control {
+  width: 100%;
+}
+
+.hiw-tiers__price {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.hiw-tiers__tier-label {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  font-weight: 600;
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Big price. Heading family/scale (not display) so it pairs family↔size under
+   ADR-013; --heading-huge (57.5px) matches the Figma price weight in the pane. */
+.hiw-tiers__amount {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-xs);
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-huge);
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-brand-primary);
+  margin: 0;
+}
+
+.hiw-tiers__cadence {
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* ─── Step 3 engagement modes (stacked sub-cards, #1123) ─────────────────── */
+.hiw-modes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+/* White sub-card on the grey pane — light surface → containment shadow, no
+   border (the card-treatment.md tint rule; hand-built, so not a <Card> and
+   outside that gate). Dark mode is handled below. */
+.hiw-mode {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding: var(--padding-lg);
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+}
+
+/* Dark mode: the pane goes dark (--surface-secondary) and the sub-card goes
+   near-black (--surface-primary), so an 8%-black shadow is invisible (#980).
+   Swap the shadow for a border, mirroring shared-sections.css dark-band rule. */
+:root[data-theme='dark'] .hiw-mode {
+  border: var(--border-width-200) solid var(--border-secondary);
+  box-shadow: var(--box-shadow-none);
+}
+
+.hiw-mode__icon {
+  display: inline-flex;
+  color: var(--text-brand-primary);
+}
+
+.hiw-mode__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.hiw-mode__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-secondary);
+  line-height: var(--font-line-height-relaxed);
+  margin: 0;
+}
+
+.hiw-mode__best-for {
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ─── Practice ("What It Looks Like In Practice") ──────────── */
+/* Figma node 25790:14529 — purple accent band. Card chrome is band-derived
+   (.hiw-practice is on the "Card chrome by band" rule in shared-sections.css). */
+.hiw-practice {
+  background-color: var(--surface-accent-purple);
+  padding: var(--space-1800) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Header row: heading block left, brand CTA right; wraps on narrow. On-band
+   text pinned dark (fixed-light purple tint, same as the hero) — scoped to the
+   header so it never reaches the white Cards' own copy. */
+.hiw-practice__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--gap-lg);
+  width: 100%;
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band header ink on the fixed-light accent-purple tint; --text-* flips near-white in the dark root, only a mode-invariant dark primitive clears AA in both themes (mirrors shared-sections.css .section-pricing .pricing-header) */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — header description, same reasoning */
+}
+
+.hiw-practice__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* ─── Industries ("Where we do our best work.") ────────────── */
+/* Figma node 25887:4854 — yellow accent band; accordion + illustration panel.
+   On-band text pinned dark (fixed-light yellow tint) across the whole section —
+   there are no nested white cards here, so the pin is section-wide, matching
+   shared-sections.css .section-industries. */
+.hiw-industries {
+  background-color: var(--surface-accent-yellow);
+  padding: var(--space-1800) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band text on the fixed-light accent-yellow tint; --text-* flips near-white in the dark root, only a mode-invariant dark primitive clears AA in both themes (mirrors shared-sections.css .section-industries) */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — accordion body copy, same reasoning */
+}
+
+/* The section intro spans the full band width here (not the default measure
+   cap) so its left edge and description sit flush with the two-column layout
+   below. `.hiw-container` centers its children, so width:100% is needed on top
+   of dropping the cap for the header to fill (and left-align) the full width. */
+.hiw-industries .bds-section-header {
+  max-width: none;
+  width: 100%;
+}
+
+.hiw-industries__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-huge);
+  width: 100%;
+  align-items: start;
+}
+
+.hiw-industries__accordion {
+  width: 100%;
+}
+
+/* Both selected and unselected rows carry the white page surface, so the open
+   trigger and its content read as one continuous panel on the yellow band. This
+   is an app-scoped opt-in — the BDS Accordion default stays transparent so
+   portal consumers are unaffected (#1121). */
+.hiw-industries__accordion .bds-accordion-trigger,
+.hiw-industries__accordion .bds-accordion-content {
+  background-color: var(--surface-primary);
+}
+
+/* Decorative illustration panel (aria-hidden) — white panel on the yellow band,
+   so a containment shadow and no border (light tint → shadow, card-treatment.md). */
+.hiw-industries__media {
+  aspect-ratio: 16 / 10;
+  background-color: var(--surface-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--padding-xl);
+}
+
+.hiw-industries__bubble {
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  font-style: italic;
+  color: var(--text-secondary);
+  background-color: var(--surface-secondary);
+  padding: var(--padding-md) var(--padding-lg);
+  border-radius: var(--border-radius-lg);
+}
+
+/* ─── CTA ("Let's build something.") ───────────────────────── */
+/* Reuses .cta-section-brand / .cta-card-brand (shared-sections.css); these are
+   just the text roles inside the orange panel. */
+.hiw-cta__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-lg);
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-on-color-dark);
+  text-align: center;
+  margin: 0;
+}
+
+.hiw-cta__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  line-height: var(--font-line-height-normal);
+  color: var(--text-on-color-dark);
+  text-align: center;
+  max-width: 640px;
+  margin: 0;
+}
+
+/* Secondary CTA ("See all plans") — white outline on the fixed brand-orange
+   panel. Mirrors homepage.css .hero-btn-on-dark: --border-inverse flips black
+   in dark mode (invisible on the orange), so pin border + label to the
+   invariantly-white --text-on-color-dark. */
+.hiw-cta__btn-outline.bds-button--outline {
+  color: var(--text-on-color-dark);
+  border-color: var(--text-on-color-dark); /* bds-lint-ignore token-family — white outline on the fixed brand-orange CTA panel; --border-inverse flips black in dark and vanishes, --text-on-color-dark is invariantly white (matches homepage.css .hero-btn-on-dark) */
+}
+
+.hiw-cta__btn-outline.bds-button--outline:hover:not(:disabled) {
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  filter: none;
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+
+@media (max-width: 991px) {
+  .hiw-hero__text {
+    max-width: 100%;
+  }
+
+  /* Collapse the split card to a single column: content over right pane. The
+     spine and the in-card divider are meaningless once the panes stack — the
+     divider moves to the top edge of the pane. */
+  .hiw-timeline::before {
+    display: none;
+  }
+
+  .hiw-card {
+    grid-template-columns: 1fr;
+  }
+
+  .hiw-card__pane {
+    border-left: none;
+    border-top: var(--border-width-md) solid var(--border-primary);
+  }
+
+  /* Practice header stacks: heading over CTA. */
+  .hiw-practice__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Industries stacks: accordion over illustration. */
+  .hiw-industries__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .hiw-process,
+  .hiw-practice,
+  .hiw-industries {
+    padding: var(--padding-xl) 0;
+  }
+
+  /* 2×2 checklist → single column on the smallest viewports. */
+  .hiw-card__checklist {
+    grid-template-columns: 1fr;
+  }
+}
