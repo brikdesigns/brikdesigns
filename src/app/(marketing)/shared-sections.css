@@ -26,7 +26,7 @@
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
   align-self: center;
 }
 
@@ -114,6 +114,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--gap-lg);
+}
+
+/* Groups the title + description so the card's gap-lg falls between the copy
+   block and the button-wrapper, while the title↔description rhythm stays tight.
+   The SectionHeader-based instances already group their copy in a ContentBlock;
+   this class is for the hand-built (loose title/description) instances. */
+.cta-card-brand__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--gap-md);
 }
 
@@ -130,7 +141,7 @@
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
 }
 
 .container-lg--comfortable { gap: var(--gap-comfortable); }
@@ -561,7 +572,8 @@
 .page-section--accent .bds-card:not(.bds-card--borderless),
 .service-surface .bds-card:not(.bds-card--borderless),
 .contact-plans .bds-card:not(.bds-card--borderless),
-.section-plans .bds-card:not(.bds-card--borderless) {
+.section-plans .bds-card:not(.bds-card--borderless),
+.hiw-practice .bds-card:not(.bds-card--borderless) {
   border: none;
   box-shadow: var(--box-shadow-md);
 }
@@ -643,19 +655,6 @@
   font-size: var(--body-lg);
 }
 
-/* MediaTabs colors the active tab label with --text-brand-primary — poppy-700
-   #b0351b in light, poppy-300 #ffa693 in dark. On the current accent-yellow fill
-   (#f7e190) that measures 4.78:1 in light — clearing AA, where the R2 mockup's
-   #f4d364 gave 4.26:1 and did not — but 1.45:1 in dark, which does not. The
-   inactive labels already ride the dark --text-primary pin above, but the active
-   one takes this brand hook instead, so pin it dark too on the yellow band: the
-   dark root is what the pin is for. The "selected" affordance survives via
-   TabBar's brand left-border rule (--border-brand-primary) + the auto-advance
-   progress bar — both unaffected. Gated by public-routes.spec.ts (axe, both
-   themes). */
-.section-industries .bds-tab-bar-item[aria-selected='true'] {
-  color: var(--color-grayscale-950); /* bds-lint-ignore token-family — active MediaTab label on the fixed-light accent-yellow band; --text-brand-primary flips light in dark (1.28:1) and is only 4.25:1 in light, so a mode-invariant dark primitive is the one value that clears AA in both themes */
-}
 
 /* ─── Dark mode: border defines a card on a DARK band (#980) ──────────────
    The band-derived rule above trades the border for a containment shadow on a

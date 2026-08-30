@@ -18,7 +18,7 @@
    nearest BDS tokens. Oversized display type rides --display-fluid-* (whose
    clamp replaces the hand-rolled breakpoint step-downs); mid-ramp sizes with
    no semantic token at their step reference the --font-size-* primitive scale
-   directly. Rhythm uses the --gap- and --space- families; the gutter is --gutter-page so
+   directly. Rhythm uses the --gap- and --space- families; the gutter is --page-inset so
    /value content aligns with the site container (nav, footer). Heading tokens
    resolve on the site's expressive scale (layout.tsx sets
    data-mode-typography="expressive"), so sizes are picked against that column.
@@ -33,7 +33,7 @@
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
 }
 
 /* Inner content column. Caps content to the site container width
