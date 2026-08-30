@@ -14,6 +14,10 @@
   flex-flow: column;
   justify-content: center;
   align-items: stretch;
+  /* Top/bottom band inset (huge). --padding-huge is 48px in the default spacing
+     mode; the 767px rule below resets this to 0 and moves the block inset onto
+     .hero-container so the two insets can't stack on mobile. */
+  padding-block: var(--padding-huge);
   min-height: calc(100vh - var(--nav-height));
   min-height: calc(100svh - var(--nav-height));
   position: relative;
@@ -42,6 +46,10 @@
   max-width: var(--site-content-width);
   margin-inline: auto;
   padding: var(--space-1600);
+  /* No semantic 'huge' radius exists (scale stops at --border-radius-lg); the
+     48px huge-tier primitive matches --padding-huge. Reads only against a
+     contrasting container bg/border or a hero background image. */
+  border-radius: var(--border-radius-1400);
 }
 
 /* Webflow: .layout-wrapper-hero.comfortable — gap-xl between text block and buttons */
