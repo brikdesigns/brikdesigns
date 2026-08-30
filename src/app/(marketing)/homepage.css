@@ -113,6 +113,35 @@
   filter: none;
 }
 
+/* Pin the home hero's scroll cue to the bottom of the viewport. .section-hero is
+   position:relative and ~100svh tall, so bottom:0 anchors the cue at the browser
+   bottom on load; taking it out of flow lets .hero-container center its content
+   in the full band. Home-only (.section-hero) — interior heroes (.page-hero) keep
+   the in-flow cue — and the cue is display:none < 768px (shared-sections.css), so
+   this is a desktop-only pin. */
+.section-hero .scroll-down-cta {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* At ≥992px the sticky mega-nav shows its 40px utility bar (125px total, vs the
+   85px main-only bar below 992px), but the shared --nav-height offset is 96px —
+   so the hero overran the viewport by 29px and the bottom-pinned cue fell below
+   the fold, defeating --nav-height's documented purpose (globals.css). Subtract
+   the real 125px sticky-nav height at this range only so the hero — and its cue —
+   ends exactly at the viewport bottom. Scoped to .section-hero (not the shared
+   token) to keep the blast radius on the home hero; 768–991px keeps the base
+   offset (nav is 85px there, so the cue already sits just above the fold), and
+   the cue is display:none ≤767px. */
+@media (min-width: 992px) {
+  .section-hero {
+    min-height: calc(100vh - 125px);
+    min-height: calc(100svh - 125px);
+  }
+}
+
 /* ─── Services ("What We Do") ──────────────────────────────── */
 /* Webflow: .section_services — full-width, 100svh min. R2: 80px block padding
    (--space-1800 primitive, #1091) and left-aligned content (header + control
@@ -166,6 +195,12 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+  /* Full-viewport band, matching the neighboring Services/Problem bands — this
+     yellow accent band was the shortest home section; the floor gives it real
+     vertical presence and the MediaTabs content centers in the taller band.
+     Dropped back to auto < 768px (see the mobile block) so it doesn't over-tall
+     on phones, exactly like .section-services. */
+  min-height: 100svh;
 }
 
 .industries-tabs {
@@ -205,7 +240,11 @@
   align-items: center;
   width: 100%;
   min-height: 100vh;
-  gap: var(--gap-xl);
+  /* 64px (--space-1600 primitive) between the "Tools we know" header and the logo
+     ticker — a mode-stable step above the prior --gap-xl (24px), matching the way
+     the hero/Services bands reach for the space-* primitives directly rather than
+     a --gap-* step that shifts with the spacing mode. */
+  gap: var(--space-1600);
 }
 
 /* Stretch the header block so align="start" sits it at the page gutter rather
@@ -380,6 +419,16 @@
   }
 }
 
+/* Widen the "Sound like you?" CTA content-block slot rhythm to gap-huge (32px,
+   --space-800). BDS ContentBlock spaces its title/description/actions slots with
+   margin-top (ADR-023), not flex gap, so this override matches that mechanism and
+   swaps the token on the two slots the CTA renders. Unlayered, so it beats the
+   layered bds-components rule at equal specificity. */
+.section-problem-cta .bds-content-block__description,
+.section-problem-cta .bds-content-block__actions {
+  margin-top: var(--gap-huge);
+}
+
 /* ─── Workflow ("Simple from day one") ──────────────────────── */
 /* R2 section (Figma node 25800:3081): three sequential engagement steps as an
    alternating timeline over a BDS MediaBand, on the white
@@ -416,7 +465,9 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  border-left: var(--border-width-md) solid var(--border-primary);
+  /* 3px spine (--border-width-200), matching the step cards' own border width so
+     the connector reads at the same weight as the cards it threads. */
+  border-left: var(--border-width-200) solid var(--border-primary);
   z-index: 0;
 }
 
@@ -562,7 +613,10 @@
 .testimonial-row {
   display: grid;
   grid-template-columns: minmax(220px, 327px) 1fr;
-  align-items: center;
+  /* stretch (not center): the body column grows to the square media tile's
+     height so the quote + attribution can anchor to the tile's top and bottom
+     edges (see .testimonial-row__body justify-content below). */
+  align-items: stretch;
   gap: var(--gap-xl);
   padding: var(--padding-xl);
   background-color: var(--surface-secondary);
@@ -640,13 +694,22 @@
   margin: 0;
   display: flex;
   flex-direction: column;
+  /* Pin the quote to the top and the attribution to the bottom of the (stretched)
+     body column; --gap-xl is the minimum spacing when the two nearly fill it. */
+  justify-content: space-between;
   gap: var(--gap-xl);
 }
 
 .testimonial-row__quote {
   margin: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--body-lg);
+  /* Pull-quote size: --heading-md (25.3px on this site's active type mode), two
+     steps up the rendered type ramp from the prior --body-lg (18px → 20px → 25.3px;
+     the mode skips the 22.5px primitive, so --heading-sm resolves to 20px here —
+     only one step). Paired with --font-family-heading so size and family share a
+     ramp (ADR-013); both families resolve to Poppins, so the italic quote is
+     visually unchanged apart from the larger size. */
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-md);
   font-style: italic;
   line-height: var(--font-line-height-relaxed);
   color: var(--text-primary);
@@ -1036,6 +1099,7 @@
 
   /* Sections — remove min-height */
   .section-services,
+  .section-industries,
   .section-audit,
   .section-story {
     min-height: auto;
