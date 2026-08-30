@@ -143,9 +143,7 @@ html {
     /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
     --page-accent: var(--color-tan-100);
     --surface-accent: var(--color-tan-100);
-    --background-elevated: var(--color-grayscale-white);
     --background-inverse: var(--color-grayscale-white);
-    --text-on-footer: var(--color-grayscale-white);
     --background-image: var(--color-grayscale-100);
   }
 
@@ -248,14 +246,9 @@ html {
        --text-link above. Pairs with the light-mode poppy-700 pin. */
     --text-brand-primary: var(--color-poppy-300);
 
-    /* Brand: dark-mode link tone (system-link is too saturated on black). */
-    --color-system-link: #6b8aff;
-
     /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
     --page-accent: var(--color-grayscale-950);
     --surface-accent: var(--color-grayscale-950);
-    --background-elevated: var(--color-grayscale-800);
-    --text-on-footer: var(--color-grayscale-100);
     --background-image: var(--color-grayscale-800);
     /* BDS canonical sets --background-tertiary in light only — provide a
        dark-mode value here so consumers don't fall through to the light value. */
@@ -280,15 +273,10 @@ html {
        at 3.87:1 — under AA 4.5:1. Inheriting BDS gives 6.10:1. Adding it back
        reopens brikdesigns#1079; the info pair is gated in
        scripts/lint-theme-contrast.mjs. */
-    --color-system-link: #0034ea;
     --color-system-red: #eb5757;
     --color-system-green: #27ae60;
     --color-system-yellow: #f2c94c;
     --color-system-orange: #f2994a;
-
-    /* BDS bridge alias — kept for component CSS that still references the
-       double-hyphen Webflow form. */
-    --system--red: var(--color-system-red);
 
     /* ---- Heading scale: BDS `data-mode-typography="expressive"` (set on <html>) ----
        The former project-local remap (one step larger than BDS canon) is retired —
@@ -314,7 +302,6 @@ html {
        lifted component CSS that hasn't migrated to canonical single-hyphen). ---- */
     --font-weight--bold: var(--font-weight-bold);
     --font-weight--semi-bold: 500;
-    --font-line-height--100: var(--font-line-height-tight);
 
     /* ---- Project-local gap extensions (no BDS primitive at these stops) ---- */
     /* --gap-comfortable: section-block gap (36px), no exact space primitive. */
