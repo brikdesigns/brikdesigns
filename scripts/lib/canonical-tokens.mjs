@@ -80,6 +80,31 @@ export function isViolation(name, { canonical, projectLocal, allowlist }) {
   return !canonical.has(name) && !projectLocal.has(name) && !allowlist.has(name);
 }
 
+// Rule 8: dead project-local declarations. A `--name` declared in globals.css
+// that is neither canonical (BDS consumes rebinds of real tokens), nor a
+// `--bds-*` ADR-014 hook (always a valid override point), nor referenced by a
+// var() anywhere (`referenced` should already include src/ + BDS dist refs), is
+// dead weight — and invisible to the invented-token check, which whitelists
+// everything declared here. Returns one entry per dead token at its first decl.
+export function findDeadDeclarations({ globalsText, canonical, referenced }) {
+  const lines = globalsText.split('\n');
+  const declRe = /^\s*(--[a-zA-Z][\w-]*)\s*:/;
+  const seen = new Set();
+  const out = [];
+  for (let idx = 0; idx < lines.length; idx++) {
+    const m = lines[idx].match(declRe);
+    if (!m) continue;
+    const name = m[1];
+    if (seen.has(name)) continue;
+    if (canonical.has(name)) continue;
+    if (name.startsWith('--bds-')) continue;
+    if (referenced.has(name)) continue;
+    seen.add(name);
+    out.push({ line: idx + 1, token: name, snippet: lines[idx].trim().slice(0, 120) });
+  }
+  return out;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Rule 5: Token-family ↔ property pairing
 //
