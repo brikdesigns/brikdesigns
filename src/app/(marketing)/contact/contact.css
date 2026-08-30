@@ -68,9 +68,9 @@
   align-items: center;
   gap: var(--gap-xl);
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
 }
 
 /* `.contact-plans__header` retired — the band intro is a BDS <SectionHeader>,

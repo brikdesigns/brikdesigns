@@ -24,9 +24,9 @@
 
 .page-hero__container {
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
   align-self: center;
 }
 
@@ -114,6 +114,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--gap-lg);
+}
+
+/* Groups the title + description so the card's gap-lg falls between the copy
+   block and the button-wrapper, while the title↔description rhythm stays tight.
+   The SectionHeader-based instances already group their copy in a ContentBlock;
+   this class is for the hand-built (loose title/description) instances. */
+.cta-card-brand__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--gap-md);
 }
 
@@ -128,9 +139,9 @@
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
 }
 
 .container-lg--comfortable { gap: var(--gap-comfortable); }
@@ -495,6 +506,23 @@
   font-size: var(--heading-sm);
 }
 
+/* ServiceCard content inset (card-vertical mockup). BDS preset='display'
+   bleeds the media to the card edge and pads only the text body
+   (--padding-lg). `.service-card--inset` (ServiceCard's default) instead frames
+   the image AND text together in a --padding-huge (48px) inset. The 48px lives
+   on the flush-media root as padding; the body's own --padding-lg is zeroed so
+   the frame isn't doubled, and --gap-xl preserves the prior 24px image↔text
+   separation (the old body padding-top). `.service-card--flush` keeps the bleed
+   and needs no rule — it IS the bare BDS preset. */
+.service-card--inset.bds-card--preset-display {
+  padding: var(--padding-huge);
+  gap: var(--gap-xl);
+}
+
+.service-card--inset .bds-card__preset-display-body {
+  padding: 0;
+}
+
 /* Same heading-sm normalization for the "Other Support Plans" / "Other Service
    Lines" display grids, whose cards keep their own chrome (elevated / -inverse
    fill) and so can't reuse `.service-card--flat` (that also strips border +
@@ -544,9 +572,22 @@
 .page-section--accent .bds-card:not(.bds-card--borderless),
 .service-surface .bds-card:not(.bds-card--borderless),
 .contact-plans .bds-card:not(.bds-card--borderless),
-.section-plans .bds-card:not(.bds-card--borderless) {
+.section-plans .bds-card:not(.bds-card--borderless),
+.hiw-practice .bds-card:not(.bds-card--borderless) {
   border: none;
   box-shadow: var(--box-shadow-md);
+}
+
+/* Card border-width standard: wherever a card IS bordered, the ring is 3px this
+   theme (--border-width-200) rather than the BDS 2px --border-width-md default.
+   WIDTH only — the band rules above (and the dark-band rule below) still own
+   WHETHER a card is bordered and its color; a `border-width` property, not a
+   token redefinition, so it stays clear of ADR-013 and leaves inputs/buttons/
+   tabs on the default md weight. Unlayered like the rest of this SOT so it beats
+   the BDS variant's shorthand; on border:none cards it's an inert no-op. Card-
+   only starting point (home updates) — reassess before widening the standard. */
+.bds-card:not(.bds-card--borderless) {
+  border-width: var(--border-width-200);
 }
 
 /* Service pricing tiers use `.bds-pricing-card` (a distinct class, not
@@ -560,14 +601,19 @@
 }
 
 /* ─── Accent band on-color text (R2 home) ────────────────────────────────
-   The R2 home accent bands paint the soft accent purple (#9e8bc2) and yellow
-   (#f4d364) surfaces — Figma nodes 25805:3001, 25768:6527, 25768:7667. These are
-   mid-tone tints and fixed-light in BOTH themes (they alias the light purple /
-   yellow color primitives, the same fixed primitives the service tints ride).
-   That breaks the default intro text two ways: the default secondary text token
-   (mid-gray) is only ~2.4:1 on the mid-tone purple — below AA — and both the
-   primary + secondary text tokens flip near-white in the dark root, unreadable
-   on the still-light fill. Pin both to the mode-invariant grayscale-950
+   The R2 home accent bands paint the accent purple (#e9d8fc) and yellow
+   (#f7e190) surfaces — Figma nodes 25805:3001, 25768:6527, 25768:7667. Those
+   two hexes are the ❖ Brik Brand Kit's current values (color/system/{purple,
+   yellow}-light, read live 2026-08-27); the R2 mockup used the mid-tones
+   #9e8bc2 / #f4d364, and BDS moved onto the system palette in v0.175.0
+   (brik-bds#2066). Both are still fixed-light in BOTH themes — note they now
+   alias the SYSTEM palette, not the light purple / yellow primitives the
+   service tints ride, so the two families no longer move together.
+   The dark root is what breaks the default intro text: the primary + secondary
+   text tokens flip near-white there, unreadable on a still-light fill
+   (1.34:1 on the purple, 1.30:1 on the yellow). In light the paler tints now
+   clear AA on their own — 5.15:1 for the default secondary gray on the purple,
+   where #9e8bc2 did not. Pin both to the mode-invariant grayscale-950
    primitive so the intro clears AA in both themes; this is the dark-text
    analogue of the onColor (white) treatment these bands dropped, and mirrors the
    .service-surface pin in globals.css.
@@ -578,8 +624,8 @@
 .section-problem-cta,
 .section-pricing .pricing-header,
 .section-industries {
-  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band intro text on a fixed-light accent tint; every --text-* token flips near-white in the dark root, so only a mode-invariant primitive clears AA in both themes (mirrors the .service-surface pin, globals.css) */
-  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; the default --text-secondary gray is ~2.4:1 on the mid-tone accent-purple, an AA fail */
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band intro text on a fixed-light accent tint; every --text-* token flips near-white in the dark root (1.34:1 on accent-purple, 1.30:1 on accent-yellow), so only a mode-invariant primitive clears AA in both themes (mirrors the .service-surface pin, globals.css) */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above. The DARK root is now the only reason this pin is needed: on the current #e9d8fc fill the default --text-secondary (#5a5a5a) measures 5.15:1 and clears AA in light. It did not on the R2 mockup's #9e8bc2 — the paler Brand Kit tint (brik-bds#2066, v0.175.0) fixed the light-mode half. Keep the pin; the dark-root flip is unchanged. */
 }
 
 /* R2 pricing cards carry a PER-CARD pale service-line tint (page.tsx sets an
@@ -602,16 +648,13 @@
   --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; BDS secondary gray is ~3.5:1 on the pale cream/mint tint, an AA fail */
 }
 
-/* MediaTabs colors the active tab label with --text-brand-primary — #b0351b in
-   light (4.25:1 on the accent-yellow band, just under AA) and a light poppy in
-   dark (1.28:1). The inactive labels already ride the dark --text-primary pin
-   above, but the active one takes this brand hook instead, so pin it dark too on
-   the yellow band. The "selected" affordance survives via TabBar's brand
-   left-border rule (--border-brand-primary) + the auto-advance progress bar —
-   both unaffected. Gated by public-routes.spec.ts (axe, both themes). */
-.section-industries .bds-tab-bar-item[aria-selected='true'] {
-  color: var(--color-grayscale-950); /* bds-lint-ignore token-family — active MediaTab label on the fixed-light accent-yellow band; --text-brand-primary flips light in dark (1.28:1) and is only 4.25:1 in light, so a mode-invariant dark primitive is the one value that clears AA in both themes */
+/* R3 (#1114): the home pricing tiers take a larger --body-lg description than
+   the BDS default, scoped to the home band so the /plans + /services pricing
+   grids keep their own sizing. */
+.section-pricing .bds-pricing-card__description {
+  font-size: var(--body-lg);
 }
+
 
 /* ─── Dark mode: border defines a card on a DARK band (#980) ──────────────
    The band-derived rule above trades the border for a containment shadow on a
@@ -662,7 +705,7 @@
 :root[data-theme="dark"] .page-section--accent .bds-card:not(.bds-card--borderless),
 :root[data-theme="dark"] .contact-plans .bds-card:not(.bds-card--borderless),
 :root[data-theme="dark"] .section-plans .bds-card:not(.bds-card--borderless) {
-  border: var(--border-width-md) solid var(--border-secondary);
+  border: var(--border-width-200) solid var(--border-secondary);
   box-shadow: var(--box-shadow-none);
 }
 

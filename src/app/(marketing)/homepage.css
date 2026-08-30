@@ -9,11 +9,15 @@
    .page-hero on interior pages). min-height subtracts --nav-height so the
    sticky header doesn't push the trailing ScrollDownCta below the fold. */
 .section-hero {
-  background-color: var(--surface-brand-primary);
+  background-color: var(--surface-primary);
   display: flex;
   flex-flow: column;
   justify-content: center;
   align-items: stretch;
+  /* Top/bottom band inset (huge). --padding-huge is 48px in the default spacing
+     mode; the 767px rule below resets this to 0 and moves the block inset onto
+     .hero-container so the two insets can't stack on mobile. */
+  padding-block: var(--padding-huge);
   min-height: calc(100vh - var(--nav-height));
   min-height: calc(100svh - var(--nav-height));
   position: relative;
@@ -22,7 +26,15 @@
 
 /* Webflow: .container-hero — column flex, left-aligned. flex:1 reserves the
    container's natural vertical share so the trailing ScrollDownCta doesn't
-   push hero content up off-center. */
+   push hero content up off-center.
+
+   R2 polish: 64px inset on all four sides. --space-1600 (64px) is the
+   primitive, used directly because no --padding-* step resolves to 64px in the
+   default spacing mode (--padding-huge is 48px here, 80px only in
+   `comfortable`) — the same reason #1091 reached for --space-1800 on Services.
+   The inline inset deliberately overrides --page-inset (32px): the hero band
+   is the one container the design insets further than the shared page gutter,
+   so the hero text starts inboard of the nav logo by design. */
 .hero-container {
   z-index: 100;
   display: flex;
@@ -31,9 +43,19 @@
   align-items: flex-start;
   flex: 1;
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding: var(--space-1600);
+  /* Brand-primary (poppy) band inset in the white .section-hero. On the fixed
+     brand fill the ink is the invariantly-white on-color text token, matching
+     the cta-card-brand / HIW CTA panels that ride the same surface. */
+  background-color: var(--surface-brand-primary);
+  --text-primary: var(--text-on-color-dark);
+  --text-secondary: var(--text-on-color-dark);
+  /* No semantic 'huge' radius exists (scale stops at --border-radius-lg); the
+     48px huge-tier primitive matches --padding-huge. Reads against the poppy
+     container fill above, which sits inset in the white .section-hero band. */
+  border-radius: var(--border-radius-1400);
 }
 
 /* Webflow: .layout-wrapper-hero.comfortable — gap-xl between text block and buttons */
@@ -54,7 +76,8 @@
   width: 80%;
 }
 
-/* Webflow: .text_display-sm.on-color-dark */
+/* R3: hero re-themed to the white --surface-primary band (#1114) — title takes
+   default dark --text-primary (was --text-on-color-dark on the retired brand band). */
 .hero-title {
   font-family: var(--font-family-display);
   /* Display treatment → display-family + display-scale size (#534).
@@ -67,24 +90,30 @@
   font-size: clamp(2.25rem, 1rem + 4.6vw, var(--display-sm));
   font-weight: 700;
   line-height: var(--font-line-height-tight);
-  color: var(--text-on-color-dark);
+  color: var(--text-primary);
   margin: 0;
 }
 
-/* Webflow: .text_body-huge.on-color-dark */
+/* R3: lead paragraph on the white hero band takes --text-secondary (was
+   --text-on-color-dark on the retired brand band). */
 .hero-description {
   font-family: var(--font-family-body);
   font-size: var(--body-xl);
   font-weight: 400;
   line-height: var(--font-line-height-normal);
-  color: var(--text-on-color-dark);
+  color: var(--text-secondary);
   margin: 0;
 }
 
 
 
 
-/* Webflow: .button-tertiary-md on dark hero — override BDS outline colors for dark bg */
+/* The home hero rides the brand-primary (poppy) band again, so its secondary
+   button re-adopts .hero-btn-on-dark for a white outline — same treatment the
+   Blog hero (blog/page.tsx, which also imports this file) uses on its dark band. */
+
+/* Webflow: .button-tertiary-md on a dark/brand hero — override BDS outline colors
+   for a saturated bg. Used by the home hero + the Blog hero. */
 .hero-btn-on-dark.bds-button--outline {
   color: var(--text-on-color-dark);
   border-color: var(--text-on-color-dark); /* bds-lint-ignore token-family — --border-inverse flips to black in dark mode (--color-grayscale-black), making the border invisible on the fixed-dark hero surface. --text-on-color-dark is invariantly white in both themes. #393 */
@@ -94,16 +123,6 @@
   background-color: var(--surface-primary);
   color: var(--text-primary);
   filter: none;
-}
-
-/* Scoped overrides for the ScrollDownCta inside the brand hero — on the poppy
-   --surface-brand-primary backdrop the default --text-secondary label and
-   --text-brand-primary icon are both low-contrast. Invert both to white
-   (--text-on-color-dark stays white in either theme). #356. The ≤767px hide
-   rule still applies via the global cascade. */
-.section-hero .scroll-down-cta__label,
-.section-hero .scroll-down-cta__icon {
-  color: var(--text-on-color-dark);
 }
 
 /* ─── Services ("What We Do") ──────────────────────────────── */
@@ -135,8 +154,16 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
   width: 100%;
+}
+
+/* Warm tan well behind each service-card illustration (the source art is often
+   transparent, so the Frame background reads through). Scoped to the home
+   Services grid — the marketing ServiceCard is shared with /services + the
+   service-line grids, which keep their own (transparent) media well. */
+.section-services .services-tabs__grid .bds-frame {
+  background-color: var(--background-accent);
 }
 
 .services-tabs__grid {
@@ -144,12 +171,13 @@
 }
 
 /* ─── Industries ("Where we do our best work") ──────────────── */
-/* R2 section (Figma 25768:6527): MediaTabs peer selector + synced illustration,
-   on the soft-yellow accent band the mockup tints it (fill surface/accent-yellow,
-   #f4d364). MediaTabs owns its own internal layout; the section just provides the
-   band + container rhythm. The accent surface is fixed-light in both themes (like
-   the service tints), so on-band text is pinned dark in the dark root — see
-   shared-sections.css "Accent band on-color text". */
+/* R3 section (Figma 25768:6527): Accordion selector + synced illustration, on
+   the yellow accent band (fill surface/accent-yellow). The token resolves to
+   #f7e190 today; the R2 mockup used #f4d364 — see the Problem-CTA band above for
+   the Brand Kit re-point. The two-column layout lives on .industries-accordion__layout
+   below; the section just provides the band + container rhythm. The accent
+   surface is fixed-light in both themes, so on-band text is pinned dark in the
+   dark root — see shared-sections.css "Accent band on-color text". */
 .section-industries {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-accent-yellow);
@@ -160,20 +188,80 @@
   width: 100%;
 }
 
-.industries-tabs {
+/* R3 (#1054): two-column layout — Accordion selector | synced illustration —
+   mirroring the HIW industries section. */
+.industries-accordion__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-huge);
   width: 100%;
+  align-items: start;
 }
 
-/* R2 refinement (#1092): the synced illustration sits in a white rounded panel
-   rather than floating on the band. The band is the soft-yellow accent tint, so
-   the panel takes a containment shadow and no border (light tint → shadow,
-   card-treatment.md). The accent surface is fixed-light in both themes, so the
-   shadow stays legible in dark mode (same reasoning as the service tints). */
-.industries-tabs .bds-media-tabs__media {
+.industries-accordion {
+  width: 100%;
+  /* Space the card rows (below) apart on the band. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+/* Industries rows read as surface-primary cards on the yellow band — each row
+   (trigger + content) is a white --border-radius-md card with --padding-md.
+   The band is a light accent tint, so per card-treatment.md the card takes a
+   containment shadow and no border (matching the sibling
+   .industries-accordion__media panel) — the default underline separator is
+   dropped. */
+.industries-accordion .bds-accordion-item {
+  /* White card on the fixed-light yellow band. --surface-primary can't be used:
+     .section-industries pins the trigger/content text to the mode-invariant
+     grayscale-950 (shared-sections.css "Accent band on-color text"), so a
+     theme-reactive surface would flip near-black in the dark root and drop the
+     dark text to ~1.2:1 (axe serious). A mode-invariant white keeps the card
+     fixed-light in both themes — the same fixed-on-fixed-light pattern as the
+     .section-pricing .bds-pricing-card tint. */
+  background-color: var(--color-grayscale-white); /* bds-lint-ignore token-family — fixed-light card on a fixed-light accent band; --surface-primary flips near-black in dark under the section's grayscale-950 text pin, failing AA (mirrors the .service-surface / pricing-card pins) */
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+  border-bottom: none;
+  overflow: hidden;
+}
+
+.industries-accordion .bds-accordion-trigger {
+  padding: var(--padding-md);
+}
+
+/* Content sits directly under the trigger inside the same card, so it drops the
+   trigger's bottom inset to avoid a doubled gap. */
+.industries-accordion .bds-accordion-content {
+  padding: 0 var(--padding-md) var(--padding-md);
+}
+
+/* R2 refinement (#1092), carried to R3: the synced illustration sits in a white
+   rounded panel rather than floating on the band. The band is the soft-yellow
+   accent tint, so the panel takes a containment shadow and no border (light tint
+   → shadow, card-treatment.md). The accent surface is fixed-light in both
+   themes, so the shadow stays legible in dark mode (same as the service tints). */
+.industries-accordion__media {
   background-color: var(--surface-primary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--box-shadow-md);
   overflow: hidden;
+}
+
+/* Fade each illustration in as its row opens (the <Image> remounts on key
+   change), echoing the retired MediaTabs crossfade. Reduced-motion honored. */
+.industries-accordion__media img {
+  animation: industries-media-fade 240ms ease-out;
+}
+
+@keyframes industries-media-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .industries-accordion__media img { animation: none; }
 }
 
 /* ─── Tooling ("Tools we know") ──────────────────────────────── */
@@ -182,15 +270,22 @@
    band (matches Services/Industries). No min-height — the ticker is a short
    band, not a full-viewport section (Industries pattern). The Marquee is a
    sibling of the container, not inside it, so the row bleeds edge-to-edge like
-   the full-width Figma logo frame while the header stays in the page gutter. */
+   the full-width Figma logo frame while the header stays in the page gutter.
+   R2 polish: 80px block padding — the --space-1800 primitive, not
+   --padding-huge (48px in the default spacing mode). Same primitive and same
+   reason as Services (#1091), so the two white bands share a block rhythm.
+   min-height: 100vh matches the Monthly Subscription band (.section-pricing) so
+   the two share a full-viewport height; content centers in the taller band. */
 .section-tooling {
-  padding: var(--padding-huge) 0;
+  padding: var(--space-1800) 0;
   background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 100%;
-  gap: var(--gap-component);
+  min-height: 100vh;
+  gap: var(--gap-huge);
 }
 
 /* Stretch the header block so align="start" sits it at the page gutter rather
@@ -220,10 +315,27 @@
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
-  gap: var(--gap-component);
+  padding-inline: var(--page-inset);
+  gap: var(--gap-xl);
+}
+
+/* R3 (#1114): fixed 48px between the home page's section blocks. Scoped to the
+   seven home sections rather than the bare .section-container, because that
+   class is shared — the Blog page (blog/page.tsx) reuses it under .section-plans
+   and must keep its own spacing. --space-1200 primitive, not a --gap-* step:
+   gap tokens shift with the spacing mode (--gap-xl is 24px in the mode home
+   renders in) and the design needs a stable 48px in every mode (same reason the
+   hero reaches for --space-1600/1800 directly). */
+.section-problem .section-container,
+.section-services .section-container,
+.section-industries .section-container,
+.section-tooling .section-container,
+.section-workflow .section-container,
+.section-pricing .section-container,
+.section-testimonials .section-container {
+  gap: var(--space-1200);
 }
 
 /* Section intros (title + description) now use the BDS <SectionHeader>
@@ -251,7 +363,12 @@
   background-color: var(--surface-secondary);
   display: flex;
   flex-direction: column;
-  gap: var(--gap-xl);
+  /* R3 (#1114): xl inset. BDS CardPadding caps at 'lg', so the card renders
+     padding="none" and the token inset is applied here. */
+  padding: var(--padding-xl);
+  /* R3 (#1114): 48px between the card title and the pain-point grid. --space-1200
+     primitive for a mode-stable 48px (see the .section-container note above). */
+  gap: var(--space-1200);
 }
 
 .problem__title {
@@ -310,12 +427,16 @@
 
 /* ─── Problem-CTA ("Sound like you?") ───────────────────────── */
 /* R2 accent band (Figma node 25805:3001): centered SectionHeader intro + two
-   CTAs, bridging Problem → Services. The mockup fills this band with the soft
-   accent purple (fill surface/accent-purple, #9e8bc2), not brand orange — a
-   mid-tone light tint, so the intro drops onColor (white, AA-large only on this
-   fill) for the default dark text. Fixed-light in both themes → on-band text is
-   pinned dark in the dark root (shared-sections.css "Accent band on-color text").
-   This rule only paints the band. */
+   CTAs, bridging Problem → Services. Filled with accent purple
+   (fill surface/accent-purple), not brand orange.
+   The token now resolves to #e9d8fc, a pale tint. It read #9e8bc2 when this
+   band was built — the R2 mockup value — and the ❖ Brik Brand Kit has since
+   re-pointed surface/accent-{hue} onto the system palette
+   (color/system/purple-light), which BDS mirrors 1:1 as of v0.175.0
+   (brik-bds#2066). Read live from the Brand Kit 2026-08-27, both modes.
+   Still fixed-light in both themes, so on-band text stays pinned dark in the
+   dark root (shared-sections.css "Accent band on-color text") — a paler fill
+   only widens that margin. This rule only paints the band. */
 .section-problem-cta {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-accent-purple);
@@ -326,9 +447,22 @@
   width: 100%;
 }
 
+/* R3 (#1114): give the accent CTA bridge real vertical presence on desktop — it
+   was the only home band with no min-height, so it read cramped between the
+   full-viewport Problem and Services bands. A 60svh floor + 80px block padding
+   (--space-1800, the same 80px step Services uses) enlarges it without claiming
+   a full viewport like the content bands. Scoped to ≥992px so the mobile band
+   stays compact; content stays centered via the base flex rule. */
+@media (min-width: 992px) {
+  .section-problem-cta {
+    min-height: 60svh;
+    padding-block: var(--space-1800);
+  }
+}
+
 /* ─── Workflow ("Simple from day one") ──────────────────────── */
 /* R2 section (Figma node 25800:3081): three sequential engagement steps as an
-   alternating timeline over a BDS ZIndexMediaBand, on the white
+   alternating timeline over a BDS MediaBand, on the white
    --surface-primary band (matches Tooling above). The band primitive owns the
    stacking context; this section paints the surface + provides the timeline. */
 .section-workflow {
@@ -367,18 +501,23 @@
 }
 
 /* Step card: two equal halves — a text body and a decorative media panel —
-   split at the vertical center (where the spine runs). White band → bordered,
-   no shadow (card-treatment.md). Opaque so it covers the spine except in the
-   gaps. */
+   split at the vertical center (where the spine runs). Bordered plus a subtle
+   --box-shadow-sm elevation to lift each step off the white band and its
+   connector spine. This is a hand-built <li>, not a <Card>, so it's outside the
+   card-treatment.md luminance rule (and its gate); the elevation is a
+   deliberate call for the timeline. Border width matches the card standard
+   (--border-width-200 / 3px) so the timeline steps read as cards alongside the
+   real <Card>s. Opaque so it covers the spine except in the gaps. */
 .workflow-step {
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: stretch;
-  border: var(--border-width-sm) solid var(--border-primary);
+  border: var(--border-width-200) solid var(--border-primary);
   border-radius: var(--border-radius-md);
   background-color: var(--surface-primary);
+  box-shadow: var(--box-shadow-sm);
   overflow: clip;
 }
 
@@ -393,7 +532,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
   padding: var(--padding-xl);
 }
 
@@ -422,23 +561,39 @@
   margin: 0;
 }
 
-/* Media panel — decorative half. Real per-step illustration is deferred
-   (#1073); until it lands the panel is a neutral tinted surface that holds the
-   alternating layout. min-height keeps the empty panel from collapsing shorter
-   than its text half. */
+/* Media panel — decorative half, holding the step's illustration in a 1:1 slot
+   (#1073). The tinted surface doubles as the letterbox fill and as the backdrop
+   while the image loads. min-height keeps the panel from collapsing shorter than
+   its text half at wide viewports, where the square is the smaller of the two. */
 .workflow-step__media {
   background-color: var(--surface-secondary);
   min-height: 260px;
+  aspect-ratio: 1;
+}
+
+/* `contain`, not `cover`: the source frames are 2140×1840 (ratio 1.16), and
+   covering the square crops ~14% off the sides — enough to slice the phone and
+   card frames off at the panel edges (measured on the live page, not estimated).
+   Contained, each illustration renders whole and the ~36px letterbox bands are
+   invisible because the export's own background matches --surface-secondary.
+   A true 1:1 re-export would remove the fit-scaling entirely (follow-up). */
+.workflow-step__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* ─── Pricing ("Monthly Subscription") ──────────────────────── */
 /* R2 pricing band (Figma node 25768:7667): header row (SectionHeader intro +
-   CTA) over 3 BDS PricingCards, on the soft accent-purple band the mockup tints
-   it (fill surface/accent-purple, #9e8bc2) — not brand orange. A mid-tone light
-   tint, so the intro drops onColor for the default dark text (Figma shows dark
-   header ink here). Card chrome is band-derived in shared-sections.css ("Card
-   chrome by band"); on-band text is pinned dark in the dark root ("Accent band
-   on-color text") since the accent surface is fixed-light in both themes. */
+   CTA) over 3 BDS PricingCards, tinted with accent purple
+   (fill surface/accent-purple) — not brand orange.
+   Same token, same history as the Problem-CTA band above: #9e8bc2 in the R2
+   mockup, #e9d8fc today. The intro still drops onColor for the default dark
+   text (Figma shows dark header ink here). Card chrome is band-derived in
+   shared-sections.css ("Card chrome by band"); on-band text is pinned dark in
+   the dark root ("Accent band on-color text") since the accent surface is
+   fixed-light in both themes. */
 .section-pricing {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-accent-purple);
@@ -497,13 +652,33 @@
 
 /* Alternating rhythm: even rows lead with the media tile (quote right), odd rows
    lead with the quote (tile right). DOM order stays media → quote; only the
-   visual order flips. */
-.testimonial-row[data-lead='quote'] .testimonial-row__media {
-  order: 2;
+   visual order flips. The tracks are reversed (not swapped by `order`) so the
+   media tile always lands in the CAPPED 327px track — an `order` swap would drop
+   it into the 1fr track, and `aspect-ratio: 1` would then blow it up to a giant
+   square wider than the other rows' tiles (#1096 kept them uniform). */
+.testimonial-row[data-lead='quote'] {
+  grid-template-columns: 1fr minmax(220px, 327px);
 }
 
-/* Square logo tile — white surface on the tinted card. Placeholder until real
-   client logos land; the label reads as a template, not a brand. */
+/* Pin both items to the single grid row (#1114). DOM order is media → body, so
+   the media (explicit column 2) advances the sparse auto-placement cursor past
+   column 1; the body (explicit column 1) then can't be placed in row 1 and drops
+   to an implicit row 2, stacking the pair and inflating the row (measured 525px
+   vs 391px on the media-lead rows). An explicit `grid-row: 1` keeps them side by
+   side. */
+.testimonial-row[data-lead='quote'] .testimonial-row__body {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.testimonial-row[data-lead='quote'] .testimonial-row__media {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Square logo tile — white surface on the tinted card. Holds a real client
+   logomark when the row has one, else the template label (which reads as a
+   template, not a brand). */
 .testimonial-row__media {
   aspect-ratio: 1;
   width: 100%;
@@ -512,6 +687,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--padding-xl);
+}
+
+/* Client logomark — contained (never cropped) inside the square tile, capped
+   well short of the edges by the tile's own padding so wordmarks of different
+   aspect ratios read at a consistent optical weight (#1096 did the same for
+   the R2 logo tiles). */
+.testimonial-row__logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* The tile is --surface-primary, which flips to near-black in the dark theme,
+   and the source logomarks are black-inked — the exact failure in #893. Invert
+   on the dark root so the mark stays legible, matching the .tooling-logo
+   treatment above. */
+[data-theme='dark'] .testimonial-row__logo {
+  filter: invert(1);
 }
 
 .testimonial-row__logo-placeholder {
@@ -578,7 +773,7 @@
   align-items: stretch;
   gap: 0;
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
   background-color: var(--surface-primary);
   border-radius: var(--border-radius-sm);
@@ -601,7 +796,7 @@
   flex-flow: column;
   align-items: center;
   text-align: center;
-  gap: var(--gap-component);
+  gap: var(--gap-xl);
 }
 
 /* Webflow: .text_heading-lg */
@@ -673,9 +868,9 @@
   align-items: center;
   gap: var(--gap-comfortable);
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
 }
 
 /* Webflow: .cms-item-story — row, space-between, gap-lg (24px), white bg, sm radius */
@@ -793,8 +988,8 @@
   display: flex;
   flex-flow: column;
   align-items: center;
-  gap: var(--gap-component);
-  max-width: var(--content-width-xl);
+  gap: var(--gap-xl);
+  max-width: var(--site-content-width);
   text-align: center;
 }
 
@@ -825,7 +1020,7 @@
 @media (max-width: 991px) {
   .hero-text {
     width: 100%;
-    gap: var(--gap-component);
+    gap: var(--gap-xl);
   }
 
   /* Tablet hero size is handled by the base clamp() (fluid down to the
@@ -835,6 +1030,11 @@
   .audit-layout {
     flex-direction: column;
     max-width: 704px;
+  }
+
+  /* Industries stacks: accordion over illustration (mirrors HIW). */
+  .industries-accordion__layout {
+    grid-template-columns: 1fr;
   }
 
   .audit-content {
@@ -851,10 +1051,11 @@
   }
 
   /* Workflow — collapse the two-up timeline to a single content column. The
-     central spine and the (currently art-less) media panel are both dropped:
-     a centered spine is meaningless once the cards are full-width, and an empty
-     tinted half-strip reads as unfinished stacked. Both return with the desktop
-     grid; real step art (#1072) can revisit the stacked treatment. */
+     central spine is dropped: it is meaningless once the cards are full-width.
+     The media panel now HOLDS the real step illustration (#1073), so it stays
+     visible stacked (it was hidden only because an empty tinted half-strip read
+     as unfinished) — capped and centered so a full-measure square doesn't
+     dominate the scroll. Keep the cap in step with the <img sizes> in page.tsx. */
   .workflow-timeline::before {
     display: none;
   }
@@ -863,19 +1064,36 @@
     grid-template-columns: 1fr;
   }
 
+  /* Cap the HEIGHT, not the width: the panel keeps spanning the card so its
+     tint reads edge-to-edge under the rounded clip (a width cap would strand
+     bare card-white beside it), while the contained illustration centers in the
+     shorter band instead of growing as tall as the card is wide.
+     Keep this in step with the <img sizes> in page.tsx. */
   .workflow-step__media {
-    display: none;
+    aspect-ratio: auto;
+    height: 320px;
+  }
+
+  /* The alternating rhythm has no meaning in one column — always copy first,
+     matching DOM order. */
+  .workflow-step[data-lead='media'] .workflow-step__body {
+    order: 0;
   }
 
   /* Testimonials — stack the tile above the quote; cap the (otherwise
      full-width) media tile so it doesn't become a giant square when it loses
-     its column. */
-  .testimonial-row {
+     its column. One column means the quote-lead track reversal + explicit
+     grid-column/grid-row placement must reset, else the media is placed into a
+     nonexistent second column and the row-1 pin overlaps the stacked items. */
+  .testimonial-row,
+  .testimonial-row[data-lead='quote'] {
     grid-template-columns: 1fr;
   }
 
+  .testimonial-row[data-lead='quote'] .testimonial-row__body,
   .testimonial-row[data-lead='quote'] .testimonial-row__media {
-    order: 0;
+    grid-column: auto;
+    grid-row: auto;
   }
 
   .testimonial-row__media {
@@ -885,12 +1103,20 @@
 
 /* Webflow: mobile landscape — 767px */
 @media (max-width: 767px) {
-  /* Hero — keeps --gutter-page padding-inline at every breakpoint so content
+  /* Hero — keeps --page-inset padding-inline at every breakpoint so content
      never runs flush to the viewport edge (was: padding: 0 → edge-to-edge). */
   .section-hero {
-    padding: var(--padding-huge) 0;
+    padding: 0;
     min-height: calc(100vh - var(--nav-height));
     min-height: calc(100svh - var(--nav-height));
+  }
+
+  /* Step the hero's 64px desktop inset back to the shared page gutter: 64px on
+     each side of a 375px viewport leaves the title 247px to wrap in. The block
+     inset also moves onto the container here so it can't stack with a second
+     inset on .section-hero (which is why that rule's padding is now 0). */
+  .hero-container {
+    padding: var(--padding-huge) var(--page-inset);
   }
 
   /* Sections — remove min-height */

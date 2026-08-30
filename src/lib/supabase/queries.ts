@@ -308,6 +308,30 @@ export const getSupportPlans = cache(
   )
 );
 
+// Managed-tier monthly price per public support plan, keyed by plan slug — the
+// HIW process Step 2 segmented control (brikdesigns#1123) shows each service
+// line's Managed price (DB is the pricing SoT; the Figma "$5,000 one-time" is
+// placeholder). Embeds all tiers and picks the Managed one at the call site.
+export const getManagedPlanPrices = cache(
+  unstable_cache(
+    async () => {
+      const supabase = createPublicClient();
+      const { data, error } = await supabase
+        .from('service_plans')
+        .select('slug, name, service_plan_tiers(name, monthly_price_display)')
+        .eq('is_public', true);
+      if (error) throw error;
+      return data as {
+        slug: string;
+        name: string;
+        service_plan_tiers: { name: string; monthly_price_display: string | null }[];
+      }[];
+    },
+    ['managed-plan-prices'],
+    { revalidate: 3600, tags: ['cms-service-plans'] }
+  )
+);
+
 export const getSupportPlanBySlug = cache(
   unstable_cache(
     async (slug: string) => {

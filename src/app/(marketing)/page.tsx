@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, ZIndexMediaBand, BackgroundPattern } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
-import { serviceColor } from '@/lib/tokens';
+import { serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
-import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
+import { HomeIndustriesAccordion } from '@/components/homepage/HomeIndustriesAccordion';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { TOOLING_LOGOS } from '@/lib/home-tooling';
-import { WORKFLOW_STEPS } from '@/lib/home-workflow';
+import { WORKFLOW_STEPS, WORKFLOW_IMAGE_WIDTHS } from '@/lib/home-workflow';
 import { TESTIMONIALS } from '@/lib/home-testimonials';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
@@ -57,7 +57,7 @@ export default async function HomePage() {
     getIndustryPages(),
   ]);
 
-  // R2 Industries section: MediaTabs (Dental / Real Estate / Small Business).
+  // R3 Industries section: Accordion (Dental / Real Estate / Small Business).
   // Blurb = curated R2 copy (HOME_INDUSTRIES); illustration = industry_pages
   // row's image_url joined by slug (DB is SoT for imagery). Any industry whose
   // row is missing or image-less is dropped rather than rendering an empty panel.
@@ -148,10 +148,18 @@ export default async function HomePage() {
               </p>
             </div>
             <Cluster gap="md" className="hero-button-wrapper">
+              {/* on-color (white fill, dark ink) primary + white-outline secondary
+                  on the brand-primary hero band — mirrors the cta-card-brand / HIW
+                  CTA panels. A brand `primary`/`outline` would blend orange-on-poppy. */}
               <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
                 Start with a Free BrikDown Analysis
               </Button>
-              <Button href="/get-started" variant="outline" size="lg" className="hero-btn-on-dark">
+              <Button
+                href="/get-started"
+                variant="outline"
+                size="lg"
+                className="hero-btn-on-dark"
+              >
                 See How It Works
               </Button>
             </Cluster>
@@ -163,7 +171,9 @@ export default async function HomePage() {
       {/* ═══ Problem ("Does this sound familiar?") ═══ */}
       <section className="section-problem" data-section="problems">
         <div className="section-container">
-          <Card padding="lg" className="problem-card">
+          {/* padding driven by CSS (--padding-xl) — BDS CardPadding caps at 'lg'
+              (#1114); the .problem-card rule sets the xl inset. */}
+          <Card padding="none" className="problem-card">
             <h2 className="problem__title">Does this sound familiar?</h2>
             <Grid columns={3} gap="lg">
               {PROBLEMS.map((problem) => (
@@ -215,14 +225,15 @@ export default async function HomePage() {
       </section>
 
       {/* ═══ Industries ("Where we do our best work") ═══ */}
-      {/* R2 section (Figma node 25768:6527): MediaTabs peer selector (Dental /
-          Real Estate / Small Business) + synced illustration panel. Blurbs from
-          Homepage-R2 Notion; illustrations from industry_pages.image_url. */}
+      {/* R3 section (Figma node 25768:6527): single-open Accordion selector
+          (Dental / Real Estate / Small Business) beside a synced illustration
+          panel — replaces the R2 MediaTabs, mirrors the HIW layout (#1054).
+          Blurbs from Homepage-R2 Notion; illustrations from industry_pages. */}
       {industriesTabs.length > 0 && (
         <section className="section-industries" data-section="industries">
           <div className="section-container">
             <SectionHeader title="Where we do our best work." />
-            <HomeIndustriesTabs tabs={industriesTabs} />
+            <HomeIndustriesAccordion tabs={industriesTabs} />
           </div>
         </section>
       )}
@@ -267,14 +278,15 @@ export default async function HomePage() {
       {/* ═══ Workflow ("Simple from day one") ═══ */}
       {/* R2 section (Figma node 25800:3081): three sequential engagement steps as
           an alternating timeline (content ⇄ media, row by row) over a BDS
-          ZIndexMediaBand — the primitive owns the stacking recipe so the section
+          MediaBand — the primitive owns the stacking recipe so the section
           need only supply content. Copy from the Homepage-R2 Notion doc
           ("Simple from day one."). One primary CTA at the section end (Notion is
           the content SoT — the placeholder Figma per-row buttons are ignored;
-          design-decisions "one primary per surface"). The per-step illustration
-          is deferred: the source graphic is placeholder art, so the media panel
-          renders as a neutral tinted surface until real step art lands (#1073). */}
-      <ZIndexMediaBand
+          design-decisions "one primary per surface"). Each step's media panel
+          carries its design-source illustration in a 1:1 slot (#1073). The panel
+          stays aria-hidden decoration — the step title + description carry the
+          meaning — so the <img> is alt="". */}
+      <MediaBand
         as="section"
         className="section-workflow"
         data-section="workflow"
@@ -294,7 +306,23 @@ export default async function HomePage() {
                   <h3 className="workflow-step__title">{step.title}</h3>
                   <p className="workflow-step__description">{step.description}</p>
                 </div>
-                <div className="workflow-step__media" aria-hidden="true" />
+                <div className="workflow-step__media" aria-hidden="true">
+                  <img
+                    className="workflow-step__image"
+                    src={`/images/workflow/${step.imageBase}_2x.webp`}
+                    srcSet={WORKFLOW_IMAGE_WIDTHS.map(
+                      (w, d) => `/images/workflow/${step.imageBase}_${d + 1}x.webp ${w}w`,
+                    ).join(', ')}
+                    /* Desktop: the panel is half of the ~1024px timeline. Below
+                       991px the step stacks and the panel becomes a full-width
+                       320px-tall band (see homepage.css), so the source width
+                       needed still tracks the card width, not the height. */
+                    sizes="(max-width: 991px) 100vw, 512px"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
               </li>
             ))}
           </ol>
@@ -302,7 +330,7 @@ export default async function HomePage() {
             Get Your Free BrikDown — Start with Step 1
           </Button>
         </div>
-      </ZIndexMediaBand>
+      </MediaBand>
 
       {/* ═══ Pricing ("Monthly Subscription") ═══ */}
       {/* R2 pricing band (Figma node 25768:7667): header (title + description +
@@ -327,17 +355,27 @@ export default async function HomePage() {
               // detail-page CTA (#1001). `.section-pricing .bds-pricing-card`
               // in shared-sections.css pins the on-card text dark in both themes
               // (the tint is fixed-light) and keeps the band-derived chrome.
-              const tint = plan.service_line_slug
-                ? serviceColor(mapServiceLineSlug(plan.service_line_slug)).surfaceLight
+              const category = plan.service_line_slug
+                ? mapServiceLineSlug(plan.service_line_slug)
+                : null;
+              const tint = category ? serviceColor(category).surfaceLight : undefined;
+              // R3 (#1114): the "Learn More" primary is themed to the card's own
+              // service line — serviceCtaVars() sets the brand-primary fill/ink
+              // handoff vars and `.service-themed` opts the button into the
+              // dark-mode fill rule (globals.css), the canonical service-button
+              // path used on the service-detail pricing grid.
+              const cardStyle = category
+                ? { backgroundColor: tint, ...serviceCtaVars(category) }
                 : undefined;
               return (
                 <PricingCard
                   key={plan.slug}
+                  className={category ? 'service-themed' : undefined}
                   title={plan.name}
                   price={plan.price}
                   period="/month"
                   description={plan.description}
-                  style={tint ? { backgroundColor: tint } : undefined}
+                  style={cardStyle}
                   action={
                     <Button href={`/plans/${plan.slug}`} variant="primary" size="md">
                       Learn More
@@ -370,9 +408,24 @@ export default async function HomePage() {
                 className="testimonial-row"
                 data-lead={i % 2 === 0 ? 'media' : 'quote'}
               >
-                <div className="testimonial-row__media" aria-hidden="true">
-                  <span className="testimonial-row__logo-placeholder">Client logo</span>
-                </div>
+                {/* Real client logomark when one exists, else the template
+                    tile. The logo IS the client's name, so it takes an alt and
+                    the tile is not aria-hidden in that branch. */}
+                {t.logoSrc ? (
+                  <div className="testimonial-row__media">
+                    <img
+                      className="testimonial-row__logo"
+                      src={t.logoSrc}
+                      alt={t.logoAlt}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                ) : (
+                  <div className="testimonial-row__media" aria-hidden="true">
+                    <span className="testimonial-row__logo-placeholder">Client logo</span>
+                  </div>
+                )}
                 <figure className="testimonial-row__body">
                   <blockquote className="testimonial-row__quote">{t.quote}</blockquote>
                   <figcaption className="testimonial-row__attribution">

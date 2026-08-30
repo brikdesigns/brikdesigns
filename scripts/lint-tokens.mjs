@@ -36,6 +36,7 @@ import {
   loadTokenSets,
   findVarRefs,
   isViolation,
+  findDeadDeclarations,
   findFamilyViolations,
   checkTokenFamilyPairing,
   checkWrapperFamily,
@@ -76,6 +77,12 @@ const familyViolations = [];
 const pairingViolations = [];
 const wrapperViolations = [];
 const cascadeViolations = [];
+const deadDeclViolations = [];
+
+// Rule 8 accumulator: every `--name` referenced by a var() across src/. A
+// project-local declaration whose name never lands here (nor in BDS dist) is
+// dead weight — see the dead-declaration check after the file loop.
+const referencedNames = new Set();
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
@@ -113,6 +120,7 @@ for (const file of files) {
     }
 
     for (const { name } of findVarRefs(line)) {
+      referencedNames.add(name);
       if (isViolation(name, checkSets)) {
         inventedViolations.push({
           file,
@@ -134,6 +142,37 @@ for (const file of files) {
     cascadeViolations.push(
       ...scanCascadeContract({ css: text, file, exemptTokens: cascadeExempt }).violations
     );
+  }
+}
+
+// Rule 8: dead project-local declarations ───────────────────────────────────
+// A `--name` declared in src/app/globals.css that (a) is NOT a canonical BDS
+// token (a rebind of a real token is consumed BDS-side, so zero src/ refs is
+// fine), (b) is NOT a `--bds-*` ADR-014 component hook (always a valid override
+// point, consumed by BDS with a fallback), and (c) is referenced by var()
+// nowhere in src/ nor in BDS dist, is dead weight. It also dodges the
+// invented-token check: Rule 1 whitelists anything declared in globals.css, so
+// a stale or off-canon declaration here is otherwise invisible. Skipped under
+// --write-allowlist (that mode only rewrites the invented-ref allowlist).
+if (!WRITE_ALLOWLIST) {
+  // BDS-side references exempt canonical rebinds and any non-`--bds-` token BDS
+  // itself consumes — read the dist bundle's var() refs into the referenced set.
+  const bdsStyles = path.join(path.dirname(PATHS.bdsTokens), 'styles.css');
+  for (const bdsFile of [PATHS.bdsTokens, bdsStyles]) {
+    if (!fs.existsSync(bdsFile)) continue;
+    for (const { name } of findVarRefs(fs.readFileSync(bdsFile, 'utf8'))) {
+      referencedNames.add(name);
+    }
+  }
+
+  const globalsText = fs.readFileSync(PATHS.globals, 'utf8');
+  const dead = findDeadDeclarations({
+    globalsText,
+    canonical: sets.canonical,
+    referenced: referencedNames,
+  });
+  for (const d of dead) {
+    deadDeclViolations.push({ file: 'src/app/globals.css', ...d });
   }
 }
 
@@ -162,11 +201,12 @@ const totalViolations =
   familyViolations.length +
   pairingViolations.length +
   wrapperViolations.length +
-  cascadeViolations.length;
+  cascadeViolations.length +
+  deadDeclViolations.length;
 
 if (totalViolations === 0) {
   console.log(
-    `OK — ${files.length} files scanned, no invented tokens, no family mismatches, no pairing violations, no wrapper-family drift, no cascade-contract violations.`
+    `OK — ${files.length} files scanned, no invented tokens, no family mismatches, no pairing violations, no wrapper-family drift, no cascade-contract violations, no dead project-local declarations.`
   );
   process.exit(0);
 }
@@ -298,6 +338,34 @@ if (cascadeViolations.length > 0) {
   console.error(
     '  Transitional burn-down only: add the token to scripts/cascade-contract-allowlist.txt.'
   );
+}
+
+// ── Dead project-local declarations ─────────────────────────────────────────
+if (deadDeclViolations.length > 0) {
+  if (
+    inventedViolations.length > 0 ||
+    familyViolations.length > 0 ||
+    pairingViolations.length > 0 ||
+    wrapperViolations.length > 0 ||
+    cascadeViolations.length > 0
+  ) {
+    console.error('');
+  }
+  console.error(
+    `FAIL — ${deadDeclViolations.length} dead project-local declaration(s):\n`
+  );
+  for (const v of deadDeclViolations) {
+    console.error(`  ${v.file}:${v.line}  ${v.snippet}`);
+  }
+  console.error(
+    '\nRule: a non-canonical token declared in globals.css must be consumed by'
+  );
+  console.error(
+    '  a var() somewhere in src/ or BDS dist. These are referenced nowhere.'
+  );
+  console.error('Fix options:');
+  console.error('  1. Delete the declaration (dead weight).');
+  console.error('  2. Wire up the intended consumer if it was dropped.');
 }
 
 process.exit(1);

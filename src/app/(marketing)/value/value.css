@@ -18,7 +18,7 @@
    nearest BDS tokens. Oversized display type rides --display-fluid-* (whose
    clamp replaces the hand-rolled breakpoint step-downs); mid-ramp sizes with
    no semantic token at their step reference the --font-size-* primitive scale
-   directly. Rhythm uses the --gap- and --space- families; the gutter is --gutter-page so
+   directly. Rhythm uses the --gap- and --space- families; the gutter is --page-inset so
    /value content aligns with the site container (nav, footer). Heading tokens
    resolve on the site's expressive scale (layout.tsx sets
    data-mode-typography="expressive"), so sizes are picked against that column.
@@ -33,11 +33,11 @@
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
 }
 
 /* Inner content column. Caps content to the site container width
-   (var(--content-width-xl), 1280px) and centres it so every band lines up with
+   (var(--site-content-width), 1440px) and centres it so every band lines up with
    the top-nav and footer instead of running full-bleed. It is also the
    <Reveal> root: its `.rise` children lift in on scroll (see the motion block
    at the foot of this sheet). Layout properties (align-items, gap, text-align)
@@ -48,7 +48,7 @@
   align-items: inherit;
   gap: inherit;
   width: 100%;
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   /* margin-inline (not the band's align-items) does the centring, so the
      left-aligned bands (pillar titles, editorial, transition) still centre
      their content column at wide widths instead of pinning to the band edge. */

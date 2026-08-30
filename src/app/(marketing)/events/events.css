@@ -10,7 +10,7 @@
 }
 
 .event-page__grid {
-  max-width: var(--content-width-xl);
+  max-width: var(--site-content-width);
   margin-inline: auto;
   padding-inline: var(--padding-lg);
   display: grid;
@@ -90,5 +90,5 @@
   border-top-width: var(--border-width-bold);
   border-top-style: solid;
   border-top-color: var(--border-brand-primary);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-md);
 }
