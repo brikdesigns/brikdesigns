@@ -114,6 +114,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--gap-lg);
+}
+
+/* Groups the title + description so the card's gap-lg falls between the copy
+   block and the button-wrapper, while the title↔description rhythm stays tight.
+   The SectionHeader-based instances already group their copy in a ContentBlock;
+   this class is for the hand-built (loose title/description) instances. */
+.cta-card-brand__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--gap-md);
 }
 

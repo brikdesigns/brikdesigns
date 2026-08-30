@@ -236,11 +236,13 @@ export default async function HowItWorksPage() {
           card (.cta-section-brand / .cta-card-brand, shared-sections.css). */}
       <section className="cta-section-brand" data-section="cta">
         <div className="cta-card-brand">
-          <h2 className="hiw-cta__title">Ready to see what fits?</h2>
-          <p className="hiw-cta__description">
-            You work directly with Abbey and Nick throughout — from the BrikDown to Foundation
-            to ongoing. We keep our client list focused so every engagement gets our full attention.
-          </p>
+          <div className="cta-card-brand__content">
+            <h2 className="hiw-cta__title">Ready to see what fits?</h2>
+            <p className="hiw-cta__description">
+              You work directly with Abbey and Nick throughout — from the BrikDown to Foundation
+              to ongoing. We keep our client list focused so every engagement gets our full attention.
+            </p>
+          </div>
           <Cluster gap="md" justify="center">
             <Button href={BRIKDOWN_HREF} variant="on-color" size="lg">
               Get your free BrikDown
