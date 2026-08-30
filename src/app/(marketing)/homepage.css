@@ -138,22 +138,6 @@
   transform: translateX(-50%);
 }
 
-/* At ≥992px the sticky mega-nav shows its 40px utility bar (125px total, vs the
-   85px main-only bar below 992px), but the shared --nav-height offset is 96px —
-   so the hero overran the viewport by 29px and the bottom-pinned cue fell below
-   the fold, defeating --nav-height's documented purpose (globals.css). Subtract
-   the real 125px sticky-nav height at this range only so the hero — and its cue —
-   ends exactly at the viewport bottom. Scoped to .section-hero (not the shared
-   token) to keep the blast radius on the home hero; 768–991px keeps the base
-   offset (nav is 85px there, so the cue already sits just above the fold), and
-   the cue is display:none ≤767px. */
-@media (min-width: 992px) {
-  .section-hero {
-    min-height: calc(100vh - 125px);
-    min-height: calc(100svh - 125px);
-  }
-}
-
 /* ─── Services ("What We Do") ──────────────────────────────── */
 /* Webflow: .section_services — full-width, 100svh min. R2: 80px block padding
    (--space-1800 primitive, #1091) and left-aligned content (header + control
