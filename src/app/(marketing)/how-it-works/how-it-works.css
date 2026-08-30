@@ -14,7 +14,7 @@
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
   gap: var(--space-1200);
 }
 
@@ -56,7 +56,7 @@
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding: var(--space-1600) var(--gutter-page);
+  padding: var(--space-1600) var(--page-inset);
 }
 
 .hiw-hero__text {
