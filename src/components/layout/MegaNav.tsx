@@ -155,6 +155,25 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
     return () => window.removeEventListener('scroll', onScroll);
   }, [open, mobileOpen]);
 
+  // Publish the nav's real rendered height to --nav-height so viewport-height
+  // consumers (the home hero in homepage.css) subtract the ACTUAL sticky-nav size
+  // at every breakpoint. The 40px utility bar hides ≤991px, so the nav is 85px
+  // (tablet) / 125px (desktop) — a single static token can't track that and left
+  // the hero overshooting the viewport, dropping its scroll cue below the fold
+  // (brikdesigns#1146). Measured (not a hardcoded step), so it also survives any
+  // nav-content change. globals.css keeps a fallback value for the pre-hydration
+  // paint; this refines it to the exact height once mounted.
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    const publish = () =>
+      document.documentElement.style.setProperty('--nav-height', `${el.offsetHeight}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   // Close on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {

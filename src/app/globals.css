@@ -334,8 +334,12 @@ html {
        and bleed edge-to-edge; only the inner band is capped.
        Token-gap follow-up: a BDS --content-width-2xl would retire this. */
     --site-content-width: 1440px;
-    /* Height of the sticky nav — used to offset hero min-height so the
-       scroll-down CTA stays within the viewport on initial load. */
+    /* Height of the sticky nav — offsets hero min-height so the scroll-down CTA
+       stays within the viewport on initial load. This 6rem is only the
+       PRE-HYDRATION fallback: MegaNav.tsx measures the nav's real height (85px
+       tablet / 125px desktop — the utility bar hides ≤991px) and overwrites this
+       at runtime, so the hero tracks the actual sticky-nav size at every
+       breakpoint (brikdesigns#1146). */
     --nav-height: 6rem;
     /* Character/plan image slot in support plan CTA cards. */
     --support-cta-image-size: 180px;
