@@ -32,7 +32,7 @@
    primitive, used directly because no --padding-* step resolves to 64px in the
    default spacing mode (--padding-huge is 48px here, 80px only in
    `comfortable`) — the same reason #1091 reached for --space-1800 on Services.
-   The inline inset deliberately overrides --gutter-page (32px): the hero band
+   The inline inset deliberately overrides --page-inset (32px): the hero band
    is the one container the design insets further than the shared page gutter,
    so the hero text starts inboard of the nav logo by design. */
 .hero-container {
@@ -317,7 +317,7 @@
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
   gap: var(--gap-xl);
 }
 
@@ -870,7 +870,7 @@
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
 }
 
 /* Webflow: .cms-item-story — row, space-between, gap-lg (24px), white bg, sm radius */
@@ -1103,7 +1103,7 @@
 
 /* Webflow: mobile landscape — 767px */
 @media (max-width: 767px) {
-  /* Hero — keeps --gutter-page padding-inline at every breakpoint so content
+  /* Hero — keeps --page-inset padding-inline at every breakpoint so content
      never runs flush to the viewport edge (was: padding: 0 → edge-to-edge). */
   .section-hero {
     padding: 0;
@@ -1116,7 +1116,7 @@
      inset also moves onto the container here so it can't stack with a second
      inset on .section-hero (which is why that rule's padding is now 0). */
   .hero-container {
-    padding: var(--padding-huge) var(--gutter-page);
+    padding: var(--padding-huge) var(--page-inset);
   }
 
   /* Sections — remove min-height */

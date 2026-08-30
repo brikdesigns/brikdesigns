@@ -316,7 +316,7 @@ html {
 
     /* ---- Standard container pattern shared across the site + nav:
        max-width (fixed px) + margin-inline: auto + padding-inline. The gutter
-       is BDS canonical --gutter-page (brik-bds ADR-025), which canonicalised
+       is BDS canonical --page-inset (brik-bds ADR-025), which canonicalised
        this project's former --site-gutter alias — same value (--padding-lg),
        one name across BDS sections and project containers (nav, .container-lg,
        page-hero, blocks, footer), flush-aligned at every breakpoint. History:

@@ -14,11 +14,11 @@
   background-color: var(--surface-primary);
 }
 /* Frame aligns to the site standard container (nav, footer, shared-sections):
-   --site-content-width + --gutter-page, so the body sits flush with the nav. */
+   --site-content-width + --page-inset, so the body sits flush with the nav. */
 .lp-blocks__container {
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
   display: flex;
   flex-direction: column;
   gap: var(--gap-xl);
@@ -113,7 +113,7 @@
 .lp-showcase__container {
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
   display: flex;
   flex-direction: column;
   /* Generous rhythm between the intro / trio / speaker / partners bands so each
@@ -518,7 +518,7 @@
 .lp-showcase__partners-inner {
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
   display: flex;
   flex-direction: column;
   gap: var(--gap-xl);
