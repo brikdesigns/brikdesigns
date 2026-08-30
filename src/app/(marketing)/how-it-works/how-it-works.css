@@ -109,14 +109,16 @@
 
 /* Timeline column. `position: relative` hosts the central connector spine
    (::before); the opaque cards cover it, so the spine reads in the gaps between
-   cards as the connector — same recipe as homepage.css .workflow-timeline. */
+   cards as the connector — same recipe as homepage.css .workflow-timeline.
+   The cards span the full page container width (--site-content-width, matching
+   .hiw-container) rather than the narrower reading cap. */
 .hiw-timeline {
   position: relative;
   list-style: none;
   margin: 0;
   padding: 0;
   width: 100%;
-  max-width: var(--content-width-wide);
+  max-width: var(--site-content-width);
   display: flex;
   flex-direction: column;
   gap: var(--gap-huge);
@@ -407,6 +409,15 @@
   --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — accordion body copy, same reasoning */
 }
 
+/* The section intro spans the full band width here (not the default measure
+   cap) so its left edge and description sit flush with the two-column layout
+   below. `.hiw-container` centers its children, so width:100% is needed on top
+   of dropping the cap for the header to fill (and left-align) the full width. */
+.hiw-industries .bds-section-header {
+  max-width: none;
+  width: 100%;
+}
+
 .hiw-industries__layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -417,6 +428,15 @@
 
 .hiw-industries__accordion {
   width: 100%;
+}
+
+/* Both selected and unselected rows carry the white page surface, so the open
+   trigger and its content read as one continuous panel on the yellow band. This
+   is an app-scoped opt-in — the BDS Accordion default stays transparent so
+   portal consumers are unaffected (#1121). */
+.hiw-industries__accordion .bds-accordion-trigger,
+.hiw-industries__accordion .bds-accordion-content {
+  background-color: var(--surface-primary);
 }
 
 /* Decorative illustration panel (aria-hidden) — white panel on the yellow band,
