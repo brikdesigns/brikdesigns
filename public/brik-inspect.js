@@ -650,7 +650,12 @@
   // Most hovered elements have transparent bg; we need the blended backdrop.
   function effectiveBackground(el) {
     let node = el;
-    while (node && node !== document.documentElement) {
+    // Walk through <html> as well (parentElement is null above it). An
+    // html-background theme (`html{background:#111}; body{background:transparent}`)
+    // paints the page background on documentElement; the old
+    // `!== documentElement` guard stopped short of it and measured contrast
+    // against the white fallback (#2197 F).
+    while (node) {
       const cs = getComputedStyle(node);
       const bg = parseColorToRgb(cs.backgroundColor);
       if (bg && bg.a === 1) return bg;
@@ -697,8 +702,16 @@
     if (el.getAttribute('aria-label')?.trim()) return true;
     if (el.getAttribute('aria-labelledby')?.trim()) return true;
     if (el.getAttribute('title')?.trim()) return true;
-    const text = (el.textContent || '').trim();
-    if (text.length > 0) return true;
+    // textContent names a button / link / heading, but NOT a form control — a
+    // <select>'s <option>s and a <textarea>'s value are its content, not its
+    // accessible name. Without this guard an unlabelled <select><option>…</select>
+    // (non-empty textContent) always reported as named (#2197 E).
+    const tag = el.tagName;
+    const isFormControl = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA';
+    if (!isFormControl) {
+      const text = (el.textContent || '').trim();
+      if (text.length > 0) return true;
+    }
     // Images use alt
     if (el.tagName === 'IMG' && el.getAttribute('alt')?.trim()) return true;
     // Inputs can be labeled by a <label for> or wrapping <label>
@@ -1072,6 +1085,10 @@
     // public surface; consumers use detectContext / the report event.
     window.BrikInspect.getDeclaredValue = getDeclaredValue;
     window.BrikInspect.calcSpecificity = calcSpecificity;
+    // Exposed for the audit false-negative regression tests (#2197): the
+    // accessible-name and effective-background checks.
+    window.BrikInspect.hasAccessibleName = hasAccessibleName;
+    window.BrikInspect.effectiveBackground = effectiveBackground;
     // Exposed for the lint-ignore parity + stale-build regression tests (#2170)
     // and for a host to inject the exception set without a manifest fetch.
     window.BrikInspect.auditProp = auditProp;
@@ -1289,8 +1306,13 @@
       // Equal-to-the-linter's-error-set (#2170): a raw value is a violation only
       // when it is NOT a sanctioned bds-lint-ignore exception AND the build is
       // ready (stylesheets resolved — otherwise the read is a mid-build phantom).
+      // A hardcoded fragment is a violation even when a token is co-present in
+      // the same shorthand — `2px solid var(--x)` must still flag the raw `2px`.
+      // The old `tokens.length === 0` suppressed it (#2197 G). Linter parity
+      // holds: findHardcodedFragments strips var() and already excludes 0px/1px,
+      // so a lone token (hardcoded.length === 0) still never flags.
       isViolation:
-        hardcoded.length > 0 && tokens.length === 0 && !lintIgnored && auditReady(),
+        hardcoded.length > 0 && !lintIgnored && auditReady(),
     };
   }
 
