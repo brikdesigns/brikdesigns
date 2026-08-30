@@ -213,7 +213,14 @@
    .industries-accordion__media panel) — the default underline separator is
    dropped. */
 .industries-accordion .bds-accordion-item {
-  background-color: var(--surface-primary);
+  /* White card on the fixed-light yellow band. --surface-primary can't be used:
+     .section-industries pins the trigger/content text to the mode-invariant
+     grayscale-950 (shared-sections.css "Accent band on-color text"), so a
+     theme-reactive surface would flip near-black in the dark root and drop the
+     dark text to ~1.2:1 (axe serious). A mode-invariant white keeps the card
+     fixed-light in both themes — the same fixed-on-fixed-light pattern as the
+     .section-pricing .bds-pricing-card tint. */
+  background-color: var(--color-grayscale-white); /* bds-lint-ignore token-family — fixed-light card on a fixed-light accent band; --surface-primary flips near-black in dark under the section's grayscale-950 text pin, failing AA (mirrors the .service-surface / pricing-card pins) */
   border-radius: var(--border-radius-md);
   box-shadow: var(--box-shadow-md);
   border-bottom: none;
