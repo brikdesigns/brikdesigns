@@ -55,8 +55,11 @@ permissions:
   contents: read
 
 jobs:
-  refuse:
-    name: refuse promote to main
+  # Job id doubles as the status-check context, so it is registered in `main`'s
+  # required checks under this exact string. Deliberately has no `name:` — the
+  # id is then unambiguously the context, matching pr-label-gate.yml's
+  # `require-area-label`. Renaming this job silently de-registers the gate.
+  refuse-promote-to-main:
     runs-on: ubuntu-latest
     steps:
       - name: Fail — main is frozen
