@@ -37,19 +37,25 @@
 }
 
 /* ─── Hero ─────────────────────────────────────────────────── */
-/* Figma node 25790:14435 — full-bleed blue band. The accent-blue tint is
-   fixed-light in both themes, so on-band ink is pinned to the mode-invariant
-   darkest grayscale (every --text-* flips near-white in the dark root — the
-   same treatment as shared-sections.css "Accent band on-color text"). */
+/* Figma node 25790:14435 — white section hosting an inset accent-blue band on
+   .hiw-hero__container. The accent-blue tint is fixed-light in both themes, so
+   on-band ink is pinned to the mode-invariant darkest grayscale (every --text-*
+   flips near-white in the dark root — the same treatment as shared-sections.css
+   "Accent band on-color text").
+
+   The band matches the home hero's structure (homepage.css .section-hero /
+   .hero-container): the white section carries a top/bottom `--padding-huge`
+   inset and the color band is a rounded (`--border-radius-1400`, 48px)
+   container inset within it — the accent-blue here where the home band is
+   brand-primary. */
 .hiw-hero {
-  background-color: var(--surface-accent-blue);
+  background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
   justify-content: center;
   width: 100%;
   min-height: 60svh;
-  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band hero ink on the fixed-light accent-blue tint; --text-* flips near-white in the dark root (~1.9:1 white-on-#8ebbcc), only a mode-invariant dark primitive clears AA in both themes */
-  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — hero lead, same reasoning as --text-primary above */
+  padding-block: var(--padding-huge);
 }
 
 .hiw-hero__container {
@@ -57,6 +63,10 @@
   max-width: var(--site-content-width);
   margin-inline: auto;
   padding: var(--space-1600) var(--gutter-page);
+  background-color: var(--surface-accent-blue);
+  border-radius: var(--border-radius-1400);
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band hero ink on the fixed-light accent-blue tint; --text-* flips near-white in the dark root (~1.9:1 white-on-#8ebbcc), only a mode-invariant dark primitive clears AA in both themes */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — hero lead, same reasoning as --text-primary above */
 }
 
 .hiw-hero__text {
@@ -205,11 +215,11 @@
 }
 
 /* Right pane — light-grey fill (two-tone split vs. the white left pane, #1123).
-   Its border-left is the in-card divider that sits over the central spine. Holds
-   whichever right-pane treatment the step uses (checklist / tiers / modes). */
+   Holds whichever right-pane treatment the step uses (checklist / tiers / modes).
+   The in-card divider (a border-left over the central spine) was removed per
+   design — the two-tone fill split alone carries the pane boundary. */
 .hiw-card__pane {
   padding: var(--padding-xl);
-  border-left: var(--border-width-md) solid var(--border-primary);
   background-color: var(--surface-secondary);
 }
 
@@ -271,16 +281,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-xs);
-}
-
-.hiw-tiers__tier-label {
-  font-family: var(--font-family-body);
-  font-size: var(--body-sm);
-  font-weight: 600;
-  letter-spacing: var(--letter-spacing-wide);
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  margin: 0;
 }
 
 /* Big price. Heading family/scale (not display) so it pairs family↔size under
@@ -394,10 +394,11 @@
 }
 
 /* ─── Industries ("Where we do our best work.") ────────────── */
-/* Figma node 25887:4854 — yellow accent band; accordion + illustration panel.
-   On-band text pinned dark (fixed-light yellow tint) across the whole section —
-   there are no nested white cards here, so the pin is section-wide, matching
-   shared-sections.css .section-industries. */
+/* Figma node 25887:4854 — yellow accent band. Uses the same tabbed container as
+   the home Industries section (HomeIndustriesTabs → MediaTabs). On-band text
+   pinned dark (fixed-light yellow tint) across the whole section — the only
+   nested white surface is the synced media panel, styled below — so the pin is
+   section-wide, matching shared-sections.css .section-industries. */
 .hiw-industries {
   background-color: var(--surface-accent-yellow);
   padding: var(--space-1800) 0;
@@ -406,11 +407,11 @@
   align-items: center;
   width: 100%;
   --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band text on the fixed-light accent-yellow tint; --text-* flips near-white in the dark root, only a mode-invariant dark primitive clears AA in both themes (mirrors shared-sections.css .section-industries) */
-  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — accordion body copy, same reasoning */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — tab body copy, same reasoning */
 }
 
 /* The section intro spans the full band width here (not the default measure
-   cap) so its left edge and description sit flush with the two-column layout
+   cap) so its left edge and description sit flush with the tabbed container
    below. `.hiw-container` centers its children, so width:100% is needed on top
    of dropping the cap for the header to fill (and left-align) the full width. */
 .hiw-industries .bds-section-header {
@@ -418,53 +419,29 @@
   width: 100%;
 }
 
-.hiw-industries__layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap-huge);
-  width: 100%;
-  align-items: start;
-}
-
-.hiw-industries__accordion {
-  width: 100%;
-}
-
-/* Both selected and unselected rows carry the white page surface, so the open
-   trigger and its content read as one continuous panel on the yellow band. This
-   is an app-scoped opt-in — the BDS Accordion default stays transparent so
-   portal consumers are unaffected (#1121). */
-.hiw-industries__accordion .bds-accordion-trigger,
-.hiw-industries__accordion .bds-accordion-content {
-  background-color: var(--surface-primary);
-}
-
-/* Decorative illustration panel (aria-hidden) — white panel on the yellow band,
-   so a containment shadow and no border (light tint → shadow, card-treatment.md). */
-.hiw-industries__media {
-  aspect-ratio: 16 / 10;
+/* The synced illustration sits in a white rounded panel on the soft-yellow
+   band, so a containment shadow and no border (light tint → shadow,
+   card-treatment.md). The accent surface is fixed-light in both themes, so the
+   shadow stays legible in dark mode. Mirrors homepage.css
+   `.industries-tabs .bds-media-tabs__media`. */
+.hiw-industries .bds-media-tabs__media {
   background-color: var(--surface-primary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--box-shadow-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--padding-xl);
-}
-
-.hiw-industries__bubble {
-  font-family: var(--font-family-body);
-  font-size: var(--body-lg);
-  font-style: italic;
-  color: var(--text-secondary);
-  background-color: var(--surface-secondary);
-  padding: var(--padding-md) var(--padding-lg);
-  border-radius: var(--border-radius-lg);
+  overflow: hidden;
 }
 
 /* ─── CTA ("Let's build something.") ───────────────────────── */
 /* Reuses .cta-section-brand / .cta-card-brand (shared-sections.css); these are
    just the text roles inside the orange panel. */
+
+/* Widen the copy↔buttons gap to `huge` on the HIW CTA only. `.cta-card-brand`
+   is shared across six pages (customers, customer-stories, blog, HIW), so the
+   bump is scoped to the page's `.hiw-cta` block rather than the shared class. */
+.hiw-cta .cta-card-brand {
+  gap: var(--gap-huge);
+}
+
 .hiw-cta__title {
   font-family: var(--font-family-heading);
   font-size: var(--heading-lg);
@@ -508,8 +485,8 @@
   }
 
   /* Collapse the split card to a single column: content over right pane. The
-     spine and the in-card divider are meaningless once the panes stack — the
-     divider moves to the top edge of the pane. */
+     spine is meaningless once the panes stack; the two-tone fill split carries
+     the boundary (the pane divider border was removed per design). */
   .hiw-timeline::before {
     display: none;
   }
@@ -518,20 +495,10 @@
     grid-template-columns: 1fr;
   }
 
-  .hiw-card__pane {
-    border-left: none;
-    border-top: var(--border-width-md) solid var(--border-primary);
-  }
-
   /* Practice header stacks: heading over CTA. */
   .hiw-practice__header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  /* Industries stacks: accordion over illustration. */
-  .hiw-industries__layout {
-    grid-template-columns: 1fr;
   }
 }
 
