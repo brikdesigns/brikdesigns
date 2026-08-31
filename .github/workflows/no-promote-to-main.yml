@@ -28,6 +28,20 @@ name: no-promote-to-main
 # `edited` is included because re-targeting an existing PR's base from `staging`
 # to `main` fires that event, not `opened`.
 #
+# This gate fires even though `main` will never contain this file. `main` is
+# frozen, so nothing merges there — the obvious worry is that the gate is
+# therefore decorative. It is not: `pull_request` resolves workflows from
+# `refs/pull/N/merge`, "the last merge commit on the GITHUB_REF branch"
+# (https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows,
+# verified 2026-08-31), which is head-merged-into-base. A `staging -> main`
+# promote has `staging` as head, and `staging` has this file, so the merge ref
+# has it too.
+#
+# Do NOT "fix" this by switching to `pull_request_target`. That reads the
+# workflow from the DEFAULT branch, and this repo's default is `staging` — so
+# it happens to work today and would break silently the moment the default
+# branch changes, which is exactly what unfreezing involves.
+#
 # TO LIFT (operator only): delete this file, drop `status:frozen` +
 # `priority:p3-someday` from #1166 and #371, and remove this check from `main`'s
 # required status checks if it was added there.
