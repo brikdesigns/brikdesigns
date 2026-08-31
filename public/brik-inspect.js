@@ -204,6 +204,13 @@
   let active = false;
   let hoveredEl = null;
   let lockedEl = null;
+  // Ancestor ascent (#2196): a composedPath()-derived selection stack so a
+  // wrapper the pointer can never resolve to — e.g. `.bds-frame--ratio-square`
+  // around an `<img>` — is still reachable. ArrowUp climbs toward the root,
+  // ArrowDown descends back toward the pointer leaf. `ascentPath` is leaf→root
+  // (index 0 = pointer target); `ascentDepth` indexes into it.
+  let ascentPath = [];
+  let ascentDepth = 0;
   let rulesIndex = null;
   // Number of document.styleSheets present when rulesIndex was last built —
   // rebuild when it changes so an index cached before the story's stylesheets
@@ -1105,6 +1112,15 @@
     // activate/deactivate to inspect mode without reaching into internals.
     window.BrikInspect.setActive = (next) => { if (!!next !== active) toggleActive(); };
     window.BrikInspect.isActive = () => active;
+    // Ancestor ascent (#2196): the pure path builder for a unit test, plus a
+    // read-only snapshot of the live selection for the interactive regression
+    // test (which drives real mousemove / keydown / click events).
+    window.BrikInspect.buildAscentPath = buildAscentPath;
+    window.BrikInspect.getSelection = () => ({
+      el: lockedEl || hoveredEl || null,
+      depth: ascentDepth,
+      pathLength: ascentPath.length,
+    });
   }
 
   // ── Stylesheet rule index ───────────────────────────────────────────────
@@ -1614,7 +1630,7 @@
       <span class="bi-pill__tag">${desc.tag}</span><span class="bi-pill__class">${desc.classes.length ? '.' + desc.classes.join('.') : ''}</span>
       ${bds ? '<span class="bi-pill__badge bi-pill__badge--bds">BDS</span>' : ''}
       ${violations ? `<span class="bi-pill__badge bi-pill__badge--warn">${violations}</span>` : ''}
-      <br><span class="bi-pill__size">${Math.round(r.width)} × ${Math.round(r.height)}</span>
+      <br><span class="bi-pill__size">${Math.round(r.width)} × ${Math.round(r.height)}${ascentDepth > 0 ? ` · ↑${ascentDepth}` : ''}</span>
     `;
     const pad = 14;
     let px = x + pad, py = y + pad;
@@ -1657,6 +1673,7 @@
       </div>
       <div class="bi-panel__section">
         <div class="bi-summary">
+          ${ascentPath.length > 1 ? `<span class="bi-stat" title="Selection depth — ArrowUp ascends to parent, ArrowDown descends to leaf">↕ depth ${ascentDepth + 1}/${ascentPath.length}</span>` : ''}
           <span class="bi-stat">${Math.round(r.width)} × ${Math.round(r.height)}</span>
           ${bds ? `<span class="bi-stat bi-stat--ok">${bds.meta ? escapeHtml(bds.meta.name) : 'BDS · ' + escapeHtml(bds.component)}${bds.meta?.status && bds.meta.status !== 'stable' ? ' · ' + escapeHtml(bds.meta.status) : ''}</span>` : ''}
           ${bem ? `<span class="bi-stat">BEM · ${escapeHtml(bem.component)}</span>` : ''}
@@ -1905,14 +1922,51 @@
     );
   }
 
+  // ── Ancestor ascent (#2196) ─────────────────────────────────────────────
+  // Build the inspectable ancestor chain for a pointer event, leaf→root. Uses
+  // composedPath() (crosses shadow boundaries; the only path that survives an
+  // event retargeted off a shadow host), Element nodes only, dropping inspector
+  // chrome and stopping at <body>. Falls back to a parentElement walk when no
+  // event path is available (keydown-driven re-selection has no fresh event).
+  function buildAscentPath(target, event) {
+    const raw = event && typeof event.composedPath === 'function' ? event.composedPath() : null;
+    const chain = [];
+    if (raw && raw.length) {
+      for (const node of raw) {
+        if (!node || node.nodeType !== 1) continue; // drop document / window
+        if (isIgnoredEl(node)) continue;
+        chain.push(node);
+        if (node === document.body) break;
+      }
+    } else {
+      let node = target;
+      while (node && node.nodeType === 1) {
+        if (!isIgnoredEl(node)) chain.push(node);
+        if (node === document.body) break;
+        node = node.parentElement;
+      }
+    }
+    return chain;
+  }
+
+  // The element at the current ascent depth, clamped to the path.
+  function currentAscentEl() {
+    if (!ascentPath.length) return null;
+    return ascentPath[Math.min(ascentDepth, ascentPath.length - 1)] || null;
+  }
+
   // ── Event handlers ──────────────────────────────────────────────────────
   function onMouseMove(e) {
     if (!active || lockedEl) return;
     const el = e.target;
     if (!el || isIgnoredEl(el)) return;
-    hoveredEl = el;
-    drawOutline(el, false);
-    showPill(el, e.clientX, e.clientY);
+    // New pointer target rebuilds the chain and drops back to the leaf; the
+    // arrow keys then walk it in place without the pointer moving.
+    ascentPath = buildAscentPath(el, e);
+    ascentDepth = 0;
+    hoveredEl = currentAscentEl() || el;
+    drawOutline(hoveredEl, false);
+    showPill(hoveredEl, e.clientX, e.clientY);
   }
 
   function onClick(e) {
@@ -1921,16 +1975,48 @@
     if (!el || isIgnoredEl(el)) return;
     e.preventDefault();
     e.stopPropagation();
-    lockedEl = el;
+    // Preserve any ancestor the user ascended to while hovering (the click's
+    // leaf target still sits at depth 0 of the live chain); only rebuild when
+    // the click landed outside the current chain.
+    if (!ascentPath.length || ascentPath.indexOf(el) === -1) {
+      ascentPath = buildAscentPath(el, e);
+      ascentDepth = 0;
+    }
+    lockedEl = currentAscentEl() || el;
     hidePill();
-    drawOutline(el, true);
-    openPanel(el);
+    drawOutline(lockedEl, true);
+    openPanel(lockedEl);
   }
 
   function onKey(e) {
     if (e.key === 'Escape') {
       if (lockedEl) closePanel();
       else if (active) toggleActive();
+    }
+    // Ancestor ascent (#2196): ArrowUp climbs composedPath toward the root,
+    // ArrowDown descends back toward the pointer leaf — mirrors devtools
+    // DOM-tree navigation (operator-decided 2026-08-30). Re-targets whichever
+    // selection is live: the locked panel, else the hover outline.
+    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && active && ascentPath.length) {
+      if (!lockedEl && !hoveredEl) return;
+      e.preventDefault();
+      const max = ascentPath.length - 1;
+      ascentDepth = e.key === 'ArrowUp'
+        ? Math.min(ascentDepth + 1, max)
+        : Math.max(ascentDepth - 1, 0);
+      const el = currentAscentEl();
+      if (!el) return;
+      if (lockedEl) {
+        lockedEl = el;
+        drawOutline(el, true);
+        openPanel(el);
+      } else {
+        hoveredEl = el;
+        drawOutline(el, false);
+        // No pointer coords on a keydown — anchor the pill to the element.
+        const r = el.getBoundingClientRect();
+        showPill(el, r.left, r.top);
+      }
     }
     if ((e.key === 'i' || e.key === 'I') && (e.metaKey || e.ctrlKey) && e.shiftKey) {
       e.preventDefault();
