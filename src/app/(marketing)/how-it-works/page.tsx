@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
-import { Accordion, Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader } from '@brikdesigns/bds';
+import { Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader } from '@brikdesigns/bds';
 import { PROCESS_STEPS, PRACTICE_CARDS } from '@/lib/how-it-works';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
-import { getManagedPlanPrices } from '@/lib/supabase/queries';
+import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
+import { getManagedPlanPrices, getIndustryPages } from '@/lib/supabase/queries';
 import { CheckIcon } from '@/components/how-it-works/CheckIcon';
 import { ProcessFoundationTiers } from '@/components/how-it-works/ProcessFoundationTiers';
 import '../shared-sections.css';
@@ -51,13 +52,37 @@ function GearIcon() {
 export default async function HowItWorksPage() {
   // Managed monthly price per plan slug — the Step-2 segmented control shows
   // each service line's Managed price (DB is the pricing SoT, #1123).
-  const plans = await getManagedPlanPrices();
+  const [plans, industryPages] = await Promise.all([
+    getManagedPlanPrices(),
+    getIndustryPages(),
+  ]);
   const managedPriceBySlug = new Map(
     plans.map((plan) => [
       plan.slug,
       plan.service_plan_tiers.find((tier) => tier.name === 'Managed')?.monthly_price_display ?? null,
     ]),
   );
+
+  // Industries section: the same MediaTabs the home uses (HomeIndustriesTabs) —
+  // curated HOME_INDUSTRIES blurbs joined to each industry_pages row's
+  // illustration by slug (DB is SoT for imagery). Any industry without an image
+  // is dropped rather than rendering an empty panel — mirrors the home build.
+  const industryBySlug = new Map(
+    (industryPages as { slug: string; name: string; image_url: string | null }[]).map(
+      (row) => [row.slug, row],
+    ),
+  );
+  const industriesTabs = HOME_INDUSTRIES.map((industry) => {
+    const row = industryBySlug.get(industry.slug);
+    if (!row?.image_url) return null;
+    return {
+      id: industry.slug,
+      label: industry.label,
+      description: industry.description,
+      imageUrl: row.image_url,
+      alt: `${row.name} illustration`,
+    };
+  }).filter((tab): tab is NonNullable<typeof tab> => tab !== null);
 
   return (
     <>
@@ -138,7 +163,6 @@ export default async function HowItWorksPage() {
                         segments={step.segments.map((segment) => ({
                           id: segment.id,
                           label: segment.label,
-                          tierLabel: segment.tierLabel,
                           price: managedPriceBySlug.get(segment.planSlug) ?? null,
                           bullets: segment.bullets,
                         }))}
@@ -200,41 +224,30 @@ export default async function HowItWorksPage() {
       </section>
 
       {/* ═══ Industries ("Where we do our best work.") ═══ */}
-      {/* Figma node 25887:4854 — yellow accent band. Diverges from the home
-          Industries section (tabs): here the three industries are a BDS
-          Accordion, beside a decorative illustration panel. Labels + blurbs are
-          the curated HOME_INDUSTRIES copy (shared SoT). On-band text is pinned
-          dark in how-it-works.css (fixed-light yellow tint, same as home). */}
-      <section className="hiw-industries" data-section="industries">
-        <div className="hiw-container">
-          <SectionHeader
-            align="start"
-            title="Where we do our best work."
-            description="We work most closely with dental practices, property management and real estate firms, and small businesses."
-          />
-          <div className="hiw-industries__layout">
-            <Accordion
-              className="hiw-industries__accordion"
-              defaultOpenItems={[HOME_INDUSTRIES[0].slug]}
-              items={HOME_INDUSTRIES.map((industry) => ({
-                id: industry.slug,
-                title: industry.label,
-                content: industry.description,
-              }))}
+      {/* Figma node 25887:4854 — yellow accent band. Uses the same tabbed
+          container as the home Industries section (HomeIndustriesTabs →
+          MediaTabs): one tab per industry, each revealing its blurb and a synced
+          illustration panel. Labels + blurbs are the curated HOME_INDUSTRIES
+          copy (shared SoT); illustrations come from industry_pages.image_url.
+          On-band text is pinned dark in how-it-works.css (fixed-light yellow
+          tint, same as home). */}
+      {industriesTabs.length > 0 && (
+        <section className="hiw-industries" data-section="industries">
+          <div className="hiw-container">
+            <SectionHeader
+              align="start"
+              title="Where we do our best work."
+              description="We work most closely with dental practices, property management and real estate firms, and small businesses."
             />
-            {/* Decorative placeholder for the Figma illustration + chat bubble.
-                Real artwork lands with the rest of the imagery (#1121). */}
-            <div className="hiw-industries__media" aria-hidden="true">
-              <span className="hiw-industries__bubble">“How can I help today?”</span>
-            </div>
+            <HomeIndustriesTabs tabs={industriesTabs} />
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ═══ CTA ("Let's build something.") ═══ */}
       {/* Figma node 25886:4799 — Brik-orange panel. Reuses the shared brand CTA
           card (.cta-section-brand / .cta-card-brand, shared-sections.css). */}
-      <section className="cta-section-brand" data-section="cta">
+      <section className="cta-section-brand hiw-cta" data-section="cta">
         <div className="cta-card-brand">
           <div className="cta-card-brand__content">
             <h2 className="hiw-cta__title">Ready to see what fits?</h2>

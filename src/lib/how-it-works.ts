@@ -23,8 +23,6 @@ export interface FoundationSegment {
   label: string;
   /** service_plans.slug → the Managed monthly price shown in the block. */
   planSlug: string;
-  /** Price-block heading above the price. */
-  tierLabel: string;
   /** Detail bullets for this segment. */
   bullets: ProcessChecklistItem[];
 }
@@ -92,7 +90,6 @@ export const PROCESS_STEPS: ProcessStep[] = [
         id: 'full-stack',
         label: 'Full Stack',
         planSlug: 'full-stack-support',
-        tierLabel: 'Full Stack · Managed',
         bullets: [
           { title: 'Marketing strategy + 90-day plan', description: 'Built for your business.' },
           { title: 'Back office strategy + 90-day plan', description: 'Built for your business.' },
@@ -104,14 +101,12 @@ export const PROCESS_STEPS: ProcessStep[] = [
         id: 'marketing',
         label: 'Marketing',
         planSlug: 'marketing-support',
-        tierLabel: 'Marketing · Managed',
         bullets: SINGLE_SIDE_BULLETS,
       },
       {
         id: 'back-office',
         label: 'Back Office',
         planSlug: 'back-office-support',
-        tierLabel: 'Back Office · Managed',
         bullets: SINGLE_SIDE_BULLETS,
       },
     ],

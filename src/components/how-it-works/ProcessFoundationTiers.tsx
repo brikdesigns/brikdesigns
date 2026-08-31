@@ -9,7 +9,6 @@ import type { ProcessChecklistItem } from '@/lib/how-it-works';
 export interface FoundationSegmentView {
   id: string;
   label: string;
-  tierLabel: string;
   /** Managed monthly price display from service_plan_tiers (e.g. "$2,500.00"), or null. */
   price: string | null;
   bullets: ProcessChecklistItem[];
@@ -45,7 +44,6 @@ export function ProcessFoundationTiers({ segments }: { segments: FoundationSegme
       />
 
       <div className="hiw-tiers__price">
-        <p className="hiw-tiers__tier-label">{active.tierLabel}</p>
         <p className="hiw-tiers__amount">
           {formatPrice(active.price)}
           {active.price && <span className="hiw-tiers__cadence">/mo</span>}

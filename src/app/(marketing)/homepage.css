@@ -184,13 +184,13 @@
 }
 
 /* ─── Industries ("Where we do our best work") ──────────────── */
-/* R3 section (Figma 25768:6527): Accordion selector + synced illustration, on
-   the yellow accent band (fill surface/accent-yellow). The token resolves to
+/* R2 section (Figma 25768:6527): MediaTabs peer selector + synced illustration,
+   on the yellow accent band (fill surface/accent-yellow). The token resolves to
    #f7e190 today; the R2 mockup used #f4d364 — see the Problem-CTA band above for
-   the Brand Kit re-point. The two-column layout lives on .industries-accordion__layout
-   below; the section just provides the band + container rhythm. The accent
-   surface is fixed-light in both themes, so on-band text is pinned dark in the
-   dark root — see shared-sections.css "Accent band on-color text". */
+   the Brand Kit re-point. MediaTabs owns its own internal layout; the section
+   just provides the band + container rhythm. The accent surface is fixed-light
+   in both themes, so on-band text is pinned dark in the dark root — see
+   shared-sections.css "Accent band on-color text". */
 .section-industries {
   padding: var(--padding-huge) 0;
   background-color: var(--surface-accent-yellow);
@@ -199,88 +199,33 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  /* Full-viewport band, matching the neighboring Services/Problem bands — this
-     yellow accent band was the shortest home section; the floor gives it real
-     vertical presence and the MediaTabs content centers in the taller band.
-     Dropped back to auto < 768px (see the mobile block) so it doesn't over-tall
-     on phones, exactly like .section-services. */
-  min-height: 100svh;
 }
 
-/* R3 (#1054): two-column layout — Accordion selector | synced illustration —
-   mirroring the HIW industries section. */
-.industries-accordion__layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap-huge);
+.industries-tabs {
   width: 100%;
-  align-items: start;
 }
 
-.industries-accordion {
-  width: 100%;
-  /* Space the card rows (below) apart on the band. */
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
+/* The MediaTabs active-tab label defaults to --text-brand-primary, which on the
+   fixed-light #f7e190 band is poppy-500 (2.90:1) in light and poppy-300 (1.45:1)
+   in the dark root — both fail AA (axe: serious color-contrast, home /). Recolor
+   just the active label to the deepest brand poppy (poppy-800, 7.86:1),
+   mode-invariant like the band's --text-* pins (shared-sections.css) and the HIW
+   hero emphasis (#1127). Setting the color property (not redefining the token)
+   keeps the cascade contract, ADR-013. */
+.section-industries .bds-tab-bar-item[aria-selected='true'] {
+  color: var(--color-poppy-800); /* bds-lint-ignore token-family — on-band active-tab label on the fixed-light accent-yellow tint; the default --text-brand-primary is poppy-300 (dark root)/poppy-500 (light), both failing AA on #f7e190; only a mode-invariant deep poppy clears it in both themes */
 }
 
-/* Industries rows read as surface-primary cards on the yellow band — each row
-   (trigger + content) is a white --border-radius-md card with --padding-md.
-   The band is a light accent tint, so per card-treatment.md the card takes a
-   containment shadow and no border (matching the sibling
-   .industries-accordion__media panel) — the default underline separator is
-   dropped. */
-.industries-accordion .bds-accordion-item {
-  /* White card on the fixed-light yellow band. --surface-primary can't be used:
-     .section-industries pins the trigger/content text to the mode-invariant
-     grayscale-950 (shared-sections.css "Accent band on-color text"), so a
-     theme-reactive surface would flip near-black in the dark root and drop the
-     dark text to ~1.2:1 (axe serious). A mode-invariant white keeps the card
-     fixed-light in both themes — the same fixed-on-fixed-light pattern as the
-     .section-pricing .bds-pricing-card tint. */
-  background-color: var(--color-grayscale-white); /* bds-lint-ignore token-family — fixed-light card on a fixed-light accent band; --surface-primary flips near-black in dark under the section's grayscale-950 text pin, failing AA (mirrors the .service-surface / pricing-card pins) */
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--box-shadow-md);
-  border-bottom: none;
-  overflow: hidden;
-}
-
-.industries-accordion .bds-accordion-trigger {
-  padding: var(--padding-md);
-}
-
-/* Content sits directly under the trigger inside the same card, so it drops the
-   trigger's bottom inset to avoid a doubled gap. */
-.industries-accordion .bds-accordion-content {
-  padding: 0 var(--padding-md) var(--padding-md);
-}
-
-/* R2 refinement (#1092), carried to R3: the synced illustration sits in a white
-   rounded panel rather than floating on the band. The band is the soft-yellow
-   accent tint, so the panel takes a containment shadow and no border (light tint
-   → shadow, card-treatment.md). The accent surface is fixed-light in both
-   themes, so the shadow stays legible in dark mode (same as the service tints). */
-.industries-accordion__media {
+/* R2 refinement (#1092): the synced illustration sits in a white rounded panel
+   rather than floating on the band. The band is the soft-yellow accent tint, so
+   the panel takes a containment shadow and no border (light tint → shadow,
+   card-treatment.md). The accent surface is fixed-light in both themes, so the
+   shadow stays legible in dark mode (same reasoning as the service tints). */
+.industries-tabs .bds-media-tabs__media {
   background-color: var(--surface-primary);
   border-radius: var(--border-radius-lg);
   box-shadow: var(--box-shadow-md);
   overflow: hidden;
-}
-
-/* Fade each illustration in as its row opens (the <Image> remounts on key
-   change), echoing the retired MediaTabs crossfade. Reduced-motion honored. */
-.industries-accordion__media img {
-  animation: industries-media-fade 240ms ease-out;
-}
-
-@keyframes industries-media-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .industries-accordion__media img { animation: none; }
 }
 
 /* ─── Tooling ("Tools we know") ──────────────────────────────── */
@@ -1090,11 +1035,6 @@
     max-width: 704px;
   }
 
-  /* Industries stacks: accordion over illustration (mirrors HIW). */
-  .industries-accordion__layout {
-    grid-template-columns: 1fr;
-  }
-
   .audit-content {
     max-width: 100%;
   }
@@ -1179,7 +1119,6 @@
 
   /* Sections — remove min-height */
   .section-services,
-  .section-industries,
   .section-audit,
   .section-story {
     min-height: auto;

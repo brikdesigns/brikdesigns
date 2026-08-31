@@ -5,7 +5,7 @@ import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Image, Marquee
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
-import { HomeIndustriesAccordion } from '@/components/homepage/HomeIndustriesAccordion';
+import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { TOOLING_LOGOS } from '@/lib/home-tooling';
 import { WORKFLOW_STEPS, WORKFLOW_IMAGE_WIDTHS } from '@/lib/home-workflow';
@@ -57,7 +57,7 @@ export default async function HomePage() {
     getIndustryPages(),
   ]);
 
-  // R3 Industries section: Accordion (Dental / Real Estate / Small Business).
+  // R2 Industries section: MediaTabs (Dental / Real Estate / Small Business).
   // Blurb = curated R2 copy (HOME_INDUSTRIES); illustration = industry_pages
   // row's image_url joined by slug (DB is SoT for imagery). Any industry whose
   // row is missing or image-less is dropped rather than rendering an empty panel.
@@ -225,15 +225,14 @@ export default async function HomePage() {
       </section>
 
       {/* ═══ Industries ("Where we do our best work") ═══ */}
-      {/* R3 section (Figma node 25768:6527): single-open Accordion selector
-          (Dental / Real Estate / Small Business) beside a synced illustration
-          panel — replaces the R2 MediaTabs, mirrors the HIW layout (#1054).
-          Blurbs from Homepage-R2 Notion; illustrations from industry_pages. */}
+      {/* R2 section (Figma node 25768:6527): MediaTabs peer selector (Dental /
+          Real Estate / Small Business) + synced illustration panel. Blurbs from
+          Homepage-R2 Notion; illustrations from industry_pages.image_url. */}
       {industriesTabs.length > 0 && (
         <section className="section-industries" data-section="industries">
           <div className="section-container">
             <SectionHeader title="Where we do our best work." />
-            <HomeIndustriesAccordion tabs={industriesTabs} />
+            <HomeIndustriesTabs tabs={industriesTabs} />
           </div>
         </section>
       )}
