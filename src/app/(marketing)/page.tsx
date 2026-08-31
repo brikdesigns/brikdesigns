@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Image, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
-import { serviceColor, serviceCtaVars } from '@/lib/tokens';
+import { serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
@@ -355,23 +355,23 @@ export default async function HomePage() {
           </div>
           <Grid columns={3} gap="huge">
             {supportPlans.map((plan) => {
-              // R2 tints each card with its plan's pale service-line surface
-              // step (Figma node 25768:7701) — same datum that tints the plan's
-              // detail-page CTA (#1001). `.section-pricing .bds-pricing-card`
-              // in shared-sections.css pins the on-card text dark in both themes
-              // (the tint is fixed-light) and keeps the band-derived chrome.
+              // The per-card pale service-line tint R2 painted here (Figma node
+              // 25768:7701) is retired by operator decision 2026-08-31 (#1169):
+              // these cards take the plain --surface-primary card fill, which is
+              // the BDS PricingCard default, so nothing is set here. The service
+              // line still reads through the card's illustration and its themed
+              // CTA. Removing the tint also retired the on-card text pin in
+              // shared-sections.css — that pin only existed because the tint was
+              // fixed-light in both themes; --surface-primary is not.
               const category = plan.service_line_slug
                 ? mapServiceLineSlug(plan.service_line_slug)
                 : null;
-              const tint = category ? serviceColor(category).surfaceLight : undefined;
               // R3 (#1114): the "Learn More" primary is themed to the card's own
               // service line — serviceCtaVars() sets the brand-primary fill/ink
               // handoff vars and `.service-themed` opts the button into the
               // dark-mode fill rule (globals.css), the canonical service-button
               // path used on the service-detail pricing grid.
-              const cardStyle = category
-                ? { backgroundColor: tint, ...serviceCtaVars(category) }
-                : undefined;
+              const cardStyle = category ? serviceCtaVars(category) : undefined;
               return (
                 <PricingCard
                   key={plan.slug}

@@ -533,6 +533,50 @@
   font-size: var(--heading-sm);
 }
 
+/* ─── Card media standard — every image nested in a card ──────────────────
+   THE single source of truth for card-nested media: corner radius and the
+   well behind the art. Documented in .claude/references/card-media.md and
+   gated by tests/a11y/card-media.spec.ts (measured, every route, light +
+   dark).
+
+   DERIVED, not enumerated. The selector keys on the card structure itself —
+   any Frame inside any Card or PricingCard — so a new card grid inherits the
+   standard with no edit here. This is deliberate: #1170 exists because the
+   sibling "tinted bands shouldn't animate" rule shipped as a four-class
+   allowlist and silently regressed every time a band was added.
+
+   Radius: --border-radius-md (12px), matching the card's own corner
+   (`.bds-card`, BDS styles.css). BDS rounds card media one step lower at
+   --border-radius-sm (8px, `.bds-card__preset-display-media img`); site CSS
+   is unlayered and BDS ships inside `@layer bds-components`, so this wins on
+   layer order without an !important. Aligning the BDS default is
+   brikdesigns/brik-bds#2257.
+
+   Well fill: --surface-secondary. Card art is routinely transparent PNG or
+   letterboxed, so the media slot needs a surface of its own instead of
+   showing the card's white through. It sits on the Frame rather than the
+   image, so the well is present whether or not an image loaded — the prior
+   behaviour filled only the no-image fallback, which meant a card WITH art
+   had no well at all (#1169).
+
+   Both the frame and its child take the same radius: the frame clips
+   (overflow: hidden), so a smaller radius on the image would show four
+   slivers of the well through the image's corners. */
+.bds-card .bds-frame,
+.bds-pricing-card .bds-frame {
+  border-radius: var(--border-radius-md);
+  background-color: var(--surface-secondary);
+}
+
+.bds-card .bds-frame > img,
+.bds-card .bds-frame > video,
+.bds-card .bds-frame > svg,
+.bds-pricing-card .bds-frame > img,
+.bds-pricing-card .bds-frame > video,
+.bds-pricing-card .bds-frame > svg {
+  border-radius: var(--border-radius-md);
+}
+
 /* ─── Card chrome by band — the card-treatment standard ───────────────────
    THE single source of truth for card border/shadow, enforced by
    tests/a11y/card-treatment.spec.ts (measured, every route, light + dark —
@@ -628,25 +672,21 @@
   --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above. The DARK root is now the only reason this pin is needed: on the current #e9d8fc fill the default --text-secondary (#5a5a5a) measures 5.15:1 and clears AA in light. It did not on the R2 mockup's #9e8bc2 — the paler Brand Kit tint (brik-bds#2066, v0.175.0) fixed the light-mode half. Keep the pin; the dark-root flip is unchanged. */
 }
 
-/* R2 pricing cards carry a PER-CARD pale service-line tint (page.tsx sets an
-   inline service `surfaceLight` background via serviceColor() — Figma node
-   25768:7701). That tint is fixed-light in BOTH themes, but the card's own text
-   rides --text-primary/-secondary, which flip near-white in the dark root and
-   vanish on the still-light fill. Pin both to the mode-invariant darkest
-   grayscale so the card copy clears AA on the pale tint in both themes — same
-   fixed-on-fixed-light pattern as the `.pricing-header` intro pin above and the
-   `.service-surface` pin (globals.css). Both roles share the 950 stop
-   deliberately: the "5 hours per month" period is BDS secondary gray (~3.5:1 on
-   the cream/mint tint, an AA fail), so it must darken too — carry any hierarchy
-   on weight/size, not color. The card is fixed-light in both themes (no dark
-   nested surface), so this needs NO per-theme branch, unlike the
-   `.service-surface` nested-card carve-out. Chrome stays band-derived (shadow/
-   no-border) via the `.section-pricing .bds-pricing-card` rule above; gated by
+/* The on-card text pin that used to live here is RETIRED with the tint it
+   existed for (#1169, operator decision 2026-08-31). R2 painted each pricing
+   card with its pale service-line `surfaceLight` step (Figma node 25768:7701);
+   because that tint was fixed-light in BOTH themes, the card copy had to be
+   pinned to the mode-invariant grayscale-950 or it flipped near-white and
+   vanished on the still-light fill.
+
+   The cards now take the plain --surface-primary fill, which is white in light
+   and BLACK in dark. Keeping the pin would have been the exact inverse failure —
+   dark ink on a black card. So the pin goes and --text-primary/-secondary flow
+   normally, which is correct on a surface that moves with the theme.
+
+   Chrome is unaffected: it stays band-derived (shadow / no-border) via the
+   `.section-pricing .bds-pricing-card:not(--highlighted)` rule above. Gated by
    card-treatment.spec.ts + public-routes.spec.ts (axe), both themes. */
-.section-pricing .bds-pricing-card {
-  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-card copy on a fixed-light service tint; --text-primary flips near-white in dark, so a mode-invariant dark primitive is the one value clearing AA in both themes (mirrors the .service-surface pin, globals.css) */
-  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above; BDS secondary gray is ~3.5:1 on the pale cream/mint tint, an AA fail */
-}
 
 /* R3 (#1114): the home pricing tiers take a larger --body-lg description than
    the BDS default, scoped to the home band so the /plans + /services pricing

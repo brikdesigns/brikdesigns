@@ -171,13 +171,11 @@
   width: 100%;
 }
 
-/* Warm tan well behind each service-card illustration (the source art is often
-   transparent, so the Frame background reads through). Scoped to the home
-   Services grid — the marketing ServiceCard is shared with /services + the
-   service-line grids, which keep their own (transparent) media well. */
-.section-services .services-tabs__grid .bds-frame {
-  background-color: var(--background-accent);
-}
+/* The warm-tan (`--background-accent`) media well that used to live here is
+   retired. It was scoped to the home Services grid while every other card grid
+   kept a transparent well, so the same illustration read differently per page.
+   The well is now one sitewide standard at --surface-secondary — see "Card
+   media standard" in shared-sections.css (#1169). */
 
 .services-tabs__grid {
   width: 100%;
