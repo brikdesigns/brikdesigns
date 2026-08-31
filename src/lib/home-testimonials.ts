@@ -9,14 +9,12 @@
 // never assert a checkable client fact without a source). Replace `quote` /
 // `authorName` / `businessType` with real, sourced testimonials before launch.
 //
-// ⚠ PRODUCTION-PROMOTE BLOCKER: every row now carries the SAME real client
-// logomark (Birdwell Mutlak) beside a placeholder quote and a bracketed
-// `[Client name]` — a temporary "same logo in each card" placeholder so the
-// rows share one asset until real, per-client logos + sourced quotes land.
-// That pairing reads as three testimonials Birdwell never gave, so this section
-// must not reach production until each row's quote + attribution are real and
-// sourced and each row carries its own client's logo — or the logos come back
-// out. Staging preview only. Tracked on #1047.
+// ⚠ NEVER pair a real client logomark with a bracketed placeholder quote. Every
+// row briefly carried the Birdwell Mutlak logo beside `[Client name]`, which
+// rendered as three testimonials Birdwell never gave; the logos were pulled in
+// #1125. A `logoSrc` may only return to a row whose `quote` / `authorName` /
+// `businessType` are real and sourced from that same client — and each row must
+// carry its OWN client's logo, never a shared stand-in.
 
 export interface Testimonial {
   id: string;
@@ -36,8 +34,6 @@ export const TESTIMONIALS: Testimonial[] = [
       '[Client quote — a specific outcome: time saved, revenue found, or something they no longer have to do themselves.]',
     authorName: '[Client name]',
     businessType: '[Business type]',
-    logoSrc: '/logos/clients/birdwell-mutlak.svg',
-    logoAlt: 'Birdwell Mutlak',
   },
   {
     id: 'placeholder-2',
@@ -45,8 +41,6 @@ export const TESTIMONIALS: Testimonial[] = [
       '[Client quote — what the BrikDown revealed, and what changed in real terms after.]',
     authorName: '[Client name]',
     businessType: '[Business type]',
-    logoSrc: '/logos/clients/birdwell-mutlak.svg',
-    logoAlt: 'Birdwell Mutlak',
   },
   {
     id: 'placeholder-3',
@@ -54,7 +48,5 @@ export const TESTIMONIALS: Testimonial[] = [
       '[Client quote — the before, the a-ha, and the after, in the client’s own words.]',
     authorName: '[Client name]',
     businessType: '[Business type]',
-    logoSrc: '/logos/clients/birdwell-mutlak.svg',
-    logoAlt: 'Birdwell Mutlak',
   },
 ];
