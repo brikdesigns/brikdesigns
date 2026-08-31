@@ -157,6 +157,31 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs, 
   // in captureOnce becomes a question of network time rather than of when the
   // browser felt like asking. The MutationObserver covers images React mounts
   // after hydration.
+  // Shared image descriptor for both failure messages. Name the offenders: a
+  // bare count ("1 image(s) still loading") says nothing about WHICH asset
+  // stalled, so every occurrence started from zero — #904 needed a separate
+  // scripted repro just to learn the page was fine. The URL, the rendered box
+  // and the requested width make the next failure diagnosable from the CI log
+  // alone. One definition, so the still-loading and failed-to-decode messages
+  // cannot drift apart (#1162).
+  await page.addInitScript(() => {
+    window.__describeImage = (img) => {
+      const r = img.getBoundingClientRect();
+      const url = img.currentSrc || img.src || '(no src)';
+      let reqW = null;
+      try {
+        reqW = new URL(url, location.href).searchParams.get('w');
+      } catch (parseErr) {
+        reqW = `unparseable (${parseErr.message})`;
+      }
+      return {
+        url,
+        box: `${Math.round(r.width)}x${Math.round(r.height)}`,
+        reqW,
+        lazy: img.loading === 'lazy',
+      };
+    };
+  });
   await page.addInitScript(() => {
     const eager = (img) => { if (img.loading === 'lazy') img.loading = 'eager'; };
     const sweep = (root) => {
@@ -257,30 +282,12 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs, 
           { timeout: imageWaitMs, polling: 250 },
         );
       } catch (e) {
-        // Name the offenders. A bare count ("1 image(s) still loading") says
-        // nothing about WHICH asset stalled, so every occurrence started from
-        // zero — #904 needed a separate scripted repro just to learn the page
-        // was fine. Print the URL, the rendered box and the requested width so
-        // the next failure is diagnosable from the CI log alone.
+        // Name the offenders via the shared __describeImage (see its definition
+        // above for why a bare count is not enough).
         const stuck = await page.evaluate(() =>
           Array.from(document.images)
             .filter((img) => !img.complete)
-            .map((img) => {
-              const r = img.getBoundingClientRect();
-              const url = img.currentSrc || img.src || '(no src)';
-              let reqW = null;
-              try {
-                reqW = new URL(url, location.href).searchParams.get('w');
-              } catch (parseErr) {
-                reqW = `unparseable (${parseErr.message})`;
-              }
-              return {
-                url,
-                box: `${Math.round(r.width)}x${Math.round(r.height)}`,
-                reqW,
-                lazy: img.loading === 'lazy',
-              };
-            }));
+            .map((img) => window.__describeImage(img)));
         const detail = stuck
           .map((s) => `\n    · ${s.box} req_w=${s.reqW}${s.lazy ? ' lazy' : ''} ${s.url}`)
           .join('');
@@ -289,13 +296,33 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs, 
           + `capture would be non-deterministic${detail}`,
         );
       }
+      // A rejected decode() is the SAME hazard as an incomplete load, so it gets
+      // the same disposition: throw, and let capture() re-shoot on the escalated
+      // budget (:334). Previously this only warned and fell through to the
+      // screenshot below, so an image that was `complete` but undecodable was
+      // captured blank or partial — a real pixel diff on a route nobody touched,
+      // passing on a plain re-run. That is the flake signature #1106 documents
+      // (one image, one route, one viewport, while the same route's other
+      // viewports measure 0.00%), and the reason it never reproduces locally: a
+      // decode failure is a runner-side resource condition, not a property of the
+      // page. Measured 2026-08-31 — pages and both deployments are deterministic
+      // (17 captures same-host and cross-deployment, all 0.0000%).
       const undecodable = await page.evaluate(async () => {
-        const results = await Promise.allSettled(
-          Array.from(document.images).map((img) => img.decode?.()),
-        );
-        return results.filter((r) => r.status === 'rejected').length;
+        const images = Array.from(document.images);
+        const results = await Promise.allSettled(images.map((img) => img.decode?.()));
+        return results
+          .map((r, i) => (r.status === 'rejected' ? window.__describeImage(images[i]) : null))
+          .filter(Boolean);
       });
-      if (undecodable) console.warn(`  · ${undecodable} image(s) failed to decode`);
+      if (undecodable.length) {
+        const detail = undecodable
+          .map((s) => `\n    · ${s.box} req_w=${s.reqW}${s.lazy ? ' lazy' : ''} ${s.url}`)
+          .join('');
+        throw new Error(
+          `${undecodable.length} image(s) failed to decode — `
+          + `capture would be non-deterministic${detail}`,
+        );
+      }
     }
     await page.waitForFunction(
       () => {
