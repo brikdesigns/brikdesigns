@@ -1078,6 +1078,22 @@
     order: 0;
   }
 
+  /* Let the section-end CTA's label wrap (#1109). BDS pins `.bds-button__content`
+     to `white-space: nowrap`, so "Get Your Free BrikDown — Start with Step 1"
+     carries a 420px min-content floor. `.section-container` is a column flex whose
+     items floor at min-content, so that 420px plus the 48px gutters forced the
+     container to 468px inside a 390px band and dragged every child 39px
+     off-centre — the step cards then lost their side borders to the band's
+     `overflow: clip`, which is why it read as a chrome bug and not an overflow.
+     Wrapping the label is the fix that survives the next long CTA; `min-width: 0`
+     on the container is NOT (measured: the container still computes 468px,
+     because the floor is the button's own nowrap span). Centred because a wrapped
+     label is multi-line and BDS only centres the single-line case. */
+  .section-workflow .bds-button__content {
+    white-space: normal;
+    text-align: center;
+  }
+
   /* Testimonials — stack the tile above the quote; cap the (otherwise
      full-width) media tile so it doesn't become a giant square when it loses
      its column. One column means the quote-lead track reversal + explicit
