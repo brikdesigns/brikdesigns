@@ -410,6 +410,15 @@
   --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — tab body copy, same reasoning */
 }
 
+/* The MediaTabs active-tab label defaults to --text-brand-primary, which on the
+   fixed-light #f7e190 band is poppy-500 (2.90:1) in light and poppy-300 (1.45:1)
+   in the dark root — both fail AA. Recolor just the active label to the deepest
+   brand poppy (poppy-800, 7.86:1), matching the home Industries band and the
+   hero emphasis (#1127). Color property, not a token redefinition (ADR-013). */
+.hiw-industries .bds-tab-bar-item[aria-selected='true'] {
+  color: var(--color-poppy-800); /* bds-lint-ignore token-family — on-band active-tab label on the fixed-light accent-yellow tint; the default --text-brand-primary is poppy-300 (dark root)/poppy-500 (light), both failing AA on #f7e190; only a mode-invariant deep poppy clears it in both themes */
+}
+
 /* The section intro spans the full band width here (not the default measure
    cap) so its left edge and description sit flush with the tabbed container
    below. `.hiw-container` centers its children, so width:100% is needed on top

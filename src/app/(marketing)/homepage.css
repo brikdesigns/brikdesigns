@@ -205,6 +205,17 @@
   width: 100%;
 }
 
+/* The MediaTabs active-tab label defaults to --text-brand-primary, which on the
+   fixed-light #f7e190 band is poppy-500 (2.90:1) in light and poppy-300 (1.45:1)
+   in the dark root — both fail AA (axe: serious color-contrast, home /). Recolor
+   just the active label to the deepest brand poppy (poppy-800, 7.86:1),
+   mode-invariant like the band's --text-* pins (shared-sections.css) and the HIW
+   hero emphasis (#1127). Setting the color property (not redefining the token)
+   keeps the cascade contract, ADR-013. */
+.section-industries .bds-tab-bar-item[aria-selected='true'] {
+  color: var(--color-poppy-800); /* bds-lint-ignore token-family — on-band active-tab label on the fixed-light accent-yellow tint; the default --text-brand-primary is poppy-300 (dark root)/poppy-500 (light), both failing AA on #f7e190; only a mode-invariant deep poppy clears it in both themes */
+}
+
 /* R2 refinement (#1092): the synced illustration sits in a white rounded panel
    rather than floating on the band. The band is the soft-yellow accent tint, so
    the panel takes a containment shadow and no border (light tint → shadow,
