@@ -201,6 +201,10 @@
 
 .industries-tabs {
   width: 100%;
+  /* Vertical rail: top-align the tab column to the (taller) media panel rather
+     than floating it to vertical center — MediaTabs' grid defaults to
+     align-items:center at ≥768px, which leaves dead space above the first tab. */
+  align-items: start;
 }
 
 /* The MediaTabs active-tab label defaults to --text-brand-primary, which on the

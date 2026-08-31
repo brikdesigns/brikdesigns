@@ -27,7 +27,7 @@ export function HomeIndustriesTabs({ tabs }: HomeIndustriesTabsProps) {
   return (
     <MediaTabs
       className="industries-tabs"
-      orientation="horizontal"
+      orientation="vertical"
       showProgress={false}
       tabs={tabs.map((tab) => ({
         id: tab.id,
