@@ -1,0 +1,74 @@
+name: no-promote-to-main
+
+# Refuses any PR targeting `main`. Brik's public domain is still served by
+# Webflow — `www.brikdesigns.com` CNAMEs to `cdn.webflow.com` (verified
+# 2026-08-31 against celeste.ns.cloudflare.com) — and moving off it is an
+# explicit operator call that has not been made. #1166 (the promote) and #371
+# (the DNS cutover) are both `status:frozen`.
+#
+# Why a gate and not just a doc line: the promote kept being re-surfaced across
+# sessions because every durable artifact argued FOR it. #1166 sat at
+# `priority:p1-week` with an imperative title, the `main..staging` gap grows
+# with every merge, and the content blocker that once held it (#1125) is closed.
+# An agent reading that metadata correctly concludes "ready to ship". Three
+# separate sessions reached that conclusion and asked. Labels and CLAUDE.md now
+# say otherwise, but both are advisory — this is the layer that does not depend
+# on anyone reading anything.
+#
+# Deliberately dumb: no checkout, no PR-body parsing, no label escape hatch. An
+# escape hatch is the failure mode being prevented — #1125 exists as a ticket
+# precisely because a code comment could not stop a branch merge, and a promote
+# is a merge with no reviewable diff, so nothing surfaces at review time.
+#
+# Cost: triggers only on `pull_request` with base `main`, which is the promote
+# PR itself and nothing else. No scheduled run, no run on the staging PRs that
+# make up all normal traffic. Replaces nothing; adds ~5s on an event that should
+# fire zero times while the freeze holds.
+#
+# `edited` is included because re-targeting an existing PR's base from `staging`
+# to `main` fires that event, not `opened`.
+#
+# TO LIFT (operator only): delete this file, drop `status:frozen` +
+# `priority:p3-someday` from #1166 and #371, and remove this check from `main`'s
+# required status checks if it was added there.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  refuse:
+    name: refuse promote to main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail — main is frozen
+        run: |
+          cat <<'EOF'
+          ============================================================
+          REFUSED: this PR targets `main`.
+
+          Brik is staying on Webflow. The `staging -> main` promote and
+          the DNS cutover are frozen pending an explicit operator call:
+
+            #1166  Promote staging -> main          status:frozen
+            #371   Cut over www DNS to Netlify      status:frozen
+
+          The public domain does not point at Netlify, so this merge
+          would not reach a single visitor:
+
+            $ dig +short www.brikdesigns.com CNAME @celeste.ns.cloudflare.com
+            cdn.webflow.com.
+
+          Do not re-target this PR, waive this check, or open a follow-up
+          asking whether the hold is lifted. Retarget the base to
+          `staging`, or close the PR.
+
+          Only Nick lifts this, in his own words. See CLAUDE.md
+          section "When opening a PR".
+          ============================================================
+          EOF
+          exit 1

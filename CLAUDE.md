@@ -38,7 +38,9 @@ Declare `@layer bds-tokens, bds-components, client-theme, client-overrides;` bef
 
 ## When opening a PR
 
-USE merge-commit only — NEVER squash or rebase; target `staging` for PRs and promote `staging → main` only after Netlify preview sign-off → `brik-rag query "brikdesigns merge-commit invariant"` before any promote-PR.
+USE merge-commit only — NEVER squash or rebase; target `staging` for every PR.
+
+NEVER open, propose, recommend, or ask about a `staging → main` promote — Brik stays on Webflow, and leaving it is an explicit call Nick makes in his own words. #1166 (promote) and #371 (DNS cutover) are `status:frozen`. A green Netlify preview, a closed content blocker, and a growing `main..staging` commit gap are NOT signals to raise it; `www.brikdesigns.com` CNAMEs to `cdn.webflow.com`, so a promote does not reach the public either way. Gated by `.github/workflows/no-promote-to-main.yml`.
 
 ## When installing or running locally
 
