@@ -14,6 +14,10 @@
   flex-flow: column;
   justify-content: center;
   align-items: stretch;
+  /* Top/bottom band inset (huge). --padding-huge is 48px in the default spacing
+     mode; the 767px rule below resets this to 0 and moves the block inset onto
+     .hero-container so the two insets can't stack on mobile. */
+  padding-block: var(--padding-huge);
   min-height: calc(100vh - var(--nav-height));
   min-height: calc(100svh - var(--nav-height));
   position: relative;
@@ -28,7 +32,7 @@
    primitive, used directly because no --padding-* step resolves to 64px in the
    default spacing mode (--padding-huge is 48px here, 80px only in
    `comfortable`) — the same reason #1091 reached for --space-1800 on Services.
-   The inline inset deliberately overrides --gutter-page (32px): the hero band
+   The inline inset deliberately overrides --page-inset (32px): the hero band
    is the one container the design insets further than the shared page gutter,
    so the hero text starts inboard of the nav logo by design. */
 .hero-container {
@@ -42,6 +46,16 @@
   max-width: var(--site-content-width);
   margin-inline: auto;
   padding: var(--space-1600);
+  /* Brand-primary (poppy) band inset in the white .section-hero. On the fixed
+     brand fill the ink is the invariantly-white on-color text token, matching
+     the cta-card-brand / HIW CTA panels that ride the same surface. */
+  background-color: var(--surface-brand-primary);
+  --text-primary: var(--text-on-color-dark);
+  --text-secondary: var(--text-on-color-dark);
+  /* No semantic 'huge' radius exists (scale stops at --border-radius-lg); the
+     48px huge-tier primitive matches --padding-huge. Reads against the poppy
+     container fill above, which sits inset in the white .section-hero band. */
+  border-radius: var(--border-radius-1400);
 }
 
 /* Webflow: .layout-wrapper-hero.comfortable — gap-xl between text block and buttons */
@@ -94,14 +108,12 @@
 
 
 
-/* R3 (#1114): the home hero re-themed to the white --surface-primary band, so
-   its own buttons dropped .hero-btn-on-dark and the .section-hero ScrollDownCta
-   color override was retired. The .hero-btn-on-dark rule below stays — the Blog
-   hero (blog/page.tsx, which also imports this file) still rides a dark band and
-   uses it for a white-outline button. */
+/* The home hero rides the brand-primary (poppy) band again, so its secondary
+   button re-adopts .hero-btn-on-dark for a white outline — same treatment the
+   Blog hero (blog/page.tsx, which also imports this file) uses on its dark band. */
 
-/* Webflow: .button-tertiary-md on a dark hero — override BDS outline colors for
-   a dark bg. Used by the Blog hero (the home hero no longer opts in). */
+/* Webflow: .button-tertiary-md on a dark/brand hero — override BDS outline colors
+   for a saturated bg. Used by the home hero + the Blog hero. */
 .hero-btn-on-dark.bds-button--outline {
   color: var(--text-on-color-dark);
   border-color: var(--text-on-color-dark); /* bds-lint-ignore token-family — --border-inverse flips to black in dark mode (--color-grayscale-black), making the border invisible on the fixed-dark hero surface. --text-on-color-dark is invariantly white in both themes. #393 */
@@ -111,6 +123,19 @@
   background-color: var(--surface-primary);
   color: var(--text-primary);
   filter: none;
+}
+
+/* Pin the home hero's scroll cue to the bottom of the viewport. .section-hero is
+   position:relative and ~100svh tall, so bottom:0 anchors the cue at the browser
+   bottom on load; taking it out of flow lets .hero-container center its content
+   in the full band. Home-only (.section-hero) — interior heroes (.page-hero) keep
+   the in-flow cue — and the cue is display:none < 768px (shared-sections.css), so
+   this is a desktop-only pin. */
+.section-hero .scroll-down-cta {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 /* ─── Services ("What We Do") ──────────────────────────────── */
@@ -144,6 +169,14 @@
   align-items: flex-start;
   gap: var(--gap-xl);
   width: 100%;
+}
+
+/* Warm tan well behind each service-card illustration (the source art is often
+   transparent, so the Frame background reads through). Scoped to the home
+   Services grid — the marketing ServiceCard is shared with /services + the
+   service-line grids, which keep their own (transparent) media well. */
+.section-services .services-tabs__grid .bds-frame {
+  background-color: var(--background-accent);
 }
 
 .services-tabs__grid {
@@ -205,7 +238,11 @@
   align-items: center;
   width: 100%;
   min-height: 100vh;
-  gap: var(--gap-xl);
+  /* 64px (--space-1600 primitive) between the "Tools we know" header and the logo
+     ticker — a mode-stable step above the --gap-huge (32px) staging had set here,
+     matching the way the hero/Services bands reach for the space-* primitives
+     directly rather than a --gap-* step that shifts with the spacing mode. */
+  gap: var(--space-1600);
 }
 
 /* Stretch the header block so align="start" sits it at the page gutter rather
@@ -237,7 +274,7 @@
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
   gap: var(--gap-xl);
 }
 
@@ -380,6 +417,16 @@
   }
 }
 
+/* Widen the "Sound like you?" CTA content-block slot rhythm to gap-huge (32px,
+   --space-800). BDS ContentBlock spaces its title/description/actions slots with
+   margin-top (ADR-023), not flex gap, so this override matches that mechanism and
+   swaps the token on the two slots the CTA renders. Unlayered, so it beats the
+   layered bds-components rule at equal specificity. */
+.section-problem-cta .bds-content-block__description,
+.section-problem-cta .bds-content-block__actions {
+  margin-top: var(--gap-huge);
+}
+
 /* ─── Workflow ("Simple from day one") ──────────────────────── */
 /* R2 section (Figma node 25800:3081): three sequential engagement steps as an
    alternating timeline over a BDS MediaBand, on the white
@@ -416,7 +463,9 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  border-left: var(--border-width-md) solid var(--border-primary);
+  /* 3px spine (--border-width-200), matching the step cards' own border width so
+     the connector reads at the same weight as the cards it threads. */
+  border-left: var(--border-width-200) solid var(--border-primary);
   z-index: 0;
 }
 
@@ -452,8 +501,19 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: var(--gap-xl);
+  /* Gap between the heading cluster and the description — the group boundary,
+     not the element spacing. Intra-cluster spacing lives on __heading below. */
+  gap: var(--gap-lg);
   padding: var(--padding-xl);
+}
+
+/* Heading cluster — label + title read as one unit, so they sit tighter than
+   the cluster-to-description gap. Grouping the text this way controls vertical
+   rhythm at the group boundary (page-anatomy.md § Grouping content into blocks). */
+.workflow-step__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
 }
 
 .workflow-step__label {
@@ -562,7 +622,10 @@
 .testimonial-row {
   display: grid;
   grid-template-columns: minmax(220px, 327px) 1fr;
-  align-items: center;
+  /* stretch (not center): the body column grows to the square media tile's
+     height so the quote + attribution can anchor to the tile's top and bottom
+     edges (see .testimonial-row__body justify-content below). */
+  align-items: stretch;
   gap: var(--gap-xl);
   padding: var(--padding-xl);
   background-color: var(--surface-secondary);
@@ -640,13 +703,22 @@
   margin: 0;
   display: flex;
   flex-direction: column;
+  /* Pin the quote to the top and the attribution to the bottom of the (stretched)
+     body column; --gap-xl is the minimum spacing when the two nearly fill it. */
+  justify-content: space-between;
   gap: var(--gap-xl);
 }
 
 .testimonial-row__quote {
   margin: 0;
-  font-family: var(--font-family-body);
-  font-size: var(--body-lg);
+  /* Pull-quote size: --heading-md (25.3px on this site's active type mode), two
+     steps up the rendered type ramp from the prior --body-lg (18px → 20px → 25.3px;
+     the mode skips the 22.5px primitive, so --heading-sm resolves to 20px here —
+     only one step). Paired with --font-family-heading so size and family share a
+     ramp (ADR-013); both families resolve to Poppins, so the italic quote is
+     visually unchanged apart from the larger size. */
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-md);
   font-style: italic;
   line-height: var(--font-line-height-relaxed);
   color: var(--text-primary);
@@ -790,7 +862,7 @@
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding-inline: var(--gutter-page);
+  padding-inline: var(--page-inset);
 }
 
 /* Webflow: .cms-item-story — row, space-between, gap-lg (24px), white bg, sm radius */
@@ -1018,7 +1090,7 @@
 
 /* Webflow: mobile landscape — 767px */
 @media (max-width: 767px) {
-  /* Hero — keeps --gutter-page padding-inline at every breakpoint so content
+  /* Hero — keeps --page-inset padding-inline at every breakpoint so content
      never runs flush to the viewport edge (was: padding: 0 → edge-to-edge). */
   .section-hero {
     padding: 0;
@@ -1031,7 +1103,7 @@
      inset also moves onto the container here so it can't stack with a second
      inset on .section-hero (which is why that rule's padding is now 0). */
   .hero-container {
-    padding: var(--padding-huge) var(--gutter-page);
+    padding: var(--padding-huge) var(--page-inset);
   }
 
   /* Sections — remove min-height */

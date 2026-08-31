@@ -74,4 +74,20 @@ So: when a CMS filter, unpublished row, or removed array entry changes the count
 
 Gated by [`tests/a11y/grid-column-fit.spec.ts`](../../tests/a11y/grid-column-fit.spec.ts) (computed columns vs laid-out children, nav panels + main routes).
 
+## Grouping content into blocks
+
+**Group the title, subtitle, and description into one content block; set the spacing between that text group and the next thing (buttons, media, an image) once, at the group boundary — never element-by-element.**
+
+Title, subtitle, and description are one semantic unit: the *what*. Buttons, an image, or a media panel are a different unit: the *do* / the *show*. When each element sets its own top gap in a flat column, tuning "the space above the button" also moves the space between the title and the description — the two are coupled through one `gap`. Grouping decouples them: a tight gap *inside* the text cluster, a deliberate gap *between* the cluster and its sibling.
+
+**The canonical primitive is `ContentBlock`** (rendered by `SectionHeader`). It gives `title` / `subtitle` / `description` / `actions` fixed slots and owns the rhythm between them (subtitle sits `--gap-sm` under the title; description `--gap-md`; actions `--gap-md`). Reach for `SectionHeader` first — you get the grouping for free.
+
+- **Canonical example in-tree:** `section-problem-cta` (`page.tsx`) is a single `SectionHeader` — title + description are grouped, and the gap to the CTA `Cluster` is controlled as one boundary, not per-button.
+
+**When you hand-roll a section** (a `SectionHeader` doesn't fit), reproduce the shape: wrap the text elements in a group element and give *that* group its own tight intra-gap; let the outer container's `gap` control the group→sibling spacing.
+
+- **Applied example:** `workflow-step` (`page.tsx` + `homepage.css`). `label` + `title` live in a `.workflow-step__header` wrapper with a tight `--gap-xs`; `.workflow-step__body`'s `--gap-lg` then spaces that heading cluster from the description. Editing the cluster-to-description gap never disturbs the label-to-title gap.
+
+**Antipattern:** a flat `display:flex; flex-direction:column; gap: <one value>` over `label`, `title`, `description`, `button` — every pair is forced to the same spacing, so grouping is impossible and any spacing change is global. If you find one, group the text and move the boundary gap out to the container.
+
 See also: [naming-conventions.md](./naming-conventions.md) (slot/role names).

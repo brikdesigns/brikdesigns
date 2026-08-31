@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Image, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
@@ -148,10 +148,18 @@ export default async function HomePage() {
               </p>
             </div>
             <Cluster gap="md" className="hero-button-wrapper">
-              <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+              {/* on-color (white fill, dark ink) primary + white-outline secondary
+                  on the brand-primary hero band — mirrors the cta-card-brand / HIW
+                  CTA panels. A brand `primary`/`outline` would blend orange-on-poppy. */}
+              <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
                 Start with a Free BrikDown Analysis
               </Button>
-              <Button href="/get-started" variant="outline" size="lg">
+              <Button
+                href="/get-started"
+                variant="outline"
+                size="lg"
+                className="hero-btn-on-dark"
+              >
                 See How It Works
               </Button>
             </Cluster>
@@ -167,7 +175,7 @@ export default async function HomePage() {
               (#1114); the .problem-card rule sets the xl inset. */}
           <Card padding="none" className="problem-card">
             <h2 className="problem__title">Does this sound familiar?</h2>
-            <Grid columns={3} gap="lg">
+            <Grid columns={3} gap="huge">
               {PROBLEMS.map((problem) => (
                 <div key={problem.title} className="problem-item">
                   <span className="problem-item__rule" aria-hidden="true" />
@@ -293,8 +301,14 @@ export default async function HomePage() {
                 data-lead={i % 2 === 0 ? 'content' : 'media'}
               >
                 <div className="workflow-step__body">
-                  <span className="workflow-step__label">Step {i + 1}</span>
-                  <h3 className="workflow-step__title">{step.title}</h3>
+                  {/* Label + title are one heading cluster (tight intra-gap);
+                      the body gap controls the space from that cluster to the
+                      description — group the text, then space the groups. See
+                      page-anatomy.md § Grouping content into blocks. */}
+                  <div className="workflow-step__header">
+                    <span className="workflow-step__label">Step {i + 1}</span>
+                    <h3 className="workflow-step__title">{step.title}</h3>
+                  </div>
                   <p className="workflow-step__description">{step.description}</p>
                 </div>
                 <div className="workflow-step__media" aria-hidden="true">
@@ -339,7 +353,7 @@ export default async function HomePage() {
               Get Your Free BrikDown
             </Button>
           </div>
-          <Grid columns={3} gap="lg">
+          <Grid columns={3} gap="huge">
             {supportPlans.map((plan) => {
               // R2 tints each card with its plan's pale service-line surface
               // step (Figma node 25768:7701) — same datum that tints the plan's
@@ -367,6 +381,14 @@ export default async function HomePage() {
                   period="/month"
                   description={plan.description}
                   style={cardStyle}
+                  // Parent service-line illustration (card_image_url), the same
+                  // square asset the service cards render; decorative here since
+                  // the plan title names it (#454, #1001 join at supportPlans).
+                  image={
+                    plan.image_url ? (
+                      <Image src={plan.image_url} alt="" ratio="1-1" fit="cover" />
+                    ) : undefined
+                  }
                   action={
                     <Button href={`/plans/${plan.slug}`} variant="primary" size="md">
                       Learn More
