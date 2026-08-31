@@ -47,8 +47,11 @@ export function ServiceCard({
       {...(surfaceInverse ? { style: { backgroundColor: serviceColor(category).inverse } } : {})}
       title={name}
       description={description ?? tagline ?? undefined}
+      // `service-card__media` is the canonical media-container name (#197);
+      // the radius + --surface-secondary well come from the "Card media
+      // standard" rule in shared-sections.css (#1169).
       image={imageUrl ? (
-        <Frame ratio="square" fit="cover">
+        <Frame ratio="square" fit="cover" className="service-card__media">
           <Image src={imageUrl} alt={name} width={400} height={400} />
         </Frame>
       ) : undefined}

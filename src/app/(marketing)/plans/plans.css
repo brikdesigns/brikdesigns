@@ -10,11 +10,23 @@
   overflow: hidden;
 }
 
+/* Hand-built opt-in to the "Card media standard" (shared-sections.css). This
+   wrapper is not a BDS <Card> and its media slot is not a <Frame>, so the
+   derived `.bds-card .bds-frame` selector can't reach it — the two standard
+   declarations are repeated here by name instead. Migrating the hand-built card
+   blocks onto BDS <Card> so they inherit the standard is tracked in #1175. */
 .plans-card-wrapper__media {
   aspect-ratio: 1;
-  /* Images sit on the card's own white surface — no service-line tint (#R7). */
-  background-color: var(--surface-primary);
+  /* Was --surface-primary ("no service-line tint", #R7). The well is now
+     --surface-secondary sitewide so transparent plan art reads as art on a
+     surface rather than floating on the card's white (#1169). */
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
   overflow: hidden;
+}
+
+.plans-card-wrapper__media img {
+  border-radius: var(--border-radius-md);
 }
 
 /* Wrapper is the card — strip duplicate chrome from PricingCard */

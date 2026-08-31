@@ -29,13 +29,13 @@ export function HomePlanCard({ name, slug, price, description, imageUrl, service
       className={svcVars ? 'service-themed' : undefined}
       title={name}
       description={description}
+      // `plan-card__media` is the canonical media-container name (#197). The
+      // Frame carries the radius + --surface-secondary well from the "Card
+      // media standard" rule in shared-sections.css, so the no-image branch is
+      // an empty Frame rather than a hand-painted fill (#1169).
       image={
-        <Frame ratio="square" fit="cover">
-          {imageUrl ? (
-            <Image src={imageUrl} alt={name} width={400} height={400} />
-          ) : (
-            <div style={{ width: '100%', height: '100%', backgroundColor: color.surface.secondary }} />
-          )}
+        <Frame ratio="square" fit="cover" className="plan-card__media">
+          {imageUrl ? <Image src={imageUrl} alt={name} width={400} height={400} /> : null}
         </Frame>
       }
       tag={<span style={{ ...heading.lg, color: color.text.primary }}>{price}</span>}
