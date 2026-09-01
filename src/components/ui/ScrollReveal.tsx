@@ -31,7 +31,7 @@ import './scroll-reveal.css';
  * hardcoded list of four class names — `.service-surface`,
  * `.page-section--secondary`, `.page-section--accent`, `.vband` — and so
  * covered only the bands that existed the day it was written. Twenty-odd
- * tinted band rules later, `/how-it-works` shipped three bands
+ * tinted band rules later, `/how-we-work` shipped three bands
  * (`.hiw-process`, `.hiw-practice`, `.hiw-industries`) that matched none of
  * them and animated as whole rectangles, and the operator reported the same
  * defect again on 2026-08-31 (#1168).

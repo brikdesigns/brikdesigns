@@ -160,7 +160,7 @@ export default async function HomePage() {
                 size="lg"
                 className="hero-btn-on-dark"
               >
-                See How It Works
+                See How We Work
               </Button>
             </Cluster>
           </div>
@@ -202,7 +202,7 @@ export default async function HomePage() {
                   is fixed-light in both themes, and a brand `outline` would put
                   orange-on-purple at ~1:1. Matches the Figma white secondary. */}
               <Button href="/get-started" variant="on-color" size="lg">
-                See How It Works
+                See How We Work
               </Button>
             </Cluster>
           }

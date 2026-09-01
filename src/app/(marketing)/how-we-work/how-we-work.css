@@ -1,4 +1,4 @@
-/* ─── How It Works page (brikdesigns#1121) ─────────────────────
+/* ─── How We Work page (brikdesigns#1121, renamed from How It Works #1171) ──
    Structure-first build of the Figma "How It Works" frame (node 25790-14431).
    Band colors map to the same accent-surface tokens the home R2 sections use;
    the "Simple From Day One." split card is a NEW app-local card style (outside
@@ -62,7 +62,10 @@
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
-  padding: var(--space-1600) var(--page-inset);
+  /* Match the home hero container inset: --space-1600 on all four sides
+     (homepage.css .hero-container), not the narrower --page-inset horizontally
+     — #1172. */
+  padding: var(--space-1600);
   background-color: var(--surface-accent-blue);
   border-radius: var(--border-radius-1400);
   --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band hero ink on the fixed-light accent-blue tint; --text-* flips near-white in the dark root (~1.9:1 white-on-#8ebbcc), only a mode-invariant dark primitive clears AA in both themes */
@@ -72,8 +75,10 @@
 .hiw-hero__text {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-md);
-  max-width: 60%;
+  /* Match the home hero text block (homepage.css .hero-text): gap-sm and 80%
+     width — #1172. */
+  gap: var(--gap-sm);
+  width: 80%;
 }
 
 .hiw-hero__title {
@@ -251,8 +256,9 @@
 }
 
 .hiw-check__title {
-  font-family: var(--font-family-heading);
-  font-size: var(--heading-sm);
+  /* label family at md — operator ask #1173 (was heading-sm). */
+  font-family: var(--font-family-label);
+  font-size: var(--label-md);
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
@@ -338,8 +344,10 @@
 }
 
 .hiw-mode__title {
-  font-family: var(--font-family-heading);
-  font-size: var(--heading-sm);
+  /* label family at md — operator ask #1173 (was heading-sm). Element stays
+     <h4> (visual-only change, per resolved premise). */
+  font-family: var(--font-family-label);
+  font-size: var(--label-md);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;

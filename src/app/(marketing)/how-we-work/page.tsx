@@ -1,19 +1,21 @@
 import type { Metadata } from 'next';
 import { Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader } from '@brikdesigns/bds';
-import { PROCESS_STEPS, PRACTICE_CARDS } from '@/lib/how-it-works';
+import { PROCESS_STEPS, PRACTICE_CARDS } from '@/lib/how-we-work';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { getManagedPlanPrices, getIndustryPages } from '@/lib/supabase/queries';
-import { CheckIcon } from '@/components/how-it-works/CheckIcon';
-import { ProcessFoundationTiers } from '@/components/how-it-works/ProcessFoundationTiers';
+import { CheckIcon } from '@/components/how-we-work/CheckIcon';
+import { ProcessFoundationTiers } from '@/components/how-we-work/ProcessFoundationTiers';
 import '../shared-sections.css';
-import './how-it-works.css';
+import './how-we-work.css';
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  alternates: { canonical: '/how-it-works' },
-  title: 'How It Works | Brik Designs',
+  alternates: { canonical: '/how-we-work' },
+  // Bare title — the root layout applies the `%s | Brik Designs` template
+  // (layout.tsx:11). The prior "How It Works | Brik Designs" double-suffixed.
+  title: 'How We Work',
   description:
     'How Brik takes marketing and back-office operations off your plate — so leads get followed up, your team has a process, and you can focus on the work.',
 };
@@ -49,7 +51,7 @@ function GearIcon() {
   );
 }
 
-export default async function HowItWorksPage() {
+export default async function HowWeWorkPage() {
   // Managed monthly price per plan slug — the Step-2 segmented control shows
   // each service line's Managed price (DB is the pricing SoT, #1123).
   const [plans, industryPages] = await Promise.all([
@@ -229,7 +231,7 @@ export default async function HowItWorksPage() {
           MediaTabs): one tab per industry, each revealing its blurb and a synced
           illustration panel. Labels + blurbs are the curated HOME_INDUSTRIES
           copy (shared SoT); illustrations come from industry_pages.image_url.
-          On-band text is pinned dark in how-it-works.css (fixed-light yellow
+          On-band text is pinned dark in how-we-work.css (fixed-light yellow
           tint, same as home). */}
       {industriesTabs.length > 0 && (
         <section className="hiw-industries" data-section="industries">

@@ -242,9 +242,9 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
           <div className="mega-nav__right-group">
           <div className="mega-nav__menu-wrapper">
             <div className="mega-nav__menu">
-            {/* How it Works — plain link, listed first */}
-            <Link href="/how-it-works" className="mega-nav__toggle" onClick={() => setOpen(null)}>
-              How it Works
+            {/* How We Work — plain link, listed first */}
+            <Link href="/how-we-work" className="mega-nav__toggle" onClick={() => setOpen(null)}>
+              How We Work
             </Link>
 
             {/* Support Plans */}
@@ -609,7 +609,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="mega-nav__mobile-menu">
-          <Link href="/how-it-works" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>How it Works</Link>
+          <Link href="/how-we-work" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>How We Work</Link>
           <Link href="/plans" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Services</Link>
           {SHOW_DESIGN_SERVICES_NAV && (
             <Link href="/services" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Design Services</Link>

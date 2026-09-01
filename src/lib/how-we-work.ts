@@ -1,4 +1,4 @@
-// How It Works page content (brikdesigns#1121, #1123).
+// How We Work page content (brikdesigns#1121, #1123; renamed from How It Works #1171).
 // Figma frame: node 25790-14431 → process 25880-4743 (style + structure only;
 // Figma copy/data are placeholder — Notion is the copy SoT, Supabase the data
 // SoT). Each process step has a distinct right pane, so ProcessStep is a

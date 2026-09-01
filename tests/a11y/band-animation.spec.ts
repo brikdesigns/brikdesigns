@@ -15,7 +15,7 @@ import { gotoRendered, expectMeasured } from './lib/goto-rendered';
  * Why this gate exists, specifically: the rule was already decided in #728 and
  * shipped as a four-class allowlist in ScrollReveal.tsx. It then silently
  * regressed on every band authored afterwards — by 2026-08-31 three bands on
- * /how-it-works alone (.hiw-process, .hiw-practice, .hiw-industries) and three
+ * /how-we-work alone (.hiw-process, .hiw-practice, .hiw-industries) and three
  * on the home page (problem-cta, industries, pricing) were animating as whole
  * rectangles, and the operator reported the original defect a second time
  * (#1168). A rule with no gate is a rule that regresses; an allowlist with no
@@ -45,7 +45,7 @@ test.use({ contextOptions: { reducedMotion: 'no-preference' } });
 
 const ROUTES: { path: string; name: string }[] = [
   { path: '/', name: 'Home' },
-  { path: '/how-it-works', name: 'How It Works' },
+  { path: '/how-we-work', name: 'How We Work' },
   { path: '/about', name: 'About' },
   { path: '/services', name: 'Services index' },
   { path: '/customers', name: 'Customers' },
