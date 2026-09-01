@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { Grid, PricingCard, SegmentedControl, Button } from '@brikdesigns/bds';
-import { font, gap, serviceCtaVars } from '@/lib/tokens';
+import { Grid, PricingCard, SegmentedControl, Button, Badge } from '@brikdesigns/bds';
+import { gap, serviceCtaVars } from '@/lib/tokens';
 
 interface Plan {
   name: string;
@@ -79,18 +79,22 @@ export function PlanCardGrid({
                 description={plan.description}
                 features={plan.features.length > 0 ? plan.features : undefined}
                 highlighted={plan.highlighted}
+                // Discount as a positive-tone tag (solid = --background-positive
+                // + AA-safe --text-on-color-light, BDS styles.css). Cards without
+                // a discount render an invisible placeholder Badge so every card's
+                // header reserves the badge row and all titles top-align across the
+                // grid (previously the badge-less card's title sat one row higher).
                 badge={
-                  plan.discountLabel ? (
-                    <span
-                      className="plans-discount-badge"
-                      style={{
-                        fontSize: font.size.label.sm,
-                        fontWeight: font.weight.semibold,
-                      }}
-                    >
-                      {plan.discountLabel}
-                    </span>
-                  ) : undefined
+                  <Badge
+                    tone="positive"
+                    appearance="solid"
+                    size="sm"
+                    {...(plan.discountLabel
+                      ? {}
+                      : { 'aria-hidden': true, style: { visibility: 'hidden' } })}
+                  >
+                    {plan.discountLabel ?? ' '}
+                  </Badge>
                 }
                 action={
                   <Button

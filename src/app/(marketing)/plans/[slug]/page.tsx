@@ -298,12 +298,17 @@ export default async function PlanDetailPage({ params }: Props) {
        * neutral so the price + button read as the focal element (mirrors the
        * live Webflow support-plan CTA).
        */}
-      <section className="page-section">
+      <section
+        className="page-section"
+        // Band carries the plan's pale service tint (`surface-service-*-light`,
+        // fixed-light in both themes) so the whole CTA section reads service-themed;
+        // the panel below goes neutral (transparent) so the white elevated price/CTA
+        // card is the single focal contrast against the tint rather than the tint
+        // stacking on itself. (dynamic hue → inline, not plans.css)
+        style={{ backgroundColor: audienceTokens.surfaceLight }}
+      >
         <div className="container-lg container-lg--comfortable">
-          <div
-            className="plan-cta-panel"
-            style={{ backgroundColor: audienceTokens.surfaceLight }}
-          >
+          <div className="plan-cta-panel">
             {heroImage && (
               <div className="plan-cta-panel__media">
                 <Image
