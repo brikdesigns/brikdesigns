@@ -256,8 +256,9 @@
 }
 
 .hiw-check__title {
-  font-family: var(--font-family-heading);
-  font-size: var(--heading-sm);
+  /* label family at md — operator ask #1173 (was heading-sm). */
+  font-family: var(--font-family-label);
+  font-size: var(--label-md);
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
@@ -343,8 +344,10 @@
 }
 
 .hiw-mode__title {
-  font-family: var(--font-family-heading);
-  font-size: var(--heading-sm);
+  /* label family at md — operator ask #1173 (was heading-sm). Element stays
+     <h4> (visual-only change, per resolved premise). */
+  font-family: var(--font-family-label);
+  font-size: var(--label-md);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
