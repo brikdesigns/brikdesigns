@@ -50,6 +50,9 @@ const ROUTES: { path: string; name: string }[] = [
   { path: '/services', name: 'Services index' },
   { path: '/services/brand', name: 'Service line — brand' },
   { path: '/plans', name: 'Plans' },
+  // blog-card migrated onto BDS <Card> + <Frame> (#1175), so /blog now renders
+  // derived-standard card media the gate can sweep.
+  { path: '/blog', name: 'Blog index' },
 ];
 
 interface MediaFinding {
