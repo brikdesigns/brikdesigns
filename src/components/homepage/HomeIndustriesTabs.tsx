@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { MediaTabs, Frame } from '@brikdesigns/bds';
+import { SyncedMediaSteps, Frame } from '@brikdesigns/bds';
 
-/** One industry tab — pre-resolved server-side (R2 blurb + industry_pages illustration). */
+/** One industry step — pre-resolved server-side (R2 blurb + industry_pages illustration). */
 export interface HomeIndustryTab {
   id: string;
   label: string;
@@ -17,21 +17,24 @@ interface HomeIndustriesTabsProps {
 }
 
 /**
- * R2 home "Industries" section — a vertical {@link MediaTabs} rail (Dental /
- * Real Estate / Small Business) stacked beside a synced, crossfading
- * illustration panel (brikdesigns#1054). MediaTabs is the single-synced-media
- * pattern (distinct from the Services SegmentedControl, #1053): auto-advance
- * gated to in-view, pause-on-hover, reduced-motion honored — all BDS defaults.
+ * R2 home "Industries" section — a vertical {@link SyncedMediaSteps} rail
+ * (Dental / Real Estate / Small Business) stacked beside a synced, crossfading
+ * illustration panel (brikdesigns#1054). SyncedMediaSteps is the accordion
+ * single-synced-media pattern: the active item reveals its blurb *underneath
+ * itself* and crossfades its illustration — the description-under-active layout
+ * the operator asked for, which the tabs pattern (MediaTabs) cannot express
+ * (a tablist may only contain tabs). Step numbers and the countdown cue are off;
+ * auto-advance / pause-on-hover / reduced-motion are BDS defaults.
  */
 export function HomeIndustriesTabs({ tabs }: HomeIndustriesTabsProps) {
   return (
-    <MediaTabs
+    <SyncedMediaSteps
       className="industries-tabs"
-      orientation="vertical"
-      showProgress={false}
-      tabs={tabs.map((tab) => ({
+      showStepNumbers={false}
+      showCountdown={false}
+      steps={tabs.map((tab) => ({
         id: tab.id,
-        label: tab.label,
+        title: tab.label,
         description: tab.description,
         media: (
           <Frame ratio="wide" fit="contain">
