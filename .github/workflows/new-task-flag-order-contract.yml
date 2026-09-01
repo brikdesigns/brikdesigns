@@ -1,0 +1,55 @@
+name: new-task-flag-order-contract
+
+# CI gate for new-task.sh's flag parsing — #1820 (this repo: brikdesigns/brik-llm#3022).
+#
+# The parse loop used to `break` at the first positional argument, so a flag
+# written AFTER the slug (`new-task.sh {slug} --issue N`) was silently dropped.
+# With no --issue the gate fell through to derive_issue_from_slug, which matches
+# any trailing 2-5 digit run in the slug — so the ticket-overlap and claim gates
+# ran against whatever number happened to be in the slug, not the real ticket.
+# That is the failure brik-llm#1485/#1525 (each built twice) exists to catch.
+#
+# test-new-task-flag-order.sh is NOT a fleet twin — brikdesigns forks the slug
+# derivation and strings from the other gated repos, so there is no universal
+# observable (#3022/#2963). Each gated repo carries its own copy; this workflow
+# runs brikdesigns's against brikdesigns's own new-task.sh + libs. Edit the test
+# here freely — unlike the headless twin, it is not synced from brik-llm.
+#
+# Gate budget: one new path-scoped workflow (~seconds; a bash suite + one
+# shellcheck), triggered only when new-task.sh, the derive helper it depends on,
+# the test, or this file change. It mirrors new-task-headless-contract.yml's
+# shape — brikdesigns runs each script contract as its own path-scoped workflow,
+# not a consolidated gate.
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/new-task.sh'
+      - 'scripts/__tests__/test-new-task-flag-order.sh'
+      - 'scripts/lib/overlap-filters.sh'
+      - '.github/workflows/new-task-flag-order-contract.yml'
+
+concurrency:
+  group: new-task-flag-order-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  new-task-flag-order-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: an explicit --issue is honoured on either side of the slug
+        run: bash scripts/__tests__/test-new-task-flag-order.sh < /dev/null
+
+      - name: shellcheck new-task.sh + the flag-order test
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          # --severity=warning: new-task.sh predates this gate and carries SC1091
+          # (unfollowed `source`, unavoidable here) plus style notes.
+          shellcheck --severity=warning \
+                     scripts/new-task.sh \
+                     scripts/__tests__/test-new-task-flag-order.sh
