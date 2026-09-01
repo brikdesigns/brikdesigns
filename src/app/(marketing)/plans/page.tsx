@@ -96,14 +96,16 @@ export default async function PlansPage() {
               // `bg` fill (retained `.plan-detail-ctas .bds-button--inverse` rule).
               ...serviceCtaVars('product'),
               '--background-inverse': productTokens.bg,
+              // Band carries the product line's pale service tint so the section
+              // reads service-themed; the panel below goes neutral (transparent)
+              // and the white elevated card is the focal contrast — mirrors the
+              // plan-detail CTA panel so both read as one system.
+              backgroundColor: productTokens.surfaceLight,
             } as React.CSSProperties
           }
         >
           <div className="container-lg container-lg--comfortable">
-            <div
-              className="plan-cta-panel"
-              style={{ backgroundColor: productTokens.surfaceLight }}
-            >
+            <div className="plan-cta-panel">
               {productPlan.imageUrl && (
                 <div className="plan-cta-panel__media">
                   <Image

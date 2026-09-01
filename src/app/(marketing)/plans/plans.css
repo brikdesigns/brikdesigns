@@ -37,17 +37,21 @@
   border-radius: 0;
 }
 
-/* Discount badge — success-green that clears AA on the card surface in BOTH
-   themes. The card is `--surface-primary` = white in light / black in dark, so
-   no single green passes both: the semantic `--text-positive` (#27ae60) is only
-   2.87:1 on white. Pair a dark green for the white card with the brighter
-   system-green for the black card — same fixed-on-surface pattern the #359/#360
-   service fixes use. */
-.plans-discount-badge {
-  color: var(--color-green-950); /* bds-lint-ignore token-family — light: #2a5542 on white --surface-primary = 8.5:1; no semantic positive-text token is AA on white, so pair a mode-specific green */
-}
-:root[data-theme="dark"] .plans-discount-badge {
-  color: var(--color-system-green); /* bds-lint-ignore token-family — dark: #27ae60 on black --surface-primary = 6.0:1; the dark-green above would be 2.03:1 dark-on-dark */
+/* Discount now renders via BDS <Badge tone="positive" appearance="solid">
+   (PlanCardGrid.tsx) — the canonical positive tag carries --background-positive
+   + AA-safe --text-on-color-light in both themes, retiring the former hand-rolled
+   `.plans-discount-badge` green-text span. */
+
+/* Align the plan-detail blueprint sections (hero, pricing tiers, other-plans)
+   to the site content band. BDS `.bds-blueprint-section__container` caps at
+   --content-width-xl (1280px); the nav/footer/.container-lg were bumped to
+   --site-content-width (1440px) in the R3 home work (fab7388), leaving the CMS
+   plan hero/pricing 160px narrower than the nav. Point the BDS override hook at
+   the site width so every blueprint band lines up flush with the nav gutter.
+   Inherits to all blueprint descendants of the page root; "What You Get" keeps
+   its own narrower 1080px override below (higher-specificity max-width wins). */
+.plan-detail-ctas {
+  --bds-blueprint-section-content-width: var(--site-content-width);
 }
 
 /* ─── Plan detail — included services list ───────────────── */
