@@ -8,6 +8,7 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
+  Frame,
   Grid,
   Button,
   SegmentedControl,
@@ -104,7 +105,7 @@ export function BlogIndex({ posts }: Props) {
           {visible.map((post) => (
             <Card key={post.slug} variant="outlined" padding="none" className="blog-card">
               {post.image && (
-                <div className="blog-card__media">
+                <Frame customRatio="16 / 9" fit="cover" className="blog-card__media">
                   <Image
                     src={post.image}
                     alt={post.title}
@@ -112,7 +113,7 @@ export function BlogIndex({ posts }: Props) {
                     style={{ objectFit: 'cover' }}
                     sizes="(max-width: 768px) 100vw, 400px"
                   />
-                </div>
+                </Frame>
               )}
               <div className="blog-card__content">
                 <CardTitle as="h2">{post.title}</CardTitle>

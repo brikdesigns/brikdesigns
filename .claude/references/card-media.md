@@ -39,17 +39,25 @@ This is deliberate and it is the whole design. The sibling "tinted bands shouldn
 
 Heroes, media bands, the tooling ticker, testimonial rows, ambient fields. The standard is about media that sits inside a card's corner. These keep their own treatment and the gate does not sweep them.
 
-## Hand-built card blocks — the known gap
+## Hand-built card blocks — the migration and its exceptions
 
-The derived selector reaches BDS cards only. Hand-built card blocks are plain `<div>`s with their own `__media` container, so they must repeat the two declarations by name.
+The derived selector reaches BDS cards only. Hand-built card blocks are plain `<div>`s with their own `__media` container, so they either repeat the two declarations by name or miss the standard entirely.
 
-Currently opted in by name:
+#1175 classified the ~12 such blocks and found they are three different jobs, not one:
 
-| Class | Route | File |
+1. **Mechanical** — already a BDS `<Card>`, media is a plain `<div>`. Swap the `<div>` for a `<Frame>` and it inherits the standard; delete the by-name CSS. `blog-card` migrated this way in #1175 (it was missing the radius entirely — the `<div>` had the well but no rounded corners).
+2. **Conversion** — a hand-built `<div>` card. Becoming a BDS `<Card>` also picks up `card-treatment.md` chrome and BDS padding, so each needs per-route visual regression. Tracked in **#1191** (Tier 2 of #1175).
+3. **Exception** — cannot cleanly become `.bds-card .bds-frame`, listed below. These stay hand-built by design.
+
+### Documented exceptions (stay hand-built)
+
+| Class | Route | Why it stays |
 | --- | --- | --- |
-| `plans-card-wrapper__media` | `/plans` | `src/app/(marketing)/plans/plans.css` |
+| `plans-card-wrapper__media` | `/plans` | Media is a sibling **above** the `<PricingCard>`, not a `<Frame>` inside a `<Card>` — the derived selector can't reach it. On the standard by name in `plans.css`. |
+| `story-card__media` | `/customers/[slug]`, `/customer-stories` | Nested `__media-wrap` > `__media` structure with its own aspect handling. |
+| `services-callout-card__media`, `service-sibling-card__media` | `/services*` | The services section deliberately uses a **service-themed `--surface-accent` well**, not the neutral `--surface-secondary` standard. Migrating would erase the theming. Whether these should normalize is an open design decision on #1191. |
 
-Roughly a dozen more hand-built card media containers exist and are **not yet on the standard** — enumerated in **#1175**, which migrates them onto BDS `<Card>` so they inherit it rather than repeat it. Until that lands, this table is the honest coverage boundary; the gate's route list reflects it.
+The gate's hand-built opt-in list (`card-media.spec.ts`) names only `plans-card-wrapper__media` — the one exception that carries the standard's exact radius/well by name. The service-themed wells are a deliberate different treatment, so the gate does not hold them to the neutral standard.
 
 ## Naming
 

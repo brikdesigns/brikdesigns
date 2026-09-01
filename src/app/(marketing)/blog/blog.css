@@ -49,12 +49,11 @@
    shadow BDS default (card-treatment standard) — no per-band override needed
    since the `variant="raised"` that used to force elevation was removed. */
 
-.blog-card__media {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16/9;
-  background-color: var(--surface-secondary);
-}
+/* .blog-card__media is now a BDS <Frame> inside the BDS <Card> (#1175), so it
+   inherits the card-media standard (radius-md + --surface-secondary well) from
+   the derived `.bds-card .bds-frame` rule in shared-sections.css — the position,
+   aspect-ratio, and well that used to live here by name are gone. The 16/9
+   ratio moved onto the Frame (customRatio). */
 
 .blog-card__content {
   padding: var(--padding-md);

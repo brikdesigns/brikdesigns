@@ -122,7 +122,7 @@ export default async function BlogPostPage({ params }: Props) {
               {relatedPosts.map((related) => (
                 <Card key={related.slug} variant="outlined" padding="none" className="blog-card">
                   {related.image && (
-                    <div className="blog-card__media">
+                    <Frame customRatio="16 / 9" fit="cover" className="blog-card__media">
                       <Image
                         src={related.image}
                         alt={related.title}
@@ -130,7 +130,7 @@ export default async function BlogPostPage({ params }: Props) {
                         style={{ objectFit: 'cover' }}
                         sizes="(max-width: 768px) 100vw, 400px"
                       />
-                    </div>
+                    </Frame>
                   )}
                   <div className="blog-card__content">
                     <CardTitle as="h3">{related.title}</CardTitle>
