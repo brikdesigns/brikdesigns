@@ -1,0 +1,58 @@
+name: new-task-headless-contract
+
+# CI gate for new-task.sh's headless-safety behaviour — brik-llm#2963 (from #2812).
+#
+# new-task.sh's warn-then-continue prompts must not block or abort when stdin is
+# closed or NEW_TASK_YES=1. `read` returns 1 on EOF and the script runs under
+# `set -euo pipefail`, so a bare `read -r` at a prompt kills the script before the
+# worktree exists — the #2812 defect that reached tncld#161 and treehouse#133
+# because nothing gated their copies.
+#
+# test-new-task-headless.sh is a BYTE-IDENTICAL fleet twin, canonical in brik-llm
+# and synced here (see the file header). It is the one part of new-task.sh's
+# behaviour identical enough across every repo to be a twin: it drives THIS repo's
+# own new-task.sh + libs headless past the branch-reuse prompt to worktree
+# creation, so it holds whatever confirm mechanism and prompt order this copy
+# uses. The rest of new-task.sh is a legitimate per-repo fork (base branch, gate
+# libs, strings, order) that ADR-028 §7 keeps copied.
+#
+# NEVER fix the test here. Fix it in brik-llm and re-sync; a local edit is DRIFT
+# to overlap-twin-drift, not an improvement (brikdesigns/brik-llm#2963).
+#
+# Gate budget: one new path-scoped workflow (~seconds; a bash suite + one
+# shellcheck), triggered only when new-task.sh, its libs, the test, or this file
+# change. It mirrors worktree-sweep-contract.yml's shape — brikdesigns runs each
+# script contract as its own path-scoped workflow, not a consolidated gate.
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/new-task.sh'
+      - 'scripts/test/test-new-task-headless.sh'
+      - 'scripts/lib/identity-guard.sh'
+      - '.github/workflows/new-task-headless-contract.yml'
+
+concurrency:
+  group: new-task-headless-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  new-task-headless-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: new-task.sh's prompts are headless-safe
+        run: bash scripts/test/test-new-task-headless.sh < /dev/null
+
+      - name: shellcheck new-task.sh + the headless test
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          # --severity=warning: new-task.sh predates this gate and carries SC1091
+          # (unfollowed `source`, unavoidable here) plus style notes.
+          shellcheck --severity=warning \
+                     scripts/new-task.sh \
+                     scripts/test/test-new-task-headless.sh
