@@ -254,9 +254,11 @@ export default async function HomePage() {
           />
         </div>
         <Marquee className="tooling-marquee" logoHeight={36} pauseOnHover>
-          {/* Only 8 license-clean logos exist (13 deferred, see home-tooling.ts),
-              so one pass is ~320px — far short of the viewport, leaving the row
-              inset instead of edge-to-edge (#1093). Repeat the set so each
+          {/* Only 8 license-clean logos exist (the other 13 are licence-BLOCKED,
+              not pending — see home-tooling.ts), so one pass is ~320px — far
+              short of the viewport, leaving the row inset instead of edge-to-edge
+              (#1093). The repeat is therefore permanent, not a stopgap until the
+              list grows. Repeat the set so each
               Marquee group exceeds a wide desktop and the loop reads full-bleed
               and seamless. The duplicate group Marquee adds is aria-hidden, so
               the repeat only multiplies decorative copies, not announced items. */}
