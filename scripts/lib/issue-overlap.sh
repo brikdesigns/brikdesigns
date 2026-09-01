@@ -1128,10 +1128,17 @@ check_draft_overlap() {
 # That matters more than it sounds. The #2765 defect was a dispatch that omitted a
 # call — a class no unit test of the scorer can catch, and the only class this
 # file's history says actually happens. See scripts/test/test-overlap-standalone-dispatch.sh.
+
+# Two ranges, not the usual one: lines 15-44 are the twin-sync warning, which is
+# for whoever EDITS this file, not for whoever runs it. Printing them would bury
+# the usage under an essay about sha256 drift.
+_io_usage() { sed -n '2,3p;46,75p' "$0" | sed 's/^# \{0,1\}//'; }
+
 _io_main() {
   local mode="prompt" ref="" draft="" nwo="" rc=0
   while [ $# -gt 0 ]; do
     case "$1" in
+      -h|--help) _io_usage; return 0 ;;
       --report) mode="--report" ;;
       --title)  draft="${2:-}"; shift ;;
       --repo)   nwo="${2:-}"; shift ;;
