@@ -13,7 +13,9 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   alternates: { canonical: '/how-we-work' },
-  title: 'How We Work | Brik Designs',
+  // Bare title — the root layout applies the `%s | Brik Designs` template
+  // (layout.tsx:11). The prior "How It Works | Brik Designs" double-suffixed.
+  title: 'How We Work',
   description:
     'How Brik takes marketing and back-office operations off your plate — so leads get followed up, your team has a process, and you can focus on the work.',
 };
