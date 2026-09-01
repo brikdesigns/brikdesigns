@@ -17,8 +17,8 @@ interface HomeIndustriesTabsProps {
 }
 
 /**
- * R2 home "Industries" section — peer {@link MediaTabs} (Dental / Real Estate /
- * Small Business), each revealing its blurb and crossfading a synced
+ * R2 home "Industries" section — a vertical {@link MediaTabs} rail (Dental /
+ * Real Estate / Small Business) stacked beside a synced, crossfading
  * illustration panel (brikdesigns#1054). MediaTabs is the single-synced-media
  * pattern (distinct from the Services SegmentedControl, #1053): auto-advance
  * gated to in-view, pause-on-hover, reduced-motion honored — all BDS defaults.
