@@ -37,6 +37,8 @@ NC='\033[0m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/lib/pr-labels.sh
 source "${SCRIPT_DIR}/lib/pr-labels.sh"
+# shellcheck source=scripts/lib/pr-title.sh
+source "${SCRIPT_DIR}/lib/pr-title.sh"
 
 # ── Base branch config ──
 # staging-first flow: task branches PR to staging; staging → main promoted on sign-off.
@@ -259,10 +261,29 @@ fi
 if [ $# -ge 1 ]; then
   PR_TITLE="$1"
 else
-  # Auto-generate from branch name: task/bds-theme-interaction-tokens → bds: theme interaction tokens
-  SCOPE=$(echo "$BRANCH" | sed 's|task/||' | cut -d'-' -f1)
-  DESC=$(echo "$BRANCH" | sed 's|task/[a-z]*-||' | tr '-' ' ')
-  PR_TITLE="${SCOPE}: ${DESC}"
+  # Derive from the FIRST commit subject on the branch — already a
+  # conventional-commit subject (enforced by convention), so it carries the
+  # type + imperative the branch slug lacked (#1177). `(#N)` is appended from
+  # the branch number when the subject has none. lib/pr-title.sh is pure; this
+  # block only feeds it the subject + branch and handles the not-conventional
+  # case by prompting rather than emitting the old branch-slug antipattern.
+  FIRST_SUBJECT=$(git log --format='%s' "${BASE_BRANCH}..HEAD" | tail -1)
+  if PR_TITLE=$(pr_title_from_subject "$FIRST_SUBJECT" "$BRANCH"); then
+    :
+  else
+    echo -e "${YELLOW}⚠  The first commit subject is not conventional-commits shaped:${NC}"
+    echo "     $FIRST_SUBJECT"
+    echo -e "${YELLOW}   A PR title must be 'type(scope): imperative description (#N)' (issue-style.md).${NC}"
+    if [ -t 0 ]; then
+      echo -n "   Enter a PR title: "
+      read -r PR_TITLE
+      [ -n "$PR_TITLE" ] || { echo -e "${RED}✗ No title given — aborting.${NC}"; exit 1; }
+    else
+      echo -e "${RED}✗ No TTY to prompt on and no title argument. Re-run with an explicit title:${NC}"
+      echo "     ./scripts/pr-task.sh \"type(scope): description (#N)\""
+      exit 1
+    fi
+  fi
 fi
 
 # ── Resolve project-tracking labels (before pushing anything) ──

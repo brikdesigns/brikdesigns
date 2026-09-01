@@ -1,7 +1,9 @@
-name: PR Label Resolver Check
+name: PR Metadata Resolver Check
 
-# Locks the resolver that decides which labels pr-task.sh applies to a PR
-# (scripts/lib/pr-labels.sh, brikdesigns#1012).
+# Locks the pure resolvers that decide the metadata pr-task.sh puts on a PR:
+# the labels it applies (scripts/lib/pr-labels.sh, brikdesigns#1012) and the
+# title it derives (scripts/lib/pr-title.sh, brikdesigns#1177). Both share the
+# same caller and the same offline-pure-lib-plus-bash-test split.
 #
 # pr-label-gate.yml enforces the outcome — every PR carries an `area:*`. This is
 # the other half: the script that PRODUCES that label. The two are written in
@@ -28,7 +30,9 @@ on:
   pull_request:
     paths:
       - 'scripts/lib/pr-labels.sh'
+      - 'scripts/lib/pr-title.sh'
       - 'scripts/__tests__/test-pr-labels.sh'
+      - 'scripts/__tests__/test-pr-title.sh'
       - 'scripts/pr-task.sh'
       - '.github/workflows/pr-label-gate.yml'
       - '.github/workflows/pr-label-resolver-check.yml'
@@ -36,7 +40,9 @@ on:
     branches: [staging, main]
     paths:
       - 'scripts/lib/pr-labels.sh'
+      - 'scripts/lib/pr-title.sh'
       - 'scripts/__tests__/test-pr-labels.sh'
+      - 'scripts/__tests__/test-pr-title.sh'
       - 'scripts/pr-task.sh'
       - '.github/workflows/pr-label-gate.yml'
       - '.github/workflows/pr-label-resolver-check.yml'
@@ -56,16 +62,23 @@ jobs:
       # uses `grep -qxF` and POSIX bracket classes rather than GNU-only
       # constructs, because a GNU-only pattern would pass this job while
       # resolving the wrong labels on the machine that actually opens the PR.
-      - name: Resolver contract holds
+      - name: Label resolver contract holds
         run: bash scripts/__tests__/test-pr-labels.sh < /dev/null
+
+      # Same caller (pr-task.sh), same offline-pure-lib split (#1177): the title
+      # deriver that replaced the branch-slug antipattern is locked here too.
+      - name: Title deriver contract holds
+        run: bash scripts/__tests__/test-pr-title.sh < /dev/null
 
       # --severity=warning: pr-task.sh predates this gate and carries SC1091
       # (unfollowed `source`) plus style notes. Warning-and-above keeps real
       # findings failing without demanding an unrelated cleanup in this PR.
-      - name: shellcheck the resolver + its caller
+      - name: shellcheck the resolvers + their caller
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
           shellcheck --severity=warning \
                      scripts/lib/pr-labels.sh \
+                     scripts/lib/pr-title.sh \
                      scripts/__tests__/test-pr-labels.sh \
+                     scripts/__tests__/test-pr-title.sh \
                      scripts/pr-task.sh

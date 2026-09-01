@@ -1,0 +1,58 @@
+name: pr-task-preflight-contract
+
+# CI gate for pr-task.sh's preflight-refusal contract — brik-llm#3031 (from #2943, #2930).
+#
+# pr-task.sh is an entrypoint, and entrypoints stay copied (ADR-028 §7): across the
+# four gated copies it forks ~400 changed lines apart — base branch (main vs
+# staging), the quality gate it runs, its post-merge suite, its accepted flags and
+# whether it refreshes an open PR all differ. So the SCRIPT cannot be a byte-identical
+# twin; test-pr-task-preflight-contract.sh is, the same resolution #2963 reached for
+# new-task.sh.
+#
+# The test is a BYTE-IDENTICAL fleet twin, canonical in brik-llm and synced here (see
+# the file header). It drives THIS repo's own pr-task.sh and asserts the two guards
+# every copy shares before any network or PR mutation: unknown-flag rejection, and
+# refuse-to-PR-from-main. On a main checkout every copy's observable output is
+# identical even though the client-flow copies interpolate $BRANCH — which is why it
+# is driven, not grepped.
+#
+# NEVER fix the test here. Fix it in brik-llm and re-sync; a local edit is DRIFT to
+# overlap-twin-drift, not an improvement (brikdesigns/brik-llm#3033).
+#
+# Gate budget: one new path-scoped workflow (~seconds; a bash suite + one
+# shellcheck), triggered only when pr-task.sh, the test, or this file change. It
+# mirrors new-task-headless-contract.yml's shape — brikdesigns runs each script
+# contract as its own path-scoped workflow, not a consolidated gate.
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/pr-task.sh'
+      - 'scripts/test/test-pr-task-preflight-contract.sh'
+      - 'scripts/lib/identity-guard.sh'
+      - '.github/workflows/pr-task-preflight-contract.yml'
+
+concurrency:
+  group: pr-task-preflight-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pr-task-preflight-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: pr-task.sh's preflight refusals hold
+        run: bash scripts/test/test-pr-task-preflight-contract.sh < /dev/null
+
+      - name: shellcheck pr-task.sh + the preflight test
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          # --severity=warning matches the headless gate: pr-task.sh predates this
+          # and carries SC1091 (unfollowed `source`, unavoidable here) plus style notes.
+          shellcheck --severity=warning \
+                     scripts/pr-task.sh \
+                     scripts/test/test-pr-task-preflight-contract.sh
