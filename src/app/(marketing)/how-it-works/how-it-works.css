@@ -394,11 +394,12 @@
 }
 
 /* ─── Industries ("Where we do our best work.") ────────────── */
-/* Figma node 25887:4854 — yellow accent band. Uses the same tabbed container as
-   the home Industries section (HomeIndustriesTabs → MediaTabs). On-band text
-   pinned dark (fixed-light yellow tint) across the whole section — the only
-   nested white surface is the synced media panel, styled below — so the pin is
-   section-wide, matching shared-sections.css .section-industries. */
+/* Figma node 25887:4854 — yellow accent band. Uses the same synced-media
+   container as the home Industries section (HomeIndustriesTabs →
+   SyncedMediaSteps). On-band text pinned dark (fixed-light yellow tint) across
+   the whole section — the nested white surfaces are the step cards and the media
+   panel, styled below — so the pin is section-wide, matching
+   shared-sections.css .section-industries. */
 .hiw-industries {
   background-color: var(--surface-accent-yellow);
   padding: var(--space-1800) 0;
@@ -407,44 +408,64 @@
   align-items: center;
   width: 100%;
   --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band text on the fixed-light accent-yellow tint; --text-* flips near-white in the dark root, only a mode-invariant dark primitive clears AA in both themes (mirrors shared-sections.css .section-industries) */
-  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — tab body copy, same reasoning */
-}
-
-/* The MediaTabs active-tab label defaults to --text-brand-primary, which on the
-   fixed-light #f7e190 band is poppy-500 (2.90:1) in light and poppy-300 (1.45:1)
-   in the dark root — both fail AA. Recolor just the active label to the deepest
-   brand poppy (poppy-800, 7.86:1), matching the home Industries band and the
-   hero emphasis (#1127). Color property, not a token redefinition (ADR-013). */
-.hiw-industries .bds-tab-bar-item[aria-selected='true'] {
-  color: var(--color-poppy-800); /* bds-lint-ignore token-family — on-band active-tab label on the fixed-light accent-yellow tint; the default --text-brand-primary is poppy-300 (dark root)/poppy-500 (light), both failing AA on #f7e190; only a mode-invariant deep poppy clears it in both themes */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — step body copy, same reasoning */
 }
 
 /* The section intro spans the full band width here (not the default measure
-   cap) so its left edge and description sit flush with the tabbed container
-   below. `.hiw-container` centers its children, so width:100% is needed on top
-   of dropping the cap for the header to fill (and left-align) the full width. */
+   cap) so its left edge and description sit flush with the container below.
+   `.hiw-container` centers its children, so width:100% is needed on top of
+   dropping the cap for the header to fill (and left-align) the full width. */
 .hiw-industries .bds-section-header {
   max-width: none;
   width: 100%;
 }
 
+/* Each industry reads as a white card on the soft-yellow band (operator mock),
+   so the step list is a gapped column of cards, not the component's default
+   bottom-divided rail. Light tint → shadow, no border (card-treatment.md);
+   fixed-light in both themes, so the shadow stays legible in dark. Mirrors
+   homepage.css `.industries-tabs`. */
+.hiw-industries .bds-synced-media-steps__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.hiw-industries .bds-synced-media-steps__step {
+  background-color: var(--color-grayscale-white); /* bds-lint-ignore token-family — the band is the fixed-light accent-yellow tint and its text is pinned dark; --surface-primary flips to black in the dark root (grayscale-black), which would leave dark-pinned text on a black card. A mode-invariant white keeps the card light in both themes, matching the fixed-light band (same reasoning as the .service-surface tint pins) */
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-md);
+  border-bottom: none; /* drop the component's default inter-step divider */
+  padding: 0 var(--padding-lg);
+  /* Reserve the active accent bar's width on every card so opening one does not
+     shift the row; only the active card paints it. */
+  border-left: var(--border-width-lg) solid transparent;
+  transition: border-color var(--duration-normal) var(--ease-out);
+}
+
+/* Active card: a brand accent bar down its leading edge (the mock's orange
+   rule). The title stays --text-primary (pinned dark on the band). */
+.hiw-industries .bds-synced-media-steps__step[data-active] {
+  border-left-color: var(--background-brand-primary);
+}
+
 /* The synced illustration sits in a white rounded panel on the soft-yellow
-   band, so a containment shadow and no border (light tint → shadow,
-   card-treatment.md). The accent surface is fixed-light in both themes, so the
-   shadow stays legible in dark mode. Mirrors homepage.css
-   `.industries-tabs .bds-media-tabs__media`. */
-.hiw-industries .bds-media-tabs__media {
-  background-color: var(--surface-primary);
+   band — containment shadow, no border (light tint → shadow, card-treatment.md).
+   Let the contained Frame drive the height instead of the component's default
+   4/3 aspect box. Mirrors homepage.css. */
+.hiw-industries .bds-synced-media-steps__media {
+  aspect-ratio: auto;
+  background-color: var(--color-grayscale-white); /* bds-lint-ignore token-family — fixed-light white on the fixed-light accent-yellow band, same reasoning as the step card above; --surface-primary would flip to black in dark behind a contained (transparent-margin) illustration */
   border-radius: var(--border-radius-lg);
   box-shadow: var(--box-shadow-md);
   overflow: hidden;
 }
 
-/* Vertical rail: top-align the tab column to the (taller) media panel rather
-   than floating it to vertical center — MediaTabs' grid defaults to
-   align-items:center at ≥768px, which leaves dead space above the first tab.
+/* Vertical rail: top-align the step column to the (taller) media panel rather
+   than floating it to vertical center — the component's grid defaults to
+   align-items:center at ≥768px, which leaves dead space above the first step.
    Mirrors homepage.css `.industries-tabs`. */
-.hiw-industries .bds-media-tabs {
+.hiw-industries .bds-synced-media-steps {
   align-items: start;
 }
 
