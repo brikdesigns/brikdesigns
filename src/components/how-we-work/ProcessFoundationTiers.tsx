@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { SegmentedControl } from '@brikdesigns/bds';
 import { CheckIcon } from './CheckIcon';
-import type { ProcessChecklistItem } from '@/lib/how-it-works';
+import type { ProcessChecklistItem } from '@/lib/how-we-work';
 
 /** A Step-2 segment with its Managed price already resolved server-side. */
 export interface FoundationSegmentView {

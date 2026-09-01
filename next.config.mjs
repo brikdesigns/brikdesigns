@@ -91,6 +91,11 @@ const nextConfig = {
       // ── Pricing alias → plans
       { source: '/pricing', destination: '/plans', permanent: true },
 
+      // ── Section rename: How It Works → How We Work (brikdesigns#1171).
+      // The page was born at /how-it-works this build cycle (never on Webflow),
+      // so this catches in-flight bookmarks and any indexed preview URL.
+      { source: '/how-it-works', destination: '/how-we-work', permanent: true },
+
       // ── Landing pages namespaced to /offers/* (brikdesigns#807)
       // Closed list, not a pattern: these are the four `template='landing'` rows
       // that existed when the route moved (enumerated on #807, 2026-08-04), and
