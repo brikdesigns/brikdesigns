@@ -126,18 +126,24 @@ else _TIMEOUT=(); fi
 #   --issue owner/repo#N : the qualified form resolves against the fake gh rather
 #                          than the fixture's local-path origin; a plain number
 #                          cannot derive owner/repo from a file:// remote.
-#   --over-budget        : the ticket is unsized in the fake, so this keeps the
-#                          budget gate from being the thing that stops the run.
 #   --base main          : brikdesigns defaults to staging, which the fixture has
 #                          no branch for; every copy honours --base.
+# The budget gate is disarmed by UNSETTING CLAUDE_CODE_SESSION_ID, not by passing
+# `--over-budget`. With no ledger key the gate skips itself and returns 0
+# (session-budget.sh:258), so the effect is the same — but the flag is not
+# universal. It exists in brik-llm and the three originally-gated copies and in
+# none of the client-site copies, every one of which exits 1 on an unknown flag.
+# Passing it made tncld fail this case for a driver reason and be written up as a
+# contract failure it does not have (brik-llm#3055). Keep the driver's flag set to
+# what all seven copies honour; anything else measures the harness, not the copy.
 # NEW_TASK_YES=1 AND closed stdin are both set because the #2812 defect is the
 # interaction of read's EOF rc with `set -e`, and an agent session sets the var.
 run_headless() {
   local primary="$1" env_prefix="$2" slug="$3"
   # shellcheck disable=SC2086  # env_prefix is space-separated VAR=val assignments — split is intended
   ( cd "$primary" && PATH="$TMPROOT/bin:$PATH" \
-      env $env_prefix ${_TIMEOUT[@]+"${_TIMEOUT[@]}"} \
-      ./scripts/new-task.sh "$slug" --issue brikdesigns/throwaway#4242 --over-budget --base main 2>&1 </dev/null )
+      env -u CLAUDE_CODE_SESSION_ID $env_prefix ${_TIMEOUT[@]+"${_TIMEOUT[@]}"} \
+      ./scripts/new-task.sh "$slug" --issue brikdesigns/throwaway#4242 --base main 2>&1 </dev/null )
 }
 
 # The tell that the prompt was PASSED, not merely reached: the worktree the whole
