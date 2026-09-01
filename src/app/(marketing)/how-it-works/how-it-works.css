@@ -440,6 +440,14 @@
   overflow: hidden;
 }
 
+/* Vertical rail: top-align the tab column to the (taller) media panel rather
+   than floating it to vertical center — MediaTabs' grid defaults to
+   align-items:center at ≥768px, which leaves dead space above the first tab.
+   Mirrors homepage.css `.industries-tabs`. */
+.hiw-industries .bds-media-tabs {
+  align-items: start;
+}
+
 /* ─── CTA ("Let's build something.") ───────────────────────── */
 /* Reuses .cta-section-brand / .cta-card-brand (shared-sections.css); these are
    just the text roles inside the orange panel. */
