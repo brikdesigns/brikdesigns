@@ -327,11 +327,37 @@ if [ -n "$AREA_OVERRIDE" ]; then
   LABELS_TO_ADD+=("$AREA_OVERRIDE")
 fi
 
-# Inherit the area:* / size:* / theme:* of every issue the commit range refs.
-# This repo has no rendered issue-link block (see lib/pr-labels.sh header), so
-# the refs are read straight off the commit subjects and bodies.
-COMMIT_REFS_TEXT=$(git log --format='%s%n%b' "origin/${BASE_BRANCH}..HEAD")
-for ref_num in $(refs_from_commit_range "$COMMIT_REFS_TEXT"); do
+# ── Resolve the issues this PR is for ──
+# One resolution, two consumers: the `Closes #N` / `Refs #N` trailers appended
+# to the body below (#1199), and the area:*/size:*/theme:* inheritance in the
+# loop after it (#1201).
+#
+# It replaced a whole-range bare-`#N` scan, which conflated two different
+# meanings. `Closes #N` on its own line in a commit body is "this PR completes
+# #N"; a bare `#N` in body prose is only evidence. PR #1200's commit cited
+# #1194 and #1189 as the historical evidence for its fix, and both are
+# area:design — so the scan pulled area:design onto a shell-script-only PR and
+# it had to be removed by hand. Keyword-gating fixes both halves at once: the
+# labels stop leaking, and prose can never emit a spurious `Closes`.
+#
+# Ported from brik-client-portal (its #3557), which extracted the rule for
+# exactly these failures. NOT a registered fleet twin — the registry in
+# brik-llm's scripts/audit/overlap-twin-drift.py does not list issue-refs.sh
+# (unlike bump-pr-closing-keyword-guard.yml, which it does). Registering it is
+# its own decision; until then this is a port, so keep the copies in sync by
+# hand and prefer changing the portal's first.
+# shellcheck source=scripts/lib/issue-refs.sh
+source "${SCRIPT_DIR}/lib/issue-refs.sh"
+resolve_issue_refs "origin/${BASE_BRANCH}..HEAD"
+
+# $ref carries its own `#` and any owner/repo prefix, so it is interpolated
+# whole — re-adding `#` here is what would strip a cross-repo prefix and
+# resolve the number against this repo instead.
+ISSUE_LINKS=""
+for ref in $ISSUE_CLOSING_REFS; do ISSUE_LINKS="${ISSUE_LINKS}Closes ${ref}"$'\n'; done
+for ref in $ISSUE_MENTION_REFS; do ISSUE_LINKS="${ISSUE_LINKS}Refs ${ref}"$'\n'; done
+
+for ref_num in $ISSUE_ALL_REFS; do
   ISSUE_LABELS=$(gh issue view "$ref_num" --json labels --jq '.labels[].name' 2>/dev/null || true)
   for l in $(inheritable_labels "$ISSUE_LABELS"); do
     if label_known "$l" "$REPO_LABELS"; then
@@ -402,6 +428,12 @@ fi
 COMMIT_LOG=$(git log --oneline "origin/${BASE_BRANCH}..HEAD" --reverse)
 COMMIT_BULLETS=$(echo "$COMMIT_LOG" | sed 's/^[a-f0-9]* /- /')
 
+# `${ISSUE_LINKS}` carries its own trailing newline per ref, and is empty when
+# the range links nothing — so the blank line before it is unconditional and
+# the block simply collapses. GitHub parses closing keywords from the PR BODY
+# only: before #1199 these trailers lived in the commit footers and nowhere
+# else, so PR #1187 carried `Closes #1171/#1172/#1173` in its commits and
+# closed none of them until the body was hand-edited.
 PR_BODY=$(cat <<EOF
 ## Summary
 ${COMMIT_BULLETS}
@@ -412,6 +444,8 @@ ${COMMIT_BULLETS}
 - [ ] Dark mode checked (if applicable)
 
 Generated with [Claude Code](https://claude.ai/code)
+
+${ISSUE_LINKS}
 EOF
 )
 

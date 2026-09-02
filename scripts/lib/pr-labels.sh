@@ -60,6 +60,13 @@ type_label_for_title() {
 # sorted and deduped. In this repo the text is the commit range's log; in
 # brik-bds/portal it is the rendered issue-links block. Either way it is the
 # single source the inherited labels key off, so linkage and labels agree.
+#
+# NO LONGER CALLED BY pr-task.sh (#1199/#1201). Label inheritance moved to
+# lib/issue-refs.sh, because this function cannot distinguish `Closes #N` from
+# an `#N` cited as evidence in prose — PR #1200 inherited area:design from two
+# issues its commit body merely quoted. Kept because it is pure, tested, and
+# still the right primitive for a rendered issue-links block (its brik-bds and
+# portal callers); do not wire it back into a raw commit-log scan.
 refs_from_commit_range() {
   printf '%s\n' "${1:-}" | grep -oE '#[0-9]+' | tr -d '#' | sort -un || true
 }
