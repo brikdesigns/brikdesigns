@@ -68,7 +68,13 @@ function formatPeriod(
 ): string | undefined {
   const key = (billingFrequency ?? '').toLowerCase();
   if (!key) return undefined;
-  return PERIOD_SUFFIXES[key] ?? `/${key.replace(/_/g, ' ')}`;
+  // A mapped `null` is a deliberate "no suffix" (one_time), NOT a missing
+  // entry — so the known-key case must be settled before the fallback. `??`
+  // cannot tell the two apart and treats one_time as unmapped, which renders
+  // the "/one time" this table exists to prevent. Latent until #1203: the
+  // frequency never reached here, so the fallback never ran.
+  if (key in PERIOD_SUFFIXES) return PERIOD_SUFFIXES[key] ?? undefined;
+  return `/${key.replace(/_/g, ' ')}`;
 }
 
 // Split the operator-authored "What you get" block (one item per line) into
@@ -148,10 +154,10 @@ export default async function ServiceDetailPage({ params }: Props) {
     const off = sortedOfferings[0] as {
       name: string;
       base_price_cents: number | null;
-      billing_frequency: string | null;
+      frequency: string | null;
     };
     const priceDisplay = formatPrice(off.base_price_cents);
-    const period = priceDisplay ? formatPeriod(off.billing_frequency) : undefined;
+    const period = priceDisplay ? formatPeriod(off.frequency) : undefined;
     // Price + frequency are carried separately so the lead-form summary card
     // can render them as `price • frequency`; they're rejoined into the lead
     // record on submit (#600).
@@ -424,12 +430,12 @@ export default async function ServiceDetailPage({ params }: Props) {
               name: string;
               description: string | null;
               base_price_cents: number | null;
-              billing_frequency: string | null;
+              frequency: string | null;
               included_scope: string | null;
               is_featured: boolean | null;
             }) => {
               const priceDisplay = formatPrice(off.base_price_cents);
-              const period = priceDisplay ? formatPeriod(off.billing_frequency) : undefined;
+              const period = priceDisplay ? formatPeriod(off.frequency) : undefined;
               // No-price offerings show "Quote" in the price slot — single
               // word, fits PricingCard's heading-xl typography. The action
               // button carries the actual "contact for a custom quote" CTA.
