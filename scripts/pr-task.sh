@@ -267,7 +267,16 @@ else
   # the branch number when the subject has none. lib/pr-title.sh is pure; this
   # block only feeds it the subject + branch and handles the not-conventional
   # case by prompting rather than emitting the old branch-slug antipattern.
-  FIRST_SUBJECT=$(git log --format='%s' "${BASE_BRANCH}..HEAD" | tail -1)
+  #
+  # Range is `origin/${BASE_BRANCH}`, never the bare local ref (#1198).
+  # new-task.sh branches from origin/, and nothing fast-forwards the local
+  # `staging` inside a task worktree — so the moment anything merges upstream
+  # the local ref sits behind this branch's real base, the range widens to
+  # include other sessions' merged commits, and `tail -1` takes the OLDEST of
+  # those. PR #1197 was titled with #1194's subject that way: well-formed,
+  # conventional, right `(#N)` appended — and entirely someone else's
+  # description. Every other range in this script already uses origin/.
+  FIRST_SUBJECT=$(git log --format='%s' "origin/${BASE_BRANCH}..HEAD" | tail -1)
   if PR_TITLE=$(pr_title_from_subject "$FIRST_SUBJECT" "$BRANCH"); then
     :
   else
