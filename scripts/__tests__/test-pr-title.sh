@@ -107,6 +107,53 @@ assert_false "the branch-slug SCOPE/DESC synthesis is gone" \
   grep -q 'PR_TITLE="\${SCOPE}: \${DESC}"' "$PR_TASK"
 
 echo ""
+echo "── the commit range is anchored to origin, not a stale local ref (#1198)"
+# A correct deriver fed the wrong RANGE still emits a wrong title, and the lib
+# above cannot catch it — it is pure, so it never sees the range. PR #1197 was
+# titled with #1194's subject: conventional, right `(#N)`, someone else's
+# description. Ratchet, so the bare form cannot come back:
+assert_false "no bare \${BASE_BRANCH}.. range remains" \
+  grep -qE '"\$\{BASE_BRANCH\}\.\.' "$PR_TASK"
+assert_true  "the FIRST_SUBJECT range is origin-anchored" \
+  grep -qE 'FIRST_SUBJECT=.*"origin/\$\{BASE_BRANCH\}\.\.HEAD"' "$PR_TASK"
+
+# …and the mechanism itself, on a real repo, so the ratchet above is more than
+# a spelling rule. Reproduces the topology every task worktree is in: the branch
+# is cut from origin/, then upstream moves, and the local ref never follows.
+RANGE_FIXTURE="$(mktemp -d)"
+trap 'rm -rf "$RANGE_FIXTURE"' EXIT
+(
+  set -e
+  cd "$RANGE_FIXTURE"
+  git init -q --bare origin.git
+  git init -q work && cd work
+  git config user.email t@t.test && git config user.name t
+  git config commit.gpgsign false
+  git remote add origin ../origin.git
+  git commit -q --allow-empty -m 'chore: root'
+  git branch -M staging && git push -q origin staging
+
+  # Another session's work lands upstream. The local `staging` ref stays put.
+  git checkout -q --detach
+  git commit -q --allow-empty -m 'feat(plans): someone elses merged work'
+  git push -q origin HEAD:staging
+  git fetch -q origin
+
+  # Our branch is cut from origin/staging — which now contains their commit.
+  git checkout -q -b task/mine origin/staging
+  git commit -q --allow-empty -m 'feat(infra): our own only commit'
+) >/dev/null 2>&1 || { echo "  ✗ range fixture failed to build"; FAIL=$((FAIL+1)); FAILED_CASES+=("range fixture"); }
+
+if [ -d "$RANGE_FIXTURE/work" ]; then
+  assert_eq "stale local ref widens the range (the bug)" \
+    "feat(plans): someone elses merged work" \
+    "$(git -C "$RANGE_FIXTURE/work" log --format='%s' 'staging..HEAD' | tail -1)"
+  assert_eq "origin-anchored range picks our own commit (the fix)" \
+    "feat(infra): our own only commit" \
+    "$(git -C "$RANGE_FIXTURE/work" log --format='%s' 'origin/staging..HEAD' | tail -1)"
+fi
+
+echo ""
 if [ "$FAIL" -gt 0 ]; then
   echo "── pr-title: $PASS passed, $FAIL failed"
   for c in "${FAILED_CASES[@]}"; do echo "    ✗ $c"; done
