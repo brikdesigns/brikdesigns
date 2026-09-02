@@ -31,6 +31,7 @@
     "test:sanitize": "npx tsx scripts/test-sanitize-html.mjs",
     "test:ghl-webhook": "npx tsx scripts/test-ghl-webhook.ts",
     "test:visual-change": "node scripts/lib/visual-change-declaration.test.mjs",
+    "test:fetch-diagnostics": "npx tsx scripts/fetch-diagnostics.test.mjs",
     "repro:on-demand-render": "bash scripts/repro-on-demand-render.sh",
     "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
     "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",

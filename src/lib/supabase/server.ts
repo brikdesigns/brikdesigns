@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { withFetchDiagnostics } from './fetch-diagnostics';
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -32,12 +33,19 @@ export async function createClient() {
  * hits, so `cookies()` must not be called. All queries wrapped with
  * `unstable_cache` in queries.ts use this client; auth-gated routes
  * continue to use `createClient()`.
+ *
+ * This is the client every prerendered CMS read goes through, so it carries
+ * the transport diagnostics (#1196): a build that fails here reports the
+ * connection error rather than blaming the route that held the socket.
  */
 export function createPublicClient() {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => [], setAll: () => {} } }
+    {
+      cookies: { getAll: () => [], setAll: () => {} },
+      global: { fetch: withFetchDiagnostics() },
+    }
   );
 }
 
