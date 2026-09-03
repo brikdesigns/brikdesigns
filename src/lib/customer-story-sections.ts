@@ -13,8 +13,9 @@
  * `.select('*')`, src/lib/supabase/queries.ts:461-476), so nothing upstream of
  * this function has checked the shape.
  *
- * `sections === null` is the legacy contract: the story renders the fixed
- * `the_challenge` / `the_solution` / `results` template unchanged.
+ * Every row carries `sections` since the brik-client-portal#3770 backfill
+ * (migration 00374), and the legacy `the_challenge` / `the_solution` /
+ * `results` columns are dropped — this is the only narrative source.
  */
 
 /** A single titled prose section, with an optional titled bullet list. */
@@ -60,16 +61,18 @@ function parseList(raw: unknown): CustomerStorySection['list'] {
 /**
  * Narrow the raw `sections` column to renderable sections.
  *
- * Returns `null` for the legacy path — a null/absent column, a non-array, or
- * an array with nothing renderable in it. A malformed row must fall back to
- * the fixed template rather than render an empty two-column shell, because the
- * TOC would then have no items and the rail no purpose.
+ * Returns `[]` when there is nothing renderable — a null/absent column, a
+ * non-array, or an array of malformed entries. That used to return `null` to
+ * select the fixed template; the template is gone (brik-client-portal#3770),
+ * so an empty result now renders the rail, quote and media with no narrative
+ * body rather than falling back. Reaching it means a row violated the portal's
+ * write-time Zod schema, which is a data-integrity bug, not a supported state.
  *
  * A section needs a `title` (it is the TOC label) and either a `body` or a
  * list; individual malformed entries are dropped rather than failing the page.
  */
-export function parseStorySections(raw: unknown): CustomerStorySection[] | null {
-  if (!Array.isArray(raw)) return null;
+export function parseStorySections(raw: unknown): CustomerStorySection[] {
+  if (!Array.isArray(raw)) return [];
 
   const sections = raw.flatMap((entry, index): CustomerStorySection[] => {
     if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return [];
@@ -90,5 +93,5 @@ export function parseStorySections(raw: unknown): CustomerStorySection[] | null 
     ];
   });
 
-  return sections.length > 0 ? sections : null;
+  return sections;
 }
