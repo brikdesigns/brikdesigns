@@ -279,6 +279,14 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
             quote={story.quote}
             quoteAttribution={story.quote_attribution || story.client_name}
             tags={closingTags}
+            midMedia={
+              story.after_photo_url
+                ? {
+                    url: story.after_photo_url,
+                    alt: `${story.name || story.client_name} solution`,
+                  }
+                : null
+            }
             closingMedia={
               story.results_photo_url
                 ? {
