@@ -199,14 +199,27 @@ CMS_TOUCHED=$(
 if [ -n "$CMS_TOUCHED" ]; then
   echo ""
   echo -e "${YELLOW}▸ CMS surface touched — running Supabase ↔ CSV drift audit...${NC}"
-  if ! npm run audit:cms-drift --silent; then
+  # Exit 3 is the audit's "nothing was checked" verdict (#1212): every CSV read
+  # failed, so it compared 0 rows. That is NOT a pass — but it is also not a
+  # reason to block the PR, since `content/csv/` is gitignored and absent from
+  # every task worktree. Report it as SKIPPED, never as ✓.
+  cms_drift_rc=0
+  npm run audit:cms-drift --silent || cms_drift_rc=$?
+  if [ "$cms_drift_rc" -eq 3 ]; then
+    echo ""
+    echo -e "${YELLOW}⏭  CMS drift audit SKIPPED — it read 0 CSV files, so nothing was compared.${NC}"
+    echo -e "${YELLOW}   This is NOT a clean pass. \`content/csv/\` is gitignored (.gitignore:53),${NC}"
+    echo -e "${YELLOW}   so a fresh clone or task worktree never has it — see the report above${NC}"
+    echo -e "${YELLOW}   for how to obtain it, and re-run if this PR touches CMS data.${NC}"
+  elif [ "$cms_drift_rc" -ne 0 ]; then
     echo ""
     echo -e "${RED}✗ CMS drift audit script failed (likely missing env vars or network).${NC}"
     echo -e "${RED}   Source staging Supabase env, then re-run:${NC}"
     echo "    set -a; source ~/.secrets/supabase-staging.env; set +a"
     exit 1
+  else
+    echo -e "${GREEN}✓ CMS drift audit ran — review report above for surprising changes.${NC}"
   fi
-  echo -e "${GREEN}✓ CMS drift audit ran — review report above for surprising changes.${NC}"
 fi
 
 # ── UI-verification gate ──
