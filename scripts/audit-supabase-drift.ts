@@ -134,6 +134,18 @@ const totals = {
   emptyFields: 0,
 };
 
+// How many collections actually got a CSV side to compare against. When this
+// stays 0 the totals above are all 0 because NOTHING WAS READ, which is
+// indistinguishable from a genuinely clean audit — so the run reports SKIPPED
+// and exits 3 rather than printing a totals block (#1212).
+const scanned = {
+  attempted: 0,
+  read: 0,
+};
+
+/** Exit code for "nothing was checked" — distinct from 1 (audit crashed). */
+const EXIT_NOTHING_CHECKED = 3;
+
 async function auditCollection(opts: AuditOpts) {
   const { title, csvFile, table, fields, maxDiffsPerRow = 12 } = opts;
   const historical = opts.historical ?? false;
@@ -143,6 +155,7 @@ async function auditCollection(opts: AuditOpts) {
   console.log(`\n---\n\n## ${title}${historicalNote}\n`);
 
   // CSV side
+  scanned.attempted++;
   let csvRows: Record<string, string>[];
   try {
     csvRows = readCSV(csvFile).filter(isPublished);
@@ -150,6 +163,7 @@ async function auditCollection(opts: AuditOpts) {
     console.log(`❌ CSV read failed: ${(e as Error).message}\n`);
     return;
   }
+  scanned.read++;
 
   // Supabase side
   const { data: sbRows, error } = await supabase.from(table).select('*');
@@ -378,9 +392,40 @@ async function main() {
     ],
   });
 
+  // An empty scan is not a pass. Every count below would read 0 whether the
+  // data is clean or the CSV dir is simply absent, so when nothing was read
+  // the totals block is suppressed entirely rather than printed as zeros.
+  if (scanned.read === 0) {
+    console.log(`\n---\n\n## ⏭️  SKIPPED — nothing was checked\n`);
+    console.log(
+      `All ${scanned.attempted} collection(s) failed to read a CSV, so **0 rows ` +
+        `were compared**. No totals are reported: a 0 here would be ` +
+        `indistinguishable from a clean audit.\n`,
+    );
+    console.log(`\`content/csv/\` is gitignored (\`.gitignore:53\`), so a fresh clone`);
+    console.log(`or a task worktree never has it. To obtain it:\n`);
+    console.log('```bash');
+    console.log(`# copy it from a checkout that already has the Webflow export`);
+    console.log(`cp -R <other-checkout>/content/csv ${CSV_DIR}`);
+    console.log('```');
+    console.log(
+      `\nThe CSVs are a one-time Webflow migration snapshot, not generated ` +
+        `output — there is no command that recreates them.\n`,
+    );
+    process.exit(EXIT_NOTHING_CHECKED);
+  }
+
+  const partial = scanned.read < scanned.attempted;
   console.log(`\n---\n\n## Totals\n`);
+  if (partial) {
+    console.log(
+      `> ⚠️ **Partial** — ${scanned.read} of ${scanned.attempted} collections ` +
+        `were compared; the rest failed to read a CSV and contribute 0 below.\n`,
+    );
+  }
   console.log(`| Metric | Count |`);
   console.log(`|---|---|`);
+  console.log(`| Collections compared | ${scanned.read} of ${scanned.attempted} |`);
   console.log(`| Orphan rows (Supabase not in CSV) | ${totals.orphans} |`);
   console.log(`| Missing rows (CSV not in Supabase) | ${totals.missing} |`);
   console.log(`| Rows with field drift | ${totals.driftRows} |`);
