@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import Image from 'next/image';
 import { Avatar, Card, Frame, TableOfContents, Tag } from '@brikdesigns/bds';
 import { heading, label, text } from '@/lib/styles';
@@ -43,6 +44,15 @@ type Props = {
   quoteAttribution: string | null;
   /** Classification labels for the closing tag row. */
   tags: string[];
+  /**
+   * `customer_stories.after_photo_url` — the figure the legacy template
+   * interleaves between "The Challenge" and "The Brik Solution"
+   * (page.tsx, legacy branch). Rendered after the FIRST section here so a
+   * backfilled story keeps the image it renders today (#1210); a
+   * section-count-relative position would move it on any story that is not
+   * the legacy trio. Null on the one row that has no such image.
+   */
+  midMedia: { url: string; alt: string } | null;
   closingMedia: { url: string; alt: string } | null;
 };
 
@@ -67,6 +77,7 @@ export function StorySections({
   quote,
   quoteAttribution,
   tags,
+  midMedia,
   closingMedia,
 }: Props) {
   const tocItems = sections.map((section, index) => ({
@@ -116,36 +127,54 @@ export function StorySections({
           {sections.map((section, index) => {
             const anchorId = sectionAnchorId(section.title, index);
             return (
-              <section
-                key={section.id}
-                id={anchorId}
-                className="story-section"
-                aria-labelledby={`${anchorId}-title`}
-              >
-                <h2 id={`${anchorId}-title`} style={heading.md}>
-                  {section.title}
-                </h2>
-                {section.body && (
-                  <div
-                    className="story-section__description"
-                    dangerouslySetInnerHTML={{ __html: section.body }}
-                  />
-                )}
-                {section.list && (
-                  <div className="story-section__list">
-                    {section.list.title && (
-                      <h3 className="story-section__list-title" style={label.md}>
-                        {section.list.title}
-                      </h3>
-                    )}
-                    <ul className="story-section__list-items">
-                      {section.list.items.map((item, itemIndex) => (
-                        <li key={`${section.id}-${itemIndex}`}>{item}</li>
-                      ))}
-                    </ul>
+              <Fragment key={section.id}>
+                <section
+                  id={anchorId}
+                  className="story-section"
+                  aria-labelledby={`${anchorId}-title`}
+                >
+                  <h2 id={`${anchorId}-title`} style={heading.md}>
+                    {section.title}
+                  </h2>
+                  {section.body && (
+                    <div
+                      className="story-section__description"
+                      dangerouslySetInnerHTML={{ __html: section.body }}
+                    />
+                  )}
+                  {section.list && (
+                    <div className="story-section__list">
+                      {section.list.title && (
+                        <h3 className="story-section__list-title" style={label.md}>
+                          {section.list.title}
+                        </h3>
+                      )}
+                      <ul className="story-section__list-items">
+                        {section.list.items.map((item, itemIndex) => (
+                          <li key={`${section.id}-${itemIndex}`}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </section>
+
+                {/* Mid-story figure, after the first section only — the
+                    sections-path equivalent of the legacy Challenge → figure →
+                    Solution interleave. `.story-figure` needs no new rhythm
+                    rule: .story-body is a flex column and owns the gap. */}
+                {index === 0 && midMedia && (
+                  <div className="story-figure">
+                    <Frame ratio="wide" fit="cover">
+                      <Image
+                        src={midMedia.url}
+                        alt={midMedia.alt}
+                        width={768}
+                        height={432}
+                      />
+                    </Frame>
                   </div>
                 )}
-              </section>
+              </Fragment>
             );
           })}
 
