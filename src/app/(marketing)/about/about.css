@@ -36,7 +36,7 @@
   text-align: center;
   gap: var(--gap-sm);
   padding: var(--padding-xl);
-  border: var(--border-width-standard) solid var(--border-secondary);
+  border: var(--border-width-md) solid var(--border-secondary);
   border-radius: var(--border-radius-md);
   background-color: var(--surface-primary);
 }
@@ -74,7 +74,7 @@
   align-items: center;
   gap: var(--gap-xl);
   padding: var(--padding-xl);
-  border: var(--border-width-standard) solid var(--border-secondary);
+  border: var(--border-width-md) solid var(--border-secondary);
   border-radius: var(--border-radius-md);
   width: 100%;
 }
@@ -102,7 +102,7 @@
   display: flex;
   gap: var(--gap-xl);
   padding: var(--padding-lg) 0;
-  border-bottom: var(--border-width-standard) solid var(--border-secondary);
+  border-bottom: var(--border-width-md) solid var(--border-secondary);
 }
 
 .about-pillar-row:last-child {

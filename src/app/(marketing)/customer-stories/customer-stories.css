@@ -244,3 +244,258 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── Flexible sections layout (`sections` non-null) ───────────────────────
+ * The expanded story template — Figma node 25944-8605, container-small (1024).
+ * Only reached when `customer_stories.sections` parses to ≥1 section; the
+ * fixed template above is untouched, so the twelve legacy stories that have
+ * `sections = null` render byte-identical (brikdesigns#1205).
+ *
+ * Anatomy: one 1024px container holding a 232px sticky rail (BDS
+ * TableOfContents + the metadata card, moved here off the interior hero) and a
+ * 768px body column of N titled sections, then the pull-quote, then the
+ * closing media + tag row. */
+.container-lg--story-layout {
+  max-width: 1024px;
+  align-items: stretch;
+}
+
+.story-layout {
+  display: grid;
+  grid-template-columns: 232px 1fr;
+  gap: var(--gap-xl);
+  width: 100%;
+}
+
+.story-rail {
+  position: relative;
+}
+
+/* The sticky element is this wrapper, not the BDS `.bds-toc` — the rail has to
+   carry the metadata card up with the TOC, and `.bds-toc`'s own `position:
+   sticky` only lifts itself. Neutralized below so the two don't compete. */
+.story-rail__inner {
+  position: sticky;
+  top: var(--gap-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1000);
+}
+
+/* ─── Rail TOC ──────────────────────────────────────────────────────────
+ * Figma renders the TOC as a tinted box with a hairline rule down its left
+ * edge and quiet bold labels — brand-colored for the section in view. The BDS
+ * default is a NavItem pill (filled `--background-brand-primary`, inverse
+ * text), which is the right treatment for a route rail and the wrong one here.
+ *
+ * Scoped to `.story-toc` so no other TableOfContents consumer is affected.
+ * The durable fix is a rail variant on the component itself — filed as
+ * brikdesigns/brik-bds#2270; drop this block when it ships. */
+.story-toc.bds-toc {
+  position: static; /* the rail wrapper owns stickiness */
+  /* BDS pairs `position: sticky` with `align-self: flex-start` so the nav
+     shrink-wraps its longest label; in the rail it has to fill the 232px
+     track or the tinted box ends mid-column. */
+  align-self: stretch;
+  max-height: none;
+  overflow: visible;
+  gap: var(--space-500);
+  padding: var(--space-200) var(--padding-lg) var(--padding-lg) 0;
+  /* --surface-secondary, NOT the Figma variable's literal name
+     (`background/secondary`). The brikdesigns theme redefines
+     `--background-secondary` to #b0b0b0 in the dark root, which paints a light
+     gray box on the black story band and drops the labels to 1:1 against their
+     own fill. `--surface-secondary` is the theme-tracking pair (#f2f2f2 light /
+     #1b1b1b dark) and is what the rest of this file already uses. */
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-600);
+}
+
+/* 0.5px hairline down the rail's left edge (Figma "Group 120"). A border on a
+   pseudo-element rather than the box so it spans only the list, inset from the
+   box's own top/bottom padding. */
+.story-toc.bds-toc .bds-toc__list {
+  gap: var(--space-500);
+  border-left: var(--border-width-sm) solid var(--border-muted);
+  padding-left: var(--space-500);
+}
+
+.story-toc.bds-toc .bds-nav-item {
+  padding: 0;
+  border-radius: 0;
+  font-family: var(--font-family-label);
+  font-size: var(--label-sm);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--font-line-height-snug);
+  /* Figma specs `text/muted` (#828282) for the resting label, which measures
+     3.1:1 on the tint and fails AA at 14px. --text-secondary is the next token
+     down the quiet scale and clears AA in both themes (7:1 light, 12:1 dark). */
+  color: var(--text-secondary);
+  background-color: transparent;
+}
+
+.story-toc.bds-toc .bds-nav-item:hover {
+  color: var(--text-primary);
+  background-color: transparent;
+}
+
+.story-toc.bds-toc .bds-nav-item--active,
+.story-toc.bds-toc .bds-nav-item--active:hover {
+  color: var(--text-brand-primary);
+  background-color: transparent;
+}
+
+/* ─── Rail metadata card ────────────────────────────────────────────────
+ * Same label-above-value pairs as the interior-hero `dl` (`.story-meta__item`
+ * is shared), restacked to one column in the 232px rail. Card chrome is the
+ * BDS bordered default because the story arc is a white band — the
+ * card-treatment standard, no variant prop. */
+.story-rail__meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Body column ───────────────────────────────────────────────────────
+ * Figma insets the column content 48px from the rail gutter. */
+.story-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1100);
+  padding-left: var(--padding-2xl);
+  min-width: 0;
+}
+
+.story-section {
+  scroll-margin-top: var(--gap-xl);
+}
+
+.story-section > h2 {
+  margin: 0;
+}
+
+/* __description, not __body — `body` is a typography token scale, never a
+   class-name role (naming-conventions.md). */
+.story-section__description {
+  margin-top: var(--gap-2xl);
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-primary);
+  line-height: var(--font-line-height-relaxed);
+}
+
+.story-section__description > * + * {
+  margin-top: var(--gap-xl);
+}
+
+.story-section__list {
+  margin-top: var(--space-1100);
+}
+
+.story-section__list-title {
+  margin: 0 0 var(--gap-xl);
+}
+
+.story-section__list-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-300);
+  margin: 0;
+  padding-left: var(--padding-md);
+  list-style-type: disc;
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  color: var(--text-primary);
+  line-height: var(--font-line-height-relaxed);
+}
+
+/* ─── Pull-quote card ───────────────────────────────────────────────────
+ * Replaces the left-rule `.story-quote` treatment on the sections path: a
+ * bordered card (white band → BDS default chrome), an oversized brand quote
+ * glyph, and the attribution as a BDS Avatar chip + name/role. */
+.story-quote-card.bds-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+  padding: var(--space-1800);
+  border-radius: var(--border-radius-800);
+}
+
+.story-quote-card__glyph {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-1600);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+  color: var(--text-brand-primary);
+}
+
+.story-quote-card__quote {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+  margin: 0;
+}
+
+.story-quote-card__description {
+  margin: 0;
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-md);
+  font-weight: var(--font-weight-regular);
+  font-style: italic;
+  line-height: var(--font-line-height-normal);
+  color: var(--text-primary);
+}
+
+.story-quote-card__attribution {
+  display: flex;
+  align-items: center;
+  gap: var(--space-300);
+}
+
+.story-quote-card__attribution-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-50);
+}
+
+/* ─── Closing media + tags ──────────────────────────────────────────────── */
+.story-closing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+
+.story-closing__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-200);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: var(--border-width-sm) solid var(--border-muted);
+  padding-top: var(--gap-xl);
+}
+
+/* ─── Responsive ────────────────────────────────────────────────────────
+ * Below the 1024 container the rail stacks above the body and stops sticking —
+ * a sticky TOC in normal flow above the content it indexes scrolls away
+ * immediately and just steals a screen height. */
+@media (max-width: 1023px) {
+  .story-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .story-rail__inner {
+    position: static;
+  }
+
+  .story-body {
+    padding-left: 0;
+  }
+
+  .story-quote-card.bds-card {
+    padding: var(--padding-2xl);
+  }
+}
