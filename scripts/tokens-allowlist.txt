@@ -9,3 +9,15 @@
 # when the repo lagged BDS 0.72.0) are native in the pinned 0.97.4 dist and
 # were removed in #529. Add a new entry only as a transitional last resort,
 # with a TODO to migrate it back to zero.
+
+# TODO(#1041): both resolve to NOTHING — undefined in globals.css, in BDS
+# dist/tokens.css, and here — so the whole `border` shorthand is dropped and
+# three pages render no border at all. Measured 2026-09-03 on /about:
+# `.about-pillar-row` computes `border-bottom: 0px none`. Landed in #657.
+# Allowlisted, not fixed, in #1205: mapping them onto the canonical
+# --border-width-* scale MAKES those borders appear on /about,
+# /marketing/[slug] and /events/[slug] — a visual change to three pages
+# outside that ticket. Evidence + repro on brikdesigns#1041.
+# OPERATOR SAID 2026-09-03 (chat): "Allowlist the 2 names, land #1205".
+border-width-standard
+border-width-bold

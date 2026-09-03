@@ -28,6 +28,8 @@ import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { text, heading, label } from '@/lib/styles';
 import { color, gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { INDUSTRY_ICONS, INDUSTRY_ICON_FALLBACK } from '@/lib/industry-icons';
+import { parseStorySections } from '@/lib/customer-story-sections';
+import { StorySections, type StoryMetaItem } from './StorySections';
 import '../../shared-sections.css';
 import '../customer-stories.css';
 
@@ -122,6 +124,88 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
   const serviceIconName = relatedService?.name && serviceLineCategory ? relatedService.name : undefined;
   const storyTitle = story.name || story.client_name;
 
+  // One source for the metadata pairs, rendered either in the interior hero
+  // (legacy template) or in the sticky rail (sections template, #1205). The
+  // JSX below is unchanged from the inline version, so the legacy DOM is
+  // byte-identical — this is a hoist, not a restyle.
+  const metaItems: StoryMetaItem[] = ([
+    story.client_name && story.client_name !== story.name
+      ? {
+          key: 'client',
+          label: 'Client',
+          icon: <Icon icon="ph:buildings" width={16} height={16} aria-hidden />,
+          value: story.client_name,
+        }
+      : null,
+    serviceLineCategory && serviceLineName
+      ? {
+          key: 'service-line',
+          label: 'Service Line',
+          icon: <ServiceTag category={serviceLineCategory} variant="icon" size="sm" />,
+          value: serviceLineName,
+        }
+      : null,
+    serviceLineCategory && relatedService?.name
+      ? {
+          key: 'service',
+          label: 'Service',
+          icon: (
+            <ServiceTag
+              category={serviceLineCategory}
+              variant="icon"
+              size="sm"
+              {...(serviceIconName ? { serviceName: serviceIconName } : {})}
+            />
+          ),
+          value: relatedService.name,
+        }
+      : null,
+    story.industry && industryIcon
+      ? {
+          key: 'industry',
+          label: 'Industry',
+          icon: <Icon icon={industryIcon} width={16} height={16} aria-hidden />,
+          value: story.industry,
+        }
+      : null,
+    completion
+      ? {
+          key: 'completion',
+          label: 'Completion Date',
+          icon: <Icon icon="ph:calendar-blank" width={16} height={16} aria-hidden />,
+          value: completion,
+        }
+      : null,
+    story.client_website_url
+      ? {
+          key: 'website',
+          label: 'Website',
+          icon: <Icon icon="ph:globe" width={16} height={16} aria-hidden />,
+          value: (
+            <a
+              href={story.client_website_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: color.text.brand, textDecoration: 'underline' }}
+            >
+              View website
+            </a>
+          ),
+        }
+      : null,
+  ] as (StoryMetaItem | null)[]).filter((item): item is StoryMetaItem => item !== null);
+
+  // The expanded template is opt-in per row: a story only leaves the fixed
+  // Challenge/Solution/Results arc once the CMS has written `sections`.
+  const flexibleSections = parseStorySections(story.sections);
+
+  // Closing tag row (Figma 25950:9471). Derived from the story's own
+  // classification — `customer_stories` has no tags column, and the #3767
+  // contract kept classification on the existing dedicated fields.
+  const closingTags = [serviceLineName, relatedService?.name, story.industry].filter(
+    (tag): tag is string => Boolean(tag)
+  );
+
   return (
     <>
       {/* ═══ Story arc — interior-hero + media + content + quote ═══
@@ -150,86 +234,26 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
           <h1 style={heading.lg}>{storyTitle}</h1>
 
-          <dl className="story-detail-meta">
-            {story.client_name && story.client_name !== story.name && (
-              <div className="story-meta__item">
-                <span style={{ ...label.smBold, color: color.text.primary }}>Client</span>
-                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
-                  <span className="story-meta__icon">
-                    <Icon icon="ph:buildings" width={16} height={16} aria-hidden />
+          {/* Legacy template only — on the sections path these pairs render
+              in the sticky rail instead (StorySections). */}
+          {!flexibleSections && (
+            <dl className="story-detail-meta">
+              {metaItems.map((item) => (
+                <div key={item.key} className="story-meta__item">
+                  <span style={{ ...label.smBold, color: color.text.primary }}>
+                    {item.label}
                   </span>
-                  {story.client_name}
-                </span>
-              </div>
-            )}
-            {serviceLineCategory && serviceLineName && (
-              <div className="story-meta__item">
-                <span style={{ ...label.smBold, color: color.text.primary }}>Service Line</span>
-                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
-                  <span className="story-meta__icon">
-                    <ServiceTag category={serviceLineCategory} variant="icon" size="sm" />
-                  </span>
-                  {serviceLineName}
-                </span>
-              </div>
-            )}
-            {serviceLineCategory && relatedService?.name && (
-              <div className="story-meta__item">
-                <span style={{ ...label.smBold, color: color.text.primary }}>Service</span>
-                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
-                  <span className="story-meta__icon">
-                    <ServiceTag
-                      category={serviceLineCategory}
-                      variant="icon"
-                      size="sm"
-                      {...(serviceIconName ? { serviceName: serviceIconName } : {})}
-                    />
-                  </span>
-                  {relatedService.name}
-                </span>
-              </div>
-            )}
-            {story.industry && industryIcon && (
-              <div className="story-meta__item">
-                <span style={{ ...label.smBold, color: color.text.primary }}>Industry</span>
-                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
-                  <span className="story-meta__icon">
-                    <Icon icon={industryIcon} width={16} height={16} aria-hidden />
-                  </span>
-                  {story.industry}
-                </span>
-              </div>
-            )}
-            {completion && (
-              <div className="story-meta__item">
-                <span style={{ ...label.smBold, color: color.text.primary }}>Completion Date</span>
-                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
-                  <span className="story-meta__icon">
-                    <Icon icon="ph:calendar-blank" width={16} height={16} aria-hidden />
-                  </span>
-                  {completion}
-                </span>
-              </div>
-            )}
-            {story.client_website_url && (
-              <div className="story-meta__item">
-                <span style={{ ...label.smBold, color: color.text.primary }}>Website</span>
-                <span className="story-meta__value" style={{ ...text.bodySm, color: color.text.secondary }}>
-                  <span className="story-meta__icon">
-                    <Icon icon="ph:globe" width={16} height={16} aria-hidden />
-                  </span>
-                  <a
-                    href={story.client_website_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: color.text.brand, textDecoration: 'underline' }}
+                  <span
+                    className="story-meta__value"
+                    style={{ ...text.bodySm, color: color.text.secondary }}
                   >
-                    View website
-                  </a>
-                </span>
-              </div>
-            )}
-          </dl>
+                    <span className="story-meta__icon">{item.icon}</span>
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </dl>
+          )}
         </div>
 
         {story.hero_image_url && (
@@ -248,83 +272,103 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
           </div>
         )}
 
-        {story.the_challenge && (
-          <div className="container-lg container-lg--story">
-            <div className="story-block">
-              <h2 style={heading.md}>The Challenge</h2>
-              <div
-                className="story-block__body"
-                dangerouslySetInnerHTML={{ __html: story.the_challenge }}
-              />
-            </div>
-          </div>
-        )}
-
-        {story.after_photo_url && (
-          <div className="container-lg">
-            <div className="story-figure">
-              <Frame ratio="wide" fit="cover">
-                <Image
-                  src={story.after_photo_url}
-                  alt={`${story.name || story.client_name} solution`}
-                  width={1280}
-                  height={720}
+        {flexibleSections ? (
+          <StorySections
+            sections={flexibleSections}
+            meta={metaItems}
+            quote={story.quote}
+            quoteAttribution={story.quote_attribution || story.client_name}
+            tags={closingTags}
+            closingMedia={
+              story.results_photo_url
+                ? {
+                    url: story.results_photo_url,
+                    alt: `${story.name || story.client_name} results`,
+                  }
+                : null
+            }
+          />
+        ) : (
+          <>
+          {story.the_challenge && (
+            <div className="container-lg container-lg--story">
+              <div className="story-block">
+                <h2 style={heading.md}>The Challenge</h2>
+                <div
+                  className="story-block__body"
+                  dangerouslySetInnerHTML={{ __html: story.the_challenge }}
                 />
-              </Frame>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {story.the_solution && (
-          <div className="container-lg container-lg--story">
-            <div className="story-block">
-              <h2 style={heading.md}>The Brik Solution</h2>
-              <div
-                className="story-block__body"
-                dangerouslySetInnerHTML={{ __html: story.the_solution }}
-              />
+          {story.after_photo_url && (
+            <div className="container-lg">
+              <div className="story-figure">
+                <Frame ratio="wide" fit="cover">
+                  <Image
+                    src={story.after_photo_url}
+                    alt={`${story.name || story.client_name} solution`}
+                    width={1280}
+                    height={720}
+                  />
+                </Frame>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {story.results_photo_url && (
-          <div className="container-lg">
-            <div className="story-figure">
-              <Frame ratio="wide" fit="cover">
-                <Image
-                  src={story.results_photo_url}
-                  alt={`${story.name || story.client_name} results`}
-                  width={1280}
-                  height={720}
+          {story.the_solution && (
+            <div className="container-lg container-lg--story">
+              <div className="story-block">
+                <h2 style={heading.md}>The Brik Solution</h2>
+                <div
+                  className="story-block__body"
+                  dangerouslySetInnerHTML={{ __html: story.the_solution }}
                 />
-              </Frame>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {story.results && (
-          <div className="container-lg container-lg--story">
-            <div className="story-block">
-              <h2 style={heading.md}>Results</h2>
-              <div
-                className="story-block__body"
-                dangerouslySetInnerHTML={{ __html: story.results }}
-              />
+          {story.results_photo_url && (
+            <div className="container-lg">
+              <div className="story-figure">
+                <Frame ratio="wide" fit="cover">
+                  <Image
+                    src={story.results_photo_url}
+                    alt={`${story.name || story.client_name} results`}
+                    width={1280}
+                    height={720}
+                  />
+                </Frame>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {story.quote && (
-          <div className="container-lg container-lg--story">
-            <blockquote className="story-quote">
-              <p className="story-quote__description">{story.quote}</p>
-              {(story.quote_attribution || story.client_name) && (
-                <footer className="story-quote__attribution">
-                  — {story.quote_attribution || story.client_name}
-                </footer>
-              )}
-            </blockquote>
-          </div>
+          {story.results && (
+            <div className="container-lg container-lg--story">
+              <div className="story-block">
+                <h2 style={heading.md}>Results</h2>
+                <div
+                  className="story-block__body"
+                  dangerouslySetInnerHTML={{ __html: story.results }}
+                />
+              </div>
+            </div>
+          )}
+
+          {story.quote && (
+            <div className="container-lg container-lg--story">
+              <blockquote className="story-quote">
+                <p className="story-quote__description">{story.quote}</p>
+                {(story.quote_attribution || story.client_name) && (
+                  <footer className="story-quote__attribution">
+                    — {story.quote_attribution || story.client_name}
+                  </footer>
+                )}
+              </blockquote>
+            </div>
+          )}
+          </>
         )}
       </section>
 
