@@ -25,7 +25,7 @@ import {
 } from '@/lib/supabase/queries';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
-import { text, heading, label } from '@/lib/styles';
+import { heading } from '@/lib/styles';
 import { color, gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { INDUSTRY_ICONS, INDUSTRY_ICON_FALLBACK } from '@/lib/industry-icons';
 import { parseStorySections } from '@/lib/customer-story-sections';
@@ -195,9 +195,10 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
       : null,
   ] as (StoryMetaItem | null)[]).filter((item): item is StoryMetaItem => item !== null);
 
-  // The expanded template is opt-in per row: a story only leaves the fixed
-  // Challenge/Solution/Results arc once the CMS has written `sections`.
-  const flexibleSections = parseStorySections(story.sections);
+  // Every row carries `sections` (backfilled by portal migration 00374 for
+  // brik-client-portal#3770), so this is the only narrative path — the fixed
+  // Challenge/Solution/Results template it used to fall back to is gone.
+  const storySections = parseStorySections(story.sections);
 
   // Closing tag row (Figma 25950:9471). Derived from the story's own
   // classification — `customer_stories` has no tags column, and the #3767
@@ -233,27 +234,6 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
           </BackLink>
 
           <h1 style={heading.lg}>{storyTitle}</h1>
-
-          {/* Legacy template only — on the sections path these pairs render
-              in the sticky rail instead (StorySections). */}
-          {!flexibleSections && (
-            <dl className="story-detail-meta">
-              {metaItems.map((item) => (
-                <div key={item.key} className="story-meta__item">
-                  <span style={{ ...label.smBold, color: color.text.primary }}>
-                    {item.label}
-                  </span>
-                  <span
-                    className="story-meta__value"
-                    style={{ ...text.bodySm, color: color.text.secondary }}
-                  >
-                    <span className="story-meta__icon">{item.icon}</span>
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </dl>
-          )}
         </div>
 
         {story.hero_image_url && (
@@ -272,112 +252,29 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
           </div>
         )}
 
-        {flexibleSections ? (
-          <StorySections
-            sections={flexibleSections}
-            meta={metaItems}
-            quote={story.quote}
-            quoteAttribution={story.quote_attribution || story.client_name}
-            tags={closingTags}
-            midMedia={
-              story.after_photo_url
-                ? {
-                    url: story.after_photo_url,
-                    alt: `${story.name || story.client_name} solution`,
-                  }
-                : null
-            }
-            closingMedia={
-              story.results_photo_url
-                ? {
-                    url: story.results_photo_url,
-                    alt: `${story.name || story.client_name} results`,
-                  }
-                : null
-            }
-          />
-        ) : (
-          <>
-          {story.the_challenge && (
-            <div className="container-lg container-lg--story">
-              <div className="story-block">
-                <h2 style={heading.md}>The Challenge</h2>
-                <div
-                  className="story-block__body"
-                  dangerouslySetInnerHTML={{ __html: story.the_challenge }}
-                />
-              </div>
-            </div>
-          )}
-
-          {story.after_photo_url && (
-            <div className="container-lg">
-              <div className="story-figure">
-                <Frame ratio="wide" fit="cover">
-                  <Image
-                    src={story.after_photo_url}
-                    alt={`${story.name || story.client_name} solution`}
-                    width={1280}
-                    height={720}
-                  />
-                </Frame>
-              </div>
-            </div>
-          )}
-
-          {story.the_solution && (
-            <div className="container-lg container-lg--story">
-              <div className="story-block">
-                <h2 style={heading.md}>The Brik Solution</h2>
-                <div
-                  className="story-block__body"
-                  dangerouslySetInnerHTML={{ __html: story.the_solution }}
-                />
-              </div>
-            </div>
-          )}
-
-          {story.results_photo_url && (
-            <div className="container-lg">
-              <div className="story-figure">
-                <Frame ratio="wide" fit="cover">
-                  <Image
-                    src={story.results_photo_url}
-                    alt={`${story.name || story.client_name} results`}
-                    width={1280}
-                    height={720}
-                  />
-                </Frame>
-              </div>
-            </div>
-          )}
-
-          {story.results && (
-            <div className="container-lg container-lg--story">
-              <div className="story-block">
-                <h2 style={heading.md}>Results</h2>
-                <div
-                  className="story-block__body"
-                  dangerouslySetInnerHTML={{ __html: story.results }}
-                />
-              </div>
-            </div>
-          )}
-
-          {story.quote && (
-            <div className="container-lg container-lg--story">
-              <blockquote className="story-quote">
-                <p className="story-quote__description">{story.quote}</p>
-                {(story.quote_attribution || story.client_name) && (
-                  <footer className="story-quote__attribution">
-                    — {story.quote_attribution || story.client_name}
-                  </footer>
-                )}
-              </blockquote>
-            </div>
-          )}
-          </>
-        )}
+        <StorySections
+          sections={storySections}
+          meta={metaItems}
+          quote={story.quote}
+          quoteAttribution={story.quote_attribution || story.client_name}
+          tags={closingTags}
+          midMedia={
+            story.after_photo_url
+              ? {
+                  url: story.after_photo_url,
+                  alt: `${story.name || story.client_name} solution`,
+                }
+              : null
+          }
+          closingMedia={
+            story.results_photo_url
+              ? {
+                  url: story.results_photo_url,
+                  alt: `${story.name || story.client_name} results`,
+                }
+              : null
+          }
+        />
       </section>
 
       {/* ═══ Other Customer Stories — 3-col grid ═══ */}
