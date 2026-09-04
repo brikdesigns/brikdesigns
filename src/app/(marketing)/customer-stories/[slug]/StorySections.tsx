@@ -95,9 +95,14 @@ export function StorySections({
             the article. */}
         <aside className="story-rail">
           <div className="story-rail__inner">
+            {/* sticky={false} — `.story-rail__inner` above is the sticky
+                element, because the rail has to carry the metadata card up
+                with the TOC and the nav's own stickiness only lifts itself. */}
             <TableOfContents
               items={tocItems}
               ariaLabel="Story sections"
+              variant="rail"
+              sticky={false}
               className="story-toc"
             />
             {meta.length > 0 && (
