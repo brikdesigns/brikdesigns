@@ -27,6 +27,11 @@ on:
       - 'package-lock.json'
       - 'tests/visual-parity/baselines/**'
       - 'scripts/visual-parity.mjs'
+      # The readiness wait decides WHEN the capture runs, so a change to it
+      # must re-run this gate — otherwise the fix for #1218 never exercises
+      # itself on its own PR.
+      - 'scripts/wait-for-netlify-preview.sh'
+      - '.github/workflows/visual-mockup.yml'
 
 concurrency:
   group: visual-mockup-${{ github.ref }}
@@ -39,6 +44,10 @@ jobs:
     permissions:
       contents: read
       packages: read
+      # The readiness wait reads the Netlify commit status on the PR head SHA —
+      # the only deploy signal tied to a commit rather than to the PR number
+      # (#1218).
+      statuses: read
     env:
       PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -55,23 +64,19 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
+      # Waits on the Netlify deploy status for THIS commit, then on the gated
+      # route settling — not on a bare 200 from the PR-stable preview URL, which
+      # is what let #1217 screenshot a half-rendered page and score 66% (#1218).
+      # The gated route is passed explicitly so the wait covers the page the
+      # next step actually captures.
       - name: Wait for Netlify deploy-preview
         id: deploy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DEPLOY_URL="https://deploy-preview-${{ github.event.pull_request.number }}--brikdesigns.netlify.app"
-          echo "Polling $DEPLOY_URL for live deploy …"
-          for i in $(seq 1 60); do
-            CODE=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$DEPLOY_URL/" || echo "000")
-            if [ "$CODE" = "200" ]; then
-              echo "Deploy live (HTTP $CODE) on attempt $i."
-              echo "url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            echo "  attempt $i: HTTP $CODE — sleeping 10s"
-            sleep 10
-          done
-          echo "Deploy never reached HTTP 200 after 10 minutes." >&2
-          exit 1
+          scripts/wait-for-netlify-preview.sh \
+            --sha "${{ github.event.pull_request.head.sha }}" \
+            --route /events/grind-after-graduation
 
       - name: Compare deploy-preview against mockup baselines
         env:
