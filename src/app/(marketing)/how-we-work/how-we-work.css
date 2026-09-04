@@ -59,6 +59,12 @@
 }
 
 .hiw-hero__container {
+  /* Centered flex column so the text stays vertically centered once the band
+     grows to fill the hero on desktop (flex: 1 below) — mirrors the home hero
+     container (homepage.css .hero-container). */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
   max-width: var(--site-content-width);
   margin-inline: auto;
@@ -153,6 +159,9 @@
 .hiw-step {
   position: relative;
   z-index: 1;
+  /* Breathing room around each step card — operator ask. --padding-lg is
+     --space-600 (24px) in the site's default spacing mode. */
+  padding: var(--padding-lg);
 }
 
 /* The new split card. Two equal panes: content ⇄ checklist, split at the
@@ -283,9 +292,9 @@
 
 .hiw-tiers__control {
   width: 100%;
-  /* sm-width outline around the segmented track — operator ask. The BDS control
+  /* md-width outline around the segmented track — operator ask. The BDS control
      ships borderless; --border-primary matches the .hiw-card chrome. */
-  border: var(--border-width-sm) solid var(--border-primary);
+  border: var(--border-width-md) solid var(--border-primary);
 }
 
 .hiw-tiers__price {
@@ -536,6 +545,14 @@
 @media (min-width: 992px) {
   .hiw-hero {
     min-height: 668px;
+  }
+
+  /* Fill the 668px hero with the accent-blue band instead of centering a
+     content-height (~354px) strip in it — operator ask. `flex: 1` mirrors the
+     home hero container (homepage.css .hero-container); a max-height would cap
+     the band rather than grow it. */
+  .hiw-hero__container {
+    flex: 1;
   }
 }
 
