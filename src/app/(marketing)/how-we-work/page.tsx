@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader } from '@brikdesigns/bds';
+import { Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { PROCESS_STEPS, PRACTICE_CARDS } from '@/lib/how-we-work';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
@@ -121,7 +121,12 @@ export default async function HowWeWorkPage() {
             • engagement — two stacked mode sub-cards, Advisory / Managed (Step 3)
           The central spine (::before) connects the cards through the gaps and,
           inside each card, reads as the divider between the panes. */}
-      <section className="hiw-process" data-section="process">
+      <MediaBand
+        as="section"
+        className="hiw-process"
+        data-section="process"
+        graphic={<BackgroundPattern variant="line-grid" />}
+      >
         <div className="hiw-container">
           <SectionHeader title="Three steps. One team. Total clarity." />
           <ol className="hiw-timeline">
@@ -191,7 +196,7 @@ export default async function HowWeWorkPage() {
             ))}
           </ol>
         </div>
-      </section>
+      </MediaBand>
 
       {/* ═══ Practice ("What It Looks Like In Practice") ═══ */}
       {/* Figma node 25790:14529 — purple accent band; header row (title + CTA)

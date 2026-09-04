@@ -177,7 +177,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-lg);
-  padding: var(--padding-xl);
+  /* 24px both panes — operator ask. --padding-lg is --space-600 (24px) in the
+     site's default spacing mode, matching the .hiw-mode / step-card insets. */
+  padding: var(--padding-lg);
 }
 
 /* The per-step CTA hugs the content's left edge rather than stretching the
@@ -224,7 +226,7 @@
    The in-card divider (a border-left over the central spine) was removed per
    design — the two-tone fill split alone carries the pane boundary. */
 .hiw-card__pane {
-  padding: var(--padding-xl);
+  padding: var(--padding-lg);
   background-color: var(--surface-secondary);
 }
 
@@ -281,6 +283,9 @@
 
 .hiw-tiers__control {
   width: 100%;
+  /* sm-width outline around the segmented track — operator ask. The BDS control
+     ships borderless; --border-primary matches the .hiw-card chrome. */
+  border: var(--border-width-sm) solid var(--border-primary);
 }
 
 .hiw-tiers__price {
@@ -524,6 +529,15 @@
 }
 
 /* ─── Responsive ───────────────────────────────────────────── */
+
+/* Desktop: give the hero band a fixed floor so it reads as a proper hero rather
+   than the short 60svh band it collapses to on tall/short viewports — operator
+   ask. Mirrors the home hero's desktop floor (homepage.css .section-hero). */
+@media (min-width: 992px) {
+  .hiw-hero {
+    min-height: 668px;
+  }
+}
 
 @media (max-width: 991px) {
   .hiw-hero__text {
