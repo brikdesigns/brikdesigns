@@ -24,6 +24,17 @@
   z-index: 0;
 }
 
+/* Desktop: cap the hero band at a fixed 668px floor instead of the
+   full-viewport `calc(100svh - nav)`, which scales the content area oversized on
+   tall/large monitors — operator ask. Scoped to ≥992px so tablet/mobile keep the
+   viewport-height band (the 767px rule below restores the calc). Matches the
+   how-we-work hero floor (how-we-work.css .hiw-hero). */
+@media (min-width: 992px) {
+  .section-hero {
+    min-height: 668px;
+  }
+}
+
 /* Webflow: .container-hero — column flex, left-aligned. flex:1 reserves the
    container's natural vertical share so the trailing ScrollDownCta doesn't
    push hero content up off-center.
