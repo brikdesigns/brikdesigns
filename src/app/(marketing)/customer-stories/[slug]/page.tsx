@@ -29,7 +29,9 @@ import { heading } from '@/lib/styles';
 import { color, gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { INDUSTRY_ICONS, INDUSTRY_ICON_FALLBACK } from '@/lib/industry-icons';
 import { parseStorySections } from '@/lib/customer-story-sections';
+import { parseStorySocialLinks } from '@/lib/customer-story-author';
 import { StorySections, type StoryMetaItem } from './StorySections';
+import { StoryHero, type StoryHeroAuthor, type StoryHeroPair } from './StoryHero';
 import '../../shared-sections.css';
 import '../customer-stories.css';
 
@@ -200,6 +202,43 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
   // Challenge/Solution/Results template it used to fall back to is gone.
   const storySections = parseStorySections(story.sections);
 
+  // Hero metadata card (Figma 25944:8618) — three iconless pairs, labelled as
+  // the design labels them. NOT a slice of `metaItems`: Figma draws the hero
+  // and the rail from different sets ("Industries"/"Services" here vs the
+  // rail's "Industry"/"Service Line"/"Service"/"Completion Date"), and the
+  // rail's pairs carry icons while these do not.
+  //
+  // OPERATOR SAID 2026-09-04 (chat, #3799 AC4): "Keep them, matching Figma" —
+  // on the question of whether the hero's pairs duplicate the rail's. They are
+  // separate sections in the design (25944:8615 vs 25944:8933), not one row.
+  const heroPairs: StoryHeroPair[] = ([
+    story.client_name ? { key: 'client', label: 'Client', value: story.client_name } : null,
+    story.industry ? { key: 'industries', label: 'Industries', value: story.industry } : null,
+    // The most specific service the row carries — `service_slug` is null on
+    // roughly half the live rows, where the service line is all there is.
+    relatedService?.name || serviceLineName
+      ? {
+          key: 'services',
+          label: 'Services',
+          value: (relatedService?.name || serviceLineName) as string,
+        }
+      : null,
+  ] as (StoryHeroPair | null)[]).filter((p): p is StoryHeroPair => p !== null);
+
+  // Author identity (Figma 25944:9406 + 25944:9430), from the columns portal
+  // migration 00376 added. `quote_attribution` is the NAME since the 00381
+  // backfill; the role is its own column. All three are nullable and every
+  // live row is still empty, so the row degrades to identity-only, then to
+  // nothing at all.
+  const heroAuthor: StoryHeroAuthor | null = story.quote_attribution
+    ? {
+        name: story.quote_attribution,
+        role: story.author_role,
+        headshotUrl: story.author_headshot_url,
+        socialLinks: parseStorySocialLinks(story.author_social_links),
+      }
+    : null;
+
   // Closing tag row (Figma 25950:9471). Derived from the story's own
   // classification — `customer_stories` has no tags column, and the #3767
   // contract kept classification on the existing dedicated fields.
@@ -236,21 +275,23 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
           <h1 style={heading.lg}>{storyTitle}</h1>
         </div>
 
-        {story.hero_image_url && (
-          <div className="container-lg">
-            <div className="story-figure">
-              <Frame ratio="wide" fit="cover">
-                <Image
-                  src={story.hero_image_url}
-                  alt={`${story.client_name || story.name} hero`}
-                  width={1280}
-                  height={720}
-                  priority
-                />
-              </Frame>
-            </div>
-          </div>
-        )}
+        {/* Hero block (Figma 25944:8615, #3799 AC3/AC4). Replaces the
+            full-bleed 1280px hero image #1205 shipped as a deferral: the image
+            is now 768px inside the same 1024px container as the sections
+            below, with the metadata card beside it. */}
+        <StoryHero
+          pairs={heroPairs}
+          media={
+            story.hero_image_url
+              ? {
+                  url: story.hero_image_url,
+                  alt: `${story.client_name || story.name} hero`,
+                }
+              : null
+          }
+          description={story.short_description}
+          author={heroAuthor}
+        />
 
         <StorySections
           sections={storySections}

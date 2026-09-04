@@ -29,6 +29,7 @@
     "lint:section-id": "node scripts/lint-section-id.mjs",
     "test:lint:section-id": "node scripts/lint-section-id.test.mjs",
     "test:sanitize": "npx tsx scripts/test-sanitize-html.mjs",
+    "test:customer-story-author": "npx tsx scripts/test-customer-story-author.mjs",
     "test:ghl-webhook": "npx tsx scripts/test-ghl-webhook.ts",
     "test:visual-change": "node scripts/lib/visual-change-declaration.test.mjs",
     "test:fetch-diagnostics": "npx tsx scripts/fetch-diagnostics.test.mjs",
