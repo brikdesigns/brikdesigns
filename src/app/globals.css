@@ -245,6 +245,15 @@ html {
        near-black surface; use poppy-300 (readable, on-brand), same as
        --text-link above. Pairs with the light-mode poppy-700 pin. */
     --text-brand-primary: var(--color-poppy-300);
+    /* Same pin for BDS 0.182.0's AA-safe brand step (brik-bds#2270), which
+       the customer-story rail TOC's active label reads. BDS ships poppy-500
+       in dark because its OWN --text-brand-primary is poppy-500 in both
+       modes, so the strong step only had to darken in light. This theme
+       already pins the brand text lighter on dark, and inheriting BDS's
+       poppy-500 would repaint that label 9.13:1 → 4.56:1 and change its
+       colour on a live page. Both clear AA; this keeps the shipped
+       appearance rather than trading it for a token default. */
+    --text-brand-primary-strong: var(--color-poppy-300);
 
     /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
     --page-accent: var(--color-grayscale-950);
