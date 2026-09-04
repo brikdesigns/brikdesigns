@@ -148,8 +148,13 @@
    element, which doesn't exist — so the width override targets that slot. */
 .plan-what-you-get .bds-blueprint-section__container {
   max-width: 1080px;
-  /* Positioned parent for the decorative line-grid <BackgroundPattern> (first
-     child, inset:0, z-index:0) — mirrors the home workflow MediaBand recipe. */
+}
+
+/* Positioned parent for the decorative line-grid <BackgroundPattern>. The
+   pattern is a DOM child of the 1080px container, but its containing block is
+   the SECTION (positioned here, not the container), so inset:0 spans the full
+   section band instead of being clipped to the 1080px content column (#1224). */
+.plan-what-you-get {
   position: relative;
 }
 
@@ -192,6 +197,16 @@
      restore a real drop shadow so the focal price/CTA card lifts off the pale
      service-tinted panel band. */
   box-shadow: var(--box-shadow-lg);
+}
+
+/* Desktop floor so the focal price/CTA card fills its half of the two-column
+   panel and reads as the anchor beside the illustration (#1224). Scoped to the
+   ≥992px two-column layout — the panel collapses to one column at 991px below,
+   where a fixed floor would leave dead space. */
+@media (min-width: 992px) {
+  .plan-cta-panel__card {
+    min-height: 640px;
+  }
 }
 
 /* Price sits in a subtle inset block so it reads as the focal figure. The
