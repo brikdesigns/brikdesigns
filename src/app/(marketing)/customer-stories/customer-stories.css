@@ -258,6 +258,100 @@
   min-width: 0;
 }
 
+/* ─── Story hero block ──────────────────────────────────────────────────
+ * Figma 25944:8615 (brik-client-portal#3799). Reuses `.story-layout` above so
+ * the hero's two columns land on exactly the rail/body grid the sections use —
+ * that shared geometry is why the block reads as one column system rather than
+ * a wide band followed by a narrow one.
+ *
+ * The body column here does NOT take `.story-body`'s 48px inset: Figma puts
+ * this col_2 at x=256 (232 + the 24px gutter), flush to the grid, while the
+ * sections column is inset 48px inside its own container. Same grid, different
+ * inset — so this is its own class, not a `.story-body` modifier. */
+.story-hero__meta {
+  /* --surface-secondary, not --background-secondary, for the reason spelled
+     out on `.story-toc.bds-toc` below: the brikdesigns dark root redefines
+     --background-secondary to a mid-gray that paints a light box on the dark
+     band. Figma names `background/secondary`; this is its theme-tracking pair. */
+  background-color: var(--surface-secondary);
+  border-radius: var(--border-radius-md);
+  padding: var(--padding-lg);
+  /* Hug the pairs — a stretched card would trail empty tint down the length of
+     a 400px image. */
+  align-self: start;
+}
+
+.story-hero__meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  margin: 0;
+  padding: 0;
+}
+
+.story-hero__meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.story-hero__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1100);
+  min-width: 0;
+}
+
+/* The About block and the author row are one group (Figma `25944:8634`): 44px
+   separates the image from them, 20px separates them from each other. */
+.story-hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-500);
+}
+
+.story-hero__about {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-300);
+}
+
+.story-hero__author {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-xl);
+  border-top: var(--border-width-sm) solid var(--border-secondary);
+  padding-top: var(--gap-xl);
+}
+
+.story-hero__author-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-300);
+}
+
+/* Same stacked name/role as the pull-quote's chip (`.story-quote-card__
+   attribution-text`), at the hero's smaller 48px avatar. */
+.story-hero__author-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-50);
+}
+
+.story-hero__social {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.story-hero__social-link {
+  display: flex;
+}
+
 .story-section {
   scroll-margin-top: var(--gap-xl);
 }
