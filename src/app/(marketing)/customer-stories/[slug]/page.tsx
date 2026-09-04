@@ -257,6 +257,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
           meta={metaItems}
           quote={story.quote}
           quoteAttribution={story.quote_attribution || story.client_name}
+          authorRole={story.author_role}
           tags={closingTags}
           midMedia={
             story.after_photo_url
