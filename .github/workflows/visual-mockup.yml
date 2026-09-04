@@ -27,6 +27,11 @@ on:
       - 'package-lock.json'
       - 'tests/visual-parity/baselines/**'
       - 'scripts/visual-parity.mjs'
+      # The readiness wait decides WHEN the capture runs, so a change to it
+      # must re-run this gate — otherwise the fix for #1218 never exercises
+      # itself on its own PR.
+      - 'scripts/wait-for-netlify-preview.sh'
+      - '.github/workflows/visual-mockup.yml'
 
 concurrency:
   group: visual-mockup-${{ github.ref }}
