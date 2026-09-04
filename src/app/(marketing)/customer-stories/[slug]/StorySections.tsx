@@ -42,6 +42,13 @@ type Props = {
   meta: StoryMetaItem[];
   quote: string | null;
   quoteAttribution: string | null;
+  /**
+   * `customer_stories.author_role` — the author's role as its own column
+   * (portal migration 00376, #3799). Preferred over the comma-split below;
+   * null on a row the backfill has not reached, or on a genuinely role-less
+   * attribution.
+   */
+  authorRole: string | null;
   /** Classification labels for the closing tag row. */
   tags: string[];
   /**
@@ -57,10 +64,18 @@ type Props = {
 };
 
 /**
- * Attribution is a single free-text field (`customer_stories.quote_attribution`)
- * — there is no separate role column — so the Figma's two-line name/role chip
- * degrades to one line. Split on the first comma when the CMS author wrote
- * "Name, Role", which is the convention in the seeded rows.
+ * FALLBACK ONLY — `author_role` is the source of truth (portal 00376, #3799).
+ *
+ * Attribution used to be a single free-text field, so the Figma's two-line
+ * name/role chip was recovered by splitting "Name, Role" on the first comma.
+ * That convention is being retired: portal migration 00381 (#3845) moves the
+ * role half into `author_role` and leaves `quote_attribution` as the NAME.
+ *
+ * This is kept because the two repos deploy independently, so both row shapes
+ * are live at once — a backfilled row has `author_role` set and no comma left
+ * to split, while an un-backfilled one still needs the split to show a role at
+ * all. Deleting it before every consumer environment is backfilled is what
+ * drops the role from the chip; that removal is #3799's AC3.
  */
 function splitAttribution(raw: string): { name: string; role: string | null } {
   const comma = raw.indexOf(',');
@@ -76,6 +91,7 @@ export function StorySections({
   meta,
   quote,
   quoteAttribution,
+  authorRole,
   tags,
   midMedia,
   closingMedia,
@@ -85,7 +101,11 @@ export function StorySections({
     label: section.title,
   }));
 
-  const attribution = quoteAttribution ? splitAttribution(quoteAttribution) : null;
+  // Column first, comma-split second. `quote_attribution` is still split for
+  // its NAME either way — on a backfilled row that is a no-op (no comma), and
+  // on an un-backfilled one it is the only thing separating name from role.
+  const split = quoteAttribution ? splitAttribution(quoteAttribution) : null;
+  const attribution = split ? { name: split.name, role: authorRole ?? split.role } : null;
 
   return (
     <div className="container-lg container-lg--story-layout">

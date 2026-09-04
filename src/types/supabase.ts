@@ -1264,6 +1264,7 @@ export type Database = {
           id: string
           industry: string | null
           introduction_date: string | null
+          is_test_fixture: boolean
           legal_name: string | null
           name: string
           notes: string | null
@@ -1319,6 +1320,7 @@ export type Database = {
           id?: string
           industry?: string | null
           introduction_date?: string | null
+          is_test_fixture?: boolean
           legal_name?: string | null
           name: string
           notes?: string | null
@@ -1374,6 +1376,7 @@ export type Database = {
           id?: string
           industry?: string | null
           introduction_date?: string | null
+          is_test_fixture?: boolean
           legal_name?: string | null
           name?: string
           notes?: string | null
@@ -2421,6 +2424,9 @@ export type Database = {
         Row: {
           after_photo_url: string | null
           after_video_url: string | null
+          author_headshot_url: string | null
+          author_role: string | null
+          author_social_links: Json | null
           award_label: string | null
           before_photo_url: string | null
           before_video_url: string | null
@@ -2459,6 +2465,9 @@ export type Database = {
         Insert: {
           after_photo_url?: string | null
           after_video_url?: string | null
+          author_headshot_url?: string | null
+          author_role?: string | null
+          author_social_links?: Json | null
           award_label?: string | null
           before_photo_url?: string | null
           before_video_url?: string | null
@@ -2497,6 +2506,9 @@ export type Database = {
         Update: {
           after_photo_url?: string | null
           after_video_url?: string | null
+          author_headshot_url?: string | null
+          author_role?: string | null
+          author_social_links?: Json | null
           award_label?: string | null
           before_photo_url?: string | null
           before_video_url?: string | null
@@ -3810,6 +3822,7 @@ export type Database = {
           field_path: string
           id: string
           last_validated_at: string | null
+          promotion_status: string | null
           superseded_by: string | null
           text: string
           text_tsv: unknown
@@ -3822,6 +3835,7 @@ export type Database = {
           field_path: string
           id: string
           last_validated_at?: string | null
+          promotion_status?: string | null
           superseded_by?: string | null
           text: string
           text_tsv?: unknown
@@ -3834,6 +3848,7 @@ export type Database = {
           field_path?: string
           id?: string
           last_validated_at?: string | null
+          promotion_status?: string | null
           superseded_by?: string | null
           text?: string
           text_tsv?: unknown
@@ -5079,6 +5094,7 @@ export type Database = {
           accepted_at: string | null
           accepted_by_email: string | null
           accepted_by_ip: string | null
+          accepted_by_name: string | null
           accepted_by_user_agent: string | null
           company_id: string
           created_at: string | null
@@ -5104,6 +5120,7 @@ export type Database = {
           accepted_at?: string | null
           accepted_by_email?: string | null
           accepted_by_ip?: string | null
+          accepted_by_name?: string | null
           accepted_by_user_agent?: string | null
           company_id: string
           created_at?: string | null
@@ -5129,6 +5146,7 @@ export type Database = {
           accepted_at?: string | null
           accepted_by_email?: string | null
           accepted_by_ip?: string | null
+          accepted_by_name?: string | null
           accepted_by_user_agent?: string | null
           company_id?: string
           created_at?: string | null
@@ -7054,6 +7072,12 @@ export type Database = {
           text: string
         }[]
       }
+      memory_candidate_flags: {
+        Args: { p_chunk_ids: string[] }
+        Returns: {
+          id: string
+        }[]
+      }
       memory_staleness_flags: {
         Args: { p_chunk_ids: string[] }
         Returns: {
@@ -7074,6 +7098,7 @@ export type Database = {
           p_slug: string
           p_source: string
           p_source_type: string
+          p_status?: string
           p_text: string
         }
         Returns: Json
