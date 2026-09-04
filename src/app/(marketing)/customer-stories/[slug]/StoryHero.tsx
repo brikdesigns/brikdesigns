@@ -128,15 +128,15 @@ export function StoryHero({ pairs, media, description, author }: Props) {
                             className="story-hero__social-link"
                           >
                             {/* size="md" is 28px, exactly the Figma mark at
-                                25944:9430. The tone is the nearest available,
-                                NOT the design's: Figma specifies
-                                `--background/inverse` (#1b1b1b) and BDS's
-                                `grayscale` renders #5a5a5a — SocialIcon has no
-                                inverse tone. Filed as brik-bds#2274; swap this
-                                prop to `tone="inverse"` after that publishes.
-                                OPERATOR SAID 2026-09-04 (chat): "Ship
-                                grayscale, file BDS tone:inverse". */}
-                            <SocialIcon platform={link.platform} type="badge" size="md" />
+                                25944:9430; emphasis="inverse" fills
+                                `--surface-inverse` (#1b1b1b), the hue that
+                                node specifies. */}
+                            <SocialIcon
+                              platform={link.platform}
+                              type="badge"
+                              size="md"
+                              emphasis="inverse"
+                            />
                           </a>
                         </li>
                       ))}
