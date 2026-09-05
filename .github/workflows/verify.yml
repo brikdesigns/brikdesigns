@@ -123,15 +123,21 @@ jobs:
         run: npm run test:lint:bds-pin
 
       # The freeze's second half: fail if this PR changes the @brikdesigns/bds
-      # pin at all, unless it carries `bds-unfreeze`. Kept in YAML (not the node
-      # script) because it needs the base ref and the PR's labels. Two-dot diff
-      # against the fetched base tip; grep catches any +/- line touching the dep.
+      # VERSION, unless it carries `bds-unfreeze`. Kept in YAML (not the node
+      # script) because it needs the base ref and the PR's labels. It compares
+      # the bare semver (range prefix stripped) between base and HEAD, so a
+      # formatting-only change like `^0.183.0` -> `0.183.0` (the pin this gate
+      # ships with) passes; only a real version bump trips it.
       - name: BDS version-freeze guard (a bump needs the bds-unfreeze label)
         if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'bds-unfreeze')
         run: |
           git fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
-          if git diff "origin/$GITHUB_BASE_REF" -- package.json package-lock.json | grep -qE '@brikdesigns/bds'; then
-            echo "::error::@brikdesigns/bds is frozen (Path A, brikdesigns/brik-client-portal#3537). This PR changes its pin. Add the 'bds-unfreeze' label to override."
+          bare() { node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const p=JSON.parse(s);const v=((p.dependencies||{})['@brikdesigns/bds'])||'';process.stdout.write(v.replace(/^[^0-9]*/,''))})"; }
+          BASE=$(git show "origin/$GITHUB_BASE_REF:package.json" | bare)
+          HEAD=$(bare < package.json)
+          echo "base=$BASE head=$HEAD"
+          if [ "$BASE" != "$HEAD" ]; then
+            echo "::error::@brikdesigns/bds version changed ($BASE -> $HEAD) while frozen (Path A, brikdesigns/brik-client-portal#3537). Add the 'bds-unfreeze' label to override."
             exit 1
           fi
 
