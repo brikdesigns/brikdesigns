@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Icon } from '@/lib/icon';
-import { Grid, Button, SectionHeader } from '@brikdesigns/bds';
+import { Grid, Button, SectionHeader, Card, Frame } from '@brikdesigns/bds';
 import { getServiceCategories, getSupportPlans } from '@/lib/supabase/queries';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
@@ -178,22 +178,22 @@ export default async function AboutPage() {
       {/* Webflow: bordered card, 2-col: text left + 3D diamond image right */}
       <section className="page-section">
         <div className="container-lg">
-          <div className="about-value-card">
+          <Card variant="outlined" padding="none" className="about-value-card">
             <div className="about-value-text">
               <h2 style={heading.lg}>The Value of Design</h2>
               <p style={{ ...text.body, color: color.text.secondary }}>Learn about the value of design in 4 steps.</p>
               <Button href="/value" variant="primary" size="md">Learn More</Button>
             </div>
-            <div className="about-value-card__media">
+            <Frame customRatio="1 / 1" fit="contain" className="about-value-card__media">
               <Image
                 src="/images/value_of_design_4x.webp"
                 alt="The Value of Design"
-                width={400}
-                height={400}
-                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                fill
+                style={{ objectFit: 'contain' }}
+                sizes="(max-width: 768px) 100vw, 300px"
               />
-            </div>
-          </div>
+            </Frame>
+          </Card>
         </div>
       </section>
 

@@ -69,13 +69,15 @@
 /* ─── Value of Design CTA ──────────────────────────────────── */
 /* Webflow: bordered card, 2-col: text+button left, 3D illustration right */
 
+/* BDS <Card variant="outlined"> supplies border + radius (chrome by band,
+   card-treatment.md); this class only lays out the two-column body. */
 .about-value-card {
   display: flex;
+  /* Explicit: BDS .bds-card defaults flex-direction:column; keep the 2-col row. */
+  flex-direction: row;
   align-items: center;
   gap: var(--gap-xl);
   padding: var(--padding-xl);
-  border: var(--border-width-md) solid var(--border-secondary);
-  border-radius: var(--border-radius-md);
   width: 100%;
 }
 
@@ -87,12 +89,11 @@
   gap: var(--gap-md);
 }
 
+/* <Frame customRatio="1 / 1"> owns the square ratio + the derived media well
+   (--surface-secondary + --border-radius-md via .bds-card .bds-frame,
+   card-media.md); this class only fixes the column width. */
 .about-value-card__media {
   flex: 0 0 300px;
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* ─── Pillars (Approach / Mission / Vision) ────────────────── */
