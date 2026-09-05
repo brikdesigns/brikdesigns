@@ -111,6 +111,30 @@ jobs:
       - name: Image-budget lint (public/ asset weight)
         run: npm run lint:images
 
+      # brikdesigns#1228 (Path A cost-cut, portal#3537). Two-part BDS freeze:
+      # (a) the spec must stay an exact pin — a caret is the hole a future
+      # `npm install` floats through — and the guard's own failure path is
+      # asserted in the self-test; (b) the pinned version may not CHANGE without
+      # a `bds-unfreeze` label (next step), so a bump is a deliberate, labelled act.
+      - name: BDS exact-pin lint (@brikdesigns/bds is frozen)
+        run: npm run lint:bds-pin
+
+      - name: BDS exact-pin lint — self-test (range-spec fixtures + CLI exit codes)
+        run: npm run test:lint:bds-pin
+
+      # The freeze's second half: fail if this PR changes the @brikdesigns/bds
+      # pin at all, unless it carries `bds-unfreeze`. Kept in YAML (not the node
+      # script) because it needs the base ref and the PR's labels. Two-dot diff
+      # against the fetched base tip; grep catches any +/- line touching the dep.
+      - name: BDS version-freeze guard (a bump needs the bds-unfreeze label)
+        if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'bds-unfreeze')
+        run: |
+          git fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
+          if git diff "origin/$GITHUB_BASE_REF" -- package.json package-lock.json | grep -qE '@brikdesigns/bds'; then
+            echo "::error::@brikdesigns/bds is frozen (Path A, brikdesigns/brik-client-portal#3537). This PR changes its pin. Add the 'bds-unfreeze' label to override."
+            exit 1
+          fi
+
       # brikdesigns#807. A dynamic segment at a route-group root loses to every
       # named sibling silently, so the guard's own failure path is asserted too —
       # a check only ever observed passing is not a proven check.
