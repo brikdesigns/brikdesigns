@@ -61,6 +61,10 @@ const ROUTES: { path: string; name: string }[] = [
   // about-value-card converted from a hand-built <div> to BDS <Card> + <Frame>
   // (#1191, Tier 2 of #1175), so /about now renders derived-standard card media.
   { path: '/about', name: 'About' },
+  // services-card (the "Other Customer Stories" grid) media <div> migrated onto a
+  // BDS <Frame> (#1191, Tier 2 of #1175), so the story-detail route now renders
+  // derived-standard card media the gate can sweep.
+  { path: '/customer-stories/birdwell-mutlak-dentistry-website', name: 'Customer story detail' },
 ];
 
 interface MediaFinding {

@@ -142,38 +142,13 @@
   overflow: hidden;
 }
 
-/* ─── Other Customer Stories grid cards ────────────────────
- * Hero images are landscape; override the square aspect ratio used on
- * the /services pages to maintain consistent proportions here.
- *
- * The frame must be authoritative: with the img in normal flow at
- * height:100%, a non-16/9 source (e.g. a square brand composite) can't
- * resolve the percentage, falls back to its intrinsic ratio, and stretches
- * the wrapper past the preferred aspect-ratio — one tall card in the row
- * (BACKLOG-858). Absolutely position the img so the wrapper's aspect-ratio
- * alone sizes the box and any source ratio gets cover-cropped to 16/9. */
-.services-card__media--landscape {
-  aspect-ratio: 16/9;
-  position: relative;
-  /* Rounded corners on the card image. `overflow: hidden` clips the
-     absolutely-positioned img below to the radius. The base
-     `.services-card__media` radius (services.css) doesn't reach here — this
-     page imports customer-stories.css only, not services.css. */
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-}
-
+/* ─── Other Customer Stories grid cards ──────────────────── */
 /* Story name stepped down from the CardTitle default (--heading-md, 25px),
    which overpowered the ~405px card. Targets only the h4-tagged titles set on
    the Other Customer Stories cards — the Related Services cards keep the
    default h3 size. */
 .services-card h4.bds-card-title {
   font-size: var(--heading-sm);
-}
-
-.services-card__media--landscape img {
-  position: absolute;
-  inset: 0;
 }
 
 /* ─── Flexible sections layout ─────────────────────────────────────────────

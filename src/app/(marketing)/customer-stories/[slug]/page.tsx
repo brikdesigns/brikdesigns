@@ -347,15 +347,15 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                       style={{ height: '100%' }}
                     >
                       {s.hero_image_url && (
-                        <div className="services-card__media services-card__media--landscape">
+                        <Frame customRatio="16 / 9" fit="cover" className="services-card__media">
                           <Image
                             src={s.hero_image_url}
                             alt={s.client_name || s.name || ''}
-                            width={400}
-                            height={225}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            fill
+                            style={{ objectFit: 'cover' }}
+                            sizes="(max-width: 768px) 100vw, 400px"
                           />
-                        </div>
+                        </Frame>
                       )}
                       <div className="services-card__content">
                         {s.service_line_slug && (
