@@ -54,6 +54,7 @@ The derived selector reaches BDS cards only. Hand-built card blocks are plain `<
 | Class | Route | Why it stays |
 | --- | --- | --- |
 | `plans-card-wrapper__media` | `/plans` | Media is a sibling **above** the `<PricingCard>`, not a `<Frame>` inside a `<Card>` — the derived selector can't reach it. On the standard by name in `plans.css`. |
+| `plan-cta-panel__media` | `/plans`, `/plans/[slug]` | A panel illustration that is a **grid sibling beside** the `<Card>`, not media inside it (verified: bare `<div>`, `closest('.bds-card')` is null, `page.tsx`). Same shape as `plans-card-wrapper` — the derived selector can't reach it, and forcing the neutral well onto the transparent service-tinted panel would be wrong. #1191 listed it as a Tier-2 conversion; it is an exception. |
 | `story-card__media` | `/customers/[slug]`, `/customer-stories` | Nested `__media-wrap` > `__media` structure with its own aspect handling. |
 | `services-callout-card__media`, `service-sibling-card__media` | `/services*` | The services section deliberately uses a **service-themed `--surface-accent` well**, not the neutral `--surface-secondary` standard. Migrating would erase the theming. Whether these should normalize is an open design decision on #1191. |
 
