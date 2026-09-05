@@ -3,7 +3,7 @@ import { Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader,
 import { PROCESS_STEPS, PRACTICE_CARDS } from '@/lib/how-we-work';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
-import { getManagedPlanPrices, getIndustryPages } from '@/lib/supabase/queries';
+import { getManagedPlanPrices } from '@/lib/supabase/queries';
 import { CheckIcon } from '@/components/how-we-work/CheckIcon';
 import { ProcessFoundationTiers } from '@/components/how-we-work/ProcessFoundationTiers';
 import '../shared-sections.css';
@@ -54,10 +54,7 @@ function GearIcon() {
 export default async function HowWeWorkPage() {
   // Managed monthly price per plan slug — the Step-2 segmented control shows
   // each service line's Managed price (DB is the pricing SoT, #1123).
-  const [plans, industryPages] = await Promise.all([
-    getManagedPlanPrices(),
-    getIndustryPages(),
-  ]);
+  const plans = await getManagedPlanPrices();
   const managedPriceBySlug = new Map(
     plans.map((plan) => [
       plan.slug,
@@ -66,25 +63,16 @@ export default async function HowWeWorkPage() {
   );
 
   // Industries section: the same MediaTabs the home uses (HomeIndustriesTabs) —
-  // curated HOME_INDUSTRIES blurbs joined to each industry_pages row's
-  // illustration by slug (DB is SoT for imagery). Any industry without an image
-  // is dropped rather than rendering an empty panel — mirrors the home build.
-  const industryBySlug = new Map(
-    (industryPages as { slug: string; name: string; image_url: string | null }[]).map(
-      (row) => [row.slug, row],
-    ),
-  );
-  const industriesTabs = HOME_INDUSTRIES.map((industry) => {
-    const row = industryBySlug.get(industry.slug);
-    if (!row?.image_url) return null;
-    return {
-      id: industry.slug,
-      label: industry.label,
-      description: industry.description,
-      imageUrl: row.image_url,
-      alt: `${row.name} illustration`,
-    };
-  }).filter((tab): tab is NonNullable<typeof tab> => tab !== null);
+  // curated HOME_INDUSTRIES blurbs + static illustrations (public/images/
+  // industries/), mirroring the home build. Art is decoupled from the shared
+  // industry_pages.image_url icon.
+  const industriesTabs = HOME_INDUSTRIES.map((industry) => ({
+    id: industry.slug,
+    label: industry.label,
+    description: industry.description,
+    imageUrl: industry.illustration,
+    alt: `${industry.label} illustration`,
+  }));
 
   return (
     <>
@@ -234,8 +222,8 @@ export default async function HowWeWorkPage() {
       {/* Figma node 25887:4854 — yellow accent band. Uses the same tabbed
           container as the home Industries section (HomeIndustriesTabs →
           MediaTabs): one tab per industry, each revealing its blurb and a synced
-          illustration panel. Labels + blurbs are the curated HOME_INDUSTRIES
-          copy (shared SoT); illustrations come from industry_pages.image_url.
+          illustration panel. Labels, blurbs, and static illustrations are all
+          the curated HOME_INDUSTRIES copy (shared SoT).
           On-band text is pinned dark in how-we-work.css (fixed-light yellow
           tint, same as home). */}
       {industriesTabs.length > 0 && (

@@ -427,8 +427,12 @@
   padding: var(--space-1800) 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 100%;
+  /* Full-viewport band (matches the home .section-industries): content centers
+     in the viewport height rather than sitting at its natural height. */
+  min-height: 100svh;
   --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band text on the fixed-light accent-yellow tint; --text-* flips near-white in the dark root, only a mode-invariant dark primitive clears AA in both themes (mirrors shared-sections.css .section-industries) */
   --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — step body copy, same reasoning */
 }

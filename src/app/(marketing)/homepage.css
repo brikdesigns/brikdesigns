@@ -208,6 +208,9 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+  /* Full-viewport band (matches .section-services): the content centers in the
+     viewport height rather than sitting at its natural height. */
+  min-height: 100svh;
 }
 
 .industries-tabs {

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getServiceCategories, getServices, getSupportPlans, getIndustryPages, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Image, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceCtaVars } from '@/lib/tokens';
@@ -49,33 +49,24 @@ const PROBLEMS = [
 ];
 
 export default async function HomePage() {
-  const [categories, allServices, plans, industryPages] = await Promise.all([
+  const [categories, allServices, plans] = await Promise.all([
     getServiceCategories(),
     getServices(),
     getSupportPlans(),
-    getIndustryPages(),
   ]);
 
   // R2 Industries section: MediaTabs (Dental / Real Estate / Small Business).
-  // Blurb = curated R2 copy (HOME_INDUSTRIES); illustration = industry_pages
-  // row's image_url joined by slug (DB is SoT for imagery). Any industry whose
-  // row is missing or image-less is dropped rather than rendering an empty panel.
-  const industryBySlug = new Map(
-    (industryPages as { slug: string; name: string; image_url: string | null }[]).map(
-      (row) => [row.slug, row],
-    ),
-  );
-  const industriesTabs = HOME_INDUSTRIES.map((industry) => {
-    const row = industryBySlug.get(industry.slug);
-    if (!row?.image_url) return null;
-    return {
-      id: industry.slug,
-      label: industry.label,
-      description: industry.description,
-      imageUrl: row.image_url,
-      alt: `${row.name} illustration`,
-    };
-  }).filter((tab): tab is NonNullable<typeof tab> => tab !== null);
+  // Blurb + illustration both come from the curated HOME_INDUSTRIES constant —
+  // the wide 664×498 art is a static asset in public/images/industries/, kept
+  // off the shared industry_pages.image_url (an icon reused at 240×240 in
+  // /customers + the MegaNav).
+  const industriesTabs = HOME_INDUSTRIES.map((industry) => ({
+    id: industry.slug,
+    label: industry.label,
+    description: industry.description,
+    imageUrl: industry.illustration,
+    alt: `${industry.label} illustration`,
+  }));
 
   // R2 Services section: two peer card grids (Marketing / Back-Office) toggled
   // by a SegmentedControl. Each tab's card content is sourced from existing
@@ -224,8 +215,8 @@ export default async function HomePage() {
 
       {/* ═══ Industries ("Where we do our best work") ═══ */}
       {/* R2 section (Figma node 25768:6527): MediaTabs peer selector (Dental /
-          Real Estate / Small Business) + synced illustration panel. Blurbs from
-          Homepage-R2 Notion; illustrations from industry_pages.image_url. */}
+          Real Estate / Small Business) + synced illustration panel. Blurbs +
+          static illustrations both from HOME_INDUSTRIES. */}
       {industriesTabs.length > 0 && (
         <section className="section-industries" data-section="industries">
           <div className="section-container">
