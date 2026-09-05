@@ -82,9 +82,11 @@
 
 /* Illustration panel — fixed 80×80 square (1:1). The 80px grid track fixes the
    width; aspect-ratio:1 (matching the <Frame ratio="square">) fixes the height.
-   The inner image is `object-fit: contain`, so it centres within the panel. */
+   The inner image is `object-fit: contain`, so it centres within the panel.
+   Radius/well are NOT set here — this Frame is inside a BDS <Card>, so the
+   derived "Card media standard" (.bds-card .bds-frame, shared-sections.css)
+   supplies --border-radius-md + the --surface-secondary well (#1191). */
 .plan-service-list-item__media {
-  border-radius: var(--border-radius-md);
   aspect-ratio: 1;
 }
 

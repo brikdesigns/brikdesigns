@@ -90,7 +90,7 @@ export function PlanIncludedServices({
                   <Frame
                     ratio="square"
                     fit="contain"
-                    className="plan-service-list-item__media illustration-media-bg"
+                    className="plan-service-list-item__media"
                   >
                     <Image
                       src={svc.image_url}

@@ -50,6 +50,11 @@ const ROUTES: { path: string; name: string }[] = [
   { path: '/services', name: 'Services index' },
   { path: '/services/brand', name: 'Service line — brand' },
   { path: '/plans', name: 'Plans' },
+  // Plan detail — the "What You Get" service cards are BDS <Card variant="outlined">
+  // with a <Frame> media slot, so they already inherit the derived standard
+  // (#1191, Tier 2 of #1175). Route added to lock that in. plan-cta-panel media
+  // is a documented sibling-media exception (card-media.md), so it is not swept.
+  { path: '/plans/back-office-support', name: 'Plan detail' },
   // blog-card migrated onto BDS <Card> + <Frame> (#1175), so /blog now renders
   // derived-standard card media the gate can sweep.
   { path: '/blog', name: 'Blog index' },
