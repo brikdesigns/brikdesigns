@@ -9,15 +9,16 @@ type HeroProps = ComponentProps<typeof HeroSplitImageCardOverlay>;
 
 /**
  * Plan-page hero whose price-card "Get Started" CTA opens the lead-capture
- * modal instead of navigating to /get-started — the same modal the lower
- * cta-panel button (GetStartedModalButton) opens, so both above- and
- * below-fold CTAs behave identically (#401).
+ * modal instead of navigating away — the same modal the lower cta-panel button
+ * (GetStartedModalButton) opens, so both above- and below-fold CTAs behave
+ * identically (#401).
  *
  * Uses the blueprint's `onPriceCtaClick` affordance (brik-bds#843, shipped in
- * @brikdesigns/bds@0.101.0). The CTA's `url` (`/get-started?plan=…`) stays the
- * rendered href, so it remains a working no-JS / SEO fallback and direct-link
- * target (progressive enhancement). This client wrapper holds the modal state;
- * the surrounding tint/scroll chrome stays in the server component.
+ * @brikdesigns/bds@0.101.0). The CTA's `url` (`/contact`) stays the rendered
+ * href, so it remains a working no-JS / SEO fallback and direct-link target
+ * (progressive enhancement; the /get-started route was retired, #1226). This
+ * client wrapper holds the modal state; the surrounding tint/scroll chrome
+ * stays in the server component.
  */
 export function PlanHeroModal({
   section,

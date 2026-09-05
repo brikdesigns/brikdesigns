@@ -5,9 +5,8 @@
 
 /* ─── Interior page hero ─────────────────────────────────── */
 /* Standardised header for non-home pages (about, plans, blog, customers,
-   industries, services, services/[cat], customer-stories, value,
-   get-started). Used in 11 pages — keep this pattern DRY here rather than
-   per-page CSS. */
+   industries, services, services/[cat], customer-stories, value). Used in
+   10 pages — keep this pattern DRY here rather than per-page CSS. */
 /* Interior hero fills the initial viewport so the scroll-down affordance sits
  * at the fold. Grid (rather than flex) gives us a 1fr top row for the centered
  * container plus an auto bottom row that pins the scroll CTA to the fold edge —

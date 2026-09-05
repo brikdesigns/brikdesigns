@@ -58,6 +58,15 @@
 
 /* ─── Service detail page ─────────────────────────────────── */
 
+/* Hero content band matches the top nav (1440px) rather than the BDS blueprint
+ * default (--content-width-xl, 1280px). Set the canonical BDS hook on the hero
+ * wrapper so its .bds-hero__container caps at --site-content-width — the same
+ * name nav/footer/page containers point at (globals.css). Scoped to the hero
+ * only; the body sections below stay at the 1280 default (#1226). */
+.page-hero-blueprint {
+  --bds-blueprint-section-content-width: var(--site-content-width);
+}
+
 /* Hero price card (BDS HeroSplitImageCardOverlay): the CTA button is the last
  * child of `.bds-hero__price`, which stacks label → value → button at a
  * uniform `--gap-xs` (4px). That sat too tight under the price, so push the
