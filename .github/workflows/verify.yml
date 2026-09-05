@@ -111,6 +111,36 @@ jobs:
       - name: Image-budget lint (public/ asset weight)
         run: npm run lint:images
 
+      # brikdesigns#1228 (Path A cost-cut, portal#3537). Two-part BDS freeze:
+      # (a) the spec must stay an exact pin — a caret is the hole a future
+      # `npm install` floats through — and the guard's own failure path is
+      # asserted in the self-test; (b) the pinned version may not CHANGE without
+      # a `bds-unfreeze` label (next step), so a bump is a deliberate, labelled act.
+      - name: BDS exact-pin lint (@brikdesigns/bds is frozen)
+        run: npm run lint:bds-pin
+
+      - name: BDS exact-pin lint — self-test (range-spec fixtures + CLI exit codes)
+        run: npm run test:lint:bds-pin
+
+      # The freeze's second half: fail if this PR changes the @brikdesigns/bds
+      # VERSION, unless it carries `bds-unfreeze`. Kept in YAML (not the node
+      # script) because it needs the base ref and the PR's labels. It compares
+      # the bare semver (range prefix stripped) between base and HEAD, so a
+      # formatting-only change like `^0.183.0` -> `0.183.0` (the pin this gate
+      # ships with) passes; only a real version bump trips it.
+      - name: BDS version-freeze guard (a bump needs the bds-unfreeze label)
+        if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'bds-unfreeze')
+        run: |
+          git fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
+          bare() { node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const p=JSON.parse(s);const v=((p.dependencies||{})['@brikdesigns/bds'])||'';process.stdout.write(v.replace(/^[^0-9]*/,''))})"; }
+          BASE=$(git show "origin/$GITHUB_BASE_REF:package.json" | bare)
+          HEAD=$(bare < package.json)
+          echo "base=$BASE head=$HEAD"
+          if [ "$BASE" != "$HEAD" ]; then
+            echo "::error::@brikdesigns/bds version changed ($BASE -> $HEAD) while frozen (Path A, brikdesigns/brik-client-portal#3537). Add the 'bds-unfreeze' label to override."
+            exit 1
+          fi
+
       # brikdesigns#807. A dynamic segment at a route-group root loses to every
       # named sibling silently, so the guard's own failure path is asserted too —
       # a check only ever observed passing is not a proven check.
