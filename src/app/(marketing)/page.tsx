@@ -11,7 +11,6 @@ import { TOOLING_LOGOS } from '@/lib/home-tooling';
 import { WORKFLOW_STEPS, WORKFLOW_IMAGE_WIDTHS } from '@/lib/home-workflow';
 import { TESTIMONIALS } from '@/lib/home-testimonials';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
-import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import './homepage.css';
 import './shared-sections.css';
 
@@ -155,7 +154,7 @@ export default async function HomePage() {
                 Start with a Free BrikDown Analysis
               </Button>
               <Button
-                href="/get-started"
+                href="/how-we-work"
                 variant="outline"
                 size="lg"
                 className="hero-btn-on-dark"
@@ -165,7 +164,6 @@ export default async function HomePage() {
             </Cluster>
           </div>
         </div>
-        <ScrollDownCta />
       </section>
 
       {/* ═══ Problem ("Does this sound familiar?") ═══ */}
@@ -201,7 +199,7 @@ export default async function HomePage() {
               {/* on-color (white fill, dark ink, theme-stable) — the accent band
                   is fixed-light in both themes, and a brand `outline` would put
                   orange-on-purple at ~1:1. Matches the Figma white secondary. */}
-              <Button href="/get-started" variant="on-color" size="lg">
+              <Button href="/how-we-work" variant="on-color" size="lg">
                 See How We Work
               </Button>
             </Cluster>

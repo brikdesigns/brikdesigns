@@ -96,6 +96,12 @@ const nextConfig = {
       // so this catches in-flight bookmarks and any indexed preview URL.
       { source: '/how-it-works', destination: '/how-we-work', permanent: true },
 
+      // ── /get-started retired → /contact (brikdesigns#1226).
+      // The standalone lead-capture route was only reached by two mislabeled
+      // homepage CTAs (now pointing at /how-we-work) and as the plan-hero's
+      // no-JS fallback (now /contact). Catches any indexed/bookmarked URL.
+      { source: '/get-started', destination: '/contact', permanent: true },
+
       // ── Landing pages namespaced to /offers/* (brikdesigns#807)
       // Closed list, not a pattern: these are the four `template='landing'` rows
       // that existed when the route moved (enumerated on #807, 2026-08-04), and

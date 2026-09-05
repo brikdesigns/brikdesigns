@@ -160,7 +160,7 @@ export default async function PlanDetailPage({ params }: Props) {
       serviceLineSlug: null,
       highlighted: Boolean(t.is_featured),
       ctaLabel: 'Get Started',
-      ctaHref: `/get-started?plan=${plan.slug}`,
+      ctaHref: '/contact',
     }));
 
   const otherPlans = await getOtherSupportPlans(slug);
@@ -197,10 +197,10 @@ export default async function PlanDetailPage({ params }: Props) {
           // `onPriceCtaClick` (brik-bds#843, @brikdesigns/bds@0.101.0) — the
           // same modal the lower cta-panel button opens (#401). The `url` below
           // stays the rendered href, so it remains a working no-JS / direct-link
-          // fallback to the standalone /get-started page.
+          // fallback to /contact (the /get-started route was retired, #1226).
           // `size: 'md'` opts into the priceCard.cta size hook added in
           // @brikdesigns/bds@0.95.0 (brik-bds#869); blueprint default is `sm`.
-          cta: { label: 'Get Started', url: `/get-started?plan=${plan.slug}`, size: 'md' },
+          cta: { label: 'Get Started', url: '/contact', size: 'md' },
         }
       : undefined,
     visualNotes: {
