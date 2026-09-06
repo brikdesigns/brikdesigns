@@ -57,9 +57,7 @@
     },
     "/about": {
       "color-contrast": [
-        ".bds-button--lg > .bds-button__content",
-        ".bds-button--sm",
-        "a[href$=\"value\"] > .bds-button__content"
+        ".about-cta__description"
       ]
     },
     "/blog": {
@@ -183,9 +181,7 @@
     },
     "/about": {
       "color-contrast": [
-        ".bds-button--lg > .bds-button__content",
-        ".bds-button--sm",
-        "a[href$=\"value\"] > .bds-button__content"
+        ".about-cta__description"
       ]
     },
     "/blog": {

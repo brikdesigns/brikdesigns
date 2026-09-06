@@ -1,140 +1,150 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Icon } from '@/lib/icon';
-import { Grid, Button, SectionHeader, Card, Frame } from '@brikdesigns/bds';
-import { getServiceCategories, getSupportPlans } from '@/lib/supabase/queries';
+import { Button, Accordion } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
-import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import '../shared-sections.css';
 import './about.css';
 
 export const metadata: Metadata = {
   alternates: { canonical: '/about' },
-  title: 'About Brik Designs | Your Marketing & Design Partner',
-  description: 'Meet the team behind Brik Designs. We help businesses thrive through practical design, streamlined systems, and strategic creative support.',
+  // Bare title — the root layout applies the `%s | Brik Designs` template.
+  title: 'Meet Brik',
+  description:
+    'Meet Abbey and Nick — the team behind Brik. We help dental practices, real estate professionals, and small businesses handle marketing and operations so owners can focus on the work.',
 };
 
 export const revalidate = 3600;
+
+// BrikDown CTA target. OPERATOR SAID 2026-09-06 (chat): "/offers/brikdown-analysis"
+// is canonical — matches the home (R2) and how-we-work rebuilds. (The sibling
+// /offers/free-marketing-analysis is also live but the legacy slug.)
+const BRIKDOWN_HREF = '/offers/brikdown-analysis';
 
 const TEAM = [
   {
     name: 'Abbey',
     fullName: 'Abbey Stanerson',
-    role: 'Co-founder, Marketing and Operations',
+    role: 'Marketing & Operations',
     image: '/images/Abbey-Headshot.webp',
     bio: [
-      'Abbey brings over a decade of experience in marketing and operations, ranging from working at a startup marketing agency to a Fortune 500 marketing agency focused on private practices, particularly in the dental industry. She has collaborated with hundreds of clients to craft strategies that drive meaningful results. Known for her bubbly personality and "yay!" enthusiasm, Abbey combines her approachable demeanor with a deep understanding of what works.',
-      'Her open, honest communication style ensures clients feel informed and confident while her expertise in deciphering what\'s right for each project delivers solutions that truly make an impact.',
+      'Abbey spent over a decade working inside marketing agencies — including a Fortune 500 firm focused on private practices and the dental industry — before launching Brik. She’s worked with hundreds of clients across marketing strategy, operations, and business development, and she’s seen firsthand what actually moves the needle and what’s just noise.',
+      'At Brik, Abbey leads strategy and client relationships. She’s the one who gets into your business, figures out what’s slipping, and builds the plan to fix it.',
     ],
-    linkedin: 'https://www.linkedin.com/in/abbeystanerson',
+    linkedin: 'https://www.linkedin.com/in/abbey-stanerson-62682142/',
     email: 'abbey@brikdesigns.com',
   },
   {
     name: 'Nick',
     fullName: 'Nick Stanerson',
-    role: 'Co-founder, Creative',
+    role: 'Creative & Execution',
     image: '/images/Nick-Headshot.webp',
     bio: [
-      'Nick is a meticulous designer with extensive experience as a lead designer at prestigious product companies, including iHeartRadio, SimplePractice, and Built. His expertise lies in transforming complex ideas into intuitive, user-friendly designs through thorough research, testing, and refinement.',
-      'Nick\'s work goes beyond aesthetics\u2014he ensures every design is both functional and impactful, creating experiences that connect with users and drive results. With a relentless commitment to excellence, Nick delivers designs that balance beauty, functionality, and innovation.',
+      'Nick spent years as a lead designer at scale — iHeartRadio, SimplePractice, and Built — building products that had to work for thousands of users at once. That kind of work teaches you how to think about systems, not just surfaces.',
+      'At Brik, Nick leads creative and execution. He’s responsible for making sure everything Brik builds — websites, campaigns, brand assets, client-facing materials — actually works the way it should. Good-looking and functional aren’t competing priorities to Nick. They’re the same thing.',
     ],
-    linkedin: 'https://www.linkedin.com/in/nickstanerson',
+    linkedin: 'https://www.linkedin.com/in/nickstanerson/',
     email: 'nick@brikdesigns.com',
     website: 'https://nickstanerson.com',
   },
 ];
 
-const PILLARS = [
+// §3 "Why Brik?" origin story. Rendered as prose this session; the accordion
+// treatment the operator asked for is blocked on the BDS Accordion subtitle/
+// action enhancement (brikdesigns/brik-bds#2285) landing + a version bump.
+const WHY_BRIK = [
+  'When we were kids, we were lego kids — siblings who could take the same pile of pieces and end up somewhere completely different by the end of the afternoon. The kind who followed the instructions just long enough to understand how it was supposed to go, then took the whole thing apart to see what else it could become. A spaceship could become a city. A castle could become something that didn’t have a name yet.',
+  'Something about that stuck with us.',
+  'A single brick isn’t much on its own. But give two people the same pile of pieces and they’ll build completely different things — and that’s not a flaw in the design. That’s the whole point. The right materials, the right vision, and you can build almost anything.',
+  'That’s where the name came from. Brik — with a “k,” no “c.” Four letters hit different: shorter, stickier, harder to shake. We wanted something that felt like ours. A little unexpected. The kind of name you don’t forget.',
+  'The word became a way of thinking. Every part of a business — brand, marketing, systems, back office — is its own brik. Each piece matters on its own. But stack them together with intention and you stop putting out fires and start running something that actually holds.',
+  'That’s what we’re here to build. Brik by brik.',
+];
+
+const HOW_WE_WORK = [
   {
-    number: '01',
-    title: 'Approach',
-    body: 'Our approach is simple: it\u2019s not about being the biggest agency; it\u2019s about doing right by our clients. We deliver creative, functional, and effective solutions designed to help businesses succeed\u2014whether they\u2019re just getting started or leading the way.',
+    title: 'We stay small on purpose.',
+    body: 'Every client works directly with Abbey and Nick — not an account manager, not a junior team member. That’s not something we mention to sound boutique. It’s how we make sure the work is actually good.',
   },
   {
-    number: '02',
-    title: 'Mission',
-    body: 'Our mission is to simplify the complex through intentional design. We create high-quality, customized solutions that help businesses of all sizes connect with their audiences, reduce confusion, and focus on what they love. By staying lean and focused, we deliver personal, impactful strategies that make navigating information easier and more effective.',
-  },
-  {
-    number: '03',
-    title: 'Vision',
-    body: 'We envision a world where design makes life simpler, more intentional, and impactful. In a world overwhelmed by complexity and noise, we aim to show how thoughtful design can help businesses and their audiences navigate with ease, spend time on what matters, and create deeper connections.',
+    title: 'We also tell you what we actually think.',
+    body: 'If something isn’t working, we’ll say it. If a plan needs to change, we change it. Nobody benefits from a partner who just nods along.',
   },
 ];
 
-export default async function AboutPage() {
-  const [categories, plans] = await Promise.all([
-    getServiceCategories(),
-    getSupportPlans(),
-  ]);
+const BELIEFS = [
+  {
+    id: 'expertise',
+    title: 'You’re the expert on your business. We’re the expert on ours.',
+    body: 'We don’t pretend to know your industry better than you do. You bring the context. We bring the marketing and operations knowledge. Together it works.',
+  },
+  {
+    id: 'runs-without-you',
+    title: 'The process should run without you in the middle.',
+    body: 'Everything we build is designed to operate — not to require you to manage it. That’s the whole point of having a partner.',
+  },
+  {
+    id: 'small-and-focused',
+    title: 'Small and focused beats big and scattered.',
+    body: 'We take on a limited number of clients so the work stays good. When you work with Brik, you’re not competing for attention.',
+  },
+  {
+    id: 'honest',
+    title: 'Honest over comfortable.',
+    body: 'Clear communication, real feedback, and no surprises. We’d rather have a hard conversation early than a bigger one later.',
+  },
+];
 
-  // Support-plan cards for the "Monthly Subscription" band, repurposed from the
-  // home page. Plan cards render the marketing-line illustration, joined
-  // client-side against the already-fetched service lines via
-  // service_plans.display_line_id (mirrors src/app/(marketing)/page.tsx).
-  const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
-  const supportPlans = plans
-    // Product Support is a niche plan — excluded from the Monthly Subscription
-    // band (mirrors the home page; still live on the Plans page).
-    .filter((plan) => plan.slug !== 'product-support')
-    .map((plan) => {
-    const displayLineId = (plan as { display_line_id?: string | null }).display_line_id;
-    const line = displayLineId ? serviceLineById.get(displayLineId) : null;
-    return {
-      name: plan.name,
-      slug: plan.slug,
-      price: plan.monthly_price_display || 'Contact',
-      description: plan.home_description || plan.description || '',
-      image_url: line?.card_image_url ?? plan.image_url ?? null,
-      // Same display-line join drives the CTA tint — the card links to
-      // /plans/{slug}, whose own CTAs are tinted from this line (#1001).
-      service_line_slug: line?.slug ?? null,
-    };
-  });
-
+export default function AboutPage() {
   return (
     <>
       {/* ═══ Hero ═══ */}
-      {/* Webflow: white bg, h1 "About", intro paragraph, scroll indicator */}
-      <section className="page-hero about-hero">
-        <div className="page-hero__container">
-          <h1 className="page-hero__title">About</h1>
+      {/* Figma node 25980:12441 — white band, left-aligned title with "people"
+          in brand color, two intro paragraphs, scroll-down affordance. */}
+      <section className="page-hero about-hero" data-section="hero">
+        <div className="page-hero__container about-hero__container">
+          <h1 className="page-hero__title about-hero__title">
+            The <span className="about-hero__em">People</span> Behind Brik.
+          </h1>
           <p className="about-hero__intro">
-            With over 20 years of combined experience, Abbey and Nick form a dynamic partnership
-            that challenges the status quo. They don&apos;t settle for &ldquo;how it&apos;s always been done&rdquo;&mdash;instead,
-            they strive to make every project better, smarter, and more impactful. Their shared
-            commitment to clear communication, high-quality work, and quick turnarounds ensures
-            their clients feel supported every step of the way.
+            Dental practices, real estate businesses, and small businesses — especially the
+            ones doing really good work — are constantly outgunned on marketing and operations.
+            They&rsquo;re running on patchwork systems, managing vendors who don&rsquo;t talk to each
+            other, and doing it all without anyone who actually understands the full picture.
           </p>
           <p className="about-hero__intro">
-            At the core of their work is a focus on people&mdash;whether it&apos;s their customers or their
-            customers&apos; customers&mdash;creating designs and strategies that work for everyone.
+            Abbey and Nick built Brik to change that. One team that handles both marketing and
+            back office — so small business owners get the kind of support big companies take
+            for granted, without the overhead of building it in-house.
           </p>
         </div>
         <ScrollDownCta />
       </section>
 
-      {/* ═══ Team ═══ */}
-      {/* Webflow: 2-col bordered cards, large circle headshots, social links, full bios */}
-      <section className="page-section">
-        <div className="container-lg">
-          <Grid columns={2} gap="lg">
-            {TEAM.map((member) => (
-              <div key={member.name} className="about-team-card">
-                <div className="about-team-avatar">
-                  <Image
-                    src={member.image}
-                    alt={member.fullName}
-                    width={300}
-                    height={300}
-                    style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                  />
+      {/* ═══ Team (Meet Abbey / Meet Nick) ═══ */}
+      {/* Figma node 25977:8028 — two stacked full-width bordered cards; 304px
+          circle headshot left, name + role + social buttons + bio right. */}
+      <section className="page-section about-team" data-section="team">
+        <div className="container-lg container-lg--comfortable">
+          {TEAM.map((member) => (
+            <article key={member.name} className="about-team-card">
+              <div className="about-team-card__avatar">
+                <Image
+                  src={member.image}
+                  alt={member.fullName}
+                  width={304}
+                  height={304}
+                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                />
+              </div>
+              <div className="about-team-card__body">
+                <div className="about-team-card__head">
+                  <h2 style={heading.lg}>Meet {member.name}</h2>
+                  <p style={{ ...label.smBold, color: color.text.secondary }}>{member.role}</p>
                 </div>
-                <h3 className="about-team-name" style={heading.md}>Meet {member.name}</h3>
-                <p style={{ ...label.smBold, color: color.text.secondary }}>{member.role}</p>
-                <div className="about-team-social">
+                <div className="about-team-card__social">
                   <Button
                     href={member.linkedin}
                     target="_blank"
@@ -163,80 +173,101 @@ export default async function AboutPage() {
                     />
                   )}
                 </div>
-                <div className="about-team-bio">
+                <div className="about-team-card__bio">
                   {member.bio.map((paragraph, i) => (
                     <p key={i} style={{ ...text.body, color: color.text.secondary }}>{paragraph}</p>
                   ))}
                 </div>
               </div>
-            ))}
-          </Grid>
-        </div>
-      </section>
-
-      {/* ═══ Value of Design CTA ═══ */}
-      {/* Webflow: bordered card, 2-col: text left + 3D diamond image right */}
-      <section className="page-section">
-        <div className="container-lg">
-          <Card variant="outlined" padding="none" className="about-value-card">
-            <div className="about-value-text">
-              <h2 style={heading.lg}>The Value of Design</h2>
-              <p style={{ ...text.body, color: color.text.secondary }}>Learn about the value of design in 4 steps.</p>
-              <Button href="/value" variant="primary" size="md">Learn More</Button>
-            </div>
-            <Frame customRatio="1 / 1" fit="contain" className="about-value-card__media">
-              <Image
-                src="/images/value_of_design_4x.webp"
-                alt="The Value of Design"
-                fill
-                style={{ objectFit: 'contain' }}
-                sizes="(max-width: 768px) 100vw, 300px"
-              />
-            </Frame>
-          </Card>
-        </div>
-      </section>
-
-      {/* ═══ Pillars (Approach / Mission / Vision) ═══ */}
-      {/* Webflow: tan bg, stacked rows: number+title left, body text right */}
-      <section className="page-section page-section--accent">
-        <div className="container-lg container-lg--comfortable">
-          {PILLARS.map((pillar) => (
-            <div key={pillar.number} className="about-pillar-row">
-              <div className="about-pillar-label">
-                <span style={{ ...heading.md, color: color.text.brand }}>{pillar.number}</span>
-                <h3 style={heading.md}>{pillar.title}</h3>
-              </div>
-              <div className="about-pillar-body">
-                <p style={{ ...text.body, color: color.text.secondary }}>{pillar.body}</p>
-              </div>
-            </div>
+            </article>
           ))}
         </div>
       </section>
 
-      {/* ═══ Support Plans ("Monthly Subscription") ═══ */}
-      {/* Repurposed from the home page's plans band; replaced the former
-       * "Our Services" grid here. */}
-      <section className="page-section">
-        <div className="container-lg container-lg--comfortable">
-          <SectionHeader
-            title="Monthly Subscription"
-            description={<>We&apos;re more than a design studio&mdash;we&apos;re your strategic marketing partner.</>}
-          />
-          <Grid columns={3} gap="lg">
-            {supportPlans.map((plan) => (
-              <HomePlanCard
-                key={plan.slug}
-                name={plan.name}
-                slug={plan.slug}
-                price={plan.price}
-                description={plan.description}
-                imageUrl={plan.image_url}
-                serviceLineSlug={plan.service_line_slug}
-              />
+      {/* ═══ Why Brik? ═══ */}
+      {/* Figma node 26058:5343 — centered: 3D brik image, heading, origin story.
+          Prose for now; accordion treatment pends brik-bds#2285. */}
+      <section className="page-section about-why" data-section="why-brik" aria-labelledby="about-why-title">
+        <div className="container-lg about-why__inner">
+          <div className="about-why__media">
+            <Image
+              src="/images/brik_designs_4x.webp"
+              alt="A single 3D Brik"
+              width={267}
+              height={267}
+              style={{ objectFit: 'contain', width: '100%', height: '100%' }}
+            />
+          </div>
+          <h2 id="about-why-title" style={heading.lg}>Why Brik?</h2>
+          <div className="about-why__story">
+            {WHY_BRIK.map((paragraph, i) => (
+              <p key={i} style={{ ...text.bodyLg, color: color.text.secondary }}>{paragraph}</p>
             ))}
-          </Grid>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ How We Work ═══ */}
+      {/* Figma node 26058:5518 — centered title over two stacked subhead+body
+          blocks. */}
+      <section className="page-section about-hww" data-section="how-we-work" aria-labelledby="about-hww-title">
+        <div className="container-lg container-lg--comfortable about-hww__inner">
+          <h2 id="about-hww-title" style={heading.lg}>How We Work</h2>
+          <div className="about-hww__blocks">
+            {HOW_WE_WORK.map((block) => (
+              <div key={block.title} className="about-hww__block">
+                <h3 style={heading.md}>{block.title}</h3>
+                <p style={{ ...text.bodyLg, color: color.text.secondary }}>{block.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ What We Believe ═══ */}
+      {/* Figma node 25980:12411 — tan band, 2-col: heading left, accordion right.
+          Belief items render via the BDS Accordion (title + content). The
+          numbered index shown in the frame is the Accordion `action` slot,
+          deferred with the subtitle enhancement (brik-bds#2285). */}
+      <section className="page-section page-section--accent about-believe" data-section="believe" aria-labelledby="about-believe-title">
+        <div className="container-lg about-believe__inner">
+          <div className="about-believe__intro">
+            <h2 id="about-believe-title" style={heading.lg}>What We Believe</h2>
+            <p style={{ ...text.bodyLg, color: color.text.secondary }}>
+              The principles behind how we work — and how we decide what stays on your plate
+              and what comes off it.
+            </p>
+          </div>
+          <div className="about-believe__list">
+            <Accordion
+              items={BELIEFS.map((belief) => ({
+                id: belief.id,
+                title: belief.title,
+                content: (
+                  <p style={{ ...text.body, color: color.text.secondary }}>{belief.body}</p>
+                ),
+              }))}
+              defaultOpenItems={[BELIEFS[0].id]}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ CTA ("Ready to see if we're the right fit?") ═══ */}
+      {/* Figma node 25980:12466 — Brik-orange panel. Reuses the shared brand CTA
+          card (.cta-section-brand / .cta-card-brand, shared-sections.css). */}
+      <section className="cta-section-brand about-cta" data-section="cta" aria-labelledby="about-cta-title">
+        <div className="cta-card-brand">
+          <div className="cta-card-brand__content">
+            <h2 id="about-cta-title" className="about-cta__title">Ready to see if we&rsquo;re the right fit?</h2>
+            <p className="about-cta__description">
+              Start with a free BrikDown Analysis — 60 minutes, no pitch, just clarity on
+              what&rsquo;s working and what to fix first.
+            </p>
+          </div>
+          <Button href={BRIKDOWN_HREF} variant="on-color" size="lg">
+            Get your free BrikDown
+          </Button>
         </div>
       </section>
     </>

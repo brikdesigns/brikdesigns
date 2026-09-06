@@ -1,156 +1,222 @@
 /* ─── About page — layout only ──────────────────────────────
-   Derived from live brikdesigns.com/about (audited 2026-03-24).
+   Rebuilt from Figma "about" frame (node 25977-8015) + Notion "Meet Brik".
    All values use BDS tokens. No hardcoded colors/fonts.
    ──────────────────────────────────────────────────────────── */
 
 /* ─── Hero ─────────────────────────────────────────────────── */
-/* Webflow: white bg (not brand), h1 "About", intro paragraphs, scroll indicator */
+/* Figma: white band, left-aligned title ("people" in brand), intro paragraphs. */
 
 .about-hero {
   background-color: var(--surface-primary);
 }
 
+.about-hero__container {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.about-hero__title {
+  max-width: 20ch;
+}
+
+.about-hero__em {
+  color: var(--text-brand-primary);
+}
+
 .about-hero__intro {
   font-family: var(--font-family-body);
-  font-size: var(--body-lg);
+  font-size: var(--body-xl);
   color: var(--text-secondary);
-  line-height: var(--font-line-height-normal);
+  line-height: var(--font-line-height-relaxed);
   margin: var(--gap-md) 0 0;
-  max-width: 700px;
+  max-width: 680px;
 }
 
-.about-hero__scroll {
-  margin-top: var(--gap-xl);
-  text-align: center;
-  width: 100%;
-}
+/* ─── Team (Meet Abbey / Meet Nick) ────────────────────────── */
+/* Figma: two stacked full-width bordered cards; circle headshot left, copy
+   right. Cards sit on the default white band, so their chrome is the BDS
+   default (border, no shadow) — hand-built here since these are <article>s,
+   not <Card>s (card-treatment.md: white band → border + no shadow). */
 
-/* ─── Team ─────────────────────────────────────────────────── */
-/* Webflow: 2-col grid, bordered cards, large circle headshots centered,
-   social links below name, full-length bios */
+.about-team .container-lg--comfortable {
+  gap: var(--gap-xl);
+}
 
 .about-team-card {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  text-align: center;
-  gap: var(--gap-sm);
-  padding: var(--padding-xl);
-  border: var(--border-width-md) solid var(--border-secondary);
+  gap: var(--gap-2xl);
+  width: 100%;
+  padding: var(--padding-huge);
+  border: var(--border-width-200) solid var(--border-secondary);
   border-radius: var(--border-radius-md);
   background-color: var(--surface-primary);
 }
 
-.about-team-avatar {
-  width: 180px;
-  height: 180px;
+.about-team-card__avatar {
+  flex: 0 0 304px;
+  width: 304px;
+  height: 304px;
   border-radius: 50%;
   overflow: hidden;
-  flex-shrink: 0;
 }
 
-.about-team-name {
-  margin-top: var(--gap-sm);
-}
-
-.about-team-social {
-  display: flex;
-  gap: var(--gap-sm);
-  margin: var(--gap-xs) 0;
-}
-
-.about-team-bio {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-  text-align: left;
-}
-
-/* ─── Value of Design CTA ──────────────────────────────────── */
-/* Webflow: bordered card, 2-col: text+button left, 3D illustration right */
-
-/* BDS <Card variant="outlined"> supplies border + radius (chrome by band,
-   card-treatment.md); this class only lays out the two-column body. */
-.about-value-card {
-  display: flex;
-  /* Explicit: BDS .bds-card defaults flex-direction:column; keep the 2-col row. */
-  flex-direction: row;
-  align-items: center;
-  gap: var(--gap-xl);
-  padding: var(--padding-xl);
-  width: 100%;
-}
-
-.about-value-text {
+.about-team-card__body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: var(--gap-md);
+  gap: var(--gap-lg);
 }
 
-/* <Frame customRatio="1 / 1"> owns the square ratio + the derived media well
-   (--surface-secondary + --border-radius-md via .bds-card .bds-frame,
-   card-media.md); this class only fixes the column width. */
-.about-value-card__media {
-  flex: 0 0 300px;
-}
-
-/* ─── Pillars (Approach / Mission / Vision) ────────────────── */
-/* Webflow: tan/accent bg, stacked rows: number+title left column, body text right column */
-
-.about-pillar-row {
-  display: flex;
-  gap: var(--gap-xl);
-  padding: var(--padding-lg) 0;
-  border-bottom: var(--border-width-md) solid var(--border-secondary);
-}
-
-.about-pillar-row:last-child {
-  border-bottom: none;
-}
-
-.about-pillar-label {
-  flex: 0 0 200px;
+.about-team-card__head {
   display: flex;
   flex-direction: column;
   gap: var(--gap-xs);
 }
 
-.about-pillar-body {
-  flex: 1;
+.about-team-card__social {
+  display: flex;
+  gap: var(--gap-sm);
 }
 
-/* ─── Our Services ─────────────────────────────────────────── */
-/* Cards reuse the shared <HomeServiceCard> (BDS Card preset="display") —
-   no bespoke card styles here. See src/components/homepage/HomeServiceCard.tsx */
+.about-team-card__bio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+/* ─── Why Brik? ─────────────────────────────────────────────── */
+/* Figma: centered — 3D brik image, heading, origin-story prose in a readable
+   column. */
+
+.about-why__inner {
+  align-items: center;
+  text-align: center;
+  gap: var(--gap-lg);
+}
+
+.about-why__media {
+  width: 267px;
+  height: 267px;
+}
+
+.about-why__story {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+  max-width: 760px;
+}
+
+/* ─── How We Work ──────────────────────────────────────────── */
+/* Figma: centered title over two stacked subhead + body blocks. */
+
+.about-hww__inner {
+  align-items: center;
+  text-align: center;
+}
+
+.about-hww__blocks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-2xl);
+  max-width: 720px;
+}
+
+.about-hww__block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+/* ─── What We Believe ──────────────────────────────────────── */
+/* Figma: tan/accent band, 2-col — heading + intro left, accordion right.
+   Accordion chrome comes from BDS; the band is registered on the "Card chrome
+   by band" rule in shared-sections.css only for <Card>s, which this section has
+   none of. */
+
+.about-believe__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--gap-2xl);
+  align-items: start;
+}
+
+.about-believe__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  position: sticky;
+  top: var(--padding-huge);
+}
+
+/* ─── CTA ──────────────────────────────────────────────────── */
+/* Figma: Brik-orange panel — reuses .cta-section-brand / .cta-card-brand
+   (shared-sections.css). On-color text is invariant white (matches hiw-cta). */
+
+.about-cta__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-lg);
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-on-color-dark);
+  margin: 0;
+}
+
+.about-cta__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-lg);
+  line-height: var(--font-line-height-normal);
+  color: var(--text-on-color-dark);
+  margin: 0;
+  max-width: 620px;
+}
 
 /* ─── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 991px) {
-  .about-value-card {
+  .about-team-card {
     flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--gap-lg);
+    padding: var(--padding-xl);
   }
 
-  .about-value-card__media {
-    flex: none;
-    width: 100%;
-    max-width: 300px;
+  .about-team-card__head {
+    align-items: center;
   }
 
-  .about-pillar-row {
-    flex-direction: column;
-    gap: var(--gap-md);
+  .about-team-card__social {
+    justify-content: center;
   }
 
-  .about-pillar-label {
-    flex: none;
+  .about-team-card__bio {
+    text-align: left;
   }
 
+  .about-believe__inner {
+    grid-template-columns: 1fr;
+    gap: var(--gap-xl);
+  }
+
+  .about-believe__intro {
+    position: static;
+  }
 }
 
 @media (max-width: 767px) {
-  .about-hero {
+  .about-hero,
+  .about-team,
+  .about-why,
+  .about-hww,
+  .about-believe {
     padding: var(--padding-xl) 0;
+  }
+
+  .about-team-card__avatar {
+    flex-basis: 220px;
+    width: 220px;
+    height: 220px;
   }
 }
