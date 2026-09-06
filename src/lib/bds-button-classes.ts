@@ -1,14 +1,18 @@
 /**
  * Local mirror of BDS `composeButtonClasses`.
  *
- * The function exists in `@brikdesigns/bds` (per BDS PR #36 routing all
- * button visuals through it) but isn't re-exported from the package barrel.
- * `Button/index.ts` only re-exports `Button`, `ButtonProps`, `ButtonVariant`,
- * `ButtonSize` — `composeButtonClasses` is missing from the public surface.
+ * `@brikdesigns/bds` DOES export `composeButtonClasses` from its barrel as of
+ * v0.180.0 (brik-bds#465, CLOSED) — but it is a **client** export: it lives in
+ * `Button2.mjs`, which carries `'use client'`, so the whole barrel binding is
+ * client-only. A **server** component that calls it (e.g.
+ * `src/app/(marketing)/results/[slug]/page.tsx`) 500s with "composeButtonClasses
+ * is on the client — can't invoke from the server." This 1:1 mirror is a plain
+ * server-safe module, which is why it stays. (Verified 2026-09-06 —
+ * brikdesigns#1246, closed as premise-wrong.)
  *
- * Tracking: brik-bds#465.
- *
- * **Remove this file once BDS exposes composeButtonClasses on its barrel.**
+ * **Do NOT delete this to import from the barrel.** Removing it needs BDS to
+ * export `composeButtonClasses` from a server-safe (non-`'use client'`) entry
+ * — until then the mirror is the only server-callable path.
  *
  * Stays a 1:1 mirror — output class strings are part of the BDS CSS contract
  * (`bds-button`, `bds-button--{variant}`, `bds-button--{size}`,
