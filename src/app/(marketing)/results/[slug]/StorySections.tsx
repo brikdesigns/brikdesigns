@@ -9,7 +9,7 @@ import {
 } from '@/lib/customer-story-sections';
 
 /**
- * Flexible-sections body for /customer-stories/[slug] — the `sections`-present
+ * Flexible-sections body for /results/[slug] — the `sections`-present
  * branch (brikdesigns#1205, Figma node 25944-8605).
  *
  * Two columns inside one 1024px container, matching the Figma "container-small":

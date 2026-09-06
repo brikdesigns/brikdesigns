@@ -58,7 +58,7 @@ export function BottomCta() {
 export function ViewStoriesButton() {
   return (
     <div style={{ marginTop: 'var(--gap-lg)' }}>
-      <Link href="/customer-stories">
+      <Link href="/results">
         <Button variant="ghost">View All Stories</Button>
       </Link>
     </div>

@@ -6,12 +6,11 @@ import { CustomerStoriesList } from './CustomerStoriesList';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import { text } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
-import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './customer-stories.css';
 
 export const metadata: Metadata = {
-  alternates: { canonical: '/customer-stories' },
+  alternates: { canonical: '/results' },
   title: 'Customer Stories | Brik Design Portfolio & Client Projects',
   description: 'Explore Brik\'s portfolio of brand, marketing, service, and product design. See how we build impactful design for our customers, brik by brik.',
 };
@@ -50,20 +49,13 @@ export default async function CustomerStoriesPage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="page-hero__container">
-          <h1 className="page-hero__title">Customer Stories</h1>
-          <p className="page-hero__description">
-            Real results from real businesses. See how we help our clients build stronger brands and grow faster — brik by brik.
-          </p>
-        </div>
-        <ScrollDownCta />
-      </section>
-
       <section className="page-section page-section--top">
         <div className="container-lg">
           <SectionHeader
             title="Latest Stories"
+            titleAs="h1"
+            align="start"
+            description="Real results from real businesses. See how we help our clients build stronger brands and grow faster — brik by brik."
             style={{ marginBottom: gap.xl }}
           />
           {stories && stories.length > 0 ? (

@@ -62,7 +62,7 @@ export async function CrossReferenceBlock({
       description: r.short_description ?? undefined,
       imageUrl: r.hero_image_url,
       imageAlt: r.client_name || r.name,
-      href: `/customer-stories/${r.slug}`,
+      href: `/results/${r.slug}`,
       cta: 'Read story',
     }));
   } else {

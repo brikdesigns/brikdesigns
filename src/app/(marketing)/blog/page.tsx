@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getAllPosts } from '@/lib/blog';
 import { getServiceCategories, getSupportPlans } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader } from '@brikdesigns/bds';
-import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
+import { gap } from '@/lib/tokens';
 import { BlogIndex } from '@/components/blog/BlogIndex';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import '../shared-sections.css';
@@ -46,19 +46,15 @@ export default async function BlogPage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="page-hero__container">
-          <h1 className="page-hero__title">Blog</h1>
-          <p className="page-hero__description blog-hero__description">
-            Practical tips on branding, marketing, and running a small business — brik by brik.
-          </p>
-        </div>
-        <ScrollDownCta />
-      </section>
-
-      <section className="page-section">
+      <section className="page-section page-section--top">
         <div className="container-lg">
-          <SectionHeader title="Latest Posts" />
+          <SectionHeader
+            title="Latest Posts"
+            titleAs="h1"
+            align="start"
+            description="Practical tips on branding, marketing, and running a small business — brik by brik."
+            style={{ marginBottom: gap.xl }}
+          />
           <BlogIndex posts={posts} />
         </div>
       </section>

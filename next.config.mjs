@@ -76,8 +76,14 @@ const nextConfig = {
       { source: '/admin/blog/:path*', destination: 'https://portal.brikdesigns.com/settings/blog-posts', permanent: true },
       { source: '/admin/stories/:path*', destination: 'https://portal.brikdesigns.com/settings/customer-stories', permanent: true },
 
-      // ── Customer story singular → plural
-      { source: '/customer-story/:slug', destination: '/customer-stories/:slug', permanent: true },
+      // ── Customer Stories → Results slug rename (brikdesigns#1239). The page
+      // was already labelled "Results" in the nav; the URL now matches. Catches
+      // indexed/bookmarked links and any external references to the old path.
+      { source: '/customer-stories', destination: '/results', permanent: true },
+      { source: '/customer-stories/:slug', destination: '/results/:slug', permanent: true },
+
+      // ── Customer story singular → plural (now → /results)
+      { source: '/customer-story/:slug', destination: '/results/:slug', permanent: true },
 
       // ── /industries/* → /customers/* (canonical route)
       { source: '/industries', destination: '/customers', permanent: true },

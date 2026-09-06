@@ -77,7 +77,7 @@
         ".contact-form-block > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
       ]
     },
-    "/customer-stories": {
+    "/results": {
       "color-contrast": [
         ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
@@ -204,7 +204,7 @@
         ".contact-form-block > form > .bds-button--lg.bds-button--full-width[type=\"submit\"] > .bds-button__content"
       ]
     },
-    "/customer-stories": {
+    "/results": {
       "color-contrast": [
         ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",

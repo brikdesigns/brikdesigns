@@ -193,7 +193,7 @@ fi
 # the offerings/services reconciliation in #149 closes — wrong default.
 CMS_TOUCHED=$(
   { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
-    | grep -E '^src/app/\(marketing\)/(services|customer-stories|customers)/|^src/lib/supabase/queries\.ts$|^scripts/audit-supabase-drift\.ts$|^content/csv/' \
+    | grep -E '^src/app/\(marketing\)/(services|results|customers)/|^src/lib/supabase/queries\.ts$|^scripts/audit-supabase-drift\.ts$|^content/csv/' \
     | head -1 || true
 )
 if [ -n "$CMS_TOUCHED" ]; then

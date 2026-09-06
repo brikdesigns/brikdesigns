@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${story.client_name || story.name} — Customer Story`,
       description: story.short_description || undefined,
-      alternates: { canonical: `/customer-stories/${slug}` },
+      alternates: { canonical: `/results/${slug}` },
     };
   } catch {
     return { title: 'Story Not Found' };
@@ -268,7 +268,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
        */}
       <section className="page-section story-arc">
         <div className="container-lg container-lg--story">
-          <BackLink href="/customer-stories" style={{ marginBottom: gap.md }}>
+          <BackLink href="/results" style={{ marginBottom: gap.md }}>
             Customer Stories
           </BackLink>
 
@@ -336,7 +336,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                 return (
                   <Link
                     key={s.slug}
-                    href={`/customer-stories/${s.slug}`}
+                    href={`/results/${s.slug}`}
                     className="services-card-link"
                   >
                     <Card

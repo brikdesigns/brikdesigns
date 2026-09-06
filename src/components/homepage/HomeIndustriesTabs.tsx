@@ -37,7 +37,7 @@ export function HomeIndustriesTabs({ tabs }: HomeIndustriesTabsProps) {
         title: tab.label,
         description: tab.description,
         media: (
-          <Frame ratio="wide" fit="contain">
+          <Frame ratio="4-3" fit="cover">
             <Image src={tab.imageUrl} alt={tab.alt} width={664} height={498} />
           </Frame>
         ),

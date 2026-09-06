@@ -49,7 +49,7 @@ const ROUTES: { path: string; name: string }[] = [
   { path: '/about', name: 'About' },
   { path: '/services', name: 'Services index' },
   { path: '/customers', name: 'Customers' },
-  { path: '/customer-stories', name: 'Customer stories index' },
+  { path: '/results', name: 'Customer stories index' },
   { path: '/contact', name: 'Contact' },
 ];
 // /plans is deliberately absent: measured 2026-08-31, all three of its sections

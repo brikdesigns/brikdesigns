@@ -89,7 +89,7 @@ export function BlogIndex({ posts }: Props) {
               items={items}
               value={active}
               onChange={handleChange}
-              size="sm"
+              size="md"
               aria-label="Filter posts by type"
             />
           </div>

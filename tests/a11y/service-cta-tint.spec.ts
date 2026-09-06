@@ -41,7 +41,7 @@ const ROUTES: { path: string; name: string }[] = [
   { path: '/', name: 'Home — Monthly Subscription' },
   { path: '/about', name: 'About — Support Plans' },
   { path: '/contact', name: 'Contact — Support Plans' },
-  { path: '/customer-stories', name: 'Customer stories — Our Services' },
+  { path: '/results', name: 'Customer stories — Our Services' },
   { path: '/plans', name: 'Plans index' },
   { path: '/plans/back-office-support', name: 'Plan detail — Other Support Plans' },
   { path: '/services/marketing', name: 'Service line — Monthly Support Services' },

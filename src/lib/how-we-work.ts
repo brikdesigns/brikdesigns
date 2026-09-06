@@ -168,6 +168,6 @@ export const PRACTICE_CARDS: PracticeCard[] = [
     title: 'How Vale Partners rebuilt their brand, website, and operations from the ground up',
     description:
       'A boutique commercial real estate brokerage in Brentwood, TN mid-rebrand — Brik built their brand identity, website, CRM, and agent onboarding from scratch, and made them run without the founders having to touch them.',
-    href: '/customer-stories/vale-partners-website',
+    href: '/results/vale-partners-website',
   },
 ];

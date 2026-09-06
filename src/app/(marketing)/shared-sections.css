@@ -154,7 +154,7 @@
  *
  * Variants exist for semantic clarity per page type — they aren't styled
  * differently:
- *   .container-lg--story → /customer-stories/[slug]  (Supabase CMS, sectioned)
+ *   .container-lg--story → /results/[slug]  (Supabase CMS, sectioned)
  *   .container-lg--post  → /blog/[slug]              (MDX, single article body)
  *
  * Vertical rhythm convention (applies to both):
