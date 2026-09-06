@@ -48,7 +48,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
           className={composeButtonClasses({ variant: 'primary', size: 'md' })}
           style={serviceCtaVars(category)}
         >
-          Learn more
+          <span className="bds-button__content">Learn more</span>
         </span>
       </Card>
     </Link>

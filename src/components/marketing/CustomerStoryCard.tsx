@@ -131,7 +131,7 @@ export function CustomerStoryCard({
 
           <CardFooter>
             <span className={composeButtonClasses({ variant: 'primary', size: 'md' })}>
-              Read Story
+              <span className="bds-button__content">Read Story</span>
             </span>
           </CardFooter>
         </div>

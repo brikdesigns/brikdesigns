@@ -480,7 +480,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                           className={composeButtonClasses({ variant: 'primary', size: 'sm' })}
                           onClick={() => setOpen(null)}
                         >
-                          Learn More
+                          <span className="bds-button__content">Learn More</span>
                         </Link>
                       </div>
                       ) : null;
@@ -515,7 +515,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         support—without the full-time overhead.
                       </p>
                       <Link href="/customers" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
-                        Learn More
+                        <span className="bds-button__content">Learn More</span>
                       </Link>
                     </div>
 
@@ -592,7 +592,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               href="/contact"
               className={composeButtonClasses({ variant: 'primary', size: 'sm' })}
             >
-              Let&apos;s Talk
+              <span className="bds-button__content">Let&apos;s Talk</span>
             </Link>
             <button
               className="mega-nav__mobile-toggle"
@@ -674,7 +674,7 @@ function AboutNavCard({ href, image, title, desc, cta, onClick, serviceLineSlug 
       </div>
       <span className="mega-nav__about-card-title">{title}</span>
       <span className="mega-nav__about-card-desc">{desc}</span>
-      <span className={composeButtonClasses({ variant: svcVars ? 'primary' : 'secondary', size: 'sm' })}>{cta} <ArrowRight /></span>
+      <span className={composeButtonClasses({ variant: svcVars ? 'primary' : 'secondary', size: 'sm' })}><span className="bds-button__content">{cta} <ArrowRight /></span></span>
     </Link>
   );
 }
