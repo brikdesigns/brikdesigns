@@ -193,12 +193,23 @@
   margin-inline: auto;
 }
 
+/* The BDS hero price block carries a --padding-sm inline pad (styles.css,
+   @layer bds-components); drop it here so the label/value align flush to the
+   media card's own padding edge. Site CSS is unlayered, so this wins on layer
+   order. Scoped to the plan-detail hero. */
+.page-hero-blueprint .bds-hero__price {
+  padding-inline: 0;
+}
+
 .plan-cta-panel__card {
   width: 100%;
   /* BDS `variant="elevated"` reads flat (shadow removed in brik-bds#1146) —
      restore a real drop shadow so the focal price/CTA card lifts off the pale
      service-tinted panel band. */
   box-shadow: var(--box-shadow-lg);
+  /* Centre the price/CTA stack in the card's min-height (640px at ≥992px) so it
+     reads as the vertical focal point rather than sitting top-aligned. */
+  justify-content: center;
 }
 
 /* Desktop floor so the focal price/CTA card fills its half of the two-column

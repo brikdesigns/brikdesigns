@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { Card, Cluster, ContentBlock, Stack } from '@brikdesigns/bds';
+import { Card, Cluster, ContentBlock, SectionHeader, Stack } from '@brikdesigns/bds';
 import { getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
 import { PlanCardGrid } from './PlanCardGrid';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
-import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
-import { color, font, serviceColor, serviceCtaVars } from '@/lib/tokens';
+import { color, font, gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { heading, text } from '@/lib/styles';
 import '../shared-sections.css';
 import './plans.css';
@@ -58,21 +57,21 @@ export default async function PlansPage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="page-hero">
-        <div className="page-hero__container">
-          <h1 className="page-hero__title">Support Plans</h1>
-          <p className="page-hero__description">
-            Get an experienced, done-for-you team to manage your marketing, back-office
-            systems, or product design — without the cost of full-time hires.
-          </p>
-        </div>
-        <ScrollDownCta />
-      </section>
-
-      {/* Plan cards */}
-      <section className="page-section">
-        <div className="container-lg container-lg--comfortable">
+      {/* Header + plan cards — the index-page anatomy shared with /results and
+       * /blog: the hero is dropped for a left-aligned `.page-index-header`, and
+       * the grid sits in the same `.page-section--top` container directly below.
+       * The header's gap-huge is the wide gap to the pricing grid group; the
+       * billing toggle inside PlanCardGrid hugs the grid at gap-lg. */}
+      <section className="page-section page-section--top">
+        <div className="container-lg">
+          <SectionHeader
+            className="page-index-header"
+            title="Support Plans"
+            titleAs="h1"
+            align="start"
+            description="Get an experienced, done-for-you team to manage your marketing, back-office systems, or product design — without the cost of full-time hires."
+            style={{ marginBottom: gap.huge }}
+          />
           <PlanCardGrid plans={gridPlans} />
         </div>
       </section>

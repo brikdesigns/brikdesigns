@@ -36,7 +36,10 @@ export function PlanCardGrid({
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: gap.xl }}>
+      {/* gap-lg below associates the billing toggle with the pricing grid — the
+         index-control rhythm shared with /results and /blog; the page header's
+         own gap-huge keeps the wide gap up to the _content. */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: gap.lg }}>
         <SegmentedControl
           items={[
             { label: 'Monthly', value: 'monthly' },

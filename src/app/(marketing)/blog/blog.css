@@ -1,10 +1,13 @@
 /* ─── Blog — layout only ────────────────────────────────── */
 
 /* Type filter — scrolls horizontally inside its own box on narrow
-   viewports so long segment labels never force the page body to scroll. */
+   viewports so long segment labels never force the page body to scroll.
+   gap-lg below associates the control with the results grid (the index-control
+   rhythm shared with /results and /plans); the page header's own gap-huge keeps
+   the wide gap up to the _content. */
 .blog-filter {
   width: 100%;
-  margin-bottom: var(--gap-xl);
+  margin-bottom: var(--gap-lg);
   overflow-x: auto;
   scrollbar-width: none;
 }
