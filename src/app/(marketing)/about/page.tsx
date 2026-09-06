@@ -18,10 +18,9 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600;
 
-// BrikDown CTA target. Matches the home (R2) and how-we-work rebuilds, which all
-// point "Get your free BrikDown" at /offers/brikdown-analysis. The operator
-// named /offers/free-marketing-analysis, but that slug is comment-flagged
-// "legacy" in FormBlock.tsx — reconcile before launch (see PR / #1245).
+// BrikDown CTA target. OPERATOR SAID 2026-09-06 (chat): "/offers/brikdown-analysis"
+// is canonical — matches the home (R2) and how-we-work rebuilds. (The sibling
+// /offers/free-marketing-analysis is also live but the legacy slug.)
 const BRIKDOWN_HREF = '/offers/brikdown-analysis';
 
 const TEAM = [
