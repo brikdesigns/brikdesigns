@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Icon } from '@/lib/icon';
-import { Button, Accordion } from '@brikdesigns/bds';
+import { Button, Accordion, BrikBlocks } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
@@ -106,6 +106,10 @@ export default function AboutPage() {
           in brand color, two intro paragraphs, scroll-down affordance. */}
       <section className="page-hero about-hero" data-section="hero">
         <div className="page-hero__container about-hero__container">
+          {/* Decorative "brik" mark — Figma 25984:12581 (top-left) / 25984:12582
+              (bottom-right). BrikBlocks is aria-hidden; positioned in about.css. */}
+          <BrikBlocks className="about-hero__blocks about-hero__blocks--start" cells={['light', 'dark', 'light']} />
+          <BrikBlocks className="about-hero__blocks about-hero__blocks--end" cells={['light', 'light', 'poppy']} />
           <h1 className="page-hero__title about-hero__title">
             The <span className="about-hero__em">People</span> Behind Brik.
           </h1>
@@ -205,6 +209,8 @@ export default function AboutPage() {
               <p key={i} style={{ ...text.bodyLg, color: color.text.secondary }}>{paragraph}</p>
             ))}
           </div>
+          {/* Decorative "brik" mark — Figma 26058:5406. */}
+          <BrikBlocks className="about-why__blocks" orientation="horizontal" cells={['poppy', 'light', 'light']} />
         </div>
       </section>
 
@@ -215,8 +221,11 @@ export default function AboutPage() {
         <div className="container-lg container-lg--comfortable about-hww__inner">
           <h2 id="about-hww-title" style={heading.lg}>How We Work</h2>
           <div className="about-hww__blocks">
-            {HOW_WE_WORK.map((block) => (
+            {HOW_WE_WORK.map((block, i) => (
               <div key={block.title} className="about-hww__block">
+                {/* Decorative "brik" mark above each block — Figma 26058:5586
+                    (poppy) / 26058:5592 (grey). */}
+                <BrikBlocks className="about-hww__block-mark" cells={[i === 0 ? 'poppy' : 'light']} />
                 <h3 style={heading.md}>{block.title}</h3>
                 <p style={{ ...text.bodyLg, color: color.text.secondary }}>{block.body}</p>
               </div>
