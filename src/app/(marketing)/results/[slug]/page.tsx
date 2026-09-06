@@ -384,7 +384,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                          * client-side navigation. Mirrors ServiceLineCard +
                          * CustomerStoryCard. */}
                         <span className={composeButtonClasses({ variant: 'primary', size: 'md' })}>
-                          Read Story
+                          <span className="bds-button__content">Read Story</span>
                         </span>
                       </CardFooter>
                     </Card>
