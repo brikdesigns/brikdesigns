@@ -6,11 +6,11 @@
  * the portal twin, brik-client-portal#2145).
  *
  * BDS owns no router, so this `'use client'` wrapper injects the Next.js router
- * (`useRouter().push`) and `Link`. It passes `bds-hero__breadcrumb` through to
- * the BDS root as the hero styling hook (`shared-sections.css`); the
- * `[data-audience] .bds-breadcrumb` service-line tint cascade (brik-bds#781)
- * still applies because it targets the inner `.bds-breadcrumb` the BDS
- * component renders — and BDS now ships that cascade in `Breadcrumb.css` too.
+ * (`useRouter().push`) and `Link`. As of BDS 0.184.0 (brik-bds#2284) `Hero`
+ * wraps its own `breadcrumb` slot in `.bds-hero__breadcrumb`, so this wrapper no
+ * longer injects that hook; the `[data-audience] .bds-breadcrumb` service-line
+ * tint cascade (brik-bds#781) still applies because it targets the inner
+ * `.bds-breadcrumb` the BDS component renders.
  *
  * The caret glyph now comes from BDS's own offline `<Icon>` (bundled Phosphor
  * subset, no CDN fetch), so the site's `@/lib/icon` / `ph:caret-down` entry is
@@ -43,7 +43,6 @@ export function BreadcrumbSwitcher({ items, ...props }: BreadcrumbSwitcherProps)
     <BdsBreadcrumbSwitcher
       {...props}
       items={[...items]}
-      className="bds-hero__breadcrumb"
       linkComponent={Link}
       onNavigate={(href) => router.push(href)}
     />

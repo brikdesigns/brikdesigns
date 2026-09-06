@@ -5,7 +5,9 @@ import {
   Hero,
   Modal,
   ServiceTag,
-  Frame,
+  HeroMediaCard,
+  HeroMediaCardImage,
+  HeroMediaCardPrice,
   Button,
   type ServiceLine,
   type BlueprintSection,
@@ -103,62 +105,41 @@ export function ServiceHeroModal({
 
   const priceCard = section.priceCard;
   const media = priceCard ? (
-    <aside className="bds-hero__media-card">
-      <Frame ratio="square" className="bds-hero__image-frame">
-        <img
-          src={priceCard.imageUrl}
-          alt={priceCard.imageAlt ?? ''}
-          loading="eager"
-          decoding="async"
-          className="bds-hero__image"
-        />
-      </Frame>
-      {(priceCard.priceLabel || priceCard.price || priceCard.cta) && (
-        <div className="bds-hero__price">
-          {priceCard.priceLabel && priceCard.price && (
-            <p className="bds-hero__price-label">{priceCard.priceLabel}</p>
-          )}
-          {priceCard.price && <p className="bds-hero__price-value">{priceCard.price}</p>}
-          {priceCard.cta &&
-            ('url' in priceCard.cta ? (
-              <Button
-                href={priceCard.cta.url}
-                variant="primary"
-                size={priceCard.cta.size ?? 'sm'}
-                // Progressive enhancement: with JS, suppress the anchor
-                // navigation and open the lead modal; without JS the `href`
-                // (/contact) still navigates.
-                onClick={(event) => {
-                  event.preventDefault();
-                  setIsOpen(true);
-                }}
-              >
-                {priceCard.cta.label}
-              </Button>
-            ) : (
-              <Button
-                onClick={priceCard.cta.onClick}
-                variant="primary"
-                size={priceCard.cta.size ?? 'sm'}
-              >
-                {priceCard.cta.label}
-              </Button>
-            ))}
-        </div>
-      )}
-    </aside>
+    <HeroMediaCard>
+      <HeroMediaCardImage src={priceCard.imageUrl} alt={priceCard.imageAlt ?? ''} ratio="square" />
+      <HeroMediaCardPrice label={priceCard.priceLabel} value={priceCard.price}>
+        {priceCard.cta &&
+          ('url' in priceCard.cta ? (
+            <Button
+              href={priceCard.cta.url}
+              variant="primary"
+              size={priceCard.cta.size ?? 'sm'}
+              // Progressive enhancement: with JS, suppress the anchor
+              // navigation and open the lead modal; without JS the `href`
+              // (/contact) still navigates.
+              onClick={(event) => {
+                event.preventDefault();
+                setIsOpen(true);
+              }}
+            >
+              {priceCard.cta.label}
+            </Button>
+          ) : (
+            <Button
+              onClick={priceCard.cta.onClick}
+              variant="primary"
+              size={priceCard.cta.size ?? 'sm'}
+            >
+              {priceCard.cta.label}
+            </Button>
+          ))}
+      </HeroMediaCardPrice>
+    </HeroMediaCard>
   ) : (
-    <Frame
+    <HeroMediaCard
       ratio="square"
-      as="aside"
-      className="bds-blueprint-section__missing bds-hero__missing"
-      data-content-needed="hero_image_url"
-      role="presentation"
-    >
-      <p className="bds-blueprint-section__missing-label">
-        Hero image card missing for this page.
-      </p>
-    </Frame>
+      missing={{ label: 'Hero image card missing for this page.' }}
+    />
   );
 
   const form = (
