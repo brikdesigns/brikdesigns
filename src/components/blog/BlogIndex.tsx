@@ -20,7 +20,7 @@ import { color } from '@/lib/tokens';
 const ALL = '__all__';
 
 /** Initial visible cap; a "Load more" control reveals the rest. Mirrors the
- *  customer-stories list (CustomerStoriesList.tsx). Capping the grid bounds the
+ *  Results list (ResultsList.tsx). Capping the grid bounds the
  *  height delta on a filter switch, which is what kills the layout lurch — an
  *  unbounded 12→2 collapse produced CLS ~0.49 and yanked the control the user
  *  just clicked (#710 / BACKLOG-659). */
@@ -89,7 +89,7 @@ export function BlogIndex({ posts }: Props) {
               items={items}
               value={active}
               onChange={handleChange}
-              size="sm"
+              size="md"
               aria-label="Filter posts by type"
             />
           </div>

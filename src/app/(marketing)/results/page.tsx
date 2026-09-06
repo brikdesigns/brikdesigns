@@ -2,23 +2,22 @@ import type { Metadata } from 'next';
 import { Grid, Button, SectionHeader } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { CustomerStoriesList } from './CustomerStoriesList';
+import { ResultsList } from './ResultsList';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
 import { text } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
-import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
-import './customer-stories.css';
+import './results.css';
 
 export const metadata: Metadata = {
-  alternates: { canonical: '/customer-stories' },
-  title: 'Customer Stories | Brik Design Portfolio & Client Projects',
+  alternates: { canonical: '/results' },
+  title: 'Results | Brik Design Portfolio & Client Projects',
   description: 'Explore Brik\'s portfolio of brand, marketing, service, and product design. See how we build impactful design for our customers, brik by brik.',
 };
 
 export const revalidate = 3600;
 
-export default async function CustomerStoriesPage() {
+export default async function ResultsPage() {
   const [stories, categories, plans] = await Promise.all([
     getCustomerStories(),
     getServiceCategories(),
@@ -50,24 +49,18 @@ export default async function CustomerStoriesPage() {
 
   return (
     <>
-      <section className="page-hero">
-        <div className="page-hero__container">
-          <h1 className="page-hero__title">Customer Stories</h1>
-          <p className="page-hero__description">
-            Real results from real businesses. See how we help our clients build stronger brands and grow faster — brik by brik.
-          </p>
-        </div>
-        <ScrollDownCta />
-      </section>
-
       <section className="page-section page-section--top">
         <div className="container-lg">
           <SectionHeader
-            title="Latest Stories"
-            style={{ marginBottom: gap.xl }}
+            className="page-index-header"
+            title="Results"
+            titleAs="h1"
+            align="start"
+            description="Real results from real businesses. See how we help our clients build stronger brands and grow faster — brik by brik."
+            style={{ marginBottom: gap.huge }}
           />
           {stories && stories.length > 0 ? (
-            <CustomerStoriesList
+            <ResultsList
               stories={stories.map((story) => {
                 const serviceLineCategory = story.service_line_slug
                   ? (mapServiceLineSlug(story.service_line_slug) as ServiceLine)

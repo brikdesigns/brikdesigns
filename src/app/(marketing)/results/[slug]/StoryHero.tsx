@@ -5,7 +5,7 @@ import { color } from '@/lib/tokens';
 import type { CustomerStorySocialLink } from '@/lib/customer-story-author';
 
 /**
- * Story hero block for /customer-stories/[slug] — Figma node 25944:8615
+ * Story hero block for /results/[slug] — Figma node 25944:8615
  * (brik-client-portal#3799 AC3/AC4, umbrella #3767).
  *
  * Replaces the full-bleed 1280px hero image that #1205 shipped as a deliberate

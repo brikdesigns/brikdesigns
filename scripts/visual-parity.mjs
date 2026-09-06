@@ -81,7 +81,7 @@ const ROUTES = [
   { netlify: '/services/marketing', webflow: '/service-lines/marketing-design', name: 'services-category-marketing' },
   { netlify: '/services/marketing/website-experience-mapping', webflow: '/service/website-experience-mapping', name: 'services-detail-website-experience-mapping' },
   { netlify: '/plans', webflow: '/plans', name: 'plans' },
-  { netlify: '/customer-stories', webflow: '/customer-stories', name: 'customer-stories' },
+  { netlify: '/results', webflow: '/customer-stories', name: 'results' },
   { netlify: '/customers', webflow: '/customers', name: 'customers' },
   { netlify: '/industries/dental', webflow: '/customers/dental', name: 'industry-dental' },
   { netlify: '/blog', webflow: '/blog', name: 'blog' },

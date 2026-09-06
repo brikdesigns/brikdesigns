@@ -197,7 +197,7 @@ export default async function HowWeWorkPage() {
             <div className="hiw-practice__heading">
               <h2 className="hiw-section-title">What It Looks Like In Practice</h2>
             </div>
-            <Button href="/customer-stories" variant="primary" size="lg">
+            <Button href="/results" variant="primary" size="lg">
               See all results
             </Button>
           </div>

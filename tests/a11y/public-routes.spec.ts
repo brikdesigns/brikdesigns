@@ -43,7 +43,7 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   // exercises the redirect and lands axe on the same content, which inflates
   // the violation footprint with the muted .bds-breadcrumb__current text
   // exposed by the redirect. Test the canonical /customers/* paths directly.
-  { path: '/customer-stories', name: 'Customer stories index' },
+  { path: '/results', name: 'Results (customer stories) index' },
   { path: '/customers', name: 'Customers' },
   { path: '/customers/dental', name: 'Customer detail — dental' },
   { path: '/blog', name: 'Blog index' },

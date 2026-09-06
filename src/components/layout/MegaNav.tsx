@@ -391,7 +391,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
             </div>
 
             {/* Results — plain link to customer stories */}
-            <Link href="/customer-stories" className="mega-nav__toggle" onClick={() => setOpen(null)}>
+            <Link href="/results" className="mega-nav__toggle" onClick={() => setOpen(null)}>
               Results
             </Link>
 
@@ -625,7 +625,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               {line.name}
             </Link>
           ))}
-          <Link href="/customer-stories" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Results</Link>
+          <Link href="/results" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Results</Link>
           <Link href="/industries" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Industries</Link>
           <Link href="/about" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>About</Link>
           <Link href="/blog" className="mega-nav__mobile-link" onClick={() => setMobileOpen(false)}>Blog</Link>

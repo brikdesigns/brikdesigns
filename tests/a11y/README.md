@@ -98,7 +98,7 @@ target for this gate.)
 | Rule | Selector | Routes | Owner |
 |------|----------|--------|-------|
 | `heading-order` | `.bds-footer__column > h6` | all standard-layout routes | BDS Footer — `h6` follows higher headings |
-| `heading-order` | card headings (`.story-card`, `.about-team-name`, `.bds-pricing-card__title`, `.customer-topic-grid h3`) | /customer-stories, /about, /plans, /customers/dental | brikdesigns page components |
+| `heading-order` | card headings (`.story-card`, `.about-team-name`, `.bds-pricing-card__title`, `.customer-topic-grid h3`) | /results, /about, /plans, /customers/dental | brikdesigns page components |
 | `landmark-complementary-is-top-level` | `aside` | /services/brand/logo-design | `aside` nested inside another landmark |
 | `landmark-unique` | `.mega-nav__main` | /value | nav landmark needs a distinct accessible name |
 

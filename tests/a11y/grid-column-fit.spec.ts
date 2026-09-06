@@ -40,7 +40,7 @@ const SURFACES: { path: string; name: string; open?: string }[] = [
   { path: '/customers', name: 'Customers' },
   { path: '/services', name: 'Services index' },
   { path: '/plans', name: 'Plans' },
-  { path: '/customer-stories', name: 'Customer stories index' },
+  { path: '/results', name: 'Customer stories index' },
   { path: '/about', name: 'About' },
 ];
 

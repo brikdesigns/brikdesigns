@@ -500,7 +500,7 @@
    just the text roles inside the orange panel. */
 
 /* Widen the copy↔buttons gap to `huge` on the HIW CTA only. `.cta-card-brand`
-   is shared across six pages (customers, customer-stories, blog, HIW), so the
+   is shared across six pages (customers, results, blog, HIW), so the
    bump is scoped to the page's `.hiw-cta` block rather than the shared class. */
 .hiw-cta .cta-card-brand {
   gap: var(--gap-huge);

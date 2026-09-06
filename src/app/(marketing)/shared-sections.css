@@ -5,7 +5,7 @@
 
 /* ─── Interior page hero ─────────────────────────────────── */
 /* Standardised header for non-home pages (about, plans, blog, customers,
-   industries, services, services/[cat], customer-stories, value). Used in
+   industries, services, services/[cat], results, value). Used in
    10 pages — keep this pattern DRY here rather than per-page CSS. */
 /* Interior hero fills the initial viewport so the scroll-down affordance sits
  * at the fold. Grid (rather than flex) gives us a 1fr top row for the centered
@@ -83,7 +83,7 @@
 
 /* Top-align the section content instead of vertically centering it in the
    100vh band. Use when the section's content changes height at runtime (e.g.
-   the customer-stories list re-filtering by industry): centered content
+   the results list re-filtering by industry): centered content
    re-centers on every change and the whole block jumps up/down. Pinning to
    flex-start keeps the header + controls at a stable position — only the empty
    space below the content grows/shrinks. */
@@ -91,9 +91,27 @@
   justify-content: flex-start;
 }
 
+/* ─── Index-page primary header ───────────────────────────── */
+/* The Results and Blog index pages drop their hero, so the first section's
+   left-aligned SectionHeader is the page's primary head. Span the full
+   container width (defeat the SectionHeader `--measure` cap) and step the
+   title up to the former hero size — `--heading-3xl`, the size the
+   `.page-hero__title` used (the deprecated `--heading-huge` alias). */
+.page-index-header {
+  /* `.container-lg` is a centered flex column, so a child shrink-wraps to its
+     content unless told otherwise — width:100% (with the measure cap removed)
+     makes the head span the full container gutter-to-gutter. */
+  max-width: none;
+  width: 100%;
+}
+
+.page-index-header .bds-content-block__title {
+  font-size: var(--heading-3xl);
+}
+
 /* ─── Brand-color CTA card ───────────────────────────────── */
 /* Centered orange panel inside a section gutter — used at the bottom of
-   customer-stories index and industry detail pages. */
+   results index and industry detail pages. */
 
 .cta-section-brand {
   padding: var(--padding-huge) 0;
@@ -154,7 +172,7 @@
  *
  * Variants exist for semantic clarity per page type — they aren't styled
  * differently:
- *   .container-lg--story → /customer-stories/[slug]  (Supabase CMS, sectioned)
+ *   .container-lg--story → /results/[slug]  (Supabase CMS, sectioned)
  *   .container-lg--post  → /blog/[slug]              (MDX, single article body)
  *
  * Vertical rhythm convention (applies to both):

@@ -68,11 +68,11 @@ const ROUTES: { path: string; name: string; cards?: false }[] = [
   { path: '/services/back-office/crm-setup-and-data-cleanup', name: 'Service detail — back-office' },
   { path: '/plans', name: 'Plans' },
   { path: '/plans/back-office-support', name: 'Plan detail — back-office' },
-  { path: '/customer-stories', name: 'Customer stories index' },
+  { path: '/results', name: 'Customer stories index' },
   // Story DETAIL was never covered, though #971 listed two violations on it
   // ("Other Customer Stories" outlined-on-accent, "Related Services" flat).
   // Both measured clean at pickup — this route pins that.
-  { path: '/customer-stories/birdwell-mutlak-dentistry-website', name: 'Customer story detail' },
+  { path: '/results/birdwell-mutlak-dentistry-website', name: 'Customer story detail' },
   { path: '/customers', name: 'Customers' },
   { path: '/customers/dental', name: 'Customer detail — dental' },
   { path: '/blog', name: 'Blog index' },

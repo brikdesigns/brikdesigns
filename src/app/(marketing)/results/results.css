@@ -71,7 +71,7 @@
   gap: var(--gap-md) var(--gap-lg);
 }
 
-/* Shared by /customer-stories index cards AND /customer-stories/[slug] detail
+/* Shared by /results index cards AND /results/[slug] detail
  * meta row, so the visual vocabulary stays consistent across both surfaces.
  * Stack the field label above the icon-prefixed value. */
 .story-meta__item {

@@ -12,12 +12,12 @@ import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import type { ServiceLine } from '@brikdesigns/bds';
 import '../../shared-sections.css';
 import '../customers.css';
-// CustomerStoryCard's CSS lives under /customer-stories/ — must be imported
+// CustomerStoryCard's CSS lives under /results/ — must be imported
 // here so `.story-card__media { position: relative }` applies. Without it,
 // the <Image fill> inside the story card escapes its parent (position:
 // static) and overlays the page hero. Component-local CSS would be cleaner;
 // tracked as follow-up.
-import '../../customer-stories/customer-stories.css';
+import '../../results/results.css';
 
 // Shape of one nested topic-service row from getIndustryPageBySlug.
 type TopicService = {

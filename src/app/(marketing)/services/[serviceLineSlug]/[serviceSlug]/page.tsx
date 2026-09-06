@@ -527,7 +527,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   )}
                   <CardFooter>
                     <Button
-                      href={`/customer-stories/${relatedStory.slug}`}
+                      href={`/results/${relatedStory.slug}`}
                       variant="primary"
                       size="md"
                     >
@@ -567,7 +567,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                   description={story.short_description || undefined}
                   action={
                     <Button
-                      href={`/customer-stories/${story.slug}`}
+                      href={`/results/${story.slug}`}
                       variant="primary"
                       size="md"
                     >
