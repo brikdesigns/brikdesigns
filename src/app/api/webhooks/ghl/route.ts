@@ -24,7 +24,9 @@ import { notifyOnLead, type LeadNotification } from '@/lib/notifications';
  *
  * Configure in GHL (Automation → Workflow → add "Custom Webhook" action) —
  * OPERATOR/COLLEAGUE step, #886 is parked pending sub-account access:
- *   URL:     https://www.brikdesigns.com/api/webhooks/ghl
+ *   URL:     https://brikdesigns.netlify.app/api/webhooks/ghl
+ *            (NOT www.brikdesigns.com — that CNAMEs to Webflow and returns 405;
+ *             this route only answers on the Netlify site. Verified 2026-09-05.)
  *   Method:  POST
  *   Header:  x-ghl-webhook-secret: <GHL_WEBHOOK_SECRET>   (provision via brik-secrets, set as a Netlify env var on the brikdesigns site)
  *   Body (map the RSVP fields; name + email required):
