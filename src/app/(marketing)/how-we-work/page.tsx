@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
+import { Badge, Button, Card, CardTitle, CardDescription, Cluster, Grid, SectionHeader, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { PROCESS_STEPS, PRACTICE_CARDS } from '@/lib/how-we-work';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
@@ -46,6 +46,24 @@ function GearIcon() {
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+// Solid check-circle for the timeline spine badge (Figma 25918:5342). Filled
+// glyph with the check punched out (fill-rule evenodd), so it renders in a
+// single `currentColor` fill (white on the dark pill) and the check reads as
+// the pill's dark ground — no second color to thread. Inline for the same
+// reason as CheckIcon: no wait on the Iconify offline subset.
+function StepCheckIcon() {
+  return (
+    <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true" focusable="false">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        fill="currentColor"
+        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
       />
     </svg>
   );
@@ -118,11 +136,22 @@ export default async function HowWeWorkPage() {
         <div className="hiw-container">
           <SectionHeader title="Three steps. One team. Total clarity." />
           <ol className="hiw-timeline">
-            {PROCESS_STEPS.map((step) => (
+            {PROCESS_STEPS.map((step, index) => (
               <li key={step.id} className="hiw-step">
+                {/* Spine badge — the "Step N" node that strings the cards down
+                    the connector (Figma 25918:5342). App-local like the card
+                    (#1121); the dark inverse fill is not a BDS Badge tone. */}
+                <span className="hiw-step__badge">
+                  <StepCheckIcon />
+                  Step {index + 1}
+                </span>
                 <article className="hiw-card" data-kind={step.kind}>
                   <div className="hiw-card__content">
-                    <p className="hiw-card__step">{step.step}</p>
+                    {step.cadenceTag && (
+                      <Badge tone="positive" appearance="subtle" size="sm">
+                        {step.cadenceTag}
+                      </Badge>
+                    )}
                     <h3 className="hiw-card__title">{step.title}</h3>
                     <div className="hiw-card__prose">
                       {step.paragraphs.map((paragraph, i) => (

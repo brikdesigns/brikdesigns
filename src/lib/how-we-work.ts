@@ -37,8 +37,13 @@ export interface EngagementMode {
 
 interface ProcessStepBase {
   id: string;
-  /** Ordinal + cadence label rendered above the title ("Step 1 — Free"). */
-  step: string;
+  /**
+   * Cadence pill shown inside the card, above the title (green BDS Badge). Only
+   * Step 1 carries one ("Free"); Steps 2–3 surface their cadence in the price
+   * block instead. The "Step N" ordinal lives on the timeline spine badge, not
+   * here (derived from render order).
+   */
+  cadenceTag?: string;
   title: string;
   paragraphs: string[];
   cta: { label: string; href: string };
@@ -61,7 +66,7 @@ export const PROCESS_STEPS: ProcessStep[] = [
   {
     kind: 'checklist',
     id: 'brikdown-analysis',
-    step: 'Step 1 — Free',
+    cadenceTag: 'Free',
     title: 'The BrikDown Analysis',
     paragraphs: [
       'A free 60-minute call where we look at your marketing and your operations together. We ask the right questions, find out where you’re losing time and money, and tell you exactly what to fix first.',
@@ -78,7 +83,6 @@ export const PROCESS_STEPS: ProcessStep[] = [
   {
     kind: 'tiers',
     id: 'foundation',
-    step: 'Step 2 — One-time investment',
     title: 'Foundation',
     paragraphs: [
       'Foundation is where we go deep before the ongoing work begins. Through weekly calls and Brik’s own research, we map every relevant area of your business — marketing, sales, operations, tech stack, team structure, KPIs, and service management — and document it into a pre-structured knowledge base built for your engagement.',
@@ -114,7 +118,6 @@ export const PROCESS_STEPS: ProcessStep[] = [
   {
     kind: 'engagement',
     id: 'ongoing-engagement',
-    step: 'Step 3 — Monthly',
     title: 'Ongoing Engagement',
     paragraphs: [
       'This is where the real work happens. You choose how deep you want Brik involved — Advisory if you want to keep your team executing, Managed if you want us to take it off your plate entirely.',
