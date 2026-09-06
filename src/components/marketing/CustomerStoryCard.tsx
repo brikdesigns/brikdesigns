@@ -2,8 +2,9 @@
 
 import Image from 'next/image';
 import { Icon } from '@/lib/icon';
-import { Card, CardDescription, CardFooter, ServiceTag, composeButtonClasses } from '@brikdesigns/bds';
+import { Card, CardDescription, CardFooter, ServiceTag } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { heading, label, text } from '@/lib/styles';
 import { color } from '@/lib/tokens';
 import { INDUSTRY_ICONS, INDUSTRY_ICON_FALLBACK } from '@/lib/industry-icons';

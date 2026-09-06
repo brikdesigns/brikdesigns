@@ -15,7 +15,6 @@ import {
   ServiceTag,
   SectionHeader,
   Stack,
-  composeButtonClasses,
 } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import {
@@ -25,6 +24,7 @@ import {
   mapServiceLineSlug,
 } from '@/lib/supabase/queries';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
+import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { heading } from '@/lib/styles';
 import { color, gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { INDUSTRY_ICONS, INDUSTRY_ICON_FALLBACK } from '@/lib/industry-icons';
