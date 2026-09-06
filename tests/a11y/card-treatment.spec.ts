@@ -61,7 +61,8 @@ import { gotoRendered, expectMeasured } from './lib/goto-rendered';
 // 0 on 2026-08-24 — so requiring one there would fail on a healthy page.
 const ROUTES: { path: string; name: string; cards?: false }[] = [
   { path: '/', name: 'Home' },
-  { path: '/about', name: 'About' },
+  // /about opted out: the #1245 rebuild left no BDS <Card>s — the team cards are
+  // hand-built <article>s and "What We Believe" is a BDS <Accordion>.
   { path: '/services', name: 'Services index' },
   { path: '/services/brand', name: 'Service line — brand' },
   { path: '/services/brand/logo-design', name: 'Service detail — logo design' },

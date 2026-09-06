@@ -58,9 +58,9 @@ const ROUTES: { path: string; name: string }[] = [
   // blog-card migrated onto BDS <Card> + <Frame> (#1175), so /blog now renders
   // derived-standard card media the gate can sweep.
   { path: '/blog', name: 'Blog index' },
-  // about-value-card converted from a hand-built <div> to BDS <Card> + <Frame>
-  // (#1191, Tier 2 of #1175), so /about now renders derived-standard card media.
-  { path: '/about', name: 'About' },
+  // /about opted out: the #1245 rebuild dropped the value-card (its only BDS
+  // <Card>+<Frame>); the new team cards are hand-built <article>s and the media
+  // (circle headshots, the "Why Brik?" illustration) sits outside any card.
   // services-card (the "Other Customer Stories" grid) media <div> migrated onto a
   // BDS <Frame> (#1191, Tier 2 of #1175), so the story-detail route now renders
   // derived-standard card media the gate can sweep.
