@@ -10,7 +10,6 @@
     ".claude/references/section-identification.md"
   ],
   "files": {
-    "src/app/(marketing)/about/page.tsx": 5,
     "src/app/(marketing)/blog/[slug]/page.tsx": 5,
     "src/app/(marketing)/blog/page.tsx": 1,
     "src/app/(marketing)/contact/page.tsx": 2,
