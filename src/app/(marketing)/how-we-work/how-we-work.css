@@ -133,49 +133,60 @@
    cards as the connector — same recipe as homepage.css .workflow-timeline.
    The cards span the full page container width (--site-content-width, matching
    .hiw-container) rather than the narrower reading cap. */
+/* --space-1600 (64px) is the timeline's inter-card gap: sized to seat a
+   "Step N" badge centered on the spine between two cards with the connector
+   reading above and below it. The same value is the top runway above card 1
+   (for the Step 1 badge) and the divisor the badges and the spine share, so
+   they line up seamlessly — keep the three references in sync if it changes. */
 .hiw-timeline {
   position: relative;
   list-style: none;
   margin: 0;
-  padding: 0;
+  /* Top runway holds the Step 1 badge above the stroke. */
+  padding: var(--space-1600) 0 0;
   width: 100%;
   max-width: var(--site-content-width);
   display: flex;
   flex-direction: column;
-  gap: var(--gap-huge);
+  gap: var(--space-1600);
 }
 
 .hiw-timeline::before {
   content: '';
   position: absolute;
-  top: 0;
+  /* Stroke starts at the Step 1 badge's center (half a gap down from the top)
+     so the badge caps the top of the line — it sits above the stroke. Runs to
+     the bottom (behind the opaque last card). */
+  top: calc(var(--space-1600) / 2);
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  border-left: var(--border-width-md) solid var(--border-primary);
+  /* 3px stroke — operator ask; matches the card's --border-width-200 chrome. */
+  border-left: var(--border-width-200) solid var(--border-primary);
   z-index: 0;
 }
 
 .hiw-step {
   position: relative;
   z-index: 1;
-  /* Breathing room around each step card — operator ask. --padding-lg is
-     --space-600 (24px) in the site's default spacing mode. */
-  padding: var(--padding-lg);
-  /* Stack the spine badge above the card; the gap is where the connector spine
-     reads between the (opaque) badge and card. */
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-lg);
+  /* Horizontal breathing room around each step card — operator ask. Vertical
+     spacing is the timeline's --space-1600 gap, which also seats the badge. */
+  padding-inline: var(--padding-lg);
 }
 
 /* "Step N" spine badge — the connector node that strings the cards together
-   (Figma 25918:5342). Centered on the spine (align-self), dark inverse pill
-   with a check-circle + label. Opaque, so it reads as a node ON the line.
-   App-local like the card (#1121): the dark inverse fill is not a BDS Badge
-   tone, and the timeline chrome lives outside BDS. */
+   (Figma 25918:5342). Absolutely centered on the spine in the gap above its
+   card (half a gap up from the card's top edge → the middle of the inter-card
+   gap; for card 1, the middle of the top runway). Opaque, so the stroke reads
+   as passing through it seamlessly. App-local like the card (#1121): the dark
+   inverse fill is not a BDS Badge tone, and the timeline chrome lives outside
+   BDS. */
 .hiw-step__badge {
-  align-self: center;
+  position: absolute;
+  left: 50%;
+  top: calc(var(--space-1600) / -2);
+  transform: translate(-50%, -50%);
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: var(--gap-md);
@@ -187,6 +198,7 @@
   font-size: var(--label-md);
   font-weight: 600;
   line-height: var(--font-line-height-tight);
+  white-space: nowrap;
 }
 
 .hiw-step__badge svg {
