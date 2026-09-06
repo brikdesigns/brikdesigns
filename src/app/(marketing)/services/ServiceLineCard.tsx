@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardTitle, CardDescription, CardFooter, Stack, Frame, ServiceTag, Button } from '@brikdesigns/bds';
-import { composeButtonClasses } from '@/lib/bds-button-classes';
+import { Card, CardTitle, CardDescription, CardFooter, Stack, Frame, ServiceTag, Button, composeButtonClasses } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, serviceCtaVars } from '@/lib/tokens';
