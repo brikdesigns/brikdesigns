@@ -51,9 +51,10 @@ const TEAM = [
   },
 ];
 
-// §3 "Why Brik?" origin story. Rendered as prose this session; the accordion
-// treatment the operator asked for is blocked on the BDS Accordion subtitle/
-// action enhancement (brikdesigns/brik-bds#2285) landing + a version bump.
+// §3 "Why Brik?" origin story. Rendered as prose — a continuous narrative meant
+// to be read straight through. The earlier accordion idea was dropped
+// (brikdesigns#1245): an accordion is a misfit for a linear story and the Figma
+// prototype never called for one.
 const WHY_BRIK = [
   'When we were kids, we were lego kids — siblings who could take the same pile of pieces and end up somewhere completely different by the end of the afternoon. The kind who followed the instructions just long enough to understand how it was supposed to go, then took the whole thing apart to see what else it could become. A spaceship could become a city. A castle could become something that didn’t have a name yet.',
   'Something about that stuck with us.',
