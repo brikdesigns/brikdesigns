@@ -226,9 +226,9 @@ export default function AboutPage() {
 
       {/* ═══ What We Believe ═══ */}
       {/* Figma node 25980:12411 — tan band, 2-col: heading left, accordion right.
-          Belief items render via the BDS Accordion (title + content). The
-          numbered index shown in the frame is the Accordion `action` slot,
-          deferred with the subtitle enhancement (brik-bds#2285). */}
+          Belief items render via the BDS Accordion (title + content); the
+          numbered index shown in the frame is the Accordion `action` slot
+          (BDS 0.185.0, brik-bds#2285). */}
       <section className="page-section page-section--accent about-believe" data-section="believe" aria-labelledby="about-believe-title">
         <div className="container-lg about-believe__inner">
           <div className="about-believe__intro">
@@ -240,9 +240,14 @@ export default function AboutPage() {
           </div>
           <div className="about-believe__list">
             <Accordion
-              items={BELIEFS.map((belief) => ({
+              items={BELIEFS.map((belief, i) => ({
                 id: belief.id,
                 title: belief.title,
+                action: (
+                  <span style={{ ...label.md, color: color.text.muted }}>
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                ),
                 content: (
                   <p style={{ ...text.body, color: color.text.secondary }}>{belief.body}</p>
                 ),
