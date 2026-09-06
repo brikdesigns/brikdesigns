@@ -162,6 +162,35 @@
   /* Breathing room around each step card — operator ask. --padding-lg is
      --space-600 (24px) in the site's default spacing mode. */
   padding: var(--padding-lg);
+  /* Stack the spine badge above the card; the gap is where the connector spine
+     reads between the (opaque) badge and card. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+/* "Step N" spine badge — the connector node that strings the cards together
+   (Figma 25918:5342). Centered on the spine (align-self), dark inverse pill
+   with a check-circle + label. Opaque, so it reads as a node ON the line.
+   App-local like the card (#1121): the dark inverse fill is not a BDS Badge
+   tone, and the timeline chrome lives outside BDS. */
+.hiw-step__badge {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--space-100) var(--padding-sm);
+  background-color: var(--surface-inverse);
+  color: var(--text-on-color-dark);
+  border-radius: var(--border-radius-pill);
+  font-family: var(--font-family-label);
+  font-size: var(--label-md);
+  font-weight: 600;
+  line-height: var(--font-line-height-tight);
+}
+
+.hiw-step__badge svg {
+  flex-shrink: 0;
 }
 
 /* The new split card. Two equal panes: content ⇄ checklist, split at the
@@ -175,11 +204,22 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: stretch;
+  /* Column gutter — the white channel between the content pane and the inset
+     grey pane, so the grey pane reads as a floating box (Figma 25880:4770). */
+  gap: var(--gap-xl);
+  /* 24px inner padding — operator ask; --padding-lg is --space-600 (24px) in
+     the site's default spacing mode. Insets both panes from the card edge, so
+     the grey pane floats within the card chrome. */
+  padding: var(--padding-lg);
   background-color: var(--surface-primary);
   border: var(--border-width-200) solid var(--border-primary);
   border-radius: var(--border-radius-md);
   box-shadow: var(--box-shadow-sm);
   overflow: clip;
+  /* Fixed desktop height — operator ask (Figma inner-wrapper is 600px). min-,
+     not fixed, so a taller step (3 modes) grows instead of clipping; reset to
+     auto below when the panes stack (max-width: 991px). */
+  min-height: 600px;
 }
 
 .hiw-card__content {
@@ -191,20 +231,12 @@
   padding: var(--padding-lg);
 }
 
-/* The per-step CTA hugs the content's left edge rather than stretching the
-   full pane width (the content column is align: stretch for the text blocks). */
-.hiw-card__content > .bds-button {
+/* The per-step CTA and the cadence Badge hug the content's left edge rather
+   than stretching the full pane width (the content column is align: stretch for
+   the text blocks). */
+.hiw-card__content > .bds-button,
+.hiw-card__content > .bds-badge {
   align-self: flex-start;
-}
-
-.hiw-card__step {
-  font-family: var(--font-family-body);
-  font-size: var(--body-sm);
-  font-weight: 600;
-  letter-spacing: var(--letter-spacing-wide);
-  text-transform: uppercase;
-  color: var(--text-brand-primary);
-  margin: 0;
 }
 
 .hiw-card__title {
@@ -237,6 +269,9 @@
 .hiw-card__pane {
   padding: var(--padding-lg);
   background-color: var(--surface-secondary);
+  /* Rounded now that the card's 24px padding insets the pane from the card
+     edge — the grey pane reads as a floating box (Figma 25880:4770). */
+  border-radius: var(--border-radius-md);
 }
 
 /* 2×2 checklist (Step 1, and the tiers pane below the price). */
@@ -574,6 +609,9 @@
 
   .hiw-card {
     grid-template-columns: 1fr;
+    /* Stacked panes set their own height — the 600px desktop fixed height would
+       clip the taller single-column layout. */
+    min-height: auto;
   }
 
   /* Practice header stacks: heading over CTA. */
