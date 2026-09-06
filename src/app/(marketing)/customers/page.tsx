@@ -224,7 +224,7 @@ export default async function CustomersPage() {
       </section>
 
       {/* Get in Touch — brand-orange CTA card. Uses the established
-       * .cta-card-brand pattern shared with customer-stories and the
+       * .cta-card-brand pattern shared with results and the
        * industry detail pages (functionally equivalent to the homepage
        * .cta-card variant). */}
       <section className="cta-section-brand">

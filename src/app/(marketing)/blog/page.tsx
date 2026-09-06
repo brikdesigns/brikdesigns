@@ -49,11 +49,12 @@ export default async function BlogPage() {
       <section className="page-section page-section--top">
         <div className="container-lg">
           <SectionHeader
-            title="Latest Posts"
+            className="page-index-header"
+            title="Blog"
             titleAs="h1"
             align="start"
             description="Practical tips on branding, marketing, and running a small business — brik by brik."
-            style={{ marginBottom: gap.xl }}
+            style={{ marginBottom: gap.huge }}
           />
           <BlogIndex posts={posts} />
         </div>

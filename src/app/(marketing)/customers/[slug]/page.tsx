@@ -17,7 +17,7 @@ import '../customers.css';
 // the <Image fill> inside the story card escapes its parent (position:
 // static) and overlays the page hero. Component-local CSS would be cleaner;
 // tracked as follow-up.
-import '../../results/customer-stories.css';
+import '../../results/results.css';
 
 // Shape of one nested topic-service row from getIndustryPageBySlug.
 type TopicService = {

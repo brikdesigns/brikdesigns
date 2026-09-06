@@ -12,11 +12,11 @@ const INITIAL_VISIBLE = 6;
 const LOAD_STEP = 6;
 
 /**
- * Client-side industry filter for the customer-stories list. The page maps the
- * Supabase rows into serializable card view-models server-side; this component
- * owns the filter state and renders the (already-mapped) cards.
+ * Client-side industry filter for the Results (customer-stories) list. The page
+ * maps the Supabase rows into serializable card view-models server-side; this
+ * component owns the filter state and renders the (already-mapped) cards.
  */
-export function CustomerStoriesList({ stories }: { stories: CustomerStoryCardProps[] }) {
+export function ResultsList({ stories }: { stories: CustomerStoryCardProps[] }) {
   const industries = useMemo(() => {
     const set = new Set<string>();
     for (const story of stories) {
