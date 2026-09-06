@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
 import { notifyOnLead, type LeadNotification } from '@/lib/notifications';
+import { createServiceClient } from '@/lib/supabase/server';
 
 /**
  * Inbound GoHighLevel webhook — makes a Grind After Graduation RSVP observable
- * in Slack (#events) without any location-scoped GHL read. The Webflow twin's
- * GHL widget (#864) posts straight to leadconnectorhq.com and never hits our
- * Next.js API, so the native lead path (src/app/api/leads/route.ts) cannot see
- * an RSVP. This route is the observability path #886 needs. One-way IN only —
- * brikdesigns never writes to GHL.
+ * in Slack (#events) AND records it in event_registrations so it reaches the
+ * portal's campaign funnel (#886 + #1024). The Webflow twin's GHL widget (#864)
+ * posts straight to leadconnectorhq.com and never hits our Next.js API, so the
+ * native lead path (src/app/api/leads/route.ts) cannot see an RSVP — this
+ * webhook is the only path a public RSVP has into the shared Supabase project.
+ * One-way IN only — brikdesigns never writes to GHL.
  *
  * PAYLOAD-TRUST design: GHL "custom webhooks" (a workflow action) send the
  * submission's fields in the POST body, and we map those directly. We do NOT
@@ -94,6 +96,56 @@ export function buildRsvpNotification(
   };
 }
 
+// The public RSVP page is the Webflow twin (#864); its GHL form posts to GHL,
+// never /api/leads — so this webhook is the ONLY path by which a public RSVP
+// reaches event_registrations, the table the portal's campaign funnel reads
+// (#1024). Resolved by slug rather than a hard-coded UUID so a re-created event
+// row keeps working.
+const RSVP_EVENT_SLUG = 'grind-after-graduation';
+
+/**
+ * Map a GHL custom-webhook body to an `event_registrations` insert row. Pure +
+ * exported so the mapping is unit-testable without a network. Returns null when
+ * the payload lacks the name+email a registration needs (mirrors
+ * buildRsvpNotification's guard). `company_id` is left unset — the column is
+ * nullable and the funnel counts by `event_id`; unlike /api/leads, this path
+ * does not mint a lead company/contact for an RSVP.
+ */
+export function buildRsvpRegistration(
+  body: Record<string, unknown>,
+  eventId: string,
+) {
+  const name = str(body.name) ?? str(body.full_name) ?? str(body.first_name);
+  const email = str(body.email);
+  if (!name || !email) return null;
+
+  const firstSpace = name.indexOf(' ');
+  const firstName = firstSpace === -1 ? name : name.slice(0, firstSpace);
+  const lastName = firstSpace === -1 ? null : name.slice(firstSpace + 1).trim() || null;
+
+  // Same two RSVP-only fields the notification surfaces; kept on the row so the
+  // registration is self-describing without a location-scoped GHL read.
+  const notes =
+    [
+      str(body.grad_year) && `Graduation year: ${str(body.grad_year)}`,
+      str(body.staying_in_tn) && `Staying in Tennessee: ${str(body.staying_in_tn)}`,
+    ]
+      .filter(Boolean)
+      .join('\n') || null;
+
+  return {
+    event_id: eventId,
+    first_name: firstName,
+    last_name: lastName,
+    email,
+    phone: str(body.phone) ?? null,
+    practice_name: str(body.company_name) ?? null,
+    source: 'ghl-webhook',
+    status: 'registered',
+    notes,
+  };
+}
+
 export async function POST(request: Request) {
   // ── Shared-secret verification (fail-secure) ──
   const expected = process.env.GHL_WEBHOOK_SECRET;
@@ -125,8 +177,38 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, skipped: 'missing name or email' });
   }
 
+  // Record the RSVP in event_registrations so it appears in the portal's
+  // campaign funnel (#1024). Best-effort: a lookup miss or insert error is
+  // logged but still acked 200 (below), matching the Slack fan-out, so a
+  // transient DB error does not trigger a GHL retry-storm that would re-notify.
+  let registered = false;
+  const supabase = createServiceClient();
+  const { data: eventRow, error: eventLookupError } = await supabase
+    .from('events')
+    .select('id')
+    .eq('slug', RSVP_EVENT_SLUG)
+    .maybeSingle();
+  if (eventLookupError || !eventRow) {
+    console.error(
+      `[ghl-webhook] events lookup for slug "${RSVP_EVENT_SLUG}" failed: ` +
+        `${eventLookupError?.message ?? 'no matching row'} — registration skipped`,
+    );
+  } else {
+    const registration = buildRsvpRegistration(body, eventRow.id);
+    if (registration) {
+      const { error: registrationError } = await supabase
+        .from('event_registrations')
+        .insert(registration);
+      if (registrationError) {
+        console.error('[ghl-webhook] event_registrations insert failed:', registrationError.message);
+      } else {
+        registered = true;
+      }
+    }
+  }
+
   // Best-effort fan-out (email + Slack), same as the native lead path.
   await notifyOnLead(lead);
 
-  return NextResponse.json({ ok: true, notified: true });
+  return NextResponse.json({ ok: true, notified: true, registered });
 }
