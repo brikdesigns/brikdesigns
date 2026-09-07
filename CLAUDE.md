@@ -28,6 +28,10 @@ Read [`page-anatomy.md`](.claude/references/page-anatomy.md) § "When you change
 
 Read [`section-identification.md`](.claude/references/section-identification.md) — every top-level `<section>` in `src/app/(marketing)` carries a stable id (`data-section="<key>"` by default, or `aria-labelledby` when a heading `id` exists), never a `bds-*` block name (gated by `scripts/lint-section-id.mjs`, a ratchet against `scripts/section-id-baseline.json`).
 
+## When building a section whose content scrolls sideways
+
+Read [`horizontal-scroll-track.md`](.claude/references/horizontal-scroll-track.md) — USE `HorizontalScrollTrack`, never hand-rolled scroll code; the pinned GSAP scrub is an **upgrade** to a scrollable row that engages only after measuring a real overhang, so reduced-motion, coarse-pointer, and no-JS visitors all keep a plain reachable row (gated headlessly by `npm run test:hscroll`). The track's travel is the **measured** overhang — never a card count, and never the `xPercent: -100 * (panels.length - 1)` recipe from the BDS toolkit, which is a full-viewport panel deck and strands the last card of a continuous row.
+
 ## When naming CSS classes or TS data-object keys for text roles
 
 Read [`naming-conventions.md`](.claude/references/naming-conventions.md) — `__title` / `__description` are canonical, while `__heading` / `__subtext` / `__body` are banned (`heading` is a typography token to import from `styles.ts`, never a class name or data-object key).
