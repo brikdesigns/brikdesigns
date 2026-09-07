@@ -455,6 +455,7 @@ export default async function HomePage() {
       <section className="section-service-lines" data-section="service-lines">
         <div className="section-container">
           <SectionHeader
+            align="start"
             title="Not every need is ongoing. That's okay."
             description="We work best as an ongoing extension of your team — that's where the compounding value lives. But if you have a specific, focused need, all of our brand, marketing, and information design services are also available as one time projects. We'll tell you which approach makes the most sense for your situation. The decision is always yours."
           />

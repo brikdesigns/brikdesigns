@@ -888,8 +888,12 @@
   background-color: var(--surface-accent-orange);
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   width: 100%;
+  /* Section fills the viewport, matching the other full-height home bands
+     (.section-services / .section-tooling). */
+  min-height: 100svh;
   gap: var(--space-1200);
 }
 
@@ -907,6 +911,32 @@
   --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band header description; same reasoning as --text-primary above */
 }
 
+/* Split header — title LEFT, description RIGHT (Figma content structure).
+   SectionHeader is single-column by design (ADR-032), so `align="start"`
+   left-anchors it and this scoped override defeats its measure cap and lays the
+   ContentBlock out as two columns. The block's direct children — h2.__title and
+   p.__description — fall into col 1 and col 2. Unlayered, so it wins over the
+   BDS `.bds-content-block { flex-direction: column }` in @layer bds-components. */
+.section-service-lines .bds-section-header {
+  max-width: none;
+  width: 100%;
+}
+
+.section-service-lines .bds-content-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1600);
+  align-items: start;
+}
+
+/* Stack the split back to one column on mobile. */
+@media (max-width: 767px) {
+  .section-service-lines .bds-content-block {
+    grid-template-columns: 1fr;
+    gap: var(--gap-md);
+  }
+}
+
 /* Align the track's first card with the header's left edge while the row bleeds
    off the right. This replicates .section-container's own content-left math
    (max-width cap + margin-inline:auto + --page-inset gutter): on viewports wider
@@ -922,12 +952,19 @@
 }
 
 /* Card sizing in the track. ServiceLineCard sizes to its grid cell on /services;
-   in a flex track it needs an explicit width. 512px matches the Figma card;
-   max-width caps it below one viewport on mobile so the row shows a card plus a
-   peek of the next (the native-scroll affordance). */
+   in a flex track it needs an explicit width. Cards stay VERTICAL (stacked) — the
+   shared component's own `flex-direction: column` — so nothing overrides the
+   orientation here; max-width caps it below one viewport on mobile so the row
+   shows a card plus a peek of the next (the native-scroll affordance). */
 .service-lines-track .services-card-link {
   flex: 0 0 512px;
   max-width: 85vw;
+}
+
+/* Image well — a neutral surface behind the (often transparent / contained) art,
+   replacing the shared card's --surface-accent tint in this section only. */
+.service-lines-track .services-card__media {
+  background-color: var(--surface-secondary);
 }
 
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
