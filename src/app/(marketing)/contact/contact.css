@@ -12,7 +12,7 @@
   justify-content: center;
 }
 
-.contact-card {
+.contact-panel {
   width: 100%;
   max-width: 1100px;
   margin: 0 var(--padding-lg);
@@ -82,7 +82,7 @@
     padding: var(--padding-xl) 0;
   }
 
-  .contact-card {
+  .contact-panel {
     padding: var(--padding-lg);
     margin: 0 var(--padding-md);
   }
