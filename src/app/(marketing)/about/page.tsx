@@ -134,8 +134,8 @@ export default function AboutPage() {
       <section className="page-section about-team" data-section="team">
         <div className="container-lg container-lg--comfortable">
           {TEAM.map((member) => (
-            <article key={member.name} className="about-team-card">
-              <div className="about-team-card__avatar">
+            <article key={member.name} className="about-team-member">
+              <div className="about-team-member__avatar">
                 <Image
                   src={member.image}
                   alt={member.fullName}
@@ -144,12 +144,12 @@ export default function AboutPage() {
                   style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                 />
               </div>
-              <div className="about-team-card__body">
-                <div className="about-team-card__head">
+              <div className="about-team-member__body">
+                <div className="about-team-member__head">
                   <h2 style={heading.lg}>Meet {member.name}</h2>
                   <p style={{ ...label.smBold, color: color.text.secondary }}>{member.role}</p>
                 </div>
-                <div className="about-team-card__social">
+                <div className="about-team-member__social">
                   <Button
                     href={member.linkedin}
                     target="_blank"
@@ -178,7 +178,7 @@ export default function AboutPage() {
                     />
                   )}
                 </div>
-                <div className="about-team-card__bio">
+                <div className="about-team-member__bio">
                   {member.bio.map((paragraph, i) => (
                     <p key={i} style={{ ...text.body, color: color.text.secondary }}>{paragraph}</p>
                   ))}

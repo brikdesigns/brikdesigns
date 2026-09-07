@@ -96,21 +96,39 @@ What it judges: a class name that is (a) defined in a stylesheet under `src/`,
 — not an `__element` or `--modifier`, which are judged through their block — and
 (d) is actually applied in a `className`. `bds-*` is excluded as BDS-owned.
 
+### There are three ways out, not two
+
+An unbacked `*-card` class has three honest dispositions. Reach for them in this
+order:
+
+1. **Render it on `<Card>`.** The default. It then inherits the chrome standard
+   and becomes visible to `card-treatment.spec.ts`.
+2. **Rename it, if it is not a card.** A `-card` suffix on a Container or a
+   Section child is a naming bug, and renaming fixes the actual problem instead
+   of documenting it. `contact-card` → `contact-panel` (a 1100px page panel on a
+   full-viewport brand band) and `about-team-card` → `about-team-member` (a
+   person's bio `<article>`) left the list this way in #1260. Check the layer in
+   [`page-anatomy.md`](page-anatomy.md) before assuming the name is right.
+3. **Baseline it, with the reason.** Only when it is genuinely card-shaped and
+   genuinely cannot be a BDS `Card`.
+
 ### The deliberate non-Cards
 
 Grandfathered in `scripts/card-class-baseline.json` as a name → reason map, so a
 keep carries its justification where the next reader will look. Two shapes
-recur, and both are legitimate:
+survive option 2:
 
-- **A semantic element the Card can't be.** `about-team-card`, `hiw-card` are
-  `<article>`s; BDS `Card` renders a `<div>`/`<a>` and exposes no `as` prop, so
-  converting would trade correct document semantics for shared chrome.
-- **A misnamed layer.** `contact-card` is a 1100px page panel on a full-viewport
-  brand band; `cta-card-brand` is a Section-level CTA panel; `plans-card-wrapper`
-  is a grid cell around a `PricingCard`. Per
-  [`page-anatomy.md`](page-anatomy.md) these are Containers, not Components —
-  they carry `-card` in the name only by history.
+- **A semantic element the Card can't be.** `hiw-card` is an `<article>`; BDS
+  `Card` renders a `<div>`/`<a>` and exposes no `as` prop, so converting would
+  trade correct document semantics for shared chrome.
+- **A card-shaped object that is not a BDS Card.** `cta-card-brand` (the brand
+  CTA panel), `plans-card-wrapper` (a grid cell around a `PricingCard`),
+  `services-card-link` (a `<Link>` around a real `Card`), `value-card` (a
+  numbered pillar tile). These keep the noun because they read as bounded,
+  filled blocks — they just don't inherit BDS chrome.
 
 The ratchet runs both ways: a new unbacked card fails, and a baselined name that
-has since been converted or deleted **also** fails, so the list can never
-overstate the remaining debt. Only ever remove entries.
+has since been converted, renamed, or deleted **also** fails, so the list can
+never overstate the remaining debt. That reverse direction is what forced the two
+#1260 renames to drop their entries in the same commit rather than leave them
+rotting. Only ever remove entries — the list went 7 → 5 in #1260.

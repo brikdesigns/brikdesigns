@@ -66,7 +66,7 @@ export default async function ContactPage() {
   return (
     <>
       <section className="contact-section">
-        <div className="contact-card">
+        <div className="contact-panel">
           <div className="contact-hero-row">
             <h1 className="page-hero__title">Get in Touch</h1>
             <div className="contact-cta-row">
