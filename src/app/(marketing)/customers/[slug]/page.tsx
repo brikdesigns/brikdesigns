@@ -241,7 +241,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                           description={svc.description}
                           imageUrl={svc.image_url}
                           iconServiceName={svc.name}
-                          className="service-card--flat"
+                          className="display-card--title-sm"
                           showCta
                         />
                       </div>
