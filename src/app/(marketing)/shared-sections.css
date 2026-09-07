@@ -145,6 +145,32 @@
   gap: var(--gap-md);
 }
 
+/* ─── Form card ──────────────────────────────────────────── */
+/* The one container for an inline signup / registration form. Replaces the
+   three byte-near-identical hand-rolled copies `.lp-form-card` (landing
+   blocks), `.marketing-page__form-card` (/marketing/[slug]) and
+   `.event-page__form-card` (/events/[slug]) — #1260.
+
+   Chrome comes from BDS `<Card variant="outlined">` + the "Card chrome by
+   band" rule below, NOT from this class: the fill, the ring and its
+   3px `--border-width-200` weight are the site card standard, so a form card
+   now drifts with every other card instead of against them. This class carries
+   only what the standard has no opinion on — text alignment, and the optional
+   per-event accent stripe. */
+
+.form-card {
+  text-align: left;
+}
+
+/* Accent stripe — the per-event brand color, set inline as `borderTopColor` by
+   the page (an arbitrary CMS value, so it cannot be a token). Width + style
+   live here so the call site only supplies the color. */
+.form-card--accent {
+  border-top-width: var(--border-width-200);
+  border-top-style: solid;
+  border-top-color: var(--border-brand-primary);
+}
+
 /* ─── Container ──────────────────────────────────────────── */
 /* Standard container: max-width (fixed px) + margin-inline: auto + fluid gutter.
    Gold-standard pattern used by Bootstrap, Tailwind, Carbon, Backbase.

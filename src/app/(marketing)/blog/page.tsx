@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getAllPosts } from '@/lib/blog';
 import { getServiceCategories, getSupportPlans } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader } from '@brikdesigns/bds';
+import { Grid, Button, SectionHeader } from '@brikdesigns/bds';
 import { gap } from '@/lib/tokens';
 import { BlogIndex } from '@/components/blog/BlogIndex';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
@@ -83,20 +83,22 @@ export default async function BlogPage() {
         </div>
       </section>
 
-      {/* ═══ CTA ("Get in Touch") — mirrored from the home page's .section-cta band. ═══ */}
-      <section className="section-cta" data-section="get-in-touch">
-        <div className="cta-card">
-          <div className="cta-inner">
-            <h2 className="cta-title">Get in Touch</h2>
-            <p className="cta-description">
-              Starting a new project or want to collaborate with us?
-            </p>
-          </div>
-          <Cluster gap="md" justify="center">
-            <Button href="/contact" variant="outline" size="lg" className="hero-btn-on-dark">
-              Let&apos;s Talk
-            </Button>
-          </Cluster>
+      {/* ═══ CTA ("Get in Touch") — the shared .cta-section-brand /
+       * .cta-card-brand pattern (shared-sections.css), identical to the one on
+       * /results, /customers and /blog/[slug]. Was a second, /blog-only brand
+       * CTA card (.section-cta / .cta-card, homepage.css) until #1260. ═══ */}
+      <section className="cta-section-brand" data-section="get-in-touch">
+        <div className="cta-card-brand">
+          <SectionHeader
+            onColor
+            title="Get in Touch"
+            description="Starting a new project or want to collaborate with us?"
+            actions={
+              <Button href="/contact" variant="on-color" size="lg">
+                Let&apos;s Talk
+              </Button>
+            }
+          />
         </div>
       </section>
     </>

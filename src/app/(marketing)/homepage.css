@@ -911,19 +911,11 @@
   padding-inline: var(--page-inset);
 }
 
-/* Webflow: .cms-item-story — row, space-between, gap-lg (24px), white bg, sm radius */
-.story-card {
-  display: flex;
-  flex-flow: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--gap-xl);
-  padding: var(--padding-xl);
-  background-color: var(--surface-primary);
-  border-radius: var(--border-radius-100);
-  box-shadow: var(--box-shadow-md);
-  width: 100%;
-}
+/* `.story-card` is NOT defined here — the name belongs to CustomerStoryCard
+   (src/components/marketing/CustomerStoryCard.tsx), styled in
+   results/results.css as `.story-card.bds-card`. The dead Webflow port of
+   `.cms-item-story` that used to live here set a conflicting flex row +
+   padding-xl + shadow on the same class (#1260). */
 
 /* Webflow: .inner-wrapper — left image column */
 .story-image-wrapper {
@@ -994,61 +986,17 @@
 }
 
 /* ─── CTA ("Get in Touch") ────────────────────────────────── */
-/* Webflow: .section_cta — white outer, centered, full-width */
-.section-cta {
-  padding: var(--padding-huge) 0;
-  background-color: var(--surface-primary);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
+/* The section band is `.cta-section-brand` in shared-sections.css. The
+   `.section-cta` Webflow port that used to live here was its only-on-/blog
+   twin and went with the card below (#1260). */
 
-/* Webflow: .container-cta — brand bg, lg radius, 1080px max, centered, gap-huge (48px) */
-.cta-card {
-  z-index: 100;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-  gap: var(--gap-md);
-  max-width: 1080px; /* Webflow: .container-cta base */
-  width: 100%;
-  height: 100%;
-  background-color: var(--surface-brand-primary);
-  border-radius: var(--border-radius-md);
-  padding: var(--padding-huge);
-}
-
-/* Webflow: .inner-wrapper._90.center.stacked → .content-wrapper.center */
-.cta-inner {
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-  gap: var(--gap-xl);
-  max-width: var(--site-content-width);
-  text-align: center;
-}
-
-/* Webflow: .text_heading-lg.center.on-color-dark */
-.cta-title {
-  font-family: var(--font-family-heading);
-  font-size: var(--heading-lg);
-  font-weight: 700;
-  line-height: var(--font-line-height-tight);
-  color: var(--text-on-color-dark);
-  margin: 0;
-}
-
-/* Webflow: .text_body-lg.center.on-color-dark */
-.cta-description {
-  font-family: var(--font-family-body);
-  font-size: var(--body-lg);
-  line-height: var(--font-line-height-normal);
-  color: var(--text-on-color-dark);
-  margin: 0;
-}
+/* The brand CTA card is `.cta-card-brand` in shared-sections.css — the one
+   pattern used by /about, /blog, /blog/[slug], /customers, /customers/[slug],
+   /how-we-work, /results and /results/[slug]. The `.cta-card` / `.cta-inner` /
+   `.cta-title` / `.cta-description` Webflow port that used to live here was a
+   second brand CTA card differing only in max-width (1080 vs 1280) and radius
+   (md vs lg), with hand-rolled title/description type instead of
+   `<SectionHeader onColor>` (#1260). */
 
 
 /* ─── Responsive ──────────────────────────────────────────── */
@@ -1072,11 +1020,6 @@
 
   .audit-content {
     max-width: 100%;
-  }
-
-  /* Story — stack vertically */
-  .story-card {
-    flex-direction: column;
   }
 
   .story-image-wrapper {
@@ -1204,9 +1147,5 @@
     flex-direction: column;
     width: 100%;
     max-width: none;
-  }
-
-  .story-card {
-    padding: var(--padding-md);
   }
 }

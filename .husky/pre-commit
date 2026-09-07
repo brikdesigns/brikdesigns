@@ -94,6 +94,24 @@ if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
   fi
 fi
 
+# ── Card-class lint (a class calling itself a card IS a BDS Card) ──
+# A hand-rolled `<div className="x-card">` never becomes a `.bds-card` element,
+# so the "Card chrome by band" rule in shared-sections.css never reaches it and
+# tests/a11y/card-treatment.spec.ts cannot measure it — card chrome then drifts
+# per page (#1260). Ratchet against scripts/card-class-baseline.json, which
+# records each deliberate non-Card with its reason. Standard:
+# .claude/references/card-treatment.md.
+if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+  if [ -f scripts/lint-card-class.mjs ]; then
+    echo "🃏 Running card-class lint..."
+    if ! node scripts/lint-card-class.mjs; then
+      echo ""
+      echo "   Render the card above as a BDS <Card>, or baseline it with a reason."
+      exit 1
+    fi
+  fi
+fi
+
 # ── Secret scan (gitleaks) ──
 # Defense-in-depth for the secret-leak prevention layer. Mirrors the pattern
 # used in brik-bds, brik-client-portal, renew-pms. Runs gitleaks on the staged
