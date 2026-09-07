@@ -237,12 +237,11 @@
   align-self: stretch;
 }
 
-/* Service-card titles shrink to heading-sm so they sit one step below the
- * topic section title (heading-md), establishing the section→card hierarchy.
- * The BDS preset-display title defaults to --heading-md. */
-.customer-topic-grid__slot .bds-card__preset-display-title {
-  font-size: var(--heading-sm);
-}
+/* The topic-card title step-down is `.display-card--title-sm`
+ * (shared-sections.css), passed by the ServiceCard in page.tsx. This slot
+ * carried a third byte-identical copy of that rule — redundant even before
+ * #1261, since the same cards already passed the equivalent
+ * `.service-card--flat`. */
 
 /* ─── Responsive ──────────────────────────────────────────── */
 

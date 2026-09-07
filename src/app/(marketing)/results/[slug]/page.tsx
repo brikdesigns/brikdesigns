@@ -343,7 +343,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                       variant="outlined"
                       padding="md"
                       interactive
-                      className="services-card"
+                      className="services-card display-card--title-sm"
                       style={{ height: '100%' }}
                     >
                       {s.hero_image_url && (
