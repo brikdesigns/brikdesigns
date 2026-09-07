@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Image, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
+import { Grid, Button, Cluster, SectionHeader, PricingCard, Image, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
@@ -18,34 +18,26 @@ export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 export const revalidate = 3600;
 
-// R2 "Does this sound familiar?" pain points (Homepage-R2 Notion doc).
-// Row-major order mirrors the Figma layout (node 25768:9531): row 1 across,
-// then row 2. Figma placeholder text is ignored — this is the real copy.
+// "Does this sound familiar?" pain points, verbatim from Figma node 25768:9531
+// in Figma's own order (read 2026-09-07, #1268).
+//
+// This replaced a 6-entry title+description shape when the section was
+// redesigned from a 3-col card grid into a flat centered stack. The redesign
+// drops three strings the grid carried — "The moment you step away, things
+// slip.", "Every process lives in someone's head.", and the whole "You built
+// this to grow, not to babysit it" / "But here you are." pair — and splits the
+// former "Vendors and tools for everything, but nothing connects" into the last
+// two lines below. Named here so the loss stays deliberate: re-adding a line
+// means adding it to the Figma frame first, not to this array.
 const PROBLEMS = [
-  {
-    title: 'Leads come in and go quiet',
-    description: 'No system to follow up, so they slip away every time.',
-  },
-  {
-    title: 'Marketing happens when you get to it',
-    description: 'No real plan, just reaction.',
-  },
-  {
-    title: "Your systems work because you're running them",
-    description: 'The moment you step away, things slip.',
-  },
-  {
-    title: 'Nothing is written down',
-    description: "Every process lives in someone's head.",
-  },
-  {
-    title: 'Vendors and tools for everything, but nothing connects',
-    description: "Marketing doesn't talk to ops.",
-  },
-  {
-    title: 'You built this to grow, not to babysit it',
-    description: 'But here you are.',
-  },
+  'Leads come in and go quiet',
+  'Marketing happens when you get to it',
+  'No real plan, just reaction.',
+  'No system to follow up, so they slip away every time.',
+  'Nothing is written down',
+  "Your systems work because you're running them",
+  'You have vendors and software tools for everything',
+  "Marketing doesn't talk to ops - nothing connects",
 ];
 
 export default async function HomePage() {
@@ -158,22 +150,23 @@ export default async function HomePage() {
       </section>
 
       {/* ═══ Problem ("Does this sound familiar?") ═══ */}
+      {/* The pain points are a list of plain strings — no per-item action, no
+          shared attribute set — so <ul>/<li> with the markers off, per the
+          display-choice canon. The former tinted Card + 3-col Grid are gone
+          (#1268); the section itself now carries the tint. The <ul> is a direct
+          child of .section-container so ScrollReveal's contentTargets() lands
+          on [title, list] and the stagger ladder in homepage.css can key off
+          the list's own reveal class. */}
       <section className="section-problem" data-section="problems">
         <div className="section-container">
-          {/* padding driven by CSS (--padding-xl) — BDS CardPadding caps at 'lg'
-              (#1114); the .problem-card rule sets the xl inset. */}
-          <Card padding="none" className="problem-card">
-            <h2 className="problem__title">Does this sound familiar?</h2>
-            <Grid columns={3} gap="huge">
-              {PROBLEMS.map((problem) => (
-                <div key={problem.title} className="problem-item">
-                  <span className="problem-item__rule" aria-hidden="true" />
-                  <h3 className="problem-item__title">{problem.title}</h3>
-                  <p className="problem-item__description">{problem.description}</p>
-                </div>
-              ))}
-            </Grid>
-          </Card>
+          <h2 className="problem__title">Does this sound familiar?</h2>
+          <ul className="problem-list">
+            {PROBLEMS.map((problem) => (
+              <li key={problem} className="problem-list__item">
+                {problem}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
