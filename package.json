@@ -30,6 +30,8 @@
     "test:lint:theme-contrast": "node scripts/lint-theme-contrast.test.mjs",
     "lint:section-id": "node scripts/lint-section-id.mjs",
     "test:lint:section-id": "node scripts/lint-section-id.test.mjs",
+    "lint:card-class": "node scripts/lint-card-class.mjs",
+    "test:lint:card-class": "node scripts/lint-card-class.test.mjs",
     "test:sanitize": "npx tsx scripts/test-sanitize-html.mjs",
     "test:customer-story-author": "npx tsx scripts/test-customer-story-author.mjs",
     "test:ghl-webhook": "npx tsx scripts/test-ghl-webhook.ts",

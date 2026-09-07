@@ -53,16 +53,11 @@
   overflow: hidden;
 }
 
-/* form-card — uniform muted border. The per-event accent top border was
-   removed (BACKLOG-1127): the colored top strip was omitted as a style choice.
-   Mirrors the legacy .marketing-page__form-card / .event-page__form-card. */
-.lp-form-card {
-  padding: var(--padding-xl);
-  background-color: var(--surface-primary);
-  border: 1px solid var(--border-muted);
-  border-radius: var(--border-radius-md);
-  text-align: left;
-}
+/* The form card is `.form-card` on a BDS `<Card>` (shared-sections.css) — the
+   one container shared with /marketing/[slug] and /events/[slug]. `.lp-form-card`
+   was its third hand-rolled copy (#1260). Landing blocks keep the uniform muted
+   border with no accent stripe (BACKLOG-1127): the colored top strip was
+   omitted here as a style choice, so this call site passes no `--accent`. */
 
 /* cta — heading + body + link buttons. Buttons keep their native BDS variant
    (accessible by construction); this only lays out the action row. */
@@ -379,7 +374,7 @@
   box-shadow: 0 0 0 var(--space-200) var(--color-purple-500); /* bds-lint-ignore token-family — fixed showcase photo frame */
 }
 
-/* Registration — meta + form stack. The FormBlock's inner .lp-form-card is
+/* Registration — meta + form stack. The FormBlock's inner .form-card is
    restyled into the mock's pale-purple inner card with a yellow frame. */
 .lp-showcase__registration {
   display: flex;
@@ -408,7 +403,7 @@
   flex-direction: column;
   gap: var(--gap-md);
 }
-.lp-showcase__registration .lp-form-card {
+.lp-showcase__registration .form-card {
   padding: var(--padding-xl);
   background-color: var(--color-purple-100); /* bds-lint-ignore token-family — fixed showcase inner form-card ground (pale purple) */
   border: none;
