@@ -106,3 +106,30 @@ export function evaluateDeclaration({ declared = [], knownRoutes = [], results =
 
   return { waived, blocking, unmoved, unknown, underThreshold };
 }
+
+// Split blocking routes by how their failure is spread across captures, so the
+// gate can tell an intended/stale-base red apart from a capture flake (#1106).
+//
+// A real render change moves EVERY captured viewport of a route (all themes,
+// all sizes); a route that blocks on some captures while its others measure
+// 0.00% is a capture-side flake — the exact signature the issue documents
+// (`home [light/desktop]` at 30% while its own tablet + mobile were identical).
+//
+//   broad    → every measured capture of the route is over threshold → the
+//              move is real: an intended change (label it) or a stale base
+//              (rebase). Never a flake.
+//   isolated → the route blocks on some captures but not all → likely a
+//              capture flake; re-run before labeling.
+//
+// Keyed on the same `results` shape evaluateDeclaration consumes, so a route
+// with no successfully measured capture cannot appear (it has no diffPct).
+export function classifyBlockingSpread({ blocking = [], results = [] }) {
+  const measuredByRoute = (name) =>
+    results.filter((r) => r.route === name && r.diffPct !== null).length;
+  const routes = [...new Set(blocking.map((r) => r.route))];
+  const isolated = routes.filter(
+    (name) => blocking.filter((r) => r.route === name).length < measuredByRoute(name),
+  );
+  const broad = routes.filter((name) => !isolated.includes(name));
+  return { isolated, broad };
+}

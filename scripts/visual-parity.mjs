@@ -4,7 +4,11 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
-import { parseDeclaration, evaluateDeclaration } from './lib/visual-change-declaration.mjs';
+import {
+  parseDeclaration,
+  evaluateDeclaration,
+  classifyBlockingSpread,
+} from './lib/visual-change-declaration.mjs';
 
 // Three modes share this script:
 //   webflow (default) — migration parity: compare the build against the live
@@ -722,15 +726,59 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
     blocking.forEach((r) =>
       console.error(`  ${r.diffPct.toFixed(2)}%  ${r.route} [${r.theme}/${r.viewport}]`),
     );
+
+    // Three different failures land in `blocking` and look identical here, but
+    // their remedies are opposite (#1106). The label is only correct for an
+    // intended change; suggesting it for the other two teaches everyone to
+    // waive real regressions. Tell them apart by capture spread: a real render
+    // change moves EVERY viewport of a route, while one route/viewport moving
+    // alone — its other captures at 0.00% — is a capture-side flake.
     if (SELF_MODE && !DECLARED_ROUTES.length) {
+      const { isolated, broad } = classifyBlockingSpread({ blocking, results });
+
+      console.error('\n  Three failures look alike here — pick the remedy by signature:');
       console.error(
-        '\n  If these are intentional: add the `visual-change` label to the PR and a\n' +
-          '  `Visual-change: <route-name>, <route-name>` line to its body.',
+        '  1. INTENDED change → add the `visual-change` label AND a\n' +
+          '     `Visual-change: <route-name>, <route-name>` line to the PR body, then\n' +
+          '     let the label event re-run the gate. Do NOT `gh run rerun` — it replays\n' +
+          '     the pre-label payload (VISUAL_CHANGE_LABEL=0) and fails again on a non-bug.',
       );
+      console.error(
+        "  2. CAPTURE flake → a route/viewport moved while the same route's other\n" +
+          '     captures read 0.00%. Re-run the failed job; a flake does not reproduce.\n' +
+          '     Never label it — that would waive a real regression on the same route.',
+      );
+      console.error(
+        '  3. STALE base → the moved routes changed on `staging` after this branch\n' +
+          '     forked. Rebase onto current staging and re-push; do not label.',
+      );
+      if (broad.length)
+        console.error(
+          `\n  Signature: ${broad.map((n) => `\`${n}\``).join(', ')} moved on every captured ` +
+            'viewport → INTENDED (case 1) or STALE base (case 3), not a flake.',
+        );
+      if (isolated.length)
+        console.error(
+          `  Signature: ${isolated.map((n) => `\`${n}\``).join(', ')} moved on some viewports ` +
+            'but not all → likely a capture FLAKE (case 2); re-run before you label.',
+        );
     }
+
     summary.push(
       `❌ **Undeclared regression** — ${blocking.length} capture(s) over ${DIFF_THRESHOLD}%.`,
     );
+    if (SELF_MODE && !DECLARED_ROUTES.length) {
+      summary.push(
+        '',
+        'These three look identical but have opposite remedies (#1106) — pick by signature:',
+        '',
+        '| If it is… | Signature | Remedy |',
+        '| --- | --- | --- |',
+        '| An intended change | moved on **every** viewport of the route | add `visual-change` label + `Visual-change:` line, then let the label event re-run — **do not `gh run rerun`** |',
+        '| A capture flake | one route/viewport moved, its others read 0.00% | re-run the failed job; **do not** label |',
+        '| A stale base | the moved routes changed on `staging` after this branch forked | rebase onto staging and re-push; **do not** label |',
+      );
+    }
   }
 
   if (process.env.GITHUB_STEP_SUMMARY && summary.length) {

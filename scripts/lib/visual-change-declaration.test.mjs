@@ -14,7 +14,11 @@
 // Plain node:assert, no framework. Run via `npm run test:visual-change`.
 
 import assert from 'node:assert/strict';
-import { parseDeclaration, evaluateDeclaration } from './visual-change-declaration.mjs';
+import {
+  parseDeclaration,
+  evaluateDeclaration,
+  classifyBlockingSpread,
+} from './visual-change-declaration.mjs';
 
 const KNOWN = ['home', 'about', 'events-grind-after-graduation'];
 let passed = 0;
@@ -221,6 +225,84 @@ check('exactly at the threshold does not block', () => {
     threshold: 1,
   });
   assert.equal(r.blocking.length, 0);
+});
+
+console.log('classifyBlockingSpread');
+
+// This split drives which remedy the gate prints (#1106): a route that moved
+// on every viewport is a real change (label / rebase), while one that moved on
+// some captures but not all is a capture flake (re-run). Getting it wrong tells
+// an author to waive a real regression, or to re-run a genuine one forever.
+
+check('a route over threshold on every measured capture is broad, not isolated', () => {
+  const results = [cap('home', 30, 'light', 'desktop'), cap('home', 28, 'dark', 'desktop')];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { broad, isolated } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(broad, ['home']);
+  assert.deepEqual(isolated, []);
+});
+
+check('a route blocking on one capture while its others read 0.00% is isolated', () => {
+  // The exact issue signature: home at 30% on light/desktop, 0.00% elsewhere.
+  const results = [
+    cap('home', 30, 'light', 'desktop'),
+    cap('home', 0, 'dark', 'desktop'),
+    cap('home', 0, 'light', 'mobile'),
+    cap('home', 0, 'dark', 'mobile'),
+  ];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { broad, isolated } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(isolated, ['home']);
+  assert.deepEqual(broad, []);
+});
+
+check('a sub-threshold move on the other captures still counts as isolated', () => {
+  // 0.05% is a measured move but not a block; the route still blocks on only
+  // one of its captures, so it is a flake candidate, not a broad change.
+  const results = [
+    cap('contact', 2.05, 'light', 'desktop'),
+    cap('contact', 0.05, 'dark', 'desktop'),
+  ];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { broad, isolated } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(isolated, ['contact']);
+  assert.deepEqual(broad, []);
+});
+
+check('a route with a single measured capture that blocks is broad', () => {
+  const results = [cap('about', 12, 'light', 'desktop')];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { broad, isolated } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(broad, ['about']);
+  assert.deepEqual(isolated, []);
+});
+
+check('null-diff captures do not count toward a route total', () => {
+  // A route whose only over-threshold capture blocks, with the rest unmeasured
+  // (null), is broad — an unmeasured capture is not evidence of a clean viewport.
+  const results = [cap('home', 30, 'light', 'desktop'), cap('home', null, 'dark', 'desktop')];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { broad, isolated } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(broad, ['home']);
+  assert.deepEqual(isolated, []);
+});
+
+check('classifies each blocking route independently', () => {
+  const results = [
+    cap('home', 30, 'light', 'desktop'), // broad — its only capture blocks
+    cap('about', 12, 'light', 'desktop'), // isolated — one of two blocks
+    cap('about', 0, 'dark', 'desktop'),
+  ];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { broad, isolated } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(broad, ['home']);
+  assert.deepEqual(isolated, ['about']);
+});
+
+check('empty blocking yields empty groups', () => {
+  const { broad, isolated } = classifyBlockingSpread({ blocking: [], results: [cap('home', 0)] });
+  assert.deepEqual(broad, []);
+  assert.deepEqual(isolated, []);
 });
 
 console.log(`\n✓ ${passed} assertions passed`);
