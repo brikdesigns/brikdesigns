@@ -133,3 +133,25 @@ export function classifyBlockingSpread({ blocking = [], results = [] }) {
   const broad = routes.filter((name) => !isolated.includes(name));
   return { isolated, broad };
 }
+
+// Aggregate captures into a per-route noise-floor summary (#1106). Used by the
+// on-demand noise-floor run, which captures one deployment against itself so
+// every measured diff is pure capture noise; the per-route worst is what the
+// global DIFF_THRESHOLD has to clear to be free of flake.
+//
+// Rows are sorted worst-first. Captures with no measured diff (null) are
+// excluded, matching evaluateDeclaration — an unmeasured capture is not 0.00%.
+export function summarizeNoiseByRoute(results = []) {
+  const byRoute = new Map();
+  for (const r of results) {
+    if (r.diffPct === null || r.diffPct === undefined) continue;
+    const cur = byRoute.get(r.route) ?? { worst: 0, sum: 0, count: 0 };
+    cur.worst = Math.max(cur.worst, r.diffPct);
+    cur.sum += r.diffPct;
+    cur.count += 1;
+    byRoute.set(r.route, cur);
+  }
+  return [...byRoute.entries()]
+    .map(([route, s]) => ({ route, worst: s.worst, avg: s.sum / s.count, count: s.count }))
+    .sort((a, b) => b.worst - a.worst || a.route.localeCompare(b.route));
+}

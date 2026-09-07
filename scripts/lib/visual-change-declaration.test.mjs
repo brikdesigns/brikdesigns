@@ -18,6 +18,7 @@ import {
   parseDeclaration,
   evaluateDeclaration,
   classifyBlockingSpread,
+  summarizeNoiseByRoute,
 } from './visual-change-declaration.mjs';
 
 const KNOWN = ['home', 'about', 'events-grind-after-graduation'];
@@ -303,6 +304,44 @@ check('empty blocking yields empty groups', () => {
   const { broad, isolated } = classifyBlockingSpread({ blocking: [], results: [cap('home', 0)] });
   assert.deepEqual(broad, []);
   assert.deepEqual(isolated, []);
+});
+
+console.log('summarizeNoiseByRoute');
+
+check('aggregates worst + avg + count per route, sorted worst-first', () => {
+  const rows = summarizeNoiseByRoute([
+    cap('home', 0.5, 'light', 'desktop'),
+    cap('home', 0.1, 'dark', 'desktop'),
+    cap('about', 0.9, 'light', 'desktop'),
+  ]);
+  assert.deepEqual(rows.map((r) => r.route), ['about', 'home']);
+  const home = rows.find((r) => r.route === 'home');
+  assert.equal(home.worst, 0.5);
+  assert.equal(home.avg, 0.3);
+  assert.equal(home.count, 2);
+});
+
+check('excludes null-diff captures from the count', () => {
+  const rows = summarizeNoiseByRoute([
+    cap('home', 0.4, 'light', 'desktop'),
+    cap('home', null, 'dark', 'desktop'),
+  ]);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].count, 1, 'an unmeasured capture is not counted as noise');
+  assert.equal(rows[0].worst, 0.4);
+  assert.equal(rows[0].avg, 0.4);
+});
+
+check('ties on worst break by route name', () => {
+  const rows = summarizeNoiseByRoute([
+    cap('zeta', 0.2),
+    cap('alpha', 0.2),
+  ]);
+  assert.deepEqual(rows.map((r) => r.route), ['alpha', 'zeta']);
+});
+
+check('empty results yield no rows', () => {
+  assert.deepEqual(summarizeNoiseByRoute([]), []);
 });
 
 console.log(`\n✓ ${passed} assertions passed`);

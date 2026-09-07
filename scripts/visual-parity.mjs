@@ -8,6 +8,7 @@ import {
   parseDeclaration,
   evaluateDeclaration,
   classifyBlockingSpread,
+  summarizeNoiseByRoute,
 } from './lib/visual-change-declaration.mjs';
 
 // Three modes share this script:
@@ -620,6 +621,44 @@ const worstDiff = diffed.length
 console.log(`\n✓ ${okCount}/${results.length} captures complete`);
 console.log(`▸ avg diff: ${avgDiff}%  |  worst: ${worstDiff}%`);
 console.log(`▸ open ${reportPath}`);
+
+// Per-route noise floor (#1106). On-demand only (NOISE_FLOOR=1): the caller
+// captures one deployment against itself, so every measured diff is pure
+// capture noise. Publishing the per-route worst validates whether the gate's
+// global DIFF_THRESHOLD (1%) is genuinely clear of flake, per route rather than
+// on the aggregate the workflow header asserts. Never gates — a measurement,
+// not a check.
+if (process.env.NOISE_FLOOR === '1') {
+  const rows = summarizeNoiseByRoute(diffed);
+  const globalWorst = diffed.length ? Math.max(...diffed.map((r) => r.diffPct)) : 0;
+  // Compare against the GATE's threshold (visual-regression.yml:124 → 1%), not
+  // this run's (measurement runs leave DIFF_THRESHOLD off). That 1% is the bar
+  // the noise floor has to clear to be free of flake.
+  const threshold = 1;
+  console.log('\n── Per-route noise floor (worst first) ─────────');
+  rows.forEach((r) =>
+    console.log(`  ${r.worst.toFixed(2).padStart(6)}%  ${r.route}  (avg ${r.avg.toFixed(2)}%, n=${r.count})`),
+  );
+  console.log('────────────────────────────────────────────────');
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    const lines = [
+      `## Per-route noise floor — ${REFERENCE_LABEL} vs itself`,
+      '',
+      `Same deployment captured twice, so every row is pure capture noise. ` +
+        `Global worst **${globalWorst.toFixed(2)}%** across ${diffed.length} capture(s); ` +
+        `the gate's \`DIFF_THRESHOLD\` is **${threshold}%**.`,
+      '',
+      globalWorst >= threshold
+        ? `⚠ At least one route's noise reaches the ${threshold}% gate threshold — the floor is NOT clear of flake.`
+        : `✓ Every route's noise sits under the ${threshold}% gate threshold.`,
+      '',
+      '| Route | Worst | Avg | Captures |',
+      '| --- | --- | --- | --- |',
+      ...rows.map((r) => `| \`${r.route}\` | ${r.worst.toFixed(2)}% | ${r.avg.toFixed(2)}% | ${r.count} |`),
+    ];
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
+  }
+}
 
 // Mockup mode never passes silently: a missing baseline or a failed capture is
 // a hard failure, not a skipped comparison. (webflow mode tolerates capture
