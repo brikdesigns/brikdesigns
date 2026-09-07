@@ -32,6 +32,28 @@
   max-width: 680px;
 }
 
+/* Decorative "brik" mark, upper-left + lower-right of the hero content column
+   (Figma: assets-squares 25984:12581 / Group 83 25984:12582). BrikBlocks is
+   aria-hidden; these only position it. */
+.about-hero__container {
+  position: relative;
+}
+
+/* Start mark sits in normal flow above the title (the hero content is
+   left-aligned, so there is no left gutter to drop it into as in the frame). */
+.about-hero__blocks--start {
+  margin-bottom: var(--gap-lg);
+}
+
+/* End mark floats at the lower-right, aligned to the page content gutter
+   (this layout uses --page-inset gutters, not the frame's 120px margin). */
+.about-hero__blocks--end {
+  position: absolute;
+  right: var(--page-inset);
+  bottom: 0;
+  z-index: 0;
+}
+
 /* ─── Team (Meet Abbey / Meet Nick) ────────────────────────── */
 /* Figma: two stacked full-width bordered cards; circle headshot left, copy
    right. Cards sit on the default white band, so their chrome is the BDS
@@ -108,6 +130,12 @@
   max-width: 760px;
 }
 
+/* Horizontal "brik" mark below the story (Figma Group 84, 26058:5406). Centers
+   via the parent's align-items: center. */
+.about-why__blocks {
+  margin-top: var(--gap-md);
+}
+
 /* ─── How We Work ──────────────────────────────────────────── */
 /* Figma: centered title over two stacked subhead + body blocks. */
 
@@ -127,6 +155,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
+}
+
+/* Single-square "brik" mark centered above each block (Figma 26058:5586 poppy /
+   26058:5592 grey). align-self centers just the mark; the heading/body keep
+   their full-width centered text. */
+.about-hww__block-mark {
+  align-self: center;
+  margin-bottom: var(--gap-md);
 }
 
 /* ─── What We Believe ──────────────────────────────────────── */
