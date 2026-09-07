@@ -8,6 +8,7 @@ import {
   parseDeclaration,
   evaluateDeclaration,
   classifyBlockingSpread,
+  isStalePayloadRerun,
   summarizeNoiseByRoute,
 } from './lib/visual-change-declaration.mjs';
 
@@ -71,12 +72,40 @@ const VISUAL_CHANGE_LABEL = process.env.VISUAL_CHANGE_LABEL === '1';
 const declaredInBody = parseDeclaration(process.env.VISUAL_CHANGE_BODY);
 const DECLARED_ROUTES = SELF_MODE && VISUAL_CHANGE_LABEL ? declaredInBody : [];
 
+// VISUAL_CHANGE_LABEL is the label as it stood in the pull_request payload, so a
+// `gh run rerun` replays it frozen at the original event. The workflow resolves
+// the label as it stands NOW (VISUAL_CHANGE_LABEL_LIVE) via the API, so this
+// script can tell a genuinely undeclared PR apart from a stale-payload re-run of
+// one that has since been labeled (#1106). Absent in local runs → not live.
+const VISUAL_CHANGE_LABEL_LIVE = process.env.VISUAL_CHANGE_LABEL_LIVE === 'true';
+
 if (!NETLIFY_URL) {
   console.error(
     'Usage: NETLIFY_URL=https://deploy-preview-N--brikdesigns.netlify.app npm run visual-parity\n' +
     '   or: npm run visual-parity -- https://deploy-preview-N--brikdesigns.netlify.app'
   );
   process.exit(2);
+}
+
+// Stale-payload re-run guard (#1106). Before capturing anything, bail out of a
+// `gh run rerun` that replays a pre-label payload: VISUAL_CHANGE_LABEL reads 0
+// while the live PR now carries the label, so every route the label was meant to
+// waive would red again on a non-bug. Adding the label already triggered a fresh
+// run with the correct payload — that one is authoritative; this replay is
+// redundant. Exit 0 so the check stays green rather than training a re-run reflex.
+if (SELF_MODE && isStalePayloadRerun({
+  payloadLabel: VISUAL_CHANGE_LABEL,
+  liveLabel: VISUAL_CHANGE_LABEL_LIVE,
+})) {
+  const note =
+    'Visual-regression skipped: this run replays a payload from before the ' +
+    '`visual-change` label was added. Adding the label already triggered a fresh ' +
+    'run with the correct payload — trust that one, not this replay.';
+  console.log(`\n⏭ ${note}`);
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `⏭ **${note}**\n`);
+  }
+  process.exit(0);
 }
 
 const ROUTES = [

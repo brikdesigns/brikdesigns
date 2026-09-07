@@ -18,6 +18,7 @@ import {
   parseDeclaration,
   evaluateDeclaration,
   classifyBlockingSpread,
+  isStalePayloadRerun,
   summarizeNoiseByRoute,
 } from './visual-change-declaration.mjs';
 
@@ -304,6 +305,33 @@ check('empty blocking yields empty groups', () => {
   const { broad, isolated } = classifyBlockingSpread({ blocking: [], results: [cap('home', 0)] });
   assert.deepEqual(broad, []);
   assert.deepEqual(isolated, []);
+});
+
+console.log('isStalePayloadRerun');
+
+// Guards the false red a `gh run rerun` replays: the payload's label state is
+// frozen at the original event, so a PR labeled AFTER that event still reads
+// undeclared and reds again (#1106). Only the label-gained direction skips.
+
+check('label gained since the payload → skip the replay', () => {
+  assert.equal(isStalePayloadRerun({ payloadLabel: false, liveLabel: true }), true);
+});
+
+check('label present in both payload and live → run normally', () => {
+  assert.equal(isStalePayloadRerun({ payloadLabel: true, liveLabel: true }), false);
+});
+
+check('no label anywhere → run normally', () => {
+  assert.equal(isStalePayloadRerun({ payloadLabel: false, liveLabel: false }), false);
+});
+
+check('label removed since the payload → do NOT skip; it fails closed', () => {
+  assert.equal(isStalePayloadRerun({ payloadLabel: true, liveLabel: false }), false);
+});
+
+check('defaults to no-skip when neither is known', () => {
+  assert.equal(isStalePayloadRerun(), false);
+  assert.equal(isStalePayloadRerun({}), false);
 });
 
 console.log('summarizeNoiseByRoute');

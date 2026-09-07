@@ -134,6 +134,25 @@ export function classifyBlockingSpread({ blocking = [], results = [] }) {
   return { isolated, broad };
 }
 
+// Decide whether a visual-regression run must be SKIPPED because it is a
+// stale-payload re-run (#1106). A `gh run rerun` replays the ORIGINAL
+// `pull_request` payload, so the label state baked into VISUAL_CHANGE_LABEL is
+// frozen at the original event. If the PR has since gained the `visual-change`
+// label, the payload still reads undeclared and every route the label was meant
+// to waive reds again on a non-bug — the exact false red item 1 could only warn
+// against (PR #1258). Adding the label already fired a fresh `labeled`-event run
+// with the correct payload (see the `labeled` trigger in visual-regression.yml),
+// so the replay is redundant: skip it rather than fail.
+//
+// Only the label-GAINED direction is skipped. The reverse — the payload carries
+// the label but it was removed since — is deliberately NOT skipped: it fails
+// CLOSED (an undeclared route reds, which is the safe outcome), and the
+// `unlabeled` trigger already re-runs it with a fresh payload. Skipping it would
+// waive a real regression on a stale positive.
+export function isStalePayloadRerun({ payloadLabel = false, liveLabel = false } = {}) {
+  return liveLabel === true && payloadLabel === false;
+}
+
 // Aggregate captures into a per-route noise-floor summary (#1106). Used by the
 // on-demand noise-floor run, which captures one deployment against itself so
 // every measured diff is pure capture noise; the per-route worst is what the
