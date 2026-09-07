@@ -16,7 +16,7 @@ import {
 import { sanitizeHtml } from '@/lib/sanitize';
 import { parseBlocks, parseAlertBanner } from '@/lib/blocks';
 import { LandingBlocks, AlertBannerBlock } from '@/components/blocks';
-import { Prose } from '@brikdesigns/bds';
+import { Card, Prose } from '@brikdesigns/bds';
 import { EventRegistrationForm } from '@/components/marketing/EventRegistrationForm';
 import { EventCheckoutReturn } from '@/components/marketing/EventCheckoutReturn';
 import { EventEndedBanner } from '@/components/marketing/EventStatusBanner';
@@ -167,7 +167,12 @@ export default async function EventPage({ params }: Props) {
               on a light palette accent (e.g. brand gold) fails WCAG contrast
               (caught by the a11y gate); the BDS primary button keeps its
               designed, accessible colors. */}
-          <div className="event-page__form-card" style={{ borderTopColor: accent.bg }}>
+          <Card
+            variant="outlined"
+            padding="lg"
+            className="form-card form-card--accent"
+            style={{ borderTopColor: accent.bg }}
+          >
             {ended ? (
               <EventEndedBanner />
             ) : (
@@ -193,7 +198,7 @@ export default async function EventPage({ params }: Props) {
                 />
               </>
             )}
-          </div>
+          </Card>
         </aside>
       </div>
     </section>

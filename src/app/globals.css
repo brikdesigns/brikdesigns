@@ -678,8 +678,7 @@ h1, h2, h3, h4, h5, h6 {
     .bds-pricing-card,
     .bds-hero__media-card, /* hero image/price card (bds-hero, brik-bds#1165) */
     .bds-menu, /* breadcrumb switcher dropdown — floating panel, own dark surface (#740) */
-    .event-page__form-card,
-    .lp-form-card,
+    .form-card, /* /events/[slug] + /marketing/[slug] + FormBlock, one class since #1260 */
     .event-page__speaker
   ) {
     --text-primary: var(--color-grayscale-100); /* bds-lint-ignore token-family — restores the dark-brand body text the section pin above darkened; #f2f2f2 on the card's own dark surface */
@@ -701,11 +700,11 @@ h1, h2, h3, h4, h5, h6 {
      mode (white card), light in dark mode (dark card) — the .service-surface
      nested-card exception, inverted for the white-text section. The light-mode
      pair shares one stop deliberately (see the `.service-surface` AA table). */
-  .lp-surface-solid .lp-form-card {
+  .lp-surface-solid .form-card {
     --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — dark text on the white form card; the section pin above set it white */
     --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — see above */
   }
-  :root[data-theme="dark"] .lp-surface-solid .lp-form-card {
+  :root[data-theme="dark"] .lp-surface-solid .form-card {
     --text-primary: var(--color-grayscale-100); /* bds-lint-ignore token-family — light text on the card's own dark surface in dark mode */
     --text-secondary: var(--color-grayscale-300); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop; 300 not 400, see the AA table there */
   }
@@ -737,7 +736,7 @@ h1, h2, h3, h4, h5, h6 {
      CTA label at 1.36:1 (#882). Restore the theme's own ink on the controls
      only: the surrounding labels and copy stay dark because they sit on the
      bright card, not on the field. Same nested-own-surface exception as
-     `.lp-surface-solid .lp-form-card` above. */
+     `.lp-surface-solid .form-card` above. */
   :root[data-theme="dark"] .lp-showcase__card :is(.bds-text-input-field, .bds-select, .bds-button) {
     --text-primary: var(--color-grayscale-100); /* bds-lint-ignore token-family — light ink on the control's own dark surface in dark mode */
     --text-secondary: var(--color-grayscale-300); /* bds-lint-ignore token-family — matches the dark brand-kit --text-secondary stop; 300 not 400, see the AA table there */

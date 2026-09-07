@@ -76,3 +76,41 @@ card can carry `variant="raised"` yet render bordered via a CSS override). The
 gate reads the **computed** border/shadow of every card on every route, so it
 can't be fooled by that, and it can't miss a page — which is how the manual
 one-route-at-a-time audits kept producing false "all clear" results.
+
+## Prerequisite: a card must BE a `<Card>` (#1260)
+
+Everything above only reaches an element that actually rendered as `.bds-card`.
+A hand-rolled `<div className="x-card">` renders fine, is never touched by the
+"Card chrome by band" rule, and is invisible to `card-treatment.spec.ts` — which
+can only measure cards that exist. A 2026-09 audit found ~36 site-local `*-card`
+classes against ~37 BDS `<Card>` instances, 19 of them hand-rolled, with chrome
+drifting per page and the suffix `-card` doing three unrelated jobs (a Container,
+a media slot, and a whole Section shell).
+
+So: **if a class calls itself a card, render it on `<Card>`.** Gated by
+`scripts/lint-card-class.mjs` (`npm run lint:card-class`, pre-commit + CI) — a
+static gate, because the failure is a `<div>` in the JSX, not a computed style.
+
+What it judges: a class name that is (a) defined in a stylesheet under `src/`,
+(b) reads as a card (`card` as a `-`/`_`-delimited word), (c) is a BEM **block**
+— not an `__element` or `--modifier`, which are judged through their block — and
+(d) is actually applied in a `className`. `bds-*` is excluded as BDS-owned.
+
+### The deliberate non-Cards
+
+Grandfathered in `scripts/card-class-baseline.json` as a name → reason map, so a
+keep carries its justification where the next reader will look. Two shapes
+recur, and both are legitimate:
+
+- **A semantic element the Card can't be.** `about-team-card`, `hiw-card` are
+  `<article>`s; BDS `Card` renders a `<div>`/`<a>` and exposes no `as` prop, so
+  converting would trade correct document semantics for shared chrome.
+- **A misnamed layer.** `contact-card` is a 1100px page panel on a full-viewport
+  brand band; `cta-card-brand` is a Section-level CTA panel; `plans-card-wrapper`
+  is a grid cell around a `PricingCard`. Per
+  [`page-anatomy.md`](page-anatomy.md) these are Containers, not Components —
+  they carry `-card` in the name only by history.
+
+The ratchet runs both ways: a new unbacked card fails, and a baselined name that
+has since been converted or deleted **also** fails, so the list can never
+overstate the remaining debt. Only ever remove entries.

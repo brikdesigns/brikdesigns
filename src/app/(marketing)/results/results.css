@@ -143,13 +143,12 @@
 }
 
 /* ─── Other Customer Stories grid cards ──────────────────── */
-/* Story name stepped down from the CardTitle default (--heading-md, 25px),
-   which overpowered the ~405px card. Targets only the h4-tagged titles set on
-   the Other Customer Stories cards — the Related Services cards keep the
-   default h3 size. */
-.services-card h4.bds-card-title {
-  font-size: var(--heading-sm);
-}
+/* The story-name step-down is `.display-card--title-sm` (shared-sections.css),
+   applied on the card itself. It was a fifth byte-identical copy of that rule,
+   reaching across from this stylesheet into `.services-card` — a class this
+   page does not own — until #1261. The `h4.bds-card-title` half of the shared
+   selector is what keeps the Related Services cards (plain `h3`) at the default
+   size. */
 
 /* ─── Flexible sections layout ─────────────────────────────────────────────
  * The story template — Figma node 25944-8605, container-small (1024). Every

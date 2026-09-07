@@ -196,6 +196,19 @@ jobs:
       - name: Section-identifier lint — self-test (parser + ratchet fixtures)
         run: npm run test:lint:section-id
 
+      # brikdesigns#1260. A hand-rolled `<div className="x-card">` renders fine but
+      # never becomes a `.bds-card` element, so the "Card chrome by band" rule in
+      # shared-sections.css never reaches it AND card-treatment.spec.ts cannot
+      # measure it — that spec only scores cards that rendered as cards. At audit
+      # time 19 of ~36 site-local `*-card` classes were hand-rolled that way and
+      # the chrome had drifted per page. Ratchets scripts/card-class-baseline.json,
+      # which records each deliberate non-Card with its reason.
+      - name: Card-class lint (a class calling itself a card IS a BDS Card)
+        run: npm run lint:card-class
+
+      - name: Card-class lint — self-test (parser + both ratchet directions)
+        run: npm run test:lint:card-class
+
       - name: HTML sanitizer behaviour (XSS corpus + CMS prose preserved)
         run: npm run test:sanitize
 

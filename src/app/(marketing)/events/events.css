@@ -82,13 +82,7 @@
   }
 }
 
-.event-page__form-card {
-  padding: var(--padding-xl);
-  background-color: var(--surface-primary);
-  border: 1px solid var(--border-muted);
-  /* top accent color set inline per-event (page.tsx); width/style here. */
-  border-top-width: var(--border-width-200);
-  border-top-style: solid;
-  border-top-color: var(--border-brand-primary);
-  border-radius: var(--border-radius-md);
-}
+/* The form card is `.form-card` / `.form-card--accent` on a BDS `<Card>`
+   (shared-sections.css) — the one container shared with /marketing/[slug] and
+   the landing-block FormBlock. `.event-page__form-card` was one of its three
+   hand-rolled copies (#1260). */

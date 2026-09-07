@@ -503,10 +503,12 @@ export default async function ServiceDetailPage({ params }: Props) {
                 band — white in light (== the former surface-primary fill,
                 #427/#360), `{hue}-darkest` in dark so the card carries the line
                 identity against the lighter band. brik-bds#1146 (BDS 0.132)
-                dropped the cast shadow from `elevated`; `.service-row-card`
-                (shared-sections.css) restores it site-side per the on-tint
-                focal-card standard. BACKLOG-895 */
-            <Card variant="elevated" padding="lg" className="service-row-card" style={{ backgroundColor: serviceTokens.inverse }}>
+                dropped the cast shadow from `elevated`; the "Card chrome by band"
+                rule restores it — this section carries `.service-surface`, and
+                a card on a tint gets shadow-no-border. BACKLOG-895. The
+                `.service-row-card` class this used to carry named no rule in
+                any stylesheet; the band was always doing the work (#1261). */
+            <Card variant="elevated" padding="lg" style={{ backgroundColor: serviceTokens.inverse }}>
               <Stack direction="horizontal" gap="lg" align="center">
                 {relatedStory.hero_image_url && (
                   <div style={{ flex: '0 0 40%' }}>
@@ -540,16 +542,17 @@ export default async function ServiceDetailPage({ params }: Props) {
           )}
           {relatedStories.length > 1 && (
             /* 2–3 stories → browse grid. Mirrors the same-page "Other {line}
-                Services" grid (`.service-sibling-card`, preset display, `-inverse`
-                fill) so both grids on this template read as one family on the
-                service tint. Display cells use the BDS `raised` variant for
-                elevation (brik-bds 0.144). */
+                Services" grid (preset display, `.display-card--title-sm`,
+                `-inverse` fill) so both grids on this template read as one family
+                on the service tint — they now share the title rule by NAME, not
+                by two copies of it (#1261). Display cells use the BDS `raised`
+                variant for elevation (brik-bds 0.144). */
             <Grid columns={3} gap="lg">
               {relatedStories.map((story) => (
                 <Card
                   key={story.slug}
                   preset="display"
-                  className="service-sibling-card"
+                  className="display-card--title-sm"
                   style={{ backgroundColor: serviceTokens.inverse }}
                   image={
                     story.hero_image_url ? (
@@ -598,9 +601,11 @@ export default async function ServiceDetailPage({ params }: Props) {
               former surface-primary fill, #427/#360), `{hue}-darkest` in dark so
               the card carries the line identity against the lighter band. (BRIK-WEB)
               brik-bds#1146 (BDS 0.132) dropped the cast shadow from `elevated`;
-              `.service-row-card` (shared-sections.css) restores it site-side per
-              the on-tint focal-card standard. BACKLOG-895 */}
-          <Card variant="elevated" padding="lg" className="service-row-card" style={{ backgroundColor: serviceTokens.inverse }}>
+              the "Card chrome by band" rule restores it — this section carries
+              `.service-surface`, and a card on a tint gets shadow-no-border.
+              BACKLOG-895. The `.service-row-card` class this used to carry named
+              no rule in any stylesheet; the band was always doing it (#1261). */}
+          <Card variant="elevated" padding="lg" style={{ backgroundColor: serviceTokens.inverse }}>
             <Stack direction="horizontal" gap="lg" align="center">
               {relatedService.image_url && (
                 <div style={{ flex: '0 0 35%' }}>
@@ -664,7 +669,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                 <Card
                   key={svc.slug}
                   preset="display"
-                  className="service-sibling-card"
+                  className="display-card--title-sm"
                   // Service `-inverse` surface — white in light (== the prior
                   // display-preset fill), `{hue}-darkest` in dark. Siblings are
                   // all this page's line, so the page hue is correct here. (BRIK-WEB)

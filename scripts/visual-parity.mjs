@@ -4,7 +4,13 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
-import { parseDeclaration, evaluateDeclaration } from './lib/visual-change-declaration.mjs';
+import {
+  parseDeclaration,
+  evaluateDeclaration,
+  classifyBlockingSpread,
+  isStalePayloadRerun,
+  summarizeNoiseByRoute,
+} from './lib/visual-change-declaration.mjs';
 
 // Three modes share this script:
 //   webflow (default) — migration parity: compare the build against the live
@@ -66,12 +72,40 @@ const VISUAL_CHANGE_LABEL = process.env.VISUAL_CHANGE_LABEL === '1';
 const declaredInBody = parseDeclaration(process.env.VISUAL_CHANGE_BODY);
 const DECLARED_ROUTES = SELF_MODE && VISUAL_CHANGE_LABEL ? declaredInBody : [];
 
+// VISUAL_CHANGE_LABEL is the label as it stood in the pull_request payload, so a
+// `gh run rerun` replays it frozen at the original event. The workflow resolves
+// the label as it stands NOW (VISUAL_CHANGE_LABEL_LIVE) via the API, so this
+// script can tell a genuinely undeclared PR apart from a stale-payload re-run of
+// one that has since been labeled (#1106). Absent in local runs → not live.
+const VISUAL_CHANGE_LABEL_LIVE = process.env.VISUAL_CHANGE_LABEL_LIVE === 'true';
+
 if (!NETLIFY_URL) {
   console.error(
     'Usage: NETLIFY_URL=https://deploy-preview-N--brikdesigns.netlify.app npm run visual-parity\n' +
     '   or: npm run visual-parity -- https://deploy-preview-N--brikdesigns.netlify.app'
   );
   process.exit(2);
+}
+
+// Stale-payload re-run guard (#1106). Before capturing anything, bail out of a
+// `gh run rerun` that replays a pre-label payload: VISUAL_CHANGE_LABEL reads 0
+// while the live PR now carries the label, so every route the label was meant to
+// waive would red again on a non-bug. Adding the label already triggered a fresh
+// run with the correct payload — that one is authoritative; this replay is
+// redundant. Exit 0 so the check stays green rather than training a re-run reflex.
+if (SELF_MODE && isStalePayloadRerun({
+  payloadLabel: VISUAL_CHANGE_LABEL,
+  liveLabel: VISUAL_CHANGE_LABEL_LIVE,
+})) {
+  const note =
+    'Visual-regression skipped: this run replays a payload from before the ' +
+    '`visual-change` label was added. Adding the label already triggered a fresh ' +
+    'run with the correct payload — trust that one, not this replay.';
+  console.log(`\n⏭ ${note}`);
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `⏭ **${note}**\n`);
+  }
+  process.exit(0);
 }
 
 const ROUTES = [
@@ -617,6 +651,44 @@ console.log(`\n✓ ${okCount}/${results.length} captures complete`);
 console.log(`▸ avg diff: ${avgDiff}%  |  worst: ${worstDiff}%`);
 console.log(`▸ open ${reportPath}`);
 
+// Per-route noise floor (#1106). On-demand only (NOISE_FLOOR=1): the caller
+// captures one deployment against itself, so every measured diff is pure
+// capture noise. Publishing the per-route worst validates whether the gate's
+// global DIFF_THRESHOLD (1%) is genuinely clear of flake, per route rather than
+// on the aggregate the workflow header asserts. Never gates — a measurement,
+// not a check.
+if (process.env.NOISE_FLOOR === '1') {
+  const rows = summarizeNoiseByRoute(diffed);
+  const globalWorst = diffed.length ? Math.max(...diffed.map((r) => r.diffPct)) : 0;
+  // Compare against the GATE's threshold (visual-regression.yml:124 → 1%), not
+  // this run's (measurement runs leave DIFF_THRESHOLD off). That 1% is the bar
+  // the noise floor has to clear to be free of flake.
+  const threshold = 1;
+  console.log('\n── Per-route noise floor (worst first) ─────────');
+  rows.forEach((r) =>
+    console.log(`  ${r.worst.toFixed(2).padStart(6)}%  ${r.route}  (avg ${r.avg.toFixed(2)}%, n=${r.count})`),
+  );
+  console.log('────────────────────────────────────────────────');
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    const lines = [
+      `## Per-route noise floor — ${REFERENCE_LABEL} vs itself`,
+      '',
+      `Same deployment captured twice, so every row is pure capture noise. ` +
+        `Global worst **${globalWorst.toFixed(2)}%** across ${diffed.length} capture(s); ` +
+        `the gate's \`DIFF_THRESHOLD\` is **${threshold}%**.`,
+      '',
+      globalWorst >= threshold
+        ? `⚠ At least one route's noise reaches the ${threshold}% gate threshold — the floor is NOT clear of flake.`
+        : `✓ Every route's noise sits under the ${threshold}% gate threshold.`,
+      '',
+      '| Route | Worst | Avg | Captures |',
+      '| --- | --- | --- | --- |',
+      ...rows.map((r) => `| \`${r.route}\` | ${r.worst.toFixed(2)}% | ${r.avg.toFixed(2)}% | ${r.count} |`),
+    ];
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
+  }
+}
+
 // Mockup mode never passes silently: a missing baseline or a failed capture is
 // a hard failure, not a skipped comparison. (webflow mode tolerates capture
 // failure by design — that tolerance must not carry over; it is how #822 hid.)
@@ -722,15 +794,59 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
     blocking.forEach((r) =>
       console.error(`  ${r.diffPct.toFixed(2)}%  ${r.route} [${r.theme}/${r.viewport}]`),
     );
+
+    // Three different failures land in `blocking` and look identical here, but
+    // their remedies are opposite (#1106). The label is only correct for an
+    // intended change; suggesting it for the other two teaches everyone to
+    // waive real regressions. Tell them apart by capture spread: a real render
+    // change moves EVERY viewport of a route, while one route/viewport moving
+    // alone — its other captures at 0.00% — is a capture-side flake.
     if (SELF_MODE && !DECLARED_ROUTES.length) {
+      const { isolated, broad } = classifyBlockingSpread({ blocking, results });
+
+      console.error('\n  Three failures look alike here — pick the remedy by signature:');
       console.error(
-        '\n  If these are intentional: add the `visual-change` label to the PR and a\n' +
-          '  `Visual-change: <route-name>, <route-name>` line to its body.',
+        '  1. INTENDED change → add the `visual-change` label AND a\n' +
+          '     `Visual-change: <route-name>, <route-name>` line to the PR body, then\n' +
+          '     let the label event re-run the gate. Do NOT `gh run rerun` — it replays\n' +
+          '     the pre-label payload (VISUAL_CHANGE_LABEL=0) and fails again on a non-bug.',
       );
+      console.error(
+        "  2. CAPTURE flake → a route/viewport moved while the same route's other\n" +
+          '     captures read 0.00%. Re-run the failed job; a flake does not reproduce.\n' +
+          '     Never label it — that would waive a real regression on the same route.',
+      );
+      console.error(
+        '  3. STALE base → the moved routes changed on `staging` after this branch\n' +
+          '     forked. Rebase onto current staging and re-push; do not label.',
+      );
+      if (broad.length)
+        console.error(
+          `\n  Signature: ${broad.map((n) => `\`${n}\``).join(', ')} moved on every captured ` +
+            'viewport → INTENDED (case 1) or STALE base (case 3), not a flake.',
+        );
+      if (isolated.length)
+        console.error(
+          `  Signature: ${isolated.map((n) => `\`${n}\``).join(', ')} moved on some viewports ` +
+            'but not all → likely a capture FLAKE (case 2); re-run before you label.',
+        );
     }
+
     summary.push(
       `❌ **Undeclared regression** — ${blocking.length} capture(s) over ${DIFF_THRESHOLD}%.`,
     );
+    if (SELF_MODE && !DECLARED_ROUTES.length) {
+      summary.push(
+        '',
+        'These three look identical but have opposite remedies (#1106) — pick by signature:',
+        '',
+        '| If it is… | Signature | Remedy |',
+        '| --- | --- | --- |',
+        '| An intended change | moved on **every** viewport of the route | add `visual-change` label + `Visual-change:` line, then let the label event re-run — **do not `gh run rerun`** |',
+        '| A capture flake | one route/viewport moved, its others read 0.00% | re-run the failed job; **do not** label |',
+        '| A stale base | the moved routes changed on `staging` after this branch forked | rebase onto staging and re-push; **do not** label |',
+      );
+    }
   }
 
   if (process.env.GITHUB_STEP_SUMMARY && summary.length) {

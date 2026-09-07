@@ -145,6 +145,32 @@
   gap: var(--gap-md);
 }
 
+/* ─── Form card ──────────────────────────────────────────── */
+/* The one container for an inline signup / registration form. Replaces the
+   three byte-near-identical hand-rolled copies `.lp-form-card` (landing
+   blocks), `.marketing-page__form-card` (/marketing/[slug]) and
+   `.event-page__form-card` (/events/[slug]) — #1260.
+
+   Chrome comes from BDS `<Card variant="outlined">` + the "Card chrome by
+   band" rule below, NOT from this class: the fill, the ring and its
+   3px `--border-width-200` weight are the site card standard, so a form card
+   now drifts with every other card instead of against them. This class carries
+   only what the standard has no opinion on — text alignment, and the optional
+   per-event accent stripe. */
+
+.form-card {
+  text-align: left;
+}
+
+/* Accent stripe — the per-event brand color, set inline as `borderTopColor` by
+   the page (an arbitrary CMS value, so it cannot be a token). Width + style
+   live here so the call site only supplies the color. */
+.form-card--accent {
+  border-top-width: var(--border-width-200);
+  border-top-style: solid;
+  border-top-color: var(--border-brand-primary);
+}
+
 /* ─── Container ──────────────────────────────────────────── */
 /* Standard container: max-width (fixed px) + margin-inline: auto + fluid gutter.
    Gold-standard pattern used by Bootstrap, Tailwind, Carbon, Backbase.
@@ -508,29 +534,40 @@
   }
 }
 
-/* `.service-card--flat` is retained only as a marker for the title-size rule
-   below. Card chrome (border/shadow) is now band-derived — see the "Card chrome
-   by band" block further down — so this class no longer strips border or shadow
-   itself (that used to be the source of white-band cards silently losing their
-   border). Gated by tests/a11y/card-treatment.spec.ts + .claude/references/
-   card-treatment.md. */
+/* ─── Display-card title step-down ────────────────────────────────────────
+   THE one rule for "this card's title sits a step below its section heading".
+   A display card's title renders at the BDS default `--heading-md`; on a grid
+   of ~400px cells under a `--heading-lg` section head that reads as a second
+   section head, so it steps down to `--heading-sm` and the
+   section → card hierarchy holds. — #489 / #674
 
-/* Service display-card titles shrink to heading-sm so they sit one step below
-   the section heading (heading-lg), establishing the section→card hierarchy.
-   The BDS preset-display title defaults to --heading-md. Mirrors the
-   customer-topic grid treatment (customers.css). — #489 / BACKLOG-296 */
-.service-card--flat .bds-card__preset-display-title {
+   ONE name, because it is one rule. Five class names carried a byte-identical
+   `font-size: var(--heading-sm)` before #1261 — `.service-card--flat`
+   (shared-sections), `.service-sibling-card` (services.css),
+   `.customer-topic-grid__slot` (customers.css), `.services-card h4`
+   (results.css) and this one — each minted by the page that needed it next.
+   #674 minted the fourth specifically because a stale comment here claimed
+   `.service-card--flat` "also strips border + shadow"; it never did (chrome has
+   been band-derived since the "Card chrome by band" rule below), so the two
+   were always interchangeable and nobody could tell.
+
+   The name says what it does rather than where it is used, which is what stops
+   the sixth from being minted. Applies to `preset="display"` cards and to a
+   composed `<CardTitle as="h4">`. */
+.display-card--title-sm .bds-card__preset-display-title,
+.display-card--title-sm h4.bds-card-title {
   font-size: var(--heading-sm);
 }
 
 /* ServiceCard content inset (card-vertical mockup). BDS preset='display'
    bleeds the media to the card edge and pads only the text body
-   (--padding-lg). `.service-card--inset` (ServiceCard's default) instead frames
-   the image AND text together in a --padding-huge (48px) inset. The 48px lives
-   on the flush-media root as padding; the body's own --padding-lg is zeroed so
-   the frame isn't doubled, and --gap-xl preserves the prior 24px image↔text
-   separation (the old body padding-top). `.service-card--flush` keeps the bleed
-   and needs no rule — it IS the bare BDS preset. */
+   (--padding-lg). `.service-card--inset` instead frames the image AND text
+   together in a --padding-huge (48px) inset. The 48px lives on the flush-media
+   root as padding; the body's own --padding-lg is zeroed so the frame isn't
+   doubled, and --gap-xl preserves the prior 24px image↔text separation (the old
+   body padding-top). This is ServiceCard's only treatment — the `'flush'` half
+   of the old `mediaTreatment` prop had no rule and no call site ever passed it
+   (#1261). */
 .service-card--inset.bds-card--preset-display {
   padding: var(--padding-huge);
   gap: var(--gap-xl);
@@ -538,16 +575,6 @@
 
 .service-card--inset .bds-card__preset-display-body {
   padding: 0;
-}
-
-/* Same heading-sm normalization for the "Other Support Plans" / "Other Service
-   Lines" display grids, whose cards keep their own chrome (elevated / -inverse
-   fill) and so can't reuse `.service-card--flat` (that also strips border +
-   shadow). Title-only, so the elevated treatment is preserved. Brings these
-   grids into parity with the main service/plan card grids on the same page,
-   which already render at heading-sm. — #674 / BACKLOG-340,341 */
-.display-card--title-sm .bds-card__preset-display-title {
-  font-size: var(--heading-sm);
 }
 
 /* ─── Card media standard — every image nested in a card ──────────────────
@@ -779,11 +806,11 @@
   color: var(--text-primary);
 }
 
-/* The service-line services grid (`.service-card--flat`), the service-detail
-   row-cards (`.service-row-card`), the sibling/related grids
-   (`.service-sibling-card`) and the "Other Service Lines / Support Plans"
-   grids (`.display-card--title-sm`) all sit on `.service-surface` and are now
-   elevated by the band rule above — no per-class shadow override needed. */
+/* The service-line services grid, the service-detail row-cards, the
+   sibling/related grids and the "Other Service Lines / Support Plans" grids all
+   sit on `.service-surface` and are elevated by the band rule above — no
+   per-class shadow override needed. (They were four separate class names until
+   #1261 folded their only shared rule into `.display-card--title-sm`.) */
 
 /* ─── Related Services band — dark-mode deep-tint conversion (#671 / 322) ──
    The customer-story "Related Services" section tints with the pale

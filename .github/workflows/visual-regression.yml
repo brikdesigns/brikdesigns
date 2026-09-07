@@ -82,6 +82,8 @@ jobs:
     permissions:
       contents: read
       packages: read
+      # Read the PR's CURRENT labels (below) to catch a stale-payload re-run.
+      pull-requests: read
     env:
       PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -116,6 +118,22 @@ jobs:
           echo "Deploy never reached HTTP 200 after 10 minutes." >&2
           exit 1
 
+      # The label as it stands NOW, not as the payload froze it. A `gh run rerun`
+      # replays the original pull_request payload, so github.event.pull_request.
+      # labels is stuck at the original event — a PR labeled since would still
+      # read undeclared and red again on a non-bug (#1106). This one API read
+      # lets the compare step tell the two apart. Fail-safe: any error defaults
+      # to `false`, so the gate runs rather than silently skips.
+      - name: Resolve current visual-change label
+        id: live_label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LIVE=$(gh pr view "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" --json labels \
+            --jq 'any(.labels[]; .name == "visual-change")' || echo false)
+          echo "value=${LIVE:-false}" >> "$GITHUB_OUTPUT"
+
       - name: Compare deploy-preview against staging
         env:
           NETLIFY_URL: ${{ steps.deploy.outputs.url }}
@@ -127,6 +145,9 @@ jobs:
           # through env, not interpolated into the run script, so a PR body can
           # never inject shell.
           VISUAL_CHANGE_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'visual-change') && '1' || '0' }}
+          # The live label (above) so the script can skip a stale-payload re-run
+          # rather than fail it (#1106). 'true' / 'false' from the `gh pr view` jq.
+          VISUAL_CHANGE_LABEL_LIVE: ${{ steps.live_label.outputs.value }}
           VISUAL_CHANGE_BODY: ${{ github.event.pull_request.body }}
         run: npm run visual-regression -- "$NETLIFY_URL"
 
