@@ -4,12 +4,23 @@
 // know." section); the design (Figma node 25768:6728 title + 25833:3022 logos)
 // is a single scrolling grey logo row, base.org "trusted by" style.
 //
-// SOURCING NOTE — the R2 list names 21 tools; these 8 ship. All 8 are
-// simple-icons marks: CC0, already single-colour, and explicitly free to
-// recolour, which is what makes them safe for the treatment below.
+// SOURCING NOTE — the R2 list names 21 tools; 8 simple-icons marks form the
+// license-clean base (CC0, already single-colour, explicitly free to recolour).
 //
-// The other 13 are BLOCKED, not pending (#1068, audited 2026-08-31). Read this
-// before adding any of them:
+// OPERATOR OVERRIDE 2026-09-07 (chat, AskUserQuestion): asked how to reconcile
+// the monochrome ticker with the full-colour logos supplied under
+// ~/Downloads/logos-latest, Nick chose "Monochrome anyway (you override)" —
+// flatten the 3 full-colour SVGs (GoHighLevel, Monday, RevenueWell/RW) to a
+// single black glyph and add them; keep the 5 raster-only marks (Trainual,
+// NexHealth, Rent Manager, Newbook, ResNexus) excluded. This is Nick's
+// explicit, on-the-record call to override the monday.com monochrome
+// prohibition and the GHL/RevenueWell no-published-permission findings below.
+// Do NOT "restore" the list by deleting these three — the override stands until
+// Nick reverses it in his own words. The BLOCKED audit is kept verbatim as the
+// record of why each mark was originally held.
+//
+// The tools NOT added stay BLOCKED, not pending (#1068, audited 2026-08-31).
+// Read this before adding any of them:
 //
 //   • simple-icons has none of them — 0 of 13 across 3458 icons, searched by
 //     title, slug and source.
@@ -50,4 +61,9 @@ export const TOOLING_LOGOS: ToolingLogo[] = [
   { name: 'Stripe', src: '/logos/tooling/stripe.svg' },
   { name: 'Notion', src: '/logos/tooling/notion.svg' },
   { name: 'Calendly', src: '/logos/tooling/calendly.svg' },
+  // Added under the 2026-09-07 operator override (see note above): the three
+  // supplied full-colour SVGs flattened to a single black glyph.
+  { name: 'GoHighLevel', src: '/logos/tooling/gohighlevel.svg' },
+  { name: 'monday.com', src: '/logos/tooling/monday.svg' },
+  { name: 'RevenueWell', src: '/logos/tooling/revenuewell.svg' },
 ];

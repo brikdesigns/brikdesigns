@@ -230,10 +230,10 @@ export default async function HomePage() {
       {/* R2 section (Figma node 25768:6728 title + 25833:3022 logos): a
           left-aligned header over a single monochrome logo ticker (BDS
           Marquee), base.org "trusted by" style. Copy + tool list from the
-          Homepage-R2 Notion doc. Only the 8 tools with a license-clean
-          monochrome SVG render today; the other 13 are deferred (see
-          home-tooling.ts). Marquee handles the seamless loop + the
-          prefers-reduced-motion static-row fallback. */}
+          Homepage-R2 Notion doc. The 8 license-clean monochrome SVGs plus the
+          3 flattened under the 2026-09-07 operator override render today; the
+          rest stay deferred (see home-tooling.ts). Marquee handles the seamless
+          loop + the prefers-reduced-motion static-row fallback. */}
       <section className="section-tooling" data-section="tooling">
         <div className="section-container section-container--tooling">
           <SectionHeader
@@ -243,10 +243,10 @@ export default async function HomePage() {
           />
         </div>
         <Marquee className="tooling-marquee" logoHeight={36} pauseOnHover>
-          {/* Only 8 license-clean logos exist (the other 13 are licence-BLOCKED,
-              not pending — see home-tooling.ts), so one pass is ~320px — far
-              short of the viewport, leaving the row inset instead of edge-to-edge
-              (#1093). The repeat is therefore permanent, not a stopgap until the
+          {/* Only 11 logos render (the rest are licence-BLOCKED, not pending —
+              see home-tooling.ts), so one pass is still far short of the
+              viewport, leaving the row inset instead of edge-to-edge (#1093).
+              The repeat is therefore permanent, not a stopgap until the
               list grows. Repeat the set so each
               Marquee group exceeds a wide desktop and the loop reads full-bleed
               and seamless. The duplicate group Marquee adds is aria-hidden, so
