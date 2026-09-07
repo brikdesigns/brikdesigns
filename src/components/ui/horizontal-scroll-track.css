@@ -1,0 +1,76 @@
+/* Pinned horizontal card track — companion to HorizontalScrollTrack.tsx (#1272).
+   BDS "GSAP" motion tier: scroll pinning + scrub, per the tier table in
+   brik-rag (Document: Tiers § Tier comparison).
+
+   The BASE state here is the fallback, not the effect. A visitor with no JS,
+   with `prefers-reduced-motion: reduce`, or on a touch device gets a plain
+   horizontally scrollable row from this stylesheet alone — every card present
+   and reachable. The component only ever *upgrades* that to a pinned scrub,
+   and only after it has measured a real overhang. Nothing is hidden, clipped,
+   or transformed until JS says so, which keeps the no-JS and SEO guarantees
+   that band-animation.md § Preserved guarantees requires of anything on this
+   site that moves. */
+
+.hscroll {
+  /* Full-bleed: the track is designed to run past the right viewport edge
+     (Figma node 25936:5132 draws it 1584px wide on a 1440 canvas), so the
+     section's own container must not constrain it. */
+  width: 100%;
+}
+
+.hscroll__viewport {
+  /* The clip window the track slides inside. Mirrors `.cms-wrapper` on the
+     freedomgp reference, measured 2026-09-07. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Momentum scrolling on touch, where we deliberately never pin. */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.hscroll__viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.hscroll__track {
+  display: flex;
+  align-items: stretch;
+  gap: var(--gap-lg);
+  /* Cards size themselves; the track is as wide as their sum. */
+  width: max-content;
+  /* Trailing breathing room so the last card does not butt the viewport edge
+     at the end of the scrub. */
+  padding-inline-end: var(--padding-lg);
+}
+
+/* ── Scrub-engaged state ──────────────────────────────────────────────────────
+   Applied by the component ONLY after it has confirmed motion is allowed, the
+   pointer is fine, and the overhang is non-zero. GSAP owns `transform` on the
+   track from this point, which is why the section also opts out of ScrollReveal
+   (see HorizontalScrollTrack.tsx) — two owners of one transform is #1271. */
+
+.hscroll[data-scrub='on'] .hscroll__viewport {
+  /* Native scrolling is handed over to the scrub. Re-enabled the moment the
+     component tears down or the media query flips. */
+  overflow-x: hidden;
+}
+
+.hscroll[data-scrub='on'] .hscroll__track {
+  will-change: transform;
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────────
+   Belt-and-braces. `shouldScrub()` already refuses to engage under `reduce`,
+   so this rule should never be the thing that saves us — but if the attribute
+   is ever set by a future code path that forgets the check, the row stays
+   scrollable and every card stays reachable. */
+@media (prefers-reduced-motion: reduce) {
+  .hscroll[data-scrub='on'] .hscroll__viewport {
+    overflow-x: auto;
+  }
+
+  .hscroll[data-scrub='on'] .hscroll__track {
+    transform: none !important;
+    will-change: auto;
+  }
+}
