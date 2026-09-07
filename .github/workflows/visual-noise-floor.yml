@@ -1,0 +1,63 @@
+name: Visual noise floor (staging vs itself)
+
+# On-demand measurement, NOT a gate (#1106). The visual-regression gate asserts
+# its self-comparison noise floor is 0.00% and picks DIFF_THRESHOLD=1% on that
+# basis (visual-regression.yml:11-13). That claim holds locally (17 same-host
+# and cross-deployment captures all measured 0.0000%) but the flake this gate
+# suffers lives in the CI runner's capture environment, which local runs cannot
+# reproduce. This job measures the floor WHERE the flake actually is: it
+# captures staging against itself on a runner and publishes the per-route worst
+# to the run summary, so the 1% threshold can be validated (or re-tuned) against
+# real runner noise rather than a local assertion.
+#
+# Budget: zero cost on any PR — it never runs on `pull_request`. One Playwright
+# capture pass (~3-5 min) only when a maintainer dispatches it. Re-dispatch to
+# collect more samples; each run is one sample of the floor.
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: visual-noise-floor
+  cancel-in-progress: true
+
+jobs:
+  noise-floor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: read
+    env:
+      PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Capture staging against itself
+        env:
+          # Both sides are staging, so the only variable is the capture itself.
+          NETLIFY_URL: https://staging--brikdesigns.netlify.app
+          REFERENCE_MODE: self
+          REFERENCE_URL: https://staging--brikdesigns.netlify.app
+          # No DIFF_THRESHOLD → the gate block never runs; this only measures.
+          NOISE_FLOOR: '1'
+        run: npm run visual-regression -- "$NETLIFY_URL"
+
+      - name: Upload report
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: visual-noise-floor-report
+          path: tests/visual-parity/
+          retention-days: 7
