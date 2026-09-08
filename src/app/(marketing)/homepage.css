@@ -876,6 +876,121 @@
   color: var(--text-secondary);
 }
 
+/* ─── Service lines (one-time projects) — #1273 ─────────────────────────────
+   Fixed-light accent-orange band (Figma node 25936:5132). The header sits in
+   the standard capped/centered .section-container; the HorizontalScrollTrack is
+   a full-bleed sibling so the card row can run past the right viewport edge, as
+   the design draws it (1584px wide from x=64 on a 1440 canvas). Section carries
+   no horizontal padding — the header takes its inset from .section-container and
+   the track aligns its first card to that same content edge below. */
+.section-service-lines {
+  padding-block: var(--space-1800);
+  background-color: var(--surface-accent-orange);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  /* Section fills the viewport, matching the other full-height home bands
+     (.section-services / .section-tooling). */
+  min-height: 100svh;
+  gap: var(--space-1200);
+}
+
+/* On-band text pin — scoped to the HEADER only, never the cards. The
+   accent-orange fill is fixed-light in BOTH themes (--surface-accent-orange →
+   --color-system-orange-light, #fad9ae, light + dark roots), but every --text-*
+   token flips near-white in the dark root and would vanish on the still-light
+   band. Pin the header copy to the mode-invariant grayscale-950 primitive so it
+   clears AA in both themes (same treatment as .section-industries /
+   .section-problem-cta). The cards live OUTSIDE .section-container and keep
+   their own surface + text, so this pin cannot reach them and flip their copy
+   dark-on-dark in the dark root. */
+.section-service-lines .section-container {
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band header title on the fixed-light accent-orange tint; --text-primary flips near-white in the dark root, so only a mode-invariant primitive clears AA in both themes (mirrors the .section-industries pin) */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band header description; same reasoning as --text-primary above */
+}
+
+/* Split header — title LEFT, description RIGHT (Figma content structure).
+   SectionHeader is single-column by design (ADR-032), so `align="start"`
+   left-anchors it and this scoped override defeats its measure cap and lays the
+   ContentBlock out as two columns. The block's direct children — h2.__title and
+   p.__description — fall into col 1 and col 2. Unlayered, so it wins over the
+   BDS `.bds-content-block { flex-direction: column }` in @layer bds-components. */
+.section-service-lines .bds-section-header {
+  max-width: none;
+  width: 100%;
+}
+
+.section-service-lines .bds-content-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1600);
+  align-items: start;
+}
+
+/* Stack the split back to one column on mobile. */
+@media (max-width: 767px) {
+  .section-service-lines .bds-content-block {
+    grid-template-columns: 1fr;
+    gap: var(--gap-md);
+  }
+}
+
+/* Align the track's first card with the header's left edge while the row bleeds
+   off the right. This replicates .section-container's own content-left math
+   (max-width cap + margin-inline:auto + --page-inset gutter): on viewports wider
+   than the content cap the container centers, so its left edge is
+   (100% − site-content-width)/2 + page-inset; narrower, it collapses to the
+   gutter. The right side stays unpadded so the last visible card can sit flush
+   to the viewport edge (the deliberate overflow). */
+.service-lines-track .hscroll__viewport {
+  padding-inline-start: max(
+    var(--page-inset),
+    calc((100% - var(--site-content-width)) / 2 + var(--page-inset))
+  );
+}
+
+/* Card sizing in the track. ServiceLineCard sizes to its grid cell on /services;
+   in a flex track it needs an explicit width. Cards stay VERTICAL (stacked) — the
+   shared component's own `flex-direction: column` — so nothing overrides the
+   orientation here; max-width caps it below one viewport on mobile so the row
+   shows a card plus a peek of the next (the native-scroll affordance). */
+.service-lines-track .services-card-link {
+  flex: 0 0 512px;
+  max-width: 85vw;
+}
+
+/* Card internals in the track. ServiceLineCard's layout classes (.services-card*)
+   live in services.css, which is imported ONLY on /services — so on the home page
+   this section owns the card's column layout, the media sizing/radius, and the CTA
+   pin. All scoped to the track; the /services grid card is untouched. */
+.service-lines-track .services-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-lg);
+  height: 100%;
+}
+
+.service-lines-track .services-card__media {
+  width: 400px;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  /* Image well — a neutral surface behind the (often transparent / contained)
+     art, replacing the shared card's --surface-accent tint in this section. */
+  background-color: var(--surface-secondary);
+}
+
+/* Pin the CTA to the card's bottom edge so every button aligns across the row.
+   margin-top:auto (not justify-content:space-between) keeps the media + content
+   grouped at the top and pushes only the button down; the cards are already
+   equal height via the track's align-items: stretch. */
+.service-lines-track .services-card > span {
+  margin-top: auto;
+}
+
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
 /* Webflow: .section_marketing-audit — full-width, centered, 100vh min */
 .section-audit {

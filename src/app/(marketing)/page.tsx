@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug, resolveServiceTagCategory } from '@/lib/supabase/queries';
 import { Grid, Button, Cluster, SectionHeader, PricingCard, Image, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
+import { HorizontalScrollTrack } from '@/components/ui/HorizontalScrollTrack';
+import { ServiceLineCard } from './services/ServiceLineCard';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
@@ -434,6 +436,42 @@ export default async function HomePage() {
             ))}
           </ol>
         </div>
+      </section>
+
+      {/* ═══ Service lines (one-time project work) ═══ */}
+      {/* R2 section (Figma node 25936:5132): a header on the fixed-light
+          accent-orange band, then a card track that deliberately overflows the
+          right viewport edge and scrubs horizontally on vertical scroll. All
+          five public service_lines render (ordered by rank, from
+          getServiceCategories) — not the three Figma draws (OPERATOR SAID
+          2026-09-07: all lines are one-time-project offers). The track is the
+          #1272 HorizontalScrollTrack primitive: pinned GSAP scrub that degrades
+          to a plain scrollable row under reduced-motion / coarse-pointer / no-JS
+          — never hand-rolled scroll code (see horizontal-scroll-track.md). The
+          header sits in .section-container (capped/centered) while the track is a
+          full-bleed sibling so it can bleed past the right edge; the on-band text
+          pin lives on the header alone, never the cards (which carry their own
+          surface and would flip dark-on-dark in the dark root otherwise). */}
+      <section className="section-service-lines" data-section="service-lines">
+        <div className="section-container">
+          <SectionHeader
+            align="start"
+            title="Not every need is ongoing. That's okay."
+            description="We work best as an ongoing extension of your team — that's where the compounding value lives. But if you have a specific, focused need, all of our brand, marketing, and information design services are also available as one time projects. We'll tell you which approach makes the most sense for your situation. The decision is always yours."
+          />
+        </div>
+        <HorizontalScrollTrack label="Service lines available as one-time projects" className="service-lines-track">
+          {categories.map((cat) => (
+            <ServiceLineCard
+              key={cat.slug}
+              name={cat.name}
+              slug={cat.slug}
+              category={resolveServiceTagCategory(cat)}
+              tagline={cat.tagline || cat.description || ''}
+              imageUrl={cat.card_image_url}
+            />
+          ))}
+        </HorizontalScrollTrack>
       </section>
 
     </>
