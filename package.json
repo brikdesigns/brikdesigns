@@ -32,6 +32,7 @@
     "test:lint:section-id": "node scripts/lint-section-id.test.mjs",
     "lint:card-class": "node scripts/lint-card-class.mjs",
     "test:lint:card-class": "node scripts/lint-card-class.test.mjs",
+    "test:lint:diff-aware": "node scripts/lib/diff-aware-lints.test.mjs",
     "test:sanitize": "npx tsx scripts/test-sanitize-html.mjs",
     "test:hscroll": "npx tsx scripts/test-horizontal-scroll-track.mjs",
     "test:customer-story-author": "npx tsx scripts/test-customer-story-author.mjs",

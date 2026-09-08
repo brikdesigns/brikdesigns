@@ -209,6 +209,15 @@ jobs:
       - name: Card-class lint — self-test (parser + both ratchet directions)
         run: npm run test:lint:card-class
 
+      # brikdesigns#1280 (ADR-040 slice 1). The pre-commit hook skips the
+      # token/hardcoded/heading/section lints on a content-only commit; this
+      # tests the staged-files → which-lints classifier that decides that, so a
+      # miscategorized file type (a .css that stops triggering the token scan)
+      # fails here. The gate is pre-commit-only — every lint above runs the full
+      # tree in CI regardless — so this self-test is the only CI coverage of it.
+      - name: Diff-aware lint gate — self-test (staged-file → lint mapping)
+        run: npm run test:lint:diff-aware
+
       - name: HTML sanitizer behaviour (XSS corpus + CMS prose preserved)
         run: npm run test:sanitize
 
