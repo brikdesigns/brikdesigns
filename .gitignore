@@ -81,3 +81,7 @@ next-env.d.ts
 # /bds-manifest.json 404 in production (brikdesigns/brik-bds#1552); the copy step
 # is what makes ignoring it safe, so keep the two together.
 /public/bds-manifest.json
+
+# Per-worktree dev-server port, written by scripts/dev-restart.sh so the
+# Playwright a11y suite can find this worktree's server (#1290).
+.dev-port

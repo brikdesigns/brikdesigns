@@ -177,6 +177,20 @@ if [[ -n "$BDS_WANT" ]]; then
   printf '%b\n' "${GREEN}✓ @brikdesigns/bds ${BDS_HAVE} satisfies ${BDS_WANT}${NC}"
 fi
 
+# 4b. Publish the resolved port so the Playwright a11y suite can find it.
+#     The suite used to hardcode :3000 (playwright.config.ts) while this script
+#     assigns 3001+ in every worktree — so `npx playwright test` from a task
+#     worktree hit a port with either nothing or a SIBLING branch's server on
+#     it, and failed all 66 tests with "answered HTTP 200 but rendered no
+#     <main>", which names an infra cold-start and reads like someone else's
+#     problem. #1290.
+#
+#     A file rather than reimplementing the cksum hash in TypeScript: the
+#     derivation above stays the single source of truth, and a second
+#     implementation would be free to drift from it silently. Written before
+#     the server starts so the value is present even if the boot fails.
+echo "$PORT" > "$PROJECT_DIR/.dev-port"
+
 # 5. Start under op run. --no-masking keeps op from redacting substrings of the
 #    injected values where they collide with ordinary dev-server output.
 LOG="/tmp/brikdesigns-dev-${PORT}.log"
