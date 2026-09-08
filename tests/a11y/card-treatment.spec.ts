@@ -217,3 +217,62 @@ test.describe('Card-treatment standard — border/shadow by band', () => {
     });
   }
 });
+
+/**
+ * Home `about` section — the team cards (#1274) are hand-built <article>s
+ * (`.team-member`, a person's bio, not a BDS <Card>), so the `.bds-card` sweep
+ * above cannot see them, exactly as it can't see /about's team cards (which is
+ * why that route opts out). This block asserts the same standard on them
+ * directly: the section is on --surface-primary (== the page ground, white in
+ * light / black in dark, tracked in both themes), so the cards must be
+ * border + no shadow in BOTH projects.
+ */
+test.describe('Card-treatment standard — home about team cards', () => {
+  test('home /about-section team cards are border + no shadow', async ({ page }, testInfo) => {
+    const isDark = testInfo.project.name.endsWith('-dark');
+    await gotoRendered(page, '/', { waitUntil: 'load' });
+
+    const { findings, measured } = await page.evaluate(() => {
+      const isOpaque = (c: string) => {
+        const m = c.match(/rgba?\(([^)]+)\)/);
+        if (!m) return c !== 'transparent';
+        const parts = m[1].split(',').map((p) => p.trim());
+        return parts.length < 4 || parseFloat(parts[3]) > 0;
+      };
+      const cards = Array.from(
+        document.querySelectorAll('[data-section="about"] .team-member'),
+      ) as HTMLElement[];
+      const out: { card: string; hasBorder: boolean; hasShadow: boolean }[] = [];
+      for (const card of cards) {
+        const cs = getComputedStyle(card);
+        const hasBorder =
+          (parseFloat(cs.borderTopWidth) || 0) > 0 &&
+          cs.borderTopStyle !== 'none' &&
+          isOpaque(cs.borderTopColor);
+        const hasShadow = cs.boxShadow !== 'none' && cs.boxShadow !== '';
+        if (hasBorder && !hasShadow) continue;
+        out.push({ card: card.className, hasBorder, hasShadow });
+      }
+      return { findings: out, measured: cards.length };
+    });
+
+    expectMeasured(measured, '/', 'about team cards');
+
+    if (findings.length > 0) {
+      const summary = findings
+        .map(
+          (f) =>
+            `  got ${f.hasBorder ? 'border' : 'no-border'}/${f.hasShadow ? 'shadow' : 'flat'}, expected border + no shadow\n` +
+            `    card: .${f.card.split(' ').join('.')}`,
+        )
+        .join('\n');
+      expect(
+        findings,
+        `Home about-section team cards violating the white-band standard (${isDark ? 'dark' : 'light'}):\n${summary}\n\n` +
+          `The about section is --surface-primary (== page ground) in both themes, so its\n` +
+          `cards must be border + no shadow. Fix in the .team-member block in\n` +
+          `shared-sections.css. See .claude/references/card-treatment.md.`,
+      ).toHaveLength(0);
+    }
+  });
+});

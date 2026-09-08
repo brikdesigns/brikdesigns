@@ -4,6 +4,8 @@ import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug,
 import { Grid, Button, Cluster, SectionHeader, PricingCard, Image, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
 import { HorizontalScrollTrack } from '@/components/ui/HorizontalScrollTrack';
 import { ServiceLineCard } from './services/ServiceLineCard';
+import { TeamMember } from '@/components/team/TeamMember';
+import { TEAM } from '@/lib/team';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
@@ -472,6 +474,37 @@ export default async function HomePage() {
             />
           ))}
         </HorizontalScrollTrack>
+      </section>
+
+      {/* ═══ About ("The people you'll work with") ═══ */}
+      {/* R2 section (Figma node 25920:4810): a header (SectionHeader intro left,
+          brand CTA right) over two stacked <TeamMember> cards on the white
+          --surface-primary band. The team roster (@/lib/team) and the card are
+          shared with /about (#1274) — this renders the `stacked` orientation.
+          Because the section is painted the page ground (--surface-primary ==
+          body), ScrollReveal animates the WHOLE section, not its content
+          (band-animation.md) — no per-content reveal target here. Cards are
+          hand-built <article>s (a person's bio, not a BDS <Card>), so their
+          white-band chrome (border, no shadow) is set in .team-member, and
+          card-treatment.spec.ts asserts the new section explicitly. */}
+      <section className="section-about" data-section="about">
+        <div className="section-container">
+          <div className="about-header">
+            <SectionHeader
+              align="start"
+              title="The people you'll work with."
+              description="You work directly with Abbey and Nick — not a coordinator, not a rotating team, not a ticketing system. Every client gets both of us from day one."
+            />
+            <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+              Get Your Free BrikDown
+            </Button>
+          </div>
+          <div className="about-cards">
+            {TEAM.map((member) => (
+              <TeamMember key={member.name} member={member} orientation="stacked" />
+            ))}
+          </div>
+        </div>
       </section>
 
     </>
