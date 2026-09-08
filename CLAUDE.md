@@ -8,6 +8,10 @@ Next.js 16 marketing site for Brik Designs. Deployed on Netlify.
 
 Next.js 16 · React 19 · TypeScript (App Router) · BDS via `@brikdesigns/bds` · Supabase (shared staging with `brik-client-portal`) · Netlify ISR · Themes: light/dark.
 
+## When scoping any change (assign its class before you start)
+
+Read [`.claude/references/change-class.md`](.claude/references/change-class.md) — run the top-down decision tree (IA → component → content, highest match wins, escalate on doubt) to assign exactly one `class:*`. The class decides how much protocol the change earns; a ticketed change inherits it from the linked issue, ticketless work self-classifies. Pilot axis (brikdesigns#1277); per-class protocol is not enforced yet.
+
 ## When importing BDS components
 
 Use surface-web or surface-shared. surface-product is product-app scope.

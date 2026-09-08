@@ -37,10 +37,12 @@
 
 # ── Which label axes a PR inherits from its issue ────────────────────
 # area: board tracking (pr-label-gate requires it). size: velocity reporting.
-# theme: cross-cutting programme. NOT priority: — a PR has no priority of its
-# own; it either lands or it doesn't. NOT meta: — `meta:agent-discovered`
-# describes how the ISSUE was found, which says nothing about the PR.
-PR_LABEL_INHERIT_RE='^(area|size|theme):'
+# theme: cross-cutting programme. class: change-class → protocol tier a PR
+# carries the same class as the change it makes (brikdesigns#1277). NOT
+# priority: — a PR has no priority of its own; it either lands or it doesn't.
+# NOT meta: — `meta:agent-discovered` describes how the ISSUE was found, which
+# says nothing about the PR.
+PR_LABEL_INHERIT_RE='^(area|size|theme|class):'
 
 # type_label_for_title <pr-title> — the Type label a conventional-commit prefix
 # implies, or empty. Only feat/fix carry one; every other type (docs, chore,
