@@ -18,7 +18,6 @@
     "src/app/(marketing)/marketing/[slug]/page.tsx": 1,
     "src/app/(marketing)/page.tsx": 1,
     "src/app/(marketing)/plans/[slug]/page.tsx": 1,
-    "src/app/(marketing)/plans/page.tsx": 1,
     "src/app/(marketing)/privacy-policy/page.tsx": 1,
     "src/app/(marketing)/results/[slug]/page.tsx": 4,
     "src/app/(marketing)/results/page.tsx": 3,
