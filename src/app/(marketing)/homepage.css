@@ -991,6 +991,54 @@
   margin-top: auto;
 }
 
+/* ─── About ("The people you'll work with") ─────────────────── */
+/* R2 section (Figma node 25920:4810): a split header (SectionHeader intro left,
+   brand CTA right) over two stacked <TeamMember> cards, on the white
+   --surface-primary band. Card layout + tints are shared in shared-sections.css
+   (.team-member--stacked); this owns only the section frame + header/grid. */
+.section-about {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* 48px section rhythm, matching the other home sections (see the grouped rule
+   above). --space-1200 primitive, not --gap-*, for a mode-stable 48px. */
+.section-about .section-container {
+  gap: var(--space-1200);
+}
+
+/* Header row: SectionHeader intro left, brand CTA right; top-aligned, wraps on
+   narrow. Mirrors .pricing-header, but items start-aligned (Figma items-start —
+   the CTA tops out level with the title, not the description's baseline). */
+.about-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+/* Two equal stacked cards, 24px gutter (Figma content-col gap-24). Equal-height
+   so both panels + CTAs align across the row. */
+.about-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: stretch;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .about-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
 /* Webflow: .section_marketing-audit — full-width, centered, 100vh min */
 .section-audit {

@@ -55,57 +55,12 @@
 }
 
 /* ─── Team (Meet Abbey / Meet Nick) ────────────────────────── */
-/* Figma: two stacked full-width bordered cards; circle headshot left, copy
-   right. Cards sit on the default white band, so their chrome is the BDS
-   default (border, no shadow) — hand-built here since these are <article>s,
-   not <Card>s (card-treatment.md: white band → border + no shadow). */
+/* The team card moved to the shared <TeamMember> component (#1274) — layout in
+   the `.team-member` block of shared-sections.css, rendered here in the
+   `horizontal` orientation. Only the section-level gap stays page-local. */
 
 .about-team .container-lg--comfortable {
   gap: var(--gap-xl);
-}
-
-.about-team-member {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--gap-2xl);
-  width: 100%;
-  padding: var(--padding-huge);
-  border: var(--border-width-200) solid var(--border-secondary);
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-primary);
-}
-
-.about-team-member__avatar {
-  flex: 0 0 304px;
-  width: 304px;
-  height: 304px;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.about-team-member__body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-lg);
-}
-
-.about-team-member__head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-}
-
-.about-team-member__social {
-  display: flex;
-  gap: var(--gap-sm);
-}
-
-.about-team-member__bio {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
 }
 
 /* ─── Why Brik? ─────────────────────────────────────────────── */
@@ -211,26 +166,6 @@
 /* ─── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 991px) {
-  .about-team-member {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--gap-lg);
-    padding: var(--padding-xl);
-  }
-
-  .about-team-member__head {
-    align-items: center;
-  }
-
-  .about-team-member__social {
-    justify-content: center;
-  }
-
-  .about-team-member__bio {
-    text-align: left;
-  }
-
   .about-believe__inner {
     grid-template-columns: 1fr;
     gap: var(--gap-xl);
@@ -248,11 +183,5 @@
   .about-hww,
   .about-believe {
     padding: var(--padding-xl) 0;
-  }
-
-  .about-team-member__avatar {
-    flex-basis: 220px;
-    width: 220px;
-    height: 220px;
   }
 }

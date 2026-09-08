@@ -621,6 +621,164 @@
   border-radius: var(--border-radius-md);
 }
 
+/* ─── Team member card ────────────────────────────────────────────────────
+   ONE card, two orientations (#1274) — shared by /about and the home `about`
+   section via <TeamMember>. A hand-built <article> (a person's bio, not a BDS
+   <Card>), so it carries its own white-band chrome (border, no shadow —
+   card-treatment.md) rather than the "Card chrome by band" rule below, which
+   only reaches `.bds-card`.
+
+   • --horizontal — /about: bare 304px circle beside name/role/social/bio.
+     Unchanged from the pre-extraction `.about-team-member`.
+   • --stacked — home: 188px circle inset in a tinted panel, then name/role/
+     summary. Panel + chip tints keyed off data-accent, all fixed across themes
+     (Figma ground truth 2026-09-08). */
+.team-member {
+  background-color: var(--surface-primary);
+  border-style: solid;
+  border-color: var(--border-secondary);
+}
+
+.team-member__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.team-member__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+/* ── Horizontal (/about) ── */
+.team-member--horizontal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--gap-2xl);
+  width: 100%;
+  padding: var(--padding-huge);
+  border-width: var(--border-width-200);
+  border-radius: var(--border-radius-md);
+}
+
+.team-member--horizontal .team-member__avatar {
+  flex: 0 0 304px;
+  width: 304px;
+  height: 304px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.team-member--horizontal .team-member__body {
+  flex: 1;
+  gap: var(--gap-lg);
+}
+
+.team-member--horizontal .team-member__social {
+  display: flex;
+  gap: var(--gap-sm);
+}
+
+.team-member--horizontal .team-member__bio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+/* ── Stacked (home `about`) — Figma node 25932:4984/5003 ──
+   Card 40px padding, 48px panel→content, 16px content, 8px name→role — pinned
+   to --space-* primitives (mode-stable), matching the section rhythm. Border is
+   1px here (Figma border-width/50), not the horizontal card's 3px. */
+.team-member--stacked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1200);
+  width: 100%;
+  padding: var(--space-1000);
+  border-width: var(--border-width-50);
+  border-radius: var(--border-radius-800);
+}
+
+.team-member--stacked .team-member__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* (252 − 188)/2 — panel is chip + symmetric breathing room, so its 252px
+     Figma height is derived, not a magic literal. */
+  padding-block: var(--space-800);
+  border-radius: var(--border-radius-800);
+}
+
+.team-member--stacked .team-member__chip {
+  flex: 0 0 188px;
+  width: 188px;
+  height: 188px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.team-member--stacked .team-member__body {
+  gap: var(--space-400);
+}
+
+/* Panel + chip tints — fixed across themes (card-treatment.md: service tints
+   stay light in dark mode). Abbey (brand) is single-tone gold; Nick
+   (information) is a pale-blue panel with a deeper-blue chip — the Figma ground
+   truth, confirmed with the operator 2026-09-08.
+
+   The panel is a card-scale surface token; the chip is a component-scale
+   background token per the service-token decision tree — the two families are
+   value-identical here, so Abbey reads single-tone and Nick two-tone either
+   way. */
+.team-member--stacked[data-accent='brand'] .team-member__panel {
+  background-color: var(--surface-service-brand);
+}
+
+.team-member--stacked[data-accent='brand'] .team-member__chip {
+  background-color: var(--background-service-brand);
+}
+
+.team-member--stacked[data-accent='information'] .team-member__panel {
+  background-color: var(--color-blue-300); /* bds-lint-ignore token-family — Nick's panel is the pale blue #b2e3f5, Figma ground truth (node 25932:5005). It must stay fixed across themes (card-treatment.md: service tints don't flip in dark); --color-blue-300 is the only token at that value with a single declaration — the semantic blue steps flip between the light + dark roots. */
+}
+
+.team-member--stacked[data-accent='information'] .team-member__chip {
+  background-color: var(--background-service-information);
+}
+
+/* Horizontal (/about) stacks to a centered column on tablet/mobile. The stacked
+   variant needs no per-card query — its home grid collapses to one column. */
+@media (max-width: 991px) {
+  .team-member--horizontal {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--gap-lg);
+    padding: var(--padding-xl);
+  }
+
+  .team-member--horizontal .team-member__head {
+    align-items: center;
+  }
+
+  .team-member--horizontal .team-member__social {
+    justify-content: center;
+  }
+
+  .team-member--horizontal .team-member__bio {
+    text-align: left;
+  }
+}
+
+@media (max-width: 767px) {
+  .team-member--horizontal .team-member__avatar {
+    flex-basis: 220px;
+    width: 220px;
+    height: 220px;
+  }
+}
+
 /* ─── Card chrome by band — the card-treatment standard ───────────────────
    THE single source of truth for card border/shadow, enforced by
    tests/a11y/card-treatment.spec.ts (measured, every route, light + dark —
