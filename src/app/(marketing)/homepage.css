@@ -961,10 +961,34 @@
   max-width: 85vw;
 }
 
-/* Image well — a neutral surface behind the (often transparent / contained) art,
-   replacing the shared card's --surface-accent tint in this section only. */
+/* Card internals in the track. ServiceLineCard's layout classes (.services-card*)
+   live in services.css, which is imported ONLY on /services — so on the home page
+   this section owns the card's column layout, the media sizing/radius, and the CTA
+   pin. All scoped to the track; the /services grid card is untouched. */
+.service-lines-track .services-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-lg);
+  height: 100%;
+}
+
 .service-lines-track .services-card__media {
+  width: 400px;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  /* Image well — a neutral surface behind the (often transparent / contained)
+     art, replacing the shared card's --surface-accent tint in this section. */
   background-color: var(--surface-secondary);
+}
+
+/* Pin the CTA to the card's bottom edge so every button aligns across the row.
+   margin-top:auto (not justify-content:space-between) keeps the media + content
+   grouped at the top and pushes only the button down; the cards are already
+   equal height via the track's align-items: stretch. */
+.service-lines-track .services-card > span {
+  margin-top: auto;
 }
 
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
