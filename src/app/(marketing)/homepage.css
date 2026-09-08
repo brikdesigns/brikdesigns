@@ -24,14 +24,14 @@
   z-index: 0;
 }
 
-/* Desktop: cap the hero band at a fixed 668px floor instead of the
+/* Desktop: cap the hero band at a fixed 704px floor instead of the
    full-viewport `calc(100svh - nav)`, which scales the content area oversized on
    tall/large monitors — operator ask. Scoped to ≥992px so tablet/mobile keep the
    viewport-height band (the 767px rule below restores the calc). Matches the
    how-we-work hero floor (how-we-work.css .hiw-hero). */
 @media (min-width: 992px) {
   .section-hero {
-    min-height: 668px;
+    min-height: 704px;
   }
 }
 
@@ -190,6 +190,18 @@
 
 .services-tabs__grid {
   width: 100%;
+}
+
+/* Home-only: tighten the ServiceCard frame so the card hugs its media. The
+   shared `.service-card--inset` rule (shared-sections.css) frames image+text in a
+   --padding-huge (48px) inset sized for the earlier, larger card art; the home
+   art was scaled down, leaving that inset reading as an oversized empty border.
+   Step it to --padding-lg (24px) here — scoped to `.section-services` so the
+   /services, /customers, and plan grids that share the class keep their 48px
+   frame. Higher specificity (0,3,0 vs the shared 0,2,0), both unlayered, so this
+   wins without !important — operator ask. */
+.section-services .service-card--inset.bds-card--preset-display {
+  padding: var(--padding-lg);
 }
 
 /* ─── Industries ("Where we do our best work") ──────────────── */
@@ -500,20 +512,18 @@
 }
 
 /* ─── Problem-CTA ("Sound like you?") ───────────────────────── */
-/* R2 accent band (Figma node 25805:3001): centered SectionHeader intro + two
-   CTAs, bridging Problem → Services. Filled with accent purple
-   (fill surface/accent-purple), not brand orange.
-   The token now resolves to #e9d8fc, a pale tint. It read #9e8bc2 when this
-   band was built — the R2 mockup value — and the ❖ Brik Brand Kit has since
-   re-pointed surface/accent-{hue} onto the system palette
-   (color/system/purple-light), which BDS mirrors 1:1 as of v0.175.0
-   (brik-bds#2066). Read live from the Brand Kit 2026-08-27, both modes.
-   Still fixed-light in both themes, so on-band text stays pinned dark in the
-   dark root (shared-sections.css "Accent band on-color text") — a paler fill
-   only widens that margin. This rule only paints the band. */
+/* Centered SectionHeader intro + two CTAs, bridging Problem → Services. Now
+   painted on the page-ground --surface-primary (was the accent-purple band) so
+   it reads as a continuation of the preceding Problem section rather than a
+   separate band — operator ask. Because it now matches the ground, ScrollReveal
+   tags the whole SECTION and it fades in as one unit (the band rule: on-ground →
+   whole-section reveal, see ScrollReveal.tsx), so the per-slot stagger the accent
+   band used (#1268) is retired. Top inset steps down to --padding-md so the CTA
+   sits close under the Problem section; bottom inset keeps the huge/80px band
+   rhythm into Services. */
 .section-problem-cta {
-  padding: var(--padding-huge) 0;
-  background-color: var(--surface-accent-purple);
+  padding: var(--padding-md) 0 var(--padding-huge);
+  background-color: var(--surface-primary);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -521,32 +531,15 @@
   width: 100%;
 }
 
-/* R3 (#1114): give the accent CTA bridge real vertical presence on desktop — it
-   was the only home band with no min-height, so it read cramped between the
-   full-viewport Problem and Services bands. A 60svh floor + 80px block padding
-   (--space-1800, the same 80px step Services uses) enlarges it without claiming
-   a full viewport like the content bands. Scoped to ≥992px so the mobile band
-   stays compact; content stays centered via the base flex rule. */
+/* On desktop keep the bottom 80px step (--space-1800, matching Services) but no
+   min-height. The #1114 60svh floor existed to give the accent BAND vertical
+   presence between the full-viewport Problem/Services sections; now that the CTA
+   sits on the page ground it flows continuously with them, so a floor would only
+   center the copy mid-band and swallow the --padding-md top inset the operator
+   asked for. Dropping it lets the CTA sit tight under the Problem section. */
 @media (min-width: 992px) {
   .section-problem-cta {
-    min-height: 60svh;
-    padding-block: var(--space-1800);
-  }
-}
-
-/* The CTA lands last (#1268). Being a separate band further down the page
-   already puts it after the eight problem lines; this only orders the slots
-   *within* it so the buttons resolve after the copy instead of all three
-   fading as one. ScrollReveal tags these slots individually (the accent band
-   hands its motion to its content), so the delay rides its existing reveal —
-   no extra observer. Same slot classes the rhythm override below already
-   targets, for the ADR-023 reason documented there. */
-@media (prefers-reduced-motion: no-preference) {
-  .section-problem-cta .bds-content-block__description.scroll-reveal--in {
-    transition-delay: 0.09s;
-  }
-  .section-problem-cta .bds-content-block__actions.scroll-reveal--in {
-    transition-delay: 0.18s;
+    padding-block: var(--padding-md) var(--space-1800);
   }
 }
 
