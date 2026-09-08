@@ -76,14 +76,21 @@ protocol, under-classifying can ship a regression.
 - **Secrets, infra, CI** changes route by `area:*` (`area:infra`, `area:security`),
   not by `class:*`.
 
-## What the class selects (target protocol — not yet wired)
+## What the class selects (the per-class protocol)
 
-The per-class protocol (which references to read, which hooks run, which model)
-is defined by the risk-tiered protocol ADR and is **not enforced yet** — this
-file defines the axis and the classifier only. Intended shape:
+The per-class protocol — which references to read, how to iterate locally, which
+hooks run, which model — is ratified in **[ADR-040 — Risk-tiered change
+protocol](https://github.com/brikdesigns/brik-llm/blob/main/software/docs/adr/ADR-040-risk-tiered-change-protocol.md)**
+(brik-llm#3187). This file defines the axis and the classifier; ADR-040 is the
+authority for what each class earns. The matrix:
 
-| Class | Read before edit | Local iteration | Hooks |
-|-------|------------------|-----------------|-------|
-| `class:content` | none / this file | trust Netlify preview, skip local dev | diff-aware (skip CSS lints) |
-| `class:component` | the relevant reference(s) | dev-restart loop | current stack |
-| `class:ia` | full references + RAG | dev-restart loop | current stack + Opus |
+| Class | Read before edit | Local iteration | Hooks | Model |
+|-------|------------------|-----------------|-------|-------|
+| `class:content` | this file only | trust the Netlify PR preview, skip local dev-restart | diff-aware — skip the token/hardcoded/heading/section lints (brikdesigns#1280) | Sonnet |
+| `class:component` | the relevant reference(s) | `dev-restart.sh` loop | full stack | Sonnet |
+| `class:ia` | full references + brik-rag | `dev-restart.sh` loop | full stack | Opus |
+
+Invariant floors — every class, never cut: **gitleaks** + the **image-budget**
+lint always run in pre-commit, and CI (`verify.yml`) runs the full-tree lints on
+every PR regardless of class. The diff-aware skip is keyed to *files staged*, not
+to the label: a commit that stages a `.css` runs the CSS lints whatever its class.
