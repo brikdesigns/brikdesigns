@@ -61,7 +61,7 @@ NEVER open, propose, recommend, or ask about a `staging → main` promote — Br
 
 Install: `op run --env-file=.env.op -- npm install`
 
-RUN `./scripts/dev-restart.sh` for dev — ALWAYS, never a bare `npm run dev` (it injects `.env.op` secrets, self-sources the headless token, kills the port's server, and picks a stable per-worktree port); restart after every code change.
+When you run the dev server (`class:component` / `class:ia` work), RUN `./scripts/dev-restart.sh` — never a bare `npm run dev` (it injects `.env.op` secrets, self-sources the headless token, kills the port's server, and picks a stable per-worktree port); restart after every code change. `class:content` skips this loop and verifies on the Netlify PR preview instead (see §"When scoping any change").
 
 After editing a CMS row in Supabase: `./scripts/dev-restart.sh --fresh`. The Next data cache survives a plain restart and keeps serving the previous payload.
 
