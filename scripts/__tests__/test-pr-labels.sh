@@ -57,7 +57,7 @@ assert_false() {
 
 # The label set brikdesigns actually has, as of #1012. Deliberately EXCLUDES
 # `enhancement` and `bug` — that absence is what assertion 1 above turns on.
-BD_LABELS=$'priority:p0-now\npriority:p1-week\npriority:p2-month\npriority:p3-someday\narea:a11y\narea:cms\narea:content\narea:design\narea:infra\narea:security\nsize:xs\nsize:s\nsize:m\nsize:l\ntheme:accessibility\ntheme:agent-ops\ntheme:design-system\ntheme:documentation\ntheme:observability\ntheme:performance\ntheme:security-hardening\ntheme:tech-debt\ntheme:ui-cleanup\nmeta:project\nmeta:agent-discovered'
+BD_LABELS=$'priority:p0-now\npriority:p1-week\npriority:p2-month\npriority:p3-someday\narea:a11y\narea:cms\narea:content\narea:design\narea:infra\narea:security\nsize:xs\nsize:s\nsize:m\nsize:l\ntheme:accessibility\ntheme:agent-ops\ntheme:design-system\ntheme:documentation\ntheme:observability\ntheme:performance\ntheme:security-hardening\ntheme:tech-debt\ntheme:ui-cleanup\nmeta:project\nmeta:agent-discovered\nclass:content\nclass:component\nclass:ia'
 
 echo "── type_label_for_title"
 assert_eq "feat maps to enhancement" "enhancement" "$(type_label_for_title 'feat(home): add x')"
@@ -72,6 +72,7 @@ echo ""
 echo "── label_known — the existence check that keeps one bad name from"
 echo "   dropping every good one (assertion 1)"
 assert_true  "area:infra is real in brikdesigns"   label_known "area:infra"  "$BD_LABELS"
+assert_true  "class:ia is real in brikdesigns"     label_known "class:ia"    "$BD_LABELS"
 assert_false "bug is NOT real in brikdesigns"       label_known "bug"         "$BD_LABELS"
 assert_false "enhancement is NOT real in brikdesigns" label_known "enhancement" "$BD_LABELS"
 assert_false "a typo'd area is not real"           label_known "area:infr"   "$BD_LABELS"
@@ -87,6 +88,9 @@ assert_eq "inherits area and size only (no theme on this issue)" \
 assert_eq "inherits area, size AND theme when present" \
   $'area:infra\nsize:s\ntheme:agent-ops' \
   "$(inheritable_labels $'priority:p2-month\narea:infra\nsize:s\ntheme:agent-ops\nmeta:agent-discovered')"
+assert_eq "inherits class:* (the change-class axis)" \
+  $'area:infra\nsize:m\nclass:ia' \
+  "$(inheritable_labels $'priority:p1-week\narea:infra\nsize:m\nclass:ia\nmeta:project')"
 assert_eq "drops priority:*" "" "$(inheritable_labels 'priority:p1-week')"
 assert_eq "drops meta:*"     "" "$(inheritable_labels 'meta:agent-discovered')"
 assert_eq "drops an unaxed label" "" "$(inheritable_labels 'dependencies')"
