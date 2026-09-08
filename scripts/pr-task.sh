@@ -39,11 +39,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/pr-labels.sh"
 # shellcheck source=scripts/lib/pr-title.sh
 source "${SCRIPT_DIR}/lib/pr-title.sh"
+# known_visual_routes / visual_change_line — the intended-visual declaration
+# (#1282), pure + tested (scripts/__tests__/test-pr-visual-change.sh).
+# shellcheck source=scripts/lib/visual-change-routes.sh
+source "${SCRIPT_DIR}/lib/visual-change-routes.sh"
 
 # ── Base branch config ──
 # staging-first flow: task branches PR to staging; staging → main promoted on sign-off.
 BASE_BRANCH="staging"
 AREA_OVERRIDE=""
+# Routes with an INTENDED visual change (comma-separated ROUTES[].name from
+# visual-parity.mjs). Emits a `Visual-change:` body line + the `visual-change`
+# label so the regression gate waives them (see the block after the UI gate).
+# Pre-seed from the env for non-interactive/agent runs; --visual-change overrides.
+VISUAL_CHANGE_ROUTES="${VISUAL_CHANGE_ROUTES:-}"
 
 # ── Parse flags ──
 POSITIONAL_ARGS=()
@@ -58,6 +67,11 @@ while [[ $# -gt 0 ]]; do
       # area:* (or whose branch references no issue). Accept a bare word too.
       AREA_OVERRIDE="$2"
       [[ "$AREA_OVERRIDE" == area:* ]] || AREA_OVERRIDE="area:${AREA_OVERRIDE}"
+      shift 2
+      ;;
+    --visual-change)
+      # Comma-separated ROUTES[].name that this PR MEANT to move visually.
+      VISUAL_CHANGE_ROUTES="$2"
       shift 2
       ;;
     --skip-ui-check)
@@ -259,7 +273,34 @@ if [[ "${SKIP_UI_CHECK:-}" != "1" ]]; then
       echo -e "${RED}✗ PR creation blocked. Verify the change in a browser, then re-run.${NC}"
       exit 1
     fi
+
+    # Intended-visual declaration. The regression gate reds any captured route
+    # that moves >1% vs staging unless the PR body declares it
+    # (visual-change-declaration.mjs). Ask here, at author time, instead of
+    # discovering the omission at CI (#1282, repro'd on #1279). TTY-only prompt;
+    # agents/non-interactive runs pass --visual-change or the env var instead.
+    if [ -z "$VISUAL_CHANGE_ROUTES" ] && [ -t 0 ]; then
+      echo ""
+      echo -e "${YELLOW}   Any INTENDED visual change to a captured route? An undeclared >1% move${NC}"
+      echo -e "${YELLOW}   reds the regression gate. Name route(s), comma-separated; blank = none.${NC}"
+      echo    "   Valid: $(known_visual_routes | tr '\n' ' ')"
+      echo -n "   Visual-change route(s): "
+      read -r VISUAL_CHANGE_ROUTES
+    fi
   fi
+fi
+
+# ── Validate + normalise the intended-visual declaration ──
+# A name absent from visual-parity.mjs ROUTES[].name waives nothing — the gate's
+# knownRoutes filter drops it (visual-change-declaration.mjs), so a typo would
+# re-red at CI. visual_change_line fails loud here instead, listing the bad
+# names on stderr; VISUAL_CHANGE_LINE is the exact body line, empty if nothing
+# was declared.
+if ! VISUAL_CHANGE_LINE=$(visual_change_line "$VISUAL_CHANGE_ROUTES"); then
+  echo -e "${RED}✗ Unknown visual-change route name(s) above — they waive nothing at CI.${NC}"
+  echo -e "${YELLOW}  Valid route names (visual-parity.mjs ROUTES[].name):${NC}"
+  known_visual_routes | sed 's/^/    /'
+  exit 1
 fi
 
 # ── Check if PR already exists ──
@@ -326,6 +367,14 @@ REPO_LABELS=$(gh label list --limit 200 --json name --jq '.[].name')
 TYPE_LABEL=$(type_label_for_title "$PR_TITLE")
 if [ -n "$TYPE_LABEL" ] && label_known "$TYPE_LABEL" "$REPO_LABELS"; then
   LABELS_TO_ADD+=("$TYPE_LABEL")
+fi
+
+# The `visual-change` label is the board-visible half of the declaration; the
+# body line (below) is the reviewable half. The regression gate needs BOTH —
+# either alone waives nothing (visual-change-declaration.mjs). Add the label
+# whenever routes were declared, so the two halves can never fall out of sync.
+if [ -n "$VISUAL_CHANGE_LINE" ] && label_known "visual-change" "$REPO_LABELS"; then
+  LABELS_TO_ADD+=("visual-change")
 fi
 
 if [ -n "$AREA_OVERRIDE" ]; then
@@ -461,6 +510,14 @@ Generated with [Claude Code](https://claude.ai/code)
 ${ISSUE_LINKS}
 EOF
 )
+
+# Append the intended-visual declaration line the regression gate parses
+# (visual-change-declaration.mjs). Outside any code fence — the parser ignores
+# fenced lines — and only when routes were declared, so a non-visual PR body is
+# untouched.
+if [ -n "$VISUAL_CHANGE_LINE" ]; then
+  PR_BODY="${PR_BODY}"$'\n'"${VISUAL_CHANGE_LINE}"$'\n'
+fi
 
 # ── Create PR ──
 # Don't capture stderr into PR_URL with `2>&1` — that hides the actual error

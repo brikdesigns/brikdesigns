@@ -31,8 +31,10 @@ on:
     paths:
       - 'scripts/lib/pr-labels.sh'
       - 'scripts/lib/pr-title.sh'
+      - 'scripts/lib/visual-change-routes.sh'
       - 'scripts/__tests__/test-pr-labels.sh'
       - 'scripts/__tests__/test-pr-title.sh'
+      - 'scripts/__tests__/test-pr-visual-change.sh'
       - 'scripts/pr-task.sh'
       - '.github/workflows/pr-label-gate.yml'
       - '.github/workflows/pr-label-resolver-check.yml'
@@ -41,8 +43,10 @@ on:
     paths:
       - 'scripts/lib/pr-labels.sh'
       - 'scripts/lib/pr-title.sh'
+      - 'scripts/lib/visual-change-routes.sh'
       - 'scripts/__tests__/test-pr-labels.sh'
       - 'scripts/__tests__/test-pr-title.sh'
+      - 'scripts/__tests__/test-pr-visual-change.sh'
       - 'scripts/pr-task.sh'
       - '.github/workflows/pr-label-gate.yml'
       - '.github/workflows/pr-label-resolver-check.yml'
@@ -70,6 +74,14 @@ jobs:
       - name: Title deriver contract holds
         run: bash scripts/__tests__/test-pr-title.sh < /dev/null
 
+      # Third resolver on the same caller (#1282): the intended-visual
+      # declaration. Locks that the ROUTES-only extraction never leaks a
+      # VIEWPORT name (which would waive nothing at CI) and that an unknown
+      # route fails loud at author time rather than re-redding the regression
+      # gate — the #1279 failure this shipped to prevent.
+      - name: Visual-change declaration contract holds
+        run: bash scripts/__tests__/test-pr-visual-change.sh < /dev/null
+
       # --severity=warning: pr-task.sh predates this gate and carries SC1091
       # (unfollowed `source`) plus style notes. Warning-and-above keeps real
       # findings failing without demanding an unrelated cleanup in this PR.
@@ -79,6 +91,8 @@ jobs:
           shellcheck --severity=warning \
                      scripts/lib/pr-labels.sh \
                      scripts/lib/pr-title.sh \
+                     scripts/lib/visual-change-routes.sh \
                      scripts/__tests__/test-pr-labels.sh \
                      scripts/__tests__/test-pr-title.sh \
+                     scripts/__tests__/test-pr-visual-change.sh \
                      scripts/pr-task.sh
