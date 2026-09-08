@@ -192,18 +192,6 @@
   width: 100%;
 }
 
-/* Home-only: tighten the ServiceCard frame so the card hugs its media. The
-   shared `.service-card--inset` rule (shared-sections.css) frames image+text in a
-   --padding-huge (48px) inset sized for the earlier, larger card art; the home
-   art was scaled down, leaving that inset reading as an oversized empty border.
-   Step it to --padding-lg (24px) here — scoped to `.section-services` so the
-   /services, /customers, and plan grids that share the class keep their 48px
-   frame. Higher specificity (0,3,0 vs the shared 0,2,0), both unlayered, so this
-   wins without !important — operator ask. */
-.section-services .service-card--inset.bds-card--preset-display {
-  padding: var(--padding-lg);
-}
-
 /* ─── Industries ("Where we do our best work") ──────────────── */
 /* R2 section (Figma 25768:6527): SyncedMediaSteps accordion + synced
    illustration, on the yellow accent band (fill surface/accent-yellow). The
@@ -512,18 +500,18 @@
 }
 
 /* ─── Problem-CTA ("Sound like you?") ───────────────────────── */
-/* Centered SectionHeader intro + two CTAs, bridging Problem → Services. Now
-   painted on the page-ground --surface-primary (was the accent-purple band) so
-   it reads as a continuation of the preceding Problem section rather than a
-   separate band — operator ask. Because it now matches the ground, ScrollReveal
-   tags the whole SECTION and it fades in as one unit (the band rule: on-ground →
-   whole-section reveal, see ScrollReveal.tsx), so the per-slot stagger the accent
-   band used (#1268) is retired. Top inset steps down to --padding-md so the CTA
-   sits close under the Problem section; bottom inset keeps the huge/80px band
-   rhythm into Services. */
+/* Centered SectionHeader intro + two CTAs, bridging Problem → Services. Painted
+   on --surface-secondary to match the surface the visitor reads as the Problem
+   section — the tinted .problem-card panel above (also --surface-secondary), not
+   the white section band — operator ask. That keeps this a tinted BAND, so
+   ScrollReveal hands the reveal to its CONTENT (band rule; band-animation gate)
+   and the copy fades in on scroll; the accent band's per-slot stagger (#1268) is
+   dropped for the default content fade. Top inset is --padding-md so the CTA sits
+   close under the Problem section; bottom keeps the huge/80px rhythm into
+   Services. */
 .section-problem-cta {
   padding: var(--padding-md) 0 var(--padding-huge);
-  background-color: var(--surface-primary);
+  background-color: var(--surface-secondary);
   display: flex;
   flex-direction: column;
   justify-content: center;
