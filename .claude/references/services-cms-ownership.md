@@ -1,7 +1,7 @@
 ---
 name: Services CMS write-ownership
 description: brikdesigns is a pure read consumer of shared Supabase tables. Portal is the only write surface. All /admin/* routes deleted. Governs every "where do I edit X?" question.
-last-verified: 2026-08-11
+last-verified: 2026-09-08
 ---
 
 # Services CMS write-ownership — Terminal State
@@ -22,13 +22,24 @@ Portal (`portal.brikdesigns.com/settings/*`) is the canonical write surface for 
 | `services` | portal | `portal.brikdesigns.com/settings/services` | read-only |
 | `service_lines` | portal | `portal.brikdesigns.com/settings/service-lines` | read-only |
 | `offerings` | portal | `portal.brikdesigns.com/settings/offerings` | read-only |
-| `plans` | portal | `portal.brikdesigns.com/settings/plans` | read-only |
+| `plans` (54 rows) | portal | **unverified** — see note below | not consumed |
+| `service_plans` + `service_plan_tiers` | portal | `portal.brikdesigns.com/settings/plans` | read-only — **except** tier prices, see rule 3 |
 | `customer_stories` | portal | `portal.brikdesigns.com/settings/customer-stories` | read-only |
 | `blog_posts` | portal | `portal.brikdesigns.com/settings/blog-posts` | read-only |
 | `industry_pages` | portal | `portal.brikdesigns.com/settings/industries` | read-only |
 | `events` | portal | `portal.brikdesigns.com/settings/events` | read-only |
 | `engagements` | portal | portal | not present |
 | `companies` / `contacts` / `users` / etc. | portal | portal | not present |
+
+> **Three tables have "plan" in the name and they are not the same thing** — this row used to read just `plans`, which cost a session working out which one backs the public `/plans` page (brikdesigns#1287):
+>
+> - **`service_plans`** (4 rows) — the support plans: Full Stack, Marketing, Back Office, Product. This is what `/plans` renders.
+> - **`service_plan_tiers`** (8 rows) — the Advisory / Managed split per support plan, via `lens` + `service_plan_id`.
+> - **`plans`** (54 rows) — a different, offering-scoped table (`offering_id`, `plan_type`, `is_tier_option`, `related_service_slug`). Verified 2026-09-08: **no code in brikdesigns or portal reads or writes it** — the only hits are FK `referencedRelation` entries in generated `src/types/supabase.ts`. It is presumed legacy, but its owning surface was not established, so it is marked unverified rather than guessed. Do not consume it without checking.
+>
+> ```bash
+> rg -n "from\('plans'\)" portal/src brikdesigns/src   # → no matches
+> ```
 
 ## Rules
 
@@ -49,6 +60,21 @@ Portal (`portal.brikdesigns.com/settings/*`) is the canonical write surface for 
    ```
 
    It mirrors the action's path set per `template` (including the old path on a rename) and always sends the `cms-events` tag, without which `unstable_cache` keeps serving the stale read. `--dry-run` prints the write and the purge without doing either; a production purge requires `--yes`. **Never hand-roll the PATCH** — that is the path that forgets the revalidation. Anything structural (new columns, new block types, schema) still belongs in portal. Contract + rationale: brik-client-portal#3032.
+
+   **Exception — `service_plan_tiers` pricing, via the brik-llm CLI.** The same gap for the same reason: `/settings/plans` saves through a server action (`brik-client-portal/src/app/(auth)/settings/plans/actions.ts:1`, `'use server'`), and no `/api/admin/*` sibling covers plan pricing — so a wrong price on the public `/plans` page had no non-browser fix.
+
+   A raw PATCH here breaks **two** invariants, both silent. It skips the `revalidateBrikdesigns(BRIKDESIGNS_PATHS, ['cms-service-plans'])` the action fires (`actions.ts:43`, `:234`) — and `revalidatePath` alone does not bust a tagged `unstable_cache` entry, only `revalidateTag` does. It also lets `*_price_display` disagree with `*_price_cents`, which are **not** two fields: display is a pure function of cents (`actions.ts:167-181`). They drifted once already — a Managed row reading `$12,500.00` against `124992` cents, and annual rows reading `$13,500.00` against `13500` (dollars typed into a cents field), brik-client-portal#3438. `db-health.sh` § 10c catches a bypass, but only after the fact.
+
+   ```bash
+   set -a; . ~/.secrets/supabase-staging.env; set +a
+   node ~/Documents/Github/brik/brik-llm/scripts/cms-plan-write.mjs --show   # inspect, no write
+   node ~/Documents/Github/brik/brik-llm/scripts/cms-plan-write.mjs \
+     --set 'full-stack-support:advisory=1500' --set 'full-stack-support:managed=2750'
+   ```
+
+   The value is **dollars**; cents and the display string are both derived from that one number, so there is no input shape that can set a display value — the invariant is structurally unreachable rather than merely validated. `--dry-run` and the `--yes`-for-prod gate match the events CLI. Contract + tests: brik-llm#3205 (gated by `cms-event-write-contract.yml`, which covers both scripts).
+
+   Still portal-only: creating a plan, editing its copy, its services, or anything structural. This CLI sets tier **prices** and nothing else.
 4. **Webflow CSVs (`content/csv/*`) are a one-time migration source.** Portal Supabase is canon.
 5. **CMS images live in Supabase storage, never in `public/`.** Every `*_image_url` / `image_url` field in portal renders as an upload widget (`ImageField` → `FileUploader`), which writes into the `marketing-media` bucket and stores that URL. There is **no text input**, so a repo-relative path like `/images/foo.webp` cannot be entered through the owning surface — setting one requires a direct DB write, which rule 3 forbids.
 
@@ -63,6 +89,7 @@ Portal (`portal.brikdesigns.com/settings/*`) is the canonical write surface for 
 | "How do I edit an offering / pricing?" | Portal `/settings/offerings` |
 | "How do I edit a plan?" | Portal `/settings/plans` |
 | "How do I fix content on a live event page from a script?" | `brik-llm/scripts/cms-event-write.mjs` — writes **and** revalidates (see rule 3). Authoring still belongs in Portal `/settings/events` |
+| "How do I correct a support-plan tier price from a script?" | `brik-llm/scripts/cms-plan-write.mjs --set '<slug>:<advisory\|managed>=<dollars>'` — writes **and** revalidates (see rule 3). Everything else about a plan belongs in Portal `/settings/plans` |
 | "How do I publish a customer story?" | Portal `/settings/customer-stories` |
 | "How do I publish a blog post?" | Portal `/settings/blog-posts` |
 | "How do I edit an industry / customer page?" | Portal `/settings/industries` — note the three different nouns for one thing: table `industry_pages`, portal route `/settings/industries`, public URL `/customers/[slug]`. |
@@ -76,4 +103,5 @@ Portal (`portal.brikdesigns.com/settings/*`) is the canonical write surface for 
 - 2026-05-15 — full migration plan locked in portal#767. Children filed: portal#768–772; brikdesigns #188–192.
 - 2026-05-18 — Phases 3 + 4: `service_lines` + `offerings` read-only (#188 + #189).
 - 2026-05-29 — Terminal cleanup (#192): all `/admin/*` routes and `api/admin/*` deleted. brikdesigns is now a pure read consumer.
+- 2026-09-08 — Added the `service_plan_tiers` pricing exception to rule 3 (`cms-plan-write.mjs`, brik-llm#3205), after brikdesigns#1287 found Advisory == Managed on every plan with no non-browser way to fix it. Split the single `plans` matrix row into the three distinct plan-named tables and added the disambiguation note above it: `service_plans` (4) backs `/plans`, `service_plan_tiers` (8) holds the Advisory/Managed split, and `plans` (54) is a separate offering-scoped table with no reader in either repo. The one ambiguous row cost this session real time working out which table `/plans` renders from.
 - 2026-07-28 — Matrix reconciled against portal's live `/settings/*` routes. `industry_pages` gained a write UI (`/settings/industries`, portal#850) — the "file issue if write UI needed" note was stale and had already misrouted #731. Added the missing `events` row. Added rule 5 (CMS images are upload-only → storage) after #745.
