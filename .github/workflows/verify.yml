@@ -31,6 +31,13 @@ name: Verify (lint + token gate + schema parity)
 
 on:
   pull_request:
+    # `labeled` / `unlabeled` are load-bearing for the BDS version-freeze
+    # guard below: its override IS a label, so without them a correctly
+    # labelled bump stays red forever. `gh run rerun` cannot rescue it either —
+    # the guard reads `github.event.pull_request.labels.*.name` from the event
+    # payload, so a re-run replays the pre-label payload and fails again.
+    # Same reasoning, same fix as visual-regression.yml's declaration gate.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     branches:
       - main
       - staging
