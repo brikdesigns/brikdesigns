@@ -1,7 +1,23 @@
+# ── Diff-aware lint gating (ADR-040 slice 1 / brikdesigns#1280) ──
+# A content-only commit (no .css / style .ts / marketing .tsx staged) can't
+# affect the token/hardcoded/heading/section scans, so it skips all four. The
+# staged file list → which lints to run is decided by one module
+# (scripts/lib/diff-aware-lints.mjs) so the hook and its self-test never drift.
+# gitleaks + image-budget + icon-collection + card-class below are ADR-040
+# invariant floors and are NEVER gated; CI (verify.yml) runs the full-tree lints
+# unconditionally regardless, so this only trims the local pre-commit path.
+# Fail-open: if node or the module is unavailable, run all four (the inner
+# node/-f guards then skip anything genuinely missing).
+DIFF_AWARE_LINTS="tokens hardcoded heading section"
+if command -v node >/dev/null 2>&1 && [ -f scripts/lib/diff-aware-lints.mjs ]; then
+  DIFF_AWARE_LINTS=$(git diff --cached --name-only --diff-filter=ACM | node scripts/lib/diff-aware-lints.mjs)
+fi
+should_run() { case " $DIFF_AWARE_LINTS " in *" $1 "*) return 0 ;; *) return 1 ;; esac; }
+
 # ── Token lint (invented tokens + service-family + property-family pairing) ──
 # Mirrors brik-bds Rule 5 gate (brik-bds#578). Fails fast on wrong-family usage
 # before the change reaches CI. Graceful skip if node_modules not installed.
-if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+if should_run tokens && { [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; }; then
   if [ -f scripts/lint-tokens.mjs ]; then
     echo "🔎 Running token lint..."
     if ! node scripts/lint-tokens.mjs; then
@@ -20,7 +36,7 @@ fi
 # `.story-meta__item { gap: 2px }` ship. Flags spatial/radius/border/type/colour
 # literals; whole-file grandfathering in scripts/hardcoded-allowlist.txt; per-line
 # escape hatch `/* bds-lint-ignore hardcoded — <reason> */`.
-if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+if should_run hardcoded && { [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; }; then
   if [ -f scripts/lint-hardcoded.mjs ]; then
     echo "📏 Running hardcoded-literal lint..."
     if ! node scripts/lint-hardcoded.mjs; then
@@ -35,7 +51,7 @@ fi
 # Stops sentence-case headings from regressing the #490 sweep. Canonical rule:
 # brik-bds#910 (typography.mdx "Heading casing"). Heuristic — see the script for
 # the allowlist + `/* lint-heading-case-ignore */` escape hatch (brikdesigns#491).
-if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+if should_run heading && { [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; }; then
   if [ -f scripts/lint-heading-case.mjs ]; then
     echo "🔠 Running heading title-case lint..."
     if ! node scripts/lint-heading-case.mjs; then
@@ -83,12 +99,30 @@ fi
 # Ratchet against scripts/section-id-baseline.json — new un-identified sections
 # fail; existing debt is grandfathered. Escape hatch: `lint-section-id-ignore`
 # in the opening tag. Convention: .claude/references/section-identification.md.
-if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+if should_run section && { [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; }; then
   if [ -f scripts/lint-section-id.mjs ]; then
     echo "🧭 Running section-identifier lint..."
     if ! node scripts/lint-section-id.mjs; then
       echo ""
       echo "   Add \`data-section=\"<key>\"\` to the new <section>(s) above before committing."
+      exit 1
+    fi
+  fi
+fi
+
+# ── Card-class lint (a class calling itself a card IS a BDS Card) ──
+# A hand-rolled `<div className="x-card">` never becomes a `.bds-card` element,
+# so the "Card chrome by band" rule in shared-sections.css never reaches it and
+# tests/a11y/card-treatment.spec.ts cannot measure it — card chrome then drifts
+# per page (#1260). Ratchet against scripts/card-class-baseline.json, which
+# records each deliberate non-Card with its reason. Standard:
+# .claude/references/card-treatment.md.
+if [ -f node_modules/.bin/node ] || command -v node >/dev/null 2>&1; then
+  if [ -f scripts/lint-card-class.mjs ]; then
+    echo "🃏 Running card-class lint..."
+    if ! node scripts/lint-card-class.mjs; then
+      echo ""
+      echo "   Render the card above as a BDS <Card>, or baseline it with a reason."
       exit 1
     fi
   fi

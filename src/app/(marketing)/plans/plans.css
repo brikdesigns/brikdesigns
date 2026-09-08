@@ -1,5 +1,46 @@
 /* ─── Plans page — layout only ──────────────────────────── */
 
+/* ─── Hero band re-pin (Figma 26103:9457) ─────────────────
+   The hero reuses the home page's `.section-hero` / `.hero-container` scaffolding
+   wholesale (homepage.css) and changes exactly two things: the container fill and
+   the ink riding on it.
+
+   `.hero-container` paints `--surface-brand-primary` (poppy) and pins its
+   inherited text to `--text-on-color-dark` (invariantly white) for that band.
+   Figma paints THIS hero `surface/accent-blue` #bfe2fe — token-identical to
+   `--surface-accent-blue` — where white ink measures ~1.3:1 and fails AA outright.
+   So the ink is re-pinned to the mode-invariant grayscale-950 primitive (#1b1b1b,
+   the value Figma's own `color/text/primary` resolves to), which is the same
+   correction #1127 applied to the How We Work hero and the same dark-ink treatment
+   the accent bands take in shared-sections.css ("Accent band on-color text").
+
+   Mode-invariant on purpose: `--surface-accent-blue` is fixed-light in BOTH
+   themes, so a `--text-primary` that flips near-white in the dark root would be
+   unreadable on a still-pale fill. */
+.plans-hero .hero-container {
+  background-color: var(--surface-accent-blue);
+  --text-primary: var(--color-grayscale-950);
+  --text-secondary: var(--color-grayscale-950);
+}
+
+/* ─── Header-row alignment (Figma 26103:10407 + 26103:10984) ───
+   Both header rows reuse the home page's `.pricing-header` (homepage.css), which
+   bottom-aligns its CTA (`align-items: flex-end`) — correct for the home band,
+   where the intro is short enough that the button reads as part of the same
+   baseline.
+
+   Figma top-aligns the button on BOTH of this page's header rows: in each frame
+   the `button-wrapper` sits at y=0 (h=48) beside a `content-title-wrapper` of
+   h=174, so the CTA lines up with the TITLE, not the bottom of the description.
+   This page's intros run three lines, which is what makes the difference visible.
+
+   A modifier rather than a change to `.pricing-header` itself: the home band's
+   bottom alignment is its own ratified design, and this is a per-row override,
+   not a correction to the shared block. */
+.pricing-header--top {
+  align-items: flex-start;
+}
+
 .plans-card-wrapper {
   display: flex;
   flex-direction: column;
@@ -193,12 +234,23 @@
   margin-inline: auto;
 }
 
+/* The BDS hero price block carries a --padding-sm inline pad (styles.css,
+   @layer bds-components); drop it here so the label/value align flush to the
+   media card's own padding edge. Site CSS is unlayered, so this wins on layer
+   order. Scoped to the plan-detail hero. */
+.page-hero-blueprint .bds-hero__price {
+  padding-inline: 0;
+}
+
 .plan-cta-panel__card {
   width: 100%;
   /* BDS `variant="elevated"` reads flat (shadow removed in brik-bds#1146) —
      restore a real drop shadow so the focal price/CTA card lifts off the pale
      service-tinted panel band. */
   box-shadow: var(--box-shadow-lg);
+  /* Centre the price/CTA stack in the card's min-height (640px at ≥992px) so it
+     reads as the vertical focal point rather than sitting top-aligned. */
+  justify-content: center;
 }
 
 /* Desktop floor so the focal price/CTA card fills its half of the two-column

@@ -8,6 +8,17 @@ Next.js 16 marketing site for Brik Designs. Deployed on Netlify.
 
 Next.js 16 · React 19 · TypeScript (App Router) · BDS via `@brikdesigns/bds` · Supabase (shared staging with `brik-client-portal`) · Netlify ISR · Themes: light/dark.
 
+## When scoping any change (assign its class before you start)
+
+Read [`.claude/references/change-class.md`](.claude/references/change-class.md) — run the top-down decision tree (IA → component → content, highest match wins, escalate on doubt) to assign exactly one `class:*`. The class decides how much protocol the change earns; a ticketed change inherits it from the linked issue, ticketless work self-classifies. Pilot axis (brikdesigns#1277).
+
+The class selects its protocol (ADR-040, brik-llm#3187 — now wired):
+- **`class:content`** — read only `change-class.md`; **verify on the Netlify PR preview and SKIP the local `dev-restart.sh` loop**; pre-commit skips the token/hardcoded/heading/section lints (diff-aware, brikdesigns#1280).
+- **`class:component`** — read the surface's reference(s); run the `dev-restart.sh` loop; full hook stack.
+- **`class:ia`** — read the full references + brik-rag; run the `dev-restart.sh` loop; full hook stack.
+
+gitleaks + image-budget + CI's full-tree lints (`verify.yml`) always run, every class. Model routing by class is in [§ Reasoning model](#reasoning-model).
+
 ## When importing BDS components
 
 Use surface-web or surface-shared. surface-product is product-app scope.
@@ -27,6 +38,10 @@ Read [`page-anatomy.md`](.claude/references/page-anatomy.md) § "When you change
 ## When adding a top-level `<section>` on a marketing page
 
 Read [`section-identification.md`](.claude/references/section-identification.md) — every top-level `<section>` in `src/app/(marketing)` carries a stable id (`data-section="<key>"` by default, or `aria-labelledby` when a heading `id` exists), never a `bds-*` block name (gated by `scripts/lint-section-id.mjs`, a ratchet against `scripts/section-id-baseline.json`).
+
+## When building a section whose content scrolls sideways
+
+Read [`horizontal-scroll-track.md`](.claude/references/horizontal-scroll-track.md) — USE `HorizontalScrollTrack`, never hand-rolled scroll code; the pinned GSAP scrub is an **upgrade** to a scrollable row that engages only after measuring a real overhang, so reduced-motion, coarse-pointer, and no-JS visitors all keep a plain reachable row (gated headlessly by `npm run test:hscroll`). The track's travel is the **measured** overhang — never a card count, and never the `xPercent: -100 * (panels.length - 1)` recipe from the BDS toolkit, which is a full-viewport panel deck and strands the last card of a continuous row.
 
 ## When naming CSS classes or TS data-object keys for text roles
 
@@ -97,7 +112,7 @@ Query brik-rag: `brikdesigns staging dev tools scope`.
 
 ## Reasoning model
 
-Default Sonnet 4.6. Escalate to Opus for IA / nav taxonomy / refactors >5 files / launch-gate judgment.
+Key the model to the change's `class:*` (ADR-040): **`class:content` and `class:component` → Sonnet 4.6; `class:ia` → Opus.** `class:ia` is exactly the prior escalation trigger — IA / nav taxonomy / refactors >5 files — so this restates it, not loosens it. Launch-gate judgment stays on Opus regardless of class.
 
 ## Brand
 

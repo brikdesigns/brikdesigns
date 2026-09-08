@@ -123,9 +123,17 @@ export function ScrollReveal() {
         }
 
         const targets = candidates.filter(
-          // Skip anything already (or nearly) on screen at init so the first paint
-          // is untouched; the 0.85 factor matches the observer's -15% bottom margin.
-          (el) => el.getBoundingClientRect().top > window.innerHeight * 0.85
+          (el) =>
+            // Skip anything already (or nearly) on screen at init so the first paint
+            // is untouched; the 0.85 factor matches the observer's -15% bottom margin.
+            el.getBoundingClientRect().top > window.innerHeight * 0.85 &&
+            // Skip subtrees that animate themselves. `.scroll-reveal` animates
+            // `transform`, and so does the GSAP scrub in HorizontalScrollTrack
+            // (#1272) — two owners of one property is the #1271 defect. This is
+            // an OPT-OUT declared by the owning component, not a band allowlist:
+            // the band derivation above stays measured, and a section carrying
+            // one of these still reveals every child that isn't inside it.
+            !el.closest('[data-no-reveal]')
         );
 
         if (targets.length === 0) return;

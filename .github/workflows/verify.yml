@@ -31,6 +31,13 @@ name: Verify (lint + token gate + schema parity)
 
 on:
   pull_request:
+    # `labeled` / `unlabeled` are load-bearing for the BDS version-freeze
+    # guard below: its override IS a label, so without them a correctly
+    # labelled bump stays red forever. `gh run rerun` cannot rescue it either —
+    # the guard reads `github.event.pull_request.labels.*.name` from the event
+    # payload, so a re-run replays the pre-label payload and fails again.
+    # Same reasoning, same fix as visual-regression.yml's declaration gate.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     branches:
       - main
       - staging
@@ -195,6 +202,28 @@ jobs:
 
       - name: Section-identifier lint — self-test (parser + ratchet fixtures)
         run: npm run test:lint:section-id
+
+      # brikdesigns#1260. A hand-rolled `<div className="x-card">` renders fine but
+      # never becomes a `.bds-card` element, so the "Card chrome by band" rule in
+      # shared-sections.css never reaches it AND card-treatment.spec.ts cannot
+      # measure it — that spec only scores cards that rendered as cards. At audit
+      # time 19 of ~36 site-local `*-card` classes were hand-rolled that way and
+      # the chrome had drifted per page. Ratchets scripts/card-class-baseline.json,
+      # which records each deliberate non-Card with its reason.
+      - name: Card-class lint (a class calling itself a card IS a BDS Card)
+        run: npm run lint:card-class
+
+      - name: Card-class lint — self-test (parser + both ratchet directions)
+        run: npm run test:lint:card-class
+
+      # brikdesigns#1280 (ADR-040 slice 1). The pre-commit hook skips the
+      # token/hardcoded/heading/section lints on a content-only commit; this
+      # tests the staged-files → which-lints classifier that decides that, so a
+      # miscategorized file type (a .css that stops triggering the token scan)
+      # fails here. The gate is pre-commit-only — every lint above runs the full
+      # tree in CI regardless — so this self-test is the only CI coverage of it.
+      - name: Diff-aware lint gate — self-test (staged-file → lint mapping)
+        run: npm run test:lint:diff-aware
 
       - name: HTML sanitizer behaviour (XSS corpus + CMS prose preserved)
         run: npm run test:sanitize

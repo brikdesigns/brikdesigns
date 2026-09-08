@@ -146,7 +146,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   description={svc.description}
                   imageUrl={svc.image_url}
                   iconServiceName={svc.name}
-                  className="service-card--flat"
+                  className="display-card--title-sm"
                   surfaceInverse
                   showCta
                 />
@@ -193,7 +193,11 @@ export default async function ServiceLinePage({ params }: Props) {
                   the white section), `{hue}-darkest` in dark so the card carries
                   the plan line identity. Matches the service-detail inverse-card
                   convention (#645). (BRIK-WEB) */}
-              <Card variant="outlined" padding="lg" className="service-card--flat" style={{ backgroundColor: supportPlanServiceLineColors.inverse }}>
+              {/* No title-step-down class: this card composes a hand-built
+                  content column, not a `preset="display"` title, so the rule
+                  had nothing to match. It carried `.service-card--flat` inertly
+                  until #1261. */}
+              <Card variant="outlined" padding="lg" style={{ backgroundColor: supportPlanServiceLineColors.inverse }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: gap.lg, textAlign: 'center', height: '100%' }}>
                   {supportPlanServiceLine.card_image_url && (
                     <div className="service-detail-support-cta__media">

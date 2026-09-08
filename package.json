@@ -30,7 +30,11 @@
     "test:lint:theme-contrast": "node scripts/lint-theme-contrast.test.mjs",
     "lint:section-id": "node scripts/lint-section-id.mjs",
     "test:lint:section-id": "node scripts/lint-section-id.test.mjs",
+    "lint:card-class": "node scripts/lint-card-class.mjs",
+    "test:lint:card-class": "node scripts/lint-card-class.test.mjs",
+    "test:lint:diff-aware": "node scripts/lib/diff-aware-lints.test.mjs",
     "test:sanitize": "npx tsx scripts/test-sanitize-html.mjs",
+    "test:hscroll": "npx tsx scripts/test-horizontal-scroll-track.mjs",
     "test:customer-story-author": "npx tsx scripts/test-customer-story-author.mjs",
     "test:ghl-webhook": "npx tsx scripts/test-ghl-webhook.ts",
     "test:visual-change": "node scripts/lib/visual-change-declaration.test.mjs",
@@ -53,7 +57,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@brikdesigns/bds": "0.185.0",
+    "@brikdesigns/bds": "0.186.1",
     "@brikdesigns/feedback-contract": "^0.2.0",
     "@iconify/react": "^6.0.2",
     "@mdx-js/mdx": "^3.1.1",
@@ -66,6 +70,7 @@
     "@supabase/supabase-js": "^2.99.3",
     "dotenv": "^17.3.1",
     "gray-matter": "^4.0.3",
+    "gsap": "3.15.0",
     "next": "16.2.11",
     "next-mdx-remote": "^6.0.0",
     "react": "19.2.4",

@@ -42,13 +42,17 @@ export function ResultsList({ stories }: { stories: CustomerStoryCardProps[] }) 
 
   return (
     <>
-      {/* Only show the filter when there's more than one industry to choose between. */}
+      {/* Only show the filter when there's more than one industry to choose between.
+         The control belongs to the card list, not the page header: gap-lg below it
+         matches the `.story-list` inter-card rhythm so it reads as the list's leading
+         control, while the header's own gap-huge below keeps the wide gap up to the
+         _content. */}
       {industries.length > 1 && (
         <div
           style={{
             display: 'flex',
             justifyContent: 'center',
-            marginBottom: gap.xl,
+            marginBottom: gap.lg,
             maxWidth: '100%',
             overflowX: 'auto',
           }}

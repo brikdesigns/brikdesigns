@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { Icon } from '@/lib/icon';
-import { Button, Accordion } from '@brikdesigns/bds';
+import { Button, Accordion, BrikBlocks } from '@brikdesigns/bds';
 import { text, heading, label } from '@/lib/styles';
 import { color } from '@/lib/tokens';
+import { TEAM } from '@/lib/team';
+import { TeamMember } from '@/components/team/TeamMember';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import '../shared-sections.css';
 import './about.css';
@@ -22,34 +23,6 @@ export const revalidate = 3600;
 // is canonical — matches the home (R2) and how-we-work rebuilds. (The sibling
 // /offers/free-marketing-analysis is also live but the legacy slug.)
 const BRIKDOWN_HREF = '/offers/brikdown-analysis';
-
-const TEAM = [
-  {
-    name: 'Abbey',
-    fullName: 'Abbey Stanerson',
-    role: 'Marketing & Operations',
-    image: '/images/Abbey-Headshot.webp',
-    bio: [
-      'Abbey spent over a decade working inside marketing agencies — including a Fortune 500 firm focused on private practices and the dental industry — before launching Brik. She’s worked with hundreds of clients across marketing strategy, operations, and business development, and she’s seen firsthand what actually moves the needle and what’s just noise.',
-      'At Brik, Abbey leads strategy and client relationships. She’s the one who gets into your business, figures out what’s slipping, and builds the plan to fix it.',
-    ],
-    linkedin: 'https://www.linkedin.com/in/abbey-stanerson-62682142/',
-    email: 'abbey@brikdesigns.com',
-  },
-  {
-    name: 'Nick',
-    fullName: 'Nick Stanerson',
-    role: 'Creative & Execution',
-    image: '/images/Nick-Headshot.webp',
-    bio: [
-      'Nick spent years as a lead designer at scale — iHeartRadio, SimplePractice, and Built — building products that had to work for thousands of users at once. That kind of work teaches you how to think about systems, not just surfaces.',
-      'At Brik, Nick leads creative and execution. He’s responsible for making sure everything Brik builds — websites, campaigns, brand assets, client-facing materials — actually works the way it should. Good-looking and functional aren’t competing priorities to Nick. They’re the same thing.',
-    ],
-    linkedin: 'https://www.linkedin.com/in/nickstanerson/',
-    email: 'nick@brikdesigns.com',
-    website: 'https://nickstanerson.com',
-  },
-];
 
 // §3 "Why Brik?" origin story. Rendered as prose — a continuous narrative meant
 // to be read straight through. The earlier accordion idea was dropped
@@ -106,6 +79,10 @@ export default function AboutPage() {
           in brand color, two intro paragraphs, scroll-down affordance. */}
       <section className="page-hero about-hero" data-section="hero">
         <div className="page-hero__container about-hero__container">
+          {/* Decorative "brik" mark — Figma 25984:12581 (top-left) / 25984:12582
+              (bottom-right). BrikBlocks is aria-hidden; positioned in about.css. */}
+          <BrikBlocks className="about-hero__blocks about-hero__blocks--start" cells={['light', 'dark', 'light']} />
+          <BrikBlocks className="about-hero__blocks about-hero__blocks--end" cells={['light', 'light', 'poppy']} />
           <h1 className="page-hero__title about-hero__title">
             The <span className="about-hero__em">People</span> Behind Brik.
           </h1>
@@ -130,57 +107,7 @@ export default function AboutPage() {
       <section className="page-section about-team" data-section="team">
         <div className="container-lg container-lg--comfortable">
           {TEAM.map((member) => (
-            <article key={member.name} className="about-team-card">
-              <div className="about-team-card__avatar">
-                <Image
-                  src={member.image}
-                  alt={member.fullName}
-                  width={304}
-                  height={304}
-                  style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-                />
-              </div>
-              <div className="about-team-card__body">
-                <div className="about-team-card__head">
-                  <h2 style={heading.lg}>Meet {member.name}</h2>
-                  <p style={{ ...label.smBold, color: color.text.secondary }}>{member.role}</p>
-                </div>
-                <div className="about-team-card__social">
-                  <Button
-                    href={member.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    variant="secondary"
-                    size="sm"
-                    icon={<Icon icon="ph:linkedin-logo" />}
-                    label={`${member.name} on LinkedIn`}
-                  />
-                  <Button
-                    href={`mailto:${member.email}`}
-                    variant="secondary"
-                    size="sm"
-                    icon={<Icon icon="ph:envelope-simple" />}
-                    label={`Email ${member.name}`}
-                  />
-                  {member.website && (
-                    <Button
-                      href={member.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      variant="secondary"
-                      size="sm"
-                      icon={<Icon icon="ph:globe" />}
-                      label={`${member.name}'s website`}
-                    />
-                  )}
-                </div>
-                <div className="about-team-card__bio">
-                  {member.bio.map((paragraph, i) => (
-                    <p key={i} style={{ ...text.body, color: color.text.secondary }}>{paragraph}</p>
-                  ))}
-                </div>
-              </div>
-            </article>
+            <TeamMember key={member.name} member={member} orientation="horizontal" />
           ))}
         </div>
       </section>
@@ -205,6 +132,8 @@ export default function AboutPage() {
               <p key={i} style={{ ...text.bodyLg, color: color.text.secondary }}>{paragraph}</p>
             ))}
           </div>
+          {/* Decorative "brik" mark — Figma 26058:5406. */}
+          <BrikBlocks className="about-why__blocks" orientation="horizontal" cells={['poppy', 'light', 'light']} />
         </div>
       </section>
 
@@ -215,8 +144,11 @@ export default function AboutPage() {
         <div className="container-lg container-lg--comfortable about-hww__inner">
           <h2 id="about-hww-title" style={heading.lg}>How We Work</h2>
           <div className="about-hww__blocks">
-            {HOW_WE_WORK.map((block) => (
+            {HOW_WE_WORK.map((block, i) => (
               <div key={block.title} className="about-hww__block">
+                {/* Decorative "brik" mark above each block — Figma 26058:5586
+                    (poppy) / 26058:5592 (grey). */}
+                <BrikBlocks className="about-hww__block-mark" cells={[i === 0 ? 'poppy' : 'light']} />
                 <h3 style={heading.md}>{block.title}</h3>
                 <p style={{ ...text.bodyLg, color: color.text.secondary }}>{block.body}</p>
               </div>

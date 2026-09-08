@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Grid, Button, Cluster, SectionHeader, Card, PricingCard, Image, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
+import { getServiceCategories, getServices, getSupportPlans, mapServiceLineSlug, resolveServiceTagCategory } from '@/lib/supabase/queries';
+import { Grid, Button, Cluster, SectionHeader, PricingCard, Image, Marquee, MediaBand, BackgroundPattern } from '@brikdesigns/bds';
+import { HorizontalScrollTrack } from '@/components/ui/HorizontalScrollTrack';
+import { ServiceLineCard } from './services/ServiceLineCard';
+import { TeamMember } from '@/components/team/TeamMember';
+import { TEAM } from '@/lib/team';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceCtaVars } from '@/lib/tokens';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
@@ -18,34 +22,26 @@ export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 export const revalidate = 3600;
 
-// R2 "Does this sound familiar?" pain points (Homepage-R2 Notion doc).
-// Row-major order mirrors the Figma layout (node 25768:9531): row 1 across,
-// then row 2. Figma placeholder text is ignored — this is the real copy.
+// "Does this sound familiar?" pain points, verbatim from Figma node 25768:9531
+// in Figma's own order (read 2026-09-07, #1268).
+//
+// This replaced a 6-entry title+description shape when the section was
+// redesigned from a 3-col card grid into a flat centered stack. The redesign
+// drops three strings the grid carried — "The moment you step away, things
+// slip.", "Every process lives in someone's head.", and the whole "You built
+// this to grow, not to babysit it" / "But here you are." pair — and splits the
+// former "Vendors and tools for everything, but nothing connects" into the last
+// two lines below. Named here so the loss stays deliberate: re-adding a line
+// means adding it to the Figma frame first, not to this array.
 const PROBLEMS = [
-  {
-    title: 'Leads come in and go quiet',
-    description: 'No system to follow up, so they slip away every time.',
-  },
-  {
-    title: 'Marketing happens when you get to it',
-    description: 'No real plan, just reaction.',
-  },
-  {
-    title: "Your systems work because you're running them",
-    description: 'The moment you step away, things slip.',
-  },
-  {
-    title: 'Nothing is written down',
-    description: "Every process lives in someone's head.",
-  },
-  {
-    title: 'Vendors and tools for everything, but nothing connects',
-    description: "Marketing doesn't talk to ops.",
-  },
-  {
-    title: 'You built this to grow, not to babysit it',
-    description: 'But here you are.',
-  },
+  'Leads come in and go quiet',
+  'Marketing happens when you get to it',
+  'No real plan, just reaction.',
+  'No system to follow up, so they slip away every time.',
+  'Nothing is written down',
+  "Your systems work because you're running them",
+  'You have vendors and software tools for everything',
+  "Marketing doesn't talk to ops - nothing connects",
 ];
 
 export default async function HomePage() {
@@ -158,22 +154,23 @@ export default async function HomePage() {
       </section>
 
       {/* ═══ Problem ("Does this sound familiar?") ═══ */}
+      {/* The pain points are a list of plain strings — no per-item action, no
+          shared attribute set — so <ul>/<li> with the markers off, per the
+          display-choice canon. The former tinted Card + 3-col Grid are gone
+          (#1268); the section itself now carries the tint. The <ul> is a direct
+          child of .section-container so ScrollReveal's contentTargets() lands
+          on [title, list] and the stagger ladder in homepage.css can key off
+          the list's own reveal class. */}
       <section className="section-problem" data-section="problems">
         <div className="section-container">
-          {/* padding driven by CSS (--padding-xl) — BDS CardPadding caps at 'lg'
-              (#1114); the .problem-card rule sets the xl inset. */}
-          <Card padding="none" className="problem-card">
-            <h2 className="problem__title">Does this sound familiar?</h2>
-            <Grid columns={3} gap="huge">
-              {PROBLEMS.map((problem) => (
-                <div key={problem.title} className="problem-item">
-                  <span className="problem-item__rule" aria-hidden="true" />
-                  <h3 className="problem-item__title">{problem.title}</h3>
-                  <p className="problem-item__description">{problem.description}</p>
-                </div>
-              ))}
-            </Grid>
-          </Card>
+          <h2 className="problem__title">Does this sound familiar?</h2>
+          <ul className="problem-list">
+            {PROBLEMS.map((problem) => (
+              <li key={problem} className="problem-list__item">
+                {problem}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -230,10 +227,10 @@ export default async function HomePage() {
       {/* R2 section (Figma node 25768:6728 title + 25833:3022 logos): a
           left-aligned header over a single monochrome logo ticker (BDS
           Marquee), base.org "trusted by" style. Copy + tool list from the
-          Homepage-R2 Notion doc. Only the 8 tools with a license-clean
-          monochrome SVG render today; the other 13 are deferred (see
-          home-tooling.ts). Marquee handles the seamless loop + the
-          prefers-reduced-motion static-row fallback. */}
+          Homepage-R2 Notion doc. The 8 license-clean monochrome SVGs plus the
+          3 flattened under the 2026-09-07 operator override render today; the
+          rest stay deferred (see home-tooling.ts). Marquee handles the seamless
+          loop + the prefers-reduced-motion static-row fallback. */}
       <section className="section-tooling" data-section="tooling">
         <div className="section-container section-container--tooling">
           <SectionHeader
@@ -243,10 +240,10 @@ export default async function HomePage() {
           />
         </div>
         <Marquee className="tooling-marquee" logoHeight={36} pauseOnHover>
-          {/* Only 8 license-clean logos exist (the other 13 are licence-BLOCKED,
-              not pending — see home-tooling.ts), so one pass is ~320px — far
-              short of the viewport, leaving the row inset instead of edge-to-edge
-              (#1093). The repeat is therefore permanent, not a stopgap until the
+          {/* Only 11 logos render (the rest are licence-BLOCKED, not pending —
+              see home-tooling.ts), so one pass is still far short of the
+              viewport, leaving the row inset instead of edge-to-edge (#1093).
+              The repeat is therefore permanent, not a stopgap until the
               list grows. Repeat the set so each
               Marquee group exceeds a wide desktop and the loop reads full-bleed
               and seamless. The duplicate group Marquee adds is aria-hidden, so
@@ -440,6 +437,73 @@ export default async function HomePage() {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* ═══ Service lines (one-time project work) ═══ */}
+      {/* R2 section (Figma node 25936:5132): a header on the fixed-light
+          accent-orange band, then a card track that deliberately overflows the
+          right viewport edge and scrubs horizontally on vertical scroll. All
+          five public service_lines render (ordered by rank, from
+          getServiceCategories) — not the three Figma draws (OPERATOR SAID
+          2026-09-07: all lines are one-time-project offers). The track is the
+          #1272 HorizontalScrollTrack primitive: pinned GSAP scrub that degrades
+          to a plain scrollable row under reduced-motion / coarse-pointer / no-JS
+          — never hand-rolled scroll code (see horizontal-scroll-track.md). The
+          header sits in .section-container (capped/centered) while the track is a
+          full-bleed sibling so it can bleed past the right edge; the on-band text
+          pin lives on the header alone, never the cards (which carry their own
+          surface and would flip dark-on-dark in the dark root otherwise). */}
+      <section className="section-service-lines" data-section="service-lines">
+        <div className="section-container">
+          <SectionHeader
+            align="start"
+            title="Not every need is ongoing. That's okay."
+            description="We work best as an ongoing extension of your team — that's where the compounding value lives. But if you have a specific, focused need, all of our brand, marketing, and information design services are also available as one time projects. We'll tell you which approach makes the most sense for your situation. The decision is always yours."
+          />
+        </div>
+        <HorizontalScrollTrack label="Service lines available as one-time projects" className="service-lines-track">
+          {categories.map((cat) => (
+            <ServiceLineCard
+              key={cat.slug}
+              name={cat.name}
+              slug={cat.slug}
+              category={resolveServiceTagCategory(cat)}
+              tagline={cat.tagline || cat.description || ''}
+              imageUrl={cat.card_image_url}
+            />
+          ))}
+        </HorizontalScrollTrack>
+      </section>
+
+      {/* ═══ About ("The people you'll work with") ═══ */}
+      {/* R2 section (Figma node 25920:4810): a header (SectionHeader intro left,
+          brand CTA right) over two stacked <TeamMember> cards on the white
+          --surface-primary band. The team roster (@/lib/team) and the card are
+          shared with /about (#1274) — this renders the `stacked` orientation.
+          Because the section is painted the page ground (--surface-primary ==
+          body), ScrollReveal animates the WHOLE section, not its content
+          (band-animation.md) — no per-content reveal target here. Cards are
+          hand-built <article>s (a person's bio, not a BDS <Card>), so their
+          white-band chrome (border, no shadow) is set in .team-member, and
+          card-treatment.spec.ts asserts the new section explicitly. */}
+      <section className="section-about" data-section="about">
+        <div className="section-container">
+          <div className="about-header">
+            <SectionHeader
+              align="start"
+              title="The people you'll work with."
+              description="You work directly with Abbey and Nick — not a coordinator, not a rotating team, not a ticketing system. Every client gets both of us from day one."
+            />
+            <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+              Get Your Free BrikDown
+            </Button>
+          </div>
+          <div className="about-cards">
+            {TEAM.map((member) => (
+              <TeamMember key={member.name} member={member} orientation="stacked" />
+            ))}
+          </div>
         </div>
       </section>
 

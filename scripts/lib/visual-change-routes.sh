@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# visual-change-routes.sh — pure helpers behind pr-task.sh's intended-visual
+# declaration (brikdesigns#1282). Tested by scripts/__tests__/test-pr-visual-change.sh.
+#
+# The `regression` CI gate reds any captured route that moves >1% vs staging
+# unless the PR body carries a `Visual-change: <route>` line naming routes from
+# visual-parity.mjs ROUTES[].name (parsed by lib/visual-change-declaration.mjs).
+# pr-task.sh used to emit neither the line nor the `visual-change` label, so
+# every intentional-visual PR failed the gate on first run (#1279). These two
+# pure functions let it declare correctly at author time.
+#
+# No side effects, no network — just file read + string work — so the test can
+# exercise them against a fixture with VISUAL_PARITY_FILE.
+
+# Print the visual-parity ROUTES[].name list, one per line — the SoT the gate
+# validates a declaration against. Extracted from the ROUTES array ONLY (awk
+# stops at its closing `];`), so the VIEWPORTS names (desktop/tablet/mobile)
+# declared below it can never leak in as spurious route names.
+#
+# File resolves from VISUAL_PARITY_FILE (test override), else the scripts/
+# sibling of this lib.
+known_visual_routes() {
+  local file="${VISUAL_PARITY_FILE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/visual-parity.mjs}"
+  awk '/const ROUTES = \[/{f=1} f{print} f&&/^\];/{exit}' "$file" \
+    | grep -oE "name: *'[^']+'" | sed "s/name: *'//; s/'//"
+}
+
+# Validate a comma-separated route CSV and echo the exact `Visual-change: r1, r2`
+# body line the gate parses. Behaviour:
+#   - empty / whitespace-only CSV → no output, return 0 (nothing declared)
+#   - all names known             → echo the line, return 0
+#   - any unknown name            → list the unknowns on stderr, return 1
+# De-dupes and sorts; a bad name fails here rather than silently waiving nothing
+# at CI (the gate's knownRoutes filter would drop it).
+visual_change_line() {
+  local csv="${1:-}" known declared unknown
+  [ -n "$(printf '%s' "$csv" | tr -d '[:space:],')" ] || return 0
+  known=$(known_visual_routes | sort -u)
+  declared=$(printf '%s' "$csv" | tr ',' '\n' \
+    | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -v '^$' | sort -u)
+  unknown=$(comm -23 <(printf '%s\n' "$declared") <(printf '%s\n' "$known"))
+  if [ -n "$unknown" ]; then
+    printf '%s\n' "$unknown" >&2
+    return 1
+  fi
+  printf 'Visual-change: %s\n' "$(printf '%s' "$declared" | paste -sd, - | sed 's/,/, /g')"
+}

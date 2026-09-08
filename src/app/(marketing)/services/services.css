@@ -142,78 +142,12 @@
    keeps the grid/flex wrapper (`.service-detail-offerings[--grid]`) for layout
    of N cards on the detail page. */
 
-/* Related customer story card */
-.service-detail-story-card {
-  display: flex;
-  padding: var(--padding-lg);
-  border: var(--border-width-sm) solid var(--border-secondary);
-  border-radius: var(--border-radius-md);
-  text-decoration: none;
-  transition: border-color 0.15s;
-  width: 100%;
-}
-
-.service-detail-story-card--with-image {
-  display: grid;
-  grid-template-columns: 2fr 3fr;
-  gap: var(--gap-lg);
-  align-items: center;
-}
-
-.service-detail-story-card:hover {
-  border-color: var(--border-brand-primary);
-}
-
-.service-detail-story-card__media {
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  aspect-ratio: 3 / 2;
-}
-
-.service-detail-story-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.service-detail-story-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-}
-
-/* Recommended add-on card */
-.service-detail-addon-card {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: var(--gap-xl);
-  align-items: center;
-  padding: var(--padding-xl);
-  background-color: var(--surface-primary);
-  border: var(--border-width-sm) solid var(--border-secondary);
-  border-radius: var(--border-radius-md);
-  width: 100%;
-}
-
-.service-detail-addon-card__media {
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-  aspect-ratio: 1;
-}
-
-.service-detail-addon-card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.service-detail-addon-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
+/* The Related Customer Story and Recommended Add-On rows are BDS `<Card>` +
+   `<Stack>`, chrome from the "Card chrome by band" rule — see
+   [serviceLineSlug]/[serviceSlug]/page.tsx. The hand-rolled
+   `.service-detail-story-card` / `.service-detail-addon-card` blocks that used
+   to live here kept ~110 lines of grid + border + media CSS after their last
+   consumer was removed; no .tsx file under src applied either name (#1261). */
 
 /* Monthly support — 2-col: category illustration left, plan card right */
 .service-detail-support-grid {
@@ -260,13 +194,10 @@
   background-color: var(--surface-accent);
 }
 
-/* Sibling-services display-card titles shrink to heading-sm so they sit one
-   step below the section heading, matching the service-line index grid
-   (.service-card--flat) and the customer-topic grids. The BDS preset-display
-   title defaults to --heading-md. — #489 / BACKLOG-294 */
-.service-sibling-card .bds-card__preset-display-title {
-  font-size: var(--heading-sm);
-}
+/* The sibling-services title step-down is `.display-card--title-sm`
+   (shared-sections.css) — the one rule for it. `.service-sibling-card` kept a
+   fourth byte-identical copy until #1261; the block name survives only for the
+   media rule above. */
 
 /* CardGrid section titles on the service-detail page render at --heading-md by
    default, inconsistent with the service-line page's manual section headings
@@ -313,14 +244,6 @@
 }
 
 @media (max-width: 767px) {
-  .service-detail-story-card--with-image {
-    grid-template-columns: 1fr;
-  }
-
-  .service-detail-addon-card {
-    grid-template-columns: 1fr;
-  }
-
   .service-detail-offerings--grid {
     grid-template-columns: 1fr;
   }

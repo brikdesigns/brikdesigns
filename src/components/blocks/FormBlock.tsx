@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { Card } from '@brikdesigns/bds';
 import type { FormProps, BlockContext } from '@/lib/blocks';
 import { EventRegistrationForm } from '@/components/marketing/EventRegistrationForm';
 import { LeadCaptureForm } from '@/components/marketing/LeadCaptureForm';
@@ -66,7 +67,7 @@ export function FormBlock({
     );
 
   return (
-    <div className="lp-form-card">
+    <Card variant="outlined" padding="lg" className="form-card">
       {ended ? (
         <EventEndedBanner />
       ) : (
@@ -85,6 +86,6 @@ export function FormBlock({
           {form}
         </>
       )}
-    </div>
+    </Card>
   );
 }

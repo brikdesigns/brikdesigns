@@ -31,14 +31,7 @@
    (`.bds-prose`, ADR-023); the page passes a body-lg / secondary tone override.
    Adjacency rhythm + link color live in `.bds-prose`. */
 
-.marketing-page__form-card {
-  padding: var(--padding-xl);
-  background-color: var(--surface-primary);
-  border: 1px solid var(--border-muted);
-  /* top accent color set inline per-event (page.tsx); width/style here. */
-  border-top-width: var(--border-width-200);
-  border-top-style: solid;
-  border-top-color: var(--border-brand-primary);
-  border-radius: var(--border-radius-md);
-  text-align: left;
-}
+/* The form card is `.form-card` / `.form-card--accent` on a BDS `<Card>`
+   (shared-sections.css) — the one container shared with /events/[slug] and the
+   landing-block FormBlock. `.marketing-page__form-card` was one of its three
+   hand-rolled copies (#1260). */

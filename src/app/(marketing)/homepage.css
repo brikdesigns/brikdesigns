@@ -331,7 +331,6 @@
    gap tokens shift with the spacing mode (--gap-xl is 24px in the mode home
    renders in) and the design needs a stable 48px in every mode (same reason the
    hero reaches for --space-1600/1800 directly). */
-.section-problem .section-container,
 .section-services .section-container,
 .section-industries .section-container,
 .section-tooling .section-container,
@@ -346,13 +345,22 @@
    .section-title / .section-description trio is retired (ADR-032). */
 
 /* ─── Problem ("Does this sound familiar?") ─────────────────── */
-/* R2 section (Figma node 25768:9531): a single tinted Card on the white page
-   band holding a 3-col grid of 6 pain points. The Card keeps the BDS default
-   border (white band → border, no shadow — card-treatment.md); the
-   surface-secondary fill is the panel treatment, separate from chrome. */
+/* Figma node 25768:9531, re-read 2026-09-07 (#1268). The section was redesigned
+   from a tinted Card holding a 3-col grid of 6 pain points into a single
+   centered column of 8 statement lines painted straight onto the band — the
+   Card, the Grid, and the 24px per-item brand rules are all gone, so
+   card-treatment.md no longer applies to this section at all.
+
+   The fill moving from --surface-primary to --surface-secondary makes this
+   section a BAND for the first time (band-animation.md). That is load-bearing,
+   not incidental: ScrollReveal now derives the section's CONTENT as its motion
+   target rather than the section itself, which is exactly the hook the per-line
+   stagger below needs. Revert the fill and the stagger loses its trigger. */
 .section-problem {
-  padding: var(--padding-huge) 0;
-  background-color: var(--surface-primary);
+  /* 80px top / 128px bottom (Figma pt-80 pb-128). Primitives, not --padding-*
+     steps, which shift with the spacing mode. */
+  padding-block: var(--space-1800) var(--space-2400);
+  background-color: var(--surface-secondary);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -361,54 +369,117 @@
   min-height: 100svh;
 }
 
-.problem-card {
-  width: 100%;
-  background-color: var(--surface-secondary);
-  display: flex;
-  flex-direction: column;
-  /* R3 (#1114): xl inset. BDS CardPadding caps at 'lg', so the card renders
-     padding="none" and the token inset is applied here. */
-  padding: var(--padding-xl);
-  /* R3 (#1114): 48px between the card title and the pain-point grid. --space-1200
-     primitive for a mode-stable 48px (see the .section-container note above). */
-  gap: var(--space-1200);
+/* 56px title → list (Figma). Held out of the shared 48px rule above rather than
+   overriding it, so there is one gap declaration per section, not two. */
+.section-problem .section-container {
+  gap: var(--space-1400);
 }
 
 .problem__title {
   font-family: var(--font-family-heading);
+  /* 40.5px, matching Figma's heading/xxl. Pick the role by its RESOLVED value
+     on the page, not by the :root block — the ramp shifts per breakpoint/mode,
+     so --heading-3xl reads 57.5px here, not the 40.5px its :root entry
+     suggests. Measured in-browser at 1440px: --heading-xl = 40.5px. */
   font-size: var(--heading-xl);
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
+  line-height: var(--font-line-height-tight);
   color: var(--text-primary);
+  text-align: center;
   margin: 0;
 }
 
-.problem-item {
+.problem-list {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-sm);
+  /* 40px between lines (Figma). */
+  gap: var(--space-1000);
+  align-items: center;
+  width: 100%;
+  /* Figma's content-wrapper is 856px and the design fits every pain point on
+     ONE line. Chrome's Poppins metrics are a hair wider than Figma's, so the
+     longest line ("No system to follow up, so they slip away every time.")
+     measures 861px and wrapped to two at exactly 856 — 5px over. The next
+     longest is 847px, so nothing else is near the edge. Widened 24px to hold
+     the one-line-per-item rhythm, which is the design intent the 856px number
+     was expressing; pinning 856 exactly is what breaks it. */
+  max-width: 880px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-/* Decorative brand rule above each pain point (Figma "Line 13", 24px). */
-.problem-item__rule {
-  width: 24px;
-  height: 3px;
-  background-color: var(--surface-brand-primary);
-}
-
-.problem-item__title {
+/* A display line, not a paragraph: the heading family at a heading size is the
+   sanctioned treatment for a big centered statement line, per the
+   .value-editorial__line precedent in value/value.css:209-215. --heading-lg
+   measures 32px here, matching Figma's heading/lg — one rung under the title,
+   as drawn. */
+.problem-list__item {
   font-family: var(--font-family-heading);
-  font-size: var(--heading-sm);
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: var(--heading-lg);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--font-line-height-tight);
+  color: var(--text-secondary);
+  text-align: center;
   margin: 0;
 }
 
-.problem-item__description {
-  font-family: var(--font-family-body);
-  font-size: var(--body-md);
-  color: var(--text-secondary);
-  line-height: var(--font-line-height-relaxed);
-  margin: 0;
+/* ─── Problem line stagger ──────────────────────────────────────
+   The lines fade in one after another as the section is scrolled to, then the
+   CTA band below lands last.
+
+   ScrollReveal stays the ONLY trigger — no second observer, no <Reveal>
+   wrapper. Because .section-problem is now a band, ScrollReveal tags its
+   content, which is [.problem__title, .problem-list]; the ladder below turns
+   the list's single reveal into a per-line sequence.
+
+   The list container is explicitly held static so only the lines move. Without
+   it the <ul> would fade in as a block *and* stagger its children — two
+   competing animations on one element, which is the mismatch already visible
+   where .rise children carry a ScrollReveal tag as well.
+
+   Figma bakes static 80/40/20% opacities into the frame. That is the designer
+   drawing a mid-animation frame, not a resting state (operator confirmed
+   2026-09-07), so every line settles at opacity 1 and none of those values
+   ship.
+
+   Both no-JS and reduced-motion are safe by construction: .scroll-reveal is
+   only ever added from JS, and ScrollReveal bails entirely under reduce — so
+   an untagged list never has opacity: 0 applied to its lines. */
+@media (prefers-reduced-motion: no-preference) {
+  .problem-list.scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .problem-list.scroll-reveal .problem-list__item {
+    opacity: 0;
+    /* Shorter lift than the 24px section default — the lines are close
+       together, so a large travel reads as the whole block sliding. */
+    transform: translateY(16px);
+    transition:
+      opacity var(--duration-500) var(--ease-out),
+      transform var(--duration-500) var(--ease-out);
+    will-change: opacity, transform;
+  }
+
+  .problem-list.scroll-reveal--in .problem-list__item {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+
+  /* 90ms per line, matching the .vband__inner ladder's cadence
+     (value/value.css:453-456). Eight explicit steps rather than nth-child(n+N)
+     so each line has its own delay; the last lands at 630ms. */
+  .problem-list.scroll-reveal--in .problem-list__item:nth-child(2) { transition-delay: 0.09s; }
+  .problem-list.scroll-reveal--in .problem-list__item:nth-child(3) { transition-delay: 0.18s; }
+  .problem-list.scroll-reveal--in .problem-list__item:nth-child(4) { transition-delay: 0.27s; }
+  .problem-list.scroll-reveal--in .problem-list__item:nth-child(5) { transition-delay: 0.36s; }
+  .problem-list.scroll-reveal--in .problem-list__item:nth-child(6) { transition-delay: 0.45s; }
+  .problem-list.scroll-reveal--in .problem-list__item:nth-child(7) { transition-delay: 0.54s; }
+  .problem-list.scroll-reveal--in .problem-list__item:nth-child(8) { transition-delay: 0.63s; }
 }
 
 /* ─── Plans ("Monthly Subscription") ──────────────────────── */
@@ -460,6 +531,22 @@
   .section-problem-cta {
     min-height: 60svh;
     padding-block: var(--space-1800);
+  }
+}
+
+/* The CTA lands last (#1268). Being a separate band further down the page
+   already puts it after the eight problem lines; this only orders the slots
+   *within* it so the buttons resolve after the copy instead of all three
+   fading as one. ScrollReveal tags these slots individually (the accent band
+   hands its motion to its content), so the delay rides its existing reveal —
+   no extra observer. Same slot classes the rhythm override below already
+   targets, for the ADR-023 reason documented there. */
+@media (prefers-reduced-motion: no-preference) {
+  .section-problem-cta .bds-content-block__description.scroll-reveal--in {
+    transition-delay: 0.09s;
+  }
+  .section-problem-cta .bds-content-block__actions.scroll-reveal--in {
+    transition-delay: 0.18s;
   }
 }
 
@@ -789,6 +876,169 @@
   color: var(--text-secondary);
 }
 
+/* ─── Service lines (one-time projects) — #1273 ─────────────────────────────
+   Fixed-light accent-orange band (Figma node 25936:5132). The header sits in
+   the standard capped/centered .section-container; the HorizontalScrollTrack is
+   a full-bleed sibling so the card row can run past the right viewport edge, as
+   the design draws it (1584px wide from x=64 on a 1440 canvas). Section carries
+   no horizontal padding — the header takes its inset from .section-container and
+   the track aligns its first card to that same content edge below. */
+.section-service-lines {
+  padding-block: var(--space-1800);
+  background-color: var(--surface-accent-orange);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  /* Section fills the viewport, matching the other full-height home bands
+     (.section-services / .section-tooling). */
+  min-height: 100svh;
+  gap: var(--space-1200);
+}
+
+/* On-band text pin — scoped to the HEADER only, never the cards. The
+   accent-orange fill is fixed-light in BOTH themes (--surface-accent-orange →
+   --color-system-orange-light, #fad9ae, light + dark roots), but every --text-*
+   token flips near-white in the dark root and would vanish on the still-light
+   band. Pin the header copy to the mode-invariant grayscale-950 primitive so it
+   clears AA in both themes (same treatment as .section-industries /
+   .section-problem-cta). The cards live OUTSIDE .section-container and keep
+   their own surface + text, so this pin cannot reach them and flip their copy
+   dark-on-dark in the dark root. */
+.section-service-lines .section-container {
+  --text-primary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band header title on the fixed-light accent-orange tint; --text-primary flips near-white in the dark root, so only a mode-invariant primitive clears AA in both themes (mirrors the .section-industries pin) */
+  --text-secondary: var(--color-grayscale-950); /* bds-lint-ignore token-family — on-band header description; same reasoning as --text-primary above */
+}
+
+/* Split header — title LEFT, description RIGHT (Figma content structure).
+   SectionHeader is single-column by design (ADR-032), so `align="start"`
+   left-anchors it and this scoped override defeats its measure cap and lays the
+   ContentBlock out as two columns. The block's direct children — h2.__title and
+   p.__description — fall into col 1 and col 2. Unlayered, so it wins over the
+   BDS `.bds-content-block { flex-direction: column }` in @layer bds-components. */
+.section-service-lines .bds-section-header {
+  max-width: none;
+  width: 100%;
+}
+
+.section-service-lines .bds-content-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1600);
+  align-items: start;
+}
+
+/* Stack the split back to one column on mobile. */
+@media (max-width: 767px) {
+  .section-service-lines .bds-content-block {
+    grid-template-columns: 1fr;
+    gap: var(--gap-md);
+  }
+}
+
+/* Align the track's first card with the header's left edge while the row bleeds
+   off the right. This replicates .section-container's own content-left math
+   (max-width cap + margin-inline:auto + --page-inset gutter): on viewports wider
+   than the content cap the container centers, so its left edge is
+   (100% − site-content-width)/2 + page-inset; narrower, it collapses to the
+   gutter. The right side stays unpadded so the last visible card can sit flush
+   to the viewport edge (the deliberate overflow). */
+.service-lines-track .hscroll__viewport {
+  padding-inline-start: max(
+    var(--page-inset),
+    calc((100% - var(--site-content-width)) / 2 + var(--page-inset))
+  );
+}
+
+/* Card sizing in the track. ServiceLineCard sizes to its grid cell on /services;
+   in a flex track it needs an explicit width. Cards stay VERTICAL (stacked) — the
+   shared component's own `flex-direction: column` — so nothing overrides the
+   orientation here; max-width caps it below one viewport on mobile so the row
+   shows a card plus a peek of the next (the native-scroll affordance). */
+.service-lines-track .services-card-link {
+  flex: 0 0 512px;
+  max-width: 85vw;
+}
+
+/* Card internals in the track. ServiceLineCard's layout classes (.services-card*)
+   live in services.css, which is imported ONLY on /services — so on the home page
+   this section owns the card's column layout, the media sizing/radius, and the CTA
+   pin. All scoped to the track; the /services grid card is untouched. */
+.service-lines-track .services-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-lg);
+  height: 100%;
+}
+
+.service-lines-track .services-card__media {
+  width: 400px;
+  aspect-ratio: 1;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  /* Image well — a neutral surface behind the (often transparent / contained)
+     art, replacing the shared card's --surface-accent tint in this section. */
+  background-color: var(--surface-secondary);
+}
+
+/* Pin the CTA to the card's bottom edge so every button aligns across the row.
+   margin-top:auto (not justify-content:space-between) keeps the media + content
+   grouped at the top and pushes only the button down; the cards are already
+   equal height via the track's align-items: stretch. */
+.service-lines-track .services-card > span {
+  margin-top: auto;
+}
+
+/* ─── About ("The people you'll work with") ─────────────────── */
+/* R2 section (Figma node 25920:4810): a split header (SectionHeader intro left,
+   brand CTA right) over two stacked <TeamMember> cards, on the white
+   --surface-primary band. Card layout + tints are shared in shared-sections.css
+   (.team-member--stacked); this owns only the section frame + header/grid. */
+.section-about {
+  padding: var(--padding-huge) 0;
+  background-color: var(--surface-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* 48px section rhythm, matching the other home sections (see the grouped rule
+   above). --space-1200 primitive, not --gap-*, for a mode-stable 48px. */
+.section-about .section-container {
+  gap: var(--space-1200);
+}
+
+/* Header row: SectionHeader intro left, brand CTA right; top-aligned, wraps on
+   narrow. Mirrors .pricing-header, but items start-aligned (Figma items-start —
+   the CTA tops out level with the title, not the description's baseline). */
+.about-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+/* Two equal stacked cards, 24px gutter (Figma content-col gap-24). Equal-height
+   so both panels + CTAs align across the row. */
+.about-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: stretch;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .about-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
 /* Webflow: .section_marketing-audit — full-width, centered, 100vh min */
 .section-audit {
@@ -911,19 +1161,11 @@
   padding-inline: var(--page-inset);
 }
 
-/* Webflow: .cms-item-story — row, space-between, gap-lg (24px), white bg, sm radius */
-.story-card {
-  display: flex;
-  flex-flow: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--gap-xl);
-  padding: var(--padding-xl);
-  background-color: var(--surface-primary);
-  border-radius: var(--border-radius-100);
-  box-shadow: var(--box-shadow-md);
-  width: 100%;
-}
+/* `.story-card` is NOT defined here — the name belongs to CustomerStoryCard
+   (src/components/marketing/CustomerStoryCard.tsx), styled in
+   results/results.css as `.story-card.bds-card`. The dead Webflow port of
+   `.cms-item-story` that used to live here set a conflicting flex row +
+   padding-xl + shadow on the same class (#1260). */
 
 /* Webflow: .inner-wrapper — left image column */
 .story-image-wrapper {
@@ -994,61 +1236,17 @@
 }
 
 /* ─── CTA ("Get in Touch") ────────────────────────────────── */
-/* Webflow: .section_cta — white outer, centered, full-width */
-.section-cta {
-  padding: var(--padding-huge) 0;
-  background-color: var(--surface-primary);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
+/* The section band is `.cta-section-brand` in shared-sections.css. The
+   `.section-cta` Webflow port that used to live here was its only-on-/blog
+   twin and went with the card below (#1260). */
 
-/* Webflow: .container-cta — brand bg, lg radius, 1080px max, centered, gap-huge (48px) */
-.cta-card {
-  z-index: 100;
-  display: flex;
-  flex-flow: column;
-  justify-content: center;
-  align-items: center;
-  gap: var(--gap-md);
-  max-width: 1080px; /* Webflow: .container-cta base */
-  width: 100%;
-  height: 100%;
-  background-color: var(--surface-brand-primary);
-  border-radius: var(--border-radius-md);
-  padding: var(--padding-huge);
-}
-
-/* Webflow: .inner-wrapper._90.center.stacked → .content-wrapper.center */
-.cta-inner {
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-  gap: var(--gap-xl);
-  max-width: var(--site-content-width);
-  text-align: center;
-}
-
-/* Webflow: .text_heading-lg.center.on-color-dark */
-.cta-title {
-  font-family: var(--font-family-heading);
-  font-size: var(--heading-lg);
-  font-weight: 700;
-  line-height: var(--font-line-height-tight);
-  color: var(--text-on-color-dark);
-  margin: 0;
-}
-
-/* Webflow: .text_body-lg.center.on-color-dark */
-.cta-description {
-  font-family: var(--font-family-body);
-  font-size: var(--body-lg);
-  line-height: var(--font-line-height-normal);
-  color: var(--text-on-color-dark);
-  margin: 0;
-}
+/* The brand CTA card is `.cta-card-brand` in shared-sections.css — the one
+   pattern used by /about, /blog, /blog/[slug], /customers, /customers/[slug],
+   /how-we-work, /results and /results/[slug]. The `.cta-card` / `.cta-inner` /
+   `.cta-title` / `.cta-description` Webflow port that used to live here was a
+   second brand CTA card differing only in max-width (1080 vs 1280) and radius
+   (md vs lg), with hand-rolled title/description type instead of
+   `<SectionHeader onColor>` (#1260). */
 
 
 /* ─── Responsive ──────────────────────────────────────────── */
@@ -1056,6 +1254,22 @@
 
 /* Webflow: tablet — 991px */
 @media (max-width: 991px) {
+  /* Problem lines step down (#1268). Figma only drew the 1440 desktop frame for
+     node 25768:9531 — there is no mobile variant — so these two steps are the
+     repo's own responsive treatment, following the .value-editorial__line
+     precedent (value/value.css:472-478) rather than a design. The --heading-*
+     ramp is spacing-mode-driven, not viewport-driven (it measures the same at
+     1440 and 375), so the step has to be explicit here.
+     At 32px the eight lines wrapped to 2-3 rows each on a phone, which turns
+     the section into a wall of bold text. */
+  .problem__title {
+    font-size: var(--heading-lg);
+  }
+
+  .problem-list__item {
+    font-size: var(--heading-md);
+  }
+
   .hero-text {
     width: 100%;
     gap: var(--gap-xl);
@@ -1072,11 +1286,6 @@
 
   .audit-content {
     max-width: 100%;
-  }
-
-  /* Story — stack vertically */
-  .story-card {
-    flex-direction: column;
   }
 
   .story-image-wrapper {
@@ -1152,6 +1361,21 @@
 
 /* Webflow: mobile landscape — 767px */
 @media (max-width: 767px) {
+  /* Second problem-line step (#1268) — see the 991px block. */
+  .problem__title {
+    font-size: var(--heading-md);
+  }
+
+  .problem-list__item {
+    font-size: var(--heading-sm);
+  }
+
+  /* The 40px line gap is desktop rhythm; at phone width the lines are smaller
+     and closer to each other's wrap, so tighten to keep them one group. */
+  .problem-list {
+    gap: var(--space-800);
+  }
+
   /* Hero — keeps --page-inset padding-inline at every breakpoint so content
      never runs flush to the viewport edge (was: padding: 0 → edge-to-edge). */
   .section-hero {
@@ -1204,9 +1428,5 @@
     flex-direction: column;
     width: 100%;
     max-width: none;
-  }
-
-  .story-card {
-    padding: var(--padding-md);
   }
 }
