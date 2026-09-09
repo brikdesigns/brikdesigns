@@ -676,12 +676,20 @@ export default async function ServiceDetailPage({ params }: Props) {
                   style={{ backgroundColor: serviceTokens.inverse }}
                   image={
                     svc.image_url ? (
-                      <Frame customRatio="3 / 2" fit="contain" className="service-sibling-card__media">
+                      /* Square, like every other `services.image_url` slot (#767).
+                         This was the one 3:2 frame in the chain, and all 34 assets
+                         are square-canvas transparent WebP — so `contain` was
+                         letterboxing every one of them with side gutters against
+                         the accent tint. Ratio is now the SoT'd 1:1
+                         (.claude/references/service-data-sot.md), which also makes
+                         `fit` moot: source and frame agree, so nothing is cropped
+                         and nothing is guttered. */
+                      <Frame ratio="square" fit="cover" className="service-sibling-card__media">
                         <Image
                           src={svc.image_url}
                           alt={svc.name}
                           width={400}
-                          height={267}
+                          height={400}
                         />
                       </Frame>
                     ) : undefined
