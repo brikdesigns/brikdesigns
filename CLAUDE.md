@@ -75,12 +75,14 @@ Never push to `staging` or `main` without user confirmation.
 
 ## Before building a section
 
-Read `COMPONENT-MAP.md`. Then pick your ground truth by **work type** (`.claude/references/visual-ground-truth-workflow.md`):
+Read `COMPONENT-MAP.md`. Then pick your ground truth by **work type** (`.claude/references/design-ground-truth-workflow.md`):
 
 - **Reproducing an existing live page** (Webflow/legacy) → the live page is the spec. Pull computed values from it via Playwright MCP, transcribe, build.
-- **Redesign or DS-native new build** (Figma → BDS) → the **Figma spec + BDS tokens** are the ground truth, NOT a browser. Transcribe Figma measurements to named tokens **once, up front**; the a11y gates verify the build. Reserve Playwright for the **one** final parity screenshot — never a per-tweak `browser_navigate`/`browser_evaluate` loop.
+- **Redesign or DS-native new build** (Figma → BDS) → the **Figma spec + BDS tokens** are the ground truth, NOT a browser. READ the spec with `get_design_context` **per section node** (load the `figma-design-to-code` skill first) — NEVER build a section from a `get_screenshot` raster, which carries no slot names or token bindings and is corroboration only. Transcribe to named tokens **once, up front**; the a11y gates verify the build. Reserve Playwright for the **one** final parity screenshot — never a per-tweak `browser_navigate`/`browser_evaluate` loop.
 
 In BOTH: if the value you need is a token (a bg, radius, gap, band rule), **grep the CSS** — never open a browser to read a value that lives in the file you're editing.
+
+NEVER drop a designed slot because the mockup's value is un-swapped placeholder — placeholder content is a **question for Nick**, not licence to cut the slot. #1287 shipped `/plans` cards with 2 of 6 designed slots this way (#1304). Map every Figma variable to a real `dist/tokens.css` name via `validate-token-names`; surface a gap, never invent a name.
 
 ## When touching `/services/*` URLs or service_lines slugs
 
