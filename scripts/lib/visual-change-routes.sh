@@ -45,3 +45,27 @@ visual_change_line() {
   fi
   printf 'Visual-change: %s\n' "$(printf '%s' "$declared" | paste -sd, - | sed 's/,/, /g')"
 }
+
+# Filter a changed-file list down to the paths that can move a captured route,
+# i.e. the ones that should raise the declaration prompt (brikdesigns#1256).
+#
+# Reads paths on stdin, prints the matches. Empty output = nothing renderable
+# changed, so the prompt stays silent.
+#
+# The set is the RENDERING half of visual-regression.yml's own `paths:` filter —
+# if the gate would run, the author should be offered the declaration. #1282
+# keyed the prompt on the UI-verification file list (`.tsx|.jsx|.css|.scss`),
+# which misses `public/`: swapping a hero image moves the route by every pixel
+# it covers and never prompted, so an image-only PR still ate the first-run red
+# that #1282 existed to remove.
+#
+# Deliberately narrower than the workflow's filter: `next.config.*` and
+# `package*.json` are in there because a dep bump CAN repaint, but that is the
+# undeclarable case — the author does not know which routes move until the run
+# says so, and prompting there would train a guess. Test/story files are
+# excluded for the same reason #1282 excluded them: they do not render.
+visual_declaration_paths() {
+  grep -E '\.(tsx|jsx|css|scss)$|^public/' \
+    | grep -vE '(\.test\.|\.spec\.|\.stories\.|/__tests__/|^stories/|\.d\.ts$)' \
+    || true
+}

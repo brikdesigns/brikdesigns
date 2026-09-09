@@ -37,6 +37,36 @@ name: Visual regression (staging vs deploy-preview)
 # This is not `--no-verify`: the comparison still runs, still captures every
 # route, and the waiver is annotated in the run summary rather than hidden.
 # Bump DIFF_THRESHOLD only if the noise floor genuinely moves.
+#
+# ── Declaring, without the two footguns (#1256, both observed on PR #1254) ────
+#
+# You do not have to guess the route names. A failing run prints the exact line
+# — console and job summary both — built from the routes that actually exceeded
+# threshold, ready to paste. That is the intended loop: fail once, paste, done.
+#
+# FOOTGUN 1 — one `gh pr edit` can cancel its own re-run.
+# Adding the label AND the body line in a single command fires `labeled` and
+# `edited` about a second apart. `cancel-in-progress` below is keyed on the ref,
+# so the second event cancels the first run and the PR sits red with a correct
+# declaration on it. Do this instead:
+#
+#     gh pr edit <N> --body-file <file>      # the Visual-change: line
+#     gh pr edit <N> --add-label visual-change
+#
+# in that order, and let the `labeled` run stand — it carries both halves. Two
+# separate commands still race if you fire them back to back; the label event
+# must be the LAST one, because it is the one whose payload has everything.
+#
+# FOOTGUN 2 — `gh run rerun` cannot clear this check.
+# A re-run replays the ORIGINAL `pull_request` payload, so both halves are
+# frozen as they were: `VISUAL_CHANGE_LABEL: 0` and the pre-edit body. Since
+# #1106 the label half is caught — the job reads the LIVE label (see the
+# `Resolve current visual-change label` step) and SKIPS a replay whose label was
+# added afterwards, rather than failing it. The body half is NOT caught: the
+# payload's stale body still declares nothing, so a re-run after a body-only
+# edit reds again on a non-bug. A green from that skip is a skip, not a
+# comparison. Only a fresh event — `edited`, `labeled`, or a push — gives a real
+# verdict.
 
 on:
   pull_request:

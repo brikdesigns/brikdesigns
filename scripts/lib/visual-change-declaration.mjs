@@ -134,6 +134,22 @@ export function classifyBlockingSpread({ blocking = [], results = [] }) {
   return { isolated, broad };
 }
 
+// Build the exact `Visual-change:` line a failing run's author has to paste
+// into the PR body (#1256).
+//
+// Without it the route names are only knowable from a source dive into
+// ROUTES[].name, so every intended visual change pays a guaranteed first
+// failure and then a lookup. The line names the DISTINCT routes that blocked,
+// in the order they first appear in `blocking`, which is exactly the set the
+// declaration has to cover for the re-run to go green.
+//
+// Returns null when nothing blocked — there is no line to paste, and emitting
+// an empty one would read as a declaration of nothing.
+export function buildDeclarationLine(blocking = []) {
+  const routes = [...new Set(blocking.map((r) => r.route))];
+  return routes.length ? `Visual-change: ${routes.join(', ')}` : null;
+}
+
 // Decide whether a visual-regression run must be SKIPPED because it is a
 // stale-payload re-run (#1106). A `gh run rerun` replays the ORIGINAL
 // `pull_request` payload, so the label state baked into VISUAL_CHANGE_LABEL is
