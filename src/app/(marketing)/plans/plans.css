@@ -41,6 +41,67 @@
   align-items: flex-start;
 }
 
+/* ─── Recommended path card — fill, not a ring (Figma 26103:10414) ───
+   Figma differentiates the Full Stack card from its two siblings by FILL alone:
+   10414 takes `surface/service-brand-light`, while 10415/10416 take
+   `surface/primary`, and all three carry the same border and no shadow. The
+   card previously used BDS `highlighted`, which paints a poppy
+   `--border-brand-primary` ring plus a shadow — a border-based hierarchy the
+   design does not have, and one the operator had already rejected in the #1287
+   session ("3 equal paths"). #1304.
+
+   Chrome is untouched on purpose: this band is the white `.page-section`
+   default, where a bordered flat card is already the correct treatment
+   (card-treatment.md), so the fill is the only declaration here. */
+.plans-path-card--recommended {
+  background-color: var(--surface-service-brand-light);
+}
+
+/* The fill is pale in BOTH themes — `--surface-service-brand-light` resolves
+   yellow-100 (#fffee1) in the light root and yellow-300 (#ffecac) in the dark
+   root — but this card sits on `.page-section`, not `.service-surface`, so the
+   dark-mode ink pin in globals.css cannot reach it. Left alone, `--text-primary`
+   flips near-white in the dark root and renders white-on-pale-yellow. Pin both
+   roles to the mode-invariant darkest grayscale primitive, the same correction
+   `.plans-hero .hero-container` above makes for the same reason. */
+:root[data-theme='dark'] .plans-path-card--recommended {
+  --text-primary: var(--color-grayscale-950);
+  --text-secondary: var(--color-grayscale-950);
+}
+
+/* ─── Engagement-mode icon chip (Figma 26103:10991 / 10993) ───
+   32×32 square, 4px radius, 16px glyph centred. The radius is `radius.xs`
+   (--border-radius-100), NOT --border-radius-md: Figma's own `md` alias is 4px
+   while the BDS token of that name is 12px, so the matching name is the wrong
+   value here. */
+.engagement-mode__chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius-100);
+}
+
+/* Both chip fills are mode-invariant (`--background-service-brand` and
+   `--background-service-back-office-on-light` resolve to the same primitive in
+   the light and dark roots), so the glyph ink must be mode-invariant too. The
+   semantic inks Figma names — `background/inverse` on advisory, `text/inverse`
+   on managed — both FLIP between roots, which would render dark-on-dark
+   (#f2f2f2-era ink on the fixed yellow) and black-on-#3f1000 in dark mode. Pin
+   each to the fixed grayscale primitive Figma's own value resolves to instead:
+   the same fixed-on-fixed correction `.service-surface` takes in globals.css. */
+.engagement-mode__chip[data-accent='brand'] {
+  background-color: var(--background-service-brand);
+  color: var(--color-grayscale-950);
+}
+
+.engagement-mode__chip[data-accent='back-office'] {
+  background-color: var(--background-service-back-office-on-light);
+  color: var(--color-grayscale-white);
+}
+
 .plans-card-wrapper {
   display: flex;
   flex-direction: column;

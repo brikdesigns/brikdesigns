@@ -10,6 +10,7 @@ import {
   PricingCard,
   SectionHeader,
 } from '@brikdesigns/bds';
+import { Icon } from '@/lib/icon';
 import { getManagedPlanPrices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
 import { serviceColor, serviceCtaVars } from '@/lib/tokens';
@@ -37,22 +38,41 @@ const BRIKDOWN_HREF = '/offers/brikdown-analysis';
 // product/full-stack, which is the plan-detail ordering, not this page's argument.
 const PATH_SLUGS = ['full-stack-support', 'marketing-support', 'back-office-support'] as const;
 
-// Notion: "Full Stack is what we recommend — marketing and back office working
-// together is where the real impact happens."
+// Full Stack is the recommendation, and Figma carries that emphasis on the card
+// FILL, never on a border (node 26103:10414 — `surface/service-brand-light`,
+// while 10415/10416 take `surface/primary`; all three share one border). #1304
+// removed the `highlighted` prop that had reinstated a poppy ring here: the
+// operator ratified "3 equal paths" in the #1287 session, so a ring that re-ranks
+// the cards is the rejected hierarchy, and a Notion body-copy sentence is not a
+// decision that can restore it.
 const RECOMMENDED_SLUG = 'full-stack-support';
 
 // Step-3 engagement modes (Notion "Advisory or Managed — you choose how involved
 // Brik is."). Copy only — the price split lives on the plan cards above, sourced
 // from `service_plan_tiers`.
+//
+// Titles are Notion's, not Figma's. Figma reads "Advisory (you execute)" /
+// "Managed (we execute)" (nodes 26103:10991 / 10993), but Figma owns layout and
+// style while Notion owns copy (design-ground-truth-workflow.md, #1303) — and
+// each description already says who executes, so the parenthetical is redundant
+// as well as unratified.
+//
+// `accent` keys the icon chip's fill/ink pair in plans.css. Figma gives the two
+// chips DIFFERENT token families rather than one tinted pair — advisory takes
+// the mid `background/service-brand`, managed the deep
+// `background/service-back-office-on-light` — so each is declared by name there
+// instead of derived from a single formula.
 const ENGAGEMENT_MODES = [
   {
     id: 'advisory',
-    title: 'Advisory (you execute)',
+    accent: 'brand',
+    title: 'Advisory',
     description: 'Brik builds the strategy and direction. Your team executes.',
   },
   {
     id: 'managed',
-    title: 'Managed (we execute)',
+    accent: 'back-office',
+    title: 'Managed',
     description: 'Brik handles execution. You review and approve.',
   },
 ] as const;
@@ -162,13 +182,17 @@ export default async function PlansPage() {
               {paths.map((path) => (
                 <PricingCard
                   key={path.slug}
-                  className={path.category ? 'service-themed' : undefined}
                   title={path.name}
                   price={path.price}
                   period="/month advisory"
                   description={path.description}
                   {...(path.managedPrice ? { features: [`Managed — ${path.managedPrice}/month`] } : {})}
-                  highlighted={path.slug === RECOMMENDED_SLUG}
+                  className={[
+                    path.category ? 'service-themed' : null,
+                    path.slug === RECOMMENDED_SLUG ? 'plans-path-card--recommended' : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' ') || undefined}
                   {...(path.category ? { style: serviceCtaVars(path.category) } : {})}
                   image={
                     path.imageUrl ? <Image src={path.imageUrl} alt="" ratio="1-1" fit="cover" /> : undefined
@@ -210,6 +234,20 @@ export default async function PlansPage() {
           <Grid columns={2} gap="lg">
             {ENGAGEMENT_MODES.map((mode) => (
               <Card key={mode.id} padding="lg">
+                {/* Designed slot restored (#1304). Figma draws a Font Awesome
+                 * trowel here, but FA is Figma-only — code is on Phosphor, which
+                 * has no trowel or brick glyph (0 hits across all 9,161). So the
+                 * chip's geometry and token pair come from Figma, and the glyph
+                 * is the nearest Phosphor read of the same masonry motif. Purely
+                 * decorative — the same mark repeats on every card and carries no
+                 * per-mode meaning, so it is hidden from assistive tech. */}
+                <span
+                  className="engagement-mode__chip"
+                  data-accent={mode.accent}
+                  aria-hidden="true"
+                >
+                  <Icon icon="ph:stack-fill" width={16} height={16} />
+                </span>
                 <CardTitle>{mode.title}</CardTitle>
                 <CardDescription>{mode.description}</CardDescription>
               </Card>
