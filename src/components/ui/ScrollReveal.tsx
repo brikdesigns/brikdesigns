@@ -138,6 +138,22 @@ export function ScrollReveal() {
 
         if (targets.length === 0) return;
 
+        // Headless automation — screenshot/PDF tooling, preview crawlers — renders
+        // the full document height without scrolling, so the observer below never
+        // fires for these targets and they capture at opacity:0 (blank, #1323).
+        // Tag them (so band-animation.spec.ts still measures the derivation) but
+        // paint the revealed state directly instead of observing. Real visitors
+        // have `navigator.webdriver === false`, so their scroll animation is
+        // untouched. Reduced-motion tooling already bailed above; this covers the
+        // motion-on automation the a11y config doesn't emulate.
+        if (navigator.webdriver) {
+          tagged = targets;
+          for (const el of targets) {
+            el.classList.add('scroll-reveal', 'scroll-reveal--in');
+          }
+          return;
+        }
+
         observer = new IntersectionObserver(
           (entries) => {
             for (const entry of entries) {
