@@ -250,6 +250,18 @@ jobs:
       - name: Section-identifier lint — self-test (parser + ratchet fixtures)
         run: npm run test:lint:section-id
 
+      # brikdesigns#830. An SVG <Image> without `unoptimized` is rasterized by the
+      # image CDN for no gain, and that transform is what the visual-regression
+      # capture flakes on — one of 28 post-#1162 reds was `Brik-logo.svg` failing
+      # `decode()` on both attempts, reddening a blocking gate on an untouched
+      # route. It builds and renders cleanly, so nothing else catches it; the
+      # guard's own failure path is asserted too.
+      - name: SVG-unoptimized lint (no SVG through the image optimizer)
+        run: npm run lint:svg-unoptimized
+
+      - name: SVG-unoptimized lint — self-test (fixtures + CLI exit codes)
+        run: npm run test:lint:svg-unoptimized
+
       # brikdesigns#1260. A hand-rolled `<div className="x-card">` renders fine but
       # never becomes a `.bds-card` element, so the "Card chrome by band" rule in
       # shared-sections.css never reaches it AND card-treatment.spec.ts cannot

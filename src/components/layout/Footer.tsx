@@ -159,6 +159,13 @@ export function Footer() {
           width={100}
           height={40}
           className="site-logo"
+          // An SVG is resolution-independent, so the `_next/image` raster pass
+          // buys nothing — and it is the step that flakes: the one capture
+          // failure in 28 post-#1162 regression reds was this asset failing
+          // `decode()` on both attempts (#830). Next's docs auto-apply this for
+          // a `.svg` src, but not on 16.2.11 — the live HTML still requests
+          // `/_next/image?url=…Brik-logo.svg&w=128&q=75`, so set it explicitly.
+          unoptimized
         />
       }
       tagline="We're a digital marketing and design agency."
