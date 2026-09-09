@@ -41,6 +41,8 @@
     "test:fetch-diagnostics": "npx tsx scripts/fetch-diagnostics.test.mjs",
     "repro:on-demand-render": "bash scripts/repro-on-demand-render.sh",
     "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
+    "audit:legacy-images": "npx tsx scripts/audit-legacy-cms-images.ts",
+    "audit:image-ratios": "npx tsx scripts/audit-cms-image-ratios.ts",
     "audit:meganav": "npx tsx scripts/audit-meganav-coverage.ts",
     "audit:plan-data": "npx tsx scripts/audit-plan-data.ts",
     "audit:plan-routes": "npx tsx scripts/audit-plan-routes.ts",
