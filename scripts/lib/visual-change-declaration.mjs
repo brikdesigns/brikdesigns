@@ -192,6 +192,37 @@ export function buildDeclarationLine(blocking = []) {
   return routes.length ? `Visual-change: ${routes.join(', ')}` : null;
 }
 
+// Smallest share of the taller capture's height the shorter one may have before
+// the pair is treated as a failed capture rather than a diff (#1314).
+//
+// Half is deliberately far below any real layout delta. The comparison pads the
+// shorter image with white and diffs (visual-parity.mjs), which is CORRECT for a
+// genuine height change — #830's #861 comment traced a 15.83% red to a 24px page
+// shift exactly that way, and that measurement has to keep working. It is wrong
+// when `fullPage` returns a viewport-sized image: on PR #1312, run 34396746728,
+// `home [light/desktop]` captured at 1280x800 — the raw viewport — against a
+// 1280x12722 reference, so 94% of the page was compared against white and
+// reported as a 27.53% regression on a route the branch never touched. The same
+// deploy captured the full 12722px page at dark/desktop, so nothing had moved.
+export const MIN_CAPTURE_HEIGHT_RATIO = 0.5;
+
+/**
+ * True when two captures of the same route differ so much in height that one of
+ * them cannot be a rendering of the same page.
+ *
+ * Height only — width is fixed by the viewport and always matches. A missing or
+ * zero-height capture is handled upstream by the `wfOk`/`nlOk` existence check,
+ * so a non-positive height here is not treated as truncation.
+ */
+export function isTruncatedCapture(
+  heightA,
+  heightB,
+  minRatio = MIN_CAPTURE_HEIGHT_RATIO,
+) {
+  if (!(heightA > 0) || !(heightB > 0)) return false;
+  return Math.min(heightA, heightB) / Math.max(heightA, heightB) < minRatio;
+}
+
 // Decide whether a visual-regression run must be SKIPPED because it is a
 // stale-payload re-run (#1106). A `gh run rerun` replays the ORIGINAL
 // `pull_request` payload, so the label state baked into VISUAL_CHANGE_LABEL is

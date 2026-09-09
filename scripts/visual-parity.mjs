@@ -10,6 +10,7 @@ import {
   classifyBlockingSpread,
   buildDeclarationLine,
   isStalePayloadRerun,
+  isTruncatedCapture,
   summarizeNoiseByRoute,
 } from './lib/visual-change-declaration.mjs';
 
@@ -406,11 +407,20 @@ async function capture(baseUrl, route, viewport, theme, outPath) {
 
 // Returns { diffPct, diffImg } where diffImg is the relative path to the diff PNG,
 // or null if one/both screenshots are missing.
+//
+// Returns { truncated: true, wfHeight, nlHeight } instead when one capture is a
+// fraction of the other's height (#1314) — a page that did not finish capturing
+// is a capture failure, and padding it into a diff percentage reports it as a
+// pixel change on a route nobody touched.
 function diffScreenshots(wfPath, nlPath, diffPath) {
   if (!fs.existsSync(wfPath) || !fs.existsSync(nlPath)) return null;
 
   const wf = PNG.sync.read(fs.readFileSync(wfPath));
   const nl = PNG.sync.read(fs.readFileSync(nlPath));
+
+  if (isTruncatedCapture(wf.height, nl.height)) {
+    return { truncated: true, wfHeight: wf.height, nlHeight: nl.height };
+  }
 
   // Pad the shorter image at the bottom so dimensions match for pixelmatch.
   const w = Math.max(wf.width, nl.width);
@@ -489,7 +499,16 @@ for (const theme of THEMES) {
         await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath);
       }
       const diff = diffScreenshots(wfPath, nlPath, diffPath);
-      if (diff) {
+      if (diff?.truncated) {
+        // Name both heights here: the run summary is where the next occurrence
+        // gets diagnosed, and without them a truncation is indistinguishable
+        // from a real diff without downloading the report artifact.
+        console.error(
+          `  ✗ capture truncated — ${REFERENCE_LABEL.toLowerCase()} ${diff.wfHeight}px vs ` +
+            `capture ${diff.nlHeight}px; the shorter one did not finish capturing, ` +
+            'so no diff is reported',
+        );
+      } else if (diff) {
         const flag = diff.diffPct > 5 ? '🔴' : diff.diffPct > 2 ? '🟡' : '🟢';
         console.log(`  ${flag} diff: ${diff.diffPct.toFixed(2)}%`);
       }
@@ -503,6 +522,9 @@ for (const theme of THEMES) {
         nlImg: path.relative(OUT, nlPath),
         diffImg: diff?.diffImg ?? null,
         diffPct: diff?.diffPct ?? null,
+        truncated: diff?.truncated === true,
+        wfHeight: diff?.wfHeight ?? null,
+        nlHeight: diff?.nlHeight ?? null,
         wfOk: fs.existsSync(wfPath),
         nlOk: fs.existsSync(nlPath),
       });
@@ -690,6 +712,13 @@ if (process.env.NOISE_FLOOR === '1') {
   }
 }
 
+// Why a truncation reads as "failed" and not "diffed" (#1314): the capture file
+// exists, so `nlOk`/`wfOk` are both true and the pre-#1314 gates saw nothing
+// wrong. Only the height pair shows it, so both gates below test `truncated`
+// alongside the existence checks.
+const captureFailureDetail = (r) =>
+  r.truncated ? ` — truncated: ${r.wfHeight}px vs ${r.nlHeight}px` : '';
+
 // Mockup mode never passes silently: a missing baseline or a failed capture is
 // a hard failure, not a skipped comparison. (webflow mode tolerates capture
 // failure by design — that tolerance must not carry over; it is how #822 hid.)
@@ -701,10 +730,10 @@ if (MOCKUP_MODE) {
     console.error('  UPDATE_BASELINES=1 npm run visual-mockup -- <known-good-url>');
     process.exit(2);
   }
-  const failedCaptures = results.filter((r) => !r.nlOk);
+  const failedCaptures = results.filter((r) => !r.nlOk || r.truncated);
   if (failedCaptures.length) {
     console.error(`\n✗ ${failedCaptures.length} capture(s) failed — mockup mode treats this as a gate failure:`);
-    failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}] (${NETLIFY_URL}${r.netlifyPath})`));
+    failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}]${captureFailureDetail(r)} (${NETLIFY_URL}${r.netlifyPath})`));
     process.exit(1);
   }
 }
@@ -714,10 +743,10 @@ if (MOCKUP_MODE) {
 // fails a capture instead of screenshotting a half-loaded page, and without
 // this a route that loses that race twice would read as a pass.
 if (SELF_MODE) {
-  const failedCaptures = results.filter((r) => !r.wfOk || !r.nlOk);
+  const failedCaptures = results.filter((r) => !r.wfOk || !r.nlOk || r.truncated);
   if (failedCaptures.length) {
     console.error(`\n✗ ${failedCaptures.length} capture(s) failed — a skipped route is not a pass:`);
-    failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}]`));
+    failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}]${captureFailureDetail(r)}`));
     process.exit(1);
   }
 }
