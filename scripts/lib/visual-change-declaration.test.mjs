@@ -20,6 +20,7 @@ import {
   classifyBlockingSpread,
   buildDeclarationLine,
   isStalePayloadRerun,
+  isTruncatedCapture,
   summarizeNoiseByRoute,
 } from './visual-change-declaration.mjs';
 
@@ -426,6 +427,72 @@ check('a declared line clears the routes it names', () => {
 
 check('no blocking routes yields no line', () => {
   assert.equal(buildDeclarationLine([]), null);
+});
+
+console.log('isTruncatedCapture');
+
+// The compare step pads the shorter capture with white and diffs it, which is
+// right for a real height delta and wrong for a capture that never finished.
+// These two cases are the boundary between those readings — get it wrong in one
+// direction and a truncation reports as a regression (#1314), in the other and
+// #830's 24px page-shift measurement stops working.
+
+check('a viewport-height capture against a full-page reference is truncated', () => {
+  // The live case: PR #1312, run 34396746728, home [light/desktop].
+  assert.equal(isTruncatedCapture(12722, 800), true);
+});
+
+check('truncation is symmetric — either side may be the short one', () => {
+  assert.equal(isTruncatedCapture(800, 12722), true);
+});
+
+check('the 24px page-shift case is NOT truncation — it must keep diffing', () => {
+  // #830's #861 comment: 9000 vs 8976 measured 15.83% and that reading is the
+  // finding, not a bug. Erroring here would delete the evidence.
+  assert.equal(isTruncatedCapture(9000, 8976), false);
+});
+
+check('identical heights are not truncation', () => {
+  assert.equal(isTruncatedCapture(12722, 12722), false);
+});
+
+check('exactly half is not truncation — the boundary is strict', () => {
+  assert.equal(isTruncatedCapture(1000, 500), false);
+  assert.equal(isTruncatedCapture(1000, 499), true);
+});
+
+check('a large but plausible layout delta stays a diff', () => {
+  // A third of the page appearing is a real change to measure, not a failure.
+  assert.equal(isTruncatedCapture(9000, 6000), false);
+});
+
+check('a non-positive height is not truncation — the existence check owns that', () => {
+  // wfOk/nlOk already fail a missing capture; a zero here must not double-report
+  // it as truncation with a nonsense ratio.
+  assert.equal(isTruncatedCapture(12722, 0), false);
+  assert.equal(isTruncatedCapture(0, 0), false);
+});
+
+check('the ratio is overridable', () => {
+  assert.equal(isTruncatedCapture(1000, 900, 0.95), true);
+  assert.equal(isTruncatedCapture(1000, 900, 0.5), false);
+});
+
+check('a truncated capture cannot reach blocking — diffPct is null', () => {
+  // The chain that matters: diffScreenshots returns no diffPct for a truncation,
+  // and evaluateDeclaration filters on `diffPct !== null`, so the gate can never
+  // offer a `Visual-change:` line that would waive an uncaptured route.
+  const results = [cap('home', null, 'light', 'desktop'), cap('home', 0, 'dark', 'desktop')];
+  const { blocking, waived, unmoved } = evaluateDeclaration({
+    declared: [],
+    knownRoutes: KNOWN,
+    results,
+    threshold: 1,
+  });
+  assert.deepEqual(blocking, []);
+  assert.deepEqual(waived, []);
+  assert.deepEqual(unmoved, []);
+  assert.equal(buildDeclarationLine(blocking), null);
 });
 
 console.log('isStalePayloadRerun');
