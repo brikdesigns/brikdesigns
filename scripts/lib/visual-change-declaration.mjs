@@ -115,23 +115,65 @@ export function evaluateDeclaration({ declared = [], knownRoutes = [], results =
 // 0.00% is a capture-side flake — the exact signature the issue documents
 // (`home [light/desktop]` at 30% while its own tablet + mobile were identical).
 //
-//   broad    → every measured capture of the route is over threshold → the
-//              move is real: an intended change (label it) or a stale base
-//              (rebase). Never a flake.
-//   isolated → the route blocks on some captures but not all → likely a
-//              capture flake; re-run before labeling.
+//   broad          → every measured capture of the route is over threshold →
+//                    the move is real: an intended change (label it) or a stale
+//                    base (rebase). Never a flake.
+//   viewportScoped → the route moved on a strict SUBSET of viewports, but on
+//                    every theme within each moved viewport → a real change
+//                    scoped to a breakpoint. Label or rebase; never a flake.
+//   isolated       → some capture moved while its same-viewport sibling in the
+//                    other theme read 0.00% → likely a capture flake; re-run
+//                    before labeling.
+//
+// The theme axis is the discriminator, and counting alone misses it (#1311). A
+// breakpoint-scoped change moves a strict subset of captures exactly like a
+// flake does, so the pre-#1311 count test called it a flake: on PR #1293
+// `plans` measured 13.92% light/desktop + 18.74% dark/desktop with all four
+// smaller viewports at 0.00%, byte-identical across two independent runs — the
+// definition of reproducible — and the gate said "re-run before you label".
+// A capture flake does not politely take out both themes of one viewport and
+// leave the rest untouched; a `@media (min-width: …)` rule does exactly that.
+//
+// A viewport only counts as coherently moved when it has at least TWO measured
+// captures and all of them block. With a single measured capture the theme axis
+// offers no corroboration, so such a route stays `isolated` — the error that
+// costs a wasted re-run, never the one that waives a real regression by
+// inviting a label.
 //
 // Keyed on the same `results` shape evaluateDeclaration consumes, so a route
 // with no successfully measured capture cannot appear (it has no diffPct).
 export function classifyBlockingSpread({ blocking = [], results = [] }) {
-  const measuredByRoute = (name) =>
-    results.filter((r) => r.route === name && r.diffPct !== null).length;
-  const routes = [...new Set(blocking.map((r) => r.route))];
-  const isolated = routes.filter(
-    (name) => blocking.filter((r) => r.route === name).length < measuredByRoute(name),
-  );
-  const broad = routes.filter((name) => !isolated.includes(name));
-  return { isolated, broad };
+  const measuredFor = (name) =>
+    results.filter((r) => r.route === name && r.diffPct !== null);
+  const blockingFor = (name) => blocking.filter((r) => r.route === name);
+
+  const broad = [];
+  const viewportScoped = [];
+  const isolated = [];
+
+  for (const name of new Set(blocking.map((r) => r.route))) {
+    const measured = measuredFor(name);
+    const blocked = blockingFor(name);
+
+    if (blocked.length === measured.length) {
+      broad.push(name);
+      continue;
+    }
+
+    // Every viewport this route blocks on must be corroborated across themes.
+    const movedViewports = new Set(blocked.map((r) => r.viewport));
+    const coherent = [...movedViewports].every((viewport) => {
+      const atViewport = measured.filter((r) => r.viewport === viewport);
+      return (
+        atViewport.length > 1 &&
+        atViewport.every((r) => blocked.some((b) => b.theme === r.theme && b.viewport === viewport))
+      );
+    });
+
+    (coherent ? viewportScoped : isolated).push(name);
+  }
+
+  return { isolated, broad, viewportScoped };
 }
 
 // Build the exact `Visual-change:` line a failing run's author has to paste
