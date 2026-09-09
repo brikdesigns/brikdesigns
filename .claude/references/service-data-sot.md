@@ -72,6 +72,27 @@ The sibling doc [service-url-slug-convention.md](./service-url-slug-convention.m
 | Pricing | `offerings.base_price_cents` (canonical, owned by portal admin/Stripe), sorted asc, ties broken by `offerings.rank`. **Never use `sort_order`** — legacy column from Webflow CSV `tier_rank`, not editable from this admin |
 | Pricing display string | Derived from `base_price_cents` at render time (no `price_display` column read for service detail) |
 | Offerings filter | `offerings.is_public = true` in JS (not in the join) |
+| `services.image_url` aspect ratio | **1:1 (square) — everywhere.** See below before adding a slot. |
+
+#### `services.image_url` renders square, in every slot
+
+Decided on #767 and true of all three consumers: the detail-page hero
+([`ServiceHeroModal.tsx`](../../src/app/(marketing)/services/[serviceLineSlug]/[serviceSlug]/ServiceHeroModal.tsx) `ratio="square"`),
+the recommended-add-on card, and the sibling-services card. A **new** slot for this
+column uses `ratio="square"` and `width`/`height` that agree with it; anything else
+re-opens the split this issue closed.
+
+The reason it is square and not portal's old 3:2 hint: all 34 assets are
+square-canvas transparent WebP whose drawing is trimmed and centred inside that
+canvas. The `audit:image-ratios` figures (0.54–3.28) measure the **opaque content
+after `sharp().trim()`**, not the file — so they say how much of the canvas the
+drawing fills, and never that a file needs cropping. In a square frame source and
+frame agree, so `fit` is moot; in the 3:2 frame this replaced, `contain` guttered
+every asset against the accent tint.
+
+Portal's uploader hint is the other half — `aspectRatio="1-1"` on the services Card
+Image field (`brik-client-portal/src/components/settings-service-edit-page.tsx`).
+Changing one side without the other is how the two drifted apart in the first place.
 
 ### Footer service links
 
