@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import {
   trackOverhang,
   shouldScrub,
@@ -79,7 +79,20 @@ export function HorizontalScrollTrack({
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  // useLayoutEffect, NOT useEffect: the cleanup below tears down the GSAP pin,
+  // which un-wraps the pin-spacer and restores the pinned <section> under its
+  // real parent. GSAP's `pin` reparents that section — a React-owned node —
+  // into an injected .pin-spacer, and on a soft-nav away React's mutation-phase
+  // deletion calls parent.removeChild(section) while the section still lives in
+  // the spacer, throwing NotFoundError (the App Router "couldn't load"
+  // boundary). A useEffect cleanup runs in the passive phase, AFTER that
+  // removeChild — too late. A useLayoutEffect cleanup runs in the commit
+  // (mutation) phase, during React's deletion traversal and BEFORE it removes
+  // the host node ("all the child effects have unmounted, we can remove the
+  // node from the tree"), so the pin is reverted first and the removeChild
+  // finds the section where React expects it. The engage() work is still
+  // deferred a double rAF (#760) below, so nothing mutates during hydration.
+  useLayoutEffect(() => {
     const root = rootRef.current;
     const viewport = viewportRef.current;
     const track = trackRef.current;
