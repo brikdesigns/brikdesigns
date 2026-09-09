@@ -320,7 +320,7 @@ export default async function HomePage() {
             ))}
           </ol>
           <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
-            Get Your Free BrikDown — Start with Step 1
+            Get Your Free BrikDown
           </Button>
         </div>
       </MediaBand>

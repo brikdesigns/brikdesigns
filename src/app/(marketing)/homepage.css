@@ -24,14 +24,14 @@
   z-index: 0;
 }
 
-/* Desktop: cap the hero band at a fixed 668px floor instead of the
+/* Desktop: cap the hero band at a fixed 704px floor instead of the
    full-viewport `calc(100svh - nav)`, which scales the content area oversized on
    tall/large monitors — operator ask. Scoped to ≥992px so tablet/mobile keep the
    viewport-height band (the 767px rule below restores the calc). Matches the
    how-we-work hero floor (how-we-work.css .hiw-hero). */
 @media (min-width: 992px) {
   .section-hero {
-    min-height: 668px;
+    min-height: 704px;
   }
 }
 
@@ -500,20 +500,18 @@
 }
 
 /* ─── Problem-CTA ("Sound like you?") ───────────────────────── */
-/* R2 accent band (Figma node 25805:3001): centered SectionHeader intro + two
-   CTAs, bridging Problem → Services. Filled with accent purple
-   (fill surface/accent-purple), not brand orange.
-   The token now resolves to #e9d8fc, a pale tint. It read #9e8bc2 when this
-   band was built — the R2 mockup value — and the ❖ Brik Brand Kit has since
-   re-pointed surface/accent-{hue} onto the system palette
-   (color/system/purple-light), which BDS mirrors 1:1 as of v0.175.0
-   (brik-bds#2066). Read live from the Brand Kit 2026-08-27, both modes.
-   Still fixed-light in both themes, so on-band text stays pinned dark in the
-   dark root (shared-sections.css "Accent band on-color text") — a paler fill
-   only widens that margin. This rule only paints the band. */
+/* Centered SectionHeader intro + two CTAs, bridging Problem → Services. Painted
+   on --surface-secondary to match the surface the visitor reads as the Problem
+   section — the tinted .problem-card panel above (also --surface-secondary), not
+   the white section band — operator ask. That keeps this a tinted BAND, so
+   ScrollReveal hands the reveal to its CONTENT (band rule; band-animation gate)
+   and the copy fades in on scroll; the accent band's per-slot stagger (#1268) is
+   dropped for the default content fade. Top inset is --padding-md so the CTA sits
+   close under the Problem section; bottom keeps the huge/80px rhythm into
+   Services. */
 .section-problem-cta {
-  padding: var(--padding-huge) 0;
-  background-color: var(--surface-accent-purple);
+  padding: var(--padding-md) 0 var(--padding-huge);
+  background-color: var(--surface-secondary);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -521,32 +519,15 @@
   width: 100%;
 }
 
-/* R3 (#1114): give the accent CTA bridge real vertical presence on desktop — it
-   was the only home band with no min-height, so it read cramped between the
-   full-viewport Problem and Services bands. A 60svh floor + 80px block padding
-   (--space-1800, the same 80px step Services uses) enlarges it without claiming
-   a full viewport like the content bands. Scoped to ≥992px so the mobile band
-   stays compact; content stays centered via the base flex rule. */
+/* On desktop keep the bottom 80px step (--space-1800, matching Services) but no
+   min-height. The #1114 60svh floor existed to give the accent BAND vertical
+   presence between the full-viewport Problem/Services sections; now that the CTA
+   sits on the page ground it flows continuously with them, so a floor would only
+   center the copy mid-band and swallow the --padding-md top inset the operator
+   asked for. Dropping it lets the CTA sit tight under the Problem section. */
 @media (min-width: 992px) {
   .section-problem-cta {
-    min-height: 60svh;
-    padding-block: var(--space-1800);
-  }
-}
-
-/* The CTA lands last (#1268). Being a separate band further down the page
-   already puts it after the eight problem lines; this only orders the slots
-   *within* it so the buttons resolve after the copy instead of all three
-   fading as one. ScrollReveal tags these slots individually (the accent band
-   hands its motion to its content), so the delay rides its existing reveal —
-   no extra observer. Same slot classes the rhythm override below already
-   targets, for the ADR-023 reason documented there. */
-@media (prefers-reduced-motion: no-preference) {
-  .section-problem-cta .bds-content-block__description.scroll-reveal--in {
-    transition-delay: 0.09s;
-  }
-  .section-problem-cta .bds-content-block__actions.scroll-reveal--in {
-    transition-delay: 0.18s;
+    padding-block: var(--padding-md) var(--space-1800);
   }
 }
 
