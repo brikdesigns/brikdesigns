@@ -1,4 +1,4 @@
-import { expect, type Page, type Response } from '@playwright/test';
+import { expect, test, type Page, type Response } from '@playwright/test';
 
 /**
  * Render preconditions for the a11y suite — brikdesigns.com (#1030).
@@ -29,6 +29,19 @@ import { expect, type Page, type Response } from '@playwright/test';
  * objection is answered rather than overruled — there is no single-shot status
  * assertion anywhere in the suite.
  *
+ * ── Why the retry needs a per-navigation timeout ──────────────────────────
+ *
+ * The retry above only ever guarded the STATUS. A navigation that hangs
+ * produces no status to retry on, and with no per-attempt cap `page.goto`
+ * inherits whatever is left of the test's budget — so attempt 1 could consume
+ * all 30s and the loop never reached attempt 2. The retry was unreachable in
+ * precisely the cold-start case it was written for (#870).
+ *
+ * `NAV_TIMEOUT_MS` caps each attempt and the loop catches the throw, so a slow
+ * cold boot costs one attempt instead of the test. `RETRY_BUDGET_MS` is then
+ * added to the test's own timeout, because a budget the test cannot afford is
+ * the same bug in a different place.
+ *
  * ── Why the status check is NOT enough on its own ─────────────────────────
  *
  * Measured 2026-08-24 while building this:
@@ -50,6 +63,35 @@ const ATTEMPTS = 4;
 
 /** Linear backoff base — attempt N waits N × this, so 2s, 4s, 6s. */
 const BACKOFF_MS = 2000;
+
+/**
+ * Per-attempt cap on the navigation itself (#870).
+ *
+ * Without one, `page.goto` inherits the TEST's remaining budget, so the retry
+ * loop below is unreachable in exactly the case it exists for: a single cold
+ * navigation that hangs consumes the whole test and attempt 2 never runs. That
+ * is not hypothetical — it is the only nav-service-tint failure in the newest
+ * 100 `axe` runs (run 34282301329, 2026-09-08): `Test timeout of 30000ms
+ * exceeded` raised *inside* attempt 1's `page.goto`, on a preview whose page
+ * was fine one Playwright-level retry later.
+ *
+ * 10s, not tighter: a cold Next SSR route on a fresh deploy-preview
+ * legitimately takes several seconds, and a cap short enough to cut that off
+ * would convert a slow-but-healthy page into four hard failures — strictly
+ * worse than the flake.
+ */
+const NAV_TIMEOUT_MS = 10_000;
+
+/**
+ * What the loop can consume end to end: every attempt's navigation, plus the
+ * backoffs between them. Derived, not a second magic number, so it cannot drift
+ * out of step with the two constants above.
+ *
+ * 4 × 10s + (2s + 4s + 6s) = 52s.
+ */
+const RETRY_BUDGET_MS =
+  ATTEMPTS * NAV_TIMEOUT_MS +
+  Array.from({ length: ATTEMPTS - 1 }, (_, i) => BACKOFF_MS * (i + 1)).reduce((a, b) => a + b, 0);
 
 export interface GotoRenderedOptions {
   /**
@@ -88,15 +130,53 @@ export async function gotoRendered(
 ): Promise<Response> {
   const { waitUntil = 'load', renders = 'main' } = options;
 
+  // Buy the loop the room it needs, additively, on the current test only —
+  // Playwright's documented idiom for a helper that owns a retry budget
+  // (`testInfo.setTimeout(testInfo.timeout + n)`). Per call, because each call
+  // may spend the budget again; every caller here navigates once per test.
+  //
+  // The cost is honest: a genuinely dead route now takes the full budget to
+  // report instead of the default 30s. That is the price of the retry being
+  // reachable at all, and the failure messages below already say which
+  // precondition broke.
+  test.info().setTimeout(test.info().timeout + RETRY_BUDGET_MS);
+
   let response: Response | null = null;
   let status = 0;
+  let timedOut = 0;
+  let lastNavError: Error | null = null;
 
   for (let attempt = 1; attempt <= ATTEMPTS; attempt += 1) {
-    response = await page.goto(path, { waitUntil });
-    expect(response, `${path} returned no response at all (navigation failed)`).toBeTruthy();
-    status = response!.status();
-    if (status < 400) break;
+    // `timeout` is per-navigation, so a hang burns one attempt, not the test.
+    // It THROWS rather than returning — catching it is what makes a slow cold
+    // navigation retryable instead of terminal (#870). Letting it propagate
+    // here would reintroduce the bug with extra steps.
+    try {
+      response = await page.goto(path, { waitUntil, timeout: NAV_TIMEOUT_MS });
+      expect(response, `${path} returned no response at all (navigation failed)`).toBeTruthy();
+      status = response!.status();
+      if (status < 400) break;
+    } catch (err) {
+      timedOut += 1;
+      lastNavError = err as Error;
+      // Deliberately NOT resetting `status`. A 500 on attempt 1 followed by
+      // three timeouts must still fail on the 500; zeroing it here would make
+      // the `< 400` assertion below pass on a route that never worked.
+    }
     if (attempt < ATTEMPTS) await page.waitForTimeout(BACKOFF_MS * attempt);
+  }
+
+  // Every attempt's navigation timed out — the page never answered at all, a
+  // different failure from "answered with the wrong status" and worth its own
+  // message. Only reachable after the full budget, so it is a dead route or a
+  // deploy that never came up, not a cold start.
+  if (!response) {
+    throw new Error(
+      `${path} did not finish navigating within ${NAV_TIMEOUT_MS}ms on any of ${ATTEMPTS} attempts ` +
+        `(${timedOut} timed out, ~${Math.round(RETRY_BUDGET_MS / 1000)}s total). The route never ` +
+        `answered, so anything this spec measures on it proves nothing. A cold SSR boot clears ` +
+        `within the retries (#870).\nLast navigation error: ${lastNavError?.message ?? 'unknown'}`,
+    );
   }
 
   expect(
