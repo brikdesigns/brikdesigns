@@ -70,10 +70,17 @@
 }
 
 /* ─── Engagement-mode icon chip (Figma 26103:10991 / 10993) ───
-   32×32 square, 4px radius, 16px glyph centred. The radius is `radius.xs`
-   (--border-radius-100), NOT --border-radius-md: Figma's own `md` alias is 4px
-   while the BDS token of that name is 12px, so the matching name is the wrong
-   value here. */
+   32×32 square, 4px radius, 16px glyph centred. Figma draws the chip corner as a
+   raw 4px, not a named alias, so the radius is written as the primitive that
+   carries that value — `radius.xs` (--border-radius-100). Neither BDS alias
+   fits: --border-radius-sm is 8px and --border-radius-md is 12px.
+
+   The earlier version of this note claimed Figma's own `md` alias was 4px. That
+   was true when #1304 shipped and is no longer — the operator re-pointed Figma's
+   `md` to border-radius/400 (12px) on 2026-09-09, so it now agrees with BDS.
+   `sm` and `lg` still do not (Figma 4px/24px vs BDS 8px/16px); that parity work
+   is brikdesigns/brik-bds#2351, and if `sm` lands on 4px this declaration should
+   become the named token. */
 .engagement-mode__chip {
   display: inline-flex;
   align-items: center;
