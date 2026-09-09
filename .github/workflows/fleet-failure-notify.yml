@@ -21,6 +21,7 @@ on:
   workflow_run:
     workflows:
       - "Feedback widget health"
+      - "Visual parity (Webflow vs Netlify)"
     types: [completed]
 
 permissions:

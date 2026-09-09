@@ -1,14 +1,27 @@
 ---
 name: visual-ground-truth-workflow
-description: Step-by-step protocol for agents reading live Webflow pages before writing any section code. Prevents CSS-from-memory failures. READ before building any page section.
-last-verified: 2026-08-25
+description: Protocol for choosing a section's ground truth (live page vs Figma+tokens) before writing code. Prevents CSS-from-memory AND the redesign browser-loop failure. READ before building any page section.
+last-verified: 2026-09-08
 ---
 
 # Visual Ground-Truth Workflow
 
-**Rule: agents must read the live Webflow page before writing a single line of CSS or layout code.**
+**First decide the work type — it decides where truth lives. Guessing the wrong one is what makes builds slow.**
 
-Every past layout failure in the brikdesigns rebuild came from agents guessing or improvising visual values. This workflow fixes that by making the live site the authoritative input.
+| Work type | Ground truth | Playwright's role |
+|---|---|---|
+| **Reproducing an existing live page** (Webflow/legacy) | The **live page**. Steps 1–3 below. | Read computed values (Step 1); one final parity diff (Step 3). |
+| **Redesign or DS-native new build** (Figma → BDS: this is now the default for new Astro/Next sites) | The **Figma spec + BDS tokens**. There is NO live page to converge on. | **One** final parity screenshot only. NOT a per-tweak `navigate`/`evaluate` loop. |
+
+**The token rule (both types):** if the value you need is a token — a background, radius, gap, band rule — **grep the CSS**. Never open a browser to read a value that lives in the file you're editing (e.g. "does this match the Problem card bg?" is one grep of `homepage.css`, not a `browser_evaluate`).
+
+**Why this branch exists:** the reproduction protocol below was built for pixel-faithful Webflow rebuilds, where the browser *is* the spec and the loop converges. Applied to a **redesign**, the live page isn't the spec, so the browser loop has nothing to converge on and degenerates into subjective live eyeballing — one `browser_evaluate` per taste call. For a redesign, transcribe the Figma spec to named tokens **once, up front**, build deterministically, and let the a11y gates (`card-treatment`, `band-animation`, `grid-column-fit`, `section-id`) verify — they already read computed values on every route.
+
+---
+
+## Reproduction protocol (live-page work only)
+
+Every past layout failure in the brikdesigns Webflow rebuild came from agents guessing or improvising visual values. Steps 1–4 fix that by making the live site the authoritative input. **Skip this whole section for redesign / DS-native work** — use the Figma spec + tokens instead.
 
 ---
 
@@ -128,7 +141,7 @@ const s = getComputedStyle(document.querySelector('.section'));
 
 ---
 
-## What this prevents
+## What this prevents (reproduction work)
 
 | Past failure | How this workflow stops it |
 |---|---|

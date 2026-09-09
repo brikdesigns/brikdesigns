@@ -15,7 +15,7 @@ Check this file BEFORE building any section.
 
 ## Content & Interactive Components
 
-| Webflow Pattern | BDS Component | Import | Example |
+| Pattern | BDS Component | Import | Example |
 |----------------|---------------|--------|---------|
 | Any button/CTA | `Button` / `LinkButton` | `@brikdesigns/bds` | `<Button href="/x" variant="primary" size="lg">Text</Button>` |
 | Service line badge/icon | `ServiceTag` | `@brikdesigns/bds` | `<ServiceTag category="brand" variant="icon-text" label="Brand Design" size="sm" />` |

@@ -61,7 +61,7 @@ NEVER open, propose, recommend, or ask about a `staging → main` promote — Br
 
 Install: `op run --env-file=.env.op -- npm install`
 
-RUN `./scripts/dev-restart.sh` for dev — ALWAYS, never a bare `npm run dev` (it injects `.env.op` secrets, self-sources the headless token, kills the port's server, and picks a stable per-worktree port); restart after every code change.
+When you run the dev server (`class:component` / `class:ia` work), RUN `./scripts/dev-restart.sh` — never a bare `npm run dev` (it injects `.env.op` secrets, self-sources the headless token, kills the port's server, and picks a stable per-worktree port); restart after every code change. `class:content` skips this loop and verifies on the Netlify PR preview instead (see §"When scoping any change").
 
 After editing a CMS row in Supabase: `./scripts/dev-restart.sh --fresh`. The Next data cache survives a plain restart and keeps serving the previous payload.
 
@@ -75,7 +75,12 @@ Never push to `staging` or `main` without user confirmation.
 
 ## Before building a section
 
-Read `COMPONENT-MAP.md`. Pull live layout values from Webflow via Playwright MCP (workflow: `.claude/references/visual-ground-truth-workflow.md`).
+Read `COMPONENT-MAP.md`. Then pick your ground truth by **work type** (`.claude/references/visual-ground-truth-workflow.md`):
+
+- **Reproducing an existing live page** (Webflow/legacy) → the live page is the spec. Pull computed values from it via Playwright MCP, transcribe, build.
+- **Redesign or DS-native new build** (Figma → BDS) → the **Figma spec + BDS tokens** are the ground truth, NOT a browser. Transcribe Figma measurements to named tokens **once, up front**; the a11y gates verify the build. Reserve Playwright for the **one** final parity screenshot — never a per-tweak `browser_navigate`/`browser_evaluate` loop.
+
+In BOTH: if the value you need is a token (a bg, radius, gap, band rule), **grep the CSS** — never open a browser to read a value that lives in the file you're editing.
 
 ## When touching `/services/*` URLs or service_lines slugs
 
