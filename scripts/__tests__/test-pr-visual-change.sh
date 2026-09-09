@@ -92,6 +92,27 @@ case "$ERR" in *bogus*) PASS=$((PASS+1));; *) FAIL=$((FAIL+1)); FAILED_CASES+=("
 # 5. A VIEWPORT name is NOT a valid route (the leak guard, end-to-end).
 visual_change_line "desktop" >/dev/null 2>&1; assert_rc "viewport name rejected as route" 1 $?
 
+# 6. The prompt trigger (#1256). The load-bearing case is `public/`: #1282 keyed
+# the prompt on the UI-verification file list, so an image-only PR never got
+# asked and ate the first-run red anyway. The negative cases matter just as
+# much — a prompt that fires on a test file trains a reflexive blank answer.
+paths() { printf '%s\n' "$@" | visual_declaration_paths | paste -sd, -; }
+
+assert_eq "an image under public/ triggers the prompt" \
+  "public/images/hero.webp" "$(paths public/images/hero.webp)"
+assert_eq "a component triggers the prompt" \
+  "src/app/page.tsx" "$(paths src/app/page.tsx)"
+assert_eq "a stylesheet triggers the prompt" \
+  "src/app/globals.css" "$(paths src/app/globals.css)"
+assert_eq "test / story / type files do not trigger it" \
+  "" "$(paths src/x.test.tsx src/y.stories.tsx src/z.d.ts src/__tests__/a.tsx)"
+assert_eq "a CI or script-only diff does not trigger it" \
+  "" "$(paths .github/workflows/visual-regression.yml scripts/visual-parity.mjs README.md)"
+assert_eq "a mixed diff yields only the renderable paths" \
+  "src/app/page.tsx,public/logo.svg" \
+  "$(paths scripts/pr-task.sh src/app/page.tsx public/logo.svg src/app/page.test.tsx)"
+printf '' | visual_declaration_paths >/dev/null; assert_rc "empty stdin is rc 0, not a grep miss" 0 $?
+
 echo ""
 echo "  visual-change-routes: ${PASS} passed, ${FAIL} failed"
 if [ "$FAIL" -gt 0 ]; then

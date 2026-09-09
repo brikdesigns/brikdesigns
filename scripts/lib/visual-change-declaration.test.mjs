@@ -18,6 +18,7 @@ import {
   parseDeclaration,
   evaluateDeclaration,
   classifyBlockingSpread,
+  buildDeclarationLine,
   isStalePayloadRerun,
   summarizeNoiseByRoute,
 } from './visual-change-declaration.mjs';
@@ -305,6 +306,42 @@ check('empty blocking yields empty groups', () => {
   const { broad, isolated } = classifyBlockingSpread({ blocking: [], results: [cap('home', 0)] });
   assert.deepEqual(broad, []);
   assert.deepEqual(isolated, []);
+});
+
+console.log('buildDeclarationLine');
+
+// The line exists to remove the source dive into ROUTES[].name (#1256), so the
+// thing worth asserting is that it is paste-ready and parses back: a line the
+// author copies verbatim must declare exactly the routes that blocked, or the
+// re-run reds again on the half it missed.
+
+check('names the distinct blocking routes, comma-joined', () => {
+  const blocking = [
+    cap('home', 4.2, 'light', 'desktop'),
+    cap('home', 4.1, 'dark', 'desktop'),
+    cap('about', 2.0, 'light', 'mobile'),
+  ];
+  assert.equal(buildDeclarationLine(blocking), 'Visual-change: home, about');
+});
+
+check('round-trips through parseDeclaration', () => {
+  const blocking = [cap('home', 4.2), cap('events-grind-after-graduation', 3.1)];
+  const line = buildDeclarationLine(blocking);
+  assert.deepEqual(parseDeclaration(line), ['home', 'events-grind-after-graduation']);
+});
+
+check('a declared line clears the routes it names', () => {
+  const results = [cap('home', 4.2, 'light', 'desktop'), cap('about', 0.1, 'light', 'desktop')];
+  const first = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const declared = parseDeclaration(buildDeclarationLine(first.blocking));
+  const second = evaluateDeclaration({ declared, knownRoutes: KNOWN, results, threshold: 1 });
+  assert.deepEqual(second.blocking, [], 'pasting the line must green the re-run');
+  assert.deepEqual(second.unknown, [], 'every name it emits comes from a measured route');
+  assert.deepEqual(second.unmoved, [], 'a blocking route moved, so it can never be stale');
+});
+
+check('no blocking routes yields no line', () => {
+  assert.equal(buildDeclarationLine([]), null);
 });
 
 console.log('isStalePayloadRerun');

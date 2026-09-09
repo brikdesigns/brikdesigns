@@ -273,20 +273,34 @@ if [[ "${SKIP_UI_CHECK:-}" != "1" ]]; then
       echo -e "${RED}✗ PR creation blocked. Verify the change in a browser, then re-run.${NC}"
       exit 1
     fi
+  fi
 
-    # Intended-visual declaration. The regression gate reds any captured route
-    # that moves >1% vs staging unless the PR body declares it
-    # (visual-change-declaration.mjs). Ask here, at author time, instead of
-    # discovering the omission at CI (#1282, repro'd on #1279). TTY-only prompt;
-    # agents/non-interactive runs pass --visual-change or the env var instead.
-    if [ -z "$VISUAL_CHANGE_ROUTES" ] && [ -t 0 ]; then
-      echo ""
-      echo -e "${YELLOW}   Any INTENDED visual change to a captured route? An undeclared >1% move${NC}"
-      echo -e "${YELLOW}   reds the regression gate. Name route(s), comma-separated; blank = none.${NC}"
-      echo    "   Valid: $(known_visual_routes | tr '\n' ' ')"
-      echo -n "   Visual-change route(s): "
-      read -r VISUAL_CHANGE_ROUTES
-    fi
+  # Intended-visual declaration. The regression gate reds any captured route
+  # that moves >1% vs staging unless the PR body declares it
+  # (visual-change-declaration.mjs). Ask here, at author time, instead of
+  # discovering the omission at CI (#1282, repro'd on #1279). TTY-only prompt;
+  # agents/non-interactive runs pass --visual-change or the env var instead.
+  #
+  # Keyed on its OWN path set, not UI_TOUCHED (#1256). The browser gate above
+  # asks "did a human look at this?" and excludes `public/` because an asset is
+  # not a code path to click through; the regression gate does not care — a
+  # swapped hero image moves the route by every pixel it covers. Nesting the
+  # two meant an image-only PR skipped the declaration and ate the first-run
+  # red anyway.
+  VISUAL_TOUCHED=$(
+    { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
+      | visual_declaration_paths | head -5
+  )
+  if [ -n "$VISUAL_TOUCHED" ] && [ -z "$VISUAL_CHANGE_ROUTES" ] && [ -t 0 ]; then
+    echo ""
+    echo -e "${YELLOW}⚠  This branch touches files that can move a captured route:${NC}"
+    echo "$VISUAL_TOUCHED" | sed 's/^/    /'
+    echo ""
+    echo -e "${YELLOW}   Any INTENDED visual change to a captured route? An undeclared >1% move${NC}"
+    echo -e "${YELLOW}   reds the regression gate. Name route(s), comma-separated; blank = none.${NC}"
+    echo    "   Valid: $(known_visual_routes | tr '\n' ' ')"
+    echo -n "   Visual-change route(s): "
+    read -r VISUAL_CHANGE_ROUTES
   fi
 fi
 

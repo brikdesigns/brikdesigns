@@ -8,6 +8,7 @@ import {
   parseDeclaration,
   evaluateDeclaration,
   classifyBlockingSpread,
+  buildDeclarationLine,
   isStalePayloadRerun,
   summarizeNoiseByRoute,
 } from './lib/visual-change-declaration.mjs';
@@ -801,9 +802,9 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
     // waive real regressions. Tell them apart by capture spread: a real render
     // change moves EVERY viewport of a route, while one route/viewport moving
     // alone — its other captures at 0.00% — is a capture-side flake.
-    if (SELF_MODE && !DECLARED_ROUTES.length) {
-      const { isolated, broad } = classifyBlockingSpread({ blocking, results });
+    const { isolated, broad } = classifyBlockingSpread({ blocking, results });
 
+    if (SELF_MODE && !DECLARED_ROUTES.length) {
       console.error('\n  Three failures look alike here — pick the remedy by signature:');
       console.error(
         '  1. INTENDED change → add the `visual-change` label AND a\n' +
@@ -832,9 +833,46 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
         );
     }
 
+    // The ready-to-paste declaration (#1256). Route names live in ROUTES[].name
+    // and nowhere the author is looking, so without this line case 1 costs a
+    // source dive on top of the guaranteed first failure. Printed under case 1's
+    // framing, never as a blanket remedy: pasting it for a flake (case 2) waives
+    // a real regression on that route.
+    const declarationLine = buildDeclarationLine(blocking);
+    if (SELF_MODE && declarationLine) {
+      console.error(
+        `\n  Case 1 only — the line to paste into the PR body, verbatim:\n\n    ${declarationLine}\n`,
+      );
+      if (DECLARED_ROUTES.length)
+        console.error(
+          '  The body already declares other routes; merge these names into that line ' +
+            'rather than adding a second one.',
+        );
+    }
+
     summary.push(
       `❌ **Undeclared regression** — ${blocking.length} capture(s) over ${DIFF_THRESHOLD}%.`,
     );
+    if (SELF_MODE && declarationLine) {
+      summary.push(
+        '',
+        DECLARED_ROUTES.length
+          ? 'If these are intended too, merge these names into the `Visual-change:` line ' +
+            'already in the PR body:'
+          : 'If this is an intended change (case 1 below), paste this into the PR body verbatim ' +
+            'and add the `visual-change` label:',
+        '',
+        '```',
+        declarationLine,
+        '```',
+      );
+      if (isolated.length)
+        summary.push(
+          '',
+          `⚠ Drop ${isolated.map((n) => `\`${n}\``).join(', ')} from that line first if you ` +
+            'concluded case 2 — declaring a flake waives a real regression on that route.',
+        );
+    }
     if (SELF_MODE && !DECLARED_ROUTES.length) {
       summary.push(
         '',
