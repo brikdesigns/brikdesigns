@@ -802,7 +802,7 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
     // waive real regressions. Tell them apart by capture spread: a real render
     // change moves EVERY viewport of a route, while one route/viewport moving
     // alone — its other captures at 0.00% — is a capture-side flake.
-    const { isolated, broad } = classifyBlockingSpread({ blocking, results });
+    const { isolated, broad, viewportScoped } = classifyBlockingSpread({ blocking, results });
 
     if (SELF_MODE && !DECLARED_ROUTES.length) {
       console.error('\n  Three failures look alike here — pick the remedy by signature:');
@@ -826,10 +826,17 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
           `\n  Signature: ${broad.map((n) => `\`${n}\``).join(', ')} moved on every captured ` +
             'viewport → INTENDED (case 1) or STALE base (case 3), not a flake.',
         );
+      if (viewportScoped.length)
+        console.error(
+          `  Signature: ${viewportScoped.map((n) => `\`${n}\``).join(', ')} moved on some ` +
+            'viewports but on BOTH themes of each → a breakpoint-scoped real change: ' +
+            'INTENDED (case 1) or STALE base (case 3), not a flake.',
+        );
       if (isolated.length)
         console.error(
-          `  Signature: ${isolated.map((n) => `\`${n}\``).join(', ')} moved on some viewports ` +
-            'but not all → likely a capture FLAKE (case 2); re-run before you label.',
+          `  Signature: ${isolated.map((n) => `\`${n}\``).join(', ')} moved on one theme of a ` +
+            "viewport while the same viewport's other theme read 0.00% → likely a capture " +
+            'FLAKE (case 2); re-run before you label.',
         );
     }
 
@@ -880,8 +887,8 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
         '',
         '| If it is… | Signature | Remedy |',
         '| --- | --- | --- |',
-        '| An intended change | moved on **every** viewport of the route | add `visual-change` label + `Visual-change:` line, then let the label event re-run — **do not `gh run rerun`** |',
-        '| A capture flake | one route/viewport moved, its others read 0.00% | re-run the failed job; **do not** label |',
+        '| An intended change | moved on **every** viewport of the route — or on a subset of viewports but on **both themes** of each (a breakpoint-scoped change) | add `visual-change` label + `Visual-change:` line, then let the label event re-run — **do not `gh run rerun`** |',
+        "| A capture flake | moved on **one theme** of a viewport while that same viewport's other theme read 0.00% | re-run the failed job; **do not** label |",
         '| A stale base | the moved routes changed on `staging` after this branch forked | rebase onto staging and re-push; **do not** label |',
       );
     }

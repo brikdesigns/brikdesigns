@@ -302,10 +302,94 @@ check('classifies each blocking route independently', () => {
   assert.deepEqual(isolated, ['about']);
 });
 
+// ── viewport-scoped: a real change at one breakpoint, not a flake (#1311) ────
+// Counting alone cannot tell these apart from a flake — both move a strict
+// subset of captures. The theme axis can: a `@media` rule takes out both themes
+// of a viewport, a decode flake takes out one capture and leaves its sibling.
+
+check('a route moving on both themes of one viewport is viewportScoped, not isolated', () => {
+  // The live case: PR #1293, runs 34282305048 + 34291952874. Byte-identical
+  // across two independent runs, so reproducible — yet the count test called it
+  // a flake and told the author to re-run instead of label.
+  const results = [
+    cap('plans', 13.92, 'light', 'desktop'),
+    cap('plans', 18.74, 'dark', 'desktop'),
+    cap('plans', 0, 'light', 'tablet'),
+    cap('plans', 0, 'dark', 'tablet'),
+    cap('plans', 0, 'light', 'mobile'),
+    cap('plans', 0, 'dark', 'mobile'),
+  ];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: ['plans'], results, threshold: 1 });
+  const { broad, isolated, viewportScoped } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(viewportScoped, ['plans']);
+  assert.deepEqual(isolated, []);
+  assert.deepEqual(broad, []);
+});
+
+check('one theme of a viewport moving alone stays isolated — the flake signature', () => {
+  // #830's own shape: services-category-marketing at dark/mobile while
+  // light/mobile measured clean. The discriminator this must not lose.
+  const results = [
+    cap('home', 2.66, 'dark', 'mobile'),
+    cap('home', 0, 'light', 'mobile'),
+    cap('home', 0, 'dark', 'desktop'),
+    cap('home', 0, 'light', 'desktop'),
+  ];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { isolated, viewportScoped } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(isolated, ['home']);
+  assert.deepEqual(viewportScoped, []);
+});
+
+check('a mixed spread — one coherent viewport plus a lone capture — stays isolated', () => {
+  // desktop moved on both themes, but light/tablet also moved while dark/tablet
+  // read 0.00%. That lone capture is unexplained by a breakpoint rule, so the
+  // route keeps the verdict that never invites a label.
+  const results = [
+    cap('home', 12, 'light', 'desktop'),
+    cap('home', 13, 'dark', 'desktop'),
+    cap('home', 9, 'light', 'tablet'),
+    cap('home', 0, 'dark', 'tablet'),
+  ];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { isolated, viewportScoped } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(isolated, ['home']);
+  assert.deepEqual(viewportScoped, []);
+});
+
+check('a single measured capture at a viewport is not corroboration', () => {
+  // Only light was captured, so the theme axis says nothing. Erring toward
+  // isolated costs a wasted re-run; erring the other way invites a label that
+  // would waive a real regression.
+  const results = [cap('home', 12, 'light', 'desktop'), cap('home', 0, 'light', 'mobile')];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { isolated, viewportScoped } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(isolated, ['home']);
+  assert.deepEqual(viewportScoped, []);
+});
+
+check('a route over threshold on every capture is still broad, never viewportScoped', () => {
+  const results = [
+    cap('home', 30, 'light', 'desktop'),
+    cap('home', 28, 'dark', 'desktop'),
+    cap('home', 25, 'light', 'mobile'),
+    cap('home', 26, 'dark', 'mobile'),
+  ];
+  const { blocking } = evaluateDeclaration({ declared: [], knownRoutes: KNOWN, results, threshold: 1 });
+  const { broad, isolated, viewportScoped } = classifyBlockingSpread({ blocking, results });
+  assert.deepEqual(broad, ['home']);
+  assert.deepEqual(viewportScoped, []);
+  assert.deepEqual(isolated, []);
+});
+
 check('empty blocking yields empty groups', () => {
-  const { broad, isolated } = classifyBlockingSpread({ blocking: [], results: [cap('home', 0)] });
+  const { broad, isolated, viewportScoped } = classifyBlockingSpread({
+    blocking: [],
+    results: [cap('home', 0)],
+  });
   assert.deepEqual(broad, []);
   assert.deepEqual(isolated, []);
+  assert.deepEqual(viewportScoped, []);
 });
 
 console.log('buildDeclarationLine');
