@@ -25,6 +25,9 @@ name: Verify (lint + token gate + schema parity)
 #  - Section-identifier lint: every top-level marketing <section> carries a
 #    stable identifier (data-section / aria-labelledby) so siblings are
 #    addressable; ratchets a per-file baseline of grandfathered debt (brikdesigns#942)
+#  - Design-source trailer: a class:ia / area:design PR names the design it was
+#    built from (Figma node ids read via get_design_context, or a live URL), so a
+#    screenshot-only build is visible at review time (brikdesigns#1303)
 #
 # Sibling to a11y.yml (which waits for Netlify) and visual-parity.yml
 # (which also waits for Netlify). This one runs on every push and PR.
@@ -147,6 +150,50 @@ jobs:
             echo "::error::@brikdesigns/bds version changed ($BASE -> $HEAD) while frozen (Path A, brikdesigns/brik-client-portal#3537). Add the 'bds-unfreeze' label to override."
             exit 1
           fi
+
+      # brikdesigns#1303. A `class:ia` / `area:design` PR must name the design it
+      # was built from, so "which design is this?" is answerable from the PR
+      # rather than reconstructed from a session transcript. #1287 rebuilt /plans
+      # from a single full-page get_screenshot and shipped 2 of 6 designed card
+      # slots; every structural gate passed because none of them compares the
+      # built page to a design. This is the cheap standing check that the design
+      # was read structurally: `Design:` naming the Figma node id(s) read via
+      # get_design_context, or a live URL for live-page reproduction work.
+      #
+      # Escape hatch (BOTH required, mirroring the repro-before-fix gate in
+      # brik-llm): the `design:none` label AND a `Design-exempt: <reason>` line.
+      # Budget: one grep of the PR body inside the existing verify job — no new
+      # workflow, no new trigger, no extra runner minute. `labeled`/`unlabeled`
+      # are already in this workflow's trigger list, so applying the label
+      # re-runs the gate instead of leaving it red forever.
+      - name: Design-source trailer (class:ia / area:design PRs name their design)
+        if: |
+          github.event_name == 'pull_request'
+          && (contains(github.event.pull_request.labels.*.name, 'class:ia')
+              || contains(github.event.pull_request.labels.*.name, 'area:design'))
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          HAS_EXEMPT_LABEL: ${{ contains(github.event.pull_request.labels.*.name, 'design:none') }}
+        run: |
+          if printf '%s' "$PR_BODY" | grep -Eq '^[[:space:]]*Design:[[:space:]]*\S'; then
+            echo "✓ Design: trailer present"
+            printf '%s' "$PR_BODY" | grep -E '^[[:space:]]*Design:' | head -5
+            exit 0
+          fi
+          if [ "$HAS_EXEMPT_LABEL" = "true" ] \
+             && printf '%s' "$PR_BODY" | grep -Eq '^[[:space:]]*Design-exempt:[[:space:]]*\S'; then
+            echo "✓ exempt — design:none label + Design-exempt reason"
+            printf '%s' "$PR_BODY" | grep -E '^[[:space:]]*Design-exempt:' | head -2
+            exit 0
+          fi
+          echo "::error::This PR is class:ia or area:design and has no 'Design:' line in its body."
+          echo "::error::Add one naming what you built from — the Figma node id(s) you read with"
+          echo "::error::get_design_context (e.g. 'Design: Figma yhLkzLUnG71UFTgURDvgnv 26103:10991'),"
+          echo "::error::or the live URL for live-page reproduction work."
+          echo "::error::A get_screenshot raster is NOT a design source — see"
+          echo "::error::.claude/references/design-ground-truth-workflow.md (brikdesigns#1303)."
+          echo "::error::No design involved? Add the 'design:none' label AND a 'Design-exempt: <reason>' line."
+          exit 1
 
       # brikdesigns#807. A dynamic segment at a route-group root loses to every
       # named sibling silently, so the guard's own failure path is asserted too —
