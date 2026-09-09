@@ -57,6 +57,36 @@ mistake into code.
 Routing canon lives upstream in [`figma-workflow`](../../../brik-llm/.claude/skills/figma-workflow/SKILL.md)
 (brikdesigns/brik-llm#3247).
 
+### Figma owns layout and style — Notion owns copy
+
+**Figma mockups are not copy-accurate — by design.** They capture layout, structure, and style
+choices. The text inside them is frequently placeholder from whatever component the frame was
+instanced from.
+
+**Notion is the copy source of truth.** The page's row in the *Brik Designs Website* database
+(matched on its `Slug`, e.g. `/plans`) holds the real headings, body copy, and CTA labels.
+
+| Question | Ask | Never ask |
+|---|---|---|
+| What slots does this card have? Which band? What radius, fill, spacing? | **Figma** | Notion |
+| What does this heading/paragraph/button actually say? | **Notion** | Figma |
+| What is this price? | the **DB** (`service_plan_tiers` — pricing SoT, #1123) | either |
+
+**The consequence that bites:** a slot present in Figma with *no corresponding copy in Notion* is
+usually a layout placeholder, not a missing feature. A slot whose Figma text differs from Notion's
+means **Notion wins** — do not transcribe Figma's words.
+
+> Both directions of this went wrong on `/plans` (#1304). Figma's `section-type` cards show a `$750`
+> price and a per-card button that Notion has no copy for — those slots are correctly absent. But the
+> shipped card *titles* read "Advisory (you execute)" / "Managed (we execute)", which is **Figma's**
+> text; Notion says plainly "Advisory" and "Managed". The icon chip — pure style, no copy dependency —
+> is the one slot genuinely missing.
+
+**Where the two SoTs collide, escalate — don't pick.** On a CMS-backed section, Notion is the
+*authoring* source and the DB is the *render* source, so drift between them is a content fix, not a
+code fix. `/plans` plan-card names and descriptions render from `service_plans`, and none of them
+currently match Notion (#1308). Never "fix" that in TSX.
+
 ### Placeholder content is a question, not a licence to drop the slot
 
 A mockup often carries un-swapped placeholder values from the component it was instanced from. That

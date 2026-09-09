@@ -82,7 +82,11 @@ Read `COMPONENT-MAP.md`. Then pick your ground truth by **work type** (`.claude/
 
 In BOTH: if the value you need is a token (a bg, radius, gap, band rule), **grep the CSS** — never open a browser to read a value that lives in the file you're editing.
 
-NEVER drop a designed slot because the mockup's value is un-swapped placeholder — placeholder content is a **question for Nick**, not licence to cut the slot. #1287 shipped `/plans` cards with 2 of 6 designed slots this way (#1304). Map every Figma variable to a real `dist/tokens.css` name via `validate-token-names`; surface a gap, never invent a name.
+**Figma owns layout and style; Notion owns copy; the DB owns prices.** Figma mockups are NOT copy-accurate — their text is often placeholder from the instanced component. Read headings, body copy, and CTA labels from the page's row in the Notion *Brik Designs Website* DB (matched on `Slug`), never transcribed off the mockup. A Figma slot with no Notion copy is usually a layout placeholder; where Figma's words differ from Notion's, **Notion wins**. Both directions of this went wrong on `/plans` (#1304).
+
+NEVER drop a designed slot because the mockup's value is un-swapped placeholder — placeholder content is a **question for Nick**, not licence to cut the slot. Map every Figma variable to a real `dist/tokens.css` name via `validate-token-names`; surface a gap, never invent a name.
+
+On a CMS-backed section, Notion is the **authoring** source and the DB is the **render** source — drift between them is a content fix (#1308), never a copy literal in TSX.
 
 ## When touching `/services/*` URLs or service_lines slugs
 
