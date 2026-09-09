@@ -1020,6 +1020,52 @@
   }
 }
 
+/* ─── Brand CTA ("Ready to see what fits?") ─────────────────── */
+/* Closing orange brand panel under section-about, duplicated from /how-we-work.
+   Panel + layout come from the shared .cta-section-brand / .cta-card-brand
+   (shared-sections.css); these rules mirror how-we-work.css .hiw-cta__* for the
+   on-color copy + the white-outline secondary on the fixed brand-orange surface. */
+.home-cta__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-lg);
+  font-weight: 700;
+  line-height: var(--font-line-height-tight);
+  color: var(--text-on-color-dark);
+  text-align: center;
+  margin: 0;
+}
+
+.home-cta__description {
+  font-family: var(--font-family-body);
+  /* --body-xl (20px) + weight 700 makes this WCAG "large text" (≥18.66px bold),
+     so the invariantly-white on-color copy clears the 3:1 large-text bar on the
+     fixed brand-orange panel (white on #e35335 = 3.78:1, which fails the 4.5:1
+     normal-text bar — the a11y gate caught this on the home route; the shared
+     hiw-cta__description ships the same white-on-orange at --body-lg only because
+     /how-we-work isn't in the axe route set. Follow-up: fix the shared pattern). */
+  font-size: var(--body-xl);
+  font-weight: 700;
+  line-height: var(--font-line-height-normal);
+  color: var(--text-on-color-dark);
+  text-align: center;
+  max-width: 640px;
+  margin: 0;
+}
+
+/* White outline on the fixed brand-orange panel — mirrors .hero-btn-on-dark /
+   .hiw-cta__btn-outline: --border-inverse flips black in dark mode (invisible on
+   the orange), so pin border + label to the invariantly-white --text-on-color-dark. */
+.home-cta__btn-outline.bds-button--outline {
+  color: var(--text-on-color-dark);
+  border-color: var(--text-on-color-dark); /* bds-lint-ignore token-family — white outline on the fixed brand-orange CTA panel; --border-inverse flips black in dark and vanishes, --text-on-color-dark is invariantly white (matches .hero-btn-on-dark / how-we-work .hiw-cta__btn-outline) */
+}
+
+.home-cta__btn-outline.bds-button--outline:hover:not(:disabled) {
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  filter: none;
+}
+
 /* ─── Marketing Audit CTA ─────────────────────────────────── */
 /* Webflow: .section_marketing-audit — full-width, centered, 100vh min */
 .section-audit {
