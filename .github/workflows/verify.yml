@@ -34,13 +34,21 @@ name: Verify (lint + token gate + schema parity)
 
 on:
   pull_request:
-    # `labeled` / `unlabeled` are load-bearing for the BDS version-freeze
-    # guard below: its override IS a label, so without them a correctly
-    # labelled bump stays red forever. `gh run rerun` cannot rescue it either —
-    # the guard reads `github.event.pull_request.labels.*.name` from the event
-    # payload, so a re-run replays the pre-label payload and fails again.
-    # Same reasoning, same fix as visual-regression.yml's declaration gate.
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    # `labeled` / `unlabeled` / `edited` are load-bearing for the two gates below
+    # whose pass condition lives on the PR itself rather than in the diff:
+    #   • the BDS version-freeze guard — its override IS a label
+    #   • the design-source gate — its override IS a `Design:` line in the BODY
+    # Without the matching event type, a PR that is then corrected stays red
+    # forever, and `gh run rerun` cannot rescue it: both gates read
+    # `github.event.pull_request.*` from the event payload, so a re-run replays
+    # the pre-correction payload and fails again. The only other way out is an
+    # empty commit to force `synchronize`, which is what #1325 was filed for
+    # after #1316 paid it.
+    #
+    # So: any gate added here that reads the PR's labels, title, or body needs
+    # its event type in this list. `edited` fires on a title change too — a 43s
+    # re-run for a rare event, the same trade visual-regression.yml took (#856).
+    types: [opened, synchronize, reopened, labeled, unlabeled, edited]
     branches:
       - main
       - staging
