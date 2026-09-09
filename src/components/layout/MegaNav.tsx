@@ -234,6 +234,9 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
               height={50}
               className="site-logo"
               priority
+              // Vector source — skip the `_next/image` raster pass, which is
+              // the decode step #830 flakes on. See Footer.tsx for the detail.
+              unoptimized
               style={{ width: 'auto', height: 'auto' }}
             />
           </Link>
