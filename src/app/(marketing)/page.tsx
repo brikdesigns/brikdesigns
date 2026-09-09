@@ -495,8 +495,8 @@ export default async function HomePage() {
               title="The people you'll work with."
               description="You work directly with Abbey and Nick — not a coordinator, not a rotating team, not a ticketing system. Every client gets both of us from day one."
             />
-            <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
-              Get Your Free BrikDown
+            <Button href="/about" variant="primary" size="lg">
+              Learn More
             </Button>
           </div>
           <div className="about-cards">
@@ -504,6 +504,39 @@ export default async function HomePage() {
               <TeamMember key={member.name} member={member} orientation="stacked" />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ═══ CTA ("Ready to see what fits?") ═══ */}
+      {/* Duplicated from the /how-we-work brand CTA (cta-section-brand /
+          cta-card-brand, shared-sections.css) so the home closes on the same
+          orange brand panel, directly under section-about — operator ask. Copy +
+          CTAs mirror the how-we-work instance; home-cta__* text rules mirror
+          hiw-cta__* (homepage.css). The panel is a fixed brand-primary surface
+          with invariantly-white on-color text, so it's outside the card-treatment
+          luminance rule (it's not a <Card>). */}
+      <section className="cta-section-brand home-cta" data-section="cta">
+        <div className="cta-card-brand">
+          <div className="cta-card-brand__content">
+            <h2 className="home-cta__title">Ready to see what fits?</h2>
+            <p className="home-cta__description">
+              You work directly with Abbey and Nick throughout — from the BrikDown to Foundation
+              to ongoing. We keep our client list focused so every engagement gets our full attention.
+            </p>
+          </div>
+          <Cluster gap="md" justify="center">
+            <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+              Get your free BrikDown
+            </Button>
+            <Button
+              href="/plans"
+              variant="outline"
+              size="lg"
+              className="home-cta__btn-outline"
+            >
+              See all plans
+            </Button>
+          </Cluster>
         </div>
       </section>
 
