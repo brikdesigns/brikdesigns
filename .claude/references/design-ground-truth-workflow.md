@@ -178,6 +178,24 @@ The `playwright` MCP server (`@playwright/mcp@latest`) is configured in `.claude
 | `browser_snapshot` | Accessibility-tree snapshot (text + structure) |
 | `browser_click` / `browser_hover` | Trigger interactive states |
 
+**Full-page screenshots and the scroll-reveal effect (#1323).** `ScrollReveal.tsx`
+starts below-the-fold sections at `opacity:0` and reveals them only when an
+IntersectionObserver fires on scroll. `browser_take_screenshot` with `fullPage`
+renders the whole document height *without scrolling*, so those sections capture
+blank. The MCP browser sets `navigator.webdriver`, so ScrollReveal now paints the
+revealed state directly under automation — but if you screenshot via another tool
+(or a raw headless run where `webdriver` is unset), do one of these first:
+
+```js
+// Reveal everything the component has tagged, then screenshot:
+document.querySelectorAll('.scroll-reveal').forEach(el => el.classList.add('scroll-reveal--in'))
+```
+
+Or emulate reduced motion (the component bails and never hides — same path the
+a11y suite uses, `playwright.config.ts`), or scroll to the bottom and wait ~600ms
+before capturing. Print/PDF export is already covered by an `@media print` rule in
+`scroll-reveal.css`.
+
 **Common patterns:**
 
 ```js
