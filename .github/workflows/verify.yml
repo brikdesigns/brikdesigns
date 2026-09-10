@@ -52,30 +52,60 @@ on:
     branches:
       - main
       - staging
-    # Skip on doc-only / workflow-only changes. Any file that feeds lint,
-    # token-gate, or schema-parity must be listed here. Push-to-staging/main
-    # (merge commits) always runs — no paths filter on push.
-    paths:
-      - 'src/**'
-      - 'scripts/**'
-      - 'public/**'
-      - 'supabase/**'
-      - 'eslint.config.mjs'
-      - 'next.config.*'
-      - 'tsconfig*.json'
-      - 'package.json'
-      - 'package-lock.json'
   push:
     branches:
       - main
       - staging
+
+# NO workflow-level `paths:` filter, deliberately — `verify` is a REQUIRED
+# status check on `staging` and a workflow skipped by path filtering leaves its
+# check Pending forever, blocking the merge (#1334). The filter lives in the
+# `changes` job below instead. Do not "tidy" it back up here.
 
 concurrency:
   group: verify-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Skip on doc-only / workflow-only changes. Any file that feeds lint,
+  # token-gate, or schema-parity must be listed here. Push-to-staging/main
+  # (merge commits) always runs — no paths filter on push.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      run: ${{ steps.match.outputs.run }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: match
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" != 'pull_request' ]; then
+            echo "▸ ${{ github.event_name }} event — merge commits always verify" >&2
+            echo 'run=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate --jq '.[].filename' \
+          | node scripts/ci-paths-match.mjs \
+              --pattern 'src/**' \
+              --pattern 'scripts/**' \
+              --pattern 'public/**' \
+              --pattern 'supabase/**' \
+              --pattern 'eslint.config.mjs' \
+              --pattern 'next.config.*' \
+              --pattern 'tsconfig*.json' \
+              --pattern 'package.json' \
+              --pattern 'package-lock.json' \
+            >> "$GITHUB_OUTPUT"
+
   verify:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     permissions:
@@ -297,6 +327,15 @@ jobs:
 
       - name: Visual-change declaration (waiver still blocks the undeclared)
         run: npm run test:visual-change
+
+      # brikdesigns#1334. This matcher decides whether a REQUIRED gate applies
+      # to a PR, so a false negative skips a required check on a PR that needed
+      # it — grey, green, and silent. The self-test also asserts the LIVE gate
+      # workflows: every `--pattern` must compile under the supported subset,
+      # and none of the four may have a workflow-level `paths:` filter back,
+      # which would leave its required check Pending forever.
+      - name: CI paths matcher — self-test (semantics + the live gate lists)
+        run: npm run test:ci-paths-match
 
       - name: Icon-collection drift (offline Phosphor subset in sync with usage)
         run: npm run gen:icons:check

@@ -57,6 +57,14 @@ USE merge-commit only — NEVER squash or rebase; target `staging` for every PR.
 
 NEVER open, propose, recommend, or ask about a `staging → main` promote — Brik stays on Webflow, and leaving it is an explicit call Nick makes in his own words. #1166 (promote) and #371 (DNS cutover) are `status:frozen`. A green Netlify preview, a closed content blocker, and a growing `main..staging` commit gap are NOT signals to raise it; `www.brikdesigns.com` CNAMEs to `cdn.webflow.com`, so a promote does not reach the public either way. Gated by `.github/workflows/no-promote-to-main.yml`.
 
+## When adding a CI gate, or wondering which checks block a merge
+
+`staging`'s required status checks are **six**: `gitleaks`, `closing-keyword-guard`, `verify`, `axe`, `regression`, `mockup`. They live in a branch ruleset, which is invisible in a checkout — read or re-apply it with `./scripts/apply-staging-ruleset.sh --check` / `--apply`, never by clicking. #1334.
+
+Advisory by design and deliberately NOT required: `visual-parity` (`continue-on-error`, [visual-parity.yml:92](.github/workflows/visual-parity.yml#L92)), `require-area-label` (a cancelled check-run keeps reporting `expected` and only a new head SHA clears it — brik-llm#2094, recorded at [pr-label-gate.yml:43-49](.github/workflows/pr-label-gate.yml#L43-L49)), and the `*-contract` self-test workflows.
+
+NEVER give a required gate a workflow-level `on.<event>.paths` filter — a workflow skipped by path filtering leaves its check **Pending**, and a PR that requires it can never merge ([GitHub: workflow-syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushpull_requestpull_request_targetpathspaths-ignore)). PUT the path list in a `changes` job that calls `scripts/ci-paths-match.mjs`, and gate the real job on `if: needs.changes.outputs.run == 'true'` — a skipped **job** is accepted where a skipped **workflow** is not ([GitHub: about-protected-branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)). `verify`, `axe`, `mockup` and `regression` are all on that shape; `npm run test:ci-paths-match` fails if a `paths:` filter comes back.
+
 ## When installing or running locally
 
 Install: `op run --env-file=.env.op -- npm install`
