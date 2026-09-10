@@ -3,6 +3,12 @@ import path from 'node:path';
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { gotoRendered } from './lib/goto-rendered';
+import {
+  compileBaseline,
+  isWaived,
+  type BaselineFile,
+  type Theme,
+} from './lib/baseline-match';
 
 /**
  * Public-route WCAG 2.1 AA audit — brikdesigns.com.
@@ -88,52 +94,19 @@ const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 
-type RouteBaseline = Record<string, Record<string, string[]>>;
-
-interface BaselineFile {
-  // Light-theme baseline (the original, default project).
-  routes: RouteBaseline;
-  // Dark-theme baseline (`chromium-desktop-dark` project). The two themes
-  // resolve different tokens, so a finding allowed in one is NOT automatically
-  // allowed in the other — each theme keeps its own debt list. #359 follow-up.
-  routesDark?: RouteBaseline;
-}
-
-type Theme = 'light' | 'dark';
-
+// The baseline waives accepted debt by the VIOLATION's identity — rule +
+// colour pair, scoped to route and theme — not by CSS selector (#1361). A
+// selector re-roots on any DOM change nearby, which made the ratchet read an
+// already-accepted violation as new: 21 hand-maintenance passes and a
+// 13,090-character changelog inside a JSON string value. The matcher itself
+// lives in ./lib/baseline-match.ts with a self-test (`npm run test:a11y-baseline`).
+//
+// The two themes resolve different tokens, so a finding allowed in one is NOT
+// automatically allowed in the other — each theme keeps its own debt list.
+// #359 follow-up.
 const BASELINE_PATH = path.join(process.cwd(), 'tests/a11y/baseline.json');
 const baseline: BaselineFile = JSON.parse(fs.readFileSync(BASELINE_PATH, 'utf8'));
-
-// Axe emits positional indices like `:nth-child(3)` to point at a specific
-// node, but the underlying violation is usually identical across siblings
-// (e.g., five service cards with the same low-contrast subtext style).
-// Stripping these indices on both sides collapses repeats into one canonical
-// baseline entry per underlying violation. See issue #40 thread.
-function normalizeSelector(selector: string): string {
-  return selector
-    .replace(/:nth-child\(\d+\)/g, '')
-    .replace(/:nth-of-type\(\d+\)/g, '');
-}
-
-function normalize(routeBaseline: RouteBaseline): Record<string, Record<string, Set<string>>> {
-  const out: Record<string, Record<string, Set<string>>> = {};
-  for (const [route, rules] of Object.entries(routeBaseline)) {
-    out[route] = {};
-    for (const [ruleId, selectors] of Object.entries(rules)) {
-      out[route][ruleId] = new Set(selectors.map(normalizeSelector));
-    }
-  }
-  return out;
-}
-
-const normalizedBaseline: Record<Theme, Record<string, Record<string, Set<string>>>> = {
-  light: normalize(baseline.routes),
-  dark: normalize(baseline.routesDark ?? {}),
-};
-
-function isBaselined(theme: Theme, routePath: string, ruleId: string, selector: string): boolean {
-  return normalizedBaseline[theme][routePath]?.[ruleId]?.has(normalizeSelector(selector)) ?? false;
-}
+const compiledBaseline = compileBaseline(baseline);
 
 // ── Accepted brand exception: white CTA label on poppy-light ────────────────
 //
@@ -260,11 +233,11 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
       const blocking = flatFindings.filter(
         (f) =>
           BLOCKING_IMPACTS.has(f.impact) &&
-          !isBaselined(theme, route.path, f.ruleId, f.selector) &&
+          !isWaived(compiledBaseline, theme, route.path, f) &&
           !isAcceptedBrandCtaContrast(f),
       );
       const baselined = flatFindings.filter(
-        (f) => BLOCKING_IMPACTS.has(f.impact) && isBaselined(theme, route.path, f.ruleId, f.selector),
+        (f) => BLOCKING_IMPACTS.has(f.impact) && isWaived(compiledBaseline, theme, route.path, f),
       );
       const nonBlocking = flatFindings.filter((f) => !BLOCKING_IMPACTS.has(f.impact));
 
