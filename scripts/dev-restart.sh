@@ -110,18 +110,46 @@ USAGE
   esac
 done
 
+# ── Descendant walk (#1368) ──
+# The process that owns the port is NOT the one this script launched, and it
+# does not carry either key the ps sweep below greps for. Measured on brik-mini
+# 2026-09-10, port 3096:
+#
+#   $ ps -o command= -p <port owner>   →  next-server (v16.2.11)
+#     contains "node"?          0
+#     contains "$PROJECT_DIR"?  0
+#
+# Next 16 rewrites the dev server's process title to `next-server (vX.Y.Z)`, so
+# `ps aux | grep node | grep $PROJECT_DIR` matches only the `op run` / `npx`
+# wrappers above it. Killing exactly what that sweep returns left the port owner
+# alive and still LISTENing — that is the whole of #1368: in the window between
+# `next-server` spawning and binding, NEITHER arm of the cleanup can see it, so
+# the pre-flight declares the port free and the new `next dev` loses the race
+# with `EADDRINUSE: address already in use :::$PORT` (IPv6 — `next-server` binds
+# `*:$PORT` / `tcp46`). By the time a human runs `lsof` both processes are gone,
+# which is why every hand-run query in #1368 came back empty.
+#
+# So sweep by DESCENDANT, not by cmdline: the wrappers are matchable and the
+# port owner is always below one of them.
+kill_tree() {
+  local pid="$1" child
+  for child in $(pgrep -P "$pid" 2>/dev/null || true); do
+    kill_tree "$child"
+  done
+  kill -9 "$pid" 2>/dev/null || true
+}
+
 # 1. Kill only THIS worktree's dev server. Anything listening on our port is
-#    the definitive owner; the ps sweep catches a boot that has not bound yet.
+#    the definitive owner; the ps sweep catches a boot that has not bound yet —
+#    but only via kill_tree, which reaches the retitled `next-server` child.
 echo "→ Killing dev processes for $(basename "$PROJECT_DIR") on port $PORT..."
 PORT_PIDS=$(lsof -ti :"$PORT" 2>/dev/null || true)
 if [[ -n "$PORT_PIDS" ]]; then
-  echo "$PORT_PIDS" | xargs kill -9 2>/dev/null || true
+  for pid in $PORT_PIDS; do kill_tree "$pid"; done
 fi
 NODE_PIDS=$(ps aux | grep "node" | grep "$PROJECT_DIR" | grep -v grep | awk '{print $2}' || true)
 if [[ -n "$NODE_PIDS" ]]; then
-  echo "$NODE_PIDS" | while read -r pid; do
-    kill -9 "$pid" 2>/dev/null || true
-  done
+  for pid in $NODE_PIDS; do kill_tree "$pid"; done
 fi
 
 # 2. Wait for the port to release, then force-kill stragglers.
@@ -129,14 +157,25 @@ sleep 0.5
 PORT_PIDS=$(lsof -ti :"$PORT" 2>/dev/null || true)
 if [[ -n "$PORT_PIDS" ]]; then
   echo "→ Port $PORT still held — force-killing stragglers..."
-  echo "$PORT_PIDS" | xargs kill -9 2>/dev/null || true
+  for pid in $PORT_PIDS; do kill_tree "$pid"; done
   sleep 0.5
 fi
 
 # 3. Verify the port is free. Without this, `next dev` picks the next free
 #    port and prints a URL nobody is watching.
-if lsof -i :"$PORT" -sTCP:LISTEN &>/dev/null; then
-  printf '%b\n' "${RED}✗ Port $PORT still in use after cleanup. Check: lsof -i :$PORT${NC}" >&2
+#
+#    `netstat` as well as `lsof`, because they do not see the same thing: `lsof`
+#    attributes a socket to a PID, so a bound socket whose owner it cannot
+#    attribute is absent from its output entirely, while `netstat -an` reports
+#    the socket itself. #1368's failure advice pointed at the `lsof` query that
+#    had already come back empty, which left the session with no next step.
+if lsof -i :"$PORT" -sTCP:LISTEN &>/dev/null || netstat -an 2>/dev/null | grep -qE "\.${PORT}[[:space:]].*LISTEN"; then
+  printf '%b\n' "${RED}✗ Port $PORT still in use after cleanup.${NC}" >&2
+  printf '%b\n' "${YELLOW}  Holder (lsof attributes a socket to a PID; netstat reports the socket):${NC}" >&2
+  lsof -nP -i :"$PORT" >&2 2>/dev/null || true
+  netstat -an 2>/dev/null | grep -E "\.${PORT}[[:space:]]" >&2 || true
+  printf '%b\n' "${YELLOW}  If both are empty the socket has no attributable owner — take another port:${NC}" >&2
+  printf '%b\n' "${YELLOW}    ./scripts/dev-restart.sh --port $((PORT + 10))${NC}" >&2
   exit 1
 fi
 
@@ -203,6 +242,7 @@ fi
 echo "→ Starting dev server on port $PORT..."
 nohup op run --no-masking --env-file=.env.op -- npx next dev --port "$PORT" \
   > "$LOG" 2>&1 &
+DEV_PID=$!
 
 # 6. Wait for the server to bind (up to 40s — a cold Turbopack boot with no
 #    .next is slower than the portal's 20s budget).
@@ -217,7 +257,18 @@ for _ in {1..40}; do
   sleep 1
 done
 
+# 7. Timing out is not the same as stopping (#1368). This path used to `exit 1`
+#    with the tree from step 5 still running, so a slow cold boot left a
+#    `next-server` behind that was mid-bind and invisible to step 1's sweep —
+#    and it bound a second or two later, which is why the NEXT run hit
+#    `EADDRINUSE :::$PORT` on a port every check called free. Reap what we
+#    launched before giving up, so the leak cannot outlive this script.
 printf '%b\n' "${RED}✗ Server failed to bind port $PORT within 40s.${NC}" >&2
+printf '%b\n' "${YELLOW}  Reaping the boot we launched (PID $DEV_PID + descendants)...${NC}" >&2
+kill_tree "$DEV_PID"
 printf '%b\n' "${YELLOW}  Last 20 log lines:${NC}" >&2
 tail -20 "$LOG" >&2 || true
+printf '%b\n' "${YELLOW}  If the boot is merely slow rather than broken, re-run — the port is${NC}" >&2
+printf '%b\n' "${YELLOW}  clean now. If it fails again on this port, take another:${NC}" >&2
+printf '%b\n' "${YELLOW}    ./scripts/dev-restart.sh --port $((PORT + 10))${NC}" >&2
 exit 1
