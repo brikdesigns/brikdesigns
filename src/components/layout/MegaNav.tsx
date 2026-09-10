@@ -35,7 +35,6 @@ interface NavServiceLine {
 interface SupportPlan {
   name: string;
   slug: string;
-  price: string;
   description: string;
   imageUrl: string | null;
   /** Route segment of the plan's marketing service line, or `null` when the CMS
@@ -290,13 +289,15 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             <span className="bds-button__content">Learn More</span>
                           </Link>
                         </div>
-                        {/* Cols 2–4: plan cards. Product Support is excluded — it
-                            has its own dedicated section on /plans. Card image is
-                            the plan's service-line card_image_url (single CMS
-                            source, #467). */}
+                        {/* Cols 2–4: plan cards. Every public plan renders —
+                            the niche plan this once filtered out was unpublished
+                            (`is_public: false`), so the hand-maintained exclusion
+                            that stood here became unreachable and went with it
+                            (#1385 names the row). Card
+                            image is the plan's service-line card_image_url
+                            (single CMS source, #467). */}
                         <div className="mega-nav__plans-grid">
                           {supportPlans
-                            .filter((plan) => plan.slug !== 'product-support')
                             .map((plan) => {
                               const image = plan.imageUrl;
                               if (!image) return null;

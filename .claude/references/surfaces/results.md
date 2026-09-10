@@ -49,8 +49,8 @@ Section 1's story cards go through `mapServiceLineSlug` to reach the canonical `
 
 | Constraint | Why | Evidence |
 |---|---|---|
-| `product-support` is **excluded** from section 2 | a niche plan; it stays live on `/plans` and its detail route | `page.tsx:30-34` |
-| Section 2's plan cards mirror the home page's Monthly Subscription mapping, not a re-authored one | one card, one join, three surfaces (`/`, `/contact`, here) | `page.tsx:27-31` |
+| Section 2 renders **every public plan** — no per-surface exclusion | `product-support` was unpublished (`is_public: false`); the four hand-maintained filters were working around a row that should not have been public, and removing them deletes the pattern that produced the leak | `page.tsx:31-33`, #1385 |
+| Section 2's plan cards mirror the home page's Monthly Subscription mapping, not a re-authored one | one card, one join, three surfaces (`/`, `/contact`, here). The tier prices come from the shared `planTierPrices()` helper, not a per-surface `.find()` | `page.tsx:27-31`, `src/lib/plan-tier-prices.ts` |
 | The plan card's CTA tint comes from the joined display line, not the plan | the card links to `/plans/{slug}`, whose CTAs are tinted from that line | `page.tsx:44-46`, #1001 |
 | An empty story list renders a **visible fallback**, not a hidden section | "Customer stories coming soon." — the page never collapses to nothing | `page.tsx:87-89` |
 | Section 2 is conditional; section 1 and 3 are not | no plans → no band at all, rather than an empty tinted band | `page.tsx:93` |
