@@ -18,25 +18,50 @@ on:
     branches:
       - main
       - staging
-    # Run when something rendered could change, or when the gate itself changes.
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'next.config.*'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tests/a11y/**'
-      # The readiness wait decides WHEN the suite runs against the preview, so
-      # a change to it must re-run this gate (#1220).
-      - 'scripts/wait-for-netlify-preview.sh'
-      - '.github/workflows/a11y.yml'
+
+# NO workflow-level `paths:` filter, deliberately — `axe` is a REQUIRED status
+# check on `staging` and a workflow skipped by path filtering leaves its check
+# Pending forever, blocking the merge (#1334). The filter lives in the `changes`
+# job below instead: the workflow always runs, and the gate job SKIPS when it
+# does not apply, which required checks accept. Do not "tidy" it back up here.
 
 concurrency:
   group: a11y-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Run when something rendered could change, or when the gate itself changes.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      run: ${{ steps.match.outputs.run }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: match
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate --jq '.[].filename' \
+          | node scripts/ci-paths-match.mjs \
+              --pattern 'src/**' \
+              --pattern 'public/**' \
+              --pattern 'next.config.*' \
+              --pattern 'package.json' \
+              --pattern 'package-lock.json' \
+              --pattern 'tests/a11y/**' \
+              --pattern 'scripts/wait-for-netlify-preview.sh' \
+              --pattern 'scripts/ci-paths-match.mjs' \
+              --pattern '.github/workflows/a11y.yml' \
+            >> "$GITHUB_OUTPUT"
+
   axe:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
