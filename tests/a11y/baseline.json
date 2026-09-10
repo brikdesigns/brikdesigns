@@ -129,7 +129,8 @@
     "/plans/back-office-support": {
       "color-contrast": [
         ".bds-button--full-width > .bds-button__content",
-        ".bds-button--sm"
+        ".bds-button--sm",
+        ".bds-content-block--on-color > .bds-content-block__description"
       ]
     },
     "/privacy-policy": {
@@ -276,6 +277,7 @@
         "#hero-back-office-support-title",
         ".bds-button--full-width > .bds-button__content",
         ".bds-button--sm",
+        ".bds-content-block--on-color > .bds-content-block__description",
         ".bp-hero-img-card__lead"
       ]
     },
