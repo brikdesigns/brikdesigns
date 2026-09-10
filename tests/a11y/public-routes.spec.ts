@@ -60,6 +60,14 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/free-marketing-analysis', name: 'Free marketing analysis' },
   { path: '/value', name: 'Value' },
   { path: '/privacy-policy', name: 'Privacy policy' },
+  // #1360. Both are static marketing pages that were never in this list, and the
+  // gap hid a real AA failure: .hiw-cta__description shipped white-on-poppy at
+  // --body-lg/400 (3.78:1 against the 4.5:1 normal-text bar) for as long as
+  // /how-we-work went unaudited. `lint:axe-route-coverage` now fails CI when a
+  // static page.tsx under (marketing) is missing from ROUTES, so the drift that
+  // let that happen cannot recur.
+  { path: '/how-we-work', name: 'How we work' },
+  { path: '/terms', name: 'Terms' },
 ];
 
 // WCAG 2.1 AA tags — locked to the standard. Don't silently bump the

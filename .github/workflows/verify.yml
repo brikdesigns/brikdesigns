@@ -78,6 +78,13 @@ jobs:
   # check renders as nothing, which is exactly what "all checks passed" looks
   # like (#1345).
   #
+  # `tests/a11y/public-routes.spec.ts` is listed for the same self-trigger
+  # reason, one layer over: `lint:axe-route-coverage` READS that file, so an
+  # edit that deletes a ROUTES entry while leaving the page.tsx in place is a
+  # coverage regression the lint would catch — but only if it runs, and
+  # `tests/**` is otherwise not in this list. The add-a-page direction is
+  # already covered by `src/**` (#1360).
+  #
   # Do not comment INSIDE the `--pattern` continuation below: a `#` line between
   # two `\`-continued lines comments out the rest of the command.
   changes:
@@ -111,6 +118,7 @@ jobs:
               --pattern 'tsconfig*.json' \
               --pattern 'package.json' \
               --pattern 'package-lock.json' \
+              --pattern 'tests/a11y/public-routes.spec.ts' \
               --pattern '.github/workflows/verify.yml' \
             >> "$GITHUB_OUTPUT"
 
@@ -332,6 +340,19 @@ jobs:
 
       - name: Card-class lint — self-test (parser + both ratchet directions)
         run: npm run test:lint:card-class
+
+      # brikdesigns#1360. The `axe` gate's route set is hand-maintained, so it
+      # drifts behind the app silently — a new page.tsx ships a public route no
+      # a11y gate audits, with no error anywhere. /how-we-work and /terms had
+      # never been in it, and the gap hid a real 3.78:1 AA failure that
+      # homepage.css already named in a code comment. One-directional on
+      # purpose: extra ROUTES entries (dynamic-family representatives, redirect
+      # sources) are legitimate; a page on disk that nothing audits is not.
+      - name: Axe route-coverage lint (every static marketing page is audited)
+        run: npm run lint:axe-route-coverage
+
+      - name: Axe route-coverage lint — self-test (fixtures + vacuous-pass guards)
+        run: npm run test:lint:axe-route-coverage
 
       # brikdesigns#1280 (ADR-040 slice 1). The pre-commit hook skips the
       # token/hardcoded/heading/section lints on a content-only commit; this
