@@ -28,8 +28,10 @@
 
 /* ─── Split-hero skeleton layout ─────────────────────────────
    Two-column hero (content left, media right) used by the interior `.page-hero`
-   skeletons (customers/plans/services). Mirrors `.customer-detail-hero`'s
-   responsive collapse so the skeleton geometry tracks the real hero. */
+   skeletons (customers/plans/services). Mirrored `.customer-detail-hero`'s
+   responsive collapse; that hero moved to BDS `.bds-hero--split` (3fr 2fr,
+   collapsing at 768px) in #1356, so these values no longer track it. Currently
+   referenced by no component — grep `skeleton-hero-split`. */
 .skeleton-hero-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
