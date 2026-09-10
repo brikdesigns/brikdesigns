@@ -339,55 +339,52 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                     href={`/results/${s.slug}`}
                     className="services-card-link"
                   >
+                    {/* h4 title (not the default h3) + `display-card--title-sm`
+                        steps the story name to --heading-sm so it doesn't
+                        overpower the card at --heading-md. Flush media (default)
+                        — the story card is not a service card, so it keeps the
+                        lg body inset rather than the service `inset` treatment. */}
                     <Card
-                      variant="outlined"
-                      padding="md"
-                      interactive
-                      className="services-card display-card--title-sm"
+                      preset="display"
+                      className="display-card--title-sm"
                       style={{ height: '100%' }}
-                    >
-                      {s.hero_image_url && (
-                        <Frame customRatio="16 / 9" fit="cover" className="services-card__media">
-                          <Image
-                            src={s.hero_image_url}
-                            alt={s.client_name || s.name || ''}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            sizes="(max-width: 768px) 100vw, 400px"
-                          />
-                        </Frame>
-                      )}
-                      <div className="services-card__content">
-                        {s.service_line_slug && (
+                      titleAs="h4"
+                      title={s.name || s.client_name || ''}
+                      description={s.short_description || undefined}
+                      image={
+                        s.hero_image_url ? (
+                          <Frame customRatio="16 / 9" fit="cover">
+                            <Image
+                              src={s.hero_image_url}
+                              alt={s.client_name || s.name || ''}
+                              fill
+                              style={{ objectFit: 'cover' }}
+                              sizes="(max-width: 768px) 100vw, 400px"
+                            />
+                          </Frame>
+                        ) : undefined
+                      }
+                      tag={
+                        s.service_line_slug ? (
                           <ServiceTag
                             category={cat}
                             serviceName={s.name}
                             variant="icon-text"
                             label={SERVICE_LINE_NAMES[cat] || cat}
                             size="sm"
-                            style={{ alignSelf: 'flex-start' }}
                           />
-                        )}
-                        {/* h4, not the default h3 — the story name overpowered
-                            the card at --heading-md; the scoped rule in
-                            results.css steps it to --heading-sm. */}
-                        <CardTitle as="h4">{s.name || s.client_name}</CardTitle>
-                        {s.short_description && (
-                          <CardDescription>{s.short_description}</CardDescription>
-                        )}
-                      </div>
-                      <CardFooter>
-                        {/* Presentational span — the wrapping <Link> owns
-                         * navigation. Rendering <Button href> here produces
-                         * <a> inside <a> (invalid HTML); browsers fall back
-                         * to a hard reload + scroll-to-top instead of
-                         * client-side navigation. Mirrors ServiceLineCard +
-                         * CustomerStoryCard. */}
+                        ) : undefined
+                      }
+                      action={
+                        // Presentational span — the wrapping <Link> owns
+                        // navigation. A <Button href> here would nest <a> in <a>
+                        // (invalid HTML), forcing a hard reload + scroll-to-top
+                        // instead of client-side nav. Mirrors ServiceLineCard.
                         <span className={composeButtonClasses({ variant: 'primary', size: 'md' })}>
                           <span className="bds-button__content">Read Story</span>
                         </span>
-                      </CardFooter>
-                    </Card>
+                      }
+                    />
                   </Link>
                 );
               })}

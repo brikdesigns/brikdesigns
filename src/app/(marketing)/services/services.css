@@ -9,34 +9,11 @@
   height: 100%;
 }
 
-/* Inner BDS Card — layout-only overrides; Card provides border / surface /
- * padding / hover via `variant="outlined" padding="md" interactive`. */
-.services-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--gap-xl);
-  height: 100%;
-}
-
-.services-card__media {
-  aspect-ratio: 1;
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-accent);
-  overflow: hidden;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.services-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-sm);
-  width: 100%;
-}
+/* The `.services-card` / `__media` / `__content` layout classes were removed
+ * once ServiceLineCard moved to `<Card preset="display" mediaTreatment="inset">`
+ * (@brikdesigns/bds v0.188.0): the preset owns the media slot, body inset, and
+ * vertical rhythm, so the site no longer hand-rolls them. `.services-card-link`
+ * stays — it's the Next.js <Link> wrapper around the real Card. */
 
 /* Service-line callout — row-card with image-left + content-right. Used for
  * Product and Information on /services. Mirrors the service-detail Add-On
