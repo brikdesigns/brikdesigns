@@ -27,6 +27,10 @@ Use surface-web or surface-shared. surface-product is product-app scope.
 
 Import tokens from `@/lib/tokens` and `@/lib/styles`. No raw `var(--...)` strings.
 
+## When changing any section on a marketing route (read this FIRST)
+
+Read the route's surface doc in [`.claude/references/surfaces/`](.claude/references/surfaces/) **before** the cross-cutting references below — one file per route (`home.md`, `plans.md`, `about.md`, `how-we-work.md`, `services.md`, `customers.md`, `results.md`, `blog.md`, `contact.md`, `value.md`, `privacy-policy.md`, `terms.md`). It names that page's sections in order, their stable ids, which stylesheet owns each class, the band surface and card chrome per section, the data sources, and — the load-bearing part — the **ratified constraints an agent will otherwise re-propose** (a fill not a ring, Notion copy over Figma copy, all five service lines not Figma's three). Each row cites `file:line` + its ticket. A surface doc CITES the canon below; it never restates it, so a rule that conflicts belongs to the reference, not the surface doc. Required for `class:component` / `class:ia`; skip for `class:content`. brikdesigns#1376, standard in brik-llm#3319.
+
 ## When locating the element to change on a page (surface, appearance, layout)
 
 Read [`.claude/references/page-anatomy.md`](.claude/references/page-anatomy.md) — identify the target by its **layer** (Section → Layout → Container → Block → Component) read top-down from the DOM, never by selector-name resemblance (a `card` in a BEM name is still its layer; "card" in a ticket means the Container) → [build-standards/page-structure](https://design.brikdesigns.com/docs/build-standards/page-structure).
