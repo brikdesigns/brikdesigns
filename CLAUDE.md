@@ -39,6 +39,10 @@ Read [`page-anatomy.md`](.claude/references/page-anatomy.md) § "When you change
 
 Read [`section-identification.md`](.claude/references/section-identification.md) — every top-level `<section>` in `src/app/(marketing)` carries a stable id (`data-section="<key>"` by default, or `aria-labelledby` when a heading `id` exists), never a `bds-*` block name (gated by `scripts/lint-section-id.mjs`, a ratchet against `scripts/section-id-baseline.json`).
 
+## When reusing a marketing section on another page (a Figma `section-*` frame)
+
+Read [`marketing-section-reuse.md`](.claude/references/marketing-section-reuse.md) — it maps each Figma frame (`section-hero` / `section-pricing` / `section-type` / `section-contact`) to the class to write and the stylesheet to import. Importing another page's stylesheet (`import '../homepage.css'`) is the sanctioned interim reuse path — PREFER it over hand-porting the CSS, which is how 8 hero implementations accumulated for one Figma frame. CSS is bundled **per route**, so a class resolves only where its stylesheet is imported: add the class and its import in the same change, or the section renders unstyled with no build error. #1289 slice 1; slice 2 (promoting the vocabulary into `shared-sections.css`) is NOT ratified — never invent a new shared class instead of using the table.
+
 ## When building a section whose content scrolls sideways
 
 Read [`horizontal-scroll-track.md`](.claude/references/horizontal-scroll-track.md) — USE `HorizontalScrollTrack`, never hand-rolled scroll code; the pinned GSAP scrub is an **upgrade** to a scrollable row that engages only after measuring a real overhang, so reduced-motion, coarse-pointer, and no-JS visitors all keep a plain reachable row (gated headlessly by `npm run test:hscroll`). The track's travel is the **measured** overhang — never a card count, and never the `xPercent: -100 * (panels.length - 1)` recipe from the BDS toolkit, which is a full-viewport panel deck and strands the last card of a continuous row.
