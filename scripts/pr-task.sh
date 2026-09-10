@@ -274,33 +274,62 @@ if [[ "${SKIP_UI_CHECK:-}" != "1" ]]; then
       exit 1
     fi
   fi
+fi
 
-  # Intended-visual declaration. The regression gate reds any captured route
-  # that moves >1% vs staging unless the PR body declares it
-  # (visual-change-declaration.mjs). Ask here, at author time, instead of
-  # discovering the omission at CI (#1282, repro'd on #1279). TTY-only prompt;
-  # agents/non-interactive runs pass --visual-change or the env var instead.
-  #
-  # Keyed on its OWN path set, not UI_TOUCHED (#1256). The browser gate above
-  # asks "did a human look at this?" and excludes `public/` because an asset is
-  # not a code path to click through; the regression gate does not care — a
-  # swapped hero image moves the route by every pixel it covers. Nesting the
-  # two meant an image-only PR skipped the declaration and ate the first-run
-  # red anyway.
-  VISUAL_TOUCHED=$(
-    { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
-      | visual_declaration_paths | head -5
-  )
-  if [ -n "$VISUAL_TOUCHED" ] && [ -z "$VISUAL_CHANGE_ROUTES" ] && [ -t 0 ]; then
-    echo ""
-    echo -e "${YELLOW}⚠  This branch touches files that can move a captured route:${NC}"
-    echo "$VISUAL_TOUCHED" | sed 's/^/    /'
-    echo ""
+# ── Intended-visual declaration ──
+# The regression gate reds any captured route that moves >1% vs staging unless
+# the PR body declares it (visual-change-declaration.mjs). Decide here, at
+# author time, instead of discovering the omission at CI (#1282, repro'd on
+# #1279).
+#
+# OUTSIDE the SKIP_UI_CHECK block, and not TTY-gated. #1344: it was both, so it
+# never ran on the runs that matter.
+#   • `[ -t 0 ]` is false for every agent run, so the declaration was SILENTLY
+#     skipped — no prompt, no refusal — and the PR opened undeclared. 52 of the
+#     96 CI failures in the 14d to 2026-09-10 were this gate, ≥8 of them after
+#     #1283 landed the helper on staging.
+#   • Nesting it under `SKIP_UI_CHECK != 1` meant the browser gate's escape
+#     hatch also waived the declaration. #1256 de-nested the path SET from
+#     UI_TOUCHED and left the BLOCK inside the branch.
+#
+# Keyed on its OWN path set (#1256). The browser gate asks "did a human look at
+# this?" and excludes `public/` because an asset is not a code path to click
+# through; the regression gate does not care — a swapped hero image moves the
+# route by every pixel it covers.
+#
+# Non-interactive runs must STATE the answer, either way: `--visual-change
+# <routes>` or `--visual-change none`. Empty cannot mean "nothing moves",
+# because empty is also what "never asked" looks like — the distinction is the
+# whole fix.
+git fetch origin "${BASE_BRANCH}" --quiet 2>/dev/null || true
+VISUAL_TOUCHED=$(
+  { git diff --name-only "origin/${BASE_BRANCH}...HEAD" 2>/dev/null || true; } \
+    | visual_declaration_paths | head -5
+)
+if [ -n "$VISUAL_TOUCHED" ] && [ -z "$VISUAL_CHANGE_ROUTES" ]; then
+  echo ""
+  echo -e "${YELLOW}⚠  This branch touches files that can move a captured route:${NC}"
+  echo "$VISUAL_TOUCHED" | sed 's/^/    /'
+  echo ""
+  if [ -t 0 ]; then
     echo -e "${YELLOW}   Any INTENDED visual change to a captured route? An undeclared >1% move${NC}"
     echo -e "${YELLOW}   reds the regression gate. Name route(s), comma-separated; blank = none.${NC}"
     echo    "   Valid: $(known_visual_routes | tr '\n' ' ')"
     echo -n "   Visual-change route(s): "
     read -r VISUAL_CHANGE_ROUTES
+  else
+    echo -e "${RED}✗ no intended-visual declaration — refusing to open the PR.${NC}"
+    echo ""
+    echo -e "${YELLOW}   An undeclared >1% move reds the 'regression' gate, and the gate only${NC}"
+    echo -e "${YELLOW}   prints the route names in the FAILING run — so the red costs a second${NC}"
+    echo -e "${YELLOW}   pass to read them and 'gh pr edit' them in. State it now instead:${NC}"
+    echo ""
+    echo -e "${YELLOW}     ./scripts/pr-task.sh --visual-change <route>[,<route>...]${NC}"
+    echo -e "${YELLOW}     ./scripts/pr-task.sh --visual-change none    # checked, nothing moves${NC}"
+    echo ""
+    echo "   Valid route names (visual-parity.mjs ROUTES[].name):"
+    known_visual_routes | sed 's/^/     /'
+    exit 1
   fi
 fi
 

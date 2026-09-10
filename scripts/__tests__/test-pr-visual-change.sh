@@ -113,6 +113,110 @@ assert_eq "a mixed diff yields only the renderable paths" \
   "$(paths scripts/pr-task.sh src/app/page.tsx public/logo.svg src/app/page.test.tsx)"
 printf '' | visual_declaration_paths >/dev/null; assert_rc "empty stdin is rc 0, not a grep miss" 0 $?
 
+# 7. The `none` sentinel (#1344). pr-task.sh refuses a non-interactive run that
+# touches a renderable path with nothing declared, so "I checked, nothing moves"
+# has to be SAYABLE — empty already means "never asked". `none` emits no line
+# and no label (identical to empty, from the gate's side); it exists purely so
+# the caller can tell the two apart.
+OUT="$(visual_change_line "none")"; assert_rc "none rc" 0 $?
+assert_eq "none emits nothing" "" "$OUT"
+OUT="$(visual_change_line "  none  ")"; assert_eq "none is whitespace-tolerant" "" "$OUT"
+
+# The sentinel must not shadow a real route, or declaring that route would
+# silently waive nothing. Asserted against the LIVE route list, not the fixture.
+LIVE_HAS_NONE="$(VISUAL_PARITY_FILE="${SCRIPTS_DIR}/visual-parity.mjs" known_visual_routes | grep -cx none || true)"
+assert_eq "'none' is not a real ROUTES[].name" "0" "$LIVE_HAS_NONE"
+
+# Mixing the sentinel with a route is a contradiction, not a waiver — it must
+# fail loud rather than resolve to one or the other.
+visual_change_line "none,home" >/dev/null 2>&1; assert_rc "none mixed with a route rejected" 1 $?
+
+# 8. The refusal itself, DRIVEN (#1344). Both holes this closes were invisible
+# to a grep: `[ -t 0 ]` made the block unreachable for every agent run, and
+# nesting it under SKIP_UI_CHECK let the browser gate's escape waive it too. So
+# assert on the OBSERVABLE behaviour of the real script.
+#
+# Hermetic: throwaway repo, bare local remote, fake `gh` on PATH. The refusal
+# fires before any gh call, so the fake is defensive only.
+drive_pr_task() {
+  # $1 = SKIP_UI_CHECK value ('' or '1'); rest = extra pr-task.sh flags.
+  # Echoes the combined output; returns pr-task.sh's real exit code.
+  local skip="$1"; shift
+  local t; t="$(mktemp -d)"
+  mkdir -p "$t/fakebin"
+  printf '#!/bin/sh\nexit 0\n' > "$t/fakebin/gh"; chmod +x "$t/fakebin/gh"
+  git init --bare -q "$t/remote.git"
+  git init -q "$t/repo"
+  (
+    cd "$t/repo" || exit 1
+    git config user.email t@t.t; git config user.name T; git config commit.gpgsign false
+    mkdir -p src/app scripts/lib
+    cp "${SCRIPTS_DIR}/pr-task.sh" scripts/
+    cp -R "${SCRIPTS_DIR}/lib/." scripts/lib/
+    cp "${SCRIPTS_DIR}/visual-parity.mjs" scripts/
+    echo x > README.md
+    git add -A && git commit -qm init
+    git remote add origin "$t/remote.git"
+    git push -q origin HEAD:staging
+    git switch -qc task/probe-visual
+    printf '.a{color:red}\n' > src/app/probe.css
+    # Conventional-commit shaped on purpose: pr-task.sh derives the PR title from
+    # the first commit subject and refuses non-interactively without one. A
+    # non-conforming subject would stop the run at THAT gate, and the driven
+    # cases below would pass for the wrong reason — the pre-fix script reaches
+    # the title gate precisely because it skipped the declaration.
+    git add -A && git commit -qm "fix(probe): move a captured route (#1)"
+    # VISUAL_PARITY_FILE is exported by this suite for the fixture; unset it so
+    # the driven copy reads its own scripts/visual-parity.mjs.
+    unset VISUAL_PARITY_FILE
+    PATH="$t/fakebin:$PATH" SKIP_UI_CHECK="$skip" bash scripts/pr-task.sh "$@" < /dev/null 2>&1
+  )
+  local rc=$?
+  rm -rf "$t"
+  return $rc
+}
+
+# Every driven case sets SKIP_UI_CHECK=1 on purpose. It is the AGENT path — with
+# it unset the browser gate's own `read` hits EOF first and refuses there, so the
+# declaration block is unobservable. It is also the exact configuration both
+# holes lived in: pre-fix, SKIP_UI_CHECK=1 skipped the whole block (hole 2), and
+# `[ -t 0 ]` would have skipped it on a closed stdin anyway (hole 1). One case
+# regresses both locks.
+
+# 8a. Agent path + renderable diff + nothing declared → refuse, and say why.
+DRIVEN="$(drive_pr_task 1)"; RC=$?
+assert_rc "SKIP_UI_CHECK=1 + no declaration refuses" 1 "$RC"
+case "$DRIVEN" in
+  *"no intended-visual declaration"*) PASS=$((PASS+1));;
+  *) FAIL=$((FAIL+1)); FAILED_CASES+=("refusal names the reason — got [$DRIVEN]");;
+esac
+# The refusal is only actionable if it prints both escapes and the route list.
+case "$DRIVEN" in
+  *"--visual-change none"*) PASS=$((PASS+1));;
+  *) FAIL=$((FAIL+1)); FAILED_CASES+=("refusal does not offer --visual-change none");;
+esac
+case "$DRIVEN" in
+  *"events-grind-after-graduation"*) PASS=$((PASS+1));;
+  *) FAIL=$((FAIL+1)); FAILED_CASES+=("refusal does not list the valid route names");;
+esac
+
+# 8b. An explicit `--visual-change none` clears the refusal. Without the
+# sentinel the fix would block every legitimate no-move PR.
+DRIVEN="$(drive_pr_task 1 --visual-change none)"; RC=$?
+case "$DRIVEN" in
+  *"no intended-visual declaration"*)
+    FAIL=$((FAIL+1)); FAILED_CASES+=("--visual-change none hit the refusal branch — got [$DRIVEN]");;
+  *) PASS=$((PASS+1));;
+esac
+
+# 8c. A real route also clears it, and reaches the body as the parsed line.
+DRIVEN="$(drive_pr_task 1 --visual-change home)"; RC=$?
+case "$DRIVEN" in
+  *"no intended-visual declaration"*)
+    FAIL=$((FAIL+1)); FAILED_CASES+=("--visual-change home hit the refusal branch — got [$DRIVEN]");;
+  *) PASS=$((PASS+1));;
+esac
+
 echo ""
 echo "  visual-change-routes: ${PASS} passed, ${FAIL} failed"
 if [ "$FAIL" -gt 0 ]; then
