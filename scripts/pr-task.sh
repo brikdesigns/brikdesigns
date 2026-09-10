@@ -43,6 +43,11 @@ source "${SCRIPT_DIR}/lib/pr-title.sh"
 # (#1282), pure + tested (scripts/__tests__/test-pr-visual-change.sh).
 # shellcheck source=scripts/lib/visual-change-routes.sh
 source "${SCRIPT_DIR}/lib/visual-change-routes.sh"
+# design_gate_applies / design_declaration_line / design_exempt_line — the
+# design-source declaration (#1351), pure + tested
+# (__tests__/test-design-declaration.sh).
+# shellcheck source=scripts/lib/design-declaration.sh
+source "${SCRIPT_DIR}/lib/design-declaration.sh"
 
 # ── Base branch config ──
 # staging-first flow: task branches PR to staging; staging → main promoted on sign-off.
@@ -53,6 +58,14 @@ AREA_OVERRIDE=""
 # label so the regression gate waives them (see the block after the UI gate).
 # Pre-seed from the env for non-interactive/agent runs; --visual-change overrides.
 VISUAL_CHANGE_ROUTES="${VISUAL_CHANGE_ROUTES:-}"
+# What an area:design / class:ia PR was built from — a Figma node id read with
+# get_design_context, or a live URL for reproduction work. Emits the `Design:`
+# body line the verify gate greps for (#1351). DESIGN_EXEMPT is the other half:
+# a reason, for work the gate fires on that has no design source at all (label
+# inheritance pulls area:design onto bug and infra PRs). Same env pre-seed
+# convention as VISUAL_CHANGE_ROUTES; --design / --design-exempt override.
+DESIGN_SOURCE="${DESIGN_SOURCE:-}"
+DESIGN_EXEMPT="${DESIGN_EXEMPT:-}"
 
 # ── Parse flags ──
 POSITIONAL_ARGS=()
@@ -72,6 +85,17 @@ while [[ $# -gt 0 ]]; do
     --visual-change)
       # Comma-separated ROUTES[].name that this PR MEANT to move visually.
       VISUAL_CHANGE_ROUTES="$2"
+      shift 2
+      ;;
+    --design)
+      # What this PR was built from: 'Figma <fileKey> <node-id>', or a live URL.
+      DESIGN_SOURCE="$2"
+      shift 2
+      ;;
+    --design-exempt)
+      # Why the design-source gate does not apply. Also adds `design:none`,
+      # which the gate requires alongside the reason.
+      DESIGN_EXEMPT="$2"
       shift 2
       ;;
     --skip-ui-check)
@@ -483,6 +507,76 @@ if ! has_area_label "$(printf '%s\n' "${LABELS_TO_ADD[@]+"${LABELS_TO_ADD[@]}"}"
   exit 1
 fi
 
+# ── Design-source declaration ──
+# The `verify` job's design-source gate fires on any PR labelled `area:design`
+# or `class:ia` and passes only on a `Design:` body line, or the `design:none`
+# label plus a `Design-exempt:` line. pr-task.sh emitted none of the three, so
+# every such PR red on its first run by construction: 7 of the 96 CI failures in
+# the 14 days to 2026-09-10, none older than the gate (#1351).
+#
+# Placed HERE on purpose — after the label resolution above, so LABELS_TO_ADD is
+# final and we know whether the gate will fire, and before the base-sync and
+# push below, so a refusal costs nothing remote. Same shape as the
+# intended-visual declaration (#1344): prompt on a TTY, refuse otherwise, never
+# silently skip.
+if design_gate_applies "$(printf '%s\n' "${LABELS_TO_ADD[@]+"${LABELS_TO_ADD[@]}"}")" \
+   && [ -z "$DESIGN_SOURCE" ] && [ -z "$DESIGN_EXEMPT" ]; then
+  TRIGGERING=$(printf '%s\n' "${LABELS_TO_ADD[@]+"${LABELS_TO_ADD[@]}"}" \
+    | grep -xE 'area:design|class:ia' | paste -sd, - | sed 's/,/, /g')
+  echo ""
+  echo -e "${YELLOW}⚠  This PR will carry ${TRIGGERING} — the design-source gate applies.${NC}"
+  echo ""
+  if [ -t 0 ]; then
+    echo -e "${YELLOW}   Name what you built from: the Figma node id(s) you read with${NC}"
+    echo -e "${YELLOW}   get_design_context, or the live URL for reproduction work.${NC}"
+    echo -e "${YELLOW}   A get_screenshot raster is NOT a design source (#1303).${NC}"
+    echo -e "${YELLOW}   Blank = no design involved; you will be asked for a reason.${NC}"
+    echo -n "   Design source: "
+    read -r DESIGN_SOURCE
+    if [ -z "$(printf '%s' "$DESIGN_SOURCE" | tr -d '[:space:]')" ]; then
+      echo -n "   No design involved — reason: "
+      read -r DESIGN_EXEMPT
+    fi
+  else
+    echo -e "${RED}✗ no design-source declaration — refusing to open the PR.${NC}"
+    echo ""
+    echo -e "${YELLOW}   Without one the 'verify' job reds on its first run, and the red is${NC}"
+    echo -e "${YELLOW}   only fixable by editing the PR body afterwards. State it now:${NC}"
+    echo ""
+    echo -e "${YELLOW}     ./scripts/pr-task.sh --design 'Figma <fileKey> <node-id>'${NC}"
+    echo -e "${YELLOW}     ./scripts/pr-task.sh --design '<live URL>'      # reproduction work${NC}"
+    echo -e "${YELLOW}     ./scripts/pr-task.sh --design-exempt '<reason>' # no design involved${NC}"
+    echo ""
+    echo -e "${YELLOW}   A get_screenshot raster is NOT a design source — it carries no slot${NC}"
+    echo -e "${YELLOW}   names or token bindings (#1303,${NC}"
+    echo -e "${YELLOW}   .claude/references/design-ground-truth-workflow.md).${NC}"
+    exit 1
+  fi
+fi
+
+# Validate + normalise. A whitespace-only value would emit a line that LOOKS
+# declared and still red at CI, so the helpers fail loud here instead.
+DESIGN_LINE=""
+if [ -n "$(printf '%s' "$DESIGN_SOURCE" | tr -d '[:space:]')" ]; then
+  if ! DESIGN_LINE=$(design_declaration_line "$DESIGN_SOURCE"); then
+    echo -e "${RED}✗ --design was given but resolves to an empty source.${NC}"
+    exit 1
+  fi
+elif [ -n "$(printf '%s' "$DESIGN_EXEMPT" | tr -d '[:space:]')" ]; then
+  if ! DESIGN_LINE=$(design_exempt_line "$DESIGN_EXEMPT"); then
+    echo -e "${RED}✗ --design-exempt was given but resolves to an empty reason.${NC}"
+    exit 1
+  fi
+  # The gate needs the LABEL as well — the line alone waives nothing.
+  if label_known "design:none" "$REPO_LABELS"; then
+    LABELS_TO_ADD+=("design:none")
+  else
+    echo -e "${RED}✗ 'design:none' is not a label in this repo, so the exempt path${NC}"
+    echo -e "${RED}  cannot pass the gate. Declare a real source with --design.${NC}"
+    exit 1
+  fi
+fi
+
 # ── Sync with base (catches semantic conflicts from parallel work) ──
 # When another agent's PR has merged to base while this branch was in flight,
 # `git push` would succeed but CI would fail on a semantic conflict (e.g. new
@@ -560,6 +654,13 @@ EOF
 # untouched.
 if [ -n "$VISUAL_CHANGE_LINE" ]; then
   PR_BODY="${PR_BODY}"$'\n'"${VISUAL_CHANGE_LINE}"$'\n'
+fi
+
+# The design-source declaration, resolved above. Outside any code fence — the
+# gate greps the raw body for `^[[:space:]]*Design:`, same as the visual-change
+# parser (#1351).
+if [ -n "$DESIGN_LINE" ]; then
+  PR_BODY="${PR_BODY}"$'\n'"${DESIGN_LINE}"$'\n'
 fi
 
 # ── Create PR ──
