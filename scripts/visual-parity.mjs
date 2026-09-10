@@ -39,8 +39,36 @@ const BASELINE_DIR = path.resolve('tests/visual-parity/baselines');
 const UPDATE_BASELINES = process.env.UPDATE_BASELINES === '1';
 
 const WEBFLOW_URL = process.env.WEBFLOW_URL ?? 'https://www.brikdesigns.com';
-const REFERENCE_URL = process.env.REFERENCE_URL
-  ?? (SELF_MODE ? 'https://staging--brikdesigns.netlify.app' : WEBFLOW_URL);
+
+// Self mode has NO default reference, deliberately (#1354). It used to default
+// to `https://staging--brikdesigns.netlify.app`, which is a moving alias —
+// `staging` took 162 merges in the 14 days to 2026-09-10, so the reference
+// redeployed under any PR open for more than a few minutes and the gate stopped
+// being a function of the diff.
+//
+// The caller now resolves a per-commit permalink (scripts/lib/staging-reference.mjs)
+// and passes it in. Keeping a default here would mean that if that step were
+// ever removed or errored past, the gate would silently fall back to the moving
+// alias and go on reporting — green tooling, restored defect, no signal. So an
+// absent REFERENCE_URL in self mode is a hard stop instead.
+if (SELF_MODE && !process.env.REFERENCE_URL) {
+  console.error(
+    '✗ REFERENCE_MODE=self requires an explicit REFERENCE_URL.\n' +
+      '\n' +
+      '  There is no default on purpose: the old one was the moving\n' +
+      '  https://staging--brikdesigns.netlify.app alias that brikdesigns#1354 removed.\n' +
+      '\n' +
+      '  In CI, visual-regression.yml resolves the merge-base deploy permalink.\n' +
+      '  Locally, pin one yourself:\n' +
+      '\n' +
+      '    export NETLIFY_AUTH_TOKEN=...   # 1P: netlify-mgmt\n' +
+      '    export NETLIFY_SITE_ID=7664720a-83a6-45e8-b348-b49d07de8ef7\n' +
+      '    BASE=$(git merge-base origin/staging HEAD)\n' +
+      '    export REFERENCE_URL=$(node scripts/lib/staging-reference.mjs --sha "$BASE")\n',
+  );
+  process.exit(1);
+}
+const REFERENCE_URL = process.env.REFERENCE_URL ?? WEBFLOW_URL;
 const NETLIFY_URL = process.env.NETLIFY_URL ?? process.argv[2];
 const OUT = path.resolve('tests/visual-parity/screenshots');
 

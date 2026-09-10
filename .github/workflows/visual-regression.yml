@@ -114,6 +114,7 @@ jobs:
               --pattern 'package-lock.json' \
               --pattern 'scripts/visual-parity.mjs' \
               --pattern 'scripts/wait-for-netlify-preview.sh' \
+              --pattern 'scripts/lib/staging-reference.mjs' \
               --pattern 'scripts/ci-paths-match.mjs' \
               --pattern '.github/workflows/visual-regression.yml' \
             >> "$GITHUB_OUTPUT"
@@ -198,11 +199,69 @@ jobs:
             --jq 'any(.labels[]; .name == "visual-change")' || echo false)
           echo "value=${LIVE:-false}" >> "$GITHUB_OUTPUT"
 
+      # ── Pin the reference to a COMMIT, not the `staging` alias (#1354) ───────
+      #
+      # The old `REFERENCE_URL: https://staging--brikdesigns.netlify.app` was a
+      # moving target: 162 merges landed on `staging` in the 14 days to
+      # 2026-09-10, so the reference redeployed under any PR open for more than
+      # a few minutes and the same head SHA re-run an hour later measured a
+      # different baseline. That made this the repo's largest CI failure class
+      # (52 of 96 failed runs; 31 in the last 7 days) and no DIFF_THRESHOLD
+      # could fix it, because the input was not the diff.
+      #
+      # The merge-base is the commit the PR actually branched from. It does not
+      # move while the head SHA is fixed, which is exactly AC 2/AC 3 of #1354.
+      #
+      # Resolved via the compare API rather than `git merge-base`, so the
+      # checkout above can stay shallow — fetch-depth: 0 on every run of the
+      # repo's slowest gate would cost more than this one authenticated read.
+      - name: Resolve merge-base
+        id: base
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          BASE=$(gh api \
+            "repos/${{ github.repository }}/compare/${{ github.event.pull_request.base.ref }}...${{ github.event.pull_request.head.sha }}" \
+            --jq '.merge_base_commit.sha')
+          if [ -z "$BASE" ] || [ "$BASE" = "null" ]; then
+            echo "✗ compare API returned no merge_base_commit.sha — cannot pin the reference." >&2
+            exit 1
+          fi
+          echo "sha=$BASE" >> "$GITHUB_OUTPUT"
+          echo "▸ merge-base: $BASE"
+
+      # commit_ref → deploy id → links.permalink. NOT a URL template: the
+      # `https://<sha>--brikdesigns.netlify.app` form #1354's body assumed does
+      # not exist and 404s (probed on five consecutive staging commits,
+      # 2026-09-10) — the mapping lives only in the deploys API response.
+      #
+      # NETLIFY_AUTH_TOKEN is required because `staging`-branch commits carry no
+      # GitHub commit statuses at all (verified 2026-09-10: an empty statuses[]
+      # on 3317f08d and 968be2ad), so the token-free path the readiness wait
+      # above uses — the `netlify/brikdesigns/deploy-preview` status, which
+      # Netlify posts on PR commits only — cannot reach this reference.
+      #
+      # A miss FAILS the step. It must never fall back to the alias: that would
+      # restore the moving reference invisibly, with the gate still reporting.
+      - name: Resolve pinned reference deploy
+        id: reference
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ vars.NETLIFY_SITE_ID }}
+        run: |
+          set -euo pipefail
+          URL=$(node scripts/lib/staging-reference.mjs --sha "${{ steps.base.outputs.sha }}")
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+
       - name: Compare deploy-preview against staging
         env:
           NETLIFY_URL: ${{ steps.deploy.outputs.url }}
           REFERENCE_MODE: self
-          REFERENCE_URL: https://staging--brikdesigns.netlify.app
+          # The merge-base's own deploy, resolved above. visual-parity.mjs has
+          # no self-mode default any more (#1354) — an empty value here is a
+          # hard stop, not a quiet return to the alias.
+          REFERENCE_URL: ${{ steps.reference.outputs.url }}
           DIFF_THRESHOLD: '1'
           # Both halves of the declaration (#856). The label is resolved here so
           # the script never has to reach for the GitHub API; the body is passed

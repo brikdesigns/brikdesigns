@@ -40,6 +40,7 @@
     "test:customer-story-author": "npx tsx scripts/test-customer-story-author.mjs",
     "test:ghl-webhook": "npx tsx scripts/test-ghl-webhook.ts",
     "test:visual-change": "node scripts/lib/visual-change-declaration.test.mjs",
+    "test:staging-reference": "node scripts/lib/staging-reference.test.mjs",
     "test:ci-paths-match": "node scripts/ci-paths-match.test.mjs",
     "test:fetch-diagnostics": "npx tsx scripts/fetch-diagnostics.test.mjs",
     "repro:on-demand-render": "bash scripts/repro-on-demand-render.sh",
