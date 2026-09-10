@@ -10,7 +10,8 @@ import {
   classifyBlockingSpread,
   buildDeclarationLine,
   isStalePayloadRerun,
-  isTruncatedCapture,
+  isPartialCapture,
+  classifyCaptureHeights,
   countUsableCaptures,
   summarizeNoiseByRoute,
 } from './lib/visual-change-declaration.mjs';
@@ -399,8 +400,29 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs, 
       undefined,
       { timeout: 15000, polling: 250 },
     ).catch((e) => console.warn(`  · height did not settle (${e.message.split('\n')[0]})`));
+    // Read the height the browser itself reports, immediately before the shot
+    // (#1358). Nothing here used to compare the screenshot against the DOM that
+    // produced it, so a `fullPage` image shorter than the page was indetectable
+    // at capture time and only surfaced later as a height mismatch between the
+    // two SIDES of the comparison — which cannot tell a short capture of a tall
+    // page from a faithful capture of a short page. `documentElement`, not
+    // `body`: it is the scrolling element here, and it is what `fullPage` sizes
+    // itself from.
+    const domHeight = await page.evaluate(() => document.documentElement.scrollHeight);
     await page.screenshot({ path: outPath, fullPage: true, animations: 'disabled' });
-    return { ok: true };
+    const pngHeight = PNG.sync.read(fs.readFileSync(outPath)).height;
+    // A genuinely partial capture is machine-detectable right here, so it is
+    // thrown rather than reported — capture()'s existing retry re-shoots it
+    // within the run. That retry could never fire on this class before, because
+    // page.screenshot() resolving successfully made result.ok true no matter
+    // what it wrote.
+    if (isPartialCapture(pngHeight, domHeight)) {
+      throw new Error(
+        `capture is partial — wrote ${pngHeight}px for a ${domHeight}px document; `
+        + 'the screenshot did not cover the page the browser rendered',
+      );
+    }
+    return { ok: true, domHeight, pngHeight };
   } catch (err) {
     return { ok: false, err };
   } finally {
@@ -437,18 +459,34 @@ async function capture(baseUrl, route, viewport, theme, outPath) {
 // Returns { diffPct, diffImg } where diffImg is the relative path to the diff PNG,
 // or null if one/both screenshots are missing.
 //
-// Returns { truncated: true, wfHeight, nlHeight } instead when one capture is a
-// fraction of the other's height (#1314) — a page that did not finish capturing
-// is a capture failure, and padding it into a diff percentage reports it as a
-// pixel change on a route nobody touched.
-function diffScreenshots(wfPath, nlPath, diffPath) {
+// Returns { truncated: true, ... } or { appError: true, ... } instead when the
+// two heights differ so much that one side cannot be a rendering of the same
+// page (#1314) — padding that into a diff percentage reports it as a pixel
+// change on a route nobody touched.
+//
+// The two classes are distinguished by `viewport` (#1358): a short side that
+// measures ~one raw viewport, having been captured faithfully, is the app's
+// error boundary, not a capture that stopped early. Calling that "truncated"
+// sent every reader to a re-run — which usually goes green and hides a real
+// error on the reference deployment.
+function diffScreenshots(wfPath, nlPath, diffPath, viewport) {
   if (!fs.existsSync(wfPath) || !fs.existsSync(nlPath)) return null;
 
   const wf = PNG.sync.read(fs.readFileSync(wfPath));
   const nl = PNG.sync.read(fs.readFileSync(nlPath));
 
-  if (isTruncatedCapture(wf.height, nl.height)) {
-    return { truncated: true, wfHeight: wf.height, nlHeight: nl.height };
+  const heightFailure = classifyCaptureHeights({
+    referenceHeight: wf.height,
+    buildHeight: nl.height,
+    viewportHeight: viewport?.height,
+  });
+  if (heightFailure) {
+    return {
+      [heightFailure.kind === 'app-error' ? 'appError' : 'truncated']: true,
+      side: heightFailure.side,
+      wfHeight: wf.height,
+      nlHeight: nl.height,
+    };
   }
 
   // Pad the shorter image at the bottom so dimensions match for pixelmatch.
@@ -527,8 +565,22 @@ for (const theme of THEMES) {
         await capture(REFERENCE_URL, refRoute, viewport, theme, wfPath);
         await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath);
       }
-      const diff = diffScreenshots(wfPath, nlPath, diffPath);
-      if (diff?.truncated) {
+      const diff = diffScreenshots(wfPath, nlPath, diffPath, viewport);
+      if (diff?.appError) {
+        // NOT a re-run instruction (#1358). The short side is a faithful
+        // capture of a page that rendered one viewport tall — the app's error
+        // boundary. Re-running usually goes green and hides a real error on
+        // whichever deployment produced it, so name the side and stop.
+        const sideLabel = diff.side === 'reference'
+          ? `the ${REFERENCE_LABEL.toLowerCase()} deployment`
+          : 'this build';
+        console.error(
+          `  ✗ page rendered one viewport tall on ${sideLabel} — ` +
+            `${REFERENCE_LABEL.toLowerCase()} ${diff.wfHeight}px vs capture ${diff.nlHeight}px ` +
+            `(viewport ${viewport.height}px). The capture is complete; the PAGE is short, ` +
+            'which is the app error boundary. Do not re-run — open the capture in the report.',
+        );
+      } else if (diff?.truncated) {
         // Name both heights here: the run summary is where the next occurrence
         // gets diagnosed, and without them a truncation is indistinguishable
         // from a real diff without downloading the report artifact.
@@ -552,6 +604,9 @@ for (const theme of THEMES) {
         diffImg: diff?.diffImg ?? null,
         diffPct: diff?.diffPct ?? null,
         truncated: diff?.truncated === true,
+        appError: diff?.appError === true,
+        shortSide: diff?.side ?? null,
+        viewportHeight: viewport.height,
         wfHeight: diff?.wfHeight ?? null,
         nlHeight: diff?.nlHeight ?? null,
         wfOk: fs.existsSync(wfPath),
@@ -744,12 +799,23 @@ if (process.env.NOISE_FLOOR === '1') {
   }
 }
 
-// Why a truncation reads as "failed" and not "diffed" (#1314): the capture file
-// exists, so `nlOk`/`wfOk` are both true and the pre-#1314 gates saw nothing
-// wrong. Only the height pair shows it, so both gates below test `truncated`
-// alongside the existence checks.
-const captureFailureDetail = (r) =>
-  r.truncated ? ` — truncated: ${r.wfHeight}px vs ${r.nlHeight}px` : '';
+// Why a height failure reads as "failed" and not "diffed" (#1314): the capture
+// file exists, so `nlOk`/`wfOk` are both true and the pre-#1314 gates saw
+// nothing wrong. Only the height pair shows it, so the gates below test both
+// height classes alongside the existence checks.
+//
+// The two classes print differently on purpose (#1358). "truncated" is a
+// capture bug and a re-run is the right reflex; an error-boundary render is the
+// PAGE, and the same wording would train the same re-run — which goes green and
+// buries the error. The summary line is where the next occurrence gets
+// diagnosed, so it has to say which one it saw.
+const captureFailureDetail = (r) => {
+  if (r.appError) {
+    return ` — page rendered one viewport tall (${r.viewportHeight}px) on the ${r.shortSide} side: `
+      + `${r.wfHeight}px vs ${r.nlHeight}px; the capture is complete, the page is short`;
+  }
+  return r.truncated ? ` — truncated: ${r.wfHeight}px vs ${r.nlHeight}px` : '';
+};
 
 // Mockup mode never passes silently: a missing baseline or a failed capture is
 // a hard failure, not a skipped comparison. (webflow mode tolerates capture
@@ -762,7 +828,7 @@ if (MOCKUP_MODE) {
     console.error('  UPDATE_BASELINES=1 npm run visual-mockup -- <known-good-url>');
     process.exit(2);
   }
-  const failedCaptures = results.filter((r) => !r.nlOk || r.truncated);
+  const failedCaptures = results.filter((r) => !r.nlOk || r.truncated || r.appError);
   if (failedCaptures.length) {
     console.error(`\n✗ ${failedCaptures.length} capture(s) failed — mockup mode treats this as a gate failure:`);
     failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}]${captureFailureDetail(r)} (${NETLIFY_URL}${r.netlifyPath})`));
@@ -775,7 +841,7 @@ if (MOCKUP_MODE) {
 // fails a capture instead of screenshotting a half-loaded page, and without
 // this a route that loses that race twice would read as a pass.
 if (SELF_MODE) {
-  const failedCaptures = results.filter((r) => !r.wfOk || !r.nlOk || r.truncated);
+  const failedCaptures = results.filter((r) => !r.wfOk || !r.nlOk || r.truncated || r.appError);
   if (failedCaptures.length) {
     console.error(`\n✗ ${failedCaptures.length} capture(s) failed — a skipped route is not a pass:`);
     failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}]${captureFailureDetail(r)}`));
