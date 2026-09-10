@@ -1,0 +1,452 @@
+name: ac-close-gate
+
+# Enforcement for `issue-style.md` § Closing discipline, which nothing enforced
+# (brik-llm#2165).
+#
+# The canon is thorough: before closing an issue with a body checklist, every
+# unchecked `- [ ]` must land in one of four states — tick / delete as out of
+# scope / file a follow-up / tick as rejected. A legitimate, correctly-formatted
+# `Closes #N` on an issue whose acceptance criteria are 20% done passed every
+# gate we had. `bump-pr-closing-keyword-guard.yml` guards the closing-keyword
+# PARSER; it says nothing about whether the work is done.
+#
+# The failure this exists for: brikdesigns#729's AC read "Verified across the
+# in-scope service lines"; a mid-issue decision reduced scope to a
+# marketing-first pilot; PR brikdesigns#750 built one of five lines and used
+# `Closes #729`. Four of five rendered an untinted nav for two weeks with CI
+# green. The remainder lived in a PR body and a handoff comment — neither is a
+# backlog. Recovered as brikdesigns#858 / #859 / #860.
+#
+# The second failure it retires: `closed-issue-audit.py` reported this residue
+# to #qa-reports every 900s. Measured over the last 1000 channel messages
+# (42.9 days): 850 posts, 1447 distinct issues flagged, 2 later reopened, and 0
+# of a 41-issue sample ever ticked. The alert reported the residue of a step
+# that did not exist, to the one person who could not act on it in bulk. This
+# gate makes the step exist, at the moment the author still has the context.
+#
+# WHAT IT READS
+#   Only the `## Acceptance criteria` section of each issue this PR would close.
+#   That section is the close gate per canon; `## Out of scope`, `## References`
+#   and prose checklists are not, and unticked boxes there never fail (AC 3 of
+#   #2165). An issue with no such section passes explicitly — there is nothing
+#   to assert.
+#
+# WHICH REFS
+#   Same-repo `Closes|Fixes|Resolves #N` in top-level prose, using the same
+#   fence-skipping and emphasis-stripping as the sibling guard — a fenced or
+#   `**bold**` close is still a close (brik-llm#2565). `Refs #N`, `Part of #N`
+#   and cross-repo `owner/repo#N` are untouched: they close nothing.
+#
+# ESCAPE HATCH
+#   Label `ac:none` AND a body line `Ac-exempt: <reason>` (>= 20 chars) — the
+#   shape of `repro:none` + `Repro-exempt:` (scripts/audit/repro-before-fix.py).
+#   Both are required, and each half alone is its own failure: the label makes a
+#   partial close visible on the board, the reason makes it justified where
+#   review reads. Neither is inferable from the other.
+#
+# Self-testing: the FIXTURES matrix runs before the real PR body is read and
+# fails the job on any mismatch, so every copy verifies its own detection logic
+# on every PR. A check only ever observed passing is not a proven check.
+#
+# Portable: self-contained — no repo-specific paths, no checkout.
+#
+# brik-llm holds the canonical copy; consumers carry copies of it. Edit the
+# brik-llm copy first, then propagate — a local edit in a consumer repo is
+# drift, not an improvement. Do NOT write the consumer list here: the registry
+# in brik-llm `scripts/audit/overlap-twin-drift.py` is the list, and a count or
+# set of repo names in this header is the stale prose every twin here has
+# already gone stale as (brik-llm#2272/#2447). `overlap-twin-drift` compares the
+# copies.
+
+on:
+  pull_request:
+    # `labeled`/`unlabeled` are load-bearing: the `ac:none` half of the hatch is
+    # a label, so taking or dropping it must re-run the gate. Without them the
+    # verdict is decided on the labels the PR happened to have at open time —
+    # the stale-input failure repro-before-fix-gate.yml already documents.
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  issues: read # read each referenced issue's body to count its unticked ACs
+
+concurrency:
+  group: ac-close-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  ac-close-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail a closing PR whose issue still has unticked acceptance criteria
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // ── Patterns ─────────────────────────────────────────────────
+            // Same keyword grammar as bump-pr-closing-keyword-guard.yml. The
+            // two guards answer different questions about the same sentence,
+            // so the conjugation list must not drift between them.
+            const KEYWORD = String.raw`close[sd]?|fix(?:e[sd])?|resolve[sd]?`;
+
+            // `\s*#` only matches a bare `#N`; `owner/repo#N` has no space
+            // before the `#`, so cross-repo refs are excluded by construction.
+            const SAME_REPO_CLOSE = new RegExp(String.raw`\b(?:${KEYWORD})\b:?\s*#(\d+)`, 'gi');
+
+            // A negated close still closes on merge, and the sibling guard
+            // already FAILS the PR for it. Counting the ref here too would
+            // stack a second, confusing failure on the same line, so a negated
+            // line is skipped and left to that guard.
+            const APOS = String.raw`['’]?`;
+            const NEGATION = [
+              String.raw`not`, String.raw`never`, String.raw`no`,
+              String.raw`does\s+n${APOS}t`, String.raw`do\s+n${APOS}t`, String.raw`did\s+n${APOS}t`,
+              String.raw`doesn${APOS}t`, String.raw`don${APOS}t`, String.raw`didn${APOS}t`,
+              String.raw`won${APOS}t`, String.raw`wont`, String.raw`will\s+not`,
+              String.raw`isn${APOS}t`, String.raw`cannot`, String.raw`can${APOS}t`,
+            ].join('|');
+            const NEGATED_CLOSE = new RegExp(
+              String.raw`\b(?:${NEGATION})\s+(?:\w+\s+){0,2}?(?:${KEYWORD})\b:?\s*#\d+`,
+              'i',
+            );
+
+            // Markdown emphasis is invisible to patterns written for plain
+            // prose — `**Closes** #N` closed a real issue past the sibling
+            // guard (brik-llm#2565). Strip the wrappers rather than encoding
+            // them into the pattern.
+            const stripEmphasis = (line) => line.replace(/[*_`~]/g, '');
+
+            // The AC section runs from its heading to the next heading at the
+            // same-or-higher level. `##` and `###` both occur in Brik bodies.
+            const AC_HEADING = /^(#{2,3})\s*acceptance\s+criteria\b/i;
+            const ANY_HEADING = /^(#{1,6})\s+/;
+            const UNTICKED = /^\s*[-*]\s+\[ \]/;
+
+            const EXEMPT_LABEL = 'ac:none';
+            const EXEMPT_LINE = /^\s*Ac-exempt:\s*(\S.*?)\s*$/im;
+            const MIN_REASON_CHARS = 20;
+
+            const FOUR_STATES = [
+              '  Done                  tick it: `- [x]`',
+              '  Out of scope          delete the line, or move it under `## Out of scope` with a one-line rationale',
+              '  Future work           file a follow-up; child body says `Recovers from #N`, close-comment says `Filed as #M`',
+              '  Rejected              `- [x] (rejected: <one-sentence rationale>)` — never delete, keep the audit trail',
+            ];
+
+            // ── Pure scanners (exercised by FIXTURES below) ───────────────
+
+            // Same-repo closing refs in top-level prose. Fenced blocks are
+            // skipped (rule 1 of the sibling guard owns those); negated lines
+            // are skipped (rule 2 of the sibling guard owns those).
+            function closingRefs(body) {
+              const lines = (body || '').split(/\r?\n/);
+              const refs = new Set();
+              let inFence = false;
+              for (const line of lines) {
+                if (/^\s*(```|~~~)/.test(line)) { inFence = !inFence; continue; }
+                if (inFence) continue;
+                const prose = stripEmphasis(line);
+                if (NEGATED_CLOSE.test(prose)) continue;
+                let m;
+                SAME_REPO_CLOSE.lastIndex = 0;
+                while ((m = SAME_REPO_CLOSE.exec(prose)) !== null) refs.add(m[1]);
+              }
+              return [...refs];
+            }
+
+            // Unticked `- [ ]` inside the `## Acceptance criteria` section
+            // ONLY. Returns {hasSection, unticked: [line text]}. No section is
+            // reported distinctly from an empty one — "nothing to assert" and
+            // "asserted and clean" are different facts.
+            function untickedAcs(body) {
+              const lines = (body || '').split(/\r?\n/);
+              let depth = null;
+              const unticked = [];
+              let inFence = false;
+              for (const line of lines) {
+                if (/^\s*(```|~~~)/.test(line)) { inFence = !inFence; continue; }
+                if (inFence) continue;
+                if (depth === null) {
+                  const m = AC_HEADING.exec(line);
+                  if (m) depth = m[1].length;
+                  continue;
+                }
+                const h = ANY_HEADING.exec(line);
+                if (h && h[1].length <= depth) break; // section ended
+                if (UNTICKED.test(line)) unticked.push(line.trim());
+              }
+              return { hasSection: depth !== null, unticked };
+            }
+
+            // The hatch, and its two partial states. Returns one of:
+            //   {state:'none'} | {state:'exempt', reason} |
+            //   {state:'label-only'} | {state:'reason-only'} | {state:'short', reason}
+            function exemption(body, labels) {
+              const hasLabel = labels.includes(EXEMPT_LABEL);
+              const m = EXEMPT_LINE.exec(body || '');
+              const reason = m ? m[1] : null;
+              if (!hasLabel && !reason) return { state: 'none' };
+              if (hasLabel && !reason) return { state: 'label-only' };
+              if (!hasLabel && reason) return { state: 'reason-only' };
+              if (reason.length < MIN_REASON_CHARS) return { state: 'short', reason };
+              return { state: 'exempt', reason };
+            }
+
+            // ── Fixture matrix ───────────────────────────────────────────
+            // `H` keeps this matrix from carrying live references of its own.
+            const H = '#';
+            const AC = `${H}${H} Acceptance criteria`;
+
+            const REF_FIXTURES = [
+              { name: 'plain Closes', body: `Closes ${H}729`, expect: ['729'] },
+              { name: 'bold Closes is still a close', body: `**Closes** ${H}729`, expect: ['729'] },
+              { name: 'Fixes conjugation', body: `Fixes ${H}12`, expect: ['12'] },
+              { name: 'Resolved conjugation', body: `Resolved ${H}12`, expect: ['12'] },
+              { name: 'two refs, one body', body: `Closes ${H}1\nFixes ${H}2`, expect: ['1', '2'] },
+              { name: 'Refs closes nothing', body: `Refs ${H}729`, expect: [] },
+              { name: 'Part of closes nothing', body: `Part of ${H}729`, expect: [] },
+              { name: 'cross-repo ref is out of scope', body: `Closes brikdesigns/brik-bds${H}729`, expect: [] },
+              { name: 'fenced close belongs to the sibling guard', body: `\`\`\`\nCloses ${H}729\n\`\`\``, expect: [] },
+              { name: 'negated close belongs to the sibling guard', body: `Does NOT close ${H}729`, expect: [] },
+              { name: 'bare link is not a close', body: `Ports it (${H}612)`, expect: [] },
+            ];
+
+            const AC_FIXTURES = [
+              {
+                name: 'unticked AC is counted',
+                body: `${AC}\n\n- [ ] one\n- [x] two\n`,
+                expect: { hasSection: true, unticked: 1 },
+              },
+              {
+                name: 'all ticked is clean',
+                body: `${AC}\n\n- [x] one\n- [x] two\n`,
+                expect: { hasSection: true, unticked: 0 },
+              },
+              {
+                name: 'no AC section is not a violation',
+                body: `${H}${H} Why\n\n- [ ] a prose checklist\n`,
+                expect: { hasSection: false, unticked: 0 },
+              },
+              {
+                name: 'Out of scope boxes do not count (AC 3)',
+                body: `${AC}\n\n- [x] done\n\n${H}${H} Out of scope\n\n- [ ] deliberately not doing this\n`,
+                expect: { hasSection: true, unticked: 0 },
+              },
+              {
+                name: 'References boxes do not count',
+                body: `${AC}\n\n- [x] done\n\n${H}${H} References\n\n- [ ] a link\n`,
+                expect: { hasSection: true, unticked: 0 },
+              },
+              {
+                name: 'a deeper heading stays inside the section',
+                body: `${AC}\n\n${H}${H}${H}${H} Slice 1\n\n- [ ] still an AC\n`,
+                expect: { hasSection: true, unticked: 1 },
+              },
+              {
+                name: 'h3 AC heading is recognised',
+                body: `${H}${H}${H} Acceptance criteria\n\n- [ ] one\n`,
+                expect: { hasSection: true, unticked: 1 },
+              },
+              {
+                name: 'h3 AC section ends at the next h2',
+                body: `${H}${H}${H} Acceptance criteria\n\n- [x] done\n\n${H}${H} Out of scope\n\n- [ ] no\n`,
+                expect: { hasSection: true, unticked: 0 },
+              },
+              {
+                name: 'asterisk bullets count',
+                body: `${AC}\n\n* [ ] one\n`,
+                expect: { hasSection: true, unticked: 1 },
+              },
+              {
+                name: 'indented sub-item counts',
+                body: `${AC}\n\n- [x] parent\n  - [ ] child\n`,
+                expect: { hasSection: true, unticked: 1 },
+              },
+              {
+                name: 'a fenced example box is not an AC',
+                body: `${AC}\n\n- [x] done\n\n\`\`\`\n- [ ] this is sample markdown\n\`\`\`\n`,
+                expect: { hasSection: true, unticked: 0 },
+              },
+              {
+                name: 'rejected-with-rationale reads as ticked',
+                body: `${AC}\n\n- [x] (rejected: superseded by the new schema)\n`,
+                expect: { hasSection: true, unticked: 0 },
+              },
+              {
+                name: 'empty body is not a violation',
+                body: '',
+                expect: { hasSection: false, unticked: 0 },
+              },
+            ];
+
+            const EXEMPT_FIXTURES = [
+              { name: 'no hatch', body: 'Closes #1', labels: [], expect: 'none' },
+              {
+                name: 'both halves present',
+                body: 'Ac-exempt: the remaining AC needs a client decision we do not have',
+                labels: [EXEMPT_LABEL],
+                expect: 'exempt',
+              },
+              { name: 'label without a reason', body: 'Closes #1', labels: [EXEMPT_LABEL], expect: 'label-only' },
+              {
+                name: 'reason without the label',
+                body: 'Ac-exempt: the remaining AC needs a client decision we do not have',
+                labels: [],
+                expect: 'reason-only',
+              },
+              { name: 'reason too short', body: 'Ac-exempt: later', labels: [EXEMPT_LABEL], expect: 'short' },
+              {
+                name: 'reason of exactly the minimum passes',
+                body: `Ac-exempt: ${'x'.repeat(MIN_REASON_CHARS)}`,
+                labels: [EXEMPT_LABEL],
+                expect: 'exempt',
+              },
+            ];
+
+            const selfTestFailures = [];
+            const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+            for (const f of REF_FIXTURES) {
+              const got = closingRefs(f.body).sort();
+              if (!eq(got, [...f.expect].sort())) {
+                selfTestFailures.push(`  refs/${f.name}: expected ${JSON.stringify(f.expect)}, got ${JSON.stringify(got)}`);
+              }
+            }
+            for (const f of AC_FIXTURES) {
+              const got = untickedAcs(f.body);
+              if (got.hasSection !== f.expect.hasSection || got.unticked.length !== f.expect.unticked) {
+                selfTestFailures.push(
+                  `  acs/${f.name}: expected ${JSON.stringify(f.expect)}, ` +
+                  `got {"hasSection":${got.hasSection},"unticked":${got.unticked.length}}`,
+                );
+              }
+            }
+            for (const f of EXEMPT_FIXTURES) {
+              const got = exemption(f.body, f.labels).state;
+              if (got !== f.expect) {
+                selfTestFailures.push(`  exempt/${f.name}: expected ${f.expect}, got ${got}`);
+              }
+            }
+
+            const FIXTURE_COUNT = REF_FIXTURES.length + AC_FIXTURES.length + EXEMPT_FIXTURES.length;
+            if (selfTestFailures.length > 0) {
+              core.setFailed(
+                [
+                  `Gate self-test failed on ${selfTestFailures.length} fixture assertion(s) —`,
+                  'the detection logic in this workflow is broken, so its verdict on this PR',
+                  'cannot be trusted. Fix the patterns (or the fixture) before merging.',
+                  '',
+                  ...selfTestFailures,
+                ].join('\n'),
+              );
+              return;
+            }
+            core.info(`Gate self-test: ${FIXTURE_COUNT}/${FIXTURE_COUNT} fixtures pass.`);
+
+            // ── Scan the real PR ─────────────────────────────────────────
+            const pr = context.payload.pull_request;
+            const body = pr.body || '';
+            const labels = (pr.labels || []).map((l) => (typeof l === 'string' ? l : l.name));
+
+            const refs = closingRefs(body);
+            if (refs.length === 0) {
+              core.info('No same-repo closing keyword in the PR body — nothing to gate.');
+              return;
+            }
+
+            // The hatch is evaluated BEFORE the issue reads, so an exempt PR
+            // costs no API calls — but a partial hatch still fails, because a
+            // half-declared waiver is the state that hides a partial close.
+            const hatch = exemption(body, labels);
+            if (hatch.state === 'exempt') {
+              core.info(`ac-close-gate: EXEMPT via ${EXEMPT_LABEL} — "${hatch.reason}".`);
+              return;
+            }
+            if (hatch.state === 'label-only') {
+              core.setFailed(
+                `PR is labelled \`${EXEMPT_LABEL}\` with no \`Ac-exempt: <reason>\` line in the body.\n` +
+                `The label makes the partial close visible on the board; the reason is what makes it\n` +
+                `reviewable. Add a body line of at least ${MIN_REASON_CHARS} characters saying which AC\n` +
+                'is not done and why this PR closes the issue anyway.',
+              );
+              return;
+            }
+            if (hatch.state === 'reason-only') {
+              core.setFailed(
+                `PR body declares \`Ac-exempt:\` but the PR is not labelled \`${EXEMPT_LABEL}\`.\n` +
+                'Without the label the waiver is invisible on the board — add it.',
+              );
+              return;
+            }
+            if (hatch.state === 'short') {
+              core.setFailed(
+                `\`Ac-exempt:\` reason is ${hatch.reason.length} chars (need >= ${MIN_REASON_CHARS}): ` +
+                `"${hatch.reason}".\nSay which AC is not done and why the issue closes anyway.`,
+              );
+              return;
+            }
+
+            const offenders = [];
+            for (const num of refs) {
+              let issue;
+              try {
+                const { data } = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: Number(num),
+                });
+                issue = data;
+              } catch (e) {
+                // A ref we cannot resolve is not evidence of a violation. Say
+                // so on the record rather than passing silently — an unreadable
+                // input read as "clean" is the blind-scan failure brik-llm#1587
+                // already paid for.
+                core.warning(`Could not resolve #${num} (${e.status || e.message}) — not gated.`);
+                continue;
+              }
+              const { hasSection, unticked } = untickedAcs(issue.body || '');
+              if (!hasSection) {
+                core.info(`#${num} has no \`## Acceptance criteria\` section — nothing to assert.`);
+                continue;
+              }
+              if (unticked.length === 0) {
+                core.info(`#${num}: all acceptance criteria ticked.`);
+                continue;
+              }
+              offenders.push({ num, title: issue.title, unticked });
+            }
+
+            if (offenders.length === 0) {
+              core.info('Every issue this PR closes has its acceptance criteria ticked.');
+              return;
+            }
+
+            const total = offenders.reduce((n, o) => n + o.unticked.length, 0);
+            const messages = [
+              `This PR closes ${offenders.length} issue(s) with ${total} unticked acceptance criteri${total === 1 ? 'on' : 'a'}.`,
+              '',
+              'A closed issue is invisible on the project board, so anything left unticked at',
+              'close becomes orphaned work with no surface that raises it again. brikdesigns#729',
+              'shipped one of five service lines under a full-scope AC; four rendered wrong for',
+              'two weeks with CI green.',
+              '',
+            ];
+            for (const o of offenders) {
+              messages.push(`  #${o.num} — ${o.title}`);
+              for (const line of o.unticked) messages.push(`      ${line}`);
+              messages.push('');
+            }
+            messages.push(
+              'Put every one of them in one of the four states from `issue-style.md`',
+              '§ Closing discipline, then re-run:',
+              '',
+              ...FOUR_STATES,
+              '',
+              'If this PR legitimately completes the issue, tick the boxes ON THE ISSUE.',
+              'If it completes only part of it, `Closes` is the wrong keyword — use',
+              '`Part of #N` or `Partial for #N` and the issue stays open.',
+              '',
+              `Genuine exception: label the PR \`${EXEMPT_LABEL}\` AND add a body line`,
+              `\`Ac-exempt: <reason>\` of at least ${MIN_REASON_CHARS} characters. Both are required.`,
+            );
+
+            core.setFailed(messages.join('\n'));
