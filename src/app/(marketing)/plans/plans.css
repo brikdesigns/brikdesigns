@@ -278,98 +278,363 @@
   z-index: 1;
 }
 
-/* ─── Bottom CTA — two-column support-plan panel ─────────── */
-/* Surface-service-tinted panel: plan illustration left, price/CTA card right.
-   Mirrors the .service-detail-support-grid pattern used on the service-detail
-   pages so the two support CTAs read as one system. */
-.plan-cta-panel {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap-huge);
-  align-items: center;
-  padding: var(--padding-huge);
-  border-radius: var(--border-radius-lg);
-}
-
-/* Illustration reads as a supporting element, not the focal point — cap it well
-   below its 1fr column and centre it (the price/CTA card is the focus). Square
-   ratio via the aspect token rather than a raw `1`. */
-.plan-cta-panel__media {
-  position: relative;
-  aspect-ratio: var(--aspect-square);
-  width: 100%;
-  max-width: 320px;
-  margin-inline: auto;
-}
-
-/* The BDS hero price block carries a --padding-sm inline pad (styles.css,
-   @layer bds-components); drop it here so the label/value align flush to the
-   media card's own padding edge. Site CSS is unlayered, so this wins on layer
-   order. Scoped to the plan-detail hero. */
-.page-hero-blueprint .bds-hero__price {
-  padding-inline: 0;
-}
-
-.plan-cta-panel__card {
-  width: 100%;
-  /* BDS `variant="elevated"` reads flat (shadow removed in brik-bds#1146) —
-     restore a real drop shadow so the focal price/CTA card lifts off the pale
-     service-tinted panel band. */
-  box-shadow: var(--box-shadow-lg);
-  /* Centre the price/CTA stack in the card's min-height (640px at ≥992px) so it
-     reads as the vertical focal point rather than sitting top-aligned. */
-  justify-content: center;
-}
-
-/* Desktop floor so the focal price/CTA card fills its half of the two-column
-   panel and reads as the anchor beside the illustration (#1224). Scoped to the
-   ≥992px two-column layout — the panel collapses to one column at 991px below,
-   where a fixed floor would leave dead space. */
-@media (min-width: 992px) {
-  .plan-cta-panel__card {
-    min-height: 640px;
-  }
-}
-
-/* Price sits in a subtle inset block so it reads as the focal figure. The
-   background is the plan's pale service-line light tint, set inline in
-   [slug]/page.tsx (per-plan/dynamic hue) — replaces the former neutral
-   surface-secondary fill. */
-.plan-cta-panel__price {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--gap-tiny);
-  width: 100%;
-  padding: var(--padding-md);
-  border-radius: var(--border-radius-md);
-}
-
-/* Plan-detail INVERSE CTAs use the pale base service background fill (driven by
-   --background-inverse on the .plan-detail-ctas root); pair it with the line's
-   deep text ink so white-on-pale is never rendered. We reuse the per-button
-   --service-cta-ink-dark handoff (the line's `text` = {hue}-darkest): it resolves
-   to each button's OWN line hue and — unlike --text-on-color-light, which the
-   bds-hero__media-card scopes to white — stays dark inside the hero media card.
-   Fallback to --text-brand-primary (also the line's dark ink).
-
-   PRIMARY CTAs are intentionally NOT pinned here: brikdesigns#1001 moved them to
-   the canonical deep `onLight` fill + BDS default white label (`serviceCtaVars`),
-   which the shared `.service-themed .bds-button--primary` cascade in globals.css
-   already handles in both themes. Pinning dark ink here would render dark-on-deep. */
 .plan-detail-ctas .bds-button--inverse {
   color: var(--service-cta-ink-dark, var(--text-brand-primary));
-}
-
-@media (max-width: 991px) {
-  .plan-cta-panel {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 479px) {
   .plan-service-list-item {
     grid-template-columns: 56px 1fr;
     gap: var(--gap-md);
+  }
+}
+
+/* ═══ Plan detail — Figma support-plan template (#1371) ═══════════════════ */
+
+/* ─── section-hero (26144:9053) ───────────────────────────────────────────
+   `.section-hero` + `.plans-hero` already give the band and the accent-blue
+   container with dark ink re-pinned. Two deltas for the plan-detail frame:
+   Figma corners this hero at border-radius/800 (24px) where the home/index
+   hero takes 48px, and the band has no full-viewport floor — it wraps a
+   title + description only, with no media column to balance. */
+.plan-detail-hero .hero-container {
+  border-radius: var(--border-radius-800);
+}
+
+@media (min-width: 992px) {
+  .plan-detail-hero {
+    min-height: 0;
+  }
+}
+
+/* ─── section-intro (26144:9055) ──────────────────────────────────────────
+   Centred copy over a 600px stacked list. Figma's `list-wrapper` gap is 32px
+   between the "What the Foundation covers:" line and the rows, and 24px
+   between rows. */
+.plan-intro .container-lg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-xl);
+}
+
+.plan-coverage-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-lg);
+  width: 100%;
+}
+
+.plan-coverage-list__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-sm);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--font-line-height-tight);
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+/* Figma pins the row column at 600px inside a wider band — a measure cap, not
+   a grid, so a plan that authors more rows just makes the column taller. */
+.plan-coverage-list__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+  width: 100%;
+  max-width: 600px;
+}
+
+/* ─── coverage row (26170:5761 / 26144:9074) ──────────────────────────── */
+/* Indicator left, copy right. The row's tinted fill is set inline per plan;
+   chrome comes from the white band (border, no shadow) via the BDS default. */
+.plan-coverage-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--gap-sm);
+  border-radius: var(--border-radius-300);
+}
+
+.plan-coverage-row__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.plan-coverage-row__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-tiny);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--font-line-height-tight);
+  color: var(--text-on-color-light);
+  margin: 0;
+}
+
+/* The row's fill is a service `-light` tint, which is fixed-LIGHT in BOTH
+   themes, so this line cannot use `--text-secondary` — that flips near-white in
+   the dark root and rendered pale-on-pale. The title above it was already safe
+   because `--text-on-color-light` is mode-invariant; this is the same pin, one
+   step lighter so the two lines keep their hierarchy. Same #360
+   fixed-on-fixed-light correction as `.plans-hero .hero-container`. */
+.plan-coverage-row__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  line-height: var(--font-line-height-normal);
+  /* bds-lint-ignore token-family — fixed-dark ink on a fixed-light service
+     tint; 800 keeps it secondary to the 950-equivalent title while clearing AA
+     on all five tints (globals.css AA table). */
+  color: var(--color-grayscale-800);
+  margin: 0;
+}
+
+/* ─── billing toggle (delta row 4) ────────────────────────────────────── */
+/* Its own row between section-details and section-type, no longer inside the
+   card grid. Block inset matches the band rhythm above and below it. */
+.plan-billing-toggle {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--padding-lg);
+  background-color: var(--surface-primary);
+}
+
+/* ─── section-type (26144:9099) ───────────────────────────────────────── */
+/* Two equal cards. `repeat(2, …)` renders exactly the tiers the CMS authored —
+   a plan with one public tier would leave a hole, so the count is `auto-fit`
+   bounded at two rather than a fixed 2-column rule (grid-column-fit gate). */
+/* `width: 100%` is load-bearing, not cosmetic: `.container-lg` is a centered
+   flex COLUMN (shared-sections.css), so a grid child shrink-wraps to its
+   content and `auto-fit` then resolves to a single column. Without it the two
+   tier cards stacked at 621px inside a 1440px band. */
+.plan-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--gap-md);
+  width: 100%;
+}
+
+.plan-tier-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-sm);
+  border-radius: var(--border-radius-300);
+}
+
+.plan-tier-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  width: 100%;
+}
+
+.plan-tier-card__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-tiny);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--font-line-height-tight);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Price row — the coloured figure and its period sit side by side as siblings
+   (see the note in PlanTierSection.tsx); this is the line box that holds them. */
+.plan-tier-card__amount {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-xs);
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+/* display/small in Figma. The figure takes the card's own service ink, which
+   is AA on the card fill in both themes — the accent attribute below sets it. */
+.plan-tier-card__price {
+  font-family: var(--font-family-display);
+  font-size: var(--display-sm);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--font-line-height-none);
+}
+
+/* Sibling of the price, so it is measured against the CARD surface and the
+   normal secondary ink is correct in both themes. */
+.plan-tier-card__period {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-secondary);
+}
+
+.plan-tier-card__who {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  line-height: var(--font-line-height-normal);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.plan-tier-card__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-md);
+  line-height: var(--font-line-height-normal);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* The asymmetric pair Figma draws: Advisory on the brand (yellow) family,
+   Managed on back-office (orange).
+
+   The two cards take DIFFERENT ink strategies because their fills behave
+   differently across themes, and mixing them up is the #360 trap:
+
+   * Advisory's `--surface-service-brand-light` is FIXED-LIGHT in both themes.
+     `.service-surface` pins its section's inherited ink dark in dark mode, but
+     the sibling rule in globals.css un-pins it again for `.bds-card` — correct
+     for a card that establishes its own DARK surface, wrong for this one. So
+     the ink is re-pinned here, to the mode-invariant primitives, exactly as
+     `.engagement-mode__chip` does for the same reason.
+   * Managed's `--surface-primary` is theme-RESPONSIVE (white -> near-black), so
+     its ink must follow the theme too. Only the price is service-coloured, and
+     it swaps to the `-on-dark` step in the dark root. */
+.plan-tier-card[data-accent='brand'] {
+  background-color: var(--surface-service-brand-light);
+}
+
+.plan-tier-card[data-accent='brand'] .plan-tier-card__price {
+  color: var(--text-service-brand-on-light);
+}
+
+:root[data-theme='dark'] .plan-tier-card[data-accent='brand'] {
+  /* bds-lint-ignore token-family — fixed-dark ink on the fixed-light brand
+     tint; 950 clears AA on every service tint (globals.css AA table). */
+  --text-primary: var(--color-grayscale-950);
+  /* bds-lint-ignore token-family — see above; both roles land on 950 by design. */
+  --text-secondary: var(--color-grayscale-950);
+}
+
+.plan-tier-card[data-accent='back-office'] {
+  background-color: var(--surface-primary);
+}
+
+.plan-tier-card[data-accent='back-office'] .plan-tier-card__price {
+  color: var(--text-service-back-office-on-light);
+}
+
+:root[data-theme='dark']
+  .plan-tier-card[data-accent='back-office']
+  .plan-tier-card__price {
+  color: var(--text-service-back-office-on-dark);
+}
+
+/* ─── section-full-stack (26144:9109) ─────────────────────────────────── */
+.plan-full-stack {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-xl);
+  align-items: center;
+  padding: var(--padding-huge) var(--page-inset);
+  background-color: var(--surface-service-brand-light);
+}
+
+.plan-full-stack__copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--gap-md);
+  max-width: 575px;
+  justify-self: end;
+}
+
+/* Fixed-light service tint — the band needs the same dark ink pin
+   `.service-surface` applies, which the JSX opts into via that class. Titles
+   and body copy below therefore inherit dark ink in BOTH themes. */
+.plan-full-stack__title {
+  font-family: var(--font-family-heading);
+  font-size: var(--heading-xxl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--font-line-height-snug);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.plan-full-stack__description {
+  font-family: var(--font-family-body);
+  font-size: var(--body-xl);
+  line-height: var(--font-line-height-normal);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.plan-full-stack__media {
+  width: 100%;
+  max-width: 625px;
+  padding: var(--padding-xl);
+  border-radius: var(--border-radius-800);
+  background-color: var(--surface-accent);
+}
+
+/* Figma's `product-design` frame is 576x568 — the coordinate space the brick,
+   mark and portrait percentages in PlanFullStackPanel.tsx are measured in, so
+   the stage must hold that ratio for them to land where the design puts them. */
+.plan-full-stack__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 576 / 568;
+}
+
+.plan-full-stack__brick,
+.plan-full-stack__mark,
+.plan-full-stack__portrait {
+  position: absolute;
+}
+
+.plan-full-stack__brick {
+  border-radius: var(--border-radius-100);
+}
+
+.plan-full-stack__brick[data-tone='accent'] {
+  background-color: var(--background-service-brand);
+}
+
+/* Measured, not guessed: on the card's `--surface-accent` fill (rgb(241,240,236))
+   both `--surface-secondary` and `--surface-muted` resolve to rgb(241,240,236)
+   and rgb(242,242,242) — the neutral bricks rendered invisible. These two are
+   the nearest tokens that actually read against it, and they preserve Figma's
+   light/mid ordering (its raw fills were 10%- and 20%-black). */
+.plan-full-stack__brick[data-tone='light'] {
+  background-color: var(--background-muted);
+}
+
+.plan-full-stack__brick[data-tone='mid'] {
+  background-color: var(--surface-neutral);
+}
+
+/* Circular portrait masks, sized as a share of the stage so they scale with
+   it; the ring picks up the page ink so they read as cut-outs on the wall. */
+.plan-full-stack__portrait {
+  aspect-ratio: var(--aspect-square);
+  border-radius: var(--border-radius-circle);
+  border: var(--border-width-md) solid var(--border-primary);
+  overflow: clip;
+}
+
+.plan-full-stack__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 991px) {
+  .plan-full-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-full-stack__copy,
+  .plan-full-stack__media {
+    justify-self: center;
+    max-width: none;
   }
 }

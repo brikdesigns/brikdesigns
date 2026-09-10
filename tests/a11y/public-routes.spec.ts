@@ -45,6 +45,13 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   { path: '/services/back-office/crm-setup-and-data-cleanup', name: 'Service detail — back-office CRM setup' },
   { path: '/plans', name: 'Plans' },
   { path: '/plans/back-office-support', name: 'Plan detail — back-office support' },
+  // marketing-support is audited SEPARATELY from back-office-support because
+  // the two render different SECTIONS, not just different copy. Only
+  // marketing-support has authored `service_plan_foundation_items`, so it is
+  // the only route on which #1371's `section-intro` list renders at all — a
+  // dark-mode contrast bug in those rows was invisible to this gate until this
+  // entry existed (found by eye, which is the failure mode to avoid repeating).
+  { path: '/plans/marketing-support', name: 'Plan detail — marketing support' },
   // /industries/* legacy paths 308-redirect to /customers/* — testing them
   // exercises the redirect and lands axe on the same content, which inflates
   // the violation footprint with the muted .bds-breadcrumb__current text

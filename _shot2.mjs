@@ -1,0 +1,13 @@
+import { chromium } from 'playwright';
+const out = process.argv[2];
+const b = await chromium.launch();
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+await p.goto('http://localhost:3021/', { waitUntil: 'networkidle' });
+await p.getByRole('button', { name: /^Services/ }).click();
+await p.waitForSelector('.mega-nav__panel--plans', { state: 'visible' });
+await p.locator('.mega-nav__panel-banner input[role="switch"]').click();
+await p.waitForSelector('.mega-nav__services-grid', { state: 'visible' });
+await p.waitForTimeout(500);
+await p.screenshot({ path: out, fullPage: false });
+await b.close();
+console.log('shot saved', out);
