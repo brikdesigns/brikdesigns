@@ -33,6 +33,27 @@ name: bump-pr-closing-keyword-guard
 # PR's legitimate top-level `Closes #NNNN` passes all four. Cross-repo refs
 # (`owner/repo#N`) stay out of scope for rules 2–4.
 #
+# TWO INPUTS, NOT ONE (brik-llm#3306)
+#   The PR body was the only thing scanned until #3306, and GitHub's parser also
+#   reads COMMIT MESSAGES merged to the default branch. PR brik-llm#3294's body
+#   said `Part of #1387` — this guard passed — while its first commit read "the
+#   grading that closes #1387 AC 8 names an assessment_id". The squash carried
+#   that onto `main` as 5d81800 and GitHub closed #1387 at 14:33:05Z with seven
+#   unticked acceptance criteria. A squash-merge concatenates EVERY commit body
+#   into the merge commit message, so every commit in the PR is live input, not
+#   just the last one.
+#
+#   Rules 2 and 3 apply to a commit message unchanged. Rule 4 is ESCALATED from
+#   WARN to FAIL on that path: a qualifier in a PR body can be re-read and
+#   rewritten right up to merge, while a commit message is already written and
+#   its author never sees the parser's reading of it. A BARE `Closes #N` in a
+#   commit message stays legitimate — `pr-task.sh` builds the PR body from the
+#   commit log, so that is the repo's own convention.
+#
+#   Rule 1 is body-only by design: its bump-changelog markers describe a PR
+#   body's pasted changelog, and a submodule-bump PR's commit messages are the
+#   bump commits themselves, not the changelog.
+#
 # Self-testing: the FIXTURES matrix below runs before the real PR body is
 # scanned and fails the job on any mismatch, so every copy of this file
 # verifies its own detection logic on every PR.
@@ -52,7 +73,8 @@ on:
 
 permissions:
   contents: read
-  issues: read       # resolve referenced issues' labels for the umbrella guard (brik-llm#1468)
+  issues: read        # resolve referenced issues' labels for the umbrella guard (brik-llm#1468)
+  pull-requests: read # list the PR's commits — the second input GitHub's parser reads (brik-llm#3306)
 
 concurrency:
   group: bump-pr-closing-keyword-guard-${{ github.event.pull_request.number }}
@@ -148,8 +170,12 @@ jobs:
             const stripEmphasis = (line) => line.replace(/[*_`~]/g, '');
 
             // ── Pure scanner (exercised by FIXTURES below) ────────────────
-            function scanBody(body) {
-              const isBumpPR = BUMP_MARKERS.some((re) => re.test(body || ''));
+            // `bumpDetection: false` is for the commit-message path: rule 1's
+            // markers describe a PR body's pasted changelog, and a commit
+            // message that happens to quote one must still be read as prose by
+            // rules 2-4 rather than diverted into the rule-1 bucket.
+            function scanBody(body, { bumpDetection = true } = {}) {
+              const isBumpPR = bumpDetection && BUMP_MARKERS.some((re) => re.test(body || ''));
               const lines = (body || '').split(/\r?\n/);
               const violations = [];        // rule 1 — fenced / bump changelog
               const negations = [];         // rule 2 — negated keyword in prose
@@ -193,6 +219,16 @@ jobs:
               });
 
               return { isBumpPR, violations, negations, qualifiers, proseRefs: [...proseRefs] };
+            }
+
+            // One commit message, read as the parser will read it after merge
+            // (brik-llm#3306). Same grammar as the body path — only the verdict
+            // on a qualifier differs, and that difference lives at the call
+            // site, not here, so this stays a pure function over text.
+            function scanCommitMessage(message) {
+              const { negations, qualifiers, proseRefs } =
+                scanBody(message, { bumpDetection: false });
+              return { negations, qualifiers, proseRefs };
             }
 
             // ── Fixture matrix ───────────────────────────────────────────
@@ -251,21 +287,62 @@ jobs:
               { name: 'bare PR link untouched', body: `Ports the neutralizer (${H}612)`, expect: { violations: 0, negations: 0, proseRefs: [] } },
             ];
 
+            // ── Commit-message fixtures (brik-llm#3306) ──────────────────
+            // The second input. These assert on scanCommitMessage, so a matrix
+            // that only ever covered bodies cannot report the commit path as
+            // tested — the gap that let #1387 close.
+            const COMMIT_FIXTURES = [
+              // The live #3294 case, verbatim in shape: a qualified close in a
+              // commit message. On the body path this is rule 4's WARN; here it
+              // must be a countable qualifier so the call site can FAIL it.
+              {
+                name: 'live #3294 shape — qualified close in a commit subject',
+                message: `chore(pm): record the AC-8 grade\n\nRecorded so the grading that closes ${H}1387 AC 8 names an assessment_id.`,
+                expect: { qualifiers: 1, negations: 0, proseRefs: ['1387'] },
+              },
+              // The repo's own convention must keep passing: pr-task.sh builds
+              // the PR body from the commit log, so a bare trailer is normal.
+              {
+                name: 'bare Closes trailer is the convention, not a defect',
+                message: `fix(pm): tell a frozen grader from an idle roster\n\nPart of ${H}2472\nCloses ${H}3063`,
+                expect: { qualifiers: 0, negations: 0, proseRefs: ['3063'] },
+              },
+              { name: 'commit-path negation fails', message: `Does NOT close ${H}2436`, expect: { negations: 1 } },
+              { name: 'commit-path bold negation fails', message: `This does **not** close ${H}2942`, expect: { negations: 1 } },
+              { name: 'commit-path bare close, trailing period', message: `Closes ${H}1437.`, expect: { qualifiers: 0, proseRefs: ['1437'] } },
+              { name: 'commit-path Part of closes nothing', message: `Part of ${H}2472`, expect: { qualifiers: 0, negations: 0, proseRefs: [] } },
+              { name: 'commit-path cross-repo ref is out of scope', message: `Closes brikdesigns/brik-bds${H}607`, expect: { proseRefs: [] } },
+              // A commit message quoting a bump changelog must still be read as
+              // prose — rule 1's markers are about a PR body, and diverting the
+              // line into `violations` would hide the close from rules 2-4.
+              {
+                name: 'bump markers in a commit message do not divert rules 2-4',
+                message: `docs: quote the changelog\n\n**4 commits** since last sync\n\nDoes NOT close ${H}607`,
+                expect: { negations: 1 },
+              },
+            ];
+
             const selfTestFailures = [];
-            for (const f of FIXTURES) {
-              const got = scanBody(f.body);
-              for (const [key, want] of Object.entries(f.expect)) {
+            const checkExpect = (label, got, expect) => {
+              for (const [key, want] of Object.entries(expect)) {
                 const actual = key === 'proseRefs' ? got.proseRefs : got[key].length;
                 const ok = key === 'proseRefs'
                   ? JSON.stringify([...got.proseRefs].sort()) === JSON.stringify([...want].sort())
                   : actual === want;
                 if (!ok) {
                   selfTestFailures.push(
-                    `  ${f.name}: ${key} expected ${JSON.stringify(want)}, got ${JSON.stringify(actual)}`,
+                    `  ${label}: ${key} expected ${JSON.stringify(want)}, got ${JSON.stringify(actual)}`,
                   );
                 }
               }
+            };
+
+            for (const f of FIXTURES) checkExpect(f.name, scanBody(f.body), f.expect);
+            for (const f of COMMIT_FIXTURES) {
+              checkExpect(`commit/${f.name}`, scanCommitMessage(f.message), f.expect);
             }
+
+            const FIXTURE_COUNT = FIXTURES.length + COMMIT_FIXTURES.length;
             if (selfTestFailures.length > 0) {
               core.setFailed(
                 [
@@ -278,15 +355,48 @@ jobs:
               );
               return;
             }
-            core.info(`Guard self-test: ${FIXTURES.length}/${FIXTURES.length} fixtures pass.`);
+            core.info(`Guard self-test: ${FIXTURE_COUNT}/${FIXTURE_COUNT} fixtures pass.`);
 
             // ── Scan the real PR body ────────────────────────────────────
             const body = context.payload.pull_request.body || '';
             const { isBumpPR, violations, negations, qualifiers, proseRefs } = scanBody(body);
 
+            // ── Scan the real PR's commit messages (brik-llm#3306) ───────
+            // Paginated: a squash-merge concatenates every commit body, so a
+            // long branch's 40th commit is as live as its first. An unreadable
+            // list is reported, never treated as clean — the blind-scan failure
+            // brik-llm#1587 already paid for.
+            const commitNegations = [];   // rule 2 on the commit path — FAIL
+            const commitQualifiers = [];  // rule 4 ESCALATED here — FAIL
+            const commitRefs = new Set(); // rule 3 candidates from commits
+            try {
+              const commits = await github.paginate(github.rest.pulls.listCommits, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                per_page: 100,
+              });
+              for (const c of commits) {
+                const sha = (c.sha || '').slice(0, 8);
+                const scan = scanCommitMessage(c.commit && c.commit.message);
+                for (const n of scan.negations) commitNegations.push({ ...n, sha });
+                for (const q of scan.qualifiers) commitQualifiers.push({ ...q, sha });
+                for (const num of scan.proseRefs) commitRefs.add(num);
+              }
+              core.info(`Scanned ${commits.length} commit message(s) for closing keywords.`);
+            } catch (e) {
+              core.warning(
+                `Could not list this PR's commits (${e.status || e.message}) — the ` +
+                'commit-message half of this guard did not run. The PR body was still ' +
+                'scanned; a closing keyword in a commit message is NOT gated on this run.',
+              );
+            }
+
             // Rule 3 — resolve each prose ref's labels; flag the umbrellas.
+            // Union of both inputs: an umbrella closed from a commit message is
+            // the same defect as one closed from the body.
             const umbrellaViolations = [];
-            for (const num of proseRefs) {
+            for (const num of new Set([...proseRefs, ...commitRefs])) {
               let labels = [];
               try {
                 const { data } = await github.rest.issues.get({
@@ -314,11 +424,14 @@ jobs:
               );
             }
 
-            if (violations.length === 0 && negations.length === 0 && umbrellaViolations.length === 0) {
+            if (violations.length === 0 && negations.length === 0
+                && umbrellaViolations.length === 0
+                && commitNegations.length === 0 && commitQualifiers.length === 0) {
               core.info(
                 isBumpPR
                   ? 'Bump PR detected — no un-neutralized closing-keywords found.'
-                  : 'No fenced-block, negated, or umbrella closing-keywords found.',
+                  : 'No fenced-block, negated, or umbrella closing-keywords found '
+                    + 'in the PR body or its commit messages.',
               );
               return;
             }
@@ -352,6 +465,47 @@ jobs:
                 '"Does NOT close #2436".',
                 '',
                 'Fix: reference the number WITHOUT a closing keyword next to it.',
+                '',
+                ...SAFE_ALTERNATIVES,
+              );
+            }
+            if (commitNegations.length > 0) {
+              if (messages.length > 0) messages.push('');
+              messages.push(
+                `Found ${commitNegations.length} NEGATED closing-keyword reference(s) in this PR's COMMIT MESSAGES:`,
+                '',
+                ...commitNegations.map((n) => `  ${n.sha} line ${n.line}: ${n.text}`),
+                '',
+                'GitHub reads commit messages merged to the default branch, not only the',
+                'PR body — and a squash-merge concatenates every commit body into the merge',
+                'commit. So each of these closes its issue on merge, the opposite of what',
+                'the sentence says.',
+                '',
+                'Fix: reword the commit (`git rebase -i`, or amend if it is the tip), or',
+                'reference the number without a closing keyword next to it.',
+                '',
+                ...SAFE_ALTERNATIVES,
+              );
+            }
+            if (commitQualifiers.length > 0) {
+              if (messages.length > 0) messages.push('');
+              messages.push(
+                `Found ${commitQualifiers.length} QUALIFIED closing-keyword reference(s) in this PR's COMMIT MESSAGES:`,
+                '',
+                ...commitQualifiers.map((q) => `  ${q.sha} line ${q.line}: ${q.text}`),
+                '',
+                'GitHub ignores the qualifier and closes the issue IN FULL. In a PR body',
+                'this is only a warning — the author can re-read and rewrite it before',
+                'merge. A commit message is already written, and its author never sees the',
+                'parser\'s reading of it, so on this path it fails.',
+                '',
+                'This is the brik-llm#3294 failure: its body said `Part of #1387` and this',
+                'guard passed, while its first commit said "the grading that closes #1387',
+                'AC 8 names an assessment_id". The squash carried that onto `main` as',
+                '5d81800 and #1387 closed with seven unticked acceptance criteria.',
+                '',
+                'Fix: reword the commit so the keyword is not beside the reference. A BARE',
+                '`Closes #N` trailer is fine — it is what `pr-task.sh` builds the body from.',
                 '',
                 ...SAFE_ALTERNATIVES,
               );

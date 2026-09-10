@@ -37,6 +37,16 @@ name: ac-close-gate
 #   `**bold**` close is still a close (brik-llm#2565). `Refs #N`, `Part of #N`
 #   and cross-repo `owner/repo#N` are untouched: they close nothing.
 #
+#   From TWO inputs, not one (brik-llm#3306): the PR body AND every commit
+#   message in the PR. GitHub's parser reads commit messages merged to the
+#   default branch, and a squash-merge concatenates every commit body into the
+#   merge commit, so a clean body is not evidence of a clean close. This gate
+#   read only the body until #3306 and could not have helped on the case it
+#   exists for: PR brik-llm#3294's body said `Part of` — correctly gating
+#   nothing — while its commit closed brik-llm#1387 with seven unticked
+#   acceptance criteria. The refs are UNIONED; an issue reached from either
+#   input is gated identically.
+#
 # ESCAPE HATCH
 #   Label `ac:none` AND a body line `Ac-exempt: <reason>` (>= 20 chars) — the
 #   shape of `repro:none` + `Repro-exempt:` (scripts/audit/repro-before-fix.py).
@@ -69,6 +79,7 @@ on:
 permissions:
   contents: read
   issues: read # read each referenced issue's body to count its unticked ACs
+  pull-requests: read # list the PR's commits — the second input the parser reads (brik-llm#3306)
 
 concurrency:
   group: ac-close-gate-${{ github.event.pull_request.number }}
@@ -153,6 +164,19 @@ jobs:
               return [...refs];
             }
 
+            // Union of the closing refs reachable from BOTH inputs — the PR
+            // body and every commit message in the PR (brik-llm#3306). Pure
+            // over its inputs so the matrix exercises the union itself, not
+            // just the single-text scanner: "reachable only from a commit" is
+            // the case #3294 proved live, and a scanner test cannot express it.
+            function allClosingRefs(body, commitMessages) {
+              const refs = new Set(closingRefs(body));
+              for (const message of commitMessages || []) {
+                for (const num of closingRefs(message)) refs.add(num);
+              }
+              return [...refs];
+            }
+
             // Unticked `- [ ]` inside the `## Acceptance criteria` section
             // ONLY. Returns {hasSection, unticked: [line text]}. No section is
             // reported distinctly from an empty one — "nothing to assert" and
@@ -208,6 +232,38 @@ jobs:
               { name: 'fenced close belongs to the sibling guard', body: `\`\`\`\nCloses ${H}729\n\`\`\``, expect: [] },
               { name: 'negated close belongs to the sibling guard', body: `Does NOT close ${H}729`, expect: [] },
               { name: 'bare link is not a close', body: `Ports it (${H}612)`, expect: [] },
+            ];
+
+            // The two-input union (brik-llm#3306). A body-only matrix reported
+            // this gate as tested while the commit path was unread.
+            const UNION_FIXTURES = [
+              {
+                name: 'live #3294 shape — the ref exists ONLY in a commit message',
+                body: `Part of ${H}1387`,
+                commits: [`chore(pm): record the AC-8 grade\n\nRecorded so the grading that closes ${H}1387 AC 8 names an assessment_id.`],
+                expect: ['1387'],
+              },
+              {
+                name: 'both inputs union, no duplicate',
+                body: `Closes ${H}1`,
+                commits: [`Closes ${H}1`, `Fixes ${H}2`],
+                expect: ['1', '2'],
+              },
+              { name: 'no commits is the body alone', body: `Closes ${H}9`, commits: [], expect: ['9'] },
+              { name: 'undefined commit list degrades to the body', body: `Closes ${H}9`, commits: undefined, expect: ['9'] },
+              { name: 'Part of in both closes nothing', body: `Part of ${H}5`, commits: [`Part of ${H}5`], expect: [] },
+              {
+                name: 'negated close in a commit belongs to the sibling guard',
+                body: '',
+                commits: [`Does NOT close ${H}7`],
+                expect: [],
+              },
+              {
+                name: 'cross-repo ref in a commit is out of scope',
+                body: '',
+                commits: [`Closes brikdesigns/brik-bds${H}729`],
+                expect: [],
+              },
             ];
 
             const AC_FIXTURES = [
@@ -311,6 +367,12 @@ jobs:
                 selfTestFailures.push(`  refs/${f.name}: expected ${JSON.stringify(f.expect)}, got ${JSON.stringify(got)}`);
               }
             }
+            for (const f of UNION_FIXTURES) {
+              const got = allClosingRefs(f.body, f.commits).sort();
+              if (!eq(got, [...f.expect].sort())) {
+                selfTestFailures.push(`  union/${f.name}: expected ${JSON.stringify(f.expect)}, got ${JSON.stringify(got)}`);
+              }
+            }
             for (const f of AC_FIXTURES) {
               const got = untickedAcs(f.body);
               if (got.hasSection !== f.expect.hasSection || got.unticked.length !== f.expect.unticked) {
@@ -327,7 +389,8 @@ jobs:
               }
             }
 
-            const FIXTURE_COUNT = REF_FIXTURES.length + AC_FIXTURES.length + EXEMPT_FIXTURES.length;
+            const FIXTURE_COUNT = REF_FIXTURES.length + UNION_FIXTURES.length
+              + AC_FIXTURES.length + EXEMPT_FIXTURES.length;
             if (selfTestFailures.length > 0) {
               core.setFailed(
                 [
@@ -347,9 +410,37 @@ jobs:
             const body = pr.body || '';
             const labels = (pr.labels || []).map((l) => (typeof l === 'string' ? l : l.name));
 
-            const refs = closingRefs(body);
+            // Both inputs (brik-llm#3306). The commit list is one paginated
+            // read and it has to happen BEFORE the hatch, because "is there
+            // anything to gate at all" is now a question about the commits too
+            // — so an exempt PR pays that one call where it used to pay none.
+            // Worth it: the alternative is evaluating the hatch on a PR that
+            // closes nothing, which is the state a partial waiver hides in.
+            //
+            // An unreadable commit list is REPORTED, never read as clean: the
+            // gate then falls back to the body alone and says so, rather than
+            // announcing a verdict it could not reach (brik-llm#1587).
+            let commitMessages = [];
+            try {
+              const commits = await github.paginate(github.rest.pulls.listCommits, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                per_page: 100,
+              });
+              commitMessages = commits.map((c) => (c.commit && c.commit.message) || '');
+              core.info(`Read ${commitMessages.length} commit message(s) for closing refs.`);
+            } catch (e) {
+              core.warning(
+                `Could not list this PR's commits (${e.status || e.message}) — gating the ` +
+                'PR body ONLY. A closing keyword reachable only from a commit message is ' +
+                'not gated on this run.',
+              );
+            }
+
+            const refs = allClosingRefs(body, commitMessages);
             if (refs.length === 0) {
-              core.info('No same-repo closing keyword in the PR body — nothing to gate.');
+              core.info('No same-repo closing keyword in the PR body or its commits — nothing to gate.');
               return;
             }
 
