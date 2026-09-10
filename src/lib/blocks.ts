@@ -340,6 +340,70 @@ export function parseLogoStripProps(props: Record<string, unknown>): LogoStripPr
   return { logos, title: str(props.title), description: str(props.description) };
 }
 
+// ─── card-grid (parameterized card grid) ─────────────────────────────
+
+/**
+ * One card in a `card-grid` — an optional 4:3 photo above a title and summary.
+ * The image is optional: an imageless card renders title + summary only, so a
+ * grid can ship before its photography is sourced (a slot, not a requirement).
+ */
+export interface CardGridItem {
+  title: string;
+  summary?: string;
+  image?: { url: string; alt: string } | null;
+}
+
+/**
+ * card-grid block — a parameterized grid of vertical cards (Figma `card-vertical`:
+ * 4:3 image + title + summary), with an optional centered header. `columns` sets
+ * the fixed track count so one block serves a 2-, 3-, or 4-up grid without a new
+ * `layout` enum per flyer (the #1337 "build the grid generic" decision). Renders
+ * full-width — in `split` it breaks out as a trailer below the two columns, like
+ * `logo-strip`. Card chrome is band-derived (BDS `<Card>` default), never a
+ * per-block color (#429).
+ */
+export interface CardGridProps {
+  /** Fixed column count at the widest breakpoint. Default 3. */
+  columns: 2 | 3 | 4;
+  /** Optional section heading above the grid. */
+  title?: string;
+  /** Optional supporting line under the heading. */
+  description?: string;
+  items: CardGridItem[];
+}
+
+function isCardGridColumns(value: unknown): value is 2 | 3 | 4 {
+  return value === 2 || value === 3 || value === 4;
+}
+
+/**
+ * Normalize a `card-grid` block's props. Cards with neither title nor summary
+ * are dropped; an invalid/missing `image` simply hides the photo slot for that
+ * card. `columns` falls back to 3 when absent or out of the 2–4 range.
+ */
+export function parseCardGridProps(props: Record<string, unknown>): CardGridProps {
+  const raw = Array.isArray(props.items) ? props.items : [];
+  const items: CardGridItem[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const title = str((item as { title?: unknown }).title) ?? '';
+    const summary = str((item as { summary?: unknown }).summary);
+    if (!title && !summary) continue;
+    const image = parseMedia((item as { image?: unknown }).image);
+    const out: CardGridItem = { title };
+    if (summary) out.summary = summary;
+    if (image) out.image = image;
+    items.push(out);
+  }
+  const columns = isCardGridColumns(props.columns) ? props.columns : 3;
+  const out: CardGridProps = { columns, items };
+  const title = str(props.title);
+  if (title) out.title = title;
+  const description = str(props.description);
+  if (description) out.description = description;
+  return out;
+}
+
 // ─── cross-reference (related stories / services) ────────────────────
 
 /**
@@ -455,6 +519,15 @@ export interface HeroProps {
   titleEmphasis?: string;
   subtitle?: string;
   media?: { url: string; alt: string } | null;
+  /**
+   * Optional brand wordmark lockup rendered above the title as the hero's
+   * visual identity (the Figma "The brik down" lockup, #1337). `url` is a
+   * monochrome SVG rendered as a theme-adaptive CSS mask — the ink is
+   * `--text-primary`, so it flips light/dark with the band, which an `<img>`
+   * cannot do. `alt` names it for assistive tech; the H1 `title` still carries
+   * the page's semantic headline.
+   */
+  wordmark?: { url: string; alt: string } | null;
 }
 
 export function parseHeroProps(props: Record<string, unknown>): HeroProps {
@@ -467,6 +540,8 @@ export function parseHeroProps(props: Record<string, unknown>): HeroProps {
   if (subtitle) out.subtitle = subtitle;
   const media = parseMedia(props.media);
   if (media) out.media = media;
+  const wordmark = parseMedia(props.wordmark);
+  if (wordmark) out.wordmark = wordmark;
   return out;
 }
 
