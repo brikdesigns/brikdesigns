@@ -348,6 +348,15 @@ jobs:
       - name: Visual-change declaration (waiver still blocks the undeclared)
         run: npm run test:visual-change
 
+      # brikdesigns#1354. Locks the resolver that decides what the `regression`
+      # gate compares against. The assertions that matter are the ones whose
+      # failure is INVISIBLE: a lookup miss returning `links.alias` instead of
+      # throwing, or the `<sha>--` URL template coming back — either one
+      # restores the moving reference while the gate keeps reporting green
+      # tooling. Offline; the network half is driven through a fetch stub.
+      - name: Pinned regression reference (a miss fails, never falls back)
+        run: npm run test:staging-reference
+
       # brikdesigns#1334. This matcher decides whether a REQUIRED gate applies
       # to a PR, so a false negative skips a required check on a PR that needed
       # it — grey, green, and silent. The self-test also asserts the LIVE gate
