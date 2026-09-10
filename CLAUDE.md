@@ -96,6 +96,8 @@ In BOTH: if the value you need is a token (a bg, radius, gap, band rule), **grep
 
 NEVER drop a designed slot because the mockup's value is un-swapped placeholder — placeholder content is a **question for Nick**, not licence to cut the slot. #1287 shipped `/plans` cards with 2 of 6 designed slots this way (#1304). Map every Figma variable to a real `dist/tokens.css` name via `validate-token-names`; surface a gap, never invent a name.
 
+ICONS are **Font Awesome in Figma, Phosphor (`ph:*`) in code** — both correct. An FA glyph in a mockup is the expected vocabulary, NOT a defect: never flag it, never reproduce it, never inline an FA SVG path or unicode escape. TRANSLATE each glyph to its nearest `ph:*` via `@/lib/icon` (bundled offline subset — a new icon needs `npm run gen:icons`, CI-gated by `--check`); when no Phosphor glyph carries the meaning, SURFACE the gap — see `plans/page.tsx:237-243` for the worked precedent. This is the one exception to the design-to-code skill's G5 asset fidelity. → `figma-workflow` skill § Icons, brik-llm#3309
+
 ## When touching `/services/*` URLs or service_lines slugs
 
 See `.claude/references/service-url-slug-convention.md`.
