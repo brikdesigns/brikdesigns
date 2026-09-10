@@ -565,7 +565,14 @@
 
 .hiw-cta__description {
   font-family: var(--font-family-body);
-  font-size: var(--body-lg);
+  /* --body-xl (20px) + weight 700 makes this WCAG "large text" (≥18.66px bold),
+     so the invariantly-white on-color copy clears the 3:1 large-text bar on the
+     fixed brand-orange panel. White on #e35335 measures 3.78:1, which fails the
+     4.5:1 normal-text bar — it shipped at --body-lg/400 only because
+     /how-we-work was not in the axe route set (#1360 added it). Mirrors the
+     same fix on .home-cta__description (homepage.css). */
+  font-size: var(--body-xl);
+  font-weight: 700;
   line-height: var(--font-line-height-normal);
   color: var(--text-on-color-dark);
   text-align: center;

@@ -34,6 +34,8 @@
     "test:lint:svg-unoptimized": "node scripts/lint-svg-unoptimized.test.mjs",
     "lint:card-class": "node scripts/lint-card-class.mjs",
     "test:lint:card-class": "node scripts/lint-card-class.test.mjs",
+    "lint:axe-route-coverage": "node scripts/lint-axe-route-coverage.mjs",
+    "test:lint:axe-route-coverage": "node scripts/lint-axe-route-coverage.test.mjs",
     "test:lint:diff-aware": "node scripts/lib/diff-aware-lints.test.mjs",
     "test:sanitize": "npx tsx scripts/test-sanitize-html.mjs",
     "test:hscroll": "npx tsx scripts/test-horizontal-scroll-track.mjs",
