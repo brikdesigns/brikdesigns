@@ -65,6 +65,12 @@ on:
       - 'tsconfig*.json'
       - 'package.json'
       - 'package-lock.json'
+      # …and this file, so a change to the gate is exercised BY the gate. It was
+      # the only path-filtered workflow here that did not self-trigger (a11y,
+      # visual-mockup, visual-regression and visual-parity all do), which meant
+      # a PR editing a step landed it unrun — and an absent check renders as
+      # nothing, which is exactly what "all checks passed" looks like (#1345).
+      - '.github/workflows/verify.yml'
   push:
     branches:
       - main
@@ -93,6 +99,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
+
+      # `tsc --noEmit` ran in exactly one place before this: pr-task.sh:474, and
+      # only on the base-sync path. So a type error reached staging whenever the
+      # PR needed no base-sync merge, was opened from the GitHub web UI, or came
+      # from a clone where `prepare` never installed the hook. Same gap class as
+      # #983, which moved the hardcoded-literal lint out of .husky/pre-commit for
+      # this reason. 2.7s locally on 139 files / 25,144 LOC (#1345).
+      - name: Typecheck (tsc --noEmit)
+        run: npm run typecheck
 
       - name: ESLint (incl. brik-tokens rule)
         run: npm run lint
