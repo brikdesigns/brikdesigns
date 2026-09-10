@@ -284,9 +284,15 @@
    service `--text-brand-primary` (a dark service tint) on a pale service
    background and lose contrast (brikdesigns#451). Pin it to grayscale-950
    exactly like .service-surface above. Consumer-level legibility fix; token-level
-   pairing stays with #437. */
-.page-hero-blueprint .scroll-down-cta__label,
-.page-hero-blueprint .scroll-down-cta__icon {
+   pairing stays with #437.
+
+   Excludes `--fold` (#1356): that modifier's two heroes are NOT both tinted.
+   The services one carries `.service-surface`, which pins the same value one
+   rule above; the customers one is a theme-responsive --surface-primary band,
+   where near-black on the dark-mode surface is the contrast failure this pin
+   exists to prevent. */
+.page-hero-blueprint:not(.page-hero-blueprint--fold) .scroll-down-cta__label,
+.page-hero-blueprint:not(.page-hero-blueprint--fold) .scroll-down-cta__icon {
   color: var(--color-grayscale-950);
 }
 
@@ -308,6 +314,35 @@
   display: flex;
   flex-direction: column;
   padding-bottom: var(--padding-huge);
+}
+
+/* ─── Fold-filling blueprint hero ────────────────────────── */
+/* For L2 heroes converted off `.page-hero` onto BDS `<Hero layout="split">`
+   (services/[serviceLine], customers/[slug], #1356). Those two pages filled the
+   initial viewport with the scroll CTA pinned at the fold, and the base wrapper
+   above — written for the L3 interior heroes — does not. Reproduces
+   `.page-hero`'s grid exactly: a 1fr row for the hero section plus an auto row
+   that pins the scroll CTA to the fold edge. */
+.page-hero-blueprint--fold {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 100vh;
+  min-height: 100svh;
+  /* The hero content band matches the top nav (1440px) — the width
+     `.page-hero__container` carried before the swap, not BDS's
+     --content-width-xl (1280px) default. Scoped to this modifier, NOT to
+     `.page-hero-blueprint`, so the L3 interior heroes keep the widths they
+     have today (plans/[slug] at 1280, services detail at 1440 via
+     services.css). */
+  --bds-blueprint-section-content-width: var(--site-content-width);
+}
+
+/* Centre the hero content within the 1fr row — the job `.page-hero__container`
+   did with `align-self: center`. The BDS blueprint section is a plain block, so
+   it stretches to fill the row and its container would otherwise sit at the top. */
+.page-hero-blueprint--fold .bds-hero {
+  display: grid;
+  align-content: center;
 }
 
 /* Keep the hero SECTION transparent so the wrapper's pale `surfaceLight` band is the

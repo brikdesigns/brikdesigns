@@ -112,34 +112,16 @@
 
 /* ─── Customer detail page ────────────────────────────────── */
 
-/* Left content column inside the detail hero grid.
- * Breadcrumb, h1, and intro text stack with gap-md. */
-.customer-detail-hero__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
+/* The `.customer-detail-hero` grid (content left, media right) was retired onto
+ * BDS `<Hero layout="split">` in #1356 — the block, its `__content` column and
+ * its `__aside` wrapper are all owned by `.bds-hero--split` now. What survives
+ * is the media node the hero composes into its second column. */
 
-/* Hero: content left, industry-icon media right — mirrors the
- * /services/[serviceLine] split hero so interior heroes read consistently. */
-.customer-detail-hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap-xl);
-  align-items: center;
-  width: 100%;
-}
-
-/* Industry-icon media — 2nd column. Square accent surface with the icon
- * contained, matching .service-detail-hero__media on the service-line hero. */
-.customer-detail-hero__aside {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--gap-md);
-}
-
-.customer-detail-hero__media {
+/* Industry-icon media — the hero's 2nd column. Square accent surface with the
+ * icon contained, matching `.service-line-hero-media` on the service-line hero.
+ * Not `.bds-hero__media`: that slot is a 4:5 frame with `object-fit: cover`,
+ * which crops a contained illustration. */
+.customer-hero-media {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
@@ -156,18 +138,18 @@
  * put. */
 
 /* 966 — small-business neon "OPEN" sign reads smaller within its frame. */
-.customer-detail-hero__media[data-industry="small-business"] img {
+.customer-hero-media[data-industry="small-business"] img {
   transform: scale(0.8);
 }
 
 @media (prefers-reduced-motion: no-preference) {
   /* 966 — neon-sign flicker: mostly lit, occasional brief dropouts. */
-  .customer-detail-hero__media[data-industry="small-business"] img {
+  .customer-hero-media[data-industry="small-business"] img {
     animation: neon-blink 4s infinite;
   }
 
   /* 968 — dental toothbrush: gentle vertical bounce. */
-  .customer-detail-hero__media[data-industry="dental"] img {
+  .customer-hero-media[data-industry="dental"] img {
     animation: toothbrush-bounce 2s ease-in-out infinite;
   }
 }
@@ -246,12 +228,10 @@
 /* ─── Responsive ──────────────────────────────────────────── */
 
 @media (max-width: 991px) {
-  .customer-detail-hero {
-    grid-template-columns: 1fr;
-  }
-
-  /* Cap the stacked icon square so it doesn't span the full column width. */
-  .customer-detail-hero__media {
+  /* Cap the stacked icon square so it doesn't span the full column width.
+   * `.bds-hero--split` stacks its own columns below 768px; between 768 and 991
+   * the media is the narrow 2fr column and the cap is inert. */
+  .customer-hero-media {
     max-width: 400px;
     margin: 0 auto;
   }

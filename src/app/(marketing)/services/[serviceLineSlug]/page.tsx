@@ -5,7 +5,7 @@ import { getServiceLineBySlug, getServicesByServiceLine, getServiceCategories, g
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
-import { Button, Breadcrumb, Card, Frame, Grid, LinkButton, ServiceTag, SectionHeader } from '@brikdesigns/bds';
+import { Button, Breadcrumb, Card, Frame, Grid, Hero, LinkButton, ServiceTag, SectionHeader } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -80,49 +80,73 @@ export default async function ServiceLinePage({ params }: Props) {
     // service-line index), but stays consistent with the service-detail page
     // pattern so a future breadcrumb addition picks up the audience tint.
     <div data-audience={audience} className="service-themed" style={serviceCtaVars(audience)}>
-      {/* ═══ Hero ═══ */}
-      <section
-        className="page-hero service-surface"
+      {/* ═══ Hero ═══
+       * BDS `<Hero layout="split">` by direct import, retiring the page-local
+       * `.service-detail-hero` grid (#1356 / #1289). The wrapper carries the
+       * `--fold` modifier so the viewport fill + pinned scroll CTA the old
+       * `.page-hero` section provided are unchanged.
+       *
+       * Colour reaches the block through the Tier-4 `--bds-hero-*` hooks rather
+       * than element styles: `-bg` keeps the section transparent so the
+       * wrapper's pale band is the single visible surface (the same no-seam
+       * rule `.page-hero-blueprint .bds-hero--with-pricing-card` applies to the
+       * L3 heroes), and `-lead-color` pins the lead to --text-primary because
+       * BDS defaults it to --text-secondary, which fails AA on the pale service
+       * band — the pin `.page-hero__description` carried before the swap. */}
+      <div
+        className="page-hero-blueprint page-hero-blueprint--fold service-surface"
         data-scroll-hero
-        style={{ backgroundColor: svcColors.surfaceLight }}
+        style={
+          {
+            backgroundColor: svcColors.surfaceLight,
+            '--bds-hero-bg': 'transparent',
+            '--bds-hero-headline-color': svcColors.text,
+            '--bds-hero-lead-color': color.text.primary,
+          } as React.CSSProperties
+        }
       >
-        <div className="page-hero__container">
-          <div className="service-detail-hero">
-            <div className="service-detail-hero__content">
-              <Breadcrumb
-                style={{ flexWrap: 'wrap' }}
-                items={[
-                  { label: 'Services', href: '/services' },
-                  { label: serviceLine.name },
-                ]}
-              />
-              <h1 className="page-hero__title" style={{ color: svcColors.text }}>{serviceLine.name}</h1>
-              {serviceLine.description && (
-                <p className="page-hero__description">{serviceLine.description}</p>
-              )}
-            </div>
-
-            {serviceLine.hero_image_url && (
-              <div className="service-detail-hero__aside">
-                <div
-                  className="service-detail-hero__media"
-                  style={{ backgroundColor: svcColors.surfaceLight }}
-                >
-                  <Image
-                    src={serviceLine.hero_image_url}
-                    alt={serviceLine.name}
-                    fill
-                    sizes="(max-width: 991px) 100vw, 45vw"
-                    style={{ objectFit: 'contain' }}
-                    priority
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        <Hero
+          sectionKey="hero"
+          layout="split"
+          title={serviceLine.name}
+          {...(serviceLine.description ? { lead: serviceLine.description } : {})}
+          breadcrumb={
+            <Breadcrumb
+              style={{ flexWrap: 'wrap' }}
+              items={[
+                { label: 'Services', href: '/services' },
+                { label: serviceLine.name },
+              ]}
+            />
+          }
+          {...(serviceLine.hero_image_url
+            ? {
+                // Composed media slot (Hero renders it verbatim). Kept page-local
+                // rather than BDS's `.bds-hero__media`: that slot is a 4:5 frame
+                // with `object-fit: cover`, and these are contained illustrations,
+                // which it would crop. `.service-line-hero-media` is the square
+                // tinted frame the retired hero used, and it still keys the
+                // product float in services.css.
+                media: (
+                  <div
+                    className="service-line-hero-media"
+                    style={{ backgroundColor: svcColors.surfaceLight }}
+                  >
+                    <Image
+                      src={serviceLine.hero_image_url}
+                      alt={serviceLine.name}
+                      fill
+                      sizes="(max-width: 991px) 100vw, 45vw"
+                      style={{ objectFit: 'contain' }}
+                      priority
+                    />
+                  </div>
+                ),
+              }
+            : {})}
+        />
         <ScrollDownCta />
-      </section>
+      </div>
 
       {/* ═══ Service Cards ═══
        * Hero and body both use the lighter `surfaceLight` ramp so the service-line

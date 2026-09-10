@@ -22,7 +22,7 @@
     "src/app/(marketing)/results/[slug]/page.tsx": 4,
     "src/app/(marketing)/results/page.tsx": 3,
     "src/app/(marketing)/services/[serviceLineSlug]/[serviceSlug]/page.tsx": 3,
-    "src/app/(marketing)/services/[serviceLineSlug]/page.tsx": 4,
+    "src/app/(marketing)/services/[serviceLineSlug]/page.tsx": 3,
     "src/app/(marketing)/services/page.tsx": 3,
     "src/app/(marketing)/terms/page.tsx": 1
   }

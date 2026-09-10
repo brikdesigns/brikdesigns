@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Card, Frame, Grid, LinkButton, SectionHeader } from '@brikdesigns/bds';
+import { Card, Frame, Grid, Hero, LinkButton, SectionHeader } from '@brikdesigns/bds';
 import { BackLink } from '@/components/ui/BackLink';
 import { text, heading } from '@/lib/styles';
 import { color, font, serviceColor } from '@/lib/tokens';
@@ -94,45 +94,64 @@ export default async function CustomerDetailPage({ params }: Props) {
 
   return (
     <>
-      {/* Hero — split layout mirroring /services/[serviceLine]: content left
-       * (breadcrumb, name, intro_description), industry icon right. Tagline is
+      {/* Hero — BDS `<Hero layout="split">` by direct import, retiring the
+       * page-local `.customer-detail-hero` grid (#1356 / #1289): content left
+       * (back link, name, intro_description), industry icon right. Tagline is
        * reserved for service-plan promotion cards (per design canon) and is
-       * intentionally omitted here. The industry icon (page.image_url) sits in
-       * the 2nd column media, matching the service-line hero aside.
+       * intentionally omitted here.
        *
-       * Fills the viewport with a scroll-down affordance pinned to the fold
-       * via .page-hero's `grid-template-rows: 1fr auto`. */}
-      <section className="page-hero" data-section="hero">
-        <div className="page-hero__container">
-          <div className="customer-detail-hero">
-            <div className="customer-detail-hero__content">
-              <BackLink href="/customers">Customers</BackLink>
-              <h1 className="page-hero__title">{page.name}</h1>
-              {page.intro_description && (
-                <p className="page-hero__description">{page.intro_description}</p>
-              )}
-            </div>
-            {page.image_url && (
-              <div className="customer-detail-hero__aside">
-                {/* data-industry keys the per-page hero-illustration motion in
-                   customers.css (e.g. small-business neon blink, dental bounce
-                   — 966/968, #739). */}
-                <div className="customer-detail-hero__media" data-industry={slug}>
-                  <Image
-                    src={page.image_url}
-                    alt={page.name}
-                    fill
-                    sizes="(max-width: 991px) 100vw, 45vw"
-                    style={{ objectFit: 'contain' }}
-                    priority
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+       * Still fills the viewport with the scroll-down affordance pinned to the
+       * fold — that grid moved from `.page-hero` to the `--fold` modifier on the
+       * blueprint wrapper (shared-sections.css).
+       *
+       * Two Tier-4 hooks preserve what the retired markup set explicitly:
+       * `-bg` holds the band on --surface-primary (BDS defaults the block to
+       * --page-primary, which is a different grey in dark mode), and
+       * `-lead-color` pins the lead to --text-primary because BDS defaults it
+       * to --text-secondary, which fails AA on body copy — the same pin
+       * `.page-hero__description` carried before the swap. */}
+      <div
+        className="page-hero-blueprint page-hero-blueprint--fold"
+        data-section="hero"
+        data-scroll-hero
+        style={
+          {
+            '--bds-hero-bg': color.surface.primary,
+            '--bds-hero-lead-color': color.text.primary,
+          } as React.CSSProperties
+        }
+      >
+        <Hero
+          sectionKey="hero"
+          layout="split"
+          title={page.name}
+          {...(page.intro_description ? { lead: page.intro_description } : {})}
+          breadcrumb={<BackLink href="/customers">Customers</BackLink>}
+          {...(page.image_url
+            ? {
+                // Composed media slot (Hero renders it verbatim). Kept page-local
+                // rather than BDS's `.bds-hero__media`: that slot is a 4:5 frame
+                // with `object-fit: cover`, and these are contained illustrations,
+                // which it would crop. `data-industry` keys the per-page
+                // hero-illustration motion in customers.css (small-business neon
+                // blink, dental bounce — 966/968, #739).
+                media: (
+                  <div className="customer-hero-media" data-industry={slug}>
+                    <Image
+                      src={page.image_url}
+                      alt={page.name}
+                      fill
+                      sizes="(max-width: 991px) 100vw, 45vw"
+                      style={{ objectFit: 'contain' }}
+                      priority
+                    />
+                  </div>
+                ),
+              }
+            : {})}
+        />
         <ScrollDownCta />
-      </section>
+      </div>
 
       {/* Topic sections — tinted bg per topic. Single 4-col grid spans the
        * container: col-1 = topic content (number + title + description +
