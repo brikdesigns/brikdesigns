@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     'How Brik takes marketing and back-office operations off your plate — so leads get followed up, your team has a process, and you can focus on the work.',
 };
 
-const BRIKDOWN_HREF = '/offers/brikdown-analysis';
+const BRIKDOWN_HREF = '/offers/brikdown';
 
 // Step-3 mode icons — inline SVG (self-contained, no Iconify subset dependency,
 // same reasoning as CheckIcon). Advisory = chat, Managed = gear.

@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600;
 
-const BRIKDOWN_HREF = '/offers/brikdown-analysis';
+const BRIKDOWN_HREF = '/offers/brikdown';
 
 // The three engagement paths, in the order the content doc presents them (Notion
 // "Support Plans" → "Choose your path"): Full Stack first as the recommendation,
