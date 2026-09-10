@@ -32,9 +32,11 @@ on:
       - 'scripts/lib/pr-labels.sh'
       - 'scripts/lib/pr-title.sh'
       - 'scripts/lib/visual-change-routes.sh'
+      - 'scripts/lib/design-declaration.sh'
       - 'scripts/__tests__/test-pr-labels.sh'
       - 'scripts/__tests__/test-pr-title.sh'
       - 'scripts/__tests__/test-pr-visual-change.sh'
+      - 'scripts/__tests__/test-design-declaration.sh'
       - 'scripts/pr-task.sh'
       - '.github/workflows/pr-label-gate.yml'
       - '.github/workflows/pr-label-resolver-check.yml'
@@ -44,9 +46,11 @@ on:
       - 'scripts/lib/pr-labels.sh'
       - 'scripts/lib/pr-title.sh'
       - 'scripts/lib/visual-change-routes.sh'
+      - 'scripts/lib/design-declaration.sh'
       - 'scripts/__tests__/test-pr-labels.sh'
       - 'scripts/__tests__/test-pr-title.sh'
       - 'scripts/__tests__/test-pr-visual-change.sh'
+      - 'scripts/__tests__/test-design-declaration.sh'
       - 'scripts/pr-task.sh'
       - '.github/workflows/pr-label-gate.yml'
       - '.github/workflows/pr-label-resolver-check.yml'
@@ -82,6 +86,15 @@ jobs:
       - name: Visual-change declaration contract holds
         run: bash scripts/__tests__/test-pr-visual-change.sh < /dev/null
 
+      # Fourth resolver on the same caller (#1351): the design-source
+      # declaration. Locks that design_gate_applies mirrors verify.yml's own
+      # `if:` — a narrow drift silently restores the first-run red, a wide one
+      # (a substring match on `area:design-system`) demands a source from work
+      # that has none — and that the refusal is OBSERVED on a driven
+      # non-interactive run, which is the half a grep cannot see.
+      - name: Design-source declaration contract holds
+        run: bash scripts/__tests__/test-design-declaration.sh < /dev/null
+
       # --severity=warning: pr-task.sh predates this gate and carries SC1091
       # (unfollowed `source`) plus style notes. Warning-and-above keeps real
       # findings failing without demanding an unrelated cleanup in this PR.
@@ -92,7 +105,9 @@ jobs:
                      scripts/lib/pr-labels.sh \
                      scripts/lib/pr-title.sh \
                      scripts/lib/visual-change-routes.sh \
+                     scripts/lib/design-declaration.sh \
                      scripts/__tests__/test-pr-labels.sh \
                      scripts/__tests__/test-pr-title.sh \
                      scripts/__tests__/test-pr-visual-change.sh \
+                     scripts/__tests__/test-design-declaration.sh \
                      scripts/pr-task.sh

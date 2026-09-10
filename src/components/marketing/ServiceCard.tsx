@@ -38,10 +38,12 @@ export function ServiceCard({
   return (
     <Card
       preset="display"
-      // `service-card--inset` is unconditional: the `mediaTreatment` prop that
-      // used to switch it carried a `'flush'` value with no CSS rule behind it
-      // and no call site that ever passed it (#1261).
-      className={['service-themed', 'service-card--inset', className].filter(Boolean).join(' ')}
+      // Inset media treatment — media + text body framed together in a
+      // --padding-huge inset (the "card-vertical" look). A first-class BDS prop
+      // since @brikdesigns/bds v0.188.0; it replaces the former site-local
+      // `.service-card--inset` CSS override (whose CSS half #1261 built).
+      mediaTreatment="inset"
+      className={['service-themed', className].filter(Boolean).join(' ')}
       {...(surfaceInverse ? { style: { backgroundColor: serviceColor(category).inverse } } : {})}
       title={name}
       description={description ?? tagline ?? undefined}

@@ -559,23 +559,11 @@
   font-size: var(--heading-sm);
 }
 
-/* ServiceCard content inset (card-vertical mockup). BDS preset='display'
-   bleeds the media to the card edge and pads only the text body
-   (--padding-lg). `.service-card--inset` instead frames the image AND text
-   together in a --padding-huge (48px) inset. The 48px lives on the flush-media
-   root as padding; the body's own --padding-lg is zeroed so the frame isn't
-   doubled, and --gap-xl preserves the prior 24px image↔text separation (the old
-   body padding-top). This is ServiceCard's only treatment — the `'flush'` half
-   of the old `mediaTreatment` prop had no rule and no call site ever passed it
-   (#1261). */
-.service-card--inset.bds-card--preset-display {
-  padding: var(--padding-huge);
-  gap: var(--gap-xl);
-}
-
-.service-card--inset .bds-card__preset-display-body {
-  padding: 0;
-}
+/* The ServiceCard content inset ("card-vertical" mockup) now lives on the BDS
+   primitive as `<Card preset="display" mediaTreatment="inset">` (@brikdesigns/bds
+   v0.188.0), so the former `.service-card--inset` override was removed here.
+   `flush` (default) bleeds media to the edge + pads only the body (--padding-lg);
+   `inset` frames media + body together in a --padding-huge inset with --gap-xl. */
 
 /* ─── Card media standard — every image nested in a card ──────────────────
    THE single source of truth for card-nested media: corner radius and the

@@ -28,13 +28,26 @@ known_visual_routes() {
 # Validate a comma-separated route CSV and echo the exact `Visual-change: r1, r2`
 # body line the gate parses. Behaviour:
 #   - empty / whitespace-only CSV → no output, return 0 (nothing declared)
+#   - exactly `none`              → no output, return 0 (declared: nothing moves)
 #   - all names known             → echo the line, return 0
 #   - any unknown name            → list the unknowns on stderr, return 1
 # De-dupes and sorts; a bad name fails here rather than silently waiving nothing
 # at CI (the gate's knownRoutes filter would drop it).
+#
+# `none` is the EXPLICIT no-move declaration (#1344). pr-task.sh refuses a
+# non-interactive run that touches a renderable path with nothing declared, so
+# "I checked, nothing moves" has to be sayable — empty already means "never
+# asked". It emits no body line and no label, exactly like empty: the sentinel
+# is for the caller's refusal check, not for the gate, which only ever sees the
+# absence. `none` is not a ROUTES[].name (asserted in
+# scripts/__tests__/test-pr-visual-change.sh), so it cannot shadow a route.
+#
+# Mixing it with a real route (`none,home`) is a contradiction, not a waiver —
+# it falls through to the unknown-name branch and fails loud.
 visual_change_line() {
   local csv="${1:-}" known declared unknown
   [ -n "$(printf '%s' "$csv" | tr -d '[:space:],')" ] || return 0
+  [ "$(printf '%s' "$csv" | tr -d '[:space:]')" = "none" ] && return 0
   known=$(known_visual_routes | sort -u)
   declared=$(printf '%s' "$csv" | tr ',' '\n' \
     | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -v '^$' | sort -u)

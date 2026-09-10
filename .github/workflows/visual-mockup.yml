@@ -19,26 +19,49 @@ on:
     branches:
       - main
       - staging
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'next.config.*'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tests/visual-parity/baselines/**'
-      - 'scripts/visual-parity.mjs'
-      # The readiness wait decides WHEN the capture runs, so a change to it
-      # must re-run this gate — otherwise the fix for #1218 never exercises
-      # itself on its own PR.
-      - 'scripts/wait-for-netlify-preview.sh'
-      - '.github/workflows/visual-mockup.yml'
+
+# NO workflow-level `paths:` filter, deliberately — `mockup` is a REQUIRED
+# status check on `staging` and a workflow skipped by path filtering leaves its
+# check Pending forever, blocking the merge (#1334). The filter lives in the
+# `changes` job below instead. Do not "tidy" it back up here.
 
 concurrency:
   group: visual-mockup-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      run: ${{ steps.match.outputs.run }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: match
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate --jq '.[].filename' \
+          | node scripts/ci-paths-match.mjs \
+              --pattern 'src/**' \
+              --pattern 'public/**' \
+              --pattern 'next.config.*' \
+              --pattern 'package.json' \
+              --pattern 'package-lock.json' \
+              --pattern 'tests/visual-parity/baselines/**' \
+              --pattern 'scripts/visual-parity.mjs' \
+              --pattern 'scripts/wait-for-netlify-preview.sh' \
+              --pattern 'scripts/ci-paths-match.mjs' \
+              --pattern '.github/workflows/visual-mockup.yml' \
+            >> "$GITHUB_OUTPUT"
+
   mockup:
+    needs: changes
+    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:

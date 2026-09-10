@@ -79,27 +79,47 @@ on:
     branches:
       - main
       - staging
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'next.config.*'
-      - 'package.json'
-      - 'package-lock.json'
-      # The gate must run when its own implementation changes. Without this a
-      # PR editing the capture logic (#830) merges without the check that logic
-      # implements ever executing.
-      - 'scripts/visual-parity.mjs'
-      # The readiness wait decides WHEN the capture runs, so a change to it
-      # must re-run this gate (#1220).
-      - 'scripts/wait-for-netlify-preview.sh'
-      - '.github/workflows/visual-regression.yml'
+
+# NO workflow-level `paths:` filter, deliberately — `regression` is a REQUIRED
+# status check on `staging` and a workflow skipped by path filtering leaves its
+# check Pending forever, blocking the merge (#1334). The filter lives in the
+# `changes` job below instead. Do not "tidy" it back up here.
 
 concurrency:
   group: visual-regression-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      run: ${{ steps.match.outputs.run }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: match
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --paginate --jq '.[].filename' \
+          | node scripts/ci-paths-match.mjs \
+              --pattern 'src/**' \
+              --pattern 'public/**' \
+              --pattern 'next.config.*' \
+              --pattern 'package.json' \
+              --pattern 'package-lock.json' \
+              --pattern 'scripts/visual-parity.mjs' \
+              --pattern 'scripts/wait-for-netlify-preview.sh' \
+              --pattern 'scripts/ci-paths-match.mjs' \
+              --pattern '.github/workflows/visual-regression.yml' \
+            >> "$GITHUB_OUTPUT"
+
   regression:
+    needs: changes
     # Skip the staging → main promote PR (#828). Its deploy-preview is built
     # from staging's HEAD and REFERENCE_URL below *is* staging, so the job
     # compares a commit against itself: it can only ever report noise, and the
@@ -109,7 +129,11 @@ jobs:
     #
     # Keyed on head_ref, not base, so a hotfix branch targeting main still
     # gets a real comparison against staging.
-    if: github.head_ref != 'staging'
+    #
+    # The `changes` half is the path filter that used to live in `on.paths`
+    # (#1334). Both arms resolve to a SKIPPED job, which a required status check
+    # accepts — unlike a skipped workflow, which stays Pending and blocks.
+    if: needs.changes.outputs.run == 'true' && github.head_ref != 'staging'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:

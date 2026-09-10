@@ -82,7 +82,7 @@ export function PlanIncludedServices({
             <Card
               key={svc.slug}
               variant="outlined"
-              padding="md"
+              padding="lg"
               style={{ backgroundColor: surfaceInverse }}
             >
               <div className="plan-service-list-item">
