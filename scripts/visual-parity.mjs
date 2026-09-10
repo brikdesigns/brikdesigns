@@ -11,6 +11,7 @@ import {
   buildDeclarationLine,
   isStalePayloadRerun,
   isTruncatedCapture,
+  countUsableCaptures,
   summarizeNoiseByRoute,
 } from './lib/visual-change-declaration.mjs';
 
@@ -662,7 +663,10 @@ ${results
 `;
 fs.writeFileSync(reportPath, html);
 
-const okCount = results.filter((r) => r.nlOk && (r.wfOk || UPDATE_BASELINES)).length;
+// "Complete" means a usable comparison, not a written file (#1317) — a
+// truncated capture writes its file and then fails the run, so counting files
+// printed `84/84` two lines under `✗ 1 capture(s) failed`.
+const okCount = countUsableCaptures(results, { updateBaselines: UPDATE_BASELINES });
 const avgDiff = diffed.length
   ? (diffed.reduce((s, r) => s + r.diffPct, 0) / diffed.length).toFixed(2)
   : '—';

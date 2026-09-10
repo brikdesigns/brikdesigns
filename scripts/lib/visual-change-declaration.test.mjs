@@ -21,6 +21,8 @@ import {
   buildDeclarationLine,
   isStalePayloadRerun,
   isTruncatedCapture,
+  isUsableCapture,
+  countUsableCaptures,
   summarizeNoiseByRoute,
 } from './visual-change-declaration.mjs';
 
@@ -493,6 +495,55 @@ check('a truncated capture cannot reach blocking — diffPct is null', () => {
   assert.deepEqual(waived, []);
   assert.deepEqual(unmoved, []);
   assert.equal(buildDeclarationLine(blocking), null);
+});
+
+console.log('isUsableCapture / countUsableCaptures');
+
+// The summary's headline number. It counted FILES, so a truncated capture —
+// which since #1314 writes its file and then fails the run — read as complete:
+// run 34402425891 attempt 1 printed `✓ 84/84 captures complete` two lines under
+// `✗ 1 capture(s) failed` (#1317). The cases below are the ways that could come
+// back, and the last one is the point: every capture-failure class has to be
+// decided here rather than at the call site.
+
+const capture = (over = {}) => ({ nlOk: true, wfOk: true, truncated: false, ...over });
+
+check('a capture with both sides and no truncation is usable', () => {
+  assert.equal(isUsableCapture(capture()), true);
+});
+
+check('a truncated capture is NOT usable — the #1317 regression', () => {
+  assert.equal(isUsableCapture(capture({ truncated: true })), false);
+});
+
+check('a missing capture side is not usable', () => {
+  assert.equal(isUsableCapture(capture({ nlOk: false })), false);
+  assert.equal(isUsableCapture(capture({ wfOk: false })), false);
+});
+
+check('UPDATE_BASELINES waives the reference side, never truncation', () => {
+  const authoring = { updateBaselines: true };
+  assert.equal(isUsableCapture(capture({ wfOk: false }), authoring), true);
+  assert.equal(isUsableCapture(capture({ wfOk: false, nlOk: false }), authoring), false);
+  // Authoring a baseline from a half-captured page is the worst case of all:
+  // it bakes the truncation into the reference every later run compares to.
+  assert.equal(isUsableCapture(capture({ wfOk: false, truncated: true }), authoring), false);
+});
+
+check('the counter reproduces the run this issue was filed from', () => {
+  // 84 captures, one of them truncated (`fma [dark/mobile]`, 2741px vs 812px).
+  const results = Array.from({ length: 84 }, (_, i) => capture({ truncated: i === 41 }));
+  assert.equal(countUsableCaptures(results), 83, 'the truncated capture must not count');
+});
+
+check('a clean run still counts every capture — no under-reporting', () => {
+  const results = Array.from({ length: 84 }, () => capture());
+  assert.equal(countUsableCaptures(results), 84);
+});
+
+check('an absent field is not a pass — defaults refuse rather than assume', () => {
+  assert.equal(isUsableCapture({}), false);
+  assert.equal(countUsableCaptures([]), 0);
 });
 
 console.log('isStalePayloadRerun');

@@ -223,6 +223,43 @@ export function isTruncatedCapture(
   return Math.min(heightA, heightB) / Math.max(heightA, heightB) < minRatio;
 }
 
+/**
+ * True when a capture produced a usable comparison, not merely a file (#1317).
+ *
+ * The distinction is the whole point. Before this, the summary counted captures
+ * whose FILES exist — and since #1314 a truncated capture writes its file and
+ * then fails the run, so it counted as "complete" while contributing no
+ * comparison. Run 34402425891 attempt 1 printed
+ *
+ *     ✗ 1 capture(s) failed — a skipped route is not a pass:
+ *       fma [dark/mobile] — truncated: 2741px vs 812px
+ *     ✓ 84/84 captures complete
+ *
+ * two lines apart. `84/84` is the line a reader scans, and it overstated
+ * coverage on a run that had a bad capture — the shape #822 hid behind.
+ *
+ * `wfOk` is waived under `updateBaselines` because that mode is AUTHORING the
+ * reference side; there is nothing to compare against yet and its absence is
+ * expected, not a failure.
+ *
+ * Every capture-failure class belongs here rather than at the call site, so
+ * adding the next one is a decision this function forces someone to make — the
+ * self-test asserts the rule directly.
+ */
+export function isUsableCapture(
+  { nlOk = false, wfOk = false, truncated = false } = {},
+  { updateBaselines = false } = {},
+) {
+  if (!nlOk) return false;
+  if (!(wfOk || updateBaselines)) return false;
+  return truncated !== true;
+}
+
+/** How many of `results` produced a usable comparison (#1317). */
+export function countUsableCaptures(results = [], { updateBaselines = false } = {}) {
+  return results.filter((r) => isUsableCapture(r, { updateBaselines })).length;
+}
+
 // Decide whether a visual-regression run must be SKIPPED because it is a
 // stale-payload re-run (#1106). A `gh run rerun` replays the ORIGINAL
 // `pull_request` payload, so the label state baked into VISUAL_CHANGE_LABEL is
