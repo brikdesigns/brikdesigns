@@ -42,11 +42,11 @@
 }
 
 /* card-grid — a full-width grid of vertical cards (Figma section-advisors /
-   `card-vertical`). Header + grid stack; the grid track count is driven by the
-   `--card-grid-cols` custom property the block sets from its `columns` prop, and
-   collapses to 1 then 2 columns below the marketing breakpoints. Card chrome and
-   radius come from the BDS `<Card>` + the "Card chrome by band" rule — this only
-   owns the grid geometry and the media slot (dimensions BDS doesn't own). */
+   `card-vertical`). Header + grid stack. Since #1357 the tracks belong to BDS
+   `<Grid>`; this file owns the header stack and the media slot only. Card chrome
+   and radius come from the BDS `<Card>` + the "Card chrome by band" rule.
+   (The `--card-grid-cols` custom property this comment used to describe never
+   existed in the shipped block — it read `data-columns`, and now neither.) */
 .card-grid-block {
   display: flex;
   flex-direction: column;
@@ -59,27 +59,13 @@
   gap: var(--gap-md);
   text-align: center;
 }
-.card-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--gap-lg);
-}
-@media (min-width: 640px) {
-  .card-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-@media (min-width: 900px) {
-  .card-grid[data-columns='2'] {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .card-grid[data-columns='3'] {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .card-grid[data-columns='4'] {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
+/* The `.card-grid` track rules were deleted in #1357 — the block now renders
+   BDS `<Grid columns={n} gap="lg">`, so `.bds-grid--cols-*` owns the tracks.
+   They could NOT be left in place as a no-op: `@brikdesigns/bds/styles.css` is
+   imported into `layer(bds-components)` (globals.css:23) while this file is
+   unlayered, so any surviving `grid-template-columns` here would outrank BDS
+   and the swap would have changed nothing. Deleting them is what makes the
+   adoption real. `--gap-lg` is the same token BDS's `gap="lg"` resolves to. */
 /* 4:3 media slot above the card text — matches Figma `img-landscape-4-3`
    (373×280, 24px radius). Frame owns the aspect-ratio box; Image fills it. */
 .card-grid__media {
