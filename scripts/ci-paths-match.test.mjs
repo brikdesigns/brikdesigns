@@ -42,6 +42,13 @@ function check(name, fn) {
 
 console.log('\n▸ pattern semantics');
 
+// TEMPORARY — acceptance test for #1334 AC 3 (a failing required check must
+// block the merge). This assertion is deliberately false. Revert before merge;
+// this branch is never merged.
+check('ACCEPTANCE-TEST deliberate failure (#1334 AC 3)', () => {
+  assert.equal(matchesPattern('README.md', 'src/**'), true, 'deliberately false — proving verify reds');
+});
+
 check('`**` crosses directory separators', () => {
   assert.equal(matchesPattern('src/app/page.tsx', 'src/**'), true);
   assert.equal(matchesPattern('src/a/b/c/d.ts', 'src/**'), true);
