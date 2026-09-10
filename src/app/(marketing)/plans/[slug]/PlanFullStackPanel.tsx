@@ -22,8 +22,8 @@ import { TEAM } from '@/lib/team';
  * and the two neutral steps read as one light and one mid grey on the card's
  * `--surface-accent` fill:
  *   accent -> --background-service-brand   (Figma's yellow brick)
- *   light  -> --surface-secondary
- *   mid    -> --surface-muted
+ *   light  -> --background-muted
+ *   mid    -> --surface-neutral
  */
 const BRICKS = [
   { x: 337.91, y: 142, tone: 'accent' },
