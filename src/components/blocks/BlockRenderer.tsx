@@ -9,6 +9,7 @@ import {
   parseSpeakerBlockProps,
   parseLogoStripProps,
   parseCrossReferenceProps,
+  parseCardGridProps,
   parseHeroProps,
   parseFormProps,
   parseCtaProps,
@@ -23,6 +24,7 @@ import { SpeakerBlock } from './SpeakerBlock';
 import { LogoStripBlock } from './LogoStripBlock';
 import { AlertBannerBlock } from './AlertBannerBlock';
 import { CrossReferenceBlock } from './CrossReferenceBlock';
+import { CardGridBlock } from './CardGridBlock';
 import { HeroBlock } from './HeroBlock';
 import { FormBlock } from './FormBlock';
 import { CtaBlock } from './CtaBlock';
@@ -70,6 +72,10 @@ function renderBlock(block: RawBlock, key: number, context: BlockContext) {
     case 'cross-reference': {
       const data = parseCrossReferenceProps(props);
       return data ? <CrossReferenceBlock key={key} {...data} /> : null;
+    }
+    case 'card-grid': {
+      const data = parseCardGridProps(props);
+      return data.items.length ? <CardGridBlock key={key} {...data} /> : null;
     }
     case 'hero':
       return <HeroBlock key={key} {...parseHeroProps(props)} />;

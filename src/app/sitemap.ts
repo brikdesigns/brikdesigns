@@ -17,6 +17,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/customers`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/blog`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE_URL}/contact`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE_URL}/offers/brikdown`, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE_URL}/offers/dental-brikdown`, changeFrequency: 'monthly', priority: 0.8 },
+    // free-marketing-analysis retained pending an explicit retire/redirect
+    // decision (#1337 open question 3); brikdown is the canonical offer.
     { url: `${BASE_URL}/offers/free-marketing-analysis`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE_URL}/value`, changeFrequency: 'monthly', priority: 0.6 },
   ];

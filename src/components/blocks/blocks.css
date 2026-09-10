@@ -41,6 +41,59 @@
   gap: var(--gap-lg);
 }
 
+/* card-grid — a full-width grid of vertical cards (Figma section-advisors /
+   `card-vertical`). Header + grid stack; the grid track count is driven by the
+   `--card-grid-cols` custom property the block sets from its `columns` prop, and
+   collapses to 1 then 2 columns below the marketing breakpoints. Card chrome and
+   radius come from the BDS `<Card>` + the "Card chrome by band" rule — this only
+   owns the grid geometry and the media slot (dimensions BDS doesn't own). */
+.card-grid-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xl);
+}
+.card-grid-block__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-md);
+  text-align: center;
+}
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--gap-lg);
+}
+@media (min-width: 640px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 900px) {
+  .card-grid[data-columns='2'] {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .card-grid[data-columns='3'] {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .card-grid[data-columns='4'] {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+/* 4:3 media slot above the card text — matches Figma `img-landscape-4-3`
+   (373×280, 24px radius). Frame owns the aspect-ratio box; Image fills it. */
+.card-grid__media {
+  width: 100%;
+  margin-bottom: var(--gap-lg);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+.card-grid__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
 /* hero — content only (eyebrow / title / tagline / media). The surface is owned
    by the page-level section (LandingBlocks); the hero just lays out its own
    media. Text colour inherits the section's re-pointed `--text-*` pairing. */
@@ -51,6 +104,28 @@
   margin-bottom: var(--gap-lg);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
+}
+
+/* brand wordmark lockup — the monochrome SVG is painted as a CSS mask so the
+   ink is `--text-primary` and flips light/dark with the band the hero sits on
+   (an <img> can't inherit themed ink). The mask URL is set inline by HeroBlock;
+   dimensions follow the Figma lockup's 315×180 ratio. */
+.lp-hero__wordmark {
+  display: block;
+  width: min(315px, 80%);
+  aspect-ratio: 315 / 180;
+  margin-bottom: var(--gap-lg);
+  /* The mask paints the wordmark silhouette in the hero ink: the token lives in
+     the `color` slot (its correct family) and `currentColor` feeds the mask's
+     background, so it flips light/dark with `--text-primary`. */
+  color: var(--text-primary);
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: left center;
+  mask-position: left center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
 }
 
 /* The form card is `.form-card` on a BDS `<Card>` (shared-sections.css) — the
