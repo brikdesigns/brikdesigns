@@ -36,6 +36,16 @@
         "#ffffff on #e35335"
       ]
     },
+    "/plans/back-office-support": {
+      "color-contrast": [
+        "#ffffff on #e35335"
+      ]
+    },
+    "/plans/marketing-support": {
+      "color-contrast": [
+        "#ffffff on #e35335"
+      ]
+    },
     "/results": {
       "color-contrast": [
         "#ffffff on #e35335"
@@ -79,6 +89,16 @@
       ]
     },
     "/plans": {
+      "color-contrast": [
+        "#ffffff on #e35335"
+      ]
+    },
+    "/plans/back-office-support": {
+      "color-contrast": [
+        "#ffffff on #e35335"
+      ]
+    },
+    "/plans/marketing-support": {
       "color-contrast": [
         "#ffffff on #e35335"
       ]
