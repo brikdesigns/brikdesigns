@@ -5,8 +5,7 @@ import Image from 'next/image';
 import { Card, CardTitle, CardDescription, CardFooter, Stack, Frame, ServiceTag, Button } from '@brikdesigns/bds';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import type { ServiceLine } from '@brikdesigns/bds';
-import { text, heading } from '@/lib/styles';
-import { color, serviceCtaVars } from '@/lib/tokens';
+import { serviceCtaVars } from '@/lib/tokens';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 
 interface ServiceLineCardProps {
@@ -31,26 +30,40 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
   // shares one source (8.48–16.34:1 AA on all five lines, both themes).
   return (
     <Link href={`/services/${routeSlugForServiceLine(slug)}`} className="services-card-link">
-      <Card variant="outlined" padding="md" interactive className="services-card service-themed">
-        <div className="services-card__media">
-          {imageUrl ? (
-            <Image src={imageUrl} alt={name} width={400} height={400} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      {/* Inset media treatment to match its ServiceCard sibling — the service
+          card family shares one look. The `image` slot carries either the line
+          photo or the ServiceTag icon fallback; the well + radius come from the
+          shared card-media standard. */}
+      <Card
+        preset="display"
+        mediaTreatment="inset"
+        className="service-themed"
+        title={name}
+        description={tagline}
+        image={
+          imageUrl ? (
+            <Frame ratio="square" fit="cover">
+              <Image src={imageUrl} alt={name} width={400} height={400} />
+            </Frame>
           ) : (
-            <ServiceTag category={category} variant="icon" size="lg" />
-          )}
-        </div>
-        <div className="services-card__content">
-          <ServiceTag category={category} variant="icon" size="lg" serviceName={name} />
-          <h3 style={{ ...heading.card }}>{name}</h3>
-          <p style={{ ...text.body, color: color.text.secondary }}>{tagline}</p>
-        </div>
-        <span
-          className={composeButtonClasses({ variant: 'primary', size: 'md' })}
-          style={serviceCtaVars(category)}
-        >
-          <span className="bds-button__content">Learn more</span>
-        </span>
-      </Card>
+            <Frame ratio="square" fit="contain">
+              <ServiceTag category={category} variant="icon" size="lg" />
+            </Frame>
+          )
+        }
+        tag={<ServiceTag category={category} variant="icon" size="lg" serviceName={name} />}
+        action={
+          // Presentational span — the wrapping <Link> owns navigation; a
+          // <Button href> would nest <a> in <a>. serviceCtaVars supplies the
+          // audience-tinted CTA pairing (brikdesigns#1001).
+          <span
+            className={composeButtonClasses({ variant: 'primary', size: 'md' })}
+            style={serviceCtaVars(category)}
+          >
+            <span className="bds-button__content">Learn more</span>
+          </span>
+        }
+      />
     </Link>
   );
 }

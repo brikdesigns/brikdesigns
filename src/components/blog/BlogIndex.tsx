@@ -5,9 +5,6 @@ import Image from 'next/image';
 import { Icon } from '@/lib/icon';
 import {
   Card,
-  CardTitle,
-  CardDescription,
-  CardFooter,
   Frame,
   Grid,
   Button,
@@ -103,20 +100,26 @@ export function BlogIndex({ posts }: Props) {
       ) : (
         <Grid columns={3} gap="lg">
           {visible.map((post) => (
-            <Card key={post.slug} variant="outlined" padding="none" className="blog-card">
-              {post.image && (
-                <Frame customRatio="16 / 9" fit="cover" className="blog-card__media">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    sizes="(max-width: 768px) 100vw, 400px"
-                  />
-                </Frame>
-              )}
-              <div className="blog-card__content">
-                <CardTitle as="h2">{post.title}</CardTitle>
+            <Card
+              key={post.slug}
+              preset="display"
+              titleAs="h2"
+              title={post.title}
+              description={post.summary}
+              image={
+                post.image ? (
+                  <Frame customRatio="16 / 9" fit="cover">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                      sizes="(max-width: 768px) 100vw, 400px"
+                    />
+                  </Frame>
+                ) : undefined
+              }
+              tag={
                 <div className="blog-card__meta">
                   <span
                     className="blog-card__meta-item"
@@ -139,14 +142,13 @@ export function BlogIndex({ posts }: Props) {
                     </span>
                   )}
                 </div>
-                <CardDescription>{post.summary}</CardDescription>
-                <CardFooter>
-                  <Button href={`/blog/${post.slug}`} variant="primary" size="md">
-                    Read Article
-                  </Button>
-                </CardFooter>
-              </div>
-            </Card>
+              }
+              action={
+                <Button href={`/blog/${post.slug}`} variant="primary" size="md">
+                  Read Article
+                </Button>
+              }
+            />
           ))}
         </Grid>
       )}
