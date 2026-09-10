@@ -11,8 +11,8 @@ import { color, gap } from '@/lib/tokens';
  * without a per-block override. Prose body copy is a separate `rich-content`
  * block per the catalogue.
  */
-export function HeroBlock({ eyebrow, title, subtitle, media }: HeroProps) {
-  if (!title && !subtitle && !media) return null;
+export function HeroBlock({ eyebrow, title, subtitle, media, wordmark }: HeroProps) {
+  if (!title && !subtitle && !media && !wordmark) return null;
   return (
     <div className="lp-hero">
       {media && (
@@ -26,6 +26,14 @@ export function HeroBlock({ eyebrow, title, subtitle, media }: HeroProps) {
             priority
           />
         </div>
+      )}
+      {wordmark && (
+        <span
+          className="lp-hero__wordmark"
+          role="img"
+          aria-label={wordmark.alt}
+          style={{ maskImage: `url(${wordmark.url})`, WebkitMaskImage: `url(${wordmark.url})` }}
+        />
       )}
       {eyebrow && <p style={{ ...label.subtitle, marginBottom: gap.xs }}>{eyebrow}</p>}
       {title && <h1 style={heading.lg}>{title}</h1>}

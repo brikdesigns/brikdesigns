@@ -62,12 +62,13 @@ export function LandingBlocks({
 
   if (layout === 'split') {
     const formBlocks = blocks.filter((b) => b.type === 'form');
-    // logo-strip breaks out of the 2-col grid into a full-width trailer below
-    // both columns, so sponsors read as their own section (BACKLOG-1129).
-    const trailerBlocks = blocks.filter((b) => b.type === 'logo-strip');
-    const contentBlocks = blocks.filter(
-      (b) => b.type !== 'form' && b.type !== 'logo-strip',
-    );
+    // logo-strip and card-grid break out of the 2-col grid into a full-width
+    // trailer below both columns, so sponsors (BACKLOG-1129) and the review
+    // card-grid (#1337) each read as their own full-width section rather than a
+    // squeezed left-column tail.
+    const isTrailer = (type: string) => type === 'logo-strip' || type === 'card-grid';
+    const trailerBlocks = blocks.filter((b) => isTrailer(b.type));
+    const contentBlocks = blocks.filter((b) => b.type !== 'form' && !isTrailer(b.type));
     return (
       <section className={sectionClass} style={style}>
         <div className="lp-blocks__container lp-split">

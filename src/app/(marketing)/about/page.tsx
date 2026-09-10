@@ -19,10 +19,11 @@ export const metadata: Metadata = {
 
 export const revalidate = 3600;
 
-// BrikDown CTA target. OPERATOR SAID 2026-09-06 (chat): "/offers/brikdown-analysis"
-// is canonical — matches the home (R2) and how-we-work rebuilds. (The sibling
-// /offers/free-marketing-analysis is also live but the legacy slug.)
-const BRIKDOWN_HREF = '/offers/brikdown-analysis';
+// BrikDown CTA target. OPERATOR SAID 2026-09-09 (chat): rename to "/offers/brikdown"
+// (superseding the 2026-09-06 "/offers/brikdown-analysis" call). Matches the home
+// (R2) and how-we-work rebuilds. (The sibling /offers/free-marketing-analysis is
+// also live but the legacy slug.)
+const BRIKDOWN_HREF = '/offers/brikdown';
 
 // §3 "Why Brik?" origin story. Rendered as prose — a continuous narrative meant
 // to be read straight through. The earlier accordion idea was dropped

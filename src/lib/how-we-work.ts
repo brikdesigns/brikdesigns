@@ -8,7 +8,7 @@
 //                   showing its Managed monthly price (pulled live) + bullets
 //   • engagement  — Step 3: two stacked mode sub-cards (Advisory / Managed)
 
-const BRIKDOWN_HREF = '/offers/brikdown-analysis';
+const BRIKDOWN_HREF = '/offers/brikdown';
 
 export interface ProcessChecklistItem {
   title: string;

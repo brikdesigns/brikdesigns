@@ -24,3 +24,16 @@
     will-change: auto;
   }
 }
+
+/* Print / PDF export renders the full document height without scrolling, so the
+   IntersectionObserver never fires for below-the-fold sections and they would
+   print at opacity:0 — a blank page (#1323). Force the revealed state. This
+   overrides the no-preference block above because print media matches too, and
+   is later in source order. `!important` guards against the mid-reveal inline
+   state the component may have left on an element when print was invoked. */
+@media print {
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
