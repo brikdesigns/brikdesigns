@@ -378,15 +378,15 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                       {/* Same banner, services view: toggle off to return to the
                           support-plan view (the panel's default). */}
                       <div className="mega-nav__panel-banner">
-                        <p className="mega-nav__panel-banner-text">
-                          <strong>Interested in a monthly support plan?</strong> View our support plans.
-                        </p>
                         <ToggleSwitch
-                          label="View Services"
+                          aria-label="View support plans"
                           size="sm"
                           checked={servicesView}
                           onChange={(e) => setServicesView(e.target.checked)}
                         />
+                        <p className="mega-nav__panel-banner-text">
+                          <strong>Interested in a monthly support plan?</strong> View our support plans.
+                        </p>
                       </div>
                       </>
                     )}
