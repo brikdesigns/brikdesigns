@@ -5,9 +5,6 @@ import { Icon } from '@/lib/icon';
 import {
   Button,
   Card,
-  CardDescription,
-  CardFooter,
-  CardTitle,
   Frame,
   Grid,
   LinkButton,
@@ -120,20 +117,26 @@ export default async function BlogPostPage({ params }: Props) {
             <SectionHeader title="Keep Reading" style={{ marginBottom: gap.lg }} />
             <Grid columns={3} gap="lg">
               {relatedPosts.map((related) => (
-                <Card key={related.slug} variant="outlined" padding="none" className="blog-card">
-                  {related.image && (
-                    <Frame customRatio="16 / 9" fit="cover" className="blog-card__media">
-                      <Image
-                        src={related.image}
-                        alt={related.title}
-                        fill
-                        style={{ objectFit: 'cover' }}
-                        sizes="(max-width: 768px) 100vw, 400px"
-                      />
-                    </Frame>
-                  )}
-                  <div className="blog-card__content">
-                    <CardTitle as="h3">{related.title}</CardTitle>
+                <Card
+                  key={related.slug}
+                  preset="display"
+                  titleAs="h3"
+                  title={related.title}
+                  description={related.summary}
+                  image={
+                    related.image ? (
+                      <Frame customRatio="16 / 9" fit="cover">
+                        <Image
+                          src={related.image}
+                          alt={related.title}
+                          fill
+                          style={{ objectFit: 'cover' }}
+                          sizes="(max-width: 768px) 100vw, 400px"
+                        />
+                      </Frame>
+                    ) : undefined
+                  }
+                  tag={
                     <div className="blog-card__meta">
                       <span className="blog-card__meta-item" style={{ ...label.sm, color: color.text.secondary }}>
                         <Icon icon="ph:calendar-blank" width={16} height={16} aria-hidden />
@@ -146,14 +149,13 @@ export default async function BlogPostPage({ params }: Props) {
                         </span>
                       )}
                     </div>
-                    <CardDescription>{related.summary}</CardDescription>
-                    <CardFooter>
-                      <Button href={`/blog/${related.slug}`} variant="primary" size="md">
-                        Read Article
-                      </Button>
-                    </CardFooter>
-                  </div>
-                </Card>
+                  }
+                  action={
+                    <Button href={`/blog/${related.slug}`} variant="primary" size="md">
+                      Read Article
+                    </Button>
+                  }
+                />
               ))}
             </Grid>
           </div>

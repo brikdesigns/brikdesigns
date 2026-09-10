@@ -126,7 +126,7 @@ export function StorySections({
               className="story-toc"
             />
             {meta.length > 0 && (
-              <Card padding="md" className="story-rail__meta">
+              <Card padding="lg" className="story-rail__meta">
                 <dl className="story-rail__meta-list">
                   {meta.map((item) => (
                     <div key={item.key} className="story-meta__item">
