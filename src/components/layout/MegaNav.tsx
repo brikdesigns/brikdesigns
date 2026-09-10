@@ -286,6 +286,9 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             marketing, back-office systems, or product design —
                             without the cost of full-time hires.
                           </p>
+                          <Link href="/plans" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
+                            <span className="bds-button__content">Learn More</span>
+                          </Link>
                         </div>
                         {/* Cols 2–4: plan cards. Product Support is excluded — it
                             has its own dedicated section on /plans. Card image is
@@ -314,15 +317,15 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                       </div>
                       {/* Full-width banner: toggle on to reveal the standalone-services view. */}
                       <div className="mega-nav__panel-banner">
-                        <p className="mega-nav__panel-banner-text">
-                          <strong>Interested in individual services?</strong> View our standalone services.
-                        </p>
                         <ToggleSwitch
-                          label="View Services"
+                          aria-label="View standalone services"
                           size="sm"
                           checked={servicesView}
                           onChange={(e) => setServicesView(e.target.checked)}
                         />
+                        <p className="mega-nav__panel-banner-text">
+                          <strong>Interested in individual services?</strong> View our standalone services.
+                        </p>
                       </div>
                       </>
                     ) : (
