@@ -341,6 +341,12 @@ export const getSupportPlanBySlug = cache(
         .select(
           `*,
            display_line:service_lines!display_line_id(slug, name, card_image_url),
+           service_plan_foundation_items(
+             title,
+             clause,
+             icon_key,
+             sort_order
+           ),
            service_plan_items(
              sort_order,
              service:services(
@@ -361,7 +367,10 @@ export const getSupportPlanBySlug = cache(
              discount_label,
              included_scope,
              is_featured,
-             sort_order
+             sort_order,
+             who_executes,
+             cta_label,
+             cta_href
            )`
         )
         .eq('slug', slug)
@@ -371,6 +380,14 @@ export const getSupportPlanBySlug = cache(
         // stays a left join — a plan with zero public tiers still resolves with
         // an empty `service_plan_tiers` array (existing single-price plans).
         .order('sort_order', { referencedTable: 'service_plan_tiers', ascending: true })
+        // Foundation rows are section-intro's list (#1371). Their RLS gates on
+        // the PARENT plan's is_public rather than a flag of their own, so the
+        // embed is a left join too — a plan that has authored none resolves
+        // with an empty array and the section renders its copy without a list.
+        .order('sort_order', {
+          referencedTable: 'service_plan_foundation_items',
+          ascending: true,
+        })
         .single();
       if (error) throw error;
       return data;
