@@ -116,19 +116,18 @@ const nextConfig = {
       // A root wildcard would instead 301 every unknown path — including future
       // marketing pages — into /offers.
       { source: '/free-marketing-analysis', destination: '/offers/free-marketing-analysis', permanent: true },
-      { source: '/dental-brikdown-analysis', destination: '/offers/dental-brikdown-analysis', permanent: true },
+      { source: '/dental-brikdown-analysis', destination: '/offers/dental-brikdown', permanent: true },
       { source: '/newsletter', destination: '/offers/newsletter', permanent: true },
 
-      // ── Brikdown analysis renamed → free marketing analysis
-      // Retargeted to the /offers path so this is one 301, not a 301 chain into
-      // the rule above. This rule is also why the `brikdown-analysis` landing row
-      // has been unreachable on this site since before #807: the redirect shadows
-      // it. The second line keeps that true after the move — without it, the row
-      // would newly become reachable at /offers/brikdown-analysis, and a route
-      // move should not publish content that was retired. Delete that one line to
-      // put the row live (it does build — see the prerender list on #807).
-      { source: '/brikdown-analysis', destination: '/offers/free-marketing-analysis', permanent: true },
-      { source: '/offers/brikdown-analysis', destination: '/offers/free-marketing-analysis', permanent: true },
+      // ── BrikDown slugs renamed → /offers/brikdown, /offers/dental-brikdown (#1335)
+      // The `brikdown-analysis` row is now the canonical BrikDown page (OPERATOR
+      // SAID 2026-09-09 (chat): "Yes — brikdown is canonical"), reachable at
+      // /offers/brikdown; the site's BrikDown CTAs point there. These rules keep
+      // the old Webflow/pre-#807 URLs landing on the new canonical page in one
+      // 301 (no chain). The prior shadow of /offers/brikdown-analysis onto
+      // free-marketing-analysis is retired with the rename.
+      { source: '/brikdown-analysis', destination: '/offers/brikdown', permanent: true },
+      { source: '/offers/brikdown-analysis', destination: '/offers/brikdown', permanent: true },
 
       // ── Webflow "support" landing pages → /plans (the unified replacement)
       { source: '/category/back-office-support', destination: '/plans', permanent: true },

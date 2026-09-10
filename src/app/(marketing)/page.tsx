@@ -137,7 +137,7 @@ export default async function HomePage() {
               {/* on-color (white fill, dark ink) primary + white-outline secondary
                   on the brand-primary hero band — mirrors the cta-card-brand / HIW
                   CTA panels. A brand `primary`/`outline` would blend orange-on-poppy. */}
-              <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+              <Button href="/offers/brikdown" variant="on-color" size="lg">
                 Start with a Free BrikDown Analysis
               </Button>
               <Button
@@ -181,7 +181,7 @@ export default async function HomePage() {
           description="That's exactly what we uncover in the BrikDown."
           actions={
             <Cluster gap="md" justify="center">
-              <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+              <Button href="/offers/brikdown" variant="primary" size="lg">
                 Schedule Your Free BrikDown
               </Button>
               {/* on-color (white fill, dark ink, theme-stable) — the accent band
@@ -319,7 +319,7 @@ export default async function HomePage() {
               </li>
             ))}
           </ol>
-          <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+          <Button href="/offers/brikdown" variant="primary" size="lg">
             Get Your Free BrikDown
           </Button>
         </div>
@@ -337,7 +337,7 @@ export default async function HomePage() {
               title="Monthly Subscription"
               description="We're more than a design studio—we're your strategic marketing partner."
             />
-            <Button href="/offers/brikdown-analysis" variant="primary" size="lg">
+            <Button href="/offers/brikdown" variant="primary" size="lg">
               Get Your Free BrikDown
             </Button>
           </div>
@@ -525,7 +525,7 @@ export default async function HomePage() {
             </p>
           </div>
           <Cluster gap="md" justify="center">
-            <Button href="/offers/brikdown-analysis" variant="on-color" size="lg">
+            <Button href="/offers/brikdown" variant="on-color" size="lg">
               Get your free BrikDown
             </Button>
             <Button
