@@ -379,8 +379,7 @@ export const getSupportPlanBySlug = cache(
              is_featured,
              sort_order,
              who_executes,
-             cta_label,
-             cta_href
+             cta_label
            )`
         )
         .eq('slug', slug)

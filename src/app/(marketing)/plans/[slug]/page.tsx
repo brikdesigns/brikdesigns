@@ -63,7 +63,6 @@ interface ServicePlanTierRow {
   sort_order: number | null;
   who_executes: string | null;
   cta_label: string | null;
-  cta_href: string | null;
 }
 
 interface FoundationItemRow {
@@ -174,11 +173,11 @@ export default async function PlanDetailPage({ params }: Props) {
       annualPrice: t.annual_price_display ?? null,
       description: t.description ?? '',
       whoExecutes: t.who_executes,
-      // CMS-authored per tier (migration 00391). Falls back to the page's own
-      // BrikDown path so a tier authored before those columns existed still
-      // renders a working CTA rather than an empty button.
+      // CMS-authored per tier (migration 00391). Falls back to a generic label
+      // so a tier authored before that column existed still renders a named
+      // CTA rather than an empty button. The tier CTA opens the lead-capture
+      // modal (#1400), so the old `cta_href` navigation target is unused.
       ctaLabel: t.cta_label ?? 'Get started',
-      ctaHref: t.cta_href ?? BRIKDOWN_HREF,
       accent: tierAccent(t.name, i),
     }));
 

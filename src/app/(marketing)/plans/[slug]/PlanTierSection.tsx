@@ -15,7 +15,6 @@ export interface PlanTier {
   /** `who_executes` — the line under the price ("Your team executes."). */
   whoExecutes: string | null;
   ctaLabel: string;
-  ctaHref: string;
   /**
    * Service-line accent. The two engagement modes are asymmetric BY DESIGN —
    * Advisory takes `brand`, Managed takes `back-office` (Figma `26144:9107` /
