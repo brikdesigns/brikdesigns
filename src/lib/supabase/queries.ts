@@ -357,6 +357,12 @@ export const getSupportPlanBySlug = cache(
              icon_key,
              sort_order
            ),
+           service_plan_coverage_items(
+             title,
+             clause,
+             icon_key,
+             sort_order
+           ),
            service_plan_items(
              sort_order,
              service:services(
@@ -395,6 +401,13 @@ export const getSupportPlanBySlug = cache(
         // with an empty array and the section renders its copy without a list.
         .order('sort_order', {
           referencedTable: 'service_plan_foundation_items',
+          ascending: true,
+        })
+        // Coverage rows are section-details' list (#1371 delta row 3). Same
+        // shape and same parent-`is_public` RLS as the Foundation sibling
+        // (migration 00395), so the embed is a left join for the same reason.
+        .order('sort_order', {
+          referencedTable: 'service_plan_coverage_items',
           ascending: true,
         })
         .single();

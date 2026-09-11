@@ -6,7 +6,6 @@ import { serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { PlanCoverageRow } from './PlanCoverageRow';
 import { PlanTierSection, type PlanTier } from './PlanTierSection';
 import { PlanFullStackPanel } from './PlanFullStackPanel';
-import { PlanIncludedServices, type IncludedService } from './PlanIncludedServices';
 import '../../shared-sections.css';
 // `.section-hero` / `.hero-*` and `.pricing-header` live in homepage.css — the
 // sanctioned cross-page import (marketing-section-reuse.md), the same one
@@ -72,6 +71,13 @@ interface FoundationItemRow {
   sort_order: number | null;
 }
 
+/**
+ * `service_plan_coverage_items` — section-details' rows. A near-exact mirror
+ * of the Foundation row above (migration 00395 § 1), so the shape is aliased
+ * rather than re-declared: one contract, two lists on the same page.
+ */
+type CoverageItemRow = FoundationItemRow;
+
 function tierKeySlug(planSlug: string, tierName: string): string {
   const suffix = tierName
     .toLowerCase()
@@ -104,27 +110,6 @@ export default async function PlanDetailPage({ params }: Props) {
     notFound();
   }
 
-  // ── Included services (section-details, interim) ───────────────────────
-  // NOT the Figma coverage list. `service_plan_items` is a join to `services`
-  // and holds 21 catalogue rows for marketing-support across three service
-  // lines; Figma's `section-details` wants Notion's six coverage bullets, none
-  // of which exists as a service. That table is
-  // brikdesigns/brik-client-portal#3970 — until it lands this slot keeps the
-  // existing component, in its NEW position (delta row 3 is the one row of
-  // #1371's table not yet reshaped).
-  const items = (plan.service_plan_items ?? []) as ServicePlanItemRow[];
-  const sortedItems = items.slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-  const seenServices = new Map<string, IncludedService>();
-  for (const item of sortedItems) {
-    const svc = item.service;
-    if (!svc || seenServices.has(svc.slug)) continue;
-    seenServices.set(svc.slug, {
-      ...svc,
-      category: mapServiceLineSlug(svc.service_lines?.slug ?? ''),
-    });
-  }
-  const includedServices: IncludedService[] = Array.from(seenServices.values());
-
   // ── Service-line identity ──────────────────────────────────────────────
   // Prefer the authoritative display_line_id FK — the same column the /plans
   // index uses. PostgREST may return an embedded FK row as object or array.
@@ -133,12 +118,26 @@ export default async function PlanDetailPage({ params }: Props) {
     ? ((rawDisplayLine[0] as { slug: string } | undefined) ?? null)
     : (rawDisplayLine as { slug: string } | null);
 
+  // `service_plan_items` no longer RENDERS anything — the #3970 reshape below
+  // replaced it — but it is still the fallback for a plan whose
+  // `display_line_id` is unset: the dominant line across its catalogue rows.
+  // Deduped by service slug, because a service joined twice would double-count
+  // its line.
+  const items = (plan.service_plan_items ?? []) as ServicePlanItemRow[];
+  const planServiceLines: string[] = [];
+  const seenServices = new Set<string>();
+  for (const item of items.slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))) {
+    const svc = item.service;
+    if (!svc || seenServices.has(svc.slug)) continue;
+    seenServices.add(svc.slug);
+    planServiceLines.push(svc.service_lines?.slug ?? '');
+  }
+
   const lineCounts = new Map<string, number>();
-  for (const svc of includedServices) {
-    const s = svc.service_lines?.slug ?? '';
+  for (const s of planServiceLines) {
     lineCounts.set(s, (lineCounts.get(s) ?? 0) + 1);
   }
-  let dominantLineSlug = includedServices[0]?.service_lines?.slug ?? '';
+  let dominantLineSlug = planServiceLines[0] ?? '';
   let maxCount = 0;
   for (const [s, count] of lineCounts) {
     if (count > maxCount) {
@@ -160,6 +159,21 @@ export default async function PlanDetailPage({ params }: Props) {
   // plan. Satisfies the /plans/[slug] half of #1386.
   const foundationPrice = (plan as { foundation_price_display?: string | null })
     .foundation_price_display;
+
+  // ── section-details (delta row 3) ──────────────────────────────────────
+  // Notion's "What <plan> covers." bullets, from the table 00395 added for
+  // exactly this list. Same row contract as the Foundation sibling above, so
+  // both render through `PlanCoverageRow` (identical `card-vertical` geometry
+  // in both Figma frames — PlanCoverageRow.tsx:6-8).
+  const coverageItems = ((plan.service_plan_coverage_items ?? []) as CoverageItemRow[])
+    .slice()
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+
+  // Free text on `service_plans`, the only column that can carry this frame's
+  // lead paragraph. Notion authors it per plan ("Brik works across the full
+  // marketing side of your business…"), so it is read, never interpolated —
+  // a generated sentence here would fork the copy from its authority (#1303).
+  const coverageDescription = (plan as { what_you_get?: string | null }).what_you_get;
 
   // ── section-type (delta rows 4 + 5) ────────────────────────────────────
   const tiers = (plan.service_plan_tiers ?? []) as ServicePlanTierRow[];
@@ -265,15 +279,59 @@ export default async function PlanDetailPage({ params }: Props) {
       </section>
 
       {/* ═══ 3. section-details — Figma 26144:9066 ═══
-       * Delta row 3, NOT yet reshaped — see the note on `includedServices`
-       * above. It moves to its Figma position now; the reshape follows
-       * brikdesigns/brik-client-portal#3970.
+       * RESHAPE (delta row 3) — the last row of #1371's table, unblocked by
+       * brik-client-portal#3970. It replaces `PlanIncludedServices`, which
+       * rendered the 21-row `service_plan_items` catalogue behind a
+       * SegmentedControl: never this frame's content, and the reason the
+       * section measured 1562px against a designed 1039px.
+       *
+       * The frame is section-intro's composition with a section-level CTA and
+       * no list heading, so it reuses that section's row column verbatim
+       * (`.plan-coverage-list__items`, the 600px `content-col` cap) rather
+       * than forking a second stacked-row vocabulary for one page.
+       *
+       * `data-section` now, not `aria-labelledby` — the old selector was
+       * CardGrid's blueprint identity, and a plain `<section>` takes the
+       * convention default (section-identification.md). The KEY is unchanged
+       * so the Figma baseline and the slot manifest keep their lineage.
        */}
-      {includedServices.length > 0 && (
-        <PlanIncludedServices
-          services={includedServices}
-          surfaceInverse={audienceTokens.inverse}
-        />
+      {coverageItems.length > 0 && (
+        <section className="page-section plan-details" data-section="what-you-get">
+          <div className="container-lg container-lg--comfortable">
+            <SectionHeader
+              // Figma sets "What marketing support covers." — Notion's own
+              // heading for this section. Interpolating the plan name renders
+              // that string exactly on this plan and stays correct on the
+              // others, the same technique section-intro uses above.
+              title={`What ${plan.name.toLowerCase()} covers.`}
+              description={coverageDescription ?? undefined}
+              actions={
+                // Figma's label reads "Get Your Free Brikdown"; the brand
+                // spelling is Notion's "BrikDown" and the casing is the one
+                // `PlanTierSection.tsx:122` already ships for this same
+                // section-level CTA, one band down the page.
+                <Button href={BRIKDOWN_HREF} size="lg">
+                  Get your free BrikDown
+                </Button>
+              }
+            />
+            <div className="plan-coverage-list__items">
+              {coverageItems.map((item) => (
+                <PlanCoverageRow
+                  key={item.title}
+                  title={item.title}
+                  // Notion authors these as bare bullets and Figma's second
+                  // line is un-swapped placeholder in both frames, so this is
+                  // null today (#1371 Q3). Passed through rather than dropped:
+                  // the column exists and the row renders it when authored.
+                  clause={item.clause}
+                  iconKey={item.icon_key}
+                  surfaceLight={audienceTokens.surfaceLight}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       {/* ═══ 4 + 5. billing toggle, then section-type — Figma 26144:9099 ═══ */}

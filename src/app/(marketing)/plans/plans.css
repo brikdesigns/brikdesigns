@@ -124,136 +124,20 @@
    --site-content-width (1440px) in the R3 home work (fab7388), leaving the CMS
    plan hero/pricing 160px narrower than the nav. Point the BDS override hook at
    the site width so every blueprint band lines up flush with the nav gutter.
-   Inherits to all blueprint descendants of the page root; "What You Get" keeps
-   its own narrower 1080px override below (higher-specificity max-width wins). */
+   Inherits to all blueprint descendants of the page root. */
 .plan-detail-ctas {
   --bds-blueprint-section-content-width: var(--site-content-width);
 }
 
-/* ─── Plan detail — included services list ───────────────── */
-
-.plan-service-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
-
-/* Uniform card height across the stacked list so the rhythm reads as one
-   system regardless of description length (#R7). The tallest desktop card is
-   ~152px; min-height levels the shorter cards up to match. Cards with longer
-   copy (mobile wrapping) grow past it — min, not max, so nothing clips. */
-.plan-service-list .bds-card {
-  min-height: 152px;
-}
-
-.plan-service-list-item {
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  gap: var(--gap-lg);
-  /* Media is a fixed 80×80 square pinned to the top of the card; content flows
-     beside it. `start` (not `stretch`) keeps the square from being pulled to
-     the card's full min-height. */
-  align-items: start;
-}
-
-/* Illustration panel — fixed 80×80 square (1:1). The 80px grid track fixes the
-   width; aspect-ratio:1 (matching the <Frame ratio="square">) fixes the height.
-   The inner image is `object-fit: contain`, so it centres within the panel.
-   Radius/well are NOT set here — this Frame is inside a BDS <Card>, so the
-   derived "Card media standard" (.bds-card .bds-frame, shared-sections.css)
-   supplies --border-radius-md + the --surface-secondary well (#1191). */
-.plan-service-list-item__media {
-  aspect-ratio: 1;
-}
-
-.plan-service-list-item__content {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--gap-xs);
-}
-
-/* Service title (left) + service-line tag (right) on one row. Title takes the
-   remaining width; the tag holds its intrinsic size and wraps below only when
-   the row can't fit both. */
-.plan-service-list-item__header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--gap-sm);
-  width: 100%;
-}
-
-.plan-service-list-item__header .plan-service-list-item__title {
-  flex: 1 1 auto;
-}
-
-/* font: var(--heading-sm) is invalid (shorthand needs size/family minimum) —
-   use explicit properties so the heading token actually applies. */
-.plan-service-list-item__title {
-  font-family: var(--font-family-heading);
-  font-size: var(--heading-sm);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--font-line-height-tight);
-  /* Title follows the service line so it matches the service-line tag beside it
-     (BACKLOG-312). In light mode the `-inverse` card is white, so the service
-     `-on-light` ink (--text-brand-primary, scoped on the plan page's
-     [data-audience] root — plans/[slug]/page.tsx) reads as the line colour.
-     In dark mode the card goes `{hue}-darkest`, so revert to the default light
-     --text-primary to keep AA — mirrors the pricing-card price-ink carve-out
-     (BACKLOG-938, shared-sections.css). */
-  color: var(--text-brand-primary);
-  margin: 0;
-}
-:root[data-theme='dark'] .plan-service-list-item__title {
-  color: var(--text-primary);
-}
-
-.plan-service-list-item__description {
-  font-family: var(--font-family-body);
-  /* --body-md matches the standard card-description scale (was --body-sm, the
-     smallest of four body scales across the plans/services card family). #674 / BACKLOG-313 */
-  font-size: var(--body-md);
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-/* ─── What You Get — content width ───────────────────────── */
-/* Narrower than the default xl content band (1280px) so the cards read as a
-   focused column. CardGrid composes the centred band on
-   `.bds-blueprint-section__container` (ADR-021) — NOT a `bds-card-grid__container`
-   element, which doesn't exist — so the width override targets that slot. */
-.plan-what-you-get .bds-blueprint-section__container {
-  max-width: 1080px;
-}
-
-/* Positioned parent for the decorative line-grid <BackgroundPattern>. The
-   pattern is a DOM child of the 1080px container, but its containing block is
-   the SECTION (positioned here, not the container), so inset:0 spans the full
-   section band instead of being clipped to the 1080px content column (#1224). */
-.plan-what-you-get {
-  position: relative;
-}
-
-/* Lift the header + segmented control + card list above the pattern layer.
-   BackgroundPattern is positioned z-index:0, so static siblings would paint
-   under it; every real-content child gets its own z-index:1 (per the
-   BackgroundPattern usage contract). */
-.plan-what-you-get .bds-blueprint-section__container > *:not(.bds-background-pattern) {
-  position: relative;
-  z-index: 1;
-}
+/* `.plan-service-list*` and `.plan-what-you-get*` lived here for
+   `PlanIncludedServices` — the interim `section-details` band that rendered the
+   21-row `service_plan_items` catalogue behind a SegmentedControl. Delta row 3
+   of #1371 replaced it with the Figma coverage column once
+   brik-client-portal#3970 gave that list a CMS source, so the component and its
+   CSS are both gone. The band's rules now live under `.plan-details` below. */
 
 .plan-detail-ctas .bds-button--inverse {
   color: var(--service-cta-ink-dark, var(--text-brand-primary));
-}
-
-@media (max-width: 479px) {
-  .plan-service-list-item {
-    grid-template-columns: 56px 1fr;
-    gap: var(--gap-md);
-  }
 }
 
 /* ═══ Plan detail — Figma support-plan template (#1371) ═══════════════════ */
@@ -319,11 +203,20 @@
 }
 
 /* Figma pins the row column at 600px inside a wider band — a measure cap, not
-   a grid, so a plan that authors more rows just makes the column taller. */
+   a grid, so a plan that authors more rows just makes the column taller.
+
+   `--gap-xl` is 24px, the `content-col` gap both frames set (section-details
+   `26144:9073`, read this session). This was `--gap-md`, which the rule's own
+   comment described as 24px but which resolves to `--space-200` = 8px: the
+   mode-track where `--gap-md` IS 32px needs `[data-mode-spacing]`, and nothing
+   in src/ sets it — `.container-lg--comfortable` sets a gap VALUE
+   (shared-sections.css:206, `--gap-comfortable: 36px` globals.css:317), not
+   the attribute. So the rows shipped at a third of their designed spacing in
+   BOTH frames that use this column. */
 .plan-coverage-list__items {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-md);
+  gap: var(--gap-xl);
   width: 100%;
   max-width: 600px;
 }
@@ -371,6 +264,26 @@
      on all five tints (globals.css AA table). */
   color: var(--color-grayscale-800);
   margin: 0;
+}
+
+/* ─── section-details (26144:9066) ────────────────────────────────────────
+   Figma's frame is section-intro's composition with two differences: the copy
+   block carries a section-level CTA (`button-wrapper`, 26144:9072) instead of
+   a list heading, and the frame sets 64px between that block and the row
+   column where section-intro sets 32px. The row column itself is the same
+   600px `content-col`, so `.plan-coverage-list__items` is reused verbatim
+   rather than forked.
+
+   64px is `--space-1600` exactly. The `--gap-*` scale tops out at 32px in the
+   default track (`--gap-2xl: --space-800`), and `.container-lg--comfortable`
+   sets a gap VALUE rather than `[data-mode-spacing]`
+   (shared-sections.css:206), so the mode-track's 64px is not in play here —
+   same reason `.plan-detail-hero` reaches for `--space-1700` above. */
+.plan-details .container-lg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1600);
 }
 
 /* ─── billing toggle (delta row 4) ────────────────────────────────────── */

@@ -247,14 +247,11 @@ const ROUTES = [
       sections: {
         hero: '26144:9053',        // section-hero
         foundation: '26144:9055',  // section-intro
-        // The "What You Get" band is a BDS blueprint section: CardGrid
-        // identifies it with `aria-labelledby`, not `data-section`, so the
-        // default convention selector would match nothing. Verified against
-        // the live markup 2026-09-11.
-        'what-you-get': {
-          node: '26144:9066',      // section-details
-          selector: '[aria-labelledby="what-you-get-title"]',
-        },
+        // Key held across #1371's delta-row-3 reshape so the baseline lineage
+        // survives; the band is now a plain `<section>` carrying
+        // `data-section`, so the selector override it needed as a CardGrid
+        // blueprint section is gone.
+        'what-you-get': '26144:9066', // section-details
         'engagement-modes': '26144:9099', // section-type
         'full-stack': '26144:9109',       // section-full-stack
         cta: '26144:9140',                // section-cta

@@ -84,10 +84,10 @@ export interface SectionDecl {
   /**
    * How to find the section in the DOM.
    *
-   * Usually `[data-section="<key>"]`. `what-you-get` is the exception the
-   * visual-parity declaration already records: it is a BDS blueprint section
-   * that `CardGrid` identifies with `aria-labelledby`, so the default
-   * convention selector would match nothing (`visual-parity.mjs:231-235`).
+   * `[data-section="<key>"]` on every section of this route. A BDS blueprint
+   * section (CardGrid et al.) identifies itself with `aria-labelledby`
+   * instead, so one declared here would need its own selector — that was
+   * `what-you-get`'s shape until #1371 reshaped it to a plain `<section>`.
    */
   selector: string;
   slots: SlotDecl[];
@@ -192,52 +192,73 @@ export const SLOT_MANIFEST: RouteDecl[] = [
       {
         key: 'what-you-get',
         node: '26144:9066', // section-details
-        selector: '[aria-labelledby="what-you-get-title"]',
+        // The key is unchanged across #1371's delta-row-3 reshape so the Figma
+        // baseline and this declaration keep their lineage, but the SELECTOR
+        // moved: the band was a CardGrid blueprint section identified by
+        // `aria-labelledby`, and is now a plain `<section>` on the convention
+        // default (section-identification.md).
+        selector: '[data-section="what-you-get"]',
         slots: [
-          { name: 'title', node: '26144:9069', selector: '.bds-card-grid__title', min: 1 },
           {
-            name: 'description',
+            name: 'content-wrapper › title',
+            node: '26144:9069',
+            selector: '.bds-content-block__title',
+            min: 1,
+          },
+          {
+            name: 'content-wrapper › description',
             node: '26144:9070',
-            selector: '.bds-card-grid__description',
-            min: 1,
-          },
-          {
-            name: 'content-col › card-vertical',
-            node: '26144:9074',
-            selector: '.plan-service-list-item',
-            min: 1,
-          },
-          {
-            name: 'card-vertical › title-wrapper › title',
-            node: '26144:9077',
-            selector: '.plan-service-list-item__title',
-            min: 1,
-          },
-          {
-            name: 'card-vertical › title-wrapper › second line',
-            node: '26144:9078',
-            selector: '.plan-service-list-item__description',
-            min: 1,
-          },
-          {
-            name: 'card-vertical › brik-tag-subscription',
-            node: '26144:9075',
-            selector: '.bds-service-tag',
+            selector: '.bds-content-block__description',
             min: 1,
           },
           {
             name: 'content-wrapper › button-wrapper',
             node: '26144:9072',
-            selector: '.bds-button',
+            selector: '.bds-content-block__actions .bds-button',
+            min: 1,
+          },
+          {
+            name: 'content-col › card-vertical',
+            node: '26144:9074',
+            selector: '.plan-coverage-row',
+            min: 1,
+          },
+          {
+            name: 'card-vertical › title-wrapper › title',
+            node: '26144:9077',
+            selector: '.plan-coverage-row__title',
+            min: 1,
+          },
+          {
+            name: 'card-vertical › title-wrapper › second line',
+            node: '26144:9078',
+            selector: '.plan-coverage-row__description',
             min: 1,
             waived: {
               reason:
-                'The section renders `includedServices`, not the Figma frame\'s coverage rows — ' +
-                'page.tsx:266-270 records it as "NOT yet reshaped", blocked on the CMS source ' +
-                'landing (brik-client-portal#3970). The frame\'s section-level CTA comes with ' +
-                'that reshape; declaring it now would redden the gate for work the build has ' +
-                'deliberately not adopted yet.',
-              issue: 'brik-client-portal#3970',
+                'The slot is implemented — PlanCoverageRow.tsx:70 renders it whenever `clause` ' +
+                'is non-null, the same code path that ships the em-dash clause on the ' +
+                'Foundation rows above. It renders on none of these because Notion authors ' +
+                "this list as BARE bullets (#1371 Q3) and Figma's own second line is the " +
+                'un-swapped "5 hours per month" placeholder. Ratified content shape, not a ' +
+                'dropped slot — and still declared, so authoring a clause reddens this waiver ' +
+                'rather than passing silently.',
+              issue: 'brikdesigns#1371',
+            },
+          },
+          {
+            name: 'card-vertical › brik-tag-subscription',
+            node: '26144:9075',
+            selector: '.bds-tag',
+            min: 1,
+            waived: {
+              reason:
+                'Identical mechanism to the Foundation row above: the slot is implemented ' +
+                '(PlanCoverageRow.tsx:55) and resolves per `icon_key`, which is unauthored on ' +
+                'every service_plan_coverage_items row. The marketing vocabulary itself ' +
+                'shipped in #1372 and the DB CHECK (migration 00395 § 2) already constrains ' +
+                'the column to it — only the values are missing.',
+              issue: 'brikdesigns#1436',
             },
           },
         ],

@@ -71,12 +71,12 @@ figma: {
   themes: ['light'],                    // frames are authored light-only
   sections: {
     hero: '26144:9053',                 // → [data-section="hero"]
-    'what-you-get': { node: '26144:9066', selector: '[aria-labelledby="what-you-get-title"]' },
+    details: { node: '27111:1216', selector: '[data-section="split-trailer"]' },
   },
 },
 ```
 
-A bare node id defaults to the `data-section` convention. Declare a `selector` for the two shapes that convention does not reach: a BDS blueprint section (which identifies itself with `aria-labelledby`), and a CMS landing route (whose regions are `<div>`s inside one `<section>` — `/offers/brikdown` uses `.lp-split` / `.lp-split__trailer`).
+A bare node id defaults to the `data-section` convention. Declare a `selector` for the two shapes that convention does not reach: a BDS blueprint section (which identifies itself with `aria-labelledby`), and a CMS landing route (whose regions are `<div>`s inside one `<section>` — `/offers/brikdown`, above).
 
 ### Re-baselining after a design change
 
