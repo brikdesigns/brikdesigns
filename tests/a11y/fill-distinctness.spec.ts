@@ -85,18 +85,37 @@ const CONTROL_MIN_RATIO = 3;
  * moment the DOM is re-rooted, and then re-reports already-accepted debt as
  * new. The pair survives that.
  *
- * Every entry here is a SHARED BDS component, not page CSS — measured
- * 2026-09-11 against this worktree over the 12 routes above, both themes.
- * Burn-down is tracked on brikdesigns#1427; this list shrinks as that lands and
- * is never added to without one.
+ * Every entry here is a SHARED BDS component, not page CSS — re-measured
+ * 2026-09-11 against `@brikdesigns/bds@0.189.1` over the 12 routes above, both
+ * themes. Burn-down is tracked on brikdesigns#1427; this list shrinks as that
+ * lands and is never added to without one.
+ *
+ * ── Why the tint half of this list moved at 0.189.0 (#1442) ────────────────
+ *
+ * A key here is a COLOUR PAIR, and a pair survives a DOM re-root (the #1361
+ * reasoning above) but NOT a token being re-pointed underneath it. brik-bds
+ * `05f3d748` ("sync BDS tokens to the re-authored numeric Brand Kit", #2359,
+ * 2026-09-10) moved the whole `--surface-accent-{hue}` family off the
+ * `--color-system-{hue}-light` primitives and onto the numeric Brand Kit ramp
+ * (`tokens/figma-tokens.css:585-589`). The poppy fill never changed; the band
+ * under it did, so five keys stopped matching and the gate reported
+ * already-accepted debt as new:
+ *
+ *   --surface-accent-purple  #e9d8fc → #dad0f2   poppy 2.83:1 → 2.57:1  (worse)
+ *   --surface-accent-blue    #bfe2fe → #b2e3f5   poppy 2.79:1 → 2.74:1  (worse)
+ *   --surface-accent-blue    (dark)   → #d6f0fa  cleared 3:1 — entry REMOVED
+ *
+ * That last line is why `no stale waiver key` below is an assertion and not a
+ * comment: a re-point can push a pair over the floor as easily as under it, and
+ * the entry it leaves behind waives a defect that no longer exists.
  */
 const ACCEPTED: Record<'light' | 'dark', Record<string, string[]>> = {
   light: {
     // `bds-button--primary` poppy on the pale-purple / pale-blue service tints
-    // (2.83:1, 2.79:1) — the same brand-vs-pale-tint family already baselined
+    // (2.57:1, 2.74:1) — the same brand-vs-pale-tint family already baselined
     // for TEXT contrast in baseline.json (#1263 / brik-bds#479).
     '/': [
-      'rgb(227, 83, 53) on rgb(233, 216, 252)',
+      'rgb(227, 83, 53) on rgb(218, 208, 242)',
       // `bds-button--on-color` white on `--background-muted` — 1.14:1.
       'rgb(255, 255, 255) on rgb(241, 240, 236)',
       // The SELECTED `bds-segmented-control-item` — white on rgb(242,242,242),
@@ -104,7 +123,7 @@ const ACCEPTED: Record<'light' | 'dark', Record<string, string[]>> = {
       // that tells you which tab you are on is the one that cannot be seen.
       'rgb(255, 255, 255) on rgb(242, 242, 242)',
     ],
-    '/plans': ['rgb(227, 83, 53) on rgb(191, 226, 254)'],
+    '/plans': ['rgb(227, 83, 53) on rgb(178, 227, 245)'],
     '/plans/marketing-support': ['rgb(255, 255, 255) on rgb(242, 242, 242)'],
     // `bds-icon-button--secondary` / `bds-button--secondary` — 1.12:1 both.
     '/about': ['rgb(242, 242, 242) on rgb(255, 255, 255)'],
@@ -112,21 +131,22 @@ const ACCEPTED: Record<'light' | 'dark', Record<string, string[]>> = {
     '/contact': ['rgb(242, 242, 242) on rgb(255, 255, 255)'],
     '/blog': ['rgb(255, 255, 255) on rgb(242, 242, 242)'],
     '/how-we-work': [
-      'rgb(227, 83, 53) on rgb(233, 216, 252)',
+      'rgb(227, 83, 53) on rgb(218, 208, 242)',
       'rgb(255, 255, 255) on rgb(242, 242, 242)',
     ],
   },
   dark: {
-    '/': ['rgb(227, 83, 53) on rgb(233, 216, 252)'],
+    '/': ['rgb(227, 83, 53) on rgb(218, 208, 242)'],
     // The service `-on-dark` steps are mode-invariant pale tones, so the poppy
     // primary lands on them in the dark theme too — 2.1:1 on the orange step.
-    '/plans': [
-      'rgb(227, 83, 53) on rgb(191, 226, 254)',
-      'rgb(227, 83, 53) on rgb(255, 173, 146)',
-    ],
+    //
+    // The hero's blue step used to be here at 2.79:1. 0.189.0 re-pointed the
+    // dark `--surface-accent-blue` to `--color-blue-200` (#d6f0fa), which is
+    // pale enough to clear 3:1, so the entry is gone rather than re-keyed.
+    '/plans': ['rgb(227, 83, 53) on rgb(255, 173, 146)'],
     '/about': ['rgb(51, 51, 51) on rgb(0, 0, 0)'],
     '/contact': ['rgb(51, 51, 51) on rgb(0, 0, 0)'],
-    '/how-we-work': ['rgb(227, 83, 53) on rgb(233, 216, 252)'],
+    '/how-we-work': ['rgb(227, 83, 53) on rgb(218, 208, 242)'],
   },
 };
 
@@ -283,6 +303,17 @@ const AUDIT = (minRatio: number) => {
   return { shapes, controls, shapePop, controlPop };
 };
 
+/**
+ * Waiver keys that no control on the route measures any more (#1442).
+ *
+ * Hoisted for the same reason `AUDIT` is: the self-test below runs this exact
+ * function against an injected stale key, so the assertion is demonstrated
+ * rather than asserted. Pure — it takes the measured fingerprints, so it needs
+ * no browser and costs the suite nothing.
+ */
+const staleKeys = (accepted: string[], measured: Set<string>) =>
+  accepted.filter((k) => !measured.has(k));
+
 const shapeReport = (findings: ShapeFinding[], where: string) =>
   `Shapes that render nothing — fill is identical to their backdrop on ${where}:\n` +
   findings
@@ -346,6 +377,33 @@ test.describe('Fill distinctness — shapes and controls are visible against the
         : new Set(ACCEPTED[theme][route.path] ?? []);
       const fresh = controls.filter((c) => !accepted.has(c.fingerprint));
       expect(fresh, controlReport(fresh, `${route.path} (${theme})`)).toHaveLength(0);
+
+      // ── The waiver list must not outlive the debt it waives (#1442) ──
+      //
+      // Asserted, not reviewed, because the rot is silent in BOTH directions: a
+      // re-pointed token can push a waived pair OVER 3:1 (the dark `/plans`
+      // blue did exactly that at 0.189.0) and the stale key then waives a defect
+      // that no longer exists, or it can move the pair to a new value and the
+      // gate re-reports accepted debt as fresh. Six of these list's keys went
+      // stale in one BDS bump; nothing would have said so.
+      //
+      // Budget: no new trigger, no new job, no added runtime — it reads the
+      // `controls` array this test already computed, in a test already running.
+      const measured = new Set(controls.map((c) => c.fingerprint));
+      const stale = staleKeys(ACCEPTED[theme][route.path] ?? [], measured);
+      expect(
+        stale,
+        `Stale waiver key(s) in ACCEPTED for ${route.path} (${theme}) — nothing on the\n` +
+          `route measures this pair any more:\n` +
+          stale.map((k) => `  → "${k}"`).join('\n') +
+          `\n\nOne of three things happened, and they need different answers:\n` +
+          `  1. A token under the pair was RE-POINTED and the colour moved. Re-key the\n` +
+          `     entry to the value now reported above, and name the BDS commit.\n` +
+          `  2. The pair cleared 3:1. DELETE the entry — the debt is paid.\n` +
+          `  3. The control stopped rendering on this route. Delete the entry; if the\n` +
+          `     control should still be there, that is the defect, not this key.\n\n` +
+          `Re-measure with FILL_IGNORE_BASELINE=1 to see the full sub-3:1 population.`,
+      ).toHaveLength(0);
     });
   }
 });
@@ -495,5 +553,24 @@ test.describe('Fill-distinctness probe — self-test', () => {
       'The injected fill equals its backdrop, so byte-identity would have caught ' +
         'it too — this no longer proves the probe measures a contrast FLOOR.',
     ).not.toBe(hit!.backdrop);
+  });
+
+  test('staleKeys reports a waiver whose colour pair moved out from under it', () => {
+    // #1442 verbatim: the pair the route actually measures after brik-bds
+    // `05f3d748` re-pointed `--surface-accent-purple`, against the key that was
+    // correct before it.
+    const measured = new Set(['rgb(227, 83, 53) on rgb(218, 208, 242)']);
+
+    expect(
+      staleKeys([...measured], measured),
+      'A key that still matches was called stale — the predicate is inverted, and ' +
+        'the gate would demand re-keying entries that are doing their job.',
+    ).toHaveLength(0);
+
+    expect(
+      staleKeys(['rgb(227, 83, 53) on rgb(233, 216, 252)'], measured),
+      'staleKeys did not report the pre-0.189.0 purple key against the post-0.189.0 ' +
+        'measurement. The list can rot silently again, which is #1442.',
+    ).toEqual(['rgb(227, 83, 53) on rgb(233, 216, 252)']);
   });
 });
