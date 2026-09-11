@@ -259,8 +259,34 @@ Nothing below is edited; it is preserved because the burn-down reasoning
 recoverable from the diff alone.
 
 **Entries after 2026-09-10 are fingerprint-keyed.** A RE-INDEX entry — a waiver
-re-pointed because axe moved the selector — should no longer be possible; if
-one appears, the fingerprint key has a gap worth a ticket rather than a note.
+re-pointed because axe moved the **selector** — should no longer be possible.
+
+**That is narrower than it first read, and #1442 found the edge (#1447).** A
+colour-pair key is stable against a DOM re-root. It is *not* stable against the
+palette moving underneath it: brik-bds `05f3d748` re-pointed
+`--surface-accent-{hue}` onto the numeric Brand Kit ramp and took out six pair
+keys in the sibling `fill-distinctness` list in one bump — five whose pair had
+moved, and one whose pair had crossed back over the 3:1 floor, leaving a waiver
+for a defect that no longer existed. `baseline.json` was untouched only because
+that release did not move the two primitives it happens to key on.
+
+So a RE-INDEX here is still possible, for a different reason than #1361 closed,
+and it is now **asserted rather than reviewed**:
+
+| Check | Where | Catches |
+|---|---|---|
+| `unmatchedEntries` | `public-routes.spec.ts`, per route + theme | An entry that matches no blocking finding — the pair moved, the debt was paid, or the element stopped rendering |
+| `orphanRoutes` | same file, one test per theme | An entry under a route `PUBLIC_ROUTES` does not audit, which nothing else would ever evaluate (`/customers/*` → `/industries/*`, #1406) |
+
+Both are pure functions in `lib/baseline-match.ts` with unit coverage in
+`npm run test:a11y-baseline`, including an injected stale entry — the file's
+existing standard for anything that decides whether a gate blocks.
+
+The list now ratchets **both ways**, matching the policy
+`scripts/card-class-baseline.json` already states for its grandfather list:
+adding unbacked debt fails, and leaving an entry whose debt is gone also fails.
+Paying debt down is the good path — delete the entry and log the BURN-DOWN
+below.
 
 ### Current entries and why they are accepted
 
