@@ -32,6 +32,56 @@ PR's Netlify deploy-preview, and locally via `npm run test:a11y`.
 | `lib/baseline-match.test.ts` | Offline self-test for the matcher + the live `baseline.json` shape (`npm run test:a11y-baseline`, wired into `verify`) |
 | `README.md` | This file |
 
+## Render-assertion probes (#1393)
+
+Two gates in this directory assert **rendered geometry and colour**, not names or
+DOM structure. They exist because the defects they catch are invisible to every
+source-level lint and to axe: axe's `color-contrast` rule covers text, and
+`lint:tokens` checks that a token name is canonical, never that it reads against
+its backdrop.
+
+| Spec | Asserts | The defect it was written for |
+|------|---------|-------------------------------|
+| `glyph-overlap.spec.ts` | No text's rendered **ink** intersects another's | #1391 — `--font-line-height-none` resolves to `0`, so a 72px price painted over the tier name while its *box* intersected nothing |
+| `fill-distinctness.spec.ts` | Leaf decorative shapes differ from their backdrop; controls clear WCAG 1.4.11's 3:1 on fill **or** border | #1371 — illustration bricks byte-identical to the card behind them; #1404 — a service CTA at 1.07:1 |
+
+Both are written as `AUDIT` at module scope plus a **self-test that injects the
+defect** and requires the probe to report it. That shape is not ceremony: neither
+defect class has a live instance any more, and a gate whose defect class is
+absent from live data passes vacuously forever (measured in #1326). Each also
+carries a **negative control** proving the probe measures what it claims —
+glyph-overlap asserts a bounding-box check on the same pair stays blind;
+fill-distinctness asserts the injected fill is not byte-identical, so the
+contrast floor is doing the work rather than identity.
+
+Two traps worth knowing before editing either:
+
+- **Assert the population size, not just the findings.** The first cut of
+  `fill-distinctness` filtered every BDS button out of its control population,
+  which was therefore **0 on all 12 routes** while the gate reported green — the
+  `.bds-pricing-card` shape from #1326. `expectMeasured` on each population is
+  what caught it.
+- **Injecting a colour needs `transition: none` first.** `globals.css:384`
+  transitions `background-color` for the theme flip, and the transitions origin
+  sits *above* inline `!important` in the CSS cascade, so the injected value
+  loses to the transition's starting value and the self-test fails claiming the
+  probe is blind.
+
+### Fill-contrast baseline
+
+`fill-distinctness.spec.ts` carries its own `ACCEPTED` map of pre-existing 1.4.11
+debt — route-scoped and keyed on the colour pair, for the reasons
+`lib/baseline-match.ts` gives about `baseline.json`. It is deliberately **not**
+in `baseline.json`, whose schema is axe rule-ids.
+
+Re-measure with the waivers off:
+
+```bash
+FILL_IGNORE_BASELINE=1 npx playwright test fill-distinctness
+```
+
+Burn-down is #1427. Never add an entry without one.
+
 ## Adding a route
 
 Add it to `PUBLIC_ROUTES` in `public-routes.spec.ts`. Dynamic routes are
