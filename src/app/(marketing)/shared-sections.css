@@ -861,11 +861,17 @@
 }
 
 /* Service pricing tiers use `.bds-pricing-card` (a distinct class, not
-   `.bds-card`), so the band rule above doesn't reach them: the plain tiers get
-   the same tint treatment here; the featured tier keeps its brand-colored ring
-   as intentional emphasis. */
-.service-surface .bds-pricing-card:not(.bds-pricing-card--highlighted),
-.section-pricing .bds-pricing-card:not(.bds-pricing-card--highlighted) {
+   `.bds-card`), so the band rule above doesn't reach them — this gives them the
+   same tint treatment.
+
+   EVERY pricing card, with no exemption (#1326). This used to carry
+   `:not(.bds-pricing-card--highlighted)`, which let the featured tier keep a
+   brand-colored ring — and that hole is why `card-treatment.spec.ts` stayed
+   green while /plans shipped a ring the design does not have (#1304): the gate
+   measured every card except the one that was wrong. The `highlighted` prop is
+   retired, so the carve-out now guards a class nothing can render. */
+.service-surface .bds-pricing-card,
+.section-pricing .bds-pricing-card {
   border: none;
   box-shadow: var(--box-shadow-md);
 }
