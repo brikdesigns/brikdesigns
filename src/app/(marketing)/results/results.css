@@ -10,7 +10,7 @@
 /* BDS Card handles border/background/hover — override padding so the inner
    row can manage its own spacing and stretch the image into the card edge */
 .story-card.bds-card {
-  padding: 0;
+  padding: var(--padding-lg);
   overflow: hidden;
   text-decoration: none;
 }

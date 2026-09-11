@@ -179,8 +179,8 @@
 
 /* Base card — generous padding + radius; the hue modifiers set the ground. */
 .lp-showcase__card {
-  /* Generous padding clears the oversized corner (content stays inside the arc). */
-  padding: var(--padding-huge);
+  /* Padding standardised to the 24px card floor (#1455). */
+  padding: var(--padding-lg);
   border-radius: var(--border-radius-800);
 }
 /* Card grounds: the fixed showcase palette. These BDS scale hues have no
@@ -521,9 +521,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--gap-xl);
-  /* Taller panel — extra vertical padding so the Panel band takes up more of
-     the page than the base card padding gives it. */
-  padding-block: var(--padding-huge);
+  /* Padding standardised to the 24px card floor (#1455). */
+  padding-block: var(--padding-lg);
 }
 /* Panel heading centred over the speaker grid (mock). */
 .lp-showcase__panel-title {

@@ -138,9 +138,9 @@
   width: 100%;
   max-width: 1280px;
   margin: 0 var(--padding-lg);
-  /* No `min-height`: Figma drives the band off its content, and the floor it
-     replaced was taller than `py-[104px]` + short copy resolves to. */
-  padding: var(--space-2200) var(--padding-xl);
+  /* No `min-height`: Figma drives the band off its content. Padding
+     standardised to the 24px card floor (#1455). */
+  padding: var(--padding-lg);
   background-color: var(--surface-brand-primary);
   border-radius: var(--border-radius-lg);
   display: flex;
@@ -696,7 +696,7 @@
   align-items: center;
   gap: var(--gap-2xl);
   width: 100%;
-  padding: var(--padding-huge);
+  padding: var(--padding-lg);
   border-width: var(--border-width-200);
   border-radius: var(--border-radius-md);
 }
