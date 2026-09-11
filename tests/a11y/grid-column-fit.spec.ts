@@ -37,7 +37,7 @@ const SURFACES: { path: string; name: string; open?: string }[] = [
   { path: '/', name: 'Mega-nav — services panel', open: 'Services' },
   { path: '/', name: 'Mega-nav — about panel', open: 'About' },
   { path: '/', name: 'Home' },
-  { path: '/customers', name: 'Customers' },
+  { path: '/industries', name: 'Industries' },
   { path: '/services', name: 'Services index' },
   { path: '/plans', name: 'Plans' },
   { path: '/results', name: 'Customer stories index' },

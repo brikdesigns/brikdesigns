@@ -105,7 +105,7 @@ const COLUMNS: ColumnSpec[] = [
   {
     table: 'industry_pages',
     column: 'image_url',
-    slot: SQUARE('MegaNavServer.tsx:76 → customers.css:145 aspect-ratio: 1'),
+    slot: SQUARE('MegaNavServer.tsx:76 → industries.css aspect-ratio: 1'),
   },
   {
     table: 'blog_posts',

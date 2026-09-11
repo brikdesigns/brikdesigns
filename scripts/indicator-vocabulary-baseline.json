@@ -22,7 +22,6 @@
     "src/app/(marketing)/plans/plans.css": "DEFERRED — the `.engagement-mode__chip` rule block and its Figma-geometry notes. Moves with the classname above.",
     "src/app/(marketing)/shared-sections.css": "DEFERRED — the `.team-member__chip` rule block and its service-tint notes. Moves with the classname above.",
     "src/lib/plan-coverage-icons.ts": "DEFERRED — real drift: a coverage row renders a BDS `Tag` (PlanCoverageRow.tsx:42-52), so 'a blank chip at runtime' and \"a coverage row's chip\" should both say Tag. Comment-only fix, deferred to keep this ticket off the /plans data surface — see #1395's follow-up note.",
-    "src/app/(marketing)/customers/page.tsx": "DEFERRED — real drift: 'intended for chip-style labels' describes what `label.smBold` is for; it means indicator labels generally, not BDS Chip. Comment-only fix, deferred to keep this ticket off the customers surface.",
     "src/app/(marketing)/results/[slug]/StorySections.tsx": "DEFERRED — real drift: the 'name/role chip' is a two-line text block, not a pill of any kind. Comment-only fix, deferred to keep this ticket off the results surface.",
     "src/app/(marketing)/results/results.css": "DEFERRED — real drift: 'the pull-quote's chip' is a text element (`.story-quote-card__attribution-text`) and 'a BDS Avatar chip' is an Avatar beside text. Comment-only fix, deferred to keep this ticket off the results surface."
   }

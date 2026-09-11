@@ -1,116 +1,81 @@
-/* ─── Customers page — layout only ──────────────────────── */
+/* ─── Industries page — layout only ─────────────────────────── */
 
-/* ─── Industries We Know — icon-led card ────────────────── */
-/* Vertical stack: icon block at top, name label below. Replaces the prior
- * heading-only card (h3) to better match the icon-led Webflow original.
- * Icon block uses surface-accent for a soft tonal anchor. */
-.industry-know-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--gap-md);
+/* ─── Hero — dark inverse card ──────────────────────────────── */
+/* Reuses .section-hero band + .hero-container inner card (homepage.css) — the
+ * sanctioned section-hero reuse path (marketing-section-reuse.md). This modifier
+ * only re-themes the container fill + radius; .hero-container already pins its ink
+ * to the invariant-white --text-on-color-dark, which reads on the fixed-dark
+ * --surface-inverse (grayscale-darkest in BOTH themes, so no dark-mode flip). Same
+ * per-page re-theme pattern as .plans-hero. Figma section-hero, node 26149:27554. */
+.industries-hero .hero-container {
+  background-color: var(--surface-inverse);
+  border-radius: var(--border-radius-800);
 }
 
-.industry-know-card__icon {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--border-radius-md);
-  background-color: var(--surface-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-brand-primary);
+/* ─── Industry card — CMS display card ──────────────────────── */
+/* BDS preset="display"; card chrome (3px border, no shadow) comes from the white
+ * band's card-chrome-by-band rule (shared-sections.css), never a variant. Figma
+ * card-vertical (node 26149:27564) sizes the title to heading/tiny (18px) and the
+ * body to body/xl (20px) — the body reads larger than the title by design. */
+.industry-card .bds-card__preset-display-title {
+  font-size: var(--heading-tiny);
 }
 
-/* ─── Company segments — Card preset="display-row" ─────── */
-/* Vertical list of horizontal preset="display-row" cards. The preset
- * owns the image-left / content-right grid + ≤640px responsive collapse;
- * the consumer only owns the eyebrow content rendered into the image slot. */
-.customers-segments {
+.industry-card .bds-card__preset-display-description {
+  font-size: var(--body-xl);
+}
+
+/* ─── Customer story — BrikDown 2-col block ─────────────────── */
+/* Figma section-customer-story (node 26156:3059): a bordered, rounded container
+ * holding a text column + a 4:3 media well. The border/radius are the container's
+ * own — it is a bounded block inside a white .page-section, not a band, so the
+ * card-chrome-by-band rule does not reach it. */
+.customer-story {
   display: flex;
-  flex-direction: column;
-  gap: var(--gap-lg);
+  align-items: center;
+  /* 64px column gap — no semantic gap token resolves to 64 in the default spacing
+     mode (--gap-xl is 24px here), so the primitive, per the .hero-container /
+     --space-1800 Services precedents. */
+  gap: var(--space-1600);
   width: 100%;
+  padding: var(--padding-lg);
+  border: var(--border-width-md) solid var(--border-primary);
+  border-radius: var(--border-radius-600);
 }
 
-/* Eyebrow content (number + subtitle) rendered into the preset's image
- * slot. Vertical stack with brand-color treatment so the lead reads as
- * a unit rather than two separate text runs. */
-.segment-card__eyebrow {
+.customer-story__content {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--gap-sm);
+  gap: var(--gap-xl);
 }
 
-/* ─── Industries CMS card — label-sized title ───────────── */
-/* The CMS-driven `Industries We Serve` cards use the BDS display preset
- * but shrink the title to label scale per editorial direction (these are
- * referential cards, not section headlines). */
-.industries-cms-card .bds-card__preset-display-title {
-  font-family: var(--font-family-label);
-  font-size: var(--label-md);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--font-line-height-snug);
+.customer-story__cta {
+  align-self: flex-start;
 }
 
-/* ─── Common challenges — pull-quote card ───────────────── */
-/* Each card carries an oversized opening quotation mark in the top-left,
- * with the quote text flowing beneath. Background color comes from the
- * service-line tokens (`--background-service-{name}`) per card so the
- * row reads as a tonal sequence rather than a uniform tint. */
-.challenge-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
+/* 4:3 placeholder well — operator-approved stand-in (#1406). Accent fill so the
+ * empty slot reads as an intentional media frame, not a broken image; no <img>,
+ * so no missing-asset request. */
+.customer-story__media {
+  flex: 1 1 0;
+  min-width: 0;
+  align-self: stretch;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--border-radius-800);
+  background-color: var(--surface-accent);
 }
 
-/* Color is set per-card inline (each card's own `-dark` service surface
- * token) so the mark reads as a deeper shade of its card, not brand orange. */
-.challenge-card__quote-mark {
-  font-family: var(--font-family-heading);
-  /* 64px exactly; no typography token holds it. The nearest step,
-   * --font-size-1300, is 64.7px, and that 0.7px grows this glyph's
-   * tight-line-height box enough to reflow the stacked mobile cards below it —
-   * 1.49% visual diff on `customers` at mobile in BOTH themes (PR #1005, first
-   * run). Imperceptible as a glyph, not as a layout. */
-  font-size: 4rem; /* bds-lint-ignore hardcoded — see above */
-  line-height: var(--font-line-height-tight);
-  margin: 0;
+/* ─── Industries index — responsive ─────────────────────────── */
+@media (max-width: 767px) {
+  .customer-story {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
-/* Checkmark-led list used by the segment-card extras slot. Lives here
- * (not in BDS) because the bullet glyph and brand-color treatment are
- * a brikdesigns editorial choice; BDS's preset="display-row" extras
- * wrapper is intentionally style-free so the consumer owns this. */
-.customers-segment-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs);
-}
-
-.customers-segment-list__item {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--gap-sm);
-}
-
-/* Vibrant "true" brand poppy (--color-poppy-500, #e35335). This decorative
- * aria-hidden glyph is exempt from the AA small-text-contrast pin that keeps
- * the semantic --text-brand-primary on the darker poppy shade (ADR-015), so it
- * uses the base poppy primitive directly — same pattern as --text-link. A
- * --color-* primitive is the sanctioned foreground value here (the family lint
- * blocks surface/background tokens in a `color` slot). */
-.customers-segment-list__check {
-  color: var(--color-poppy-500);
-  flex-shrink: 0;
-  margin-top: var(--gap-tiny);
-}
-
-/* ─── Customer detail page ────────────────────────────────── */
+/* ─── Customer detail page ────────────────────────────────────── */
 
 /* The `.customer-detail-hero` grid (content left, media right) was retired onto
  * BDS `<Hero layout="split">` in #1356 — the block, its `__content` column and
@@ -256,4 +221,3 @@
     display: none;
   }
 }
-

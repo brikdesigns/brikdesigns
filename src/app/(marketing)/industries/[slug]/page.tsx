@@ -11,7 +11,7 @@ import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
 import type { ServiceLine } from '@brikdesigns/bds';
 import '../../shared-sections.css';
-import '../customers.css';
+import '../industries.css';
 // CustomerStoryCard's CSS lives under /results/ — must be imported
 // here so `.story-card__media { position: relative }` applies. Without it,
 // the <Image fill> inside the story card escapes its parent (position:
@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       // appends the site suffix. Appending it here too double-suffixes (#587).
       title: `${page.name} Customers`,
       description: page.tagline || `Brik Designs works with ${page.name} businesses.`,
-      alternates: { canonical: `/customers/${slug}` },
+      alternates: { canonical: `/industries/${slug}` },
     };
   } catch {
     return { title: 'Not Found' };
@@ -126,7 +126,7 @@ export default async function CustomerDetailPage({ params }: Props) {
           layout="split"
           title={page.name}
           {...(page.intro_description ? { lead: page.intro_description } : {})}
-          breadcrumb={<BackLink href="/customers">Customers</BackLink>}
+          breadcrumb={<BackLink href="/industries">Industries</BackLink>}
           {...(page.image_url
             ? {
                 // Composed media slot (Hero renders it verbatim). Kept page-local
@@ -333,7 +333,7 @@ export default async function CustomerDetailPage({ params }: Props) {
                       <Image src={p.image_url} alt={p.name} width={400} height={400} />
                     </Frame>
                   ) : undefined}
-                  action={<LinkButton href={`/customers/${p.slug}`} variant="primary" size="md">Learn More</LinkButton>}
+                  action={<LinkButton href={`/industries/${p.slug}`} variant="primary" size="md">Learn More</LinkButton>}
                 />
               ))}
             </Grid>

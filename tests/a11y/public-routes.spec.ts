@@ -52,13 +52,13 @@ const PUBLIC_ROUTES: { path: string; name: string }[] = [
   // dark-mode contrast bug in those rows was invisible to this gate until this
   // entry existed (found by eye, which is the failure mode to avoid repeating).
   { path: '/plans/marketing-support', name: 'Plan detail — marketing support' },
-  // /industries/* legacy paths 308-redirect to /customers/* — testing them
-  // exercises the redirect and lands axe on the same content, which inflates
-  // the violation footprint with the muted .bds-breadcrumb__current text
-  // exposed by the redirect. Test the canonical /customers/* paths directly.
+  // /industries is the canonical route (#1406); old /customers/* paths
+  // 301-redirect here. Test the canonical /industries/* paths directly so axe
+  // lands on real content, not the muted .bds-breadcrumb__current the redirect
+  // would expose.
   { path: '/results', name: 'Results (customer stories) index' },
-  { path: '/customers', name: 'Customers' },
-  { path: '/customers/dental', name: 'Customer detail — dental' },
+  { path: '/industries', name: 'Industries' },
+  { path: '/industries/dental', name: 'Industry detail — dental' },
   { path: '/blog', name: 'Blog index' },
   { path: '/events/demo-spring-webinar', name: 'Event detail — demo webinar' },
   // Second event route on purpose (#854). demo-spring-webinar renders the

@@ -85,14 +85,17 @@ const nextConfig = {
       // ── Customer story singular → plural (now → /results)
       { source: '/customer-story/:slug', destination: '/results/:slug', permanent: true },
 
-      // ── /industries/* → /customers/* (canonical route)
-      { source: '/industries', destination: '/customers', permanent: true },
-      { source: '/industries/:slug', destination: '/customers/:slug', permanent: true },
-
-      // ── SaaS industry slug rename: /customers/product → /customers/saas
-      // Companion to portal #798 (industry_pages slug rename). Catches
-      // cached/external links to the old URL.
-      { source: '/customers/product', destination: '/customers/saas', permanent: true },
+      // ── /customers/* → /industries/* (canonical route is now /industries; #1406)
+      // The former direction (/industries → /customers) is retired: /industries is
+      // the real route. Old bookmarked/indexed /customers URLs 301 here.
+      // The SaaS slug redirect sits FIRST so /customers/product resolves in a single
+      // hop to /industries/saas (companion to portal #798 industry_pages rename),
+      // rather than chaining through the /customers/:slug catch.
+      { source: '/customers/product', destination: '/industries/saas', permanent: true },
+      { source: '/customers', destination: '/industries', permanent: true },
+      { source: '/customers/:slug', destination: '/industries/:slug', permanent: true },
+      // Direct hits on the old SaaS slug under the new route.
+      { source: '/industries/product', destination: '/industries/saas', permanent: true },
 
       // ── Pricing alias → plans
       { source: '/pricing', destination: '/plans', permanent: true },

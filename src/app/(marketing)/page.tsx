@@ -56,7 +56,7 @@ export default async function HomePage() {
   // Blurb + illustration both come from the curated HOME_INDUSTRIES constant —
   // the wide 664×498 art is a static asset in public/images/industries/, kept
   // off the shared industry_pages.image_url (an icon reused at 240×240 in
-  // /customers + the MegaNav).
+  // /industries + the MegaNav).
   const industriesTabs = HOME_INDUSTRIES.map((industry) => ({
     id: industry.slug,
     label: industry.label,

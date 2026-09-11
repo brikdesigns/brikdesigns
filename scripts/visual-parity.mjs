@@ -148,7 +148,7 @@ const ROUTES = [
   { netlify: '/services/marketing/website-experience-mapping', webflow: '/service/website-experience-mapping', name: 'services-detail-website-experience-mapping' },
   { netlify: '/plans', webflow: '/plans', name: 'plans' },
   { netlify: '/results', webflow: '/customer-stories', name: 'results' },
-  { netlify: '/customers', webflow: '/customers', name: 'customers' },
+  { netlify: '/industries', webflow: '/customers', name: 'industries' },
   { netlify: '/industries/dental', webflow: '/customers/dental', name: 'industry-dental' },
   { netlify: '/blog', webflow: '/blog', name: 'blog' },
   { netlify: '/contact', webflow: '/contact', name: 'contact' },
