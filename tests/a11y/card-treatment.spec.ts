@@ -31,8 +31,14 @@ import { gotoRendered, expectMeasured } from './lib/goto-rendered';
  * Excluded (not violations):
  *   • .bds-card--borderless — transparent by design (quote/challenge cards);
  *     the border/shadow standard is for opaque cards only.
- *   • .bds-pricing-card--highlighted — the featured pricing tier keeps its
- *     brand-colored ring on a tint as intentional emphasis (shared-sections.css).
+ *
+ * NOT excluded any more: `.bds-pricing-card--highlighted` was skipped here until
+ * #1326, on the reasoning that a featured tier keeps a brand-colored ring. That
+ * exemption is the reason this spec stayed green while /plans shipped a ring the
+ * design does not have (#1304) — the one card that was wrong was the one card
+ * not measured. The prop is retired at every call site and the `:not()` carve-out
+ * is gone from shared-sections.css, so a highlighted card can no longer render;
+ * if one ever does, it is measured like any other rather than waved through.
  *
  * BOTH THEMES (#980), classified by measured band LUMINANCE, not by theme:
  *
@@ -93,6 +99,110 @@ interface CardFinding {
   expected: string;
 }
 
+/**
+ * The in-page measurement, hoisted to module scope in #1326 so the self-test
+ * below can run it against a deliberately-wrong card. While it was inline,
+ * the only way to know the selector still reached a given card was to read it
+ * — which is exactly how the pricing-card set went unmeasured for so long.
+ */
+const AUDIT = () => {
+      // Resolve --surface-primary to an rgb string via a throwaway element.
+      const probe = document.createElement('div');
+      probe.style.backgroundColor = 'var(--surface-primary)';
+      document.body.appendChild(probe);
+      const surfacePrimary = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+
+      const norm = (c: string) => c.replace(/\s+/g, '').toLowerCase();
+      // Alpha 0 => not a visible border, regardless of width.
+      const isOpaque = (c: string) => {
+        const m = c.match(/rgba?\(([^)]+)\)/);
+        if (!m) return c !== 'transparent';
+        const parts = m[1].split(',').map((p) => p.trim());
+        return parts.length < 4 || parseFloat(parts[3]) > 0;
+      };
+
+      // `.bds-pricing-card` is included as of #1326. It is a DISTINCT BDS
+      // class — a pricing card carries `bds-pricing-card` and never
+      // `bds-card` (measured: 0 of 3 on /services/back-office/…) — so the
+      // old `.bds-card:not(.bds-pricing-card--highlighted)` selector was
+      // doubly inert: it could not reach a pricing card at all, and the
+      // `:not()` therefore excluded nothing. Pricing cards were the
+      // unmeasured set this spec was believed to cover, which is how the
+      // #1304 ring shipped green. `shared-sections.css` gives them the same
+      // band treatment, so they answer to the same rule.
+      const cards = Array.from(
+        document.querySelectorAll(
+          '.bds-card:not(.bds-card--borderless), .bds-pricing-card',
+        ),
+      ) as HTMLElement[];
+
+      const out: CardFinding[] = [];
+      for (const card of cards) {
+        const cs = getComputedStyle(card);
+        const hasBorder =
+          (parseFloat(cs.borderTopWidth) || 0) > 0 &&
+          cs.borderTopStyle !== 'none' &&
+          isOpaque(cs.borderTopColor);
+        const hasShadow = cs.boxShadow !== 'none' && cs.boxShadow !== '';
+
+        let bandBg = surfacePrimary;
+        let el: HTMLElement | null = card.parentElement;
+        while (el) {
+          const bg = getComputedStyle(el).backgroundColor;
+          if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+            bandBg = bg;
+            break;
+          }
+          el = el.parentElement;
+        }
+        // Relative luminance (WCAG 2.x formula) of the band, so "can a dark
+        // shadow read against this?" is measured rather than inferred from
+        // the theme. 0.18 sits well below the palest dark-mode tint measured
+        // (rgb(196,176,235) ≈ 0.50) and well above the lightest dark neutral
+        // (rgb(27,27,27) ≈ 0.01), so it is nowhere near either cluster.
+        const lum = (c: string) => {
+          const m = c.match(/rgba?\(([^)]+)\)/);
+          if (!m) return 1;
+          const [r, g, b] = m[1].split(',').map((p) => parseFloat(p.trim()) / 255);
+          const f = (v: number) =>
+            v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+          return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+        };
+        const isDarkBand = lum(bandBg) < 0.18;
+        const band: 'default' | 'tint' | 'dark' = isDarkBand
+          ? 'dark'
+          : norm(bandBg) === norm(surfacePrimary)
+            ? 'default'
+            : 'tint';
+
+        // A shadow only defines a card on a light-enough surface. On a dark
+        // band the border is the only thing that reads, whatever the theme.
+        const ok =
+          band === 'tint' ? !hasBorder && hasShadow : hasBorder && !hasShadow;
+        if (ok) continue;
+
+        // Best-effort human label: the card's own classes + nearest section id.
+        const section = card.closest('section');
+        const sectionId =
+          section?.getAttribute('data-section') ??
+          section?.getAttribute('aria-labelledby') ??
+          section?.className ??
+          '(no section)';
+        out.push({
+          card: card.className,
+          section: sectionId,
+          band,
+          bandBg,
+          hasBorder,
+          hasShadow,
+          expected:
+            band === 'tint' ? 'shadow + no border' : 'border + no shadow',
+        });
+      }
+      return { findings: out, measured: cards.length };
+};
+
 test.describe('Card-treatment standard — border/shadow by band', () => {
   for (const route of ROUTES) {
     test(`${route.name} (${route.path}) cards follow the band standard`, async ({ page }, testInfo) => {
@@ -102,94 +212,7 @@ test.describe('Card-treatment standard — border/shadow by band', () => {
       // what catches an error page that keeps the layout.
       await gotoRendered(page, route.path, { waitUntil: 'load' });
 
-      const { findings, measured } = await page.evaluate(() => {
-        // Resolve --surface-primary to an rgb string via a throwaway element.
-        const probe = document.createElement('div');
-        probe.style.backgroundColor = 'var(--surface-primary)';
-        document.body.appendChild(probe);
-        const surfacePrimary = getComputedStyle(probe).backgroundColor;
-        probe.remove();
-
-        const norm = (c: string) => c.replace(/\s+/g, '').toLowerCase();
-        // Alpha 0 => not a visible border, regardless of width.
-        const isOpaque = (c: string) => {
-          const m = c.match(/rgba?\(([^)]+)\)/);
-          if (!m) return c !== 'transparent';
-          const parts = m[1].split(',').map((p) => p.trim());
-          return parts.length < 4 || parseFloat(parts[3]) > 0;
-        };
-
-        const cards = Array.from(
-          document.querySelectorAll(
-            '.bds-card:not(.bds-card--borderless):not(.bds-pricing-card--highlighted)',
-          ),
-        ) as HTMLElement[];
-
-        const out: CardFinding[] = [];
-        for (const card of cards) {
-          const cs = getComputedStyle(card);
-          const hasBorder =
-            (parseFloat(cs.borderTopWidth) || 0) > 0 &&
-            cs.borderTopStyle !== 'none' &&
-            isOpaque(cs.borderTopColor);
-          const hasShadow = cs.boxShadow !== 'none' && cs.boxShadow !== '';
-
-          let bandBg = surfacePrimary;
-          let el: HTMLElement | null = card.parentElement;
-          while (el) {
-            const bg = getComputedStyle(el).backgroundColor;
-            if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
-              bandBg = bg;
-              break;
-            }
-            el = el.parentElement;
-          }
-          // Relative luminance (WCAG 2.x formula) of the band, so "can a dark
-          // shadow read against this?" is measured rather than inferred from
-          // the theme. 0.18 sits well below the palest dark-mode tint measured
-          // (rgb(196,176,235) ≈ 0.50) and well above the lightest dark neutral
-          // (rgb(27,27,27) ≈ 0.01), so it is nowhere near either cluster.
-          const lum = (c: string) => {
-            const m = c.match(/rgba?\(([^)]+)\)/);
-            if (!m) return 1;
-            const [r, g, b] = m[1].split(',').map((p) => parseFloat(p.trim()) / 255);
-            const f = (v: number) =>
-              v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-            return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
-          };
-          const isDarkBand = lum(bandBg) < 0.18;
-          const band: 'default' | 'tint' | 'dark' = isDarkBand
-            ? 'dark'
-            : norm(bandBg) === norm(surfacePrimary)
-              ? 'default'
-              : 'tint';
-
-          // A shadow only defines a card on a light-enough surface. On a dark
-          // band the border is the only thing that reads, whatever the theme.
-          const ok =
-            band === 'tint' ? !hasBorder && hasShadow : hasBorder && !hasShadow;
-          if (ok) continue;
-
-          // Best-effort human label: the card's own classes + nearest section id.
-          const section = card.closest('section');
-          const sectionId =
-            section?.getAttribute('data-section') ??
-            section?.getAttribute('aria-labelledby') ??
-            section?.className ??
-            '(no section)';
-          out.push({
-            card: card.className,
-            section: sectionId,
-            band,
-            bandBg,
-            hasBorder,
-            hasShadow,
-            expected:
-              band === 'tint' ? 'shadow + no border' : 'border + no shadow',
-          });
-        }
-        return { findings: out, measured: cards.length };
-      });
+      const { findings, measured } = await page.evaluate(AUDIT);
 
       // A clean sweep only means something if there was something to sweep.
       // A missing CMS slug renders an empty <main> with HTTP 200 (#1036), which
@@ -274,5 +297,68 @@ test.describe('Card-treatment standard — home about team cards', () => {
           `shared-sections.css. See .claude/references/card-treatment.md.`,
       ).toHaveLength(0);
     }
+  });
+});
+
+/**
+ * Self-test — the gate must BITE on the #1304 shape.
+ *
+ * #1326's finding was that this spec's coverage had quietly become a claim
+ * rather than a fact: `.bds-pricing-card` carries a distinct BDS class and never
+ * `.bds-card`, so the old selector reached none of them, while a
+ * `:not(.bds-pricing-card--highlighted)` clause implied it did. A green run over
+ * a set that excludes the interesting cards is indistinguishable from a green
+ * run over a correct one — which is how the /plans poppy ring shipped.
+ *
+ * So this asserts the measurement itself, not the site: inject the exact defect
+ * (`--highlighted` + a ring, no shadow, on a tint band) and require AUDIT to
+ * report it. If someone narrows the selector again, this fails even when every
+ * route is clean.
+ */
+test.describe('Card-treatment gate — self-test', () => {
+  test('AUDIT reports a highlighted pricing card with a ring on a tint band', async ({
+    page,
+  }) => {
+    await gotoRendered(page, '/services/back-office/crm-setup-and-data-cleanup', {
+      waitUntil: 'load',
+    });
+
+    const clean = await page.evaluate(AUDIT);
+    expect(
+      clean.findings,
+      `The route must be clean BEFORE the defect is injected, or this test proves\n` +
+        `nothing about the injection. Findings:\n${JSON.stringify(clean.findings, null, 2)}`,
+    ).toHaveLength(0);
+    expect(
+      clean.measured,
+      'No cards measured — the selector reaches nothing, so the injection below cannot be seen.',
+    ).toBeGreaterThan(0);
+
+    const injected = await page.evaluate(() => {
+      const victim = document.querySelector('.bds-pricing-card') as HTMLElement | null;
+      if (!victim) return false;
+      victim.classList.add('bds-pricing-card--highlighted');
+      // The #1304 chrome: a brand-colored ring. On a tint band the standard is
+      // shadow + NO border, so the ring alone is the violation — we do not also
+      // clear the shadow, because an inline `box-shadow: none` does not reliably
+      // win here and the shadow is not what decides it (`ok` on a tint band
+      // requires `!hasBorder`, whatever the shadow does).
+      victim.style.border = '3px solid rgb(227, 83, 53)';
+      return true;
+    });
+    expect(injected, 'No .bds-pricing-card on this route to inject into.').toBe(true);
+
+    const after = await page.evaluate(AUDIT);
+    const hit = after.findings.find((f) =>
+      f.card.includes('bds-pricing-card--highlighted'),
+    );
+    expect(
+      hit,
+      `AUDIT did not report the injected highlighted card. The gate is not measuring\n` +
+        `pricing cards — check the selector in AUDIT (#1326). Findings:\n` +
+        `${JSON.stringify(after.findings, null, 2)}`,
+    ).toBeDefined();
+    expect(hit?.band).toBe('tint');
+    expect(hit?.hasBorder).toBe(true);
   });
 });

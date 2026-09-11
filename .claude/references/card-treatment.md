@@ -57,8 +57,18 @@ patched one page while others stayed wrong.
 
 - `.bds-card--borderless` — transparent by design (quote / challenge cards). The
   standard is for opaque cards only.
-- `.bds-pricing-card--highlighted` — the featured pricing tier keeps its
-  brand-colored ring on a tint as intentional emphasis.
+
+There is **no exemption for a featured pricing tier**. `.bds-pricing-card--highlighted`
+was allowlisted here until #1326 — "the featured pricing tier keeps its brand-colored
+ring on a tint as intentional emphasis" — and that entry is exactly why the gate stayed
+green while `/plans` shipped a ring the design does not have (#1304): the one card that
+was wrong was the one card not measured. The prop is retired at every call site and the
+`:not()` carve-out is gone from `shared-sections.css`, so every pricing card is now on
+the band rule.
+
+If a featured tier ever needs emphasis again, it is a **fill** decision on the band rule
+(the `/plans` precedent — a card fill, never a ring; #1304), not a `variant`-style
+override reintroduced as an exemption.
 
 ## Adding a new tinted section
 

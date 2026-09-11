@@ -451,7 +451,6 @@ export default async function ServiceDetailPage({ params }: Props) {
                   period={period}
                   description={off.description ?? undefined}
                   features={parseFeatures(off.included_scope)}
-                  highlighted={!!off.is_featured}
                   action={
                     <GetStartedModalButton
                       service={service.slug}

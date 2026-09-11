@@ -109,47 +109,9 @@
   color: var(--color-grayscale-white);
 }
 
-.plans-card-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: var(--surface-primary);
-  border: var(--border-width-md) solid var(--border-secondary);
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-}
-
-/* Hand-built opt-in to the "Card media standard" (shared-sections.css). This
-   wrapper is not a BDS <Card> and its media slot is not a <Frame>, so the
-   derived `.bds-card .bds-frame` selector can't reach it — the two standard
-   declarations are repeated here by name instead. Migrating the hand-built card
-   blocks onto BDS <Card> so they inherit the standard is tracked in #1175. */
-.plans-card-wrapper__media {
-  aspect-ratio: 1;
-  /* Was --surface-primary ("no service-line tint", #R7). The well is now
-     --surface-secondary sitewide so transparent plan art reads as art on a
-     surface rather than floating on the card's white (#1169). */
-  background-color: var(--surface-secondary);
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-}
-
-.plans-card-wrapper__media img {
-  border-radius: var(--border-radius-md);
-}
-
-/* Wrapper is the card — strip duplicate chrome from PricingCard */
-.plans-card-wrapper .bds-pricing-card {
-  flex: 1;
-  border: none;
-  background: transparent;
-  border-radius: 0;
-}
-
-/* Discount now renders via BDS <Badge tone="positive" appearance="solid">
-   (PlanCardGrid.tsx) — the canonical positive tag carries --background-positive
-   + AA-safe --text-on-color-light in both themes, retiring the former hand-rolled
-   `.plans-discount-badge` green-text span. */
+/* `.plans-card-wrapper*` lived here for `PlanCardGrid`, deleted in #1326. The
+   #1371 plan-detail rebuild took its last consumer, leaving the component with
+   zero importers and this CSS unreachable. */
 
 /* Align the plan-detail blueprint sections (hero, pricing tiers, other-plans)
    to the site content band. BDS `.bds-blueprint-section__container` caps at
