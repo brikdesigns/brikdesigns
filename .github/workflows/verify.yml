@@ -363,6 +363,22 @@ jobs:
       - name: Axe route-coverage lint — self-test (fixtures + vacuous-pass guards)
         run: npm run test:lint:axe-route-coverage
 
+      # brikdesigns#1395. "Chip" names ONE component — the interactive pill. A
+      # read-only label is a Tag/Badge, and calling it a chip both duplicates
+      # chrome the indicator components own and hides it from every gate that
+      # measures indicators, because those can only score a component that
+      # rendered. The canon was never missing (Chip.mdx has said "interactive
+      # only" since v0.66); nothing fired at NAMING time, so the word travelled
+      # mockup → comment → classname, and this repo imports BDS Chip zero times
+      # while shipping two hand-rolled `*__chip` families. Ratchets
+      # scripts/indicator-vocabulary-baseline.json, which records each keep with
+      # its reason and whether it is correct prose or deferred drift.
+      - name: Indicator-vocabulary lint (a read-only pill is a Tag, not a chip)
+        run: npm run lint:indicator-vocabulary
+
+      - name: Indicator-vocabulary lint — self-test (AC5 case + both ratchet directions)
+        run: npm run test:lint:indicator-vocabulary
+
       # brikdesigns#1280 (ADR-040 slice 1). The pre-commit hook skips the
       # token/hardcoded/heading/section lints on a content-only commit; this
       # tests the staged-files → which-lints classifier that decides that, so a
