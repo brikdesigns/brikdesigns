@@ -40,7 +40,7 @@ import type { SocialIconPlatform } from '@brikdesigns/bds';
  * The coverage roles the CMS may store in `icon_key`.
  *
  * A union, not a string — an unknown value is a typecheck error at every call
- * site rather than a blank chip at runtime. The portal's DB column constrains
+ * site rather than a blank Tag at runtime. The portal's DB column constrains
  * to this same set (brikdesigns/brik-client-portal#3959).
  */
 export type PlanCoverageIconKey =
@@ -52,7 +52,7 @@ export type PlanCoverageIconKey =
   | 'reputation';
 
 /**
- * How a coverage row's chip renders.
+ * How a coverage row's Tag renders.
  *
  * Two shapes because two components own them: Phosphor glyphs go through the
  * site's offline `<Icon>` (`@/lib/icon`), platform marks through BDS's
