@@ -73,6 +73,12 @@ Advisory by design and deliberately NOT required: `visual-parity` (`continue-on-
 
 NEVER give a required gate a workflow-level `on.<event>.paths` filter — a workflow skipped by path filtering leaves its check **Pending**, and a PR that requires it can never merge ([GitHub: workflow-syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushpull_requestpull_request_targetpathspaths-ignore)). PUT the path list in a `changes` job that calls `scripts/ci-paths-match.mjs`, and gate the real job on `if: needs.changes.outputs.run == 'true'` — a skipped **job** is accepted where a skipped **workflow** is not ([GitHub: about-protected-branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)). `verify`, `axe`, `mockup` and `regression` are all on that shape; `npm run test:ci-paths-match` fails if a `paths:` filter comes back.
 
+## When changing a section that was built from a Figma node
+
+RUN `npm run visual-figma -- <deploy-preview-url>` and read the per-section report — it diffs each declared `data-section` against a PNG exported from that section's Figma node, which is the only gate that compares the build to the **design** rather than to another rendering of itself (#1392). Declaring a route, re-baselining after a design change (`UPDATE_FIGMA_BASELINES=1`, local-operator-only — CI holds no Figma token), and why the percentages carry their heights: [`tests/visual-parity/README.md`](tests/visual-parity/README.md) § `figma` mode.
+
+NEVER re-baseline to clear a red section. A re-baseline asserts the DESIGN moved; running it to make a number go green converts the fidelity defect into the new reference.
+
 ## When installing or running locally
 
 Install: `op run --env-file=.env.op -- npm install`

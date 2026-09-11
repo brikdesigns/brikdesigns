@@ -18,8 +18,15 @@ import {
   countUsableCaptures,
   summarizeNoiseByRoute,
 } from './lib/visual-change-declaration.mjs';
+import {
+  FIGMA_FRAME_WIDTH,
+  figmaSections,
+  figmaBaselinePath,
+  exportFigmaNodes,
+  downloadTo,
+} from './lib/figma-baseline.mjs';
 
-// Three modes share this script:
+// Four modes share this script:
 //   webflow (default) — migration parity: compare the build against the live
 //     Webflow site, using each route's `webflow` path.
 //   self              — regression: compare the build against staging on the
@@ -34,13 +41,24 @@ import {
 //     for the landing surface). Baselines are authored with UPDATE_BASELINES=1
 //     against a known-good deploy, then verified against the Paper mockup by a
 //     human before being committed. See .github/workflows/visual-mockup.yml.
+//   figma             — fidelity gate (#1392): compare each declared SECTION of
+//     a rebuilt route against a PNG exported from that section's Figma node.
+//     The other three all compare a rendering against another rendering, so
+//     none of them can see a page that renders consistently and wrongly — which
+//     is what every defect on the Figma rebuilds was (#1287 shipped 2 of 6
+//     designed card slots; #1371's price overlapped its title). Per section, not
+//     per page: a plan-detail page is ~6000px of mostly CMS copy, and copy drift
+//     would drown a layout regression in the aggregate.
 const REFERENCE_MODE = process.env.REFERENCE_MODE ?? 'webflow';
 const SELF_MODE = REFERENCE_MODE === 'self';
 const MOCKUP_MODE = REFERENCE_MODE === 'mockup';
-const WEBFLOW_MODE = !SELF_MODE && !MOCKUP_MODE;
-const REFERENCE_LABEL = MOCKUP_MODE ? 'Baseline' : SELF_MODE ? 'Staging' : 'Webflow';
+const FIGMA_MODE = REFERENCE_MODE === 'figma';
+const WEBFLOW_MODE = !SELF_MODE && !MOCKUP_MODE && !FIGMA_MODE;
+const REFERENCE_LABEL = FIGMA_MODE ? 'Figma' : MOCKUP_MODE ? 'Baseline' : SELF_MODE ? 'Staging' : 'Webflow';
 const BASELINE_DIR = path.resolve('tests/visual-parity/baselines');
+const FIGMA_BASELINE_DIR = path.resolve('tests/visual-parity/figma');
 const UPDATE_BASELINES = process.env.UPDATE_BASELINES === '1';
+const UPDATE_FIGMA_BASELINES = process.env.UPDATE_FIGMA_BASELINES === '1';
 
 const WEBFLOW_URL = process.env.WEBFLOW_URL ?? 'https://www.brikdesigns.com';
 
@@ -74,7 +92,13 @@ if (SELF_MODE && !process.env.REFERENCE_URL) {
 }
 const REFERENCE_URL = process.env.REFERENCE_URL ?? WEBFLOW_URL;
 const NETLIFY_URL = process.env.NETLIFY_URL ?? process.argv[2];
-const OUT = path.resolve('tests/visual-parity/screenshots');
+// Figma mode writes to its own directory. The first thing this script does is
+// `rmSync(OUT)`, so sharing one would mean the second mode to run in a job
+// deletes the first one's report — and both run in the same job in
+// visual-mockup.yml, where the uploaded artifact is the whole point.
+const OUT = path.resolve(
+  FIGMA_MODE ? 'tests/visual-parity/screenshots-figma' : 'tests/visual-parity/screenshots',
+);
 
 // Ceiling for the image wait on the FINAL capture attempt; attempt 1 gets half
 // (see capture()). Sized for a COLD Netlify image transform on a fresh
@@ -94,7 +118,17 @@ const IMAGE_WAIT_MS = parseInt(process.env.IMAGE_WAIT_MS ?? '120000', 10);
 // Mockup mode always gates: the baseline is a blessed capture of the same
 // pipeline, so the pass-case noise floor is ~0% while the #822 dark-canvas
 // defect measures 14.85% against it — 5% clears flake with wide margin.
-const DIFF_THRESHOLD = parseFloat(process.env.DIFF_THRESHOLD ?? (MOCKUP_MODE ? '5' : '0'));
+//
+// Figma mode starts with the threshold OFF (#1392 § Out of scope: "start
+// permissive and ratchet"). Its two sides are not the same pipeline — one is
+// Chromium rendering the app, the other is Figma rendering a frame — so the
+// pass-case floor is a real number that has to be MEASURED per section before
+// it can gate, and a gate whose floor nobody measured is a gate that gets
+// turned off. What already blocks in this mode is a missing baseline or a
+// failed capture; the percentages report until the floor is known.
+const DIFF_THRESHOLD = parseFloat(
+  process.env.DIFF_THRESHOLD ?? (MOCKUP_MODE ? '5' : '0'),
+);
 
 // Intended-visual-change declaration (#856). Self mode only — it exists so a
 // deliberate redesign can pass this gate without turning the gate off, and
@@ -166,6 +200,58 @@ const ROUTES = [
     name: 'events-grind-after-graduation',
     mockup: { viewports: ['desktop'], themes: ['light'] },
   },
+  // ── Figma-baselined rebuilds (#1392) ──────────────────────────────────────
+  // `figma.sections` maps a code selector to the Figma node that IS its design.
+  // Node ids are transcribed from the section comments the rebuild itself left
+  // in the page (`plans/[slug]/page.tsx:232,262,...`), so the two cannot drift
+  // apart without someone editing both.
+  //
+  // Only `light` is declared: the Figma frames are authored light-only, so a
+  // dark capture has no reference to diff against and declaring one would
+  // manufacture a ~100% diff on every run.
+  {
+    netlify: '/plans/marketing-support',
+    webflow: null,
+    name: 'plan-detail-marketing-support',
+    figma: {
+      fileKey: 'yhLkzLUnG71UFTgURDvgnv', // Brik-Website
+      themes: ['light'],
+      sections: {
+        hero: '26144:9053',        // section-hero
+        foundation: '26144:9055',  // section-intro
+        // The "What You Get" band is a BDS blueprint section: CardGrid
+        // identifies it with `aria-labelledby`, not `data-section`, so the
+        // default convention selector would match nothing. Verified against
+        // the live markup 2026-09-11.
+        'what-you-get': {
+          node: '26144:9066',      // section-details
+          selector: '[aria-labelledby="what-you-get-title"]',
+        },
+        'engagement-modes': '26144:9099', // section-type
+        'full-stack': '26144:9109',       // section-full-stack
+        cta: '26144:9140',                // section-cta
+      },
+    },
+  },
+  {
+    netlify: '/offers/brikdown',
+    webflow: null,
+    name: 'brikdown',
+    figma: {
+      fileKey: 'YSzWcpSLMQxxllZr9lEW48', // Marketing Campaigns
+      themes: ['light'],
+      // A CMS landing route renders ONE `<section class="lp-blocks">` with its
+      // regions as divs inside it (LandingBlocks.tsx:73-86), so every section
+      // here needs an explicit selector. Making those regions top-level
+      // `<section data-section>` elements would change shared block rendering
+      // that /events and /marketing also go through — a DOM change, and a
+      // different ticket from "diff the build against the design" (filed).
+      sections: {
+        hero: { node: '27111:869', selector: '.lp-split' },              // section-hero
+        details: { node: '27111:1216', selector: '.lp-split__trailer' }, // section-details
+      },
+    },
+  },
 ];
 
 const VIEWPORTS = [
@@ -174,12 +260,19 @@ const VIEWPORTS = [
   { name: 'mobile',  width: 375,  height: 812 },
 ];
 
+// Figma mode renders at the width the frames are authored at, so the two sides
+// are the same number of pixels wide before anything is compared. The
+// alternative — capturing at 1280 and rescaling one side — makes every diff a
+// measurement of the resampler as much as of the design, and needs an image
+// dependency this repo does not carry.
+const FIGMA_VIEWPORT = { name: 'figma', width: FIGMA_FRAME_WIDTH, height: 900 };
+
 const THEMES = (process.env.THEMES ?? 'light,dark').split(',').map((t) => t.trim());
 
 console.log(`▸ mode:       ${REFERENCE_MODE}`);
-console.log(`▸ reference:  ${MOCKUP_MODE ? path.relative('', BASELINE_DIR) : REFERENCE_URL} (${REFERENCE_LABEL})`);
+console.log(`▸ reference:  ${FIGMA_MODE ? path.relative('', FIGMA_BASELINE_DIR) : MOCKUP_MODE ? path.relative('', BASELINE_DIR) : REFERENCE_URL} (${REFERENCE_LABEL})`);
 console.log(`▸ netlify:    ${NETLIFY_URL}`);
-console.log(`▸ themes:     ${THEMES.join(', ')}`);
+console.log(`▸ themes:     ${FIGMA_MODE ? 'per-route (Figma frames are authored light-only)' : THEMES.join(', ')}`);
 console.log(`▸ threshold:  ${DIFF_THRESHOLD > 0 ? `${DIFF_THRESHOLD}%` : 'off (set DIFF_THRESHOLD to enable)'}`);
 console.log(`▸ output:     ${OUT}`);
 
@@ -188,7 +281,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const browser = await chromium.launch();
 
-async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs, imageWaitMs) {
+async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs, imageWaitMs, selector) {
   const colorScheme = theme === 'dark' ? 'dark' : 'light';
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
@@ -411,6 +504,23 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs, 
     // page from a faithful capture of a short page. `documentElement`, not
     // `body`: it is the scrolling element here, and it is what `fullPage` sizes
     // itself from.
+    // An element capture measures ITSELF, not the document (#1392). Comparing a
+    // section's PNG against `documentElement.scrollHeight` would call every
+    // section on a 6000px page "partial", so the height contract is the
+    // element's own box — and a section that resolves to zero height is a
+    // genuine failure, because a collapsed element screenshots as nothing and a
+    // capture of nothing diffs as a pass.
+    if (selector) {
+      const locator = page.locator(selector).first();
+      await locator.waitFor({ state: 'visible', timeout: 15000 });
+      const box = await locator.boundingBox();
+      if (!box || box.height < 1) {
+        throw new Error(`selector ${selector} resolved to a zero-height element — nothing to capture`);
+      }
+      await locator.screenshot({ path: outPath, animations: 'disabled' });
+      const pngHeight = PNG.sync.read(fs.readFileSync(outPath)).height;
+      return { ok: true, domHeight: Math.round(box.height), pngHeight };
+    }
     const domHeight = await page.evaluate(() => document.documentElement.scrollHeight);
     await page.screenshot({ path: outPath, fullPage: true, animations: 'disabled' });
     const pngHeight = PNG.sync.read(fs.readFileSync(outPath)).height;
@@ -434,7 +544,7 @@ async function captureOnce(baseUrl, route, viewport, theme, outPath, timeoutMs, 
   }
 }
 
-async function capture(baseUrl, route, viewport, theme, outPath) {
+async function capture(baseUrl, route, viewport, theme, outPath, selector) {
   // First attempt with normal headroom; one retry on failure with extra time.
   //
   // The retry exists because attempt 1 warms the edge for any on-demand image
@@ -447,14 +557,15 @@ async function capture(baseUrl, route, viewport, theme, outPath) {
   // Attempt 1 is deliberately shorter than IMAGE_WAIT_MS so a stuck route fails
   // fast into the warming retry rather than spending the whole budget up front.
   let result = await captureOnce(
-    baseUrl, route, viewport, theme, outPath, 60000, Math.round(IMAGE_WAIT_MS / 2));
+    baseUrl, route, viewport, theme, outPath, 60000, Math.round(IMAGE_WAIT_MS / 2), selector);
   if (!result.ok) {
     await new Promise((r) => setTimeout(r, 1500));
     result = await captureOnce(
-      baseUrl, route, viewport, theme, outPath, 90000, IMAGE_WAIT_MS);
+      baseUrl, route, viewport, theme, outPath, 90000, IMAGE_WAIT_MS, selector);
   }
   if (!result.ok) {
-    console.warn(`  ✗ ${baseUrl}${route} [${viewport.name}/${theme}]: ${result.err.message.split('\n')[0]}`);
+    const where = selector ? ` ${selector}` : '';
+    console.warn(`  ✗ ${baseUrl}${route}${where} [${viewport.name}/${theme}]: ${result.err.message.split('\n')[0]}`);
     fs.writeFileSync(outPath.replace(/\.png$/, '.error.txt'), String(result.err));
   }
 }
@@ -472,17 +583,25 @@ async function capture(baseUrl, route, viewport, theme, outPath) {
 // error boundary, not a capture that stopped early. Calling that "truncated"
 // sent every reader to a re-run — which usually goes green and hides a real
 // error on the reference deployment.
-function diffScreenshots(wfPath, nlPath, diffPath, viewport) {
+function diffScreenshots(wfPath, nlPath, diffPath, viewport, { classifyHeights = true } = {}) {
   if (!fs.existsSync(wfPath) || !fs.existsSync(nlPath)) return null;
 
   const wf = PNG.sync.read(fs.readFileSync(wfPath));
   const nl = PNG.sync.read(fs.readFileSync(nlPath));
 
-  const heightFailure = classifyCaptureHeights({
-    referenceHeight: wf.height,
-    buildHeight: nl.height,
-    viewportHeight: viewport?.height,
-  });
+  // Height classification is OFF in figma mode (#1392). It assumes both sides
+  // are renderings of the same page, so a side under half the other's height
+  // must be a broken capture. Against a Figma node that assumption is inverted:
+  // a section built at half its designed height is the DEFECT this mode exists
+  // to report, and classifying it as "truncated" would replace the finding with
+  // a re-run instruction.
+  const heightFailure = classifyHeights
+    ? classifyCaptureHeights({
+      referenceHeight: wf.height,
+      buildHeight: nl.height,
+      viewportHeight: viewport?.height,
+    })
+    : null;
   if (heightFailure) {
     return {
       [heightFailure.kind === 'app-error' ? 'appError' : 'truncated']: true,
@@ -522,12 +641,123 @@ function diffScreenshots(wfPath, nlPath, diffPath, viewport) {
   fs.writeFileSync(diffPath, PNG.sync.write(diff));
 
   const diffPct = (mismatch / (w * h)) * 100;
-  return { diffPct, diffImg: path.relative(OUT, diffPath) };
+  // Heights ride along on the success path too (#1392). They were only set on a
+  // height FAILURE, which is the one case figma mode deliberately does not
+  // classify — leaving the mode that needs them most as the only one without
+  // them. Harmless elsewhere: every other mode already reports them as null.
+  return { diffPct, diffImg: path.relative(OUT, diffPath), wfHeight: wf.height, nlHeight: nl.height };
 }
 
 const results = [];
 const missingBaselines = [];
-for (const theme of THEMES) {
+
+// ── figma mode ──────────────────────────────────────────────────────────────
+// Its own loop, because its axes are different: route x SECTION, at one fixed
+// width and one theme, rather than route x viewport x theme over whole pages.
+// Folding it into the loop below would have meant a `viewport` that is not a
+// viewport and a `theme` that is always 'light' threaded through every branch
+// of the other three modes.
+if (FIGMA_MODE) {
+  const figmaRoutes = ROUTES.filter((r) => figmaSections(r).length);
+  const viewport = FIGMA_VIEWPORT;
+  const token = process.env.FIGMA_ACCESS_TOKEN ?? process.env.FIGMA_PAT;
+
+  if (UPDATE_FIGMA_BASELINES && !token) {
+    console.error(
+      '✗ UPDATE_FIGMA_BASELINES=1 needs a Figma token.\n\n'
+      + '    set -a; source ~/.secrets/figma.env; set +a\n'
+      + '    UPDATE_FIGMA_BASELINES=1 npm run visual-figma -- <deploy-url>\n',
+    );
+    process.exit(2);
+  }
+
+  for (const route of figmaRoutes) {
+    const theme = route.figma.themes?.[0] ?? 'light';
+    const sections = figmaSections(route);
+    const dir = path.join(OUT, theme, viewport.name);
+    fs.mkdirSync(dir, { recursive: true });
+
+    // Re-export every declared node in ONE request per route. `/v1/images`
+    // renders on demand and a per-section call would re-render the same file
+    // once per section.
+    let exported = {};
+    if (UPDATE_FIGMA_BASELINES) {
+      console.log(`▸ exporting ${sections.length} node(s) from Figma file ${route.figma.fileKey}`);
+      exported = await exportFigmaNodes(
+        route.figma.fileKey,
+        sections.map((s) => s.nodeId),
+        { token },
+      );
+    }
+
+    for (const section of sections) {
+      const baselinePath = figmaBaselinePath(FIGMA_BASELINE_DIR, route.name, section.key);
+      const label = `${route.name}-${section.key}`;
+      const wfPath = path.join(dir, `${label}-reference.png`);
+      const nlPath = path.join(dir, `${label}-netlify.png`);
+      const diffPath = path.join(dir, `${label}-diff.png`);
+      console.log(`▸ ${route.name} § ${section.key}  (${section.selector} ↔ ${section.nodeId})`);
+
+      if (UPDATE_FIGMA_BASELINES) {
+        const url = exported[section.nodeId];
+        if (!url) {
+          // `/v1/images` answers an unknown id with `err: null` and no entry,
+          // so this is where a wrong node id becomes visible. Name the id.
+          console.error(`  ✗ Figma returned no image for node ${section.nodeId} — check the id`);
+          missingBaselines.push(baselinePath);
+          continue;
+        }
+        const bytes = await downloadTo(url, baselinePath);
+        console.log(`  ✎ baseline written: ${path.relative('', baselinePath)} (${Math.round(bytes / 1024)} KB)`);
+      }
+
+      await capture(NETLIFY_URL, route.netlify, viewport, theme, nlPath, section.selector);
+
+      if (!fs.existsSync(baselinePath)) {
+        missingBaselines.push(baselinePath);
+        console.error(`  ✗ baseline missing: ${path.relative('', baselinePath)}`);
+      } else {
+        fs.copyFileSync(baselinePath, wfPath); // reference pane in the report
+      }
+
+      const diff = diffScreenshots(wfPath, nlPath, diffPath, viewport, { classifyHeights: false });
+      if (diff) {
+        const flag = diff.diffPct > 5 ? '🔴' : diff.diffPct > 2 ? '🟡' : '🟢';
+        // Print the heights beside the percentage. The shorter side is padded
+        // white to compare, so a section built at half its designed height
+        // spends half the canvas on padding and reads ~50% before a single
+        // rendered pixel disagrees. Without the pair, that number is
+        // indistinguishable from a section whose content is genuinely wrong —
+        // and they need opposite fixes.
+        const heights = diff.wfHeight && diff.nlHeight
+          ? `  (figma ${diff.wfHeight}px vs build ${diff.nlHeight}px)`
+          : '';
+        console.log(`  ${flag} diff: ${diff.diffPct.toFixed(2)}%${heights}`);
+      }
+      results.push({
+        theme,
+        viewport: viewport.name,
+        route: label,
+        webflowPath: path.relative('', baselinePath),
+        netlifyPath: `${route.netlify}  ${section.selector}`,
+        wfImg: path.relative(OUT, wfPath),
+        nlImg: path.relative(OUT, nlPath),
+        diffImg: diff?.diffImg ?? null,
+        diffPct: diff?.diffPct ?? null,
+        truncated: false,
+        appError: false,
+        shortSide: null,
+        viewportHeight: viewport.height,
+        wfHeight: diff?.wfHeight ?? null,
+        nlHeight: diff?.nlHeight ?? null,
+        wfOk: fs.existsSync(wfPath),
+        nlOk: fs.existsSync(nlPath),
+      });
+    }
+  }
+}
+
+for (const theme of FIGMA_MODE ? [] : THEMES) {
   for (const viewport of VIEWPORTS) {
     const dir = path.join(OUT, theme, viewport.name);
     fs.mkdirSync(dir, { recursive: true });
@@ -648,10 +878,20 @@ function diffLabel(pct) {
   return `${flag} ${pct.toFixed(2)}%`;
 }
 
+// Name the mode in the report. `figma` reports SECTIONS against a design, not a
+// page against a deployment, and a reader who takes it for "visual parity" will
+// read a 12% section diff as a migration gap rather than a fidelity one.
+const REPORT_TITLE = FIGMA_MODE
+  ? 'Figma fidelity (per section)'
+  : SELF_MODE ? 'Visual regression' : 'Visual parity';
+const REPORT_REFERENCE = FIGMA_MODE
+  ? path.relative('', FIGMA_BASELINE_DIR)
+  : MOCKUP_MODE ? path.relative('', BASELINE_DIR) : REFERENCE_URL;
+
 const reportPath = path.join(OUT, 'index.html');
 const html = `<!doctype html>
 <meta charset="utf-8">
-<title>${SELF_MODE ? 'Visual regression' : 'Visual parity'} — ${REFERENCE_LABEL} vs Netlify</title>
+<title>${REPORT_TITLE} — ${REFERENCE_LABEL} vs Netlify</title>
 <style>
   body { margin: 0; font: 14px/1.5 -apple-system, system-ui, sans-serif; background: #f6f6f6; color: #111; }
   header { padding: 16px 20px; background: #111; color: #fff; position: sticky; top: 0; z-index: 10; }
@@ -677,8 +917,8 @@ const html = `<!doctype html>
   .summary-table tr:hover td { background: #fafafa; }
 </style>
 <header>
-  <h1>${SELF_MODE ? 'Visual regression' : 'Visual parity'} — ${REFERENCE_LABEL} vs Netlify</h1>
-  <div class="meta">${REFERENCE_LABEL.toLowerCase()}: ${REFERENCE_URL} · netlify: ${NETLIFY_URL} · captured ${new Date().toISOString()}</div>
+  <h1>${REPORT_TITLE} — ${REFERENCE_LABEL} vs Netlify</h1>
+  <div class="meta">${REFERENCE_LABEL.toLowerCase()}: ${REPORT_REFERENCE} · netlify: ${NETLIFY_URL} · captured ${new Date().toISOString()}</div>
 </header>
 <div class="filter-bar">
   <label>Theme: <select id="theme-filter"><option value="all">all</option>${THEMES.map((t) => `<option value="${t}">${t}</option>`).join('')}</select></label>
@@ -752,7 +992,9 @@ fs.writeFileSync(reportPath, html);
 // "Complete" means a usable comparison, not a written file (#1317) — a
 // truncated capture writes its file and then fails the run, so counting files
 // printed `84/84` two lines under `✗ 1 capture(s) failed`.
-const okCount = countUsableCaptures(results, { updateBaselines: UPDATE_BASELINES });
+const okCount = countUsableCaptures(results, {
+  updateBaselines: UPDATE_BASELINES || UPDATE_FIGMA_BASELINES,
+});
 const avgDiff = diffed.length
   ? (diffed.reduce((s, r) => s + r.diffPct, 0) / diffed.length).toFixed(2)
   : '—';
@@ -823,17 +1065,24 @@ const captureFailureDetail = (r) => {
 // Mockup mode never passes silently: a missing baseline or a failed capture is
 // a hard failure, not a skipped comparison. (webflow mode tolerates capture
 // failure by design — that tolerance must not carry over; it is how #822 hid.)
-if (MOCKUP_MODE) {
+if (MOCKUP_MODE || FIGMA_MODE) {
+  const modeLabel = FIGMA_MODE ? 'figma' : 'mockup';
   if (missingBaselines.length) {
-    console.error(`\n✗ ${missingBaselines.length} baseline(s) missing — mockup mode refuses to skip:`);
+    console.error(`\n✗ ${missingBaselines.length} baseline(s) missing — ${modeLabel} mode refuses to skip:`);
     missingBaselines.forEach((p) => console.error(`  ${p}`));
-    console.error('  Author against a known-good deploy, then eyeball vs the Paper mockup before committing:');
-    console.error('  UPDATE_BASELINES=1 npm run visual-mockup -- <known-good-url>');
+    if (FIGMA_MODE) {
+      console.error('  Re-export from the Figma nodes the route declares, then eyeball each PNG before committing:');
+      console.error('  set -a; source ~/.secrets/figma.env; set +a');
+      console.error('  UPDATE_FIGMA_BASELINES=1 npm run visual-figma -- <deploy-url>');
+    } else {
+      console.error('  Author against a known-good deploy, then eyeball vs the Paper mockup before committing:');
+      console.error('  UPDATE_BASELINES=1 npm run visual-mockup -- <known-good-url>');
+    }
     process.exit(2);
   }
   const failedCaptures = results.filter((r) => !r.nlOk || r.truncated || r.appError);
   if (failedCaptures.length) {
-    console.error(`\n✗ ${failedCaptures.length} capture(s) failed — mockup mode treats this as a gate failure:`);
+    console.error(`\n✗ ${failedCaptures.length} capture(s) failed — ${modeLabel} mode treats this as a gate failure:`);
     failedCaptures.forEach((r) => console.error(`  ${r.route} [${r.theme}/${r.viewport}]${captureFailureDetail(r)} (${NETLIFY_URL}${r.netlifyPath})`));
     process.exit(1);
   }
@@ -858,7 +1107,7 @@ if (SELF_MODE) {
 // and into `waived`; everything undeclared still gates at the threshold. The
 // declaration is not a free pass in either direction: a name that matches no
 // route, or a declared route that did not move, fails the run.
-if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
+if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES && !UPDATE_FIGMA_BASELINES) {
   const { waived, blocking, unmoved, unknown, underThreshold } = evaluateDeclaration({
     declared: DECLARED_ROUTES,
     knownRoutes: ROUTES.map((r) => r.name),

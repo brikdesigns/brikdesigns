@@ -44,6 +44,7 @@
     "test:customer-story-author": "npx tsx scripts/test-customer-story-author.mjs",
     "test:ghl-webhook": "npx tsx scripts/test-ghl-webhook.ts",
     "test:visual-change": "node scripts/lib/visual-change-declaration.test.mjs",
+    "test:figma-baseline": "node scripts/lib/figma-baseline.test.mjs",
     "test:staging-reference": "node scripts/lib/staging-reference.test.mjs",
     "test:a11y-baseline": "npx tsx tests/a11y/lib/baseline-match.test.ts",
     "test:app-error-record": "npx tsx src/lib/app-error-record.test.ts",
@@ -65,6 +66,7 @@
     "visual-parity": "node scripts/visual-parity.mjs",
     "visual-regression": "REFERENCE_MODE=self node scripts/visual-parity.mjs",
     "visual-mockup": "REFERENCE_MODE=mockup node scripts/visual-parity.mjs",
+    "visual-figma": "REFERENCE_MODE=figma node scripts/visual-parity.mjs",
     "analyze": "ANALYZE=true next build",
     "prepare": "husky"
   },

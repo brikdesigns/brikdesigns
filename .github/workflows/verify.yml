@@ -395,6 +395,16 @@ jobs:
       - name: Visual-change declaration (waiver still blocks the undeclared)
         run: npm run test:visual-change
 
+      # brikdesigns#1392. Same invisible-failure shape as the two below: every
+      # assertion here guards a way the figma gate could keep reporting while
+      # comparing nothing. A hyphen-spelled node id (the spelling a Figma URL
+      # gives you) exports nothing and `/v1/images` calls that success; a
+      # dropped selector override leaves `[data-section]` matching no element on
+      # a route whose regions are divs; a missing baseline getting skipped is
+      # how #822 survived four days. Offline — the network half is a fetch stub.
+      - name: Figma baseline helpers (a wrong node id fails, never reads clean)
+        run: npm run test:figma-baseline
+
       # brikdesigns#1354. Locks the resolver that decides what the `regression`
       # gate compares against. The assertions that matter are the ones whose
       # failure is INVISIBLE: a lookup miss returning `links.alias` instead of
