@@ -14,7 +14,7 @@ import { Icon } from '@/lib/icon';
 import { getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { planTierPrices } from '@/lib/plan-tier-prices';
 import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
-import { serviceColor, serviceCtaVars } from '@/lib/tokens';
+import { serviceColor, serviceCtaVars, type ServiceCtaBackdrop } from '@/lib/tokens';
 import '../shared-sections.css';
 // Reuses the home page's `.section-hero` / `.hero-*` / `.pricing-header` section
 // scaffolding rather than re-authoring it here — the same cross-page CSS import
@@ -192,6 +192,15 @@ export default async function PlansPage() {
                   path.managedPrice ? `Managed — ${path.managedPrice}/month` : null,
                 ].filter((f): f is string => f !== null);
 
+                // The recommended card carries the #1304 fill —
+                // `--surface-service-brand-light` in plans.css, pale in BOTH
+                // themes — so its CTA must not take the dark-mode flip, which
+                // would paint it that exact fill (#1404). The other two keep the
+                // theme-following PricingCard surface. Same condition as the
+                // `--recommended` class below; the two move together.
+                const cardBackdrop: ServiceCtaBackdrop =
+                  path.slug === RECOMMENDED_SLUG ? 'fixed-light' : 'theme';
+
                 return (
                   <PricingCard
                     key={path.slug}
@@ -206,7 +215,9 @@ export default async function PlansPage() {
                     ]
                       .filter(Boolean)
                       .join(' ') || undefined}
-                    {...(path.category ? { style: serviceCtaVars(path.category) } : {})}
+                    {...(path.category
+                      ? { style: serviceCtaVars(path.category, cardBackdrop) }
+                      : {})}
                     image={
                       path.imageUrl ? <Image src={path.imageUrl} alt="" ratio="1-1" fit="cover" /> : undefined
                     }

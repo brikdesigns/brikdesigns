@@ -56,6 +56,16 @@ interface CtaFinding {
   serviceThemed: boolean;
 }
 
+/** A service CTA whose fill is the same color as the thing behind it (#1404). */
+interface CollisionFinding {
+  label: string;
+  section: string;
+  bg: string;
+  /** Nearest painted ancestor's fill, and what paints it. */
+  backdrop: string;
+  backdropCls: string;
+}
+
 /**
  * Collect every plan CTA on the current page whose rendered fill is NOT one of
  * the ten service steps, or which is missing the `.service-themed` pairing
@@ -147,6 +157,86 @@ const report = (findings: CtaFinding[], where: string) =>
   `--background-service-{line}-on-light (and the dark-mode flip engages).\n` +
   `See serviceCtaVars() in src/lib/tokens.ts.`;
 
+/**
+ * #1404 — a service CTA whose fill IS its container's fill has no shape at all;
+ * only its label survives. The tint audit above cannot see this, because the
+ * colliding value is a perfectly canonical service step: for all five lines the
+ * `onDark` fill and the `surfaceLight` surface resolve to the SAME primitive in
+ * both roots, so a CTA that flips to `onDark` on a mode-invariant pale card
+ * lands exactly on it. Set membership answers "is this a service color", not
+ * "is this distinct from what is behind it".
+ *
+ * Population is deliberately WIDER than the tint audit's. That one keys on
+ * `a[href^="/plans/"]`, and #1409 turned the plan-tier CTA into a modal
+ * `<button>` with no href — so the very control this defect was filed against
+ * had already fallen out of the selector. Distinctness is a property of every
+ * service-themed primary, not only the ones that navigate, so this walks them
+ * all. Verified to fail first on `/plans/{slug}` dark before the fix.
+ *
+ * Nothing about this is theme-specific in the assertion — it runs in both
+ * Playwright projects and the dark one is where it bites, exactly as
+ * card-treatment.spec.ts does for chrome.
+ */
+const COLLISION_AUDIT = (): CollisionFinding[] => {
+  const norm = (c: string) => c.replace(/\s+/g, '').toLowerCase();
+  const out: CollisionFinding[] = [];
+
+  const btns = Array.from(
+    document.querySelectorAll('.service-themed .bds-button--primary'),
+  ) as HTMLElement[];
+
+  for (const btn of btns) {
+    const bg = getComputedStyle(btn).backgroundColor;
+    // The nearest PAINTED ancestor — a transparent one backs nothing, so it is
+    // not what the eye compares the button against.
+    let backdrop: string | null = null;
+    let backdropCls = '';
+    for (let n = btn.parentElement; n; n = n.parentElement) {
+      const abg = getComputedStyle(n).backgroundColor;
+      if (abg && abg !== 'rgba(0, 0, 0, 0)' && abg !== 'transparent') {
+        backdrop = abg;
+        backdropCls = (n.className || n.tagName).toString().slice(0, 60);
+        break;
+      }
+    }
+    if (backdrop === null || norm(bg) !== norm(backdrop)) continue;
+
+    const section = btn.closest('section');
+    out.push({
+      label: (btn.textContent ?? '').trim().slice(0, 40),
+      section:
+        section?.getAttribute('data-section') ??
+        section?.getAttribute('aria-labelledby') ??
+        section?.className ??
+        '(no section)',
+      bg,
+      backdrop,
+      backdropCls,
+    });
+  }
+  return out;
+};
+
+const collisionReport = (findings: CollisionFinding[], where: string) =>
+  `Service CTAs with no fill contrast against their own container on ${where}:\n` +
+  findings
+    .map(
+      (f) =>
+        `  → "${f.label}"\n` +
+        `    fill: ${f.bg}  ===  backdrop: ${f.backdrop}\n` +
+        `    painted by: ${f.backdropCls}\n` +
+        `    section: ${f.section}`,
+    )
+    .join('\n') +
+  `\n\nThe button has no shape — only its label is visible. The fill is a real\n` +
+  `service step, just the same one its container paints: the dark-mode flip in\n` +
+  `globals.css assumes the backdrop flipped too, which is false on a\n` +
+  `mode-invariant surfaceLight tone.\n` +
+  `\n` +
+  `FIX: pass the backdrop at the call site — serviceCtaVars(line, 'fixed-light')\n` +
+  `— never a per-card color override. See ServiceCtaBackdrop in src/lib/tokens.ts\n` +
+  `and .claude/references/service-token-decision-tree.md.`;
+
 test.describe('Service-CTA tint — support-plan CTAs adopt their line color', () => {
   for (const route of ROUTES) {
     test(`${route.name} (${route.path})`, async ({ page }) => {
@@ -157,6 +247,9 @@ test.describe('Service-CTA tint — support-plan CTAs adopt their line color', (
 
       const findings = await page.evaluate(AUDIT, SERVICE_LINES);
       expect(findings, report(findings, route.path)).toHaveLength(0);
+
+      const collisions = await page.evaluate(COLLISION_AUDIT);
+      expect(collisions, collisionReport(collisions, route.path)).toHaveLength(0);
     });
   }
 
@@ -171,5 +264,8 @@ test.describe('Service-CTA tint — support-plan CTAs adopt their line color', (
 
     const findings = await page.evaluate(AUDIT, SERVICE_LINES);
     expect(findings, report(findings, 'the mega-nav Plans panel')).toHaveLength(0);
+
+    const collisions = await page.evaluate(COLLISION_AUDIT);
+    expect(collisions, collisionReport(collisions, 'the mega-nav Plans panel')).toHaveLength(0);
   });
 });

@@ -279,6 +279,28 @@ export function serviceColor(category: string) {
 }
 
 /**
+ * What a service CTA sits on — the axis that decides whether its fill follows
+ * the theme, per the `background`-tier CONTEXT rule in
+ * `.claude/references/service-token-decision-tree.md`.
+ *
+ * * `'theme'` — the backdrop flips with the theme (a service `inverse` card:
+ *   white in light, deep in dark; or `--surface-primary`). The fill flips with
+ *   it: deep `onLight` in light, pale `onDark` in dark. This is #648's case and
+ *   stays the default, so every existing call site is unchanged.
+ * * `'fixed-light'` — the backdrop is a mode-invariant `surfaceLight` service
+ *   tone, which stays pale in BOTH themes. The fill must NOT flip: for all five
+ *   lines the `onDark` fill and the `surfaceLight` surface resolve to the SAME
+ *   primitive in both roots (`dist/tokens.css` — the `lightest` step in `:root`,
+ *   the `lighter` step in the dark root), so flipping paints the button its
+ *   container's exact fill and the CTA loses its shape (#1404, `same: true`).
+ *
+ * The theme is the wrong discriminator here for the same reason it is wrong for
+ * card chrome — the service tints are fixed-light in both themes, so only the
+ * backdrop can answer. See `.claude/references/card-treatment.md`.
+ */
+export type ServiceCtaBackdrop = 'theme' | 'fixed-light';
+
+/**
  * The canonical CSS-var bundle for a service-line primary CTA — the single
  * source for tinting a `<Button variant="primary">` by service line.
  *
@@ -295,14 +317,23 @@ export function serviceColor(category: string) {
  * bundle on the same element or any ancestor of the button; custom properties
  * inherit. Do NOT hand-roll `--background-brand-primary` or an inline
  * `backgroundColor` for a service CTA — use this helper.
+ *
+ * `backdrop` declares what the CTA actually sits on — see the type below.
  */
-export function serviceCtaVars(category: string): React.CSSProperties {
+export function serviceCtaVars(
+  category: string,
+  backdrop: ServiceCtaBackdrop = 'theme',
+): React.CSSProperties {
   const t = serviceColor(category);
+  const pinned = backdrop === 'fixed-light';
   return {
     '--background-brand-primary': t.onLight,
     '--text-brand-primary': t.text,
-    '--service-cta-fill-dark': t.onDark,
-    '--service-cta-ink-dark': t.text,
+    // On a pinned-light backdrop the dark-mode handoff repeats the LIGHT-mode
+    // pairing verbatim (deep `onLight` fill + white label), so the rule in
+    // globals.css still fires and resolves to a no-op instead of a collision.
+    '--service-cta-fill-dark': pinned ? t.onLight : t.onDark,
+    '--service-cta-ink-dark': pinned ? color.text.onColorDark : t.text,
   } as React.CSSProperties;
 }
 
