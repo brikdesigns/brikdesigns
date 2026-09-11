@@ -128,6 +128,7 @@ jobs:
               --pattern 'tests/a11y/public-routes.spec.ts' \
               --pattern 'tests/a11y/lib/**' \
               --pattern 'tests/a11y/baseline.json' \
+              --pattern 'instrumentation*.ts' \
               --pattern '.github/workflows/verify.yml' \
             >> "$GITHUB_OUTPUT"
 
@@ -411,6 +412,19 @@ jobs:
       # nothing. Offline; it also asserts the live baseline.json's shape.
       - name: A11y baseline matcher (keyed on the violation, not the selector)
         run: npm run test:a11y-baseline
+
+      # brikdesigns#1403. Three error-boundary renders reached CI as a
+      # screenshot and nothing else, and none of them reached Sentry — the
+      # `ChunkLoadError` filter in `instrumentation-client.ts` dropped exactly
+      # the class a cold deployment produces. Both halves of the fix fail
+      # silently if they rot: a record line that loses `route=`/`digest=` still
+      # renders, and a filter that stops consulting the boundary exemption
+      # still ships. It also asserts the boundary renders no `<main>`, which
+      # would satisfy every a11y spec's render guard and turn a loud infra
+      # failure into quiet debt (`tests/a11y/lib/goto-rendered.ts:51-53`).
+      # Offline; no browser, no network.
+      - name: App-error record + the Sentry drop-list exemption
+        run: npm run test:app-error-record
 
       # brikdesigns#1334. This matcher decides whether a REQUIRED gate applies
       # to a PR, so a false negative skips a required check on a PR that needed
