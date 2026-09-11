@@ -141,8 +141,25 @@ target for this gate.)
 `/contact`, `/free-marketing-analysis`, `/privacy-policy` *intermittently*
 report no `<main>` + loose `region` findings (`.branding`, `.footer`), but their
 **server-rendered HTML has a proper `<main>`** — pointing to a client-side error
-boundary on staging (flaky CMS call), not a real structure violation. Tracked in
-**#341** (confirm in a headed browser before baselining; don't silence).
+boundary on staging, not a real structure violation. Tracked in **#1403**
+(confirm in a headed browser before baselining; don't silence). #341 is closed
+with its investigation unfinished, so it is not the owner.
+
+Since #1403 these routes identify themselves. `src/app/error.tsx` renders a
+`role="alert"` block carrying `data-app-error` and a one-line record —
+`app-error · name=… · message=… · route=… · digest=… · sentry=… · at=…` — to the
+DOM, the console and Sentry. So on the next occurrence:
+
+- a **screenshot** of the failing route now names the error, not just proves one
+- the same line is in the browser console, via `page.on('console')`
+- the event is in Sentry tagged `boundary=app-error`, which is what exempts it
+  from `beforeSendClient`'s drop list (`instrumentation-client.ts`) — that
+  filter discards `ChunkLoadError`, and a cold deployment is exactly when a
+  still-open document requests chunk hashes the new build no longer serves
+
+The boundary deliberately renders **no `<main>`**, so the render guard in
+[`lib/goto-rendered.ts`](lib/goto-rendered.ts) still tells an error page apart
+from a real one. Asserted by `npm run test:app-error-record`.
 
 ## Healthcare clients
 
