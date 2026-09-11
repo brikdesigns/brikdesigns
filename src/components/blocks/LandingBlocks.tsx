@@ -42,6 +42,29 @@ import { ProseBlock } from './ProseBlock';
  *
  * Both routes (`/events/[slug]`, `/marketing/[slug]`) and the vanity landing
  * routes render through this so surface + layout behave identically everywhere.
+ *
+ * ## Region identifiers (#1420)
+ *
+ * Every region carries `data-section`, because a landing route's designed
+ * regions are emitted from here rather than from a page file — so before #1420
+ * they sat outside `lint-section-id`'s scan entirely and `/offers/brikdown`
+ * rendered zero identifiers while the gate reported clean. The cost was already
+ * paid once: #1392's figma-parity gate diffs a route per `data-section`, and
+ * with none to target it had to aim at `.lp-split` / `.lp-split__trailer` —
+ * presentational classnames, where a CSS rename re-points the gate at nothing
+ * and the failure mode is a section that stops being compared rather than one
+ * that fails.
+ *
+ * They stay `<div>`s. The convention
+ * (`.claude/references/section-identification.md`) asks for an identifier, not
+ * an element: `data-section` is additive and touches nothing. Promoting three
+ * regions to `<section>` would mint three unnamed ARIA regions on
+ * `/events/[slug]` and `/marketing/[slug]` too — landmark noise bought for no
+ * addressability that the attribute does not already give.
+ *
+ * Keys mirror the BEM element names on purpose. Those already are this
+ * component's ratified region vocabulary, and a second set of names would give
+ * the same region two.
  */
 export function LandingBlocks({
   blocks,
@@ -70,17 +93,20 @@ export function LandingBlocks({
     const trailerBlocks = blocks.filter((b) => isTrailer(b.type));
     const contentBlocks = blocks.filter((b) => b.type !== 'form' && !isTrailer(b.type));
     return (
-      <section className={sectionClass} style={style}>
-        <div className="lp-blocks__container lp-split">
-          <div className="lp-split__content">
+      <section className={sectionClass} style={style} data-section="landing-split">
+        <div className="lp-blocks__container lp-split" data-section="split">
+          <div className="lp-split__content" data-section="split-content">
             <BlockRenderer blocks={contentBlocks} context={context} />
           </div>
-          <div className="lp-split__aside">
+          <div className="lp-split__aside" data-section="split-aside">
             <BlockRenderer blocks={formBlocks} context={context} />
           </div>
         </div>
         {trailerBlocks.length > 0 && (
-          <div className="lp-blocks__container lp-split__trailer">
+          <div
+            className="lp-blocks__container lp-split__trailer"
+            data-section="split-trailer"
+          >
             <BlockRenderer blocks={trailerBlocks} context={context} />
           </div>
         )}
@@ -137,7 +163,7 @@ export function LandingBlocks({
     const formContext: BlockContext = { ...context, formColumns: 2 };
 
     return (
-      <section className="lp-blocks lp-showcase">
+      <section className="lp-blocks lp-showcase" data-section="landing-showcase">
         <div className="lp-showcase__container">
           {/* Hero — yellow card: photo beside title / subtitle / CTAs. */}
           {hero && (hero.title || hero.eyebrow || hero.subtitle || hero.media) && (
@@ -312,8 +338,8 @@ export function LandingBlocks({
   }
 
   return (
-    <section className={sectionClass} style={style}>
-      <div className="lp-blocks__container">
+    <section className={sectionClass} style={style} data-section="landing-stacked">
+      <div className="lp-blocks__container" data-section="stacked-content">
         <BlockRenderer blocks={blocks} context={context} />
       </div>
     </section>

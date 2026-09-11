@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Fails CI when a top-level `<section>` in the marketing app has no stable
-// identifier (brikdesigns#942).
+// Fails CI when a top-level `<section>` in the marketing app, or in the shared
+// landing blocks it renders through, has no stable identifier (brikdesigns#942,
+// scope widened in #1420).
 //
 // The convention: every hand-built `<section>` carries `data-section="<key>"`
 // (or, when a visible heading already provides one, `aria-labelledby`). Without
@@ -33,7 +34,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import url from 'node:url';
 
-export const SCAN_DIR = 'src/app/(marketing)';
+// Both trees that emit a page-level `<section>`.
+//
+// `src/components/blocks` was outside the scan until #1420, and the gap did not
+// read as a gap: a block-rendered landing route emits every `<section>` from
+// there, so `/offers/brikdown` rendered ZERO identifiers while this gate said
+// "clean" and the baseline listed no debt for it. Un-scanned is not the same as
+// grandfathered — grandfathered debt is counted and drains; un-scanned debt is
+// invisible in both directions. New files default to a baseline of 0, so every
+// section in the new tree had to ship identified.
+export const SCAN_DIRS = ['src/app/(marketing)', 'src/components/blocks'];
 export const BASELINE_PATH = 'scripts/section-id-baseline.json';
 
 /** Walk a directory, returning every `.tsx` file path (posix-normalized). */
@@ -46,6 +56,33 @@ export function tsxFiles(dir) {
     else if (entry.isFile() && entry.name.endsWith('.tsx')) out.push(full.split(path.sep).join('/'));
   }
   return out;
+}
+
+/** Strip block comments so a `<section>` written in prose isn't counted as one.
+ *
+ *  Both trees document themselves heavily, and two JSDoc blocks in
+ *  `src/components/blocks` describe what a BDS blueprint "renders its own
+ *  `<section>`" for. Those read to the parser as real un-identified sections,
+ *  which is not a cosmetic miscount: the ratchet compares against a baseline, so
+ *  a phantom inflates a file's allowance and hides a real one added later behind
+ *  it. `services/[serviceLineSlug]/[serviceSlug]/page.tsx` carried a baseline of
+ *  3 for a file with 1 section (#1420).
+ *
+ *  Comments carrying the escape hatch are preserved. The documented way to
+ *  exempt a section puts the `lint-section-id-ignore` marker in a block comment
+ *  INSIDE the opening tag, so a blanket strip would silently disarm it — the
+ *  gate would then read the tag as plain and start failing the file it was told
+ *  to skip.
+ *
+ *  Line comments are deliberately left alone. A double-slash also opens every
+ *  URL, and no `<section` mention in either scanned tree sits in a line comment
+ *  — ripgrepping both trees for one returned empty on 2026-09-11. Stripping
+ *  them would buy nothing and risk cutting a `https:` or protocol-relative URL
+ *  mid-string. */
+export function stripComments(source) {
+  return source.replace(/\/\*[\s\S]*?\*\//g, (match) =>
+    match.includes('lint-section-id-ignore') ? match : ' '
+  );
 }
 
 /** Extract the opening-tag text for every `<section …>` in `source`.
@@ -89,17 +126,24 @@ export function isIdentified(tag) {
 
 /** Count of un-identified `<section>`s in one file's source. */
 export function unidentifiedCount(source) {
-  return sectionOpeningTags(source).filter((t) => !isIdentified(t)).length;
+  return sectionOpeningTags(stripComments(source)).filter((t) => !isIdentified(t)).length;
 }
 
 function main() {
-  const files = tsxFiles(SCAN_DIR);
-  if (files.length === 0) {
-    console.error(
-      `lint-section-id: found 0 .tsx files under ${SCAN_DIR} — the marketing app ` +
-        `moved. Fix this path before trusting the gate.`
-    );
-    return 2;
+  // Checked per directory, not on the union: one empty tree in a two-tree scan
+  // would otherwise be absorbed by the other's file count — the exact shape of
+  // failure this gate had before #1420, where a whole tree was silently absent.
+  const files = [];
+  for (const dir of SCAN_DIRS) {
+    const found = tsxFiles(dir);
+    if (found.length === 0) {
+      console.error(
+        `lint-section-id: found 0 .tsx files under ${dir} — that tree moved. ` +
+          `Fix this path before trusting the gate.`
+      );
+      return 2;
+    }
+    files.push(...found);
   }
 
   let baseline = {};
@@ -152,8 +196,9 @@ function main() {
     console.error(`lint-section-id: ${problems.length} problem(s):`);
     for (const p of problems) console.error(`  ${p}`);
     console.error(
-      '\n  Every top-level marketing <section> needs a stable identifier so it ' +
-        'is addressable in devtools and change requests. ' +
+      '\n  Every top-level <section> — on a marketing page or in the shared ' +
+        'landing blocks — needs a stable identifier so it is addressable in ' +
+        'devtools, in change requests, and to the figma-parity gate (#1392). ' +
         'See .claude/references/section-identification.md (brikdesigns#942).'
     );
     return 1;

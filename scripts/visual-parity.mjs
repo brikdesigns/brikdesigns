@@ -248,14 +248,21 @@ const ROUTES = [
       fileKey: 'YSzWcpSLMQxxllZr9lEW48', // Marketing Campaigns
       themes: ['light'],
       // A CMS landing route renders ONE `<section class="lp-blocks">` with its
-      // regions as divs inside it (LandingBlocks.tsx:73-86), so every section
-      // here needs an explicit selector. Making those regions top-level
-      // `<section data-section>` elements would change shared block rendering
-      // that /events and /marketing also go through — a DOM change, and a
-      // different ticket from "diff the build against the design" (filed).
+      // regions as divs inside it (LandingBlocks.tsx), so each region needs an
+      // explicit selector rather than the `[data-section="<key>"]` default —
+      // the same split as `what-you-get` above, where the key names the Figma
+      // frame's ROLE and the selector names where that role lives in the DOM.
+      //
+      // Those selectors are `data-section` now, not `.lp-*` (#1420). The
+      // classnames were presentational: a CSS rename re-pointed the gate at
+      // nothing, and the failure mode was a section that stopped being compared
+      // rather than one that failed. `lint-section-id` scans the block tree as
+      // of the same ticket, so these attributes cannot be dropped silently.
       sections: {
-        hero: { node: '27111:869', selector: '.lp-split' },              // section-hero
-        details: { node: '27111:1216', selector: '.lp-split__trailer' }, // section-details
+        // section-hero — the two-column region (content + form aside).
+        hero: { node: '27111:869', selector: '[data-section="split"]' },
+        // section-details — the full-width trailer below both columns.
+        details: { node: '27111:1216', selector: '[data-section="split-trailer"]' },
       },
     },
   },

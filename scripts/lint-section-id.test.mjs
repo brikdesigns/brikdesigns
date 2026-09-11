@@ -13,7 +13,13 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { sectionOpeningTags, isIdentified, unidentifiedCount } from './lint-section-id.mjs';
+import {
+  sectionOpeningTags,
+  isIdentified,
+  unidentifiedCount,
+  stripComments,
+  SCAN_DIRS,
+} from './lint-section-id.mjs';
 
 const tests = [];
 const failures = [];
@@ -79,6 +85,48 @@ test('multiple sibling sections are each counted', () => {
     '<section data-section="b">2</section>' +
     '<section className="c">3</section>';
   assert.equal(unidentifiedCount(src), 2);
+});
+
+test('a <section> written in a JSDoc block is not counted (#1420)', () => {
+  // Two block files document what a BDS blueprint "renders its own <section>"
+  // for, and the parser read both as real un-identified sections. Not cosmetic:
+  // a phantom inflates a file's baseline allowance, so a genuinely un-identified
+  // section added later hides behind it and the ratchet never fires.
+  const src = [
+    '/**',
+    ' * CardGrid renders its own `<section>` plus the ADR-021 shell.',
+    ' */',
+    'export function Block() { return <section data-section="grid">x</section>; }',
+  ].join('\n');
+  assert.equal(unidentifiedCount(src), 0);
+});
+
+test('stripping comments does NOT disarm the ignore marker (#1420)', () => {
+  // The escape hatch lives in a block comment inside the opening tag, so a
+  // blanket strip would delete it and start failing the very file it exempts.
+  const src = '<section className="skeleton" /* lint-section-id-ignore */>x</section>';
+  assert.ok(stripComments(src).includes('lint-section-id-ignore'));
+  assert.equal(unidentifiedCount(src), 0);
+});
+
+test('a phantom in a comment cannot mask a real un-identified section (#1420)', () => {
+  // The regression the phantom enabled, stated directly: one documented mention
+  // plus one real plain <section> must count 1, not 2.
+  const src = [
+    '/** This block renders its own <section> — see ADR-021. */',
+    '<section className="page-section">real</section>',
+  ].join('\n');
+  assert.equal(unidentifiedCount(src), 1);
+});
+
+test('both scan dirs are declared, and the blocks tree is one of them (#1420)', () => {
+  // The gate reported "clean" over a tree it never opened: every <section> on a
+  // block-rendered landing route is emitted from src/components/blocks, so
+  // /offers/brikdown rendered zero identifiers with no debt recorded anywhere.
+  // Un-scanned is not grandfathered — grandfathered debt is counted and drains.
+  assert.ok(Array.isArray(SCAN_DIRS));
+  assert.ok(SCAN_DIRS.includes('src/app/(marketing)'));
+  assert.ok(SCAN_DIRS.includes('src/components/blocks'));
 });
 
 test('the real gate passes on the real files', () => {
