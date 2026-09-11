@@ -426,6 +426,18 @@ jobs:
       - name: Visual sweep deadline (a cancelled job is not a verdict)
         run: npm run test:sweep-deadline
 
+      # brikdesigns#1421. The detector a blocked session runs when a merge is
+      # refused for a check that passed. Its wrong answers are the expensive
+      # ones and both are silent: calling a REAL red a latch sends someone to
+      # push an empty commit over a regression, and calling an ordinary
+      # queued gate a latch trains that reflex on every new PR. It also pins
+      # the refuted hypothesis (#1410 merged with three cancelled `regression`
+      # check-runs) and asserts the diagnosed context list still matches
+      # `apply-staging-ruleset.sh`, so it cannot silently cover five of six.
+      # Offline; the four PR fixtures are transcribed live API responses.
+      - name: Latched required context (an empty commit, never `gh run rerun`)
+        run: npm run test:latched-context
+
       # brikdesigns#1361. Same shape as the two above: an unstable key made a
       # blocking gate report on the key rather than on the thing it guards. The
       # assertions that matter are the invisible ones — a re-rooted selector
