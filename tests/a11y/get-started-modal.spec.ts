@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page, type Locator } from '@playwright/test';
 import { gotoRendered } from './lib/goto-rendered';
 import AxeBuilder from '@axe-core/playwright';
 
@@ -21,16 +21,36 @@ import AxeBuilder from '@axe-core/playwright';
  * focus-return on close.
  */
 
-// Representative page that renders a get-started modal trigger.
+// Every surface that renders a get-started modal trigger. The spec runs its
+// full contract against each, in both themes.
 //
-// Was '/plans/marketing-support' until #1371. The Figma support-plan template
-// REPLACES that page's `.plan-cta-panel` (its only modal trigger) with the
-// `section-full-stack` cross-sell, whose CTA is a link — so no plan route
-// renders this modal any more. The trigger still ships on service-detail
-// offering cards (`GetStartedModalButton`, services/[…]/[…]/page.tsx), which is
-// what this spec now covers. #401's contract is unchanged; only the surface
-// carrying it moved.
-const MODAL_PATH = '/services/back-office/crm-setup-and-data-cleanup';
+// The plan route lost this trigger in #1371 (the Figma template replaced
+// `.plan-cta-panel` with the `section-full-stack` cross-sell link), so #1390
+// re-pointed this spec at a service-detail page. #1400 put the modal back on
+// the plan-tier CTAs (`GetStartedModalButton` on `/plans/[slug]`), so the plan
+// surface is gated again here — the regression #1390 documented (no plan route
+// watches this modal) is closed. #401's contract is identical on both.
+interface ModalSurface {
+  name: string;
+  path: string;
+  // The trigger is resolved per-surface: the service page's offering cards use
+  // the fixed "Get Started" label; the plan page's tier CTAs use CMS-authored
+  // `cta_label` copy, so match by position within the tier grid, not by text.
+  trigger: (page: Page) => Locator;
+}
+
+const MODAL_SURFACES: ModalSurface[] = [
+  {
+    name: 'service-detail offering card',
+    path: '/services/back-office/crm-setup-and-data-cleanup',
+    trigger: (page) => page.getByRole('button', { name: 'Get Started' }).first(),
+  },
+  {
+    name: 'plan-detail tier card',
+    path: '/plans/marketing-support',
+    trigger: (page) => page.locator('.plan-tier-card').getByRole('button').first(),
+  },
+];
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 
@@ -67,74 +87,77 @@ const normalizeSelector = (s: string): string =>
 const isModalBaselined = (theme: 'light' | 'dark', ruleId: string, selector: string): boolean =>
   (CONTRAST_DEBT[theme][ruleId] ?? []).map(normalizeSelector).includes(normalizeSelector(selector));
 
-async function openModal(page: Page) {
-  await gotoRendered(page, MODAL_PATH, { waitUntil: 'load' });
-  // The offering-card triggers are <button>s ("Get Started"); the hero CTA is
-  // an <a> (url-only, brik-bds#843), so role=button matches only the triggers.
-  // One per offering card, so take the first — they are the same component
-  // with different lead payloads, and the dialog's a11y contract is identical.
-  const trigger = page.getByRole('button', { name: 'Get Started' }).first();
+async function openModal(page: Page, surface: ModalSurface) {
+  await gotoRendered(page, surface.path, { waitUntil: 'load' });
+  // The triggers are <button>s; any sibling hero CTA is an <a> (url-only,
+  // brik-bds#843), so the per-surface locator matches only a modal trigger.
+  // Multiple render per page (one per offering / tier), so take the first —
+  // they are the same component with different lead payloads, and the dialog's
+  // a11y contract is identical.
+  const trigger = surface.trigger(page);
   await trigger.click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
   return { trigger, dialog };
 }
 
-test.describe('Get-started modal — #401', () => {
-  test('opens a modal dialog with a visible title', async ({ page }) => {
-    const { dialog } = await openModal(page);
-    await expect(dialog).toHaveAttribute('aria-modal', 'true');
-    await expect(
-      dialog.getByRole('heading', { name: /get started/i }),
-    ).toBeVisible();
+for (const surface of MODAL_SURFACES) {
+  test.describe(`Get-started modal — #401 (${surface.name})`, () => {
+    test('opens a modal dialog with a visible title', async ({ page }) => {
+      const { dialog } = await openModal(page, surface);
+      await expect(dialog).toHaveAttribute('aria-modal', 'true');
+      await expect(
+        dialog.getByRole('heading', { name: /get started/i }),
+      ).toBeVisible();
+    });
+
+    // The dialog's title is rendered but not wired to `aria-labelledby`, so its
+    // programmatic accessible name is empty — a BDS default-Modal defect with no
+    // consumer-side fix (no aria-label passthrough). Tracked in brik-bds#844;
+    // re-enable this assertion once that ships and the dep is bumped. #401.
+    test.fixme(
+      'exposes the title as the dialog accessible name (blocked: brik-bds#844)',
+      async ({ page }) => {
+        const { dialog } = await openModal(page, surface);
+        await expect(dialog).toHaveAccessibleName(/get started/i);
+      },
+    );
+
+    test('ESC closes the modal and returns focus to the trigger', async ({ page }) => {
+      const { trigger, dialog } = await openModal(page, surface);
+      await page.keyboard.press('Escape');
+      await expect(dialog).toBeHidden();
+      await expect(trigger).toBeFocused();
+    });
+
+    test('no serious/critical axe violations in the open dialog', async ({ page }, testInfo) => {
+      const theme = testInfo.project.name.endsWith('-dark') ? 'dark' : 'light';
+      await openModal(page, surface);
+
+      const results = await new AxeBuilder({ page })
+        .include('[role="dialog"]')
+        .withTags(AXE_TAGS)
+        .analyze();
+
+      const blocking = results.violations
+        .filter((v) => BLOCKING_IMPACTS.has(v.impact ?? ''))
+        .flatMap((v) =>
+          v.nodes.map((n) => ({
+            impact: v.impact,
+            ruleId: v.id,
+            help: v.help,
+            selector: Array.isArray(n.target) ? n.target.join(' >> ') : String(n.target),
+          })),
+        )
+        // Drop the BDS-22 owner-accepted contrast debt (see CONTRAST_DEBT above);
+        // NEW serious/critical violations still fail this gate.
+        .filter((f) => !isModalBaselined(theme, f.ruleId, f.selector))
+        .map((f) => `  [${f.impact}] ${f.ruleId} → ${f.selector}\n    ${f.help}`);
+
+      expect(
+        blocking,
+        `New serious/critical violations in the get-started modal (${theme} theme):\n${blocking.join('\n')}`,
+      ).toHaveLength(0);
+    });
   });
-
-  // The dialog's title is rendered but not wired to `aria-labelledby`, so its
-  // programmatic accessible name is empty — a BDS default-Modal defect with no
-  // consumer-side fix (no aria-label passthrough). Tracked in brik-bds#844;
-  // re-enable this assertion once that ships and the dep is bumped. #401.
-  test.fixme(
-    'exposes the title as the dialog accessible name (blocked: brik-bds#844)',
-    async ({ page }) => {
-      const { dialog } = await openModal(page);
-      await expect(dialog).toHaveAccessibleName(/get started/i);
-    },
-  );
-
-  test('ESC closes the modal and returns focus to the trigger', async ({ page }) => {
-    const { trigger, dialog } = await openModal(page);
-    await page.keyboard.press('Escape');
-    await expect(dialog).toBeHidden();
-    await expect(trigger).toBeFocused();
-  });
-
-  test('no serious/critical axe violations in the open dialog', async ({ page }, testInfo) => {
-    const theme = testInfo.project.name.endsWith('-dark') ? 'dark' : 'light';
-    await openModal(page);
-
-    const results = await new AxeBuilder({ page })
-      .include('[role="dialog"]')
-      .withTags(AXE_TAGS)
-      .analyze();
-
-    const blocking = results.violations
-      .filter((v) => BLOCKING_IMPACTS.has(v.impact ?? ''))
-      .flatMap((v) =>
-        v.nodes.map((n) => ({
-          impact: v.impact,
-          ruleId: v.id,
-          help: v.help,
-          selector: Array.isArray(n.target) ? n.target.join(' >> ') : String(n.target),
-        })),
-      )
-      // Drop the BDS-22 owner-accepted contrast debt (see CONTRAST_DEBT above);
-      // NEW serious/critical violations still fail this gate.
-      .filter((f) => !isModalBaselined(theme, f.ruleId, f.selector))
-      .map((f) => `  [${f.impact}] ${f.ruleId} → ${f.selector}\n    ${f.help}`);
-
-    expect(
-      blocking,
-      `New serious/critical violations in the get-started modal (${theme} theme):\n${blocking.join('\n')}`,
-    ).toHaveLength(0);
-  });
-});
+}
