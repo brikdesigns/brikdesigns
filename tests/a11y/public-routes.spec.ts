@@ -6,6 +6,8 @@ import { gotoRendered } from './lib/goto-rendered';
 import {
   compileBaseline,
   isWaived,
+  orphanRoutes,
+  unmatchedEntries,
   type BaselineFile,
   type Theme,
 } from './lib/baseline-match';
@@ -230,14 +232,17 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
         ...toFindings(equalRatioIncomplete),
       ];
 
-      const blocking = flatFindings.filter(
+      // The population the baseline is consulted for. Named because the stale-
+      // entry check below must sweep the SAME set `isWaived` decides over — see
+      // the note there.
+      const blockingImpact = flatFindings.filter((f) => BLOCKING_IMPACTS.has(f.impact));
+
+      const blocking = blockingImpact.filter(
         (f) =>
-          BLOCKING_IMPACTS.has(f.impact) &&
-          !isWaived(compiledBaseline, theme, route.path, f) &&
-          !isAcceptedBrandCtaContrast(f),
+          !isWaived(compiledBaseline, theme, route.path, f) && !isAcceptedBrandCtaContrast(f),
       );
-      const baselined = flatFindings.filter(
-        (f) => BLOCKING_IMPACTS.has(f.impact) && isWaived(compiledBaseline, theme, route.path, f),
+      const baselined = blockingImpact.filter((f) =>
+        isWaived(compiledBaseline, theme, route.path, f),
       );
       const nonBlocking = flatFindings.filter((f) => !BLOCKING_IMPACTS.has(f.impact));
 
@@ -262,6 +267,50 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
           .join('\n');
         expect(blocking, `New serious/critical violations on ${route.path} (${theme} theme):\n${summary}`).toHaveLength(0);
       }
+
+      // ── The waiver must not outlive the debt it waives (#1447) ──
+      //
+      // Asserted AFTER the blocking check on purpose: a real new violation is
+      // the more urgent of the two, and a route can carry both at once.
+      //
+      // `blockingImpact`, not `blocking` — the latter has already had the
+      // waived findings filtered OUT of it, so every entry would read stale.
+      // That inversion is the easy mistake here and it fails closed-looking:
+      // the gate goes red claiming the whole baseline is dead.
+      const stale = unmatchedEntries(compiledBaseline, theme, route.path, blockingImpact);
+      expect(
+        stale,
+        `Stale baseline entr(ies) for ${route.path} (${theme}) — nothing blocking on the\n` +
+          `route matches them any more:\n` +
+          stale.map((e) => `  → ${e.scope} · ${e.ruleId} · "${e.value}"`).join('\n') +
+          `\n\nThree causes, three different answers:\n` +
+          `  1. A token under the colour pair was RE-POINTED. Re-key the entry to the\n` +
+          `     pair axe now reports, and name the brik-bds commit that moved it.\n` +
+          `     (#1442 — one bump took out six keys in the sibling list this way.)\n` +
+          `  2. The debt was PAID. Delete the entry and log the burn-down in\n` +
+          `     tests/a11y/README.md — that is the good outcome.\n` +
+          `  3. The element stopped rendering. Delete the entry; and if it SHOULD\n` +
+          `     still be there, that missing element is the defect, not this line.\n\n` +
+          `The full per-route finding set is in test-results/**/axe-report.json.`,
+      ).toHaveLength(0);
     });
   }
+
+  // Per-route coverage above can only speak for routes the suite VISITS. An
+  // entry parked under a route that was renamed or dropped from PUBLIC_ROUTES
+  // is evaluated by nothing at all — #1406 renamed `/customers/*` to
+  // `/industries/*`, which is exactly that shape. Costs no page load.
+  test('every baseline route is one this suite audits', async ({}, testInfo) => {
+    const orphans = orphanRoutes(baseline, PUBLIC_ROUTES.map((r) => r.path));
+    expect(
+      orphans,
+      `baseline.json waives debt on route(s) this suite never visits, so those\n` +
+        `entries are checked by nothing:\n` +
+        orphans.map((o) => `  → ${o}`).join('\n') +
+        `\n\nEither the route was renamed (re-key the entry — /customers/* became\n` +
+        `/industries/* in #1406) or it is gone (delete the entry). Adding the route\n` +
+        `to PUBLIC_ROUTES is also valid, and lint:axe-route-coverage may already\n` +
+        `require it.`,
+    ).toHaveLength(0);
+  });
 });

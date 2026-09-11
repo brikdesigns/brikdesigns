@@ -26,6 +26,8 @@ import {
   isWaived,
   isWellFormedFingerprint,
   normalizeSelector,
+  orphanRoutes,
+  unmatchedEntries,
   type BaselineFile,
   type Finding,
 } from './baseline-match';
@@ -213,6 +215,131 @@ check('no narrative changelog lives in a JSON string value (AC 3)', () => {
       `${key} is ${value.length} chars — the burn-down narrative belongs in tests/a11y/README.md`,
     );
   }
+});
+
+// ── The reverse ratchet (#1447) ─────────────────────────────────────────────
+//
+// `isWaived` is tested above for every way it could waive too much or too
+// little. These test the other direction — an entry that waives nothing — which
+// nothing asked until #1442 took out six colour-pair keys in the sibling list in
+// one BDS bump.
+
+console.log('\nunmatchedEntries');
+
+const waivedBaseline: BaselineFile = {
+  fingerprints: { '/': { 'color-contrast': ['#ffffff on #e35335'] } },
+  fingerprintsDark: { '/': { 'color-contrast': ['#ffffff on #e35335'] } },
+};
+
+check('is silent when the entry matches a live finding', () => {
+  const compiled = compileBaseline(waivedBaseline);
+  assert.deepEqual(unmatchedEntries(compiled, 'light', '/', [finding('.a')]), []);
+});
+
+check('reports the entry when the pair moved under it (the #1442 shape)', () => {
+  const compiled = compileBaseline(waivedBaseline);
+  // Same element, same rule — a re-pointed token, so a DIFFERENT background.
+  const moved = unmatchedEntries(compiled, 'light', '/', [
+    finding('.a', '#ffffff', '#dad0f2'),
+  ]);
+  assert.equal(moved.length, 1);
+  assert.equal(moved[0].value, '#ffffff on #e35335');
+  assert.equal(moved[0].scope, 'fingerprint');
+  assert.equal(moved[0].routePath, '/');
+});
+
+check('reports the entry when the debt was paid and the finding is gone', () => {
+  const compiled = compileBaseline(waivedBaseline);
+  const gone = unmatchedEntries(compiled, 'light', '/', []);
+  assert.equal(gone.length, 1, 'an empty finding set leaves every entry unmatched');
+});
+
+check('stays route-scoped — a live finding on / does not keep /about alive', () => {
+  const compiled = compileBaseline({
+    fingerprints: {
+      '/': { 'color-contrast': ['#ffffff on #e35335'] },
+      '/about': { 'color-contrast': ['#ffffff on #e35335'] },
+    },
+  });
+  assert.deepEqual(unmatchedEntries(compiled, 'light', '/', [finding('.a')]), []);
+  assert.equal(unmatchedEntries(compiled, 'light', '/about', []).length, 1);
+});
+
+check('stays theme-scoped — a light match does not keep the dark entry alive', () => {
+  const compiled = compileBaseline(waivedBaseline);
+  assert.deepEqual(unmatchedEntries(compiled, 'light', '/', [finding('.a')]), []);
+  assert.equal(unmatchedEntries(compiled, 'dark', '/', []).length, 1);
+});
+
+// The precedence in `isWaived` is fingerprint-first: a finding that HAS a
+// colour pair is never matched by the selector half. If these two disagreed, an
+// entry could read live here and waive nothing there — a green gate over a dead
+// waiver, which is the whole defect class inverted.
+check('agrees with isWaived on precedence — a contrast finding never feeds the selector half', () => {
+  const compiled = compileBaseline({
+    routes: { '/': { 'color-contrast': ['.a'] } },
+  });
+  const f = finding('.a');
+  assert.equal(isWaived(compiled, 'light', '/', f), false, 'guards the premise');
+  assert.equal(unmatchedEntries(compiled, 'light', '/', [f]).length, 1);
+});
+
+check('matches a colourless finding through the selector half', () => {
+  const compiled = compileBaseline({ routes: { '/': { 'link-name': ['.a'] } } });
+  const colourless: Finding = { ruleId: 'link-name', selector: '.a', failureSummary: '' };
+  assert.equal(isWaived(compiled, 'light', '/', colourless), true, 'guards the premise');
+  assert.deepEqual(unmatchedEntries(compiled, 'light', '/', [colourless]), []);
+});
+
+check('collapses axe positional indices the same way isWaived does', () => {
+  const compiled = compileBaseline({ routes: { '/': { 'link-name': ['.a .b'] } } });
+  const nth: Finding = { ruleId: 'link-name', selector: '.a:nth-child(3) .b', failureSummary: '' };
+  assert.deepEqual(unmatchedEntries(compiled, 'light', '/', [nth]), []);
+});
+
+console.log('\norphanRoutes');
+
+check('reports a baseline route the suite never visits', () => {
+  // #1406 verbatim: /customers/dental became /industries/dental.
+  const orphans = orphanRoutes(
+    { fingerprints: { '/customers/dental': { 'color-contrast': ['#ffffff on #e35335'] } } },
+    ['/', '/industries/dental'],
+  );
+  assert.deepEqual(orphans, ['fingerprints./customers/dental']);
+});
+
+check('is silent when every baseline route is audited', () => {
+  assert.deepEqual(orphanRoutes(waivedBaseline, ['/', '/about']), []);
+});
+
+check('reads the dark and selector halves too, not only fingerprints', () => {
+  const orphans = orphanRoutes(
+    {
+      fingerprintsDark: { '/gone': { 'color-contrast': ['#ffffff on #e35335'] } },
+      routesDark: { '/also-gone': { 'link-name': ['.a'] } },
+    },
+    ['/'],
+  );
+  assert.deepEqual(orphans, ['fingerprintsDark./gone', 'routesDark./also-gone']);
+});
+
+// Over the REAL file, not a fixture — the same standard the well-formedness and
+// React-id checks above already hold it to. A route-level orphan needs no
+// browser to detect, so there is no reason to wait for the Playwright run.
+check('the real baseline.json has no orphan route (checked against the audited set)', () => {
+  const audited = [
+    ...new Set([
+      ...Object.keys(real.fingerprints ?? {}),
+      ...Object.keys(real.fingerprintsDark ?? {}),
+      ...Object.keys(real.routes ?? {}),
+      ...Object.keys(real.routesDark ?? {}),
+    ]),
+  ];
+  // Self-referential by construction, so it only proves the function runs over
+  // the real shape. The authoritative check is the Playwright test in
+  // public-routes.spec.ts, which holds it against PUBLIC_ROUTES — the list
+  // cannot be imported here without loading @playwright/test.
+  assert.deepEqual(orphanRoutes(real, audited), []);
 });
 
 console.log(`\n${passed} checks passed.`);

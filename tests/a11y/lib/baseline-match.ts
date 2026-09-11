@@ -148,3 +148,110 @@ export function isWaived(
     false
   );
 }
+
+/** One waiver line in `baseline.json`, addressed well enough to delete by hand. */
+export interface BaselineEntry {
+  /** Which half of the file it came from — `fingerprints*` or `routes*`. */
+  scope: 'fingerprint' | 'selector';
+  theme: Theme;
+  routePath: string;
+  ruleId: string;
+  value: string;
+}
+
+/**
+ * The reverse of `isWaived`: entries that waive NOTHING on this route + theme.
+ *
+ * ── Why this is asserted rather than reviewed (#1447) ───────────────────────
+ *
+ * `isWaived` answers "is this finding accepted debt". Until this existed,
+ * nothing asked the other direction, so the file was on a one-way ratchet —
+ * entries could only ever accumulate. Two things make an entry stop matching,
+ * and they are indistinguishable in a diff:
+ *
+ *   1. The debt was PAID and nobody removed the line. The waiver now stands
+ *      ready to re-accept the defect the moment it returns, silently.
+ *   2. A token under the colour pair was RE-POINTED. #1361 chose a pair key
+ *      over a selector key precisely so a waiver survives a DOM re-root — and
+ *      it does. It does not survive the palette moving underneath it.
+ *
+ * (2) is not hypothetical. brik-bds `05f3d748` re-pointed
+ * `--surface-accent-{hue}` onto the numeric Brand Kit ramp and took out SIX
+ * colour-pair keys in `fill-distinctness.spec.ts`'s sibling list in one bump
+ * (#1442) — five that moved, and one whose pair had crossed back over the 3:1
+ * floor, leaving a waiver for a defect that no longer existed. `baseline.json`
+ * is keyed the same way; only the luck of which primitives that release touched
+ * kept it clean.
+ *
+ * The reverse-ratchet is settled policy elsewhere in this repo —
+ * `scripts/card-class-baseline.json` states it for its grandfather list: "adding
+ * an unbacked card without an entry fails, and leaving an entry for a name that
+ * has since been converted or deleted also fails."
+ *
+ * Pure, and takes the findings rather than a page, so the self-test runs the
+ * identical function against an injected stale entry.
+ *
+ * `findings` must be the SAME population `isWaived` is consulted for — the
+ * blocking-impact set. Passing a wider set would call an entry live when it only
+ * matches an advisory finding the gate never blocks on; passing a narrower one
+ * would report a working waiver as stale.
+ */
+export function unmatchedEntries(
+  compiled: CompiledBaseline,
+  theme: Theme,
+  routePath: string,
+  findings: Finding[],
+): BaselineEntry[] {
+  const seenFingerprints = new Set<string>();
+  const seenSelectors = new Set<string>();
+  for (const f of findings) {
+    const fingerprint = fingerprintOf(f);
+    if (fingerprint !== null) seenFingerprints.add(`${f.ruleId} ${fingerprint}`);
+    // A finding is matched by the selector half only when it has NO fingerprint
+    // — that is the precedence `isWaived` applies, and the two must agree or an
+    // entry could read live here and waive nothing there.
+    else seenSelectors.add(`${f.ruleId} ${normalizeSelector(f.selector)}`);
+  }
+
+  const out: BaselineEntry[] = [];
+  const sweep = (
+    scope: BaselineEntry['scope'],
+    source: Record<string, Record<string, Set<string>>>,
+    seen: Set<string>,
+  ) => {
+    for (const [ruleId, values] of Object.entries(source[routePath] ?? {})) {
+      for (const value of values) {
+        if (!seen.has(`${ruleId} ${value}`)) {
+          out.push({ scope, theme, routePath, ruleId, value });
+        }
+      }
+    }
+  };
+  sweep('fingerprint', compiled.fingerprints[theme], seenFingerprints);
+  sweep('selector', compiled.selectors[theme], seenSelectors);
+  return out;
+}
+
+/**
+ * Route keys in the baseline that no route in `audited` covers (#1447).
+ *
+ * `unmatchedEntries` is per-route, so it can only speak for routes the suite
+ * actually visits. An entry parked under a route that was renamed or dropped
+ * from `PUBLIC_ROUTES` is never evaluated by anything and rots in total
+ * silence — the exact blind spot that let 89 of the file's 160 selector entries
+ * (56%) stop matching before #1361 measured it.
+ *
+ * Live example of the rename shape: `/customers/*` became `/industries/*` in
+ * #1406.
+ */
+export function orphanRoutes(baseline: BaselineFile, audited: Iterable<string>): string[] {
+  const covered = new Set(audited);
+  const keys: (keyof BaselineFile)[] = ['fingerprints', 'fingerprintsDark', 'routes', 'routesDark'];
+  const orphans = new Set<string>();
+  for (const key of keys) {
+    for (const routePath of Object.keys(baseline[key] ?? {})) {
+      if (!covered.has(routePath)) orphans.add(`${key}.${routePath}`);
+    }
+  }
+  return [...orphans].sort();
+}
