@@ -111,10 +111,25 @@
 
 /* ─── Brand-color CTA card ───────────────────────────────── */
 /* Centered orange panel inside a section gutter — used at the bottom of
-   results index and industry detail pages. */
+   results index and industry detail pages.
+
+   Geometry is Figma `section-cta` 26144:9140, the ONE node in the file that
+   declares this frame: section `px-[80px] py-[64px]`, band `py-[104px]`,
+   radius 16, height driven by content. The horizontal half already agreed —
+   a 1280px band centred in a 1440px frame IS the 80px gutter — so #1371's
+   correction is vertical only. It measured 497px against a designed 630px
+   (figma-mode run on d4513a5); the missing 133px is 2×16 of section pad plus
+   2×56 of band pad, masked by a `min-height: 400px` that made the panel look
+   deliberate at the wrong size.
+
+   OPERATOR SAID 2026-09-11 (chat, `/resume 1310` session), choosing between
+   a plan-detail modifier and this: "Fix the shared panel sitewide".
+   `marketing-section-reuse.md:20` lists this pair as the shared implementation
+   of the `section-contact` frame, so a per-route fork here is the drift #1289
+   was filed about — every route that renders this panel renders one design. */
 
 .cta-section-brand {
-  padding: var(--padding-huge) 0;
+  padding: var(--space-1600) 0;
   display: flex;
   justify-content: center;
 }
@@ -122,9 +137,10 @@
 .cta-card-brand {
   width: 100%;
   max-width: 1280px;
-  min-height: 400px;
   margin: 0 var(--padding-lg);
-  padding: var(--padding-huge) var(--padding-xl);
+  /* No `min-height`: Figma drives the band off its content, and the floor it
+     replaced was taller than `py-[104px]` + short copy resolves to. */
+  padding: var(--space-2200) var(--padding-xl);
   background-color: var(--surface-brand-primary);
   border-radius: var(--border-radius-lg);
   display: flex;
