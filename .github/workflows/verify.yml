@@ -78,19 +78,23 @@ jobs:
   # check renders as nothing, which is exactly what "all checks passed" looks
   # like (#1345).
   #
-  # `tests/a11y/public-routes.spec.ts` is listed for the same self-trigger
-  # reason, one layer over: `lint:axe-route-coverage` READS that file, so an
-  # edit that deletes a ROUTES entry while leaving the page.tsx in place is a
-  # coverage regression the lint would catch — but only if it runs, and
-  # `tests/**` is otherwise not in this list. The add-a-page direction is
-  # already covered by `src/**` (#1360).
+  # `tests/a11y/**` is listed as a whole tree, not by named path, because this
+  # job is the ONLY thing that typechecks or lints those specs. `axe` runs them,
+  # but Playwright transpiles TypeScript with esbuild, which strips types
+  # without checking them — so a spec with a type error passes `axe` and, on a
+  # PR touching only that spec, never reaches `tsc` at all (#1430).
   #
-  # `tests/a11y/lib/**` and `tests/a11y/baseline.json` are listed for the third
-  # instance of that pattern: `test:a11y-baseline` asserts the live
-  # `baseline.json`'s shape — every fingerprint well-formed, no React-generated
-  # ids, no narrative changelog back inside a JSON string — so a PR that edits
-  # ONLY the baseline is exactly the PR that check exists for, and would
-  # otherwise skip `verify` entirely (#1361).
+  # It also covers three self-trigger cases the named paths were originally
+  # added for: `lint:axe-route-coverage` READS `public-routes.spec.ts`, so
+  # deleting a ROUTES entry while leaving the page.tsx in place is a regression
+  # only caught if this job runs (#1360); and `test:a11y-baseline` asserts the
+  # live `baseline.json`'s shape, so a baseline-only PR is exactly the PR that
+  # check exists for (#1361). The add-a-page direction stays covered by `src/**`.
+  #
+  # Scoped to `tests/a11y/**` rather than `tests/**` on purpose: the only other
+  # subtree is `tests/visual-parity/`, which holds README/PNG baselines and no
+  # TypeScript, so widening further would run `verify` on re-baseline PRs that
+  # change nothing it can check.
   #
   # Do not comment INSIDE the `--pattern` continuation below: a `#` line between
   # two `\`-continued lines comments out the rest of the command.
@@ -125,9 +129,7 @@ jobs:
               --pattern 'tsconfig*.json' \
               --pattern 'package.json' \
               --pattern 'package-lock.json' \
-              --pattern 'tests/a11y/public-routes.spec.ts' \
-              --pattern 'tests/a11y/lib/**' \
-              --pattern 'tests/a11y/baseline.json' \
+              --pattern 'tests/a11y/**' \
               --pattern 'instrumentation*.ts' \
               --pattern '.github/workflows/verify.yml' \
             >> "$GITHUB_OUTPUT"
