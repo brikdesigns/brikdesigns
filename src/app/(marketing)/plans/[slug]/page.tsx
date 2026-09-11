@@ -285,6 +285,9 @@ export default async function PlanDetailPage({ params }: Props) {
           headerTitle="Advisory or Managed — you choose how involved Brik is."
           headerDescription="Let's start with the BrikDown Analysis to find out."
           brikdownHref={BRIKDOWN_HREF}
+          planSlug={plan.slug}
+          planName={plan.name}
+          serviceLine={audience}
         />
       )}
 
