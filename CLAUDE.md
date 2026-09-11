@@ -71,6 +71,19 @@ NEVER open, propose, recommend, or ask about a `staging → main` promote — Br
 
 Advisory by design and deliberately NOT required: `visual-parity` (`continue-on-error`, [visual-parity.yml:92](.github/workflows/visual-parity.yml#L92)), `require-area-label` (a cancelled check-run keeps reporting `expected` and only a new head SHA clears it — brik-llm#2094, recorded at [pr-label-gate.yml:43-49](.github/workflows/pr-label-gate.yml#L43-L49)), and the `*-contract` self-test workflows.
 
+## When a merge is refused for a check that demonstrably passed
+
+RUN `node scripts/lib/latched-context.mjs --pr <n>` before doing anything else — `Required status check "<name>" is expected` while `gh pr checks` shows it green is a **latch**, not a stale rollup, and the one step that clears it is a new head SHA:
+
+```
+git commit --allow-empty -m "chore: new head SHA to clear the latched <name> check"
+git push
+```
+
+NEVER reach for `gh run rerun` here. The ruleset reads the **newest check-suite** of the workflow that owns the context; a run cancelled at the *queue* stage emits no check-run, so that suite reports nothing and the context reverts to `expected`. Re-running an older run makes an older suite greener and changes nothing — #1417 spent two refused merges (rule-suites `4037728674`, `4037909746`) proving it, the second while **two** successful `regression` check-runs sat on the SHA. Same shape as the `require-area-label` note above (brik-llm#2094); #1421 is the first observation on a check that is actually required, and 45 of 45 merged heads over 2026-09-01→11 had their newest suite green.
+
+The burst that causes it is not configurable away: `POST /repos/{owner}/{repo}/pulls` accepts no `labels` parameter, so `pr-task.sh:692` applies them in a second call and GitHub emits **one `labeled` event per label** — each one a fresh run in `visual-regression.yml`'s `cancel-in-progress` group ([visual-regression.yml:88-90](.github/workflows/visual-regression.yml#L88-L90)). Whether the arbiter cancels the newest of a same-second pair is a coin flip. Detect and clear; do not "tidy" the concurrency block.
+
 NEVER give a required gate a workflow-level `on.<event>.paths` filter — a workflow skipped by path filtering leaves its check **Pending**, and a PR that requires it can never merge ([GitHub: workflow-syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onpushpull_requestpull_request_targetpathspaths-ignore)). PUT the path list in a `changes` job that calls `scripts/ci-paths-match.mjs`, and gate the real job on `if: needs.changes.outputs.run == 'true'` — a skipped **job** is accepted where a skipped **workflow** is not ([GitHub: about-protected-branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)). `verify`, `axe`, `mockup` and `regression` are all on that shape; `npm run test:ci-paths-match` fails if a `paths:` filter comes back.
 
 ## When changing a section that was built from a Figma node
