@@ -1,6 +1,8 @@
 # Visual parity capture
 
-Side-by-side full-page screenshots of `brikdesigns.com` (Webflow target) vs the Netlify deploy preview, at 3 viewports × 2 themes. Used to drive page-by-page visual parity work during the Webflow → Next.js migration.
+Side-by-side full-page screenshots of `brikdesigns.com` (Webflow target) vs the Netlify deploy preview, at 4 viewports (`wide` 1600 · `desktop` 1280 · `tablet` 768 · `mobile` 375) × 2 themes. Used to drive page-by-page visual parity work during the Webflow → Next.js migration.
+
+`wide` sits above the 1440px `--site-content-width` cap so a change to the cap is visible at all; below it every container is viewport-bound and no capture can see one (#1124).
 
 ## Usage
 

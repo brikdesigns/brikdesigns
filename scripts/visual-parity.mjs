@@ -189,14 +189,35 @@ const ROUTES = [
   { netlify: '/about', webflow: '/about', name: 'about' },
   { netlify: '/services', webflow: '/services', name: 'services' },
   { netlify: '/services/marketing', webflow: '/service-lines/marketing-design', name: 'services-category-marketing' },
+  // The other four service lines (#863). Marketing was the only line with pixel
+  // coverage, and it is the line that already worked: PR #861 retinted the
+  // sticky nav on seven routes and this gate reported 0.00% on every capture,
+  // because none of the seven was captured. `lint:nav-service-tint` (#860) and
+  // `tests/a11y/nav-service-tint.spec.ts` guard the mapping and the rendered
+  // class; neither looks at pixels, so a tint on the wrong element or at the
+  // wrong z-index passes both.
+  //
+  // back-office is the highest-value row: its route segment is the one that has
+  // ever diverged from its DB slug (`src/lib/service-line-routes.ts:21-22`,
+  // still carrying the `service` → `back-office` cushion until migration 00199
+  // reaches prod), which is the axis most likely to break silently.
+  //
+  // `webflow: null` on all four — this ticket is about the regression gate, and
+  // claiming a Webflow counterpart would assert a page on a platform this
+  // change has no reason to touch. Parity coverage for these lines is a
+  // separate decision, not a side effect of closing #863.
+  { netlify: '/services/brand', webflow: null, name: 'services-category-brand' },
+  { netlify: '/services/information', webflow: null, name: 'services-category-information' },
+  { netlify: '/services/product', webflow: null, name: 'services-category-product' },
+  { netlify: '/services/back-office', webflow: null, name: 'services-category-back-office' },
   { netlify: '/services/marketing/website-experience-mapping', webflow: '/service/website-experience-mapping', name: 'services-detail-website-experience-mapping' },
   { netlify: '/plans', webflow: '/plans', name: 'plans' },
   { netlify: '/results', webflow: '/customer-stories', name: 'results' },
   { netlify: '/industries', webflow: '/customers', name: 'industries' },
-  { netlify: '/industries/dental', webflow: '/customers/dental', name: 'industry-dental' },
+  { netlify: '/industries/dental', webflow: '/customers/dental', name: 'industry-dental', self: false },
   { netlify: '/blog', webflow: '/blog', name: 'blog' },
   { netlify: '/contact', webflow: '/contact', name: 'contact' },
-  { netlify: '/free-marketing-analysis', webflow: '/brikdown-analysis', name: 'fma' },
+  { netlify: '/free-marketing-analysis', webflow: '/brikdown-analysis', name: 'fma', self: false },
   { netlify: '/value', webflow: '/value', name: 'value' },
   // CMS landing route — no Webflow ancestor (webflow: null skips it in webflow
   // mode). `mockup` declares which viewport/theme combos have a checked-in
@@ -268,7 +289,16 @@ const ROUTES = [
   },
 ];
 
+// `wide` exists because every site container caps at `--site-content-width:
+// 1440px` (#1110), and at 1280 the cap is never the binding constraint — the
+// container is viewport-bound, so no capture could see a change to it. PR #1110
+// repointed 15 declarations across 8 files onto that cap and this gate reported
+// 0.00% on every non-home route at all three viewports (run 33197218323); the
+// change was real and was verified by hand at 1600 instead. 1600 is the
+// narrowest round width past the cap, which keeps `desktop` at 1280 doing the
+// at-cap job rather than swapping one blind spot for another (#1124).
 const VIEWPORTS = [
+  { name: 'wide',    width: 1600, height: 900 },
   { name: 'desktop', width: 1280, height: 800 },
   { name: 'tablet',  width: 768,  height: 1024 },
   { name: 'mobile',  width: 375,  height: 812 },
@@ -784,16 +814,31 @@ if (FIGMA_MODE) {
 // locally, set by the workflow to a value below the job cap.
 const SWEEP_DEADLINE_MS = resolveDeadlineMs(process.env.SWEEP_DEADLINE_MS);
 const SWEEP_STARTED_AT = Date.now();
+// `self: false` marks a row that earns its place in webflow mode and costs
+// captures in regression mode for nothing (#863). Both current rows are 308
+// SOURCES on our own site — `/industries/dental` → `/customers/dental`,
+// `/free-marketing-analysis` → `/offers/free-marketing-analysis`
+// (`next.config.mjs:121`, both verified live 2026-09-11). They are Webflow's
+// URLs, which is exactly right for parity and meaningless for regression: this
+// mode compares our rendering against our own merge-base deploy and has no
+// Webflow constraint, so the two rows re-render content the destination routes
+// already cover.
+//
+// Filtered once, here, so the deadline report's plan and the loop below cannot
+// disagree — a plan that names units the sweep never intended to capture is the
+// #887 failure one layer over. Non-self modes see the list unchanged.
+const SWEPT_ROUTES = ROUTES.filter((r) => !(SELF_MODE && r.self === false));
+
 const SWEEP_PLAN = FIGMA_MODE
   ? []
-  : planUnits(THEMES, VIEWPORTS.map((v) => v.name), ROUTES.map((r) => r.name));
+  : planUnits(THEMES, VIEWPORTS.map((v) => v.name), SWEPT_ROUTES.map((r) => r.name));
 let sweepMeasured = 0;
 
 for (const theme of FIGMA_MODE ? [] : THEMES) {
   for (const viewport of VIEWPORTS) {
     const dir = path.join(OUT, theme, viewport.name);
     fs.mkdirSync(dir, { recursive: true });
-    for (const route of ROUTES) {
+    for (const route of SWEPT_ROUTES) {
       // Checked BEFORE the capture, because the capture is what overruns: a
       // route can spend two full IMAGE_WAIT_MS budgets, so deciding after one
       // has already started concedes the headroom this guard exists to keep.
