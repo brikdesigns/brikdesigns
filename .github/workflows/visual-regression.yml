@@ -146,6 +146,10 @@ jobs:
       # the only deploy signal tied to a commit rather than to the PR number
       # (#1218, adopted here per #1220).
       statuses: read
+      # Read THIS run's prior-attempt job log to recover its blocking signature
+      # (#1350). No new workflow, no new trigger — a read of a run this workflow
+      # already produced.
+      actions: read
     env:
       PACKAGES_READ_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -254,10 +258,65 @@ jobs:
           URL=$(node scripts/lib/staging-reference.mjs --sha "${{ steps.base.outputs.sha }}")
           echo "url=$URL" >> "$GITHUB_OUTPUT"
 
+      # ── Recover the prior attempt's blocking signature (#1350) ──────────────
+      #
+      # On a re-run (`github.run_attempt > 1`) the compare step below rules on
+      # whether the SAME captures block again rather than repeating "re-run; a
+      # flake does not reproduce" — a loop with no exit on a capture flake, whose
+      # blocking set changes each build. The prior attempt already printed its
+      # set as a `REGRESSION_BLOCKING_SIGNATURE:` marker; read it back from that
+      # attempt's job log. This is the whole cost of the feature — one log read,
+      # no extra capture run, and it REMOVES the misdirected re-runs it replaces.
+      #
+      # Fail SOFT: any lookup miss yields an empty value, and visual-parity.mjs
+      # treats an absent prior signature as "no comparison available" and gates
+      # on `blocking` as before. It can never turn a real regression green.
+      - name: Recover prior attempt blocking signature
+        id: prior
+        if: github.run_attempt > 1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # `set +e` so a lookup miss degrades rather than aborts. Neither gh call
+        # is piped, so `$?` is gh's OWN exit — the failure/empty distinction does
+        # not depend on `pipefail` being set, and `jq … | first` avoids a `head`
+        # that would both mask the exit code and risk SIGPIPE. A genuine miss (no
+        # prior `regression` job) is silent; an actual API FAILURE emits a
+        # `::warning::` so a permanently-broken lookup is visible instead of
+        # masquerading as attempt-1 behaviour forever (#1350, QA).
+        run: |
+          set +e
+          PREV=$(( ${{ github.run_attempt }} - 1 ))
+          JOB_ID=$(gh api \
+            "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/$PREV/jobs" \
+            --jq '[.jobs[] | select(.name == "regression") | .id] | first // empty' 2>/tmp/prior_err)
+          JOBS_RC=$?
+          SIG=""
+          if [ "$JOBS_RC" -ne 0 ]; then
+            echo "::warning::#1350 prior-attempt job lookup failed (attempt $PREV, rc=$JOBS_RC): $(tr '\n' ' ' </tmp/prior_err). Gating on this attempt alone — the flake-vs-real ruling is degraded, not the gate."
+          elif [ -z "$JOB_ID" ]; then
+            echo "▸ prior attempt $PREV had no 'regression' job to read — gating on this attempt alone"
+          else
+            LOGS=$(gh api "repos/${{ github.repository }}/actions/jobs/$JOB_ID/logs" 2>/tmp/prior_err)
+            LOGS_RC=$?
+            if [ "$LOGS_RC" -ne 0 ]; then
+              echo "::warning::#1350 prior-attempt log fetch failed (job $JOB_ID, rc=$LOGS_RC): $(tr '\n' ' ' </tmp/prior_err). Gating on this attempt alone."
+            else
+              SIG=$(printf '%s' "$LOGS" | grep 'REGRESSION_BLOCKING_SIGNATURE:' | tail -1 \
+                | sed -E 's/.*REGRESSION_BLOCKING_SIGNATURE:[[:space:]]*//')
+            fi
+          fi
+          if [ -n "$SIG" ]; then
+            echo "▸ prior attempt ($PREV) blocking signature: $SIG"
+          fi
+          echo "signature=$SIG" >> "$GITHUB_OUTPUT"
+
       - name: Compare deploy-preview against staging
         env:
           NETLIFY_URL: ${{ steps.deploy.outputs.url }}
           REFERENCE_MODE: self
+          # The prior attempt's blocking set (#1350). Empty on attempt 1 or on a
+          # lookup miss; the script gates on this attempt alone when it is absent.
+          PRIOR_ATTEMPT_BLOCKING: ${{ steps.prior.outputs.signature }}
           # The merge-base's own deploy, resolved above. visual-parity.mjs has
           # no self-mode default any more (#1354) — an empty value here is a
           # hard stop, not a quiet return to the alias.

@@ -19,6 +19,11 @@ import {
   evaluateDeclaration,
   classifyBlockingSpread,
   buildDeclarationLine,
+  blockingSignature,
+  formatSignature,
+  parseSignature,
+  compareAttemptSignatures,
+  decideEffectiveBlocking,
   isStalePayloadRerun,
   isTruncatedCapture,
   isPartialCapture,
@@ -718,6 +723,201 @@ check('ties on worst break by route name', () => {
 
 check('empty results yield no rows', () => {
   assert.deepEqual(summarizeNoiseByRoute([]), []);
+});
+
+console.log('blockingSignature / formatSignature / parseSignature');
+
+check('signature is the sorted set of route|theme|viewport keys', () => {
+  assert.deepEqual(
+    blockingSignature([
+      cap('blog', 5, 'dark', 'mobile'),
+      cap('blog', 5, 'dark', 'tablet'),
+      cap('home', 5, 'light', 'desktop'),
+    ]),
+    ['blog|dark|mobile', 'blog|dark|tablet', 'home|light|desktop'],
+  );
+});
+
+check('signature dedupes identical keys', () => {
+  assert.deepEqual(
+    blockingSignature([cap('home', 5), cap('home', 9)]),
+    ['home|light|desktop'],
+  );
+});
+
+check('format then parse round-trips a set', () => {
+  const sig = ['blog|dark|mobile', 'home|light|desktop'];
+  assert.equal(formatSignature(sig), 'blog|dark|mobile;home|light|desktop');
+  assert.deepEqual(parseSignature(formatSignature(sig)), sig);
+});
+
+check('an empty set formats to (none) and parses back to []', () => {
+  assert.equal(formatSignature([]), '(none)');
+  assert.deepEqual(parseSignature('(none)'), []);
+});
+
+check('a blank/absent value parses to null, distinct from the empty set', () => {
+  assert.equal(parseSignature(''), null, 'no prior attempt to read');
+  assert.equal(parseSignature('   '), null);
+  assert.equal(parseSignature(undefined), null);
+  assert.equal(parseSignature(null), null);
+  assert.deepEqual(parseSignature('(none)'), [], 'prior attempt blocked nothing');
+});
+
+console.log('compareAttemptSignatures');
+
+check('identical sets → same verdict, whole set deterministic, no flapping', () => {
+  const sig = ['plans|dark|desktop', 'plans|light|desktop'];
+  const r = compareAttemptSignatures(sig, sig);
+  assert.equal(r.verdict, 'same');
+  assert.deepEqual(r.deterministic.sort(), sig);
+  assert.deepEqual(r.flapping, []);
+});
+
+check('the #1330 repro — zero overlap → different, nothing deterministic', () => {
+  // attempt 1 blocked one light capture; attempt 2 blocked seven dark ones.
+  const prior = ['blog|light|tablet'];
+  const current = [
+    'blog|dark|mobile',
+    'blog|dark|tablet',
+    'blog|dark|desktop',
+    'services|dark|mobile',
+    'services|dark|tablet',
+    'home|dark|tablet',
+    'home|dark|mobile',
+  ];
+  const r = compareAttemptSignatures(prior, current);
+  assert.equal(r.verdict, 'different');
+  assert.deepEqual(r.deterministic, [], 'no capture blocked in both attempts');
+  assert.equal(r.flapping.length, 8, 'all eight are capture-side and cleared');
+});
+
+check('a real regression sharing a head SHA with a flake keeps its deterministic captures', () => {
+  // `plans` blocks on both attempts (real); `blog` flakes on only one.
+  const prior = ['plans|dark|desktop', 'plans|light|desktop', 'blog|light|tablet'];
+  const current = ['plans|dark|desktop', 'plans|light|desktop', 'home|dark|mobile'];
+  const r = compareAttemptSignatures(prior, current);
+  assert.equal(r.verdict, 'different');
+  assert.deepEqual(
+    r.deterministic.sort(),
+    ['plans|dark|desktop', 'plans|light|desktop'],
+    'the reproduced regression is NOT cleared by the coincident flake',
+  );
+  assert.deepEqual(r.flapping, ['blog|light|tablet', 'home|dark|mobile'].sort());
+});
+
+check('a flake that appears only on the later attempt is cleared', () => {
+  // attempt 1 clean, attempt 2 blocked — the build is deterministically clean,
+  // so attempt 2's blocks are capture-side.
+  const r = compareAttemptSignatures([], ['blog|dark|mobile']);
+  assert.equal(r.verdict, 'different');
+  assert.deepEqual(r.deterministic, []);
+  assert.deepEqual(r.flapping, ['blog|dark|mobile']);
+});
+
+console.log('decideEffectiveBlocking (the set that exits the process)');
+
+const routeKeys = (list) => list.map((r) => `${r.route}|${r.theme}|${r.viewport}`).sort();
+
+check('attempt 1 → no comparison, the whole set gates', () => {
+  const blocking = [cap('blog', 5, 'dark', 'mobile'), cap('home', 9, 'light', 'desktop')];
+  const d = decideEffectiveBlocking({ blocking, runAttempt: 1, priorSignatureRaw: '' });
+  assert.equal(d.crossAttempt, null);
+  assert.equal(d.effectiveBlocking.length, 2, 'nothing narrows a first attempt');
+});
+
+check('attempt 2 with no recoverable prior signature fails CLOSED', () => {
+  const blocking = [cap('blog', 5, 'dark', 'mobile')];
+  // A lookup miss on attempt 2 must NOT pass the run — it gates on the full set.
+  const d = decideEffectiveBlocking({ blocking, runAttempt: 2, priorSignatureRaw: '' });
+  assert.equal(d.crossAttempt, null, 'no prior signature = no comparison');
+  assert.equal(d.effectiveBlocking.length, 1, 'blocking stands rather than passing');
+});
+
+check('the #1330 case — pure flake across two attempts → empty gate, run passes', () => {
+  const prior = 'blog|light|tablet';
+  const blocking = [
+    cap('blog', 34, 'dark', 'mobile'),
+    cap('services', 18, 'dark', 'mobile'),
+    cap('home', 7, 'dark', 'tablet'),
+  ];
+  const d = decideEffectiveBlocking({ blocking, runAttempt: 2, priorSignatureRaw: prior });
+  assert.equal(d.crossAttempt.verdict, 'different');
+  assert.deepEqual(d.effectiveBlocking, [], 'no capture reproduced → nothing gates → green');
+});
+
+check('a reproduced regression keeps gating on attempt 2 (same signature)', () => {
+  const sig = 'plans|dark|desktop;plans|light|desktop';
+  const blocking = [cap('plans', 18, 'dark', 'desktop'), cap('plans', 14, 'light', 'desktop')];
+  const d = decideEffectiveBlocking({ blocking, runAttempt: 2, priorSignatureRaw: sig });
+  assert.equal(d.crossAttempt.verdict, 'same');
+  assert.equal(d.effectiveBlocking.length, 2, 'an identical set is real — it still blocks');
+});
+
+check('a real regression coincident with a flake narrows to the reproduced captures', () => {
+  const prior = 'plans|dark|desktop;plans|light|desktop;blog|light|tablet';
+  const blocking = [
+    cap('plans', 18, 'dark', 'desktop'), // reproduced → keeps gating
+    cap('plans', 14, 'light', 'desktop'), // reproduced → keeps gating
+    cap('home', 7, 'dark', 'mobile'), // new this attempt → capture-side, cleared
+  ];
+  const d = decideEffectiveBlocking({ blocking, runAttempt: 2, priorSignatureRaw: prior });
+  assert.equal(d.crossAttempt.verdict, 'different');
+  assert.deepEqual(
+    routeKeys(d.effectiveBlocking),
+    ['plans|dark|desktop', 'plans|light|desktop'],
+    'the coincident flake never rides the real regression to green',
+  );
+});
+
+// The QA-hardening cases: clearing needs BOTH signals — cross-attempt flap AND
+// intra-run isolation. Magnitude alone (a near-threshold real change jittering
+// across 1%) must never be mistaken for a flake. These pass real `results` so
+// classifyBlockingSpread computes a genuine spread rather than defaulting to
+// isolated on an empty set.
+check('a near-threshold REAL change that flapped across attempts is NOT cleared (moved both themes)', () => {
+  // `plans/desktop` moved on BOTH themes this attempt → viewportScoped, not
+  // isolated. Attempt 1 (prior) only caught the dark theme, so light|desktop is
+  // "new" this attempt — set-membership alone would wrongly clear it.
+  const results = [
+    cap('plans', 1.3, 'dark', 'desktop'),
+    cap('plans', 1.1, 'light', 'desktop'),
+    cap('plans', 0, 'dark', 'mobile'),
+    cap('plans', 0, 'light', 'mobile'),
+  ];
+  const blocking = results.filter((r) => r.diffPct > 1);
+  const d = decideEffectiveBlocking({
+    blocking,
+    results,
+    runAttempt: 2,
+    priorSignatureRaw: 'plans|dark|desktop',
+  });
+  assert.equal(d.crossAttempt.verdict, 'different', 'the set did change between attempts');
+  assert.deepEqual(d.cleared, [], 'a change on both themes is not isolated → not capture-side');
+  assert.deepEqual(
+    routeKeys(d.effectiveBlocking),
+    ['plans|dark|desktop', 'plans|light|desktop'],
+    'the real change keeps gating rather than being waived as a flake',
+  );
+});
+
+check('an isolated capture that flapped IS cleared (sibling theme at 0.00%)', () => {
+  // `blog/mobile` moved on dark only; its light sibling read 0.00% → isolated.
+  // Attempt 1 (prior) blocked nothing, so this is new + isolated → both signals.
+  const results = [
+    cap('blog', 34, 'dark', 'mobile'),
+    cap('blog', 0, 'light', 'mobile'),
+  ];
+  const blocking = results.filter((r) => r.diffPct > 1);
+  const d = decideEffectiveBlocking({
+    blocking,
+    results,
+    runAttempt: 2,
+    priorSignatureRaw: '(none)',
+  });
+  assert.equal(d.crossAttempt.verdict, 'different');
+  assert.deepEqual(routeKeys(d.cleared), ['blog|dark|mobile']);
+  assert.deepEqual(d.effectiveBlocking, [], 'isolated + flapped → capture-side → run passes');
 });
 
 console.log(`\n✓ ${passed} assertions passed`);
