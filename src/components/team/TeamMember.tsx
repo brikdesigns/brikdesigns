@@ -39,7 +39,7 @@ export function TeamMember({
     >
       {stacked ? (
         <div className="team-member__panel">
-          <div className="team-member__chip">
+          <div className="team-member__avatar">
             <Image
               src={member.image}
               alt={member.fullName}

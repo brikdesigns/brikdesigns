@@ -132,22 +132,30 @@ test('the real gate passes on the real files', () => {
   assert.match(r.stdout, /clean/);
 });
 
-test('AC5 — `.engagement-mode__chip` fails the gate once un-baselined', () => {
-  // A gate that cannot fail is not a gate. Drop the baseline and the real
-  // offender in the real tree must fail, naming Tag/Badge and the canon.
-  const saved = fs.readFileSync(BASELINE_PATH, 'utf8');
+test('a new hand-rolled chip in the real tree fails the gate', () => {
+  // A gate that cannot fail is not a gate. #1395's version of this case used
+  // `.engagement-mode__chip`, the real offender then in the tree; #1415 renamed
+  // both offenders and emptied `classnames`, so the case now PLANTS one. That
+  // is the stronger assertion anyway: it pins the going-forward direction the
+  // ratchet exists for, and cannot rot the next time a name is fixed.
+  const css = 'src/app/ztmp-vocabulary-probe.css';
+  const tsx = 'src/app/ztmp-vocabulary-probe.tsx';
   try {
-    fs.writeFileSync(BASELINE_PATH, '{"classnames":{},"comments":{}}\n');
+    fs.writeFileSync(css, '.probe-section__chip {\n  border-radius: 4px;\n}\n');
+    fs.writeFileSync(
+      tsx,
+      'export default function Probe() {\n  return <span className="probe-section__chip" />;\n}\n'
+    );
     const r = spawnSync(process.execPath, ['scripts/lint-indicator-vocabulary.mjs'], {
       encoding: 'utf8',
     });
-    assert.equal(r.status, 1, 'the gate must fail with an empty baseline');
-    assert.match(r.stderr, /engagement-mode__chip/, 'it names the offending class');
+    assert.equal(r.status, 1, 'the gate must fail on an un-baselined offender');
+    assert.match(r.stderr, /probe-section__chip/, 'it names the offending class');
     assert.match(r.stderr, /`Tag`/, 'the message names Tag');
     assert.match(r.stderr, /`Badge`/, 'the message names Badge');
     assert.match(r.stderr, /build-standards\/indicators/, 'the message cites the canon page');
   } finally {
-    fs.writeFileSync(BASELINE_PATH, saved);
+    for (const f of [css, tsx]) if (fs.existsSync(f)) fs.unlinkSync(f);
   }
 });
 

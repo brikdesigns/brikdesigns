@@ -58,8 +58,8 @@ const RECOMMENDED_SLUG = 'full-stack-support';
 // each description already says who executes, so the parenthetical is redundant
 // as well as unratified.
 //
-// `accent` keys the icon chip's fill/ink pair in plans.css. Figma gives the two
-// chips DIFFERENT token families rather than one tinted pair — advisory takes
+// `accent` keys the icon square's fill/ink pair in plans.css. Figma gives the
+// two squares DIFFERENT token families rather than one tinted pair — advisory takes
 // the mid `background/service-brand`, managed the deep
 // `background/service-back-office-on-light` — so each is declared by name there
 // instead of derived from a single formula.
@@ -262,12 +262,12 @@ export default async function PlansPage() {
                 {/* Designed slot restored (#1304). Figma draws a Font Awesome
                  * trowel here, but FA is Figma-only — code is on Phosphor, which
                  * has no trowel or brick glyph (0 hits across all 9,161). So the
-                 * chip's geometry and token pair come from Figma, and the glyph
+                 * square's geometry and token pair come from Figma, and the glyph
                  * is the nearest Phosphor read of the same masonry motif. Purely
                  * decorative — the same mark repeats on every card and carries no
                  * per-mode meaning, so it is hidden from assistive tech. */}
                 <span
-                  className="engagement-mode__chip"
+                  className="engagement-mode__icon"
                   data-accent={mode.accent}
                   aria-hidden="true"
                 >
