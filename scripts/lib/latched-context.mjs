@@ -48,7 +48,28 @@
  * cases offline. The CLI at the bottom is the thing a blocked session runs.
  */
 
-/** The context is reported by the newest suite and it passed. Merge should work. */
+/**
+ * Conclusions the ruleset accepts as satisfying a required context.
+ *
+ * Not just `success`. GitHub: "Required status checks must have a `successful`,
+ * `skipped`, or `neutral` status before collaborators can make changes to a
+ * protected branch" ([about-protected-branches], fetched 2026-09-11). Confirmed
+ * live in this repo the same day: #1438 merged with `mockup=skipped` and
+ * `regression=skipped`, #1429 with those plus `verify=skipped`.
+ *
+ * This set is the fix for the defect the detector shipped with: it treated any
+ * non-`success` conclusion as a real red, so `axe=skipped` on #1434 was reported
+ * as "This is a REAL red — fix the failure" on a PR whose only actual blocker was
+ * a latched `verify`. `skipped` is the NORMAL state for a path-filtered required
+ * gate in this repo (CLAUDE.md § "When adding a CI gate"), so the wrong verdict
+ * fires on routine PRs, and it sends the reader hunting a failure that does not
+ * exist while the real block sits two lines below.
+ *
+ * [about-protected-branches]: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches
+ */
+export const ACCEPTED_CONCLUSIONS = new Set(['success', 'skipped', 'neutral']);
+
+/** The context is reported by the newest suite and the ruleset accepts it. */
 export const OK = 'ok';
 /** The newest suite is still reporting. Wait, do not push anything. */
 export const PENDING = 'pending';
@@ -108,28 +129,32 @@ export function analyzeContext({ context, runs, checkRuns }) {
   const owned = byRunId(runs.filter((r) => r.workflow_id === workflowId));
   const newest = owned[owned.length - 1];
   const fromNewest = emitted.find((c) => c.check_suite_id === newest.check_suite_id) ?? null;
-  const greenSuites = emitted
-    .filter((c) => c.conclusion === 'success')
+  // Same set as the guard below, deliberately: an older suite that reported
+  // `skipped` is as much a contradiction of `expected` as one that reported
+  // `success`, so hardcoding `success` here would classify a real latch on a
+  // path-filtered gate as NEVER_RAN and say nothing.
+  const acceptedSuites = emitted
+    .filter((c) => ACCEPTED_CONCLUSIONS.has(c.conclusion))
     .map((c) => c.check_suite_id);
 
   const base = {
     context,
     newestRun: newest,
     reportingRun: fromNewest,
-    greenSuites,
+    acceptedSuites,
     runsOnSha: owned.length,
   };
 
   if (fromNewest) {
     if (fromNewest.status !== 'completed') return { ...base, verdict: PENDING };
-    if (fromNewest.conclusion === 'success') return { ...base, verdict: OK };
+    if (ACCEPTED_CONCLUSIONS.has(fromNewest.conclusion)) return { ...base, verdict: OK };
     return { ...base, verdict: FAILING };
   }
 
   // The newest run of the owning workflow produced no check-run for this
   // context. That is the latch — but only call it that when something green
   // exists to contradict the `expected`, otherwise it is just "not run yet".
-  if (greenSuites.length > 0) return { ...base, verdict: LATCHED };
+  if (acceptedSuites.length > 0) return { ...base, verdict: LATCHED };
   return { ...base, verdict: NEVER_RAN };
 }
 
@@ -149,12 +174,21 @@ export function clearingStep(context) {
 
 /** Human report for one analysed context. Returns an array of lines. */
 export function reportLines(result) {
-  const { context, verdict, newestRun, greenSuites } = result;
+  const { context, verdict, newestRun, acceptedSuites } = result;
   const lines = [];
   switch (verdict) {
-    case OK:
-      lines.push(`✓ ${context} — newest run reported success. Not latched.`);
+    case OK: {
+      // Name the conclusion rather than saying "success" for all three. A
+      // reader seeing `skipped` needs to know the ruleset accepts it, or they
+      // go looking for a gate that never ran.
+      const c = result.reportingRun.conclusion;
+      lines.push(
+        c === 'success'
+          ? `✓ ${context} — newest run reported success. Not latched.`
+          : `✓ ${context} — newest run reported ${c}, which the ruleset accepts. Not latched.`,
+      );
       break;
+    }
     case PENDING:
       lines.push(`… ${context} — newest run is still reporting. Wait; push nothing.`);
       break;
@@ -172,7 +206,7 @@ export function reportLines(result) {
         `⚠ ${context} — LATCHED (brikdesigns#1421).`,
         `  Newest run of the owning workflow: ${newestRun.id} (suite ${newestRun.check_suite_id})`,
         `  conclusion=${newestRun.conclusion} — it emitted NO ${context} check-run.`,
-        `  ${greenSuites.length} successful ${context} check-run(s) sit on this SHA in older`,
+        `  ${acceptedSuites.length} accepted ${context} check-run(s) sit on this SHA in older`,
         '  suite(s), and the ruleset does not accept them. Clear it with a new head SHA:',
         '',
         ...clearingStep(context).map((c) => `    ${c}`),
