@@ -345,13 +345,12 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                         — the story card is not a service card, so it keeps the
                         lg body inset rather than the service `inset` treatment. */}
                     <Card
-                      preset="display"
+                      layout="stack"
                       className="display-card--title-sm"
                       style={{ height: '100%' }}
                       titleAs="h4"
                       title={s.name || s.client_name || ''}
-                      description={s.short_description || undefined}
-                      image={
+                      media={
                         s.hero_image_url ? (
                           <Frame customRatio="16 / 9" fit="cover">
                             <Image
@@ -364,7 +363,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                           </Frame>
                         ) : undefined
                       }
-                      tag={
+                      overline={
                         s.service_line_slug ? (
                           <ServiceTag
                             category={cat}
@@ -384,7 +383,11 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                           <span className="bds-button__content">Read Story</span>
                         </span>
                       }
-                    />
+                    >
+                      {s.short_description ? (
+                        <CardDescription>{s.short_description}</CardDescription>
+                      ) : undefined}
+                    </Card>
                   </Link>
                 );
               })}

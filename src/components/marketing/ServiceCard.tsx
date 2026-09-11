@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Card, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
+import { Card, CardDescription, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { serviceColor, serviceCtaVars } from '@/lib/tokens';
 
@@ -34,10 +34,11 @@ export function ServiceCard({
 }: ServiceCardProps) {
   const href = `/services/${serviceLineSlug}/${slug}`;
   const tagProps = iconServiceName ? { serviceName: iconServiceName } : {};
+  const body = description ?? tagline ?? undefined;
 
   return (
     <Card
-      preset="display"
+      layout="stack"
       // Inset media treatment — media + text body framed together in a
       // --padding-huge inset (the "card-vertical" look). A first-class BDS prop
       // since @brikdesigns/bds v0.188.0; it replaces the former site-local
@@ -46,22 +47,23 @@ export function ServiceCard({
       className={['service-themed', className].filter(Boolean).join(' ')}
       {...(surfaceInverse ? { style: { backgroundColor: serviceColor(category).inverse } } : {})}
       title={name}
-      description={description ?? tagline ?? undefined}
       // `service-card__media` is the canonical media-container name (#197);
       // the radius + --surface-secondary well come from the "Card media
       // standard" rule in shared-sections.css (#1169).
-      image={imageUrl ? (
+      media={imageUrl ? (
         <Frame ratio="square" fit="cover" className="service-card__media">
           <Image src={imageUrl} alt={name} width={400} height={400} />
         </Frame>
       ) : undefined}
-      tag={<ServiceTag category={category} variant="icon" size="lg" {...tagProps} />}
+      overline={<ServiceTag category={category} variant="icon" size="lg" {...tagProps} />}
       action={showCta ? (
         <LinkButton href={href} variant="primary" size="md" style={serviceCtaVars(category)}>
           Learn More
         </LinkButton>
       ) : undefined}
       href={!showCta ? href : undefined}
-    />
+    >
+      {body ? <CardDescription>{body}</CardDescription> : undefined}
+    </Card>
   );
 }

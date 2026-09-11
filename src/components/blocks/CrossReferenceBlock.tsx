@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Card, CardGrid, Grid, Frame, Button } from '@brikdesigns/bds';
+import { Card, CardDescription, CardGrid, Grid, Frame, Button } from '@brikdesigns/bds';
 import type { CrossReferenceProps, CrossReferenceSource } from '@/lib/blocks';
 import { selectRows } from '@/lib/cross-reference';
 import { getCustomerStories, getServices } from '@/lib/supabase/queries';
@@ -8,7 +8,7 @@ import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 /**
  * cross-reference block (#422) — renders a section of related customer stories
  * or services resolved **live** from the source collection. Maps to the
- * catalogue's neutral `CardGrid + Grid + Card preset="display"` — a non-accent
+ * catalogue's neutral `CardGrid + Grid + Card layout="stack"` — a non-accent
  * block, so it deliberately uses no service-tint / `serviceColor()` surface.
  *
  * Live resolution + graceful omit: rows are selected against the cached,
@@ -104,12 +104,13 @@ export async function CrossReferenceBlock({
           {decorated.map((c) => (
             <Card
               key={c.key}
-              preset="display-row"
+              layout="row"
               title={c.title}
-              description={c.description}
-              image={c.imageNode}
+              media={c.imageNode}
               action={c.actionNode}
-            />
+            >
+              {c.description ? <CardDescription>{c.description}</CardDescription> : undefined}
+            </Card>
           ))}
         </div>
       ) : (
@@ -117,12 +118,13 @@ export async function CrossReferenceBlock({
           {decorated.map((c) => (
             <Card
               key={c.key}
-              preset="display"
+              layout="stack"
               title={c.title}
-              description={c.description}
-              image={c.imageNode}
+              media={c.imageNode}
               action={c.actionNode}
-            />
+            >
+              {c.description ? <CardDescription>{c.description}</CardDescription> : undefined}
+            </Card>
           ))}
         </Grid>
       )}

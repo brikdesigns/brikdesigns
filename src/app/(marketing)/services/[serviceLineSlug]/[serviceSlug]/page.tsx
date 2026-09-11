@@ -550,10 +550,10 @@ export default async function ServiceDetailPage({ params }: Props) {
               {relatedStories.map((story) => (
                 <Card
                   key={story.slug}
-                  preset="display"
+                  layout="stack"
                   className="display-card--title-sm"
                   style={{ backgroundColor: serviceTokens.inverse }}
-                  image={
+                  media={
                     story.hero_image_url ? (
                       <Frame customRatio="3 / 2" fit="cover">
                         <Image
@@ -566,7 +566,6 @@ export default async function ServiceDetailPage({ params }: Props) {
                     ) : undefined
                   }
                   title={story.name || story.client_name}
-                  description={story.short_description || undefined}
                   action={
                     <Button
                       href={`/results/${story.slug}`}
@@ -576,7 +575,11 @@ export default async function ServiceDetailPage({ params }: Props) {
                       Read Story
                     </Button>
                   }
-                />
+                >
+                  {story.short_description ? (
+                    <CardDescription>{story.short_description}</CardDescription>
+                  ) : undefined}
+                </Card>
               ))}
             </Grid>
           )}
@@ -667,13 +670,13 @@ export default async function ServiceDetailPage({ params }: Props) {
               return (
                 <Card
                   key={svc.slug}
-                  preset="display"
+                  layout="stack"
                   className="display-card--title-sm"
                   // Service `-inverse` surface — white in light (== the prior
                   // display-preset fill), `{hue}-darkest` in dark. Siblings are
                   // all this page's line, so the page hue is correct here. (BRIK-WEB)
                   style={{ backgroundColor: serviceTokens.inverse }}
-                  image={
+                  media={
                     svc.image_url ? (
                       /* Square, like every other `services.image_url` slot (#767).
                          This was the one 3:2 frame in the chain, and all 34 assets
@@ -693,7 +696,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                       </Frame>
                     ) : undefined
                   }
-                  tag={
+                  overline={
                     <ServiceTag
                       category={cat}
                       serviceName={svc.name}
@@ -703,7 +706,6 @@ export default async function ServiceDetailPage({ params }: Props) {
                     />
                   }
                   title={svc.name}
-                  description={svc.description || svc.tagline || undefined}
                   action={
                     <Button
                       href={`/services/${serviceLineSlug}/${svc.slug}`}
@@ -713,7 +715,11 @@ export default async function ServiceDetailPage({ params }: Props) {
                       Learn More
                     </Button>
                   }
-                />
+                >
+                  {svc.description || svc.tagline ? (
+                    <CardDescription>{svc.description || svc.tagline}</CardDescription>
+                  ) : undefined}
+                </Card>
               );
             })}
           </Grid>

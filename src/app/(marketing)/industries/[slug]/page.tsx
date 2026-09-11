@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getIndustryPageBySlug, getIndustryPages, getCustomerStoriesByIndustry, mapServiceLineSlug } from '@/lib/supabase/queries';
-import { Card, Frame, Grid, Hero, LinkButton, SectionHeader } from '@brikdesigns/bds';
+import { Card, CardDescription, Frame, Grid, Hero, LinkButton, SectionHeader } from '@brikdesigns/bds';
 import { BackLink } from '@/components/ui/BackLink';
 import { text, heading } from '@/lib/styles';
 import { color, font, serviceColor } from '@/lib/tokens';
@@ -325,16 +325,17 @@ export default async function CustomerDetailPage({ params }: Props) {
               {otherPages.map((p: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                 <Card
                   key={p.slug}
-                  preset="display"
+                  layout="stack"
                   title={p.name}
-                  description={p.tagline ?? undefined}
-                  image={p.image_url ? (
+                  media={p.image_url ? (
                     <Frame ratio="square" fit="cover">
                       <Image src={p.image_url} alt={p.name} width={400} height={400} />
                     </Frame>
                   ) : undefined}
                   action={<LinkButton href={`/industries/${p.slug}`} variant="primary" size="md">Learn More</LinkButton>}
-                />
+                >
+                  {p.tagline ? <CardDescription>{p.tagline}</CardDescription> : undefined}
+                </Card>
               ))}
             </Grid>
           </div>

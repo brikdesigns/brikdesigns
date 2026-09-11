@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { Grid, Card, LinkButton, Frame } from '@brikdesigns/bds';
+import { Grid, Card, CardDescription, LinkButton, Frame } from '@brikdesigns/bds';
 import { getIndustryPages } from '@/lib/supabase/queries';
 import { text, heading } from '@/lib/styles';
 // Hero reuses the home page's `.section-hero` / `.hero-*` block (the sanctioned
@@ -53,10 +53,9 @@ export default async function IndustriesPage() {
                 (ind: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                   <Card
                     key={ind.slug}
-                    preset="display"
+                    layout="stack"
                     title={ind.name}
-                    description={ind.tagline ?? undefined}
-                    image={
+                    media={
                       ind.image_url ? (
                         <Frame ratio="square" fit="contain" className="illustration-media-bg">
                           <Image src={ind.image_url} alt="" width={240} height={240} />
@@ -69,7 +68,9 @@ export default async function IndustriesPage() {
                       </LinkButton>
                     }
                     className="industry-card"
-                  />
+                  >
+                    {ind.tagline ? <CardDescription>{ind.tagline}</CardDescription> : undefined}
+                  </Card>
                 )
               )}
             </Grid>

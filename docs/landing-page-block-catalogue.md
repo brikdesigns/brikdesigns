@@ -50,7 +50,7 @@ Field surface for the live templates today: `EventRow` in `src/lib/events.ts`.
 | `form` | Registration / lead / newsletter capture | `variant`(`registration`\|`lead`\|`newsletter`), `fields` (see Form variants), `submit_label?`, `source` | BDS form container ([Storybook › Containers/Form](https://storybook.brikdesigns.com/?path=/docs/containers-form--overview)) + `TextInput` + `Button` | ✅ (CTA) |
 | `alert-banner` | Contextual notice on any page | `message`, `tone`(`info`\|`warning`\|`success`\|`neutral`) | `Banner` (tone → BDS banner appearance). The "event ended" notice stays **status-driven** (status=`ended` → `EventEndedBanner` in `src/components/marketing/EventStatusBanner.tsx`), *not* a banner variant | – |
 | `cta` | Heading + body + button(s) | `heading`, `body?`, `buttons[]{label, href, variant}` | `Button` / `LinkButton`; section background = section CSS | ✅ (CTA) |
-| `cross-reference` | Related stories / services + "past newsletters" list | `source`(`customer_stories`\|`services`\|`newsletters`), `limit?`, `layout?` | `CardGrid` + `Grid` + `Card preset="display"` / `CardTestimonial` | – |
+| `cross-reference` | Related stories / services + "past newsletters" list | `source`(`customer_stories`\|`services`\|`newsletters`), `limit?`, `layout?` | `CardGrid` + `Grid` + `Card layout="stack"` / `CardTestimonial` | – |
 
 The BDS **form container** + `TextInput` are real BDS exports (`import { Button, TextInput } from '@brikdesigns/bds'`) but are **not yet rows in `COMPONENT-MAP.md`** — add them when #423 builds the `form` block, so the map stays the single source of truth.
 
@@ -92,7 +92,7 @@ The "Past Newsletters" list on the Webflow `/newsletter` page is the `source="ne
 
 **Renderer shipped (#422, render-first).** `src/components/blocks/CrossReferenceBlock.tsx`
 handles `source` ∈ `customer_stories` | `services`, resolving rows **live** from the cached
-`is_public`-filtered collection queries and rendering neutral `CardGrid + Grid + Card preset="display"`
+`is_public`-filtered collection queries and rendering neutral `CardGrid + Grid + Card layout="stack"`
 (non-accent). Beyond the base `source` / `limit?` / `layout?` contract it reads two
 props the shared picker writes:
 

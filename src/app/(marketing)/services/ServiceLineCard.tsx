@@ -35,12 +35,11 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
           photo or the ServiceTag icon fallback; the well + radius come from the
           shared card-media standard. */}
       <Card
-        preset="display"
+        layout="stack"
         mediaTreatment="inset"
         className="service-themed"
         title={name}
-        description={tagline}
-        image={
+        media={
           imageUrl ? (
             <Frame ratio="square" fit="cover">
               <Image src={imageUrl} alt={name} width={400} height={400} />
@@ -51,7 +50,7 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
             </Frame>
           )
         }
-        tag={<ServiceTag category={category} variant="icon" size="lg" serviceName={name} />}
+        overline={<ServiceTag category={category} variant="icon" size="lg" serviceName={name} />}
         action={
           // Presentational span — the wrapping <Link> owns navigation; a
           // <Button href> would nest <a> in <a>. serviceCtaVars supplies the
@@ -63,7 +62,9 @@ export function ServiceLineCard({ name, slug, category, tagline, imageUrl }: Ser
             <span className="bds-button__content">Learn more</span>
           </span>
         }
-      />
+      >
+        <CardDescription>{tagline}</CardDescription>
+      </Card>
     </Link>
   );
 }

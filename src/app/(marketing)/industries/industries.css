@@ -13,7 +13,7 @@
 }
 
 /* ─── Industry card — CMS display card ──────────────────────── */
-/* BDS preset="display"; card chrome (3px border, no shadow) comes from the white
+/* BDS layout="stack"; card chrome (3px border, no shadow) comes from the white
  * band's card-chrome-by-band rule (shared-sections.css), never a variant. Figma
  * card-vertical (node 26149:27564) sizes the title to heading/tiny (18px) and the
  * body to body/xl (20px) — the body reads larger than the title by design. */
@@ -21,7 +21,11 @@
   font-size: var(--heading-tiny);
 }
 
-.industry-card .bds-card__preset-display-description {
+/* ADR-038 renamed the body slot: under `layout="stack"` the description is a
+   `<CardDescription>` in `children` (`.bds-card-description`), not the preset's
+   own `.bds-card__preset-display-description`. The title keeps its class above —
+   the anatomy renderer still emits `bds-card__preset-display-title`. */
+.industry-card .bds-card-description {
   font-size: var(--body-xl);
 }
 
