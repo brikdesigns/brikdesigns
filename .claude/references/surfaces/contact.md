@@ -39,7 +39,7 @@ ISR window. Check that before assuming CMS edits appear on a schedule here.
 |---|---|---|
 | `getServiceCategories()` | line clustering + plan-card illustrations | → [`service-data-sot.md`](../service-data-sot.md) |
 | `getServices()` | the form's service picker options | sorted by line `rank`, then service `rank` |
-| `getSupportPlans()` | section 2's plan cards | |
+| `getSupportPlans()` | section 2's plan cards | prices come from its `service_plan_tiers` embed via `planTierPrices()` — Advisory is the headline, Managed is named under it. The plan-level `monthly_price_*` block is **retired** (#1385, portal#3959 decision A) |
 
 Two joins happen in-page, both client-side against already-fetched rows:
 `service_plans.display_line_id` → the marketing-line illustration, and the same line → the card's

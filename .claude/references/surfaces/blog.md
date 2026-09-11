@@ -39,7 +39,7 @@ this file.
 |---|---|---|
 | `getAllPosts()` (`@/lib/blog`) | section 1 | file-backed, not Supabase |
 | `getServiceCategories()` | the plan-card illustration join | |
-| `getSupportPlans()` | section 2's cards | **filtered** — `product-support` excluded, as on the home band |
+| `getSupportPlans()` | section 2's cards | every public plan; prices come from its `service_plan_tiers` embed, Advisory as the headline (#1385) |
 
 **`Grid columns={3}` in section 2 is fed by `(published plans) − 1`.** Both a CMS change and an
 edit to the exclusion move the count.
@@ -50,8 +50,8 @@ edit to the exclusion move the count.
 | Constraint | Why | Evidence |
 |---|---|---|
 | Section 3 uses the **shared** `.cta-section-brand` / `.cta-card-brand` pattern | it was a second, `/blog`-only brand CTA card (`.section-cta` / `.cta-card`, `homepage.css`) until #1260 consolidated it. Identical to `/results`, `/customers`, `/blog/[slug]` | `page.tsx:86-89`, #1260 |
-| Section 2 mirrors the home page's Monthly Subscription band, not a re-authored one | one card, one join, four surfaces | `page.tsx:27-31` |
-| `product-support` is excluded from section 2 | matches the home band; still live on `/plans` and its detail route | `page.tsx:30-34` |
+| Section 2 mirrors the home page's Monthly Subscription band, not a re-authored one | one card, one join, four surfaces. Prices come from the shared `planTierPrices()` helper — Advisory headline, Managed under it — never a per-surface `.find()` and never the retired plan-level price (#1385) | `page.tsx:27-31`, `src/lib/plan-tier-prices.ts` |
+| Section 2 renders **every public plan** — no per-surface exclusion | `product-support` was unpublished (`is_public: false`); the four hand-maintained filters were working around a row that should not have been public, and removing them deletes the pattern that produced the leak | `page.tsx:31-33`, #1385 |
 | `.section-plans` must stay in the tinted-band chrome list | it paints a tint with no `.page-section--secondary` modifier | `shared-sections.css:835-844` |
 
 ## Known inconsistency (not a ratified constraint)

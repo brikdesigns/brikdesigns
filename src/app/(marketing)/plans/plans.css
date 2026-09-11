@@ -456,7 +456,10 @@
   font-family: var(--font-family-display);
   font-size: var(--display-sm);
   font-weight: var(--font-weight-bold);
-  line-height: var(--font-line-height-none);
+  /* --font-line-height-none resolves to 0 in dist/tokens.css: a zero-height
+     line box let the 72px display glyphs overflow up over the tier name (#1391).
+     A real single-line leading keeps the figure inside its own box. */
+  line-height: var(--font-line-height-tight);
 }
 
 /* Sibling of the price, so it is measured against the CARD surface and the

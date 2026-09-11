@@ -49,7 +49,6 @@ export async function MegaNavServer() {
   const supportPlans = plans.map((plan) => ({
     name: plan.name,
     slug: plan.slug,
-    price: plan.monthly_price_display || 'Contact',
     description: plan.home_description || plan.description || '',
     // Service-line illustration is the single CMS source (#467): prefer a
     // per-plan override, then the plan's display_line card_image_url, falling
