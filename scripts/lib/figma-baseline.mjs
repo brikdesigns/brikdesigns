@@ -44,12 +44,14 @@ export function normalizeNodeId(nodeId) {
  *     rather than `data-section` (`/plans/[slug]`'s "What You Get" CardGrid
  *     emits `aria-labelledby="what-you-get-title"`);
  *   - a CMS landing route, whose regions are `<div>`s inside ONE `<section>`
- *     (`/offers/brikdown` renders `.lp-split` + `.lp-split__trailer`).
+ *     (`/offers/brikdown` renders the `split` and `split-trailer` regions).
  *
- * Declaring the selector keeps this gate additive. The alternative — making
- * every designed region a top-level `<section data-section>` — is a DOM change
- * to shared block rendering that `/events` and `/marketing` also render through,
- * which is a different ticket from "diff the build against the design".
+ * Declaring the selector keeps this gate additive — the region still does not
+ * have to BE a `<section>`. What changed in #1420 is what the override is
+ * allowed to name: those regions carry `data-section` now, so the selector is
+ * an identifier and not a `.lp-*` classname. A presentational selector made the
+ * gate's failure mode "this section silently stopped being compared" rather than
+ * "this section failed".
  */
 export function resolveSectionSelector(key, section) {
   if (section && typeof section === 'object' && section.selector) return section.selector;
