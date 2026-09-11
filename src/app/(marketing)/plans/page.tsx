@@ -11,7 +11,8 @@ import {
   SectionHeader,
 } from '@brikdesigns/bds';
 import { Icon } from '@/lib/icon';
-import { getManagedPlanPrices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { planTierPrices } from '@/lib/plan-tier-prices';
 import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
 import { serviceColor, serviceCtaVars } from '@/lib/tokens';
 import '../shared-sections.css';
@@ -78,20 +79,14 @@ const ENGAGEMENT_MODES = [
 ] as const;
 
 export default async function PlansPage() {
-  // Two cached reads, joined by slug: `getSupportPlans` carries the copy + the
-  // marketing-line illustration; `getManagedPlanPrices` embeds every public tier
-  // (its name is narrower than its select). The DB is the pricing SoT (#1123) —
-  // no price literal on this page.
-  const [rawPlans, tierRows] = await Promise.all([getSupportPlans(), getManagedPlanPrices()]);
+  // One cached read: `getSupportPlans` carries the copy, the marketing-line
+  // illustration AND the tier prices (#1385 moved the tier embed onto it, so
+  // the separate `getManagedPlanPrices` round trip this page used is gone).
+  // The DB is the pricing SoT (#1123) — no price literal on this page.
+  const rawPlans = await getSupportPlans();
 
   const tiersBySlug = new Map(
-    tierRows.map((row) => [
-      row.slug,
-      {
-        advisory: row.service_plan_tiers.find((t) => t.name === 'Advisory')?.monthly_price_display ?? null,
-        managed: row.service_plan_tiers.find((t) => t.name === 'Managed')?.monthly_price_display ?? null,
-      },
-    ]),
+    rawPlans.map((row) => [row.slug, planTierPrices(row)]),
   );
 
   const bySlug = new Map(rawPlans.map((plan) => [plan.slug as string, plan]));
@@ -119,9 +114,16 @@ export default async function PlansPage() {
       category: lineSlug ? mapServiceLineSlug(lineSlug) : null,
       // Entry price for the card headline is the Advisory tier (the lower-commitment
       // side); the Managed figure rides the feature list so both are visible without
-      // a second card. Falls back to the plan-level price when a tier is missing.
-      price: tiers.advisory ?? (plan.monthly_price_display as string | null) ?? 'Contact',
+      // a second card. No plan-level fallback — that block is retired (#1385), so a
+      // plan with no Advisory tier reads 'Contact' rather than a stale figure.
+      price: tiers.advisory ?? 'Contact',
       managedPrice: tiers.managed,
+      // Per-plan Foundation figure (#1386). `getSupportPlans` selects `*`, so the
+      // column rides along already — no query change. Portal-derived display
+      // string, never re-derived from cents client-side (portal#3930); a plan with
+      // no authored figure (e.g. product-support) carries null and renders no line.
+      foundationPrice:
+        (plan as { foundation_price_display?: string | null }).foundation_price_display ?? null,
     };
   }).filter((p): p is NonNullable<typeof p> => p !== null);
 
@@ -179,31 +181,43 @@ export default async function PlansPage() {
               </Button>
             </div>
             <Grid columns={3} gap="huge">
-              {paths.map((path) => (
-                <PricingCard
-                  key={path.slug}
-                  title={path.name}
-                  price={path.price}
-                  period="/month advisory"
-                  description={path.description}
-                  {...(path.managedPrice ? { features: [`Managed — ${path.managedPrice}/month`] } : {})}
-                  className={[
-                    path.category ? 'service-themed' : null,
-                    path.slug === RECOMMENDED_SLUG ? 'plans-path-card--recommended' : null,
-                  ]
-                    .filter(Boolean)
-                    .join(' ') || undefined}
-                  {...(path.category ? { style: serviceCtaVars(path.category) } : {})}
-                  image={
-                    path.imageUrl ? <Image src={path.imageUrl} alt="" ratio="1-1" fit="cover" /> : undefined
-                  }
-                  action={
-                    <Button href={`/plans/${path.slug}`} variant="primary" size="md">
-                      See {path.name}
-                    </Button>
-                  }
-                />
-              ))}
+              {paths.map((path) => {
+                // Foundation is the one-time start cost, so it leads the feature
+                // list above the recurring Managed option (#1386). A null figure
+                // drops its line entirely — no blank, no `$0` (AC). Display strings
+                // are interpolated from the CMS column, never hardcoded, so no price
+                // literal enters the page and the DB remains the pricing SoT (#1123).
+                const features = [
+                  path.foundationPrice ? `${path.foundationPrice} Foundation to start` : null,
+                  path.managedPrice ? `Managed — ${path.managedPrice}/month` : null,
+                ].filter((f): f is string => f !== null);
+
+                return (
+                  <PricingCard
+                    key={path.slug}
+                    title={path.name}
+                    price={path.price}
+                    period="/month advisory"
+                    description={path.description}
+                    {...(features.length > 0 ? { features } : {})}
+                    className={[
+                      path.category ? 'service-themed' : null,
+                      path.slug === RECOMMENDED_SLUG ? 'plans-path-card--recommended' : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' ') || undefined}
+                    {...(path.category ? { style: serviceCtaVars(path.category) } : {})}
+                    image={
+                      path.imageUrl ? <Image src={path.imageUrl} alt="" ratio="1-1" fit="cover" /> : undefined
+                    }
+                    action={
+                      <Button href={`/plans/${path.slug}`} variant="primary" size="md">
+                        See {path.name}
+                      </Button>
+                    }
+                  />
+                );
+              })}
             </Grid>
           </div>
         </section>

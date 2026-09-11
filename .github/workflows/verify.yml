@@ -85,6 +85,13 @@ jobs:
   # `tests/**` is otherwise not in this list. The add-a-page direction is
   # already covered by `src/**` (#1360).
   #
+  # `tests/a11y/lib/**` and `tests/a11y/baseline.json` are listed for the third
+  # instance of that pattern: `test:a11y-baseline` asserts the live
+  # `baseline.json`'s shape — every fingerprint well-formed, no React-generated
+  # ids, no narrative changelog back inside a JSON string — so a PR that edits
+  # ONLY the baseline is exactly the PR that check exists for, and would
+  # otherwise skip `verify` entirely (#1361).
+  #
   # Do not comment INSIDE the `--pattern` continuation below: a `#` line between
   # two `\`-continued lines comments out the rest of the command.
   changes:
@@ -119,6 +126,8 @@ jobs:
               --pattern 'package.json' \
               --pattern 'package-lock.json' \
               --pattern 'tests/a11y/public-routes.spec.ts' \
+              --pattern 'tests/a11y/lib/**' \
+              --pattern 'tests/a11y/baseline.json' \
               --pattern '.github/workflows/verify.yml' \
             >> "$GITHUB_OUTPUT"
 
@@ -354,6 +363,22 @@ jobs:
       - name: Axe route-coverage lint — self-test (fixtures + vacuous-pass guards)
         run: npm run test:lint:axe-route-coverage
 
+      # brikdesigns#1395. "Chip" names ONE component — the interactive pill. A
+      # read-only label is a Tag/Badge, and calling it a chip both duplicates
+      # chrome the indicator components own and hides it from every gate that
+      # measures indicators, because those can only score a component that
+      # rendered. The canon was never missing (Chip.mdx has said "interactive
+      # only" since v0.66); nothing fired at NAMING time, so the word travelled
+      # mockup → comment → classname, and this repo imports BDS Chip zero times
+      # while shipping two hand-rolled `*__chip` families. Ratchets
+      # scripts/indicator-vocabulary-baseline.json, which records each keep with
+      # its reason and whether it is correct prose or deferred drift.
+      - name: Indicator-vocabulary lint (a read-only pill is a Tag, not a chip)
+        run: npm run lint:indicator-vocabulary
+
+      - name: Indicator-vocabulary lint — self-test (AC5 case + both ratchet directions)
+        run: npm run test:lint:indicator-vocabulary
+
       # brikdesigns#1280 (ADR-040 slice 1). The pre-commit hook skips the
       # token/hardcoded/heading/section lints on a content-only commit; this
       # tests the staged-files → which-lints classifier that decides that, so a
@@ -377,6 +402,15 @@ jobs:
       # tooling. Offline; the network half is driven through a fetch stub.
       - name: Pinned regression reference (a miss fails, never falls back)
         run: npm run test:staging-reference
+
+      # brikdesigns#1361. Same shape as the two above: an unstable key made a
+      # blocking gate report on the key rather than on the thing it guards. The
+      # assertions that matter are the invisible ones — a re-rooted selector
+      # re-failing accepted debt, a waiver silently widening across routes or
+      # themes, or a typo'd fingerprint that reads as a waiver and matches
+      # nothing. Offline; it also asserts the live baseline.json's shape.
+      - name: A11y baseline matcher (keyed on the violation, not the selector)
+        run: npm run test:a11y-baseline
 
       # brikdesigns#1334. This matcher decides whether a REQUIRED gate applies
       # to a PR, so a false negative skips a required check on a PR that needed

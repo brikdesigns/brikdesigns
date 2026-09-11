@@ -54,6 +54,35 @@ name: bump-pr-closing-keyword-guard
 #   body's pasted changelog, and a submodule-bump PR's commit messages are the
 #   bump commits themselves, not the changelog.
 #
+# THE TWO INPUTS MUST ALSO AGREE (brikdesigns#1365)
+#   Reading both inputs is not the same as comparing them, and the gap between
+#   those two things is its own incident. brikdesigns PR #1362's body was edited
+#   to `Part of #1354`, with the reasoning spelled out, while its commit kept a
+#   BARE `Closes #1354`. #1354 closed 2s after merge with three of four
+#   acceptance criteria unmet and had to be reopened by hand.
+#
+#   Every rule above passes that PR, and rule 4's escalation does not reach it:
+#   the commit's ref is not negated, not an umbrella, and carries no trailing
+#   prose to qualify. It is a legitimate bare `Closes #N` — which the section
+#   above correctly declines to fail, because `pr-task.sh` builds the PR body
+#   from the commit log and that convention has to keep working. What makes it a
+#   defect is only visible ACROSS the two inputs: the commit closes an issue the
+#   body deliberately does not.
+#
+#   So rule 5 FAILS when the commit messages close an issue the body does not.
+#   It is ONE-DIRECTIONAL. A body-only `Closes` is fine and never fails here,
+#   because the PR-merge path closes the issue on its own — the two paths are
+#   distinguishable in an issue's timeline by whether the `closed` event carries
+#   a `commit_id`, and measured over brikdesigns' last 30 merged PRs:
+#
+#       PR #1313 (body only, commits clean) → #1311 closed, commit_id = null
+#       PR #1315 (body only, commits clean) → #1314 closed, commit_id = null
+#       PR #1362 (commit only, body clean)  → #1354 closed, commit_id = 7781ff86
+#
+#   Body-only was 2 of those 30 and both were entirely correct, so failing the
+#   inverse would red a working path. Commit-only was 1 of 30, and it is the one
+#   that did damage.
+#
 # Self-testing: the FIXTURES matrix below runs before the real PR body is
 # scanned and fails the job on any mismatch, so every copy of this file
 # verifies its own detection logic on every PR.
@@ -231,6 +260,19 @@ jobs:
               return { negations, qualifiers, proseRefs };
             }
 
+            // Rule 5 — issues the COMMITS close that the BODY does not declare
+            // (brikdesigns#1365). Pure over two ref lists, so the self-test can
+            // drive it without a PR.
+            //
+            // The body side is scanBody's proseRefs, so a `Closes` the body only
+            // carries inside a fence does not count as a declaration — quoted
+            // material is not intent, and an un-neutralized one is already
+            // rule 1's job.
+            function commitOnlyCloses(bodyRefs, commitRefs) {
+              const declared = new Set(bodyRefs);
+              return [...new Set(commitRefs)].filter((num) => !declared.has(num));
+            }
+
             // ── Fixture matrix ───────────────────────────────────────────
             // Each `expect` asserts only the counts (or refs) that must hold.
             // `ZW` is the zero-width space the brik-bds neutralizer inserts;
@@ -337,12 +379,85 @@ jobs:
               }
             };
 
+            // Rule 5's matrix. Cross-input, so it asserts on commitOnlyCloses
+            // rather than on either scanner: the defect class is invisible to a
+            // fixture that reads one input at a time, which is exactly why every
+            // matrix above passes brikdesigns PR #1362.
+            const PARITY_FIXTURES = [
+              {
+                name: 'live #1362 shape — commit closes what the body only refs',
+                body: `Part of ${H}1354\n\n\`Part of\`, not \`Closes\`, deliberately.`,
+                commit: `fix(ci): pin the regression reference to a commit\n\nCloses ${H}1354`,
+                expect: ['1354'],
+              },
+              {
+                name: 'both inputs close the same issue',
+                body: `Closes ${H}1360`,
+                commit: `fix(a11y): audit two routes\n\nCloses ${H}1360`,
+                expect: [],
+              },
+              {
+                // 2 of brikdesigns' last 30 merged PRs, both correct — the body
+                // path closes on its own. One-directional is a property to
+                // protect here, not a gap to close.
+                name: 'body-only close is NOT a finding (#1313 / #1315 shape)',
+                body: `Closes ${H}1311`,
+                commit: `fix(ci): tell a breakpoint diff from a capture flake`,
+                expect: [],
+              },
+              {
+                name: 'neither input closes anything',
+                body: `Refs ${H}1208`,
+                commit: `chore(deps): bump a pin`,
+                expect: [],
+              },
+              {
+                // GitHub ignores negation, so a negated close in a COMMIT still
+                // closes. Rule 2 fails it independently; rule 5 must also see it
+                // rather than read the sentence the way its author meant it.
+                name: 'negated close in a commit is still a close',
+                body: `Part of ${H}77`,
+                commit: `fix: partial\n\nDoes not close ${H}77`,
+                expect: ['77'],
+              },
+              {
+                name: 'a body fence does not declare the close',
+                body: `\`\`\`\nCloses ${H}55\n\`\`\``,
+                commit: `fix: thing\n\nCloses ${H}55`,
+                expect: ['55'],
+              },
+              {
+                name: 'cross-repo commit ref is out of scope, as in rules 2-4',
+                body: `Part of ${H}13`,
+                commit: `fix: a\n\nCloses brikdesigns/brik-bds${H}2402`,
+                expect: [],
+              },
+              {
+                name: 'no commit refs at all does not throw',
+                body: `Closes ${H}14`,
+                commit: ``,
+                expect: [],
+              },
+            ];
+
             for (const f of FIXTURES) checkExpect(f.name, scanBody(f.body), f.expect);
             for (const f of COMMIT_FIXTURES) {
               checkExpect(`commit/${f.name}`, scanCommitMessage(f.message), f.expect);
             }
+            for (const f of PARITY_FIXTURES) {
+              const got = commitOnlyCloses(
+                scanBody(f.body).proseRefs,
+                scanCommitMessage(f.commit).proseRefs,
+              );
+              if (JSON.stringify([...got].sort()) !== JSON.stringify([...f.expect].sort())) {
+                selfTestFailures.push(
+                  `  parity/${f.name}: expected ${JSON.stringify(f.expect)}, got ${JSON.stringify(got)}`,
+                );
+              }
+            }
 
-            const FIXTURE_COUNT = FIXTURES.length + COMMIT_FIXTURES.length;
+            const FIXTURE_COUNT =
+              FIXTURES.length + COMMIT_FIXTURES.length + PARITY_FIXTURES.length;
             if (selfTestFailures.length > 0) {
               core.setFailed(
                 [
@@ -369,6 +484,7 @@ jobs:
             const commitNegations = [];   // rule 2 on the commit path — FAIL
             const commitQualifiers = [];  // rule 4 ESCALATED here — FAIL
             const commitRefs = new Set(); // rule 3 candidates from commits
+            const refSource = new Map();  // rule 5 — ref → the commit that closes it
             try {
               const commits = await github.paginate(github.rest.pulls.listCommits, {
                 owner: context.repo.owner,
@@ -381,7 +497,18 @@ jobs:
                 const scan = scanCommitMessage(c.commit && c.commit.message);
                 for (const n of scan.negations) commitNegations.push({ ...n, sha });
                 for (const q of scan.qualifiers) commitQualifiers.push({ ...q, sha });
-                for (const num of scan.proseRefs) commitRefs.add(num);
+                for (const num of scan.proseRefs) {
+                  commitRefs.add(num);
+                  // Keep the first commit that closes each ref, so rule 5 can
+                  // name the sha and line rather than just the number.
+                  if (!refSource.has(num)) {
+                    const msg = (c.commit && c.commit.message) || '';
+                    const hit = msg.split(/\r?\n/).find((l) =>
+                      new RegExp(String.raw`\b(?:${KEYWORD})\b:?\s*#${num}\b`, 'i').test(l),
+                    );
+                    refSource.set(num, { sha, line: (hit || '').trim() });
+                  }
+                }
               }
               core.info(`Scanned ${commits.length} commit message(s) for closing keywords.`);
             } catch (e) {
@@ -424,14 +551,20 @@ jobs:
               );
             }
 
+            // Rule 5 — both inputs are read above; this is where they are
+            // COMPARED (brikdesigns#1365).
+            const commitOnly = commitOnlyCloses(proseRefs, [...commitRefs]);
+
             if (violations.length === 0 && negations.length === 0
                 && umbrellaViolations.length === 0
-                && commitNegations.length === 0 && commitQualifiers.length === 0) {
+                && commitNegations.length === 0 && commitQualifiers.length === 0
+                && commitOnly.length === 0) {
               core.info(
                 isBumpPR
                   ? 'Bump PR detected — no un-neutralized closing-keywords found.'
                   : 'No fenced-block, negated, or umbrella closing-keywords found '
-                    + 'in the PR body or its commit messages.',
+                    + 'in the PR body or its commit messages, and the commit messages '
+                    + 'close nothing the body does not.',
               );
               return;
             }
@@ -522,6 +655,37 @@ jobs:
                 'incident). If closing it here is intentional, do it in a standalone',
                 'closeout; otherwise neutralize the reference (insert a zero-width',
                 'space after the `#`, or drop the keyword).',
+              );
+            }
+
+            if (commitOnly.length > 0) {
+              if (messages.length > 0) messages.push('');
+              messages.push(
+                `${commitOnly.length} issue(s) are closed by this PR's COMMIT MESSAGES but not by its body:`,
+                '',
+                ...commitOnly.map((num) => {
+                  const src = refSource.get(num) || {};
+                  return `  #${num}${src.sha ? `  (${src.sha})` : ''}${src.line ? `  ${src.line}` : ''}`;
+                }),
+                '',
+                'Each of these is a BARE closing keyword, so no rule above fails it — and',
+                'that is correct on its own, because `pr-task.sh` builds the PR body from',
+                'the commit log. What makes it a defect is the DISAGREEMENT: the body does',
+                'not close these, and the commit does.',
+                '',
+                'brikdesigns PR #1362 was exactly this — body edited to `Part of #1354` with',
+                'the reasoning spelled out, commit left saying `Closes #1354`. #1354 closed',
+                '2s after merge with three of four acceptance criteria unmet.',
+                '',
+                'Fix — decide which half is right, and make both agree:',
+                '',
+                '  Completing the issue?  add the same `Closes #N` to the PR body.',
+                '  Only part of it?       amend the COMMIT to `Part of #N` / `Refs #N`.',
+                '                         Editing the PR body alone does NOT help — it does',
+                '                         not rewrite the commit, which is the half that fires.',
+                '',
+                'One-directional by design: a body-only `Closes` never fails here, because',
+                'the PR-merge path closes the issue on its own.',
               );
             }
 

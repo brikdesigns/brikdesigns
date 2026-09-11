@@ -223,6 +223,100 @@ export function isTruncatedCapture(
   return Math.min(heightA, heightB) / Math.max(heightA, heightB) < minRatio;
 }
 
+// How much shorter than the DOM a PNG may be before the capture is called
+// partial (#1358). A `fullPage` screenshot is rounded to whole device pixels
+// and a fractional layout height rounds either way, so an exact equality test
+// would call every capture partial. 8px absorbs that without coming close to
+// any real shortfall — the class this catches is "the browser rendered 8485px
+// and the file is 1024px", not an off-by-two.
+export const CAPTURE_HEIGHT_TOLERANCE_PX = 8;
+
+// How close to the raw viewport height a faithful capture must be before it is
+// read as a page that rendered one viewport tall (#1358). Next's error boundary
+// centres its message in a `min-height: 100vh` box, so it measures the viewport
+// height exactly; the margin covers a boundary that adds a few px of chrome.
+export const VIEWPORT_RENDER_TOLERANCE_PX = 24;
+
+/**
+ * True when the PNG that was written is materially shorter than the DOM the
+ * browser reported at screenshot time — a genuine partial capture (#1358).
+ *
+ * This is the ONLY honest test for truncation, and it needs both numbers from
+ * the same capture. `isTruncatedCapture` compares the two SIDES of a
+ * comparison, which cannot distinguish a short capture of a tall page from a
+ * faithful capture of a short page — and on every occurrence recorded so far it
+ * was the latter (see `isViewportHeightRender`).
+ *
+ * Machine-detectable, so the caller retries in-run rather than failing the job.
+ */
+export function isPartialCapture(
+  pngHeight,
+  domHeight,
+  tolerancePx = CAPTURE_HEIGHT_TOLERANCE_PX,
+) {
+  if (!(pngHeight > 0) || !(domHeight > 0)) return false;
+  return domHeight - pngHeight > tolerancePx;
+}
+
+/**
+ * True when a capture is a faithful rendering of a page that came out roughly
+ * one raw viewport tall, while the other side of the comparison is many times
+ * taller (#1358).
+ *
+ * That is not a capture failure. It is the app's error boundary: the reference
+ * capture from run 34486548222 is a complete 768x1024 render of the App Router
+ * "This page couldn't load" screen. Every wait in `captureOnce` asks "has it
+ * stopped changing?", and a page that never grew is maximally stable, so it
+ * passes all of them instantly.
+ *
+ * All three occurrences on record land on EXACTLY the raw viewport height —
+ * `home [light/desktop]` 800px, `industry-dental [dark/tablet]` 1024px,
+ * `fma [dark/mobile]` 812px. A partial capture would land on an arbitrary
+ * height; three-for-three on the viewport height is a page that rendered short.
+ *
+ * `otherHeight` guards against a legitimately short page: a route whose real
+ * height is about one viewport in BOTH captures is not an error, so this only
+ * fires when the pair already fails `isTruncatedCapture`.
+ */
+export function isViewportHeightRender(
+  height,
+  viewportHeight,
+  otherHeight,
+  tolerancePx = VIEWPORT_RENDER_TOLERANCE_PX,
+) {
+  if (!(height > 0) || !(viewportHeight > 0) || !(otherHeight > 0)) return false;
+  if (Math.abs(height - viewportHeight) > tolerancePx) return false;
+  return isTruncatedCapture(height, otherHeight);
+}
+
+/**
+ * Which failure class a height pair represents, or null when it is a real diff.
+ *
+ * One function so the two classes cannot drift apart at the call sites, and so
+ * adding a third is a decision someone has to make here (#1358).
+ *
+ *   'app-error'  the shorter side is a faithful capture of a page that rendered
+ *                one viewport tall — the app errored. Fails the run and names
+ *                the side; NEVER prescribes a re-run, because a CMS outage on
+ *                the reference deployment must not pass by being retried.
+ *   'truncated'  the heights disagree beyond the ratio, but the short side is
+ *                not viewport-height — the pre-#1358 catch-all, kept so an
+ *                unrecognised shape still fails loudly rather than diffing
+ *                against white padding.
+ */
+export function classifyCaptureHeights(
+  { referenceHeight, buildHeight, viewportHeight } = {},
+) {
+  if (!isTruncatedCapture(referenceHeight, buildHeight)) return null;
+  const shortSide = referenceHeight <= buildHeight ? 'reference' : 'build';
+  const shortHeight = Math.min(referenceHeight, buildHeight);
+  const tallHeight = Math.max(referenceHeight, buildHeight);
+  if (isViewportHeightRender(shortHeight, viewportHeight, tallHeight)) {
+    return { kind: 'app-error', side: shortSide, shortHeight, tallHeight };
+  }
+  return { kind: 'truncated', side: shortSide, shortHeight, tallHeight };
+}
+
 /**
  * True when a capture produced a usable comparison, not merely a file (#1317).
  *
@@ -247,12 +341,17 @@ export function isTruncatedCapture(
  * self-test asserts the rule directly.
  */
 export function isUsableCapture(
-  { nlOk = false, wfOk = false, truncated = false } = {},
+  { nlOk = false, wfOk = false, truncated = false, appError = false } = {},
   { updateBaselines = false } = {},
 ) {
   if (!nlOk) return false;
   if (!(wfOk || updateBaselines)) return false;
-  return truncated !== true;
+  // Both height-failure classes contribute no comparison, so both are unusable
+  // (#1358). They are separate flags rather than one because they need opposite
+  // remedies — `truncated` is a capture bug, `appError` is the page — and
+  // merging them here is how the summary line would go back to saying
+  // "truncated" for an error-boundary render.
+  return truncated !== true && appError !== true;
 }
 
 /** How many of `results` produced a usable comparison (#1317). */

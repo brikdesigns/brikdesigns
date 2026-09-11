@@ -21,6 +21,9 @@ import {
   buildDeclarationLine,
   isStalePayloadRerun,
   isTruncatedCapture,
+  isPartialCapture,
+  isViewportHeightRender,
+  classifyCaptureHeights,
   isUsableCapture,
   countUsableCaptures,
   summarizeNoiseByRoute,
@@ -497,6 +500,112 @@ check('a truncated capture cannot reach blocking — diffPct is null', () => {
   assert.equal(buildDeclarationLine(blocking), null);
 });
 
+console.log('isPartialCapture — the PNG against the DOM that produced it (#1358)');
+
+// Nothing compared the screenshot to the DOM before this, so the only signal a
+// capture had gone wrong was a height mismatch between the two SIDES — which
+// cannot tell a short capture of a tall page from a faithful capture of a short
+// page. Every occurrence on record turned out to be the latter.
+
+check('a PNG far shorter than the document is partial', () => {
+  assert.equal(isPartialCapture(1024, 8485), true);
+});
+
+check('a PNG matching the document is NOT partial — the error-boundary case', () => {
+  // The run-34486548222 capture: 768x1024 of a document that really was 1024px.
+  assert.equal(isPartialCapture(1024, 1024), false);
+});
+
+check('sub-pixel rounding is absorbed — fullPage rounds to whole device pixels', () => {
+  assert.equal(isPartialCapture(8484, 8485), false);
+  assert.equal(isPartialCapture(8477, 8485), false);
+  assert.equal(isPartialCapture(8476, 8485), true);
+});
+
+check('a PNG TALLER than the document is not partial', () => {
+  // Rounding can go the other way; only a shortfall is a failure.
+  assert.equal(isPartialCapture(8486, 8485), false);
+});
+
+check('a non-positive height is not partial — handled by the existence check', () => {
+  assert.equal(isPartialCapture(0, 8485), false);
+  assert.equal(isPartialCapture(1024, 0), false);
+});
+
+console.log('isViewportHeightRender / classifyCaptureHeights (#1358)');
+
+const VIEWPORTS = { desktop: 800, tablet: 1024, mobile: 812 };
+
+check('all three recorded occurrences classify as app-error, not truncation', () => {
+  // Every one landed on EXACTLY its raw viewport height. A partial capture
+  // lands on an arbitrary height; three-for-three on the viewport is the page.
+  const recorded = [
+    { name: 'home [light/desktop] (#830)', short: 800, tall: 12722, vp: VIEWPORTS.desktop },
+    { name: 'industry-dental [dark/tablet] (#1358)', short: 1024, tall: 8485, vp: VIEWPORTS.tablet },
+    { name: 'fma [dark/mobile] (#1317)', short: 812, tall: 2741, vp: VIEWPORTS.mobile },
+  ];
+  for (const { name, short, tall, vp } of recorded) {
+    assert.equal(
+      isViewportHeightRender(short, vp, tall), true,
+      `${name} should read as a viewport-height render`,
+    );
+    assert.equal(
+      classifyCaptureHeights({ referenceHeight: short, buildHeight: tall, viewportHeight: vp }).kind,
+      'app-error',
+      `${name} must not be called truncated`,
+    );
+  }
+});
+
+check('a genuinely partial capture is still classified truncated', () => {
+  // Short, but nowhere near the viewport height — the pre-#1358 catch-all has
+  // to keep firing, or an unrecognised shape diffs against white padding.
+  const verdict = classifyCaptureHeights({
+    referenceHeight: 3200, buildHeight: 12722, viewportHeight: VIEWPORTS.desktop,
+  });
+  assert.equal(verdict.kind, 'truncated');
+});
+
+check('a legitimately short page is called NEITHER', () => {
+  // Both sides about one viewport tall: a real short route, not a failure.
+  assert.equal(isViewportHeightRender(800, VIEWPORTS.desktop, 812), false);
+  assert.equal(
+    classifyCaptureHeights({
+      referenceHeight: 800, buildHeight: 812, viewportHeight: VIEWPORTS.desktop,
+    }),
+    null,
+  );
+});
+
+check('a real height delta is still a diff, not a failure', () => {
+  // #830/#861 traced a 15.83% red to a 24px page shift by padding and diffing.
+  // That measurement has to keep working.
+  assert.equal(
+    classifyCaptureHeights({
+      referenceHeight: 12722, buildHeight: 12698, viewportHeight: VIEWPORTS.desktop,
+    }),
+    null,
+  );
+});
+
+check('the short side is named, so the summary can say which deployment errored', () => {
+  const refShort = classifyCaptureHeights({
+    referenceHeight: 1024, buildHeight: 8485, viewportHeight: VIEWPORTS.tablet,
+  });
+  assert.equal(refShort.side, 'reference');
+  const buildShort = classifyCaptureHeights({
+    referenceHeight: 8485, buildHeight: 1024, viewportHeight: VIEWPORTS.tablet,
+  });
+  assert.equal(buildShort.side, 'build');
+  assert.equal(buildShort.kind, 'app-error');
+});
+
+check('an unknown viewport height degrades to truncated, never to a pass', () => {
+  // A caller that forgets to pass the viewport must not silently lose the gate.
+  const verdict = classifyCaptureHeights({ referenceHeight: 1024, buildHeight: 8485 });
+  assert.equal(verdict.kind, 'truncated');
+});
+
 console.log('isUsableCapture / countUsableCaptures');
 
 // The summary's headline number. It counted FILES, so a truncated capture —
@@ -506,7 +615,7 @@ console.log('isUsableCapture / countUsableCaptures');
 // back, and the last one is the point: every capture-failure class has to be
 // decided here rather than at the call site.
 
-const capture = (over = {}) => ({ nlOk: true, wfOk: true, truncated: false, ...over });
+const capture = (over = {}) => ({ nlOk: true, wfOk: true, truncated: false, appError: false, ...over });
 
 check('a capture with both sides and no truncation is usable', () => {
   assert.equal(isUsableCapture(capture()), true);

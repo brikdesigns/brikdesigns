@@ -21,8 +21,16 @@ import AxeBuilder from '@axe-core/playwright';
  * focus-return on close.
  */
 
-// Representative plan page that renders the cta-panel modal trigger.
-const PLAN_PATH = '/plans/marketing-support';
+// Representative page that renders a get-started modal trigger.
+//
+// Was '/plans/marketing-support' until #1371. The Figma support-plan template
+// REPLACES that page's `.plan-cta-panel` (its only modal trigger) with the
+// `section-full-stack` cross-sell, whose CTA is a link — so no plan route
+// renders this modal any more. The trigger still ships on service-detail
+// offering cards (`GetStartedModalButton`, services/[…]/[…]/page.tsx), which is
+// what this spec now covers. #401's contract is unchanged; only the surface
+// carrying it moved.
+const MODAL_PATH = '/services/back-office/crm-setup-and-data-cleanup';
 const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);
 
@@ -42,16 +50,30 @@ const CONTRAST_DEBT: Record<'light' | 'dark', Record<string, string[]>> = {
   light: { 'color-contrast': [MODAL_SUBMIT_BTN] },
   dark: { 'color-contrast': [MODAL_SUBMIT_BTN] },
 };
+// axe composes a selector from the element's classes and does NOT guarantee a
+// stable ORDER between documents — the same submit button reported
+// `.bds-button--full-width.bds-button--lg` on the old plan-page surface and
+// `.bds-button--lg.bds-button--full-width` on this one, which slipped past a
+// plain string compare and turned owner-accepted debt into a hard failure.
+// Sorting each compound's classes makes the comparison order-independent.
+const sortClasses = (s: string): string =>
+  s.replace(/(?:\.[A-Za-z0-9_-]+)+/g, (run) =>
+    run.split('.').filter(Boolean).sort().map((c) => `.${c}`).join('')
+  );
 const normalizeSelector = (s: string): string =>
-  s.replace(/:nth-child\(\d+\)/g, '').replace(/:nth-of-type\(\d+\)/g, '').trim();
+  sortClasses(
+    s.replace(/:nth-child\(\d+\)/g, '').replace(/:nth-of-type\(\d+\)/g, '').trim()
+  );
 const isModalBaselined = (theme: 'light' | 'dark', ruleId: string, selector: string): boolean =>
   (CONTRAST_DEBT[theme][ruleId] ?? []).map(normalizeSelector).includes(normalizeSelector(selector));
 
 async function openModal(page: Page) {
-  await gotoRendered(page, PLAN_PATH, { waitUntil: 'load' });
-  // The cta-panel trigger is a <button> ("Get Started"); the hero CTA is an
-  // <a> (url-only, brik-bds#843), so role=button matches only the trigger.
-  const trigger = page.getByRole('button', { name: 'Get Started' });
+  await gotoRendered(page, MODAL_PATH, { waitUntil: 'load' });
+  // The offering-card triggers are <button>s ("Get Started"); the hero CTA is
+  // an <a> (url-only, brik-bds#843), so role=button matches only the triggers.
+  // One per offering card, so take the first — they are the same component
+  // with different lead payloads, and the dialog's a11y contract is identical.
+  const trigger = page.getByRole('button', { name: 'Get Started' }).first();
   await trigger.click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();

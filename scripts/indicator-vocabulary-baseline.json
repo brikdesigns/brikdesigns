@@ -1,0 +1,29 @@
+{
+  "_comment": [
+    "Grandfathered 'chip' vocabulary, for scripts/lint-indicator-vocabulary.mjs (brikdesigns#1395).",
+    "The gate is a going-forward ratchet: a NEW offender fails, and an entry here that no longer",
+    "offends ALSO fails, so this file cannot silently overstate the remaining debt.",
+    "",
+    "#1395 puts renaming the existing *__chip classnames out of scope — flag in place, rename when",
+    "those files are next touched (surgical-changes rule). Each reason below says which kind it is:",
+    "  CORRECT   — the prose means BDS's real interactive Chip, or a BDS API slot literally named",
+    "              `chip`. Nothing to fix; the entry exists only because the gate cannot tell.",
+    "  DEFERRED  — the word is wrong, and the fix is deferred with its blocker named.",
+    "Canon: design.brikdesigns.com/docs/build-standards/indicators"
+  ],
+  "classnames": {
+    "engagement-mode__chip": "DEFERRED — a read-only 32x32 icon square on /plans, hidden from assistive tech (plans/page.tsx:245). It is an icon affordance, not any indicator component: Tag/Badge carry a label, and this deliberately carries none. Renaming it is out of scope per #1395; brik-bds#2417 is the ServiceTag/Tag gap that decides what it should become.",
+    "team-member__chip": "DEFERRED — the tinted square behind a team member's avatar on the home/about team sections (TeamMember.tsx:42). Same shape as engagement-mode__chip: geometry + a service tint, no label. Renaming it is out of scope per #1395."
+  },
+  "comments": {
+    "src/app/globals.css": "CORRECT — names the real BDS Chip: '--background-secondary stays grayscale-400 for the chip/menu/table consumers' is about which BDS components consume the token this block re-points (globals.css:595).",
+    "src/app/(marketing)/contact/page.tsx": "CORRECT — names BDS MultiSelect's API slot, which is literally called `chip`; the site renders a ServiceTag into it (ServiceMultiSelect.tsx:21, 58).",
+    "src/app/(marketing)/plans/page.tsx": "DEFERRED — three comments describing `.engagement-mode__chip`, which is itself grandfathered above. The prose is coherent with the classname it documents; both move together when the classname is renamed.",
+    "src/app/(marketing)/plans/plans.css": "DEFERRED — the `.engagement-mode__chip` rule block and its Figma-geometry notes. Moves with the classname above.",
+    "src/app/(marketing)/shared-sections.css": "DEFERRED — the `.team-member__chip` rule block and its service-tint notes. Moves with the classname above.",
+    "src/lib/plan-coverage-icons.ts": "DEFERRED — real drift: a coverage row renders a BDS `Tag` (PlanCoverageRow.tsx:42-52), so 'a blank chip at runtime' and \"a coverage row's chip\" should both say Tag. Comment-only fix, deferred to keep this ticket off the /plans data surface — see #1395's follow-up note.",
+    "src/app/(marketing)/customers/page.tsx": "DEFERRED — real drift: 'intended for chip-style labels' describes what `label.smBold` is for; it means indicator labels generally, not BDS Chip. Comment-only fix, deferred to keep this ticket off the customers surface.",
+    "src/app/(marketing)/results/[slug]/StorySections.tsx": "DEFERRED — real drift: the 'name/role chip' is a two-line text block, not a pill of any kind. Comment-only fix, deferred to keep this ticket off the results surface.",
+    "src/app/(marketing)/results/results.css": "DEFERRED — real drift: 'the pull-quote's chip' is a text element (`.story-quote-card__attribution-text`) and 'a BDS Avatar chip' is an Avatar beside text. Comment-only fix, deferred to keep this ticket off the results surface."
+  }
+}

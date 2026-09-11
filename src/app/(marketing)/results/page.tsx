@@ -4,6 +4,7 @@ import type { ServiceLine } from '@brikdesigns/bds';
 import { getCustomerStories, getServiceCategories, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
 import { ResultsList } from './ResultsList';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
+import { planTierPrices } from '@/lib/plan-tier-prices';
 import { text } from '@/lib/styles';
 import { color, gap } from '@/lib/tokens';
 import '../shared-sections.css';
@@ -27,18 +28,21 @@ export default async function ResultsPage() {
   // Subscription-plan cards for the "Our Services" band, mirroring the home
   // page's Monthly Subscription mapping. Plan cards render the marketing-line
   // illustration, joined client-side against the fetched service lines via
-  // service_plans.display_line_id. Product Support is a niche plan — excluded
-  // here (still live on the Plans page and its detail route).
+  // service_plans.display_line_id. Every public plan renders: the niche plan
+  // this once filtered out was unpublished (`is_public: false`), so the
+  // hand-maintained exclusion that stood here became unreachable and went with
+  // it (#1385 names the row).
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
   const supportPlans = plans
-    .filter((plan) => plan.slug !== 'product-support')
     .map((plan) => {
       const displayLineId = (plan as { display_line_id?: string | null }).display_line_id;
       const line = displayLineId ? serviceLineById.get(displayLineId) : null;
+      const tiers = planTierPrices(plan);
       return {
         name: plan.name,
         slug: plan.slug,
-        price: plan.monthly_price_display || 'Contact',
+        price: tiers.advisory ?? 'Contact',
+        managed_price: tiers.managed,
         description: plan.home_description || plan.description || '',
         image_url: line?.card_image_url ?? plan.image_url ?? null,
         // Same display-line join drives the CTA tint — the card links to
@@ -104,6 +108,7 @@ export default async function ResultsPage() {
                   name={plan.name}
                   slug={plan.slug}
                   price={plan.price}
+                  managedPrice={plan.managed_price}
                   description={plan.description}
                   imageUrl={plan.image_url}
                   serviceLineSlug={plan.service_line_slug}

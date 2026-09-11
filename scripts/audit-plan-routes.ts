@@ -17,12 +17,19 @@
  * If the page itself 404s, we report that and skip extraction.
  */
 
-const DEFAULT_BASE = 'https://deploy-preview-143--brikdesigns.netlify.app';
+// The staging site, not a deploy preview — `deploy-preview-143` was a
+// single PR's preview and has long since been torn down, so every run
+// reported connection failures rather than route health (#1385).
+const DEFAULT_BASE = 'https://staging--brikdesigns.netlify.app';
+// The three PUBLIC plans. product-support was unpublished (is_public: false),
+// so /plans/product-support is a legitimate 404 and crawling it reported a
+// failure for a route that is correctly gone; full-stack-support has been
+// public throughout and was never in this list (#1385).
 const PLAN_PATHS = [
   '/plans',
+  '/plans/full-stack-support',
   '/plans/marketing-support',
   '/plans/back-office-support',
-  '/plans/product-support',
 ];
 
 interface AuditResult {

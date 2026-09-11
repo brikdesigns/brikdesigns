@@ -26,35 +26,15 @@
   }
 }
 
-/* ─── Split-hero skeleton layout ─────────────────────────────
-   Two-column hero (content left, media right) used by the interior `.page-hero`
-   skeletons (customers/plans/services). Mirrored `.customer-detail-hero`'s
-   responsive collapse; that hero moved to BDS `.bds-hero--split` (3fr 2fr,
-   collapsing at 768px) in #1356, so these values no longer track it. Currently
-   referenced by no component — grep `skeleton-hero-split`. */
-.skeleton-hero-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap-xl);
-  align-items: center;
-  width: 100%;
-}
-
-.skeleton-hero-col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-md);
-}
+/* `.skeleton-hero-split` / `.skeleton-hero-col` were deleted in #1369. They
+   mirrored `.customer-detail-hero`'s `1fr 1fr` / 991px geometry, which #1356
+   retired onto BDS `.bds-hero--split` (`3fr 2fr`, collapsing at 768px), and no
+   component referenced either rule. A future split-hero `loading.tsx` should
+   derive its geometry from `.bds-hero--split`, not from a copy kept in here. */
 
 .skeleton-lines {
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
   width: 100%;
-}
-
-@media (max-width: 991px) {
-  .skeleton-hero-split {
-    grid-template-columns: 1fr;
-  }
 }

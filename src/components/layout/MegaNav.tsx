@@ -35,7 +35,6 @@ interface NavServiceLine {
 interface SupportPlan {
   name: string;
   slug: string;
-  price: string;
   description: string;
   imageUrl: string | null;
   /** Route segment of the plan's marketing service line, or `null` when the CMS
@@ -286,14 +285,19 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                             marketing, back-office systems, or product design —
                             without the cost of full-time hires.
                           </p>
+                          <Link href="/plans" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
+                            <span className="bds-button__content">Learn More</span>
+                          </Link>
                         </div>
-                        {/* Cols 2–4: plan cards. Product Support is excluded — it
-                            has its own dedicated section on /plans. Card image is
-                            the plan's service-line card_image_url (single CMS
-                            source, #467). */}
+                        {/* Cols 2–4: plan cards. Every public plan renders —
+                            the niche plan this once filtered out was unpublished
+                            (`is_public: false`), so the hand-maintained exclusion
+                            that stood here became unreachable and went with it
+                            (#1385 names the row). Card
+                            image is the plan's service-line card_image_url
+                            (single CMS source, #467). */}
                         <div className="mega-nav__plans-grid">
                           {supportPlans
-                            .filter((plan) => plan.slug !== 'product-support')
                             .map((plan) => {
                               const image = plan.imageUrl;
                               if (!image) return null;
@@ -314,15 +318,15 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                       </div>
                       {/* Full-width banner: toggle on to reveal the standalone-services view. */}
                       <div className="mega-nav__panel-banner">
-                        <p className="mega-nav__panel-banner-text">
-                          <strong>Interested in individual services?</strong> View our standalone services.
-                        </p>
                         <ToggleSwitch
-                          label="View Services"
+                          aria-label="View standalone services"
                           size="sm"
                           checked={servicesView}
                           onChange={(e) => setServicesView(e.target.checked)}
                         />
+                        <p className="mega-nav__panel-banner-text">
+                          <strong>Interested in individual services?</strong> View our standalone services.
+                        </p>
                       </div>
                       </>
                     ) : (
@@ -375,15 +379,15 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                       {/* Same banner, services view: toggle off to return to the
                           support-plan view (the panel's default). */}
                       <div className="mega-nav__panel-banner">
-                        <p className="mega-nav__panel-banner-text">
-                          <strong>Interested in a monthly support plan?</strong> View our support plans.
-                        </p>
                         <ToggleSwitch
-                          label="View Services"
+                          aria-label="View support plans"
                           size="sm"
                           checked={servicesView}
                           onChange={(e) => setServicesView(e.target.checked)}
                         />
+                        <p className="mega-nav__panel-banner-text">
+                          <strong>Interested in a monthly support plan?</strong> View our support plans.
+                        </p>
                       </div>
                       </>
                     )}

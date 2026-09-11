@@ -8,6 +8,7 @@ import { TeamMember } from '@/components/team/TeamMember';
 import { TEAM } from '@/lib/team';
 import { HomeServicesTabs } from '@/components/homepage/HomeServicesTabs';
 import { serviceCtaVars } from '@/lib/tokens';
+import { planTierPrices } from '@/lib/plan-tier-prices';
 import { HOME_SERVICES_TABS } from '@/lib/home-services-tabs';
 import { HomeIndustriesTabs } from '@/components/homepage/HomeIndustriesTabs';
 import { HOME_INDUSTRIES } from '@/lib/home-industries';
@@ -98,16 +99,15 @@ export default async function HomePage() {
   // Falls back to plan.image_url when display_line_id is null/absent.
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
   const supportPlans = plans
-    // Product Support is a niche plan — excluded from the home Monthly
-    // Subscription band (still live on the Plans page and its detail route).
-    .filter((plan) => plan.slug !== 'product-support')
     .map((plan) => {
     const displayLineId = (plan as { display_line_id?: string | null }).display_line_id;
     const line = displayLineId ? serviceLineById.get(displayLineId) : null;
+    const tiers = planTierPrices(plan);
     return {
       name: plan.name,
       slug: plan.slug,
-      price: plan.monthly_price_display || 'Contact',
+      price: tiers.advisory ?? 'Contact',
+      managed_price: tiers.managed,
       description: plan.home_description || plan.description || '',
       image_url: line?.card_image_url ?? plan.image_url ?? null,
       // Same display-line join drives the CTA tint — the card links to
@@ -365,8 +365,15 @@ export default async function HomePage() {
                   key={plan.slug}
                   className={category ? 'service-themed' : undefined}
                   title={plan.name}
+                  // Advisory headline + Managed on the feature list — the same
+                  // two props /plans sets (plans/page.tsx:187-189), not a
+                  // re-authored presentation. The plan-level price this
+                  // replaces is retired (#1385, portal#3959 decision A).
                   price={plan.price}
-                  period="/month"
+                  period="/month advisory"
+                  {...(plan.managed_price
+                    ? { features: [`Managed — ${plan.managed_price}/month`] }
+                    : {})}
                   description={plan.description}
                   style={cardStyle}
                   // Parent service-line illustration (card_image_url), the same

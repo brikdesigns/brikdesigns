@@ -5,6 +5,7 @@ import { Grid, Button, SectionHeader } from '@brikdesigns/bds';
 import { gap } from '@/lib/tokens';
 import { BlogIndex } from '@/components/blog/BlogIndex';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
+import { planTierPrices } from '@/lib/plan-tier-prices';
 import '../shared-sections.css';
 import '../homepage.css';
 import './blog.css';
@@ -27,18 +28,21 @@ export default async function BlogPage() {
   // Support-plan cards for the "Monthly Subscription" band, mirrored from the
   // home page (src/app/(marketing)/page.tsx). Plan cards render the marketing-
   // line illustration, joined client-side against the fetched service lines via
-  // service_plans.display_line_id; Product Support is excluded here as it is on
-  // the home band (still live on the Plans page and its detail route).
+  // service_plans.display_line_id. Every public plan renders: the niche plan
+  // this once filtered out was unpublished (`is_public: false`), so the
+  // hand-maintained exclusion that stood here became unreachable and went with
+  // it (#1385 names the row).
   const serviceLineById = new Map(categories.map((cat) => [cat.id, cat]));
   const supportPlans = plans
-    .filter((plan) => plan.slug !== 'product-support')
     .map((plan) => {
       const displayLineId = (plan as { display_line_id?: string | null }).display_line_id;
       const line = displayLineId ? serviceLineById.get(displayLineId) : null;
+      const tiers = planTierPrices(plan);
       return {
         name: plan.name,
         slug: plan.slug,
-        price: plan.monthly_price_display || 'Contact',
+        price: tiers.advisory ?? 'Contact',
+        managed_price: tiers.managed,
         description: plan.home_description || plan.description || '',
         image_url: line?.card_image_url ?? plan.image_url ?? null,
       };
@@ -75,6 +79,7 @@ export default async function BlogPage() {
                 name={plan.name}
                 slug={plan.slug}
                 price={plan.price}
+                managedPrice={plan.managed_price}
                 description={plan.description}
                 imageUrl={plan.image_url}
               />
