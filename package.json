@@ -51,6 +51,7 @@
     "test:a11y-baseline": "npx tsx tests/a11y/lib/baseline-match.test.ts",
     "test:app-error-record": "npx tsx src/lib/app-error-record.test.ts",
     "test:ci-paths-match": "node scripts/ci-paths-match.test.mjs",
+    "test:label-burst-concurrency": "node scripts/label-burst-concurrency.test.mjs",
     "test:fetch-diagnostics": "npx tsx scripts/fetch-diagnostics.test.mjs",
     "repro:on-demand-render": "bash scripts/repro-on-demand-render.sh",
     "audit:cms-drift": "npx tsx scripts/audit-supabase-drift.ts",
