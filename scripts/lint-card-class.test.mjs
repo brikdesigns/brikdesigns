@@ -101,7 +101,7 @@ test('a class on a <div> is applied but NOT card-backed', () => {
 
 test('a template-literal / array className still counts as card-backed', () => {
   const src =
-    '<Card preset="display" className={[`service-card--${t}`, extra].filter(Boolean).join(" ")}>x</Card>';
+    '<Card layout="stack" className={[`service-card--${t}`, extra].filter(Boolean).join(" ")}>x</Card>';
   assert.ok(cardBackedClasses(src).has('service-card'), 'the block inside the template counts');
 });
 

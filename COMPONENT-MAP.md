@@ -19,8 +19,8 @@ Check this file BEFORE building any section.
 |----------------|---------------|--------|---------|
 | Any button/CTA | `Button` / `LinkButton` | `@brikdesigns/bds` | `<Button href="/x" variant="primary" size="lg">Text</Button>` |
 | Service line badge/icon | `ServiceTag` | `@brikdesigns/bds` | `<ServiceTag category="brand" variant="icon-text" label="Brand Design" size="sm" />` |
-| Image card (image+title+desc+tag+CTA) | `Card preset="display"` | `@brikdesigns/bds` | `<Card preset="display" title="Name" description="..." image={<Frame ratio="square">...</Frame>} tag={<ServiceTag />} action={<Button>Go</Button>} />` |
-| Card sub-components | `CardTitle` `CardDescription` `CardFooter` | `@brikdesigns/bds` | Used inside `<Card>` when not using `preset="display"` |
+| Image card (image+title+desc+tag+CTA) | `Card layout="stack"` | `@brikdesigns/bds` | `<Card layout="stack" title="Name" media={<Frame ratio="square">...</Frame>} overline={<ServiceTag />} action={<Button>Go</Button>}><CardDescription>...</CardDescription></Card>` |
+| Card sub-components | `CardTitle` `CardDescription` `CardFooter` | `@brikdesigns/bds` | Used inside `<Card>`; `CardDescription` is also the `layout="stack"` body slot |
 | Testimonial/quote card | `CardTestimonial` | `@brikdesigns/bds` | `<CardTestimonial quote="..." authorName="Nick" rating={5} />` |
 | Pricing tier card | `PricingCard` | `@brikdesigns/bds` | `<PricingCard title="Pro" price="$49" features={[...]} highlighted />` |
 | Generic bordered card | `Card variant="outlined"` | `@brikdesigns/bds` | `<Card variant="outlined" padding="md"><CardTitle>...</CardTitle></Card>` |

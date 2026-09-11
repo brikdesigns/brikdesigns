@@ -603,7 +603,7 @@
    were always interchangeable and nobody could tell.
 
    The name says what it does rather than where it is used, which is what stops
-   the sixth from being minted. Applies to `preset="display"` cards and to a
+   the sixth from being minted. Applies to `layout="stack"` cards and to a
    composed `<CardTitle as="h4">`. */
 .display-card--title-sm .bds-card__preset-display-title,
 .display-card--title-sm h4.bds-card-title {
@@ -611,7 +611,7 @@
 }
 
 /* The ServiceCard content inset ("card-vertical" mockup) now lives on the BDS
-   primitive as `<Card preset="display" mediaTreatment="inset">` (@brikdesigns/bds
+   primitive as `<Card layout="stack" mediaTreatment="inset">` (@brikdesigns/bds
    v0.188.0), so the former `.service-card--inset` override was removed here.
    `flush` (default) bleeds media to the edge + pads only the body (--padding-lg);
    `inset` frames media + body together in a --padding-huge inset with --gap-xl. */

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Card, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
+import { Card, CardDescription, Frame, ServiceTag, LinkButton } from '@brikdesigns/bds';
 import type { ServiceLine } from '@brikdesigns/bds';
 import { serviceCtaVars } from '@/lib/tokens';
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
@@ -15,15 +15,14 @@ interface HomeServiceCardProps {
 export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: HomeServiceCardProps) {
   return (
     <Card
-      preset="display"
+      layout="stack"
       className="service-themed"
       title={name}
-      description={tagline}
       // `service-card__media` is the canonical media-container name (#197).
       // The Frame carries the radius + --surface-secondary well from the "Card
       // media standard" rule in shared-sections.css, so the no-image fallback
       // no longer paints its own fill — one rule covers both states (#1169).
-      image={
+      media={
         <Frame ratio="square" fit="cover" className="service-card__media">
           {imageUrl ? (
             <Image src={imageUrl} alt={name} width={400} height={400} />
@@ -34,7 +33,7 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: Hom
           )}
         </Frame>
       }
-      tag={<ServiceTag category={category} variant="icon" size="lg" />}
+      overline={<ServiceTag category={category} variant="icon" size="lg" />}
       action={
         <LinkButton
           href={`/services/${routeSlugForServiceLine(slug)}`}
@@ -45,6 +44,8 @@ export function HomeServiceCard({ name, slug, category, tagline, imageUrl }: Hom
           Learn more
         </LinkButton>
       }
-    />
+    >
+      <CardDescription>{tagline}</CardDescription>
+    </Card>
   );
 }

@@ -5,6 +5,7 @@ import { Icon } from '@/lib/icon';
 import {
   Button,
   Card,
+  CardDescription,
   Frame,
   Grid,
   LinkButton,
@@ -119,11 +120,10 @@ export default async function BlogPostPage({ params }: Props) {
               {relatedPosts.map((related) => (
                 <Card
                   key={related.slug}
-                  preset="display"
+                  layout="stack"
                   titleAs="h3"
                   title={related.title}
-                  description={related.summary}
-                  image={
+                  media={
                     related.image ? (
                       <Frame customRatio="16 / 9" fit="cover">
                         <Image
@@ -136,7 +136,7 @@ export default async function BlogPostPage({ params }: Props) {
                       </Frame>
                     ) : undefined
                   }
-                  tag={
+                  overline={
                     <div className="blog-card__meta">
                       <span className="blog-card__meta-item" style={{ ...label.sm, color: color.text.secondary }}>
                         <Icon icon="ph:calendar-blank" width={16} height={16} aria-hidden />
@@ -155,7 +155,9 @@ export default async function BlogPostPage({ params }: Props) {
                       Read Article
                     </Button>
                   }
-                />
+                >
+                  {related.summary ? <CardDescription>{related.summary}</CardDescription> : undefined}
+                </Card>
               ))}
             </Grid>
           </div>
@@ -211,19 +213,20 @@ export default async function BlogPostPage({ params }: Props) {
                     style={serviceCtaVars(lineKey)}
                   >
                     <Card
-                      preset="display"
+                      layout="stack"
                       title={line.name}
-                      description={line.tagline ?? undefined}
-                      image={
+                      media={
                         line.card_image_url ? (
                           <Frame customRatio="3 / 2" fit="contain">
                             <Image src={line.card_image_url} alt={line.name} fill sizes="(max-width: 768px) 100vw, 400px" />
                           </Frame>
                         ) : undefined
                       }
-                      tag={<ServiceTag category={lineKey} variant="icon" size="lg" />}
+                      overline={<ServiceTag category={lineKey} variant="icon" size="lg" />}
                       action={<LinkButton href={`/services/${routeSlugForServiceLine(line.slug)}`} variant="primary" size="md">Learn More</LinkButton>}
-                    />
+                    >
+                      {line.tagline ? <CardDescription>{line.tagline}</CardDescription> : undefined}
+                    </Card>
                   </div>
                 );
               })}

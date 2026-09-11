@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Icon } from '@/lib/icon';
 import {
   Card,
+  CardDescription,
   Frame,
   Grid,
   Button,
@@ -102,11 +103,10 @@ export function BlogIndex({ posts }: Props) {
           {visible.map((post) => (
             <Card
               key={post.slug}
-              preset="display"
+              layout="stack"
               titleAs="h2"
               title={post.title}
-              description={post.summary}
-              image={
+              media={
                 post.image ? (
                   <Frame customRatio="16 / 9" fit="cover">
                     <Image
@@ -119,7 +119,7 @@ export function BlogIndex({ posts }: Props) {
                   </Frame>
                 ) : undefined
               }
-              tag={
+              overline={
                 <div className="blog-card__meta">
                   <span
                     className="blog-card__meta-item"
@@ -148,7 +148,9 @@ export function BlogIndex({ posts }: Props) {
                   Read Article
                 </Button>
               }
-            />
+            >
+              {post.summary ? <CardDescription>{post.summary}</CardDescription> : undefined}
+            </Card>
           ))}
         </Grid>
       )}

@@ -5,7 +5,7 @@ import { getServiceLineBySlug, getServicesByServiceLine, getServiceCategories, g
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { ServiceCard } from '@/components/marketing/ServiceCard';
 import { ScrollDownCta } from '@/components/ui/ScrollDownCta';
-import { Button, Breadcrumb, Card, Frame, Grid, Hero, LinkButton, ServiceTag, SectionHeader } from '@brikdesigns/bds';
+import { Button, Breadcrumb, Card, CardDescription, Frame, Grid, Hero, LinkButton, ServiceTag, SectionHeader } from '@brikdesigns/bds';
 import { text, heading } from '@/lib/styles';
 import { color, gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import '../../shared-sections.css';
@@ -218,7 +218,7 @@ export default async function ServiceLinePage({ params }: Props) {
                   the plan line identity. Matches the service-detail inverse-card
                   convention (#645). (BRIK-WEB) */}
               {/* No title-step-down class: this card composes a hand-built
-                  content column, not a `preset="display"` title, so the rule
+                  content column, not a `layout="stack"` title, so the rule
                   had nothing to match. It carried `.service-card--flat` inertly
                   until #1261. */}
               <Card variant="outlined" padding="lg" style={{ backgroundColor: supportPlanServiceLineColors.inverse }}>
@@ -269,24 +269,25 @@ export default async function ServiceLinePage({ params }: Props) {
                     style={serviceCtaVars(catKey)}
                   >
                     <Card
-                      preset="display"
+                      layout="stack"
                       className="display-card--title-sm"
                       // Service `-inverse` surface — white in light (== the prior
                       // display-preset fill; the elevated shadow keeps it visible
                       // on the accent band), `{hue}-darkest` in dark. (BRIK-WEB)
                       style={{ backgroundColor: catColors.inverse }}
                       title={cat.name}
-                      description={cat.tagline ?? undefined}
-                      image={
+                      media={
                         cat.card_image_url ? (
                           <Frame customRatio="3 / 2" fit="contain">
                             <Image src={cat.card_image_url} alt={cat.name} fill sizes="(max-width: 768px) 100vw, 400px" />
                           </Frame>
                         ) : undefined
                       }
-                      tag={<ServiceTag category={catKey} variant="icon" size="lg" />}
+                      overline={<ServiceTag category={catKey} variant="icon" size="lg" />}
                       action={<LinkButton href={`/services/${routeSlugForServiceLine(cat.slug)}`} variant="primary" size="md">Learn More</LinkButton>}
-                    />
+                    >
+                      {cat.tagline ? <CardDescription>{cat.tagline}</CardDescription> : undefined}
+                    </Card>
                   </div>
                 );
               })}

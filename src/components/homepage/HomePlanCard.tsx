@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Card, Frame, LinkButton } from '@brikdesigns/bds';
+import { Card, CardDescription, Frame, LinkButton } from '@brikdesigns/bds';
 import { heading, text } from '@/lib/styles';
 import { color, gap, serviceCtaVars } from '@/lib/tokens';
 import { mapServiceLineSlug } from '@/lib/supabase/queries';
@@ -29,15 +29,14 @@ export function HomePlanCard({ name, slug, price, managedPrice, description, ima
   const svcVars = serviceLineSlug ? serviceCtaVars(mapServiceLineSlug(serviceLineSlug)) : undefined;
   return (
     <Card
-      preset="display"
+      layout="stack"
       className={svcVars ? 'service-themed' : undefined}
       title={name}
-      description={description}
       // `plan-card__media` is the canonical media-container name (#197). The
       // Frame carries the radius + --surface-secondary well from the "Card
       // media standard" rule in shared-sections.css, so the no-image branch is
       // an empty Frame rather than a hand-painted fill (#1169).
-      image={
+      media={
         <Frame ratio="square" fit="cover" className="plan-card__media">
           {imageUrl ? <Image src={imageUrl} alt={name} width={400} height={400} /> : null}
         </Frame>
@@ -48,7 +47,7 @@ export function HomePlanCard({ name, slug, price, managedPrice, description, ima
       // the LOWER of two figures: without it the card reads as the plan's only
       // price. Managed drops entirely when the plan has no Managed tier rather
       // than rendering a label with nothing after it.
-      tag={
+      overline={
         <span style={{ display: 'flex', flexDirection: 'column', gap: gap.tiny }}>
           <span style={{ ...heading.lg, color: color.text.primary }}>
             {price}
@@ -64,6 +63,8 @@ export function HomePlanCard({ name, slug, price, managedPrice, description, ima
         </span>
       }
       action={<LinkButton href={`/plans/${slug}`} variant="primary" size="md" style={svcVars}>Learn More</LinkButton>}
-    />
+    >
+      <CardDescription>{description}</CardDescription>
+    </Card>
   );
 }

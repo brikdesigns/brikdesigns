@@ -10,7 +10,7 @@
 }
 
 /* The `.services-card` / `__media` / `__content` layout classes were removed
- * once ServiceLineCard moved to `<Card preset="display" mediaTreatment="inset">`
+ * once ServiceLineCard moved to `<Card layout="stack" mediaTreatment="inset">`
  * (@brikdesigns/bds v0.188.0): the preset owns the media slot, body inset, and
  * vertical rhythm, so the site no longer hand-rolls them. `.services-card-link`
  * stays — it's the Next.js <Link> wrapper around the real Card. */
