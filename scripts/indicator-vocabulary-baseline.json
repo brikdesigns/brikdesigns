@@ -4,22 +4,20 @@
     "The gate is a going-forward ratchet: a NEW offender fails, and an entry here that no longer",
     "offends ALSO fails, so this file cannot silently overstate the remaining debt.",
     "",
-    "#1395 puts renaming the existing *__chip classnames out of scope — flag in place, rename when",
-    "those files are next touched (surgical-changes rule). Every DEFERRED entry left here is tied to a classname whose rename #1395 defers. The four files that carried comment-only drift were FIXED in this change rather than baselined, so each reason below is one of:",
+    "#1395 deferred renaming the two existing *__chip classnames; #1415 did it, so `classnames` is",
+    "now EMPTY and must stay empty — a new hand-rolled pill is a missing indicator component, not a",
+    "baseline entry. The renames: engagement-mode__chip -> engagement-mode__icon (a decorative",
+    "aria-hidden glyph wrapper, the .hiw-mode__icon shape), team-member__chip -> team-member__avatar",
+    "(the headshot frame — the name its --horizontal sibling already used).",
+    "",
     "  CORRECT   — the prose means BDS's real interactive Chip, or a BDS API slot literally named",
     "              `chip`. Nothing to fix; the entry exists only because the gate cannot tell.",
-    "  DEFERRED  — the word is wrong, and the fix is deferred with its blocker named.",
+    "              It is the only reason kind left.",
     "Canon: design.brikdesigns.com/docs/build-standards/indicators"
   ],
-  "classnames": {
-    "engagement-mode__chip": "DEFERRED — a read-only 32x32 icon square on /plans, hidden from assistive tech (plans/page.tsx:245). It is an icon affordance, not any indicator component: Tag/Badge carry a label, and this deliberately carries none. Renaming it is out of scope per #1395; brik-bds#2417 is the ServiceTag/Tag gap that decides what it should become.",
-    "team-member__chip": "DEFERRED — the tinted square behind a team member's avatar on the home/about team sections (TeamMember.tsx:42). Same shape as engagement-mode__chip: geometry + a service tint, no label. Renaming it is out of scope per #1395."
-  },
+  "classnames": {},
   "comments": {
     "src/app/globals.css": "CORRECT — names the real BDS Chip: '--background-secondary stays grayscale-400 for the chip/menu/table consumers' is about which BDS components consume the token this block re-points (globals.css:595).",
-    "src/app/(marketing)/contact/page.tsx": "CORRECT — names BDS MultiSelect's API slot, which is literally called `chip`; the site renders a ServiceTag into it (ServiceMultiSelect.tsx:21, 58).",
-    "src/app/(marketing)/plans/page.tsx": "DEFERRED — three comments describing `.engagement-mode__chip`, which is itself grandfathered above. The prose is coherent with the classname it documents; both move together when the classname is renamed.",
-    "src/app/(marketing)/plans/plans.css": "DEFERRED — the `.engagement-mode__chip` rule block and its Figma-geometry notes. Moves with the classname above.",
-    "src/app/(marketing)/shared-sections.css": "DEFERRED — the `.team-member__chip` rule block and its service-tint notes. Moves with the classname above."
+    "src/app/(marketing)/contact/page.tsx": "CORRECT — names BDS MultiSelect's API slot, which is literally called `chip`; the site renders a ServiceTag into it (ServiceMultiSelect.tsx:21, 58)."
   }
 }

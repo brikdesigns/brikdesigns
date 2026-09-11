@@ -69,8 +69,13 @@
   --text-secondary: var(--color-grayscale-950);
 }
 
-/* ─── Engagement-mode icon chip (Figma 26103:10991 / 10993) ───
-   32×32 square, 4px radius, 16px glyph centred. Figma draws the chip corner as a
+/* ─── Engagement-mode icon square (Figma 26103:10991 / 10993) ───
+   32×32 square, 4px radius, 16px glyph centred. It carries no label and nothing
+   happens on click, so it is not any indicator (Tag/Badge both carry text) and
+   emphatically not BDS `Chip`, which is interactive-only — it is an icon
+   affordance, named for what it wraps like `.hiw-mode__icon` (#1415).
+
+   Figma draws the corner as a
    raw 4px, not a named alias, so the radius is written as the primitive that
    carries that value — `radius.xs` (--border-radius-100). Neither BDS alias
    fits: --border-radius-sm is 8px and --border-radius-md is 12px.
@@ -81,7 +86,7 @@
    `sm` and `lg` still do not (Figma 4px/24px vs BDS 8px/16px); that parity work
    is brikdesigns/brik-bds#2351, and if `sm` lands on 4px this declaration should
    become the named token. */
-.engagement-mode__chip {
+.engagement-mode__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -91,7 +96,7 @@
   border-radius: var(--border-radius-100);
 }
 
-/* Both chip fills are mode-invariant (`--background-service-brand` and
+/* Both icon-square fills are mode-invariant (`--background-service-brand` and
    `--background-service-back-office-on-light` resolve to the same primitive in
    the light and dark roots), so the glyph ink must be mode-invariant too. The
    semantic inks Figma names — `background/inverse` on advisory, `text/inverse`
@@ -99,12 +104,12 @@
    (#f2f2f2-era ink on the fixed yellow) and black-on-#3f1000 in dark mode. Pin
    each to the fixed grayscale primitive Figma's own value resolves to instead:
    the same fixed-on-fixed correction `.service-surface` takes in globals.css. */
-.engagement-mode__chip[data-accent='brand'] {
+.engagement-mode__icon[data-accent='brand'] {
   background-color: var(--background-service-brand);
   color: var(--color-grayscale-950);
 }
 
-.engagement-mode__chip[data-accent='back-office'] {
+.engagement-mode__icon[data-accent='back-office'] {
   background-color: var(--background-service-back-office-on-light);
   color: var(--color-grayscale-white);
 }
@@ -475,7 +480,7 @@
      the sibling rule in globals.css un-pins it again for `.bds-card` — correct
      for a card that establishes its own DARK surface, wrong for this one. So
      the ink is re-pinned here, to the mode-invariant primitives, exactly as
-     `.engagement-mode__chip` does for the same reason.
+     `.engagement-mode__icon` does for the same reason.
    * Managed's `--surface-primary` is theme-RESPONSIVE (white -> near-black), so
      its ink must follow the theme too. Only the price is service-coloured, and
      it swaps to the `-on-dark` step in the dark root. */

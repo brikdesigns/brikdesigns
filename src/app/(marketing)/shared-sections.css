@@ -670,7 +670,7 @@
    • --horizontal — /about: bare 304px circle beside name/role/social/bio.
      Unchanged from the pre-extraction `.about-team-member`.
    • --stacked — home: 188px circle inset in a tinted panel, then name/role/
-     summary. Panel + chip tints keyed off data-accent, all fixed across themes
+     summary. Panel + avatar tints keyed off data-accent, all fixed across themes
      (Figma ground truth 2026-09-08). */
 .team-member {
   background-color: var(--surface-primary);
@@ -743,13 +743,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* (252 − 188)/2 — panel is chip + symmetric breathing room, so its 252px
+  /* (252 − 188)/2 — panel is avatar + symmetric breathing room, so its 252px
      Figma height is derived, not a magic literal. */
   padding-block: var(--space-800);
   border-radius: var(--border-radius-800);
 }
 
-.team-member--stacked .team-member__chip {
+.team-member--stacked .team-member__avatar {
   flex: 0 0 188px;
   width: 188px;
   height: 188px;
@@ -761,12 +761,12 @@
   gap: var(--space-400);
 }
 
-/* Panel + chip tints — fixed across themes (card-treatment.md: service tints
+/* Panel + avatar tints — fixed across themes (card-treatment.md: service tints
    stay light in dark mode). Abbey (brand) is single-tone gold; Nick
-   (information) is a pale-blue panel with a deeper-blue chip — the Figma ground
-   truth, confirmed with the operator 2026-09-08.
+   (information) is a pale-blue panel with a deeper-blue avatar — the Figma
+   ground truth, confirmed with the operator 2026-09-08.
 
-   The panel is a card-scale surface token; the chip is a component-scale
+   The panel is a card-scale surface token; the avatar is a component-scale
    background token per the service-token decision tree — the two families are
    value-identical here, so Abbey reads single-tone and Nick two-tone either
    way. */
@@ -774,7 +774,7 @@
   background-color: var(--surface-service-brand);
 }
 
-.team-member--stacked[data-accent='brand'] .team-member__chip {
+.team-member--stacked[data-accent='brand'] .team-member__avatar {
   background-color: var(--background-service-brand);
 }
 
@@ -782,7 +782,7 @@
   background-color: var(--color-blue-300); /* bds-lint-ignore token-family — Nick's panel is the pale blue #b2e3f5, Figma ground truth (node 25932:5005). It must stay fixed across themes (card-treatment.md: service tints don't flip in dark); --color-blue-300 is the only token at that value with a single declaration — the semantic blue steps flip between the light + dark roots. */
 }
 
-.team-member--stacked[data-accent='information'] .team-member__chip {
+.team-member--stacked[data-accent='information'] .team-member__avatar {
   background-color: var(--background-service-information);
 }
 
