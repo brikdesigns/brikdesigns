@@ -67,7 +67,7 @@ type Props = {
  * FALLBACK ONLY — `author_role` is the source of truth (portal 00376, #3799).
  *
  * Attribution used to be a single free-text field, so the Figma's two-line
- * name/role chip was recovered by splitting "Name, Role" on the first comma.
+ * name/role block was recovered by splitting "Name, Role" on the first comma.
  * That convention is being retired: portal migration 00381 (#3845) moves the
  * role half into `author_role` and leaves `quote_attribution` as the NAME.
  *
@@ -75,7 +75,7 @@ type Props = {
  * are live at once — a backfilled row has `author_role` set and no comma left
  * to split, while an un-backfilled one still needs the split to show a role at
  * all. Deleting it before every consumer environment is backfilled is what
- * drops the role from the chip; that removal is #3799's AC3.
+ * drops the role from the attribution; that removal is #3799's AC3.
  */
 function splitAttribution(raw: string): { name: string; role: string | null } {
   const comma = raw.indexOf(',');

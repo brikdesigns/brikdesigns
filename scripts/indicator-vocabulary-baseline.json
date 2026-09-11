@@ -5,7 +5,7 @@
     "offends ALSO fails, so this file cannot silently overstate the remaining debt.",
     "",
     "#1395 puts renaming the existing *__chip classnames out of scope — flag in place, rename when",
-    "those files are next touched (surgical-changes rule). Each reason below says which kind it is:",
+    "those files are next touched (surgical-changes rule). Every DEFERRED entry left here is tied to a classname whose rename #1395 defers. The four files that carried comment-only drift were FIXED in this change rather than baselined, so each reason below is one of:",
     "  CORRECT   — the prose means BDS's real interactive Chip, or a BDS API slot literally named",
     "              `chip`. Nothing to fix; the entry exists only because the gate cannot tell.",
     "  DEFERRED  — the word is wrong, and the fix is deferred with its blocker named.",
@@ -20,10 +20,6 @@
     "src/app/(marketing)/contact/page.tsx": "CORRECT — names BDS MultiSelect's API slot, which is literally called `chip`; the site renders a ServiceTag into it (ServiceMultiSelect.tsx:21, 58).",
     "src/app/(marketing)/plans/page.tsx": "DEFERRED — three comments describing `.engagement-mode__chip`, which is itself grandfathered above. The prose is coherent with the classname it documents; both move together when the classname is renamed.",
     "src/app/(marketing)/plans/plans.css": "DEFERRED — the `.engagement-mode__chip` rule block and its Figma-geometry notes. Moves with the classname above.",
-    "src/app/(marketing)/shared-sections.css": "DEFERRED — the `.team-member__chip` rule block and its service-tint notes. Moves with the classname above.",
-    "src/lib/plan-coverage-icons.ts": "DEFERRED — real drift: a coverage row renders a BDS `Tag` (PlanCoverageRow.tsx:42-52), so 'a blank chip at runtime' and \"a coverage row's chip\" should both say Tag. Comment-only fix, deferred to keep this ticket off the /plans data surface — see #1395's follow-up note.",
-    "src/app/(marketing)/customers/page.tsx": "DEFERRED — real drift: 'intended for chip-style labels' describes what `label.smBold` is for; it means indicator labels generally, not BDS Chip. Comment-only fix, deferred to keep this ticket off the customers surface.",
-    "src/app/(marketing)/results/[slug]/StorySections.tsx": "DEFERRED — real drift: the 'name/role chip' is a two-line text block, not a pill of any kind. Comment-only fix, deferred to keep this ticket off the results surface.",
-    "src/app/(marketing)/results/results.css": "DEFERRED — real drift: 'the pull-quote's chip' is a text element (`.story-quote-card__attribution-text`) and 'a BDS Avatar chip' is an Avatar beside text. Comment-only fix, deferred to keep this ticket off the results surface."
+    "src/app/(marketing)/shared-sections.css": "DEFERRED — the `.team-member__chip` rule block and its service-tint notes. Moves with the classname above."
   }
 }

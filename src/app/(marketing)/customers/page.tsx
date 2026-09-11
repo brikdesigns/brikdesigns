@@ -132,8 +132,8 @@ export default async function CustomersPage() {
                       {String(idx + 1).padStart(2, '0')}
                     </span>
                     {/* label.smBold bakes in white-space: nowrap (intended for
-                     * chip-style labels). Override here so the subtitle wraps
-                     * inside the narrow image column. */}
+                     * indicator labels — a Tag or Badge). Override here so the
+                     * subtitle wraps inside the narrow image column. */}
                     <p style={{ ...label.smBold, color: color.text.primary, whiteSpace: 'normal' }}>{seg.subtitle}</p>
                   </div>
                 }

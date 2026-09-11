@@ -305,7 +305,7 @@
   gap: var(--space-300);
 }
 
-/* Same stacked name/role as the pull-quote's chip (`.story-quote-card__
+/* Same stacked name/role as the pull-quote's attribution (`.story-quote-card__
    attribution-text`), at the hero's smaller 48px avatar. */
 .story-hero__author-text {
   display: flex;
@@ -372,7 +372,7 @@
 /* ─── Pull-quote card ───────────────────────────────────────────────────
  * Replaces the left-rule `.story-quote` treatment on the sections path: a
  * bordered card (white band → BDS default chrome), an oversized brand quote
- * glyph, and the attribution as a BDS Avatar chip + name/role. */
+ * glyph, and the attribution as a BDS Avatar + name/role. */
 .story-quote-card.bds-card {
   display: flex;
   flex-direction: column;
