@@ -24,6 +24,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  ACCEPTED_CONCLUSIONS,
   FAILING,
   LATCHED,
   NEVER_RAN,
@@ -138,7 +139,7 @@ check('#1417 614fbf87 is LATCHED — newest suite emitted nothing, two greens be
   assert.equal(r.newestRun.id, 34610413327);
   assert.equal(r.newestRun.check_suite_id, 93756925615);
   assert.equal(r.reportingRun, null);
-  assert.deepEqual(r.greenSuites.sort(), [93756910947, 93756924032]);
+  assert.deepEqual(r.acceptedSuites.sort(), [93756910947, 93756924032]);
 });
 
 check('#1414 78d8087c is LATCHED too — the second live occurrence, same day', () => {
@@ -167,6 +168,50 @@ check('#1410 is OK — a cancelled CHECK-RUN does not latch (the refuted hypothe
 });
 
 // ── The expensive wrong answers ─────────────────────────────────────────────
+
+// ── `skipped` is a pass, not a red (the defect this detector shipped with) ──
+
+check('a skipped newest run is OK — skipped is the normal state of a path-filtered gate', () => {
+  // The bug: the first version treated any non-`success` conclusion as FAILING,
+  // so `axe=skipped` on #1434 printed "This is a REAL red — fix the failure" on
+  // a PR whose only blocker was a latched `verify` two lines below. Every gate
+  // in this repo is path-filtered (CLAUDE.md § "When adding a CI gate"), so the
+  // wrong verdict fired on an ordinary PR, not an exotic one.
+  const fixture = {
+    runs: [run(1, 100, 'skipped')],
+    checkRuns: [cr(100, 'skipped', 'axe')],
+  };
+  const r = analyzeContext({ context: 'axe', ...fixture });
+  assert.equal(r.verdict, OK);
+  const lines = reportLines(r).join('\n');
+  assert.match(lines, /skipped, which the ruleset accepts/);
+  assert.doesNotMatch(lines, /REAL red/);
+  assert.doesNotMatch(lines, /--allow-empty/);
+});
+
+check('the accepted set is exactly what GitHub documents — success, skipped, neutral', () => {
+  // "Required status checks must have a `successful`, `skipped`, or `neutral`
+  // status" (about-protected-branches, fetched 2026-09-11). Confirmed live the
+  // same day: #1438 merged with mockup=skipped + regression=skipped, #1429 with
+  // those plus verify=skipped. Pinned so nobody narrows it back to `success`.
+  assert.deepEqual([...ACCEPTED_CONCLUSIONS].sort(), ['neutral', 'skipped', 'success']);
+  for (const c of ['failure', 'timed_out', 'action_required', 'cancelled', 'stale']) {
+    assert.equal(ACCEPTED_CONCLUSIONS.has(c), false, `${c} must not be accepted`);
+  }
+});
+
+check('an older SKIPPED run still makes a silent newest suite a LATCH, not NEVER_RAN', () => {
+  // The same hardcoded `success` appeared twice. Fixing only the verdict guard
+  // would leave a path-filtered gate's latch reported as "nothing to diagnose
+  // here" — the exact silence #1421 exists to break.
+  const fixture = {
+    runs: [run(1, 100, 'skipped'), run(2, 200, 'cancelled')],
+    checkRuns: [cr(100, 'skipped', 'axe')],
+  };
+  const r = analyzeContext({ context: 'axe', ...fixture });
+  assert.equal(r.verdict, LATCHED);
+  assert.deepEqual(r.acceptedSuites, [100]);
+});
 
 check('a REAL red is FAILING, never LATCHED — an empty commit must not be offered', () => {
   const fixture = {
