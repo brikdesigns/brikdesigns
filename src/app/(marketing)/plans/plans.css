@@ -257,15 +257,30 @@
    `.section-hero` + `.plans-hero` already give the band and the accent-blue
    container with dark ink re-pinned. Two deltas for the plan-detail frame:
    Figma corners this hero at border-radius/800 (24px) where the home/index
-   hero takes 48px, and the band has no full-viewport floor — it wraps a
-   title + description only, with no media column to balance. */
+   hero takes 48px, and the section insets its band by a 72px page gutter
+   where the home hero runs the band edge-to-edge. */
 .plan-detail-hero .hero-container {
   border-radius: var(--border-radius-800);
 }
 
+/* Figma's `section-hero` is `px-[72px] py-[48px]` around a `flex-[1_0_0]`
+   band, in a frame pinned at 704px — so the band is 608px tall and 1296px
+   wide at the 1440px frame. `.section-hero` already carries both halves of
+   the vertical half (`padding-block: --padding-huge` = 48px, and the 704px
+   desktop floor at this same breakpoint, homepage.css:32-36); only the
+   horizontal gutter is plan-detail-specific, because the home/index hero
+   deliberately runs its band to the content cap with no inset.
+
+   This block previously set `min-height: 0`, which read the shared floor as
+   the base rule's `calc(100svh - nav)` and cancelled both. The svh calc is
+   already scoped OUT above 992px, so the override only ever removed the
+   704px floor — the one value that IS the Figma frame height. It measured
+   341px against a designed 704px (#1371, figma-mode run on d4513a5).
+   `padding-inline` is the longhand on purpose: the shorthand would reset
+   the inherited 48px `padding-block` this section depends on. */
 @media (min-width: 992px) {
   .plan-detail-hero {
-    min-height: 0;
+    padding-inline: var(--space-1700);
   }
 }
 
