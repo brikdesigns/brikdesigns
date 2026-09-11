@@ -71,8 +71,9 @@
   gap: var(--gap-md) var(--gap-lg);
 }
 
-/* Shared by /results index cards AND /results/[slug] detail
- * meta row, so the visual vocabulary stays consistent across both surfaces.
+/* /results index cards (`CustomerStoryCard`). The /results/[slug] detail no
+ * longer has a meta row — node 25967 folded it into the hero summary and swapped
+ * the rail card for stats (#1458) — so this is now index-only.
  * Stack the field label above the icon-prefixed value. */
 .story-meta__item {
   display: flex;
@@ -186,40 +187,61 @@
   gap: var(--space-1000);
 }
 
-/* ─── Rail TOC box ──────────────────────────────────────────────────────
- * Figma renders the TOC as a tinted box with a hairline rule down its left
- * edge and quiet bold labels — brand-colored for the section in view. All of
- * that is now BDS's `variant="rail"` (brik-bds#2270, v0.182.0), which also
- * owns the rule, the indent and the `sticky={false}` opt-out — the five
- * overrides this block used to carry are gone.
+/* ─── Rail TOC ───────────────────────────────────────────────────────────
+ * Figma `col_toc` (25967:10157) is TRANSPARENT — the tinted box the rail used
+ * to sit in was dropped in the design (verified via get_design_context: the
+ * node carries no fill). BDS `variant="rail"` (brik-bds#2270) still owns the
+ * hairline rule, the indent, the quiet/brand label states and the
+ * `sticky={false}` opt-out; this block keeps only the outer padding that
+ * positions the label group and holds the rule flush to the rail's left edge
+ * (pl-0).
  *
- * What stays here is the box the rail sits in: the tint, the radius and the
- * outer padding. That is page chrome, not TOC anatomy, and BDS deliberately
- * leaves it consumer-owned.
- *
- * --surface-secondary, NOT the Figma variable's literal name
- * (`background/secondary`). The brikdesigns theme redefines
- * `--background-secondary` to #b0b0b0 in the dark root, which paints a light
- * gray box on the black story band and drops the labels to 1:1 against their
- * own fill. `--surface-secondary` is the theme-tracking pair (#f2f2f2 light /
- * #1b1b1b dark) and is what the rest of this file already uses. */
+ * No fill means the earlier `--surface-secondary` vs `--background-secondary`
+ * dark-mode choice is moot — there is nothing to theme. The rail labels now
+ * read against the story band (`--surface-primary`); the BDS rail token
+ * choices (`--text-secondary` / `--text-brand-primary-strong`) clear AA there
+ * too, but their contrast pairings are still pinned to the old tint — tracked
+ * for cleanup in brik-bds. (#1458) */
 .story-toc.bds-toc {
   padding: var(--space-200) var(--padding-lg) var(--padding-lg) 0;
-  background-color: var(--surface-secondary);
-  border-radius: var(--border-radius-600);
+  background-color: transparent;
 }
 
-/* ─── Rail metadata card ────────────────────────────────────────────────
- * Same label-above-value pairs as the interior-hero `dl` (`.story-meta__item`
- * is shared), restacked to one column in the 232px rail. Card chrome is the
- * BDS bordered default because the story arc is a white band — the
- * card-treatment standard, no variant prop. */
-.story-rail__meta-list {
+/* ─── Rail stats card ───────────────────────────────────────────────────
+ * Figma `col_stats` (25967:10172): value/label metric pairs in the 232px rail,
+ * below the TOC. Card chrome is the BDS bordered default (white fill + border)
+ * because the story arc is a white band — the card-treatment standard, no
+ * variant prop. The value is the prominent metric (label/lg · 18px bold); the
+ * label sits beneath it (body/sm). Replaces the rail meta card that duplicated
+ * the hero summary (#1458). */
+.story-rail__stats-list {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-lg);
+  gap: var(--gap-lg); /* 16px between stats — Figma col_stats content gap */
   margin: 0;
   padding: 0;
+}
+
+.story-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md); /* 8px value → label — Figma content-wrapper gap */
+}
+
+.story-stat__value {
+  font-family: var(--font-family-label);
+  font-size: var(--label-lg); /* 18px */
+  font-weight: var(--font-weight-bold);
+  line-height: var(--font-line-height-snug);
+  color: var(--text-primary);
+}
+
+.story-stat__label {
+  margin: 0;
+  font-family: var(--font-family-body);
+  font-size: var(--body-sm); /* 14px */
+  line-height: var(--font-line-height-normal);
+  color: var(--text-secondary);
 }
 
 /* ─── Body column ───────────────────────────────────────────────────────

@@ -2456,6 +2456,7 @@ export type Database = {
           service_slug: string | null
           short_description: string | null
           slug: string
+          stats: Json | null
           the_challenge: string | null
           the_solution: string | null
           thumbnail_url: string | null
@@ -2497,6 +2498,7 @@ export type Database = {
           service_slug?: string | null
           short_description?: string | null
           slug: string
+          stats?: Json | null
           the_challenge?: string | null
           the_solution?: string | null
           thumbnail_url?: string | null
@@ -2538,6 +2540,7 @@ export type Database = {
           service_slug?: string | null
           short_description?: string | null
           slug?: string
+          stats?: Json | null
           the_challenge?: string | null
           the_solution?: string | null
           thumbnail_url?: string | null

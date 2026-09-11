@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Icon } from '@/lib/icon';
 import { BackLink } from '@/components/ui/BackLink';
 import {
   Card,
@@ -16,7 +15,6 @@ import {
   SectionHeader,
   Stack,
 } from '@brikdesigns/bds';
-import type { ServiceLine } from '@brikdesigns/bds';
 import {
   getCustomerStoryBySlug,
   getOtherCustomerStories,
@@ -26,11 +24,11 @@ import {
 import { routeSlugForServiceLine } from '@/lib/service-line-routes';
 import { composeButtonClasses } from '@/lib/bds-button-classes';
 import { heading } from '@/lib/styles';
-import { color, gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
-import { INDUSTRY_ICONS, INDUSTRY_ICON_FALLBACK } from '@/lib/industry-icons';
+import { gap, serviceColor, serviceCtaVars } from '@/lib/tokens';
 import { parseStorySections } from '@/lib/customer-story-sections';
+import { parseStoryStats } from '@/lib/customer-story-stats';
 import { parseStorySocialLinks } from '@/lib/customer-story-author';
-import { StorySections, type StoryMetaItem } from './StorySections';
+import { StorySections } from './StorySections';
 import { StoryHero, type StoryHeroAuthor, type StoryHeroPair } from './StoryHero';
 import '../../shared-sections.css';
 import '../results.css';
@@ -46,13 +44,6 @@ const SERVICE_LINE_NAMES: Record<string, string> = {
   product: 'Product Design',
   service: 'Back Office Design',
 };
-
-function formatDate(s: string | null | undefined): string | null {
-  if (!s) return null;
-  const d = new Date(s);
-  if (isNaN(d.getTime())) return null;
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -112,105 +103,25 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
   const relatedCatSlug = mapServiceLineSlug(relatedCatRaw);
   const relatedAudience = relatedCatSlug;
 
-  const completion = formatDate(story.launch_date);
   const serviceLineSlug = story.service_line_slug
     ? mapServiceLineSlug(story.service_line_slug)
     : null;
   const serviceLineName = serviceLineSlug
     ? SERVICE_LINE_NAMES[serviceLineSlug] || null
     : null;
-  const serviceLineCategory = serviceLineSlug as ServiceLine | null;
-  const industryIcon = story.industry
-    ? INDUSTRY_ICONS[story.industry] ?? INDUSTRY_ICON_FALLBACK
-    : null;
-  const serviceIconName = relatedService?.name && serviceLineCategory ? relatedService.name : undefined;
   const storyTitle = story.name || story.client_name;
-
-  // One source for the metadata pairs, rendered either in the interior hero
-  // (legacy template) or in the sticky rail (sections template, #1205). The
-  // JSX below is unchanged from the inline version, so the legacy DOM is
-  // byte-identical — this is a hoist, not a restyle.
-  const metaItems: StoryMetaItem[] = ([
-    story.client_name && story.client_name !== story.name
-      ? {
-          key: 'client',
-          label: 'Client',
-          icon: <Icon icon="ph:buildings" width={16} height={16} aria-hidden />,
-          value: story.client_name,
-        }
-      : null,
-    serviceLineCategory && serviceLineName
-      ? {
-          key: 'service-line',
-          label: 'Service Line',
-          icon: <ServiceTag category={serviceLineCategory} variant="icon" size="sm" />,
-          value: serviceLineName,
-        }
-      : null,
-    serviceLineCategory && relatedService?.name
-      ? {
-          key: 'service',
-          label: 'Service',
-          icon: (
-            <ServiceTag
-              category={serviceLineCategory}
-              variant="icon"
-              size="sm"
-              {...(serviceIconName ? { serviceName: serviceIconName } : {})}
-            />
-          ),
-          value: relatedService.name,
-        }
-      : null,
-    story.industry && industryIcon
-      ? {
-          key: 'industry',
-          label: 'Industry',
-          icon: <Icon icon={industryIcon} width={16} height={16} aria-hidden />,
-          value: story.industry,
-        }
-      : null,
-    completion
-      ? {
-          key: 'completion',
-          label: 'Completion Date',
-          icon: <Icon icon="ph:calendar-blank" width={16} height={16} aria-hidden />,
-          value: completion,
-        }
-      : null,
-    story.client_website_url
-      ? {
-          key: 'website',
-          label: 'Website',
-          icon: <Icon icon="ph:globe" width={16} height={16} aria-hidden />,
-          value: (
-            <a
-              href={story.client_website_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: color.text.brand, textDecoration: 'underline' }}
-            >
-              View website
-            </a>
-          ),
-        }
-      : null,
-  ] as (StoryMetaItem | null)[]).filter((item): item is StoryMetaItem => item !== null);
 
   // Every row carries `sections` (backfilled by portal migration 00374 for
   // brik-client-portal#3770), so this is the only narrative path — the fixed
   // Challenge/Solution/Results template it used to fall back to is gone.
   const storySections = parseStorySections(story.sections);
 
-  // Hero metadata card (Figma 25944:8618) — three iconless pairs, labelled as
-  // the design labels them. NOT a slice of `metaItems`: Figma draws the hero
-  // and the rail from different sets ("Industries"/"Services" here vs the
-  // rail's "Industry"/"Service Line"/"Service"/"Completion Date"), and the
-  // rail's pairs carry icons while these do not.
-  //
-  // OPERATOR SAID 2026-09-04 (chat, #3799 AC4): "Keep them, matching Figma" —
-  // on the question of whether the hero's pairs duplicate the rail's. They are
-  // separate sections in the design (25944:8615 vs 25944:8933), not one row.
+  // Hero summary card — Figma `col_summary` (node 25967:10126): three iconless
+  // pairs, labelled as the design labels them ("Client" / "Industries" /
+  // "Services"). This is now the story's ONLY summary — node 25967 folds the
+  // former rail meta card into the hero, so the rail carries the TOC + stats
+  // (`col_stats`) instead. Dropping that duplicate is #1458 (it superseded the
+  // 2026-09-04 "keep both" note, which predated this design revision).
   const heroPairs: StoryHeroPair[] = ([
     story.client_name ? { key: 'client', label: 'Client', value: story.client_name } : null,
     story.industry ? { key: 'industries', label: 'Industries', value: story.industry } : null,
@@ -248,16 +159,16 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
   return (
     <>
-      {/* ═══ Story arc — interior-hero + media + content + quote ═══
-       * Anatomy follows /blog/[slug]'s rhythm but with image rows breaking out
-       * to the wide 1280px column for visual impact. One page-section hosts
-       * alternating containers:
-       *   - .container-lg--story  (760px) → back link, h1, meta, narrative,
-       *                                     quote
-       *   - .container-lg         (1280px) → hero / inline media figures
-       * Inter-row spacing of gap-xl is owned by the section via .story-arc
-       * so the narrative reads as one continuous flow instead of stacked
-       * sub-sections.
+      {/* ═══ Story arc — title + hero + sectioned body ═══
+       * Figma node 25967:10113 ("birdwell-story"): the title block, the hero,
+       * and the sectioned body all sit in the SAME 1024px `container-small`, so
+       * they share one left edge and width. The title block therefore takes
+       * `.container-lg--story-layout` (1024) — the same container the hero and
+       * body use below — NOT the narrow 760px `--story` column, whose centred
+       * max-width left the title inset ~132px from the body it heads (#1458).
+       *
+       * Inter-row spacing (gap-huge) is owned by the section via .story-arc so
+       * the narrative reads as one continuous flow instead of stacked sections.
        *
        * A single "← Customer Stories" back link (not a breadcrumb) — a story
        * page has exactly one navigable ancestor, so the back link is the
@@ -267,7 +178,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
        * Anatomy ref: design.brikdesigns.com/docs/getting-started/page-templates
        */}
       <section className="page-section story-arc">
-        <div className="container-lg container-lg--story">
+        <div className="container-lg container-lg--story-layout">
           <BackLink href="/results" style={{ marginBottom: gap.md }}>
             Customer Stories
           </BackLink>
@@ -295,7 +206,7 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
 
         <StorySections
           sections={storySections}
-          meta={metaItems}
+          stats={parseStoryStats(story.stats)}
           quote={story.quote}
           quoteAttribution={story.quote_attribution || story.client_name}
           authorRole={story.author_role}
