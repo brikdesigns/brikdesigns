@@ -62,9 +62,34 @@ on:
 # check Pending forever, blocking the merge (#1334). The filter lives in the
 # `changes` job below instead. Do not "tidy" it back up here.
 
+# `queue: max`, NOT `cancel-in-progress` — `verify` is a REQUIRED context, and a
+# cancelled run is not an absent one (#1443). The `labeled` type above is what
+# makes this load-bearing: `pr-task.sh` applies 3–4 labels per PR and GitHub
+# emits one `labeled` event per label, so every PR opens with 4–5 runs of this
+# workflow inside two seconds. Under `cancel-in-progress` four of them die at the
+# QUEUE stage, before any job starts, and a run cancelled there emits no
+# check-run at all — so if the arbiter happens to kill the newest of a same-second
+# pair, the suite the ruleset reads reports nothing and `verify` reverts to
+# `expected`. Only a new head SHA clears that (#1421).
+#
+# The burst is not configurable away. `CreatePullRequestInput` carries no
+# `labelIds` field (GraphQL schema introspected 2026-09-11), so labels can never
+# be present at `opened` — not via the REST create, not via `gh pr create
+# --label`, which is create-then-label underneath.
+#
+# `queue: max` lets all of them run FIFO instead: up to 100 pending, none
+# cancelled, and the newest suite always carries a real check-run. It costs ~4
+# extra runs of a ~80s workflow per PR, which is the price of the gate being
+# readable. `visual-regression.yml` deliberately does NOT take this treatment —
+# at ~1100s a run that would be ~73min of serialized CI per PR (see CLAUDE.md
+# § "When a merge is refused for a check that demonstrably passed").
+#
+# `queue: max` and `cancel-in-progress: true` together are a workflow validation
+# error, so the two lines change as a pair.
 concurrency:
   group: verify-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   # Skip on doc-only / workflow-only changes. Any file that feeds lint,
@@ -470,6 +495,18 @@ jobs:
       # which would leave its required check Pending forever.
       - name: CI paths matcher — self-test (semantics + the live gate lists)
         run: npm run test:ci-paths-match
+
+      # brikdesigns#1443. `pr-task.sh` applies 3–4 labels per PR and GitHub emits
+      # one `labeled` event per label, so any workflow with `labeled` in its
+      # `types:` opens 4–5 runs inside two seconds — 9 cancelled runs measured on
+      # PR #1448. Under `cancel-in-progress` those die at the QUEUE stage emitting
+      # no check-run, and the required context reverts to `expected`. This pins
+      # which workflows take `queue: max` and which one is the documented
+      # exception (`visual-regression`, ~1100s a run), and it fails when a NEW
+      # workflow takes `labeled` and joins the burst unannounced — the case
+      # nothing else in the repo would surface. Offline; reads the live YAML.
+      - name: Label-burst concurrency (queue:max vs the one documented exception)
+        run: npm run test:label-burst-concurrency
 
       - name: Icon-collection drift (offline Phosphor subset in sync with usage)
         run: npm run gen:icons:check

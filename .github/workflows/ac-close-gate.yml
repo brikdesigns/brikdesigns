@@ -81,9 +81,23 @@ permissions:
   issues: read # read each referenced issue's body to count its unticked ACs
   pull-requests: read # list the PR's commits — the second input the parser reads (brik-llm#3306)
 
+# `queue: max`, NOT `cancel-in-progress` — same reasoning as verify.yml (#1443).
+# The `labeled`/`unlabeled` types above are load-bearing for the `ac:none` hatch,
+# and `pr-task.sh` applies 3–4 labels per PR as one `labeled` event each, so this
+# workflow opens 4–5 runs inside two seconds on every PR. Under
+# `cancel-in-progress` four die at the queue stage emitting no check-run.
+#
+# This gate is not a required context today, so a latch here does not block a
+# merge — but it reports a verdict the author is meant to act on, and a verdict
+# decided by which of four same-second runs survived is not one. At ~5s a run the
+# extra cost is ~20s per PR.
+#
+# `queue: max` and `cancel-in-progress: true` together are a workflow validation
+# error, so the two lines change as a pair.
 concurrency:
   group: ac-close-gate-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  cancel-in-progress: false
+  queue: max
 
 jobs:
   ac-close-gate:
