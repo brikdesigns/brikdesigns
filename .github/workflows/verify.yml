@@ -414,6 +414,18 @@ jobs:
       - name: Pinned regression reference (a miss fails, never falls back)
         run: npm run test:staging-reference
 
+      # brikdesigns#887. The regression job's `timeout-minutes: 25` CANCELS the
+      # job when it fires, and a cancelled job produces no verdict — no failing
+      # check, no log naming what went unmeasured. The sweep now stops itself at
+      # 20m instead. Every way that guard could rot is silent: a default that
+      # disables it, a malformed budget that expires instantly, a check placed
+      # after the capture that overruns, a report that counts the remainder
+      # without naming it. It also asserts the LIVE workflow budget still sits
+      # below the job cap — a budget at or above it is the same bug wearing the
+      # fix's clothes. Offline; no browser, no network.
+      - name: Visual sweep deadline (a cancelled job is not a verdict)
+        run: npm run test:sweep-deadline
+
       # brikdesigns#1361. Same shape as the two above: an unstable key made a
       # blocking gate report on the key rather than on the thing it guards. The
       # assertions that matter are the invisible ones — a re-rooted selector

@@ -25,6 +25,13 @@ import {
   exportFigmaNodes,
   downloadTo,
 } from './lib/figma-baseline.mjs';
+import {
+  EXIT_DID_NOT_FINISH,
+  deadlineReport,
+  isExpired,
+  planUnits,
+  resolveDeadlineMs,
+} from './lib/sweep-deadline.mjs';
 
 // Four modes share this script:
 //   webflow (default) — migration parity: compare the build against the live
@@ -757,11 +764,45 @@ if (FIGMA_MODE) {
   }
 }
 
+// ── Sweep deadline (#887 AC 2) ──────────────────────────────────────────────
+//
+// `timeout-minutes: 25` on the regression job CANCELS the job when it fires,
+// and a cancelled job produces no verdict at all — no failing check, no log
+// naming what was left unmeasured. On #1417 (2026-09-11) that also refused the
+// merge with `Required status check "regression" is expected` while a
+// successful run sat on the same head SHA.
+//
+// So the sweep watches its own clock and stops itself first, red and explicit,
+// while there is still runway to print what it did not reach. Opt-in: unset
+// locally, set by the workflow to a value below the job cap.
+const SWEEP_DEADLINE_MS = resolveDeadlineMs(process.env.SWEEP_DEADLINE_MS);
+const SWEEP_STARTED_AT = Date.now();
+const SWEEP_PLAN = FIGMA_MODE
+  ? []
+  : planUnits(THEMES, VIEWPORTS.map((v) => v.name), ROUTES.map((r) => r.name));
+let sweepMeasured = 0;
+
 for (const theme of FIGMA_MODE ? [] : THEMES) {
   for (const viewport of VIEWPORTS) {
     const dir = path.join(OUT, theme, viewport.name);
     fs.mkdirSync(dir, { recursive: true });
     for (const route of ROUTES) {
+      // Checked BEFORE the capture, because the capture is what overruns: a
+      // route can spend two full IMAGE_WAIT_MS budgets, so deciding after one
+      // has already started concedes the headroom this guard exists to keep.
+      if (isExpired({ deadlineMs: SWEEP_DEADLINE_MS, startedAt: SWEEP_STARTED_AT, now: Date.now() })) {
+        console.error(
+          deadlineReport({
+            deadlineMs: SWEEP_DEADLINE_MS,
+            elapsedMs: Date.now() - SWEEP_STARTED_AT,
+            measured: sweepMeasured,
+            plan: SWEEP_PLAN,
+          }),
+        );
+        await browser.close();
+        process.exit(EXIT_DID_NOT_FINISH);
+      }
+      sweepMeasured += 1;
       if (MOCKUP_MODE) {
         if (!route.mockup) continue;
         if (!route.mockup.viewports.includes(viewport.name)) continue;
