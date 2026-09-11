@@ -37,3 +37,24 @@ paths = [
   '''(.*/)?package\.json$''',
   '''(.*/)?package-lock\.json$''',
 ]
+
+# ── Figma file keys are public identifiers, not credentials ─────────────────
+# A fileKey is the segment in a Figma URL — figma.com/design/<fileKey>/Name —
+# so it appears in every share link and in the tickets that commission a design
+# (#1371's body carries `yhLkzLUnG71UFTgURDvgnv` in plain text). Access is gated
+# by the PAT in ~/.secrets/figma.env; the key alone opens nothing.
+#
+# They are 22 chars of mixed case, which clears the generic-api-key entropy
+# threshold, so they read as secrets to a rule that only sees shape. Scoped by
+# REGEX rather than by path: allowlisting the whole file would blind the scanner
+# to a real token pasted into the same line the next time someone edits the
+# route table (brikdesigns#1392).
+[[rules]]
+id = "generic-api-key"
+[rules.allowlist]
+description = "Figma fileKey — the public URL segment, gated by the PAT not by itself"
+regexTarget = "line"
+regexes = [
+  '''fileKey:\s*'[A-Za-z0-9]{20,25}'''',
+  '''figma\.com/(design|file)/[A-Za-z0-9]{20,25}''',
+]

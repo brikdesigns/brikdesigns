@@ -53,7 +53,9 @@ jobs:
               --pattern 'package.json' \
               --pattern 'package-lock.json' \
               --pattern 'tests/visual-parity/baselines/**' \
+              --pattern 'tests/visual-parity/figma/**' \
               --pattern 'scripts/visual-parity.mjs' \
+              --pattern 'scripts/lib/figma-baseline.mjs' \
               --pattern 'scripts/wait-for-netlify-preview.sh' \
               --pattern 'scripts/ci-paths-match.mjs' \
               --pattern '.github/workflows/visual-mockup.yml' \
@@ -105,6 +107,32 @@ jobs:
         env:
           NETLIFY_URL: ${{ steps.deploy.outputs.url }}
         run: npm run visual-mockup -- "$NETLIFY_URL"
+
+      # Figma fidelity, per section (#1392). Runs in the SAME job so it reuses
+      # the deploy wait and the Chromium install above — the readiness signal is
+      # per-commit and there is no reason to pay for it twice.
+      #
+      # NO Figma token in CI, deliberately. The baselines are checked-in PNGs, so
+      # this step reads files; only re-authoring them calls Figma, and that is a
+      # local operator step (see § Re-baselining below). A token here would make
+      # every CI run re-render the design of record, which is the one thing a
+      # baseline must not do.
+      #
+      # `continue-on-error` while the noise floor is unmeasured. The two sides
+      # are different renderers — Chromium vs Figma — so unlike mockup mode the
+      # pass-case floor is not ~0% and has to be measured per section before it
+      # can block. The report is the deliverable until then; #1392's own
+      # out-of-scope note is "start permissive and ratchet".
+      # `if: always()` so a red mockup gate — the required check, which exits
+      # non-zero and would end the job here — does not also cost the fidelity
+      # report. The two answer different questions and a PR usually wants both.
+      - name: Compare deploy-preview sections against Figma baselines
+        id: figma
+        if: always()
+        continue-on-error: true
+        env:
+          NETLIFY_URL: ${{ steps.deploy.outputs.url }}
+        run: npm run visual-figma -- "$NETLIFY_URL"
 
       - name: Upload report
         uses: actions/upload-artifact@v5
