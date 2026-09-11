@@ -48,14 +48,17 @@ const ROUTES: { path: string; name: string }[] = [
   { path: '/how-we-work', name: 'How We Work' },
   { path: '/about', name: 'About' },
   { path: '/services', name: 'Services index' },
-  { path: '/customers', name: 'Customers' },
   { path: '/results', name: 'Customer stories index' },
   { path: '/contact', name: 'Contact' },
 ];
-// /plans is deliberately absent: measured 2026-08-31, all three of its sections
-// resolve to the page ground (its `.service-themed` band sets CSS vars, not a
-// background), so it has no band for this gate to assert on. Listing it would
-// fail the `measuredBands` precondition, which is the precondition working.
+// /plans and /industries are deliberately absent: measured 2026-09-11, every one
+// of their sections resolves to the page ground. /plans' `.service-themed` band
+// sets CSS vars, not a background; /industries' dark hero paints its inner
+// `.hero-container` (`--surface-inverse`) while the `<section>` stays on
+// `--surface-primary`, and its remaining two `.page-section`s are on the ground
+// too (#1406 rebuilt it from tinted bands to a card layout). Neither has a band
+// for this gate to assert on. Listing them would fail the `measuredBands`
+// precondition, which is the precondition working.
 
 interface BandFinding {
   section: string;

@@ -1,0 +1,57 @@
+name: dev-restart-contract
+
+# CI gate for dev-restart.sh's process cleanup — #1368.
+#
+# `next dev` under Next 16 hands the port to a child retitled `next-server
+# (vX.Y.Z)`, whose cmdline carries neither key the cleanup sweep greps for
+# (`node` and `$PROJECT_DIR` both measured at 0 on brik-mini, port 3096). So
+# `ps aux | grep node | grep $PROJECT_DIR` returned only the `op run` / `npx`
+# wrappers, killing that set left the port owner LISTENing, and — in the window
+# before it binds — `lsof` could not see it either. A port every check called
+# free then produced `EADDRINUSE :::$PORT` on the next run, with the script's own
+# advice pointing at the `lsof` query that had already come back empty.
+#
+# The test's load-bearing assertion is its T3 negative control: killing the
+# cmdline-matched set alone must leave the retitled descendant alive. It uses
+# `exec -a` to stand in for Next's process-title rewrite, so no Next, no
+# network, and no port are needed — every PID under test is one it spawned.
+#
+# Gate budget: one new path-scoped workflow (~10s; a bash suite plus one
+# shellcheck), triggered only when dev-restart.sh, the test, or this file
+# changes. Same shape as new-task-flag-order-contract.yml — brikdesigns runs
+# each script contract as its own path-scoped workflow rather than a
+# consolidated gate. Advisory by design and NOT added to staging's six required
+# checks (see CLAUDE.md § "When adding a CI gate").
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/dev-restart.sh'
+      - 'scripts/__tests__/test-dev-restart-kill-tree.sh'
+      - '.github/workflows/dev-restart-contract.yml'
+
+concurrency:
+  group: dev-restart-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  dev-restart-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: cleanup reaches the retitled next-server descendant
+        run: bash scripts/__tests__/test-dev-restart-kill-tree.sh < /dev/null
+
+      - name: shellcheck dev-restart.sh + the cleanup test
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          # --severity=warning: dev-restart.sh predates this gate and carries
+          # SC1091 (unfollowed cross-repo `source` of op-run-wrapper.sh, which is
+          # resolved at runtime and may legitimately be absent) plus style notes.
+          shellcheck --severity=warning \
+                     scripts/dev-restart.sh \
+                     scripts/__tests__/test-dev-restart-kill-tree.sh

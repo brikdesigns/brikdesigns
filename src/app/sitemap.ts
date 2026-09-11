@@ -14,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/plans`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE_URL}/how-we-work`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE_URL}/results`, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/customers`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${BASE_URL}/industries`, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/blog`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${BASE_URL}/contact`, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE_URL}/offers/brikdown`, changeFrequency: 'monthly', priority: 0.8 },
@@ -72,7 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq('is_public', true);
 
   const industryPages: MetadataRoute.Sitemap = (industries || []).map((ind) => ({
-    url: `${BASE_URL}/customers/${ind.slug}`,
+    url: `${BASE_URL}/industries/${ind.slug}`,
     changeFrequency: 'monthly' as const,
     priority: 0.7,
   }));

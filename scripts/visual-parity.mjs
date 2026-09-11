@@ -9,6 +9,9 @@ import {
   evaluateDeclaration,
   classifyBlockingSpread,
   buildDeclarationLine,
+  blockingSignature,
+  formatSignature,
+  decideEffectiveBlocking,
   isStalePayloadRerun,
   isPartialCapture,
   classifyCaptureHeights,
@@ -148,7 +151,7 @@ const ROUTES = [
   { netlify: '/services/marketing/website-experience-mapping', webflow: '/service/website-experience-mapping', name: 'services-detail-website-experience-mapping' },
   { netlify: '/plans', webflow: '/plans', name: 'plans' },
   { netlify: '/results', webflow: '/customer-stories', name: 'results' },
-  { netlify: '/customers', webflow: '/customers', name: 'customers' },
+  { netlify: '/industries', webflow: '/customers', name: 'industries' },
   { netlify: '/industries/dental', webflow: '/customers/dental', name: 'industry-dental' },
   { netlify: '/blog', webflow: '/blog', name: 'blog' },
   { netlify: '/contact', webflow: '/contact', name: 'contact' },
@@ -865,6 +868,12 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
 
   const summary = [];
 
+  // The set that actually gates. It equals `blocking` on a first attempt, and is
+  // narrowed to the captures that reproduced across attempts when a cross-attempt
+  // comparison confirms the rest were capture-side (#1350). The final exit reads
+  // this, not `blocking`.
+  let effectiveBlocking = blocking;
+
   if (SELF_MODE && !VISUAL_CHANGE_LABEL && declaredInBody.length) {
     const note =
       `⚠ ${declaredInBody.length} route(s) declared in the body, but the PR has no ` +
@@ -923,15 +932,90 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
       console.error(`  ${r.diffPct.toFixed(2)}%  ${r.route} [${r.theme}/${r.viewport}]`),
     );
 
-    // Three different failures land in `blocking` and look identical here, but
-    // their remedies are opposite (#1106). The label is only correct for an
-    // intended change; suggesting it for the other two teaches everyone to
-    // waive real regressions. Tell them apart by capture spread: a real render
-    // change moves EVERY viewport of a route, while one route/viewport moving
-    // alone — its other captures at 0.00% — is a capture-side flake.
+    // ── Cross-attempt signature: settle flake vs. real with evidence (#1350) ──
+    //
+    // classifyBlockingSpread below can only GUESS from one run's shape, and on a
+    // capture flake its guess and its advice ("re-run; a flake does not
+    // reproduce") form a loop with no exit — the flake DOES reproduce, just with
+    // a different set each time (the #1330 repro). The fix is a second data
+    // point: emit this attempt's blocking set as a marker the next attempt reads
+    // back, and on attempt ≥ 2 rule on whether the set reproduced rather than
+    // repeating the re-run reflex.
+    const RUN_ATTEMPT = Number(process.env.GITHUB_RUN_ATTEMPT || '1');
+    const {
+      currentSignature,
+      crossAttempt,
+      cleared,
+      effectiveBlocking: decidedBlocking,
+    } = decideEffectiveBlocking({
+      blocking,
+      results,
+      runAttempt: RUN_ATTEMPT,
+      priorSignatureRaw: process.env.PRIOR_ATTEMPT_BLOCKING,
+    });
+    // Hand the decision to the hoisted gate set — one source of truth for what
+    // exits the process (#1350).
+    effectiveBlocking = decidedBlocking;
+    // Always emitted so the NEXT attempt has this one to compare against. A plain
+    // greppable prefix, not a `::workflow command::` — the reader is a `gh api …
+    // logs | grep` step, and a workflow command would be swallowed by the runner.
+    console.log(`\nREGRESSION_BLOCKING_SIGNATURE: ${formatSignature(currentSignature)}`);
+
+    // A cross-attempt verdict is authoritative: it replaces the single-attempt
+    // guess below with a ruling backed by a second data point on the same SHA.
+    if (SELF_MODE && crossAttempt) {
+      const prev = RUN_ATTEMPT - 1;
+      console.error(`\n  Attempt ${RUN_ATTEMPT} vs attempt ${prev}, same head SHA:`);
+      if (cleared.length)
+        console.error(
+          `  Cleared as capture flake — blocked in only one attempt AND isolated to one theme ` +
+            `(its sibling read 0.00%): ${blockingSignature(cleared).join(', ')}.`,
+        );
+      if (effectiveBlocking.length) {
+        console.error(
+          `  Still blocking — reproduced across attempts or moved on BOTH themes, so real: ` +
+            `${blockingSignature(effectiveBlocking).join(', ')}.`,
+        );
+        console.error(
+          '  These are case 1 (INTENDED — label + `Visual-change:` line) or case 3 (STALE base — ' +
+            'rebase); the cleared captures are not, so do not label to waive them. Re-running the ' +
+            'real set will not clear it.',
+        );
+        summary.push(
+          cleared.length
+            ? `❌ **Undeclared regression** — ${effectiveBlocking.length} capture(s) survived the ` +
+                `cross-attempt check (attempts ${prev} and ${RUN_ATTEMPT}, same head SHA); ` +
+                `${cleared.length} other(s) were capture-side and cleared. Declare the surviving ` +
+                'set (case 1) or rebase (case 3).'
+            : `❌ **Undeclared regression** — ${effectiveBlocking.length} capture(s) held across ` +
+                `attempts ${prev} and ${RUN_ATTEMPT} on the same head SHA. Real, not a flake: ` +
+                'declare it (case 1) or rebase (case 3).',
+        );
+      } else {
+        console.error(
+          '  NOTHING survived as real → the entire failure is capture-side. Passing: there is no ' +
+            'real change here, and further re-runs will not converge.',
+        );
+        console.error(
+          '  Do NOT add a `visual-change` label — it would waive routes this PR never touched.',
+        );
+        summary.push(
+          `✅ **Confirmed capture flake** — the ${blocking.length} blocking capture(s) did not ` +
+            `survive the cross-attempt check across attempts ${prev} and ${RUN_ATTEMPT} on the same ` +
+            'head SHA (each blocked in one attempt only and was isolated to one theme). No real ' +
+            'change; passing without a label or waiver. Re-runs will not converge — do not label.',
+        );
+      }
+    }
+
+    // Single-attempt advice (attempt 1, or no prior signature to compare). The
+    // three failures land in `blocking` and look identical here, but their
+    // remedies are opposite (#1106) — guess from capture spread. The re-run
+    // advice is the diagnostic that GENERATES the second attempt the cross-
+    // attempt check above rules on.
     const { isolated, broad, viewportScoped } = classifyBlockingSpread({ blocking, results });
 
-    if (SELF_MODE && !DECLARED_ROUTES.length) {
+    if (SELF_MODE && !DECLARED_ROUTES.length && !crossAttempt) {
       console.error('\n  Three failures look alike here — pick the remedy by signature:');
       console.error(
         '  1. INTENDED change → add the `visual-change` label AND a\n' +
@@ -941,8 +1025,10 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
       );
       console.error(
         "  2. CAPTURE flake → a route/viewport moved while the same route's other\n" +
-          '     captures read 0.00%. Re-run the failed job; a flake does not reproduce.\n' +
-          '     Never label it — that would waive a real regression on the same route.',
+          '     captures read 0.00%. Re-run the failed job ONCE; a flake does not reproduce\n' +
+          '     with the same SIGNATURE, and this gate compares the next attempt’s blocking\n' +
+          '     set against this one and rules on it. Never label it — that would waive a\n' +
+          '     real regression on the same route.',
       );
       console.error(
         '  3. STALE base → the moved routes changed on `staging` after this branch\n' +
@@ -963,16 +1049,15 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
         console.error(
           `  Signature: ${isolated.map((n) => `\`${n}\``).join(', ')} moved on one theme of a ` +
             "viewport while the same viewport's other theme read 0.00% → likely a capture " +
-            'FLAKE (case 2); re-run before you label.',
+            'FLAKE (case 2); re-run once and this gate rules on whether it reproduced.',
         );
     }
 
-    // The ready-to-paste declaration (#1256). Route names live in ROUTES[].name
-    // and nowhere the author is looking, so without this line case 1 costs a
-    // source dive on top of the guaranteed first failure. Printed under case 1's
-    // framing, never as a blanket remedy: pasting it for a flake (case 2) waives
-    // a real regression on that route.
-    const declarationLine = buildDeclarationLine(blocking);
+    // The ready-to-paste declaration (#1256), built from the set that actually
+    // gates — after any capture-side captures were cleared above, so a confirmed
+    // flake never gets a paste-ready line that would waive it. Route names live
+    // in ROUTES[].name and nowhere the author is looking.
+    const declarationLine = buildDeclarationLine(effectiveBlocking);
     if (SELF_MODE && declarationLine) {
       console.error(
         `\n  Case 1 only — the line to paste into the PR body, verbatim:\n\n    ${declarationLine}\n`,
@@ -984,40 +1069,47 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
         );
     }
 
-    summary.push(
-      `❌ **Undeclared regression** — ${blocking.length} capture(s) over ${DIFF_THRESHOLD}%.`,
-    );
-    if (SELF_MODE && declarationLine) {
+    // Undeclared-regression summary + the case table are the single-attempt
+    // framing; when a cross-attempt verdict already spoke (its own summary rows
+    // above), it is authoritative and this is suppressed.
+    if (!crossAttempt) {
       summary.push(
-        '',
-        DECLARED_ROUTES.length
-          ? 'If these are intended too, merge these names into the `Visual-change:` line ' +
-            'already in the PR body:'
-          : 'If this is an intended change (case 1 below), paste this into the PR body verbatim ' +
-            'and add the `visual-change` label:',
-        '',
-        '```',
-        declarationLine,
-        '```',
+        `❌ **Undeclared regression** — ${blocking.length} capture(s) over ${DIFF_THRESHOLD}%.`,
       );
-      if (isolated.length)
+      if (SELF_MODE && declarationLine) {
         summary.push(
           '',
-          `⚠ Drop ${isolated.map((n) => `\`${n}\``).join(', ')} from that line first if you ` +
-            'concluded case 2 — declaring a flake waives a real regression on that route.',
+          DECLARED_ROUTES.length
+            ? 'If these are intended too, merge these names into the `Visual-change:` line ' +
+              'already in the PR body:'
+            : 'If this is an intended change (case 1 below), paste this into the PR body verbatim ' +
+              'and add the `visual-change` label:',
+          '',
+          '```',
+          declarationLine,
+          '```',
         );
-    }
-    if (SELF_MODE && !DECLARED_ROUTES.length) {
-      summary.push(
-        '',
-        'These three look identical but have opposite remedies (#1106) — pick by signature:',
-        '',
-        '| If it is… | Signature | Remedy |',
-        '| --- | --- | --- |',
-        '| An intended change | moved on **every** viewport of the route — or on a subset of viewports but on **both themes** of each (a breakpoint-scoped change) | add `visual-change` label + `Visual-change:` line, then let the label event re-run — **do not `gh run rerun`** |',
-        "| A capture flake | moved on **one theme** of a viewport while that same viewport's other theme read 0.00% | re-run the failed job; **do not** label |",
-        '| A stale base | the moved routes changed on `staging` after this branch forked | rebase onto staging and re-push; **do not** label |',
-      );
+        if (isolated.length)
+          summary.push(
+            '',
+            `⚠ Drop ${isolated.map((n) => `\`${n}\``).join(', ')} from that line first if you ` +
+              'concluded case 2 — declaring a flake waives a real regression on that route. ' +
+              'Re-run once instead; this gate then rules on whether the set reproduced.',
+          );
+      }
+      if (SELF_MODE && !DECLARED_ROUTES.length) {
+        summary.push(
+          '',
+          'These three look identical but have opposite remedies (#1106) — pick by signature, ' +
+            'or re-run once and let the cross-attempt check settle it:',
+          '',
+          '| If it is… | Signature | Remedy |',
+          '| --- | --- | --- |',
+          '| An intended change | moved on **every** viewport of the route — or on a subset of viewports but on **both themes** of each (a breakpoint-scoped change) | add `visual-change` label + `Visual-change:` line, then let the label event re-run — **do not `gh run rerun`** |',
+          "| A capture flake | moved on **one theme** of a viewport while that same viewport's other theme read 0.00% | re-run the failed job **once**; a flake does not reproduce with the same signature, and this gate rules on the next attempt — **do not** label |",
+          '| A stale base | the moved routes changed on `staging` after this branch forked | rebase onto staging and re-push; **do not** label |',
+        );
+      }
     }
   }
 
@@ -1025,5 +1117,8 @@ if (DIFF_THRESHOLD > 0 && !UPDATE_BASELINES) {
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${summary.join('\n')}\n`);
   }
 
-  if (unknown.length || unmoved.length || blocking.length) process.exit(1);
+  // effectiveBlocking, not blocking: a cross-attempt comparison may have cleared
+  // captures proven capture-side (#1350). A confirmed pure flake leaves it empty
+  // and the run passes — without a label, without a waiver.
+  if (unknown.length || unmoved.length || effectiveBlocking.length) process.exit(1);
 }

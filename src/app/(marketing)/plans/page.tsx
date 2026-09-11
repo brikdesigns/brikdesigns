@@ -118,6 +118,12 @@ export default async function PlansPage() {
       // plan with no Advisory tier reads 'Contact' rather than a stale figure.
       price: tiers.advisory ?? 'Contact',
       managedPrice: tiers.managed,
+      // Per-plan Foundation figure (#1386). `getSupportPlans` selects `*`, so the
+      // column rides along already — no query change. Portal-derived display
+      // string, never re-derived from cents client-side (portal#3930); a plan with
+      // no authored figure (e.g. product-support) carries null and renders no line.
+      foundationPrice:
+        (plan as { foundation_price_display?: string | null }).foundation_price_display ?? null,
     };
   }).filter((p): p is NonNullable<typeof p> => p !== null);
 
@@ -175,31 +181,43 @@ export default async function PlansPage() {
               </Button>
             </div>
             <Grid columns={3} gap="huge">
-              {paths.map((path) => (
-                <PricingCard
-                  key={path.slug}
-                  title={path.name}
-                  price={path.price}
-                  period="/month advisory"
-                  description={path.description}
-                  {...(path.managedPrice ? { features: [`Managed — ${path.managedPrice}/month`] } : {})}
-                  className={[
-                    path.category ? 'service-themed' : null,
-                    path.slug === RECOMMENDED_SLUG ? 'plans-path-card--recommended' : null,
-                  ]
-                    .filter(Boolean)
-                    .join(' ') || undefined}
-                  {...(path.category ? { style: serviceCtaVars(path.category) } : {})}
-                  image={
-                    path.imageUrl ? <Image src={path.imageUrl} alt="" ratio="1-1" fit="cover" /> : undefined
-                  }
-                  action={
-                    <Button href={`/plans/${path.slug}`} variant="primary" size="md">
-                      See {path.name}
-                    </Button>
-                  }
-                />
-              ))}
+              {paths.map((path) => {
+                // Foundation is the one-time start cost, so it leads the feature
+                // list above the recurring Managed option (#1386). A null figure
+                // drops its line entirely — no blank, no `$0` (AC). Display strings
+                // are interpolated from the CMS column, never hardcoded, so no price
+                // literal enters the page and the DB remains the pricing SoT (#1123).
+                const features = [
+                  path.foundationPrice ? `${path.foundationPrice} Foundation to start` : null,
+                  path.managedPrice ? `Managed — ${path.managedPrice}/month` : null,
+                ].filter((f): f is string => f !== null);
+
+                return (
+                  <PricingCard
+                    key={path.slug}
+                    title={path.name}
+                    price={path.price}
+                    period="/month advisory"
+                    description={path.description}
+                    {...(features.length > 0 ? { features } : {})}
+                    className={[
+                      path.category ? 'service-themed' : null,
+                      path.slug === RECOMMENDED_SLUG ? 'plans-path-card--recommended' : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' ') || undefined}
+                    {...(path.category ? { style: serviceCtaVars(path.category) } : {})}
+                    image={
+                      path.imageUrl ? <Image src={path.imageUrl} alt="" ratio="1-1" fit="cover" /> : undefined
+                    }
+                    action={
+                      <Button href={`/plans/${path.slug}`} variant="primary" size="md">
+                        See {path.name}
+                      </Button>
+                    }
+                  />
+                );
+              })}
             </Grid>
           </div>
         </section>

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Card, SectionHeader, SegmentedControl } from '@brikdesigns/bds';
+import { Button, Card, SectionHeader, SegmentedControl, type ServiceLine } from '@brikdesigns/bds';
+import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
 import { serviceCtaVars } from '@/lib/tokens';
 
 /** A `section-type` card, pre-resolved on the server from `service_plan_tiers`. */
@@ -40,6 +41,9 @@ export function PlanTierSection({
   headerTitle,
   headerDescription,
   brikdownHref,
+  planSlug,
+  planName,
+  serviceLine,
 }: {
   tiers: PlanTier[];
   /** Section band fill — the pale back-office tint Figma binds on this frame. */
@@ -47,6 +51,17 @@ export function PlanTierSection({
   headerTitle: string;
   headerDescription: string;
   brikdownHref: string;
+  /** Plan slug carried into the lead record when a tier CTA opens the modal. */
+  planSlug: string;
+  /** Plan display name for the lead callout / hidden field. */
+  planName: string;
+  /**
+   * The plan's service line — drives the lead modal's showcase-panel tint and
+   * fallback glyph, matching the service pricing-grid modal. No `serviceOptions`
+   * is passed, so the modal omits the "Services you're interested in" picker
+   * (support plans preselect the plan, not a service).
+   */
+  serviceLine: ServiceLine;
 }) {
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
   const hasAnnual = tiers.some((t) => t.annualPrice);
@@ -126,9 +141,19 @@ export function PlanTierSection({
                       wrapper carries `service-themed` for the hover/focus and
                       dark-mode cascade the bundle's pairing contract requires. */}
                   <div className="service-themed" style={serviceCtaVars(tier.accent)}>
-                    <Button href={tier.ctaHref} variant="primary" size="md">
-                      {tier.ctaLabel}
-                    </Button>
+                    {/* Opens the shared lead-capture modal (the service
+                        pricing-grid pattern), preselecting this plan + the
+                        clicked tier as the offering. No `serviceOptions`, so the
+                        "Services you're interested in" picker is omitted — the
+                        plan is the selection here, not a service. */}
+                    <GetStartedModalButton
+                      plan={planSlug}
+                      planName={planName}
+                      offering={{ name: tier.name, price, frequency: period }}
+                      serviceLine={serviceLine}
+                      label={tier.ctaLabel}
+                      size="md"
+                    />
                   </div>
                 </Card>
               );
