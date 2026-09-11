@@ -90,7 +90,7 @@ export default async function BlogPage() {
 
       {/* ═══ CTA ("Get in Touch") — the shared .cta-section-brand /
        * .cta-card-brand pattern (shared-sections.css), identical to the one on
-       * /results, /customers and /blog/[slug]. Was a second, /blog-only brand
+       * /results, /industries and /blog/[slug]. Was a second, /blog-only brand
        * CTA card (.section-cta / .cta-card, homepage.css) until #1260. ═══ */}
       <section className="cta-section-brand" data-section="get-in-touch">
         <div className="cta-card-brand">

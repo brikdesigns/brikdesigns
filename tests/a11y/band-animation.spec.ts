@@ -48,7 +48,7 @@ const ROUTES: { path: string; name: string }[] = [
   { path: '/how-we-work', name: 'How We Work' },
   { path: '/about', name: 'About' },
   { path: '/services', name: 'Services index' },
-  { path: '/customers', name: 'Customers' },
+  { path: '/industries', name: 'Industries' },
   { path: '/results', name: 'Customer stories index' },
   { path: '/contact', name: 'Contact' },
 ];

@@ -7,7 +7,7 @@
 // tagline/intro (those are the /industries landing copy). The illustration for
 // each tab is a curated static asset in `public/images/industries/` — NOT the
 // shared `industry_pages.image_url`, which is an icon reused at 240×240 in
-// /customers + the MegaNav; the home/hww section wants a wide 664×498
+// /industries + the MegaNav; the home/hww section wants a wide 664×498
 // illustration, so its art is decoupled here. R2 names exactly these three
 // (SaaS is excluded from home).
 

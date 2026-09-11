@@ -25,10 +25,10 @@ const aboutLinks: { label: string; href: string; icon: string }[] = [
 ];
 
 const customerLinks: { label: string; href: string; icon: string }[] = [
-  { label: 'Who We Support', href: '/customers', icon: 'ph:users' },
-  { label: 'Dental', href: '/customers/dental', icon: INDUSTRY_ICONS['Dental'] },
-  { label: 'Real Estate', href: '/customers/real-estate', icon: INDUSTRY_ICONS['Real Estate'] },
-  { label: 'Small Business', href: '/customers/small-business', icon: INDUSTRY_ICONS['Small Business'] },
+  { label: 'Who We Support', href: '/industries', icon: 'ph:users' },
+  { label: 'Dental', href: '/industries/dental', icon: INDUSTRY_ICONS['Dental'] },
+  { label: 'Real Estate', href: '/industries/real-estate', icon: INDUSTRY_ICONS['Real Estate'] },
+  { label: 'Small Business', href: '/industries/small-business', icon: INDUSTRY_ICONS['Small Business'] },
 ];
 
 // Hrefs use the canonical `/services/{route-slug}` segments: brand / marketing

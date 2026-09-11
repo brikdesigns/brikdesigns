@@ -520,7 +520,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         Brik gives you access to senior-level design and strategic
                         support—without the full-time overhead.
                       </p>
-                      <Link href="/customers" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
+                      <Link href="/industries" className={composeButtonClasses({ variant: 'primary', size: 'sm' })} onClick={() => setOpen(null)}>
                         <span className="bds-button__content">Learn More</span>
                       </Link>
                     </div>
@@ -532,7 +532,7 @@ export function MegaNav({ serviceLines, supportPlans, industries }: MegaNavProps
                         {industries.map((ind) => (
                           <Link
                             key={ind.slug}
-                            href={`/customers/${ind.slug}`}
+                            href={`/industries/${ind.slug}`}
                             className="mega-nav__industry-card"
                             onClick={() => setOpen(null)}
                           >

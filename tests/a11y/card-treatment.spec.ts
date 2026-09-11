@@ -74,8 +74,8 @@ const ROUTES: { path: string; name: string; cards?: false }[] = [
   // ("Other Customer Stories" outlined-on-accent, "Related Services" flat).
   // Both measured clean at pickup — this route pins that.
   { path: '/results/birdwell-mutlak-dentistry-website', name: 'Customer story detail' },
-  { path: '/customers', name: 'Customers' },
-  { path: '/customers/dental', name: 'Customer detail — dental' },
+  { path: '/industries', name: 'Industries' },
+  { path: '/industries/dental', name: 'Industry detail — dental' },
   { path: '/blog', name: 'Blog index' },
   { path: '/blog/overwhelmed-in-your-business-how-to-move-forward', name: 'Blog post' },
   { path: '/events/demo-spring-webinar', name: 'Event detail — stacked', cards: false },

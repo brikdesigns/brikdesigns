@@ -5,7 +5,7 @@
 // The convention: every hand-built `<section>` carries `data-section="<key>"`
 // (or, when a visible heading already provides one, `aria-labelledby`). Without
 // it, sibling sections collapse to the same generic utility classes — on
-// /customers/[slug] all three topic sections render as
+// /industries/[slug] all three topic sections render as
 // `section.page-section.service-surface`, indistinguishable in devtools, so
 // "change the 2nd one" is the only way to reference a section. An identifier
 // makes each section addressable. See .claude/references/section-identification.md.
