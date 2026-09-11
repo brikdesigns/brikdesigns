@@ -44,6 +44,12 @@ const ROUTES: { path: string; name: string }[] = [
   { path: '/results', name: 'Customer stories — Our Services' },
   { path: '/plans', name: 'Plans index' },
   { path: '/plans/back-office-support', name: 'Plan detail — Other Support Plans' },
+  // A SECOND plan-detail slug, because one is not a sample. The Full Stack
+  // cross-sell band is suppressed on its own plan page and renders on every
+  // other, so a route list holding a single slug can miss a band entirely —
+  // which is exactly how the 1.07:1 CTA on this route survived the first cut
+  // of the collision gate (#1404).
+  { path: '/plans/marketing-support', name: 'Plan detail — Full Stack cross-sell band' },
   { path: '/services/marketing', name: 'Service line — Monthly Support Services' },
   { path: '/services/back-office/crm-setup-and-data-cleanup', name: 'Service detail — bottom support CTA' },
 ];
@@ -54,6 +60,18 @@ interface CtaFinding {
   section: string;
   bg: string;
   serviceThemed: boolean;
+}
+
+/** A service CTA whose fill is the same color as the thing behind it (#1404). */
+interface CollisionFinding {
+  label: string;
+  section: string;
+  bg: string;
+  /** Nearest painted ancestor's fill, and what paints it. */
+  backdrop: string;
+  backdropCls: string;
+  /** Measured contrast between the two. WCAG 1.4.11 wants ≥ 3. */
+  ratio: number;
 }
 
 /**
@@ -147,6 +165,116 @@ const report = (findings: CtaFinding[], where: string) =>
   `--background-service-{line}-on-light (and the dark-mode flip engages).\n` +
   `See serviceCtaVars() in src/lib/tokens.ts.`;
 
+/**
+ * #1404 — a service CTA whose fill IS its container's fill has no shape at all;
+ * only its label survives. The tint audit above cannot see this, because the
+ * colliding value is a perfectly canonical service step: for all five lines the
+ * `onDark` fill and the `surfaceLight` surface resolve to the SAME primitive in
+ * both roots, so a CTA that flips to `onDark` on a mode-invariant pale card
+ * lands exactly on it. Set membership answers "is this a service color", not
+ * "is this distinct from what is behind it".
+ *
+ * Population is deliberately WIDER than the tint audit's. That one keys on
+ * `a[href^="/plans/"]`, and #1409 turned the plan-tier CTA into a modal
+ * `<button>` with no href — so the very control this defect was filed against
+ * had already fallen out of the selector. Distinctness is a property of every
+ * service-themed primary, not only the ones that navigate, so this walks them
+ * all. Verified to fail first on `/plans/{slug}` dark before the fix.
+ *
+ * Nothing about this is theme-specific in the assertion — it runs in both
+ * Playwright projects and the dark one is where it bites, exactly as
+ * card-treatment.spec.ts does for chrome.
+ */
+const COLLISION_AUDIT = (): CollisionFinding[] => {
+  const out: CollisionFinding[] = [];
+
+  // WCAG 2.1 relative luminance + contrast ratio. Byte-identity was the first
+  // cut of this gate and it was too narrow: on `/plans/[slug]` the Full Stack
+  // band paired a pale-green `onDark` CTA with a pale-yellow fixed-light band
+  // at 1.07:1 — a different hue, so identity saw nothing, and a button you
+  // cannot find all the same. 1.4.11 sets 3:1 for a non-text UI boundary, so
+  // that is the threshold rather than a hand-picked delta.
+  const rgb = (c: string): [number, number, number] | null => {
+    const m = c.match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const p = m[1].split(',').map((v) => parseFloat(v));
+    return [p[0], p[1], p[2]];
+  };
+  const lum = ([r, g, b]: [number, number, number]) => {
+    const f = (v: number) => {
+      const s = v / 255;
+      return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const ratio = (a: string, b: string) => {
+    const ca = rgb(a);
+    const cb = rgb(b);
+    if (!ca || !cb) return null;
+    const la = lum(ca);
+    const lb = lum(cb);
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  };
+
+  const btns = Array.from(
+    document.querySelectorAll('.service-themed .bds-button--primary'),
+  ) as HTMLElement[];
+
+  for (const btn of btns) {
+    const bg = getComputedStyle(btn).backgroundColor;
+    // The nearest PAINTED ancestor — a transparent one backs nothing, so it is
+    // not what the eye compares the button against.
+    let backdrop: string | null = null;
+    let backdropCls = '';
+    for (let n = btn.parentElement; n; n = n.parentElement) {
+      const abg = getComputedStyle(n).backgroundColor;
+      if (abg && abg !== 'rgba(0, 0, 0, 0)' && abg !== 'transparent') {
+        backdrop = abg;
+        backdropCls = (n.className || n.tagName).toString().slice(0, 60);
+        break;
+      }
+    }
+    if (backdrop === null) continue;
+    const cr = ratio(bg, backdrop);
+    if (cr === null || cr >= 3) continue;
+
+    const section = btn.closest('section');
+    out.push({
+      label: (btn.textContent ?? '').trim().slice(0, 40),
+      section:
+        section?.getAttribute('data-section') ??
+        section?.getAttribute('aria-labelledby') ??
+        section?.className ??
+        '(no section)',
+      bg,
+      backdrop,
+      backdropCls,
+      ratio: Math.round(cr * 100) / 100,
+    });
+  }
+  return out;
+};
+
+const collisionReport = (findings: CollisionFinding[], where: string) =>
+  `Service CTAs with no fill contrast against their own container on ${where}:\n` +
+  findings
+    .map(
+      (f) =>
+        `  → "${f.label}"  —  ${f.ratio}:1 (WCAG 1.4.11 wants ≥ 3:1)\n` +
+        `    fill: ${f.bg}   backdrop: ${f.backdrop}\n` +
+        `    painted by: ${f.backdropCls}\n` +
+        `    section: ${f.section}`,
+    )
+    .join('\n') +
+  `\n\nThe button has no shape — only its label is visible. The fill is a real\n` +
+  `service step, just the same one its container paints: the dark-mode flip in\n` +
+  `globals.css assumes the backdrop flipped too, which is false on a\n` +
+  `mode-invariant surfaceLight tone.\n` +
+  `\n` +
+  `FIX: pass the backdrop at the call site — serviceCtaVars(line, 'fixed-light')\n` +
+  `— never a per-card color override. See ServiceCtaBackdrop in src/lib/tokens.ts\n` +
+  `and .claude/references/service-token-decision-tree.md.`;
+
 test.describe('Service-CTA tint — support-plan CTAs adopt their line color', () => {
   for (const route of ROUTES) {
     test(`${route.name} (${route.path})`, async ({ page }) => {
@@ -157,6 +285,9 @@ test.describe('Service-CTA tint — support-plan CTAs adopt their line color', (
 
       const findings = await page.evaluate(AUDIT, SERVICE_LINES);
       expect(findings, report(findings, route.path)).toHaveLength(0);
+
+      const collisions = await page.evaluate(COLLISION_AUDIT);
+      expect(collisions, collisionReport(collisions, route.path)).toHaveLength(0);
     });
   }
 
@@ -171,5 +302,8 @@ test.describe('Service-CTA tint — support-plan CTAs adopt their line color', (
 
     const findings = await page.evaluate(AUDIT, SERVICE_LINES);
     expect(findings, report(findings, 'the mega-nav Plans panel')).toHaveLength(0);
+
+    const collisions = await page.evaluate(COLLISION_AUDIT);
+    expect(collisions, collisionReport(collisions, 'the mega-nav Plans panel')).toHaveLength(0);
   });
 });

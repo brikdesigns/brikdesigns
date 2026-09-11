@@ -3,7 +3,20 @@
 import { useState } from 'react';
 import { Button, Card, SectionHeader, SegmentedControl, type ServiceLine } from '@brikdesigns/bds';
 import { GetStartedModalButton } from '@/components/marketing/GetStartedModalButton';
-import { serviceCtaVars } from '@/lib/tokens';
+import { serviceCtaVars, type ServiceCtaBackdrop } from '@/lib/tokens';
+
+/**
+ * What each tier card paints behind its CTA — the companion to the two
+ * `.plan-tier-card[data-accent=…]` fill rules in `plans.css`. Both halves must
+ * move together: change a card's fill there without this map and the CTA either
+ * collides with it in dark mode or goes deep-on-deep (#1404).
+ */
+const TIER_CARD_BACKDROP: Record<PlanTier['accent'], ServiceCtaBackdrop> = {
+  // `--surface-service-brand-light` — mode-invariant pale in both themes.
+  brand: 'fixed-light',
+  // `--surface-primary` — white in light, near-black in dark.
+  'back-office': 'theme',
+};
 
 /** A `section-type` card, pre-resolved on the server from `service_plan_tiers`. */
 export interface PlanTier {
@@ -90,10 +103,17 @@ export function PlanTierSection({
           derived from the BAND, never the mockup — card-treatment.md, and the
           /plans index already ships this same Figma frame (26103:10983) on the
           same rule. */}
+      {/* The band paints a mode-invariant `surfaceLight` tone, so it declares
+          that here — the element that paints a backdrop is the one that knows
+          it. Re-emitting the bundle for the SAME line the page already set keeps
+          the hue and changes only the backdrop axis, which is what the header
+          CTA below needs: it inherits the page-level bundle from
+          `.plan-detail-ctas`, whose backdrop is the theme-following page, not
+          this band (#1404). The tier cards override again per card. */}
       <section
         className="page-section service-surface plan-tier-section"
         data-section="engagement-modes"
-        style={{ backgroundColor: bandSurface }}
+        style={{ backgroundColor: bandSurface, ...serviceCtaVars(serviceLine, 'fixed-light') }}
       >
         <div className="container-lg container-lg--comfortable">
           <div className="pricing-header pricing-header--top">
@@ -138,8 +158,17 @@ export function PlanTierSection({
                   {/* Per-tier CTA in that tier's own accent, not the page's —
                       the canonical service-CTA bundle (brikdesigns#1001). The
                       wrapper carries `service-themed` for the hover/focus and
-                      dark-mode cascade the bundle's pairing contract requires. */}
-                  <div className="service-themed" style={serviceCtaVars(tier.accent)}>
+                      dark-mode cascade the bundle's pairing contract requires.
+
+                      The backdrop arg is read off the SAME accent that picks the
+                      card fill in plans.css, and must stay paired with it: the
+                      `brand` rule sets a mode-invariant `surfaceLight` tone, so
+                      its CTA pins (#1404); the `back-office` rule sets the
+                      theme-responsive `--surface-primary`, so its CTA flips. */}
+                  <div
+                    className="service-themed"
+                    style={serviceCtaVars(tier.accent, TIER_CARD_BACKDROP[tier.accent])}
+                  >
                     {/* Opens the shared lead-capture modal (the service
                         pricing-grid pattern), preselecting this plan + the
                         clicked tier as the offering. No `serviceOptions`, so the

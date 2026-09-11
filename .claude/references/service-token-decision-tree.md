@@ -1,6 +1,6 @@
 # Service-token decision tree
 
-**last-verified:** 2026-08-25
+**last-verified:** 2026-09-11
 
 Read this **before** writing any CSS that tints a section, card, badge, tag, button, border, or text by service-line audience. The canonical names live in `node_modules/@brikdesigns/bds/dist/tokens.css` (grep for `-service-`); this file is the agent-facing decision rule that maps those names to use.
 
@@ -218,6 +218,29 @@ The modifier matrix is asymmetric: `-inverse` is **surface-only** (brik-bds ADR-
 ```
 
 Context modifiers (`-on-light`, `-on-dark`) are correct when the surface beneath is **pinned** (`-light` or `-dark` tone, or a non-service surface). When the surface flips with theme, the component fill should flip too — use the default token.
+
+### Letting the THEME pick the context, on a surface that doesn't flip
+
+The inverse of the above, and the one that ships invisibly: a component fill that flips on `[data-theme="dark"]` while the surface beneath it stays pinned.
+
+For **all five lines, in both roots**, the `-on-dark` component fill and the `-light` surface tone resolve to the *same primitive* — the `lightest` step in `:root`, the `lighter` step in the dark root (`dist/tokens.css`). That is correct by construction: `-on-dark` is the fill for a component on a **dark** backdrop, and a pale fill is what reads there. But it means any component that flips to `-on-dark` while sitting on a `-light` tone paints itself **its container's exact fill** and keeps only its text.
+
+```tsx
+/* WRONG — the CTA flips with the theme, the card it sits on does not */
+<Card style={{ background: t.surfaceLight }}>          {/* pale in BOTH themes */}
+  <div className="service-themed" style={serviceCtaVars(line)}>  {/* flips → same pale */}
+```
+
+```tsx
+/* RIGHT — declare the backdrop; the fill then pins with it */
+<div className="service-themed" style={serviceCtaVars(line, 'fixed-light')}>
+```
+
+**The theme is the wrong discriminator; the backdrop is the right one.** This is the same rule [`card-treatment.md`](card-treatment.md) already applies to card chrome — luminance decides, not `data-theme`, *because the service tints are fixed-light in both themes*. A CTA fill is the same class of decision.
+
+Declare it on the element that **paints** the backdrop (a band sets it once; a card overrides per card). Never reach for a per-card color override — that fixes one instance and leaves the rule wrong.
+
+Gated in both themes by the collision half of `tests/a11y/service-cta-tint.spec.ts`, which compares every `.service-themed` primary against its nearest painted ancestor. The tint half of that spec cannot see this defect: the colliding value *is* a canonical service step. #1404 — three occurrences, one filed.
 
 ### Hand-rolling a service-color object
 

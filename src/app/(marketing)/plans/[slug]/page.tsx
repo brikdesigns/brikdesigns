@@ -294,7 +294,9 @@ export default async function PlanDetailPage({ params }: Props) {
        * REPLACES the old `.plan-cta-panel`. Suppressed on the Full Stack page
        * itself, which would otherwise cross-sell the plan you are reading.
        */}
-      {plan.slug !== FULL_STACK_SLUG && <PlanFullStackPanel href={PARTNER_HREF} />}
+      {plan.slug !== FULL_STACK_SLUG && (
+        <PlanFullStackPanel href={PARTNER_HREF} serviceLine={audience} />
+      )}
 
       {/* ═══ 7. section-cta — Figma 26144:9140 ═══
        * ADD. The shared brand CTA panel reused verbatim per the delta table —
