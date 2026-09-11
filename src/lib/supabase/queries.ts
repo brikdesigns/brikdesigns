@@ -295,8 +295,18 @@ export const getSupportPlans = cache(
         // Embed the plan's marketing line for its card_image_url — plan cards
         // standardize on the service-line illustration over the plan's own
         // marketing image (#454), which clashed with the card treatment.
+        //
+        // The tier embed carries the card's PRICES (#1385). The plan-level
+        // `monthly_price_*` block is retired — one price concept per level,
+        // recurring lives on the tier (portal#3959 decision A) — so every
+        // surface that renders a plan card reads Advisory as its headline and
+        // names Managed beside it, the pattern /plans already shipped. Left
+        // join: a plan with no public tiers still resolves, and the card falls
+        // back to 'Contact'.
         .select(
-          '*, display_line:service_lines!display_line_id(slug, name, card_image_url)'
+          `*,
+           display_line:service_lines!display_line_id(slug, name, card_image_url),
+           service_plan_tiers(name, monthly_price_display)`
         )
         .eq('is_public', true)
         .order('rank', { ascending: true });
@@ -397,37 +407,6 @@ export const getSupportPlanBySlug = cache(
   )
 );
 
-export const getOtherSupportPlans = cache(
-  unstable_cache(
-    async (excludeSlug: string) => {
-      const supabase = createPublicClient();
-      const { data, error } = await supabase
-        .from('service_plans')
-        .select(
-          `name, slug, monthly_price_display, description, image_url, discount_label,
-           display_line:service_lines!display_line_id(slug, name, card_image_url)`
-        )
-        .eq('is_public', true)
-        .neq('slug', excludeSlug)
-        .order('rank', { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-    ['other-support-plans'],
-    { revalidate: 3600, tags: ['cms-service-plans'] }
-  )
-);
-
-// Reverse lookup: given a service UUID, return all public plans that include it.
-// Replaces the legacy service.support_plan_slug denorm column (#206).
-//
-// Embeds `display_line` — the *primary* service line for visual identity
-// (portal 00196, renamed by 00339). A plan's services can span multiple lines (e.g.
-// Marketing Support pulls services from Marketing + Information + Brand
-// lines), so the bottom-CTA illustration can't be inferred from the current
-// page's service line — it has to come from the plan's own `display_line_id`
-// pointer. Falls back to plan.image_url client-side when null (legacy
-// Webflow-imported plans).
 export const getSupportPlansByServiceId = cache(
   unstable_cache(
     async (serviceId: string) => {

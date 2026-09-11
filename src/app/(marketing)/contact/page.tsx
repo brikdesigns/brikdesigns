@@ -3,6 +3,7 @@ import { Button, Grid, SectionHeader } from '@brikdesigns/bds';
 import { BookACallButton } from '@/components/marketing/BookACallButton';
 import { ContactForm } from '@/components/marketing/ContactForm';
 import { HomePlanCard } from '@/components/homepage/HomePlanCard';
+import { planTierPrices } from '@/lib/plan-tier-prices';
 import type { ServiceOption } from '@/components/marketing/ServiceMultiSelect';
 import { getServiceCategories, getServices, getSupportPlans, resolveServiceTagCategory } from '@/lib/supabase/queries';
 import { text, heading } from '@/lib/styles';
@@ -34,10 +35,12 @@ export default async function ContactPage() {
   const supportPlans = plans.map((plan) => {
     const displayLineId = (plan as { display_line_id?: string | null }).display_line_id;
     const line = displayLineId ? serviceLineById.get(displayLineId) : null;
+    const tiers = planTierPrices(plan);
     return {
       name: plan.name,
       slug: plan.slug,
-      price: plan.monthly_price_display || 'Contact',
+      price: tiers.advisory ?? 'Contact',
+      managed_price: tiers.managed,
       description: plan.home_description || plan.description || '',
       image_url: line?.card_image_url ?? plan.image_url ?? null,
       // Same display-line join drives the CTA tint — the card links to
@@ -104,6 +107,7 @@ export default async function ContactPage() {
                 name={plan.name}
                 slug={plan.slug}
                 price={plan.price}
+                managedPrice={plan.managed_price}
                 description={plan.description}
                 imageUrl={plan.image_url}
                 serviceLineSlug={plan.service_line_slug}

@@ -11,7 +11,8 @@ import {
   SectionHeader,
 } from '@brikdesigns/bds';
 import { Icon } from '@/lib/icon';
-import { getManagedPlanPrices, getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { getSupportPlans, mapServiceLineSlug } from '@/lib/supabase/queries';
+import { planTierPrices } from '@/lib/plan-tier-prices';
 import { PLAN_IMAGE_OVERRIDES } from '@/lib/plan-image-overrides';
 import { serviceColor, serviceCtaVars } from '@/lib/tokens';
 import '../shared-sections.css';
@@ -78,20 +79,14 @@ const ENGAGEMENT_MODES = [
 ] as const;
 
 export default async function PlansPage() {
-  // Two cached reads, joined by slug: `getSupportPlans` carries the copy + the
-  // marketing-line illustration; `getManagedPlanPrices` embeds every public tier
-  // (its name is narrower than its select). The DB is the pricing SoT (#1123) —
-  // no price literal on this page.
-  const [rawPlans, tierRows] = await Promise.all([getSupportPlans(), getManagedPlanPrices()]);
+  // One cached read: `getSupportPlans` carries the copy, the marketing-line
+  // illustration AND the tier prices (#1385 moved the tier embed onto it, so
+  // the separate `getManagedPlanPrices` round trip this page used is gone).
+  // The DB is the pricing SoT (#1123) — no price literal on this page.
+  const rawPlans = await getSupportPlans();
 
   const tiersBySlug = new Map(
-    tierRows.map((row) => [
-      row.slug,
-      {
-        advisory: row.service_plan_tiers.find((t) => t.name === 'Advisory')?.monthly_price_display ?? null,
-        managed: row.service_plan_tiers.find((t) => t.name === 'Managed')?.monthly_price_display ?? null,
-      },
-    ]),
+    rawPlans.map((row) => [row.slug, planTierPrices(row)]),
   );
 
   const bySlug = new Map(rawPlans.map((plan) => [plan.slug as string, plan]));
@@ -119,8 +114,9 @@ export default async function PlansPage() {
       category: lineSlug ? mapServiceLineSlug(lineSlug) : null,
       // Entry price for the card headline is the Advisory tier (the lower-commitment
       // side); the Managed figure rides the feature list so both are visible without
-      // a second card. Falls back to the plan-level price when a tier is missing.
-      price: tiers.advisory ?? (plan.monthly_price_display as string | null) ?? 'Contact',
+      // a second card. No plan-level fallback — that block is retired (#1385), so a
+      // plan with no Advisory tier reads 'Contact' rather than a stale figure.
+      price: tiers.advisory ?? 'Contact',
       managedPrice: tiers.managed,
     };
   }).filter((p): p is NonNullable<typeof p> => p !== null);

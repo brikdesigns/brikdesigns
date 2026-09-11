@@ -52,7 +52,7 @@ in-tree canonical example of grouped title+description with one boundary gap to 
 |---|---|---|
 | `getServiceCategories()` | §10's five cards, plan-card illustration join | ordered by `rank` |
 | `getServices()` | | |
-| `getSupportPlans()` | §8's plan cards | |
+| `getSupportPlans()` | §8's plan cards | prices come from its `service_plan_tiers` embed via `planTierPrices()` — Advisory is the headline, Managed is a feature row. The plan-level `monthly_price_*` block is **retired** (#1385, portal#3959 decision A) |
 | `PROBLEMS` (page-local) | §2 | verbatim from Figma — see constraints |
 | `HOME_SERVICES_TABS`, `HOME_INDUSTRIES`, `TOOLING_LOGOS`, `WORKFLOW_STEPS`, `TESTIMONIALS`, `TEAM` (`@/lib/*`) | §4, §5, §6, §7, §9 + about | `HOME_INDUSTRIES` and `TEAM` are **shared** with `/how-we-work` and `/about` |
 
