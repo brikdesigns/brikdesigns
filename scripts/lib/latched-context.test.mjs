@@ -251,6 +251,55 @@ check('a context nothing emitted is NEVER_RAN — no workflow to attribute it to
   assert.equal(verdictOf(fixture, 'regression'), NEVER_RAN);
 });
 
+// ── NEVER_RAN must not claim "no check-run" over check-runs that exist ──────
+
+check('NEVER_RAN over rejected check-runs counts them instead of denying them', () => {
+  // #1444. The line read "no check-run on this SHA" on #1433 head 615c34d6,
+  // which carried two `regression` check-runs (cancelled + skipped). A reader
+  // who checks `gh api …/check-runs` finds the tool contradicting the API and
+  // stops trusting every other verdict — a hand-off the same afternoon said
+  // exactly that. The burst makes this reachable at will: #1443 measured 12
+  // cancelled runs per PR, so an all-cancelled context is ordinary here.
+  const fixture = {
+    runs: [run(1, 100, 'cancelled'), run(2, 200, 'cancelled')],
+    checkRuns: [cr(100, 'cancelled'), cr(100, 'cancelled')],
+  };
+  const r = analyzeContext({ context: 'regression', ...fixture });
+  assert.equal(r.verdict, NEVER_RAN);
+  assert.equal(r.emitted.length, 2);
+  const lines = reportLines(r).join('\n');
+  assert.match(lines, /2 check-run\(s\) on this SHA \(cancelled×2\)/);
+  assert.doesNotMatch(lines, /no check-run on this SHA/, 'must not deny check-runs that exist');
+  assert.doesNotMatch(lines, /--allow-empty/, 'NEVER_RAN is not a latch — offer no empty commit');
+});
+
+check('NEVER_RAN with genuinely nothing emitted keeps the plain line', () => {
+  // The other half of the same verdict. Silence is still silence, and padding
+  // it with a zero-count tally would make the common case noisier to read.
+  const fixture = { runs: [run(1, 100, 'success')], checkRuns: [cr(100, 'success', 'verify')] };
+  const r = analyzeContext({ context: 'regression', ...fixture });
+  assert.equal(r.verdict, NEVER_RAN);
+  assert.deepEqual(r.emitted, []);
+  assert.match(reportLines(r).join('\n'), /no check-run on this SHA/);
+});
+
+check('every verdict carries acceptedSuites — no stale greenSuites key survives', () => {
+  // #1439 renamed greenSuites → acceptedSuites but missed the early return, so
+  // the one path that reaches it handed back a key no caller reads. Pin the
+  // shape rather than the rename, so the next one cannot half-land either.
+  const nothing = analyzeContext({
+    context: 'regression',
+    runs: [run(1, 100, 'success')],
+    checkRuns: [cr(100, 'success', 'verify')],
+  });
+  for (const r of [nothing, analyzeContext({ context: 'regression', ...PR1417 })]) {
+    assert.ok(Array.isArray(r.acceptedSuites), `${r.verdict} must expose acceptedSuites`);
+    assert.equal('greenSuites' in r, false, `${r.verdict} must not expose greenSuites`);
+  }
+  const src = fs.readFileSync(path.join(HERE, 'latched-context.mjs'), 'utf8');
+  assert.doesNotMatch(src, /greenSuites/, 'the old key must be gone from the module');
+});
+
 // ── Ordering ────────────────────────────────────────────────────────────────
 
 check('newest is by run id, not response order — the API returns newest-first', () => {
