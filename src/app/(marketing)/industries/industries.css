@@ -21,7 +21,11 @@
   font-size: var(--heading-tiny);
 }
 
-.industry-card .bds-card__preset-display-description {
+/* ADR-038 renamed the body slot: under `layout="stack"` the description is a
+   `<CardDescription>` in `children` (`.bds-card-description`), not the preset's
+   own `.bds-card__preset-display-description`. The title keeps its class above —
+   the anatomy renderer still emits `bds-card__preset-display-title`. */
+.industry-card .bds-card-description {
   font-size: var(--body-xl);
 }
 
