@@ -192,6 +192,135 @@ export function buildDeclarationLine(blocking = []) {
   return routes.length ? `Visual-change: ${routes.join(', ')}` : null;
 }
 
+// The blocking SET as an order-independent signature — one `route|theme|viewport`
+// key per capture over threshold (#1350).
+//
+// classifyBlockingSpread reads the shape of a SINGLE run and can only GUESS
+// flake vs. real from how the blocks spread across a route's captures. The
+// signature is what lets a SECOND attempt on the same head SHA settle that guess
+// with evidence: a real change is deterministic and reproduces the identical
+// set, while a capture flake moves a different set each build (the #1330 repro —
+// {blog|light|tablet} on attempt 1, seven dark captures on attempt 2, zero
+// overlap). Keys are sorted so equal sets compare equal as strings.
+//
+// `|` joins the fields and `;` (in formatSignature) joins the keys, neither of
+// which may appear in a route/theme/viewport value — ROUTES[].name is kebab-case
+// and theme/viewport are a fixed enum, so this holds today. A route name
+// containing either character would corrupt the round-trip; keep names kebab-case.
+export function blockingSignature(blocking = []) {
+  return [
+    ...new Set(blocking.map((r) => `${r.route}|${r.theme}|${r.viewport}`)),
+  ].sort();
+}
+
+// Serialise a signature for the log marker the next attempt greps, and parse it
+// back (#1350). `(none)` is the empty set written explicitly — a blank value
+// means "no prior attempt to read", which is a different state the caller must
+// not confuse with "the prior attempt blocked nothing".
+export function formatSignature(sig = []) {
+  return sig.length ? sig.join(';') : '(none)';
+}
+
+export function parseSignature(str) {
+  if (str === undefined || str === null) return null;
+  const trimmed = String(str).trim();
+  if (!trimmed) return null;
+  if (trimmed === '(none)') return [];
+  return trimmed
+    .split(';')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .sort();
+}
+
+// Settle flake vs. real by comparing this attempt's blocking signature against
+// the prior attempt's on the SAME head SHA (#1350).
+//
+//   deterministic  keys that blocked in BOTH attempts. A real render change is a
+//                  pure function of the build, so it reproduces identically —
+//                  these are NOT capture-side and must keep gating (case 1
+//                  intended / case 3 stale base).
+//   flapping       keys that blocked in exactly ONE attempt. Only a capture-side
+//                  non-determinism moves the set between identical builds, so
+//                  these are confirmed flake and are cleared.
+//   verdict        'same'      → flapping is empty; the whole set reproduced.
+//                  'different' → the set moved; the partition above applies.
+//
+// Partitioning rather than passing or failing the run WHOLE is the load-bearing
+// safety property: a real regression that happens to share a head SHA with an
+// unrelated flake keeps blocking on its deterministic captures instead of riding
+// the flake's set-instability to green.
+export function compareAttemptSignatures(prior = [], current = []) {
+  const priorSet = new Set(prior);
+  const currentSet = new Set(current);
+  const deterministic = current.filter((k) => priorSet.has(k));
+  const flapping = [
+    ...current.filter((k) => !priorSet.has(k)),
+    ...prior.filter((k) => !currentSet.has(k)),
+  ].sort();
+  return {
+    deterministic,
+    flapping,
+    verdict: flapping.length === 0 ? 'same' : 'different',
+  };
+}
+
+// The gate decision the runner acts on (#1350) — kept here rather than inline in
+// visual-parity.mjs so the SET that exits the process is unit-tested, not just
+// the comparison feeding it.
+//
+//   currentSignature  this attempt's blocking set, for the log marker.
+//   crossAttempt      the comparison result, or null when there is nothing to
+//                     compare against (attempt 1, or the prior signature could
+//                     not be recovered) — the caller then keeps its single-
+//                     attempt advice and gates on the full set.
+//   cleared           the captures dropped as capture-side (see the two-signal
+//                     rule below). Empty unless a prior attempt was read.
+//   effectiveBlocking the captures that STILL gate — `blocking` minus `cleared`.
+//                     Empty here means the run passes.
+//
+// A capture is cleared ONLY when TWO independent signals agree it is capture-side:
+//   1. cross-attempt — it blocked in THIS attempt but not the prior one on the
+//      same head SHA. A deterministic render change reproduces its set; a flake's
+//      set moves between identical builds (the #1330 repro).
+//   2. intra-run spread — its route is `isolated`: it moved on one theme while
+//      the same viewport's other theme read 0.00%. A real change moves BOTH
+//      themes (broad / viewportScoped), so a near-threshold real change that
+//      merely jittered across the 1% line on one attempt is NOT isolated and is
+//      never mistaken for a flake and waived (QA hardening, #1350).
+//
+// Fails CLOSED by construction: an absent prior signature leaves crossAttempt
+// null, `cleared` empty, and effectiveBlocking === blocking, so no path narrows
+// the gate without a second attempt that actually moved the set.
+export function decideEffectiveBlocking({
+  blocking = [],
+  results = [],
+  runAttempt = 1,
+  priorSignatureRaw,
+} = {}) {
+  const keyOf = (r) => `${r.route}|${r.theme}|${r.viewport}`;
+  const currentSignature = blockingSignature(blocking);
+  const priorSignature = parseSignature(priorSignatureRaw);
+  const crossAttempt =
+    runAttempt > 1 && priorSignature !== null
+      ? compareAttemptSignatures(priorSignature, currentSignature)
+      : null;
+
+  let cleared = [];
+  if (crossAttempt) {
+    const priorSet = new Set(priorSignature);
+    const { isolated } = classifyBlockingSpread({ blocking, results });
+    const isolatedRoutes = new Set(isolated);
+    cleared = blocking.filter(
+      (r) => isolatedRoutes.has(r.route) && !priorSet.has(keyOf(r)),
+    );
+  }
+  const clearedKeys = new Set(cleared.map(keyOf));
+  const effectiveBlocking = blocking.filter((r) => !clearedKeys.has(keyOf(r)));
+
+  return { currentSignature, crossAttempt, cleared, effectiveBlocking };
+}
+
 // Smallest share of the taller capture's height the shorter one may have before
 // the pair is treated as a failed capture rather than a diff (#1314).
 //
