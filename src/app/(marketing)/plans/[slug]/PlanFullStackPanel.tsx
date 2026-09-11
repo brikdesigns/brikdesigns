@@ -1,6 +1,7 @@
 import Image from 'next/image';
-import { Button, ServiceTag } from '@brikdesigns/bds';
+import { Button, ServiceTag, type ServiceLine } from '@brikdesigns/bds';
 import { TEAM } from '@/lib/team';
+import { serviceCtaVars } from '@/lib/tokens';
 
 /**
  * `section-full-stack` (Figma `26144:9109`) — the Full Stack cross-sell that
@@ -71,14 +72,36 @@ const PORTRAITS = [
 
 const PORTRAIT_SIZE = 124;
 
-export function PlanFullStackPanel({ href }: { href: string }) {
+export function PlanFullStackPanel({
+  href,
+  serviceLine,
+}: {
+  href: string;
+  /**
+   * The page's audience — only to re-emit the CTA bundle on this band at the
+   * SAME hue the page already set, so the declaration below changes the
+   * backdrop axis and nothing else.
+   */
+  serviceLine: ServiceLine;
+}) {
   return (
     // `service-surface` is required, not decorative: the band is
     // `--surface-service-brand-light`, which is fixed-LIGHT in both themes,
     // while `--text-primary` flips near-white in the dark root. That class is
     // the sanctioned pin (globals.css) that keeps inherited ink dark on a
     // fixed-light tint — the #360 fixed-on-fixed-light correction.
-    <section className="plan-full-stack service-surface" data-section="full-stack">
+    //
+    // The CTA inside needs the SAME fact declared on its own axis: it inherits
+    // the page-level bundle from `.plan-detail-ctas`, whose backdrop is the
+    // theme-following page, so in dark mode it flipped to the pale `onDark`
+    // step and sat on this pale band at 1.07:1 — a different hue from the
+    // band, so byte-identity never saw it, and a button you cannot find all
+    // the same (#1404, measured on deploy-preview-1414).
+    <section
+      className="plan-full-stack service-surface"
+      data-section="full-stack"
+      style={serviceCtaVars(serviceLine, 'fixed-light')}
+    >
       <div className="plan-full-stack__copy">
         <h2 className="plan-full-stack__title">Most clients end up going Full Stack.</h2>
         <p className="plan-full-stack__description">
