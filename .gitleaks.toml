@@ -57,4 +57,11 @@ regexTarget = "line"
 regexes = [
   '''fileKey:\s*'[A-Za-z0-9]{20,25}'''',
   '''figma\.com/(design|file)/[A-Za-z0-9]{20,25}''',
+  # The same public identifier as a module constant rather than an object
+  # property — `export const FILE_KEY = '...'` in tests/a11y/lib/slot-manifest.ts
+  # (brikdesigns#1428). Kept as a THIRD narrow regex rather than loosening the
+  # first to `\b[A-Za-z0-9]{22}\b`: a bare 22-char allowlist would swallow real
+  # tokens of that length anywhere in the repo, which is the blinding the
+  # path-scoping note above already rejects.
+  '''\bFILE_KEY\s*=\s*'[A-Za-z0-9]{20,25}'''',
 ]
