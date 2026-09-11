@@ -170,6 +170,13 @@ Neither audit catches Footer.tsx drift, MAIN_LINES/CALLOUT_LINES drift, or the i
 3. **Renaming a slug? Grep all 5 hard-coded sources** before merging. The DB migration alone will not propagate.
 4. **Adding an implicit cross-row FK?** Document it in the [Implicit FKs](#implicit-cross-row-fks-no-db-constraint) table and consider whether a real DB constraint is warranted (or fail-loud handling in the consuming query, per the `mapServiceLineSlug` precedent).
 5. **Surfaces that read `services` directly should filter `is_public = true`** — the helpers in `queries.ts` do this; raw `supabase.from('services')` calls in new code must replicate it.
+6. **A service's visibility and its offerings' visibility must agree, and a public service must render something.** Two separate states, both silent, both shipped ([#769](https://github.com/brikdesigns/brikdesigns/issues/769)):
+   - **A public offering under a non-public service is stranded.** `/services/*` resolves the *public* service slug, so the offering surfaces on no page while staying sellable in the portal. Portal's write action now refuses the write (`services/actions.ts:191-207`) and portal `scripts/qa-check.sh:382` hard-FAILs on the state ("4j gate", brik-client-portal#2790) — but neither reaches a direct DB write.
+   - **A public service with no `description`, no `tagline` and no `image_url` renders an empty card.** [`ServiceCard.tsx:49`](../../src/components/marketing/ServiceCard.tsx#L49) resolves `description ?? tagline` and [`:53`](../../src/components/marketing/ServiceCard.tsx#L53) resolves the media, so the card renders a title, a tag and a "Learn More" button over nothing. This is what [#708](https://github.com/brikdesigns/brikdesigns/issues/708) was filed for; hiding the rows resolved the symptom without removing the trap, and the rows were later flipped public again.
+
+   Note `tagline` is NULL on **every** `services` row, including the ones that render correctly — it is the fallback, never the test. Emptiness means no `description` **and** no `tagline` **and** no `image_url`.
+
+   To change either one from a terminal, use `brik-llm/scripts/cms-service-write.mjs` — `--show` reports both states across the whole table, and `--hide` cascades offerings-first so the stranded state is never passed through. A raw PATCH also skips the `cms-services` tag purge, which leaves the card on the page for up to the 1h ISR window with no error anywhere ([services-cms-ownership.md](./services-cms-ownership.md) rule 3). Publishing stays in portal `/settings/services`, where the `image_url` uploader is (rule 5).
 
 ## History
 
@@ -179,3 +186,4 @@ Neither audit catches Footer.tsx drift, MAIN_LINES/CALLOUT_LINES drift, or the i
 - #143 — `mapServiceLineSlug` loud-fallback precedent
 - #106 (closed) — offerings.service_id real FK fix
 - #114 — this doc
+- #769 — rule 6: service/offering visibility must agree, and a public service must render something. Three information services (`one-pager`, `sales-pitch-deck`, `sales-proposal`) were flipped public with all three content columns NULL and rendered empty cards on `/services/information`; taken non-public with their offerings via `cms-service-write.mjs` (brik-llm#3371)
