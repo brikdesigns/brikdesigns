@@ -38,9 +38,21 @@
 /* Hero content band matches the top nav (1440px) rather than the BDS blueprint
  * default (--content-width-xl, 1280px). Set the canonical BDS hook on the hero
  * wrapper so its .bds-hero__container caps at --site-content-width — the same
- * name nav/footer/page containers point at (globals.css). Scoped to the hero
- * only; the body sections below stay at the 1280 default (#1226). */
+ * name nav/footer/page containers point at (globals.css). #1226 originally
+ * scoped this to the hero only; #1453 extends it to the body bands below so the
+ * whole page column matches nav + footer. */
 .page-hero-blueprint {
+  --bds-blueprint-section-content-width: var(--site-content-width);
+}
+
+/* Body CardGrid bands match the nav/footer 1440px column, not the BDS blueprint
+ * 1280px default. The CardGrid sections render `.bds-card-grid` and receive the
+ * `service-surface` class; setting the hook on that pair caps their
+ * `.bds-blueprint-section__container` at --site-content-width. services.css
+ * ships only on the /services routes, so this cannot widen CardGrids elsewhere
+ * (plans/results own their own stylesheets). Reverses #1226's body-stays-1280
+ * note per the operator round (#1453). */
+.bds-card-grid.service-surface {
   --bds-blueprint-section-content-width: var(--site-content-width);
 }
 
