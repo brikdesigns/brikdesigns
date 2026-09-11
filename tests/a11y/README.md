@@ -82,6 +82,35 @@ FILL_IGNORE_BASELINE=1 npx playwright test fill-distinctness
 
 Burn-down is #1427. Never add an entry without one.
 
+A key is also asserted to still MATCH something — `staleKeys` in the same spec
+fails the route when an `ACCEPTED` entry measures nothing any more. See the
+re-index note below for why that is an assertion and not a review habit.
+
+#### RE-INDEX 2026-09-11 (#1442 — `@brikdesigns/bds` 0.188.0 → 0.189.1)
+
+brik-bds `05f3d748` (brik-bds#2359, the numeric Brand Kit sync, #2337)
+re-pointed `--surface-accent-{hue}` off `--color-system-{hue}-light` onto the
+numeric ramp. The poppy fill never changed; the **band under it** did, so five
+colour-pair keys stopped matching and the gate re-reported accepted #1427 debt
+as fresh on `/`, `/plans` and `/how-we-work`.
+
+| Key | 0.188.0 | 0.189.1 | Poppy ratio |
+|---|---|---|---|
+| purple — light + dark, `/` + `/how-we-work` | `rgb(233, 216, 252)` | `rgb(218, 208, 242)` | 2.83 → **2.57** |
+| blue — light, `/plans` | `rgb(191, 226, 254)` | `rgb(178, 227, 245)` | 2.79 → **2.74** |
+| blue — dark, `/plans` | `rgb(191, 226, 254)` | `#d6f0fa` | 2.79 → **clears 3:1** |
+
+The last row is the one that matters for policy: a re-point can push a waived
+pair **over** the floor as easily as under it, and the entry left behind then
+waives a defect that no longer exists. That row was deleted, not re-keyed.
+
+This is the gap the note under "Baseline change log" predicts — "if a RE-INDEX
+appears, the fingerprint key has a gap worth a ticket rather than a note". The
+gap is real and it is not specific to this list: a colour-pair fingerprint
+survives a DOM re-root (#1361) but not a token re-point. Closed **here** by the
+`staleKeys` assertion; `baseline.json` is keyed the same way and has no
+equivalent check — filed separately.
+
 ## Adding a route
 
 Add it to `PUBLIC_ROUTES` in `public-routes.spec.ts`. Dynamic routes are

@@ -48,13 +48,43 @@
  * cases offline. The CLI at the bottom is the thing a blocked session runs.
  */
 
-/** The context is reported by the newest suite and it passed. Merge should work. */
+/**
+ * Conclusions the ruleset accepts as satisfying a required context.
+ *
+ * Not just `success`. GitHub: "Required status checks must have a `successful`,
+ * `skipped`, or `neutral` status before collaborators can make changes to a
+ * protected branch" ([about-protected-branches], fetched 2026-09-11). Confirmed
+ * live in this repo the same day: #1438 merged with `mockup=skipped` and
+ * `regression=skipped`, #1429 with those plus `verify=skipped`.
+ *
+ * This set is the fix for the defect the detector shipped with: it treated any
+ * non-`success` conclusion as a real red, so `axe=skipped` on #1434 was reported
+ * as "This is a REAL red — fix the failure" on a PR whose only actual blocker was
+ * a latched `verify`. `skipped` is the NORMAL state for a path-filtered required
+ * gate in this repo (CLAUDE.md § "When adding a CI gate"), so the wrong verdict
+ * fires on routine PRs, and it sends the reader hunting a failure that does not
+ * exist while the real block sits two lines below.
+ *
+ * [about-protected-branches]: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches
+ */
+export const ACCEPTED_CONCLUSIONS = new Set(['success', 'skipped', 'neutral']);
+
+/** The context is reported by the newest suite and the ruleset accepts it. */
 export const OK = 'ok';
 /** The newest suite is still reporting. Wait, do not push anything. */
 export const PENDING = 'pending';
 /** The newest suite reported a real red. Fix it — an empty commit hides nothing here. */
 export const FAILING = 'failing';
-/** No check-run for this context anywhere on the SHA. Not the #1421 shape. */
+/**
+ * Nothing the ruleset accepts for this context on the SHA. Not the #1421 shape.
+ *
+ * Two different states share this verdict, and the report distinguishes them:
+ * the context emitted nothing at all (ordinary "still queued"), or it emitted
+ * only check-runs the ruleset rejects — `cancelled`, in practice, which the
+ * label burst produces by the dozen (#1443). The second is why the verdict is
+ * not named "no check-run": saying that while the API returns two is the
+ * misreport #1444 was filed on.
+ */
 export const NEVER_RAN = 'never-ran';
 /** The #1421 shape: newest suite reported nothing, an older suite is green. */
 export const LATCHED = 'latched';
@@ -102,34 +132,49 @@ export function analyzeContext({ context, runs, checkRuns }) {
   const workflowId = owningWorkflowId({ context, runs, checkRuns });
 
   if (workflowId === null) {
-    return { context, verdict: NEVER_RAN, newestRun: null, reportingRun: null, greenSuites: [] };
+    return {
+      context,
+      verdict: NEVER_RAN,
+      newestRun: null,
+      reportingRun: null,
+      acceptedSuites: [],
+      emitted: [],
+    };
   }
 
   const owned = byRunId(runs.filter((r) => r.workflow_id === workflowId));
   const newest = owned[owned.length - 1];
   const fromNewest = emitted.find((c) => c.check_suite_id === newest.check_suite_id) ?? null;
-  const greenSuites = emitted
-    .filter((c) => c.conclusion === 'success')
+  // Same set as the guard below, deliberately: an older suite that reported
+  // `skipped` is as much a contradiction of `expected` as one that reported
+  // `success`, so hardcoding `success` here would classify a real latch on a
+  // path-filtered gate as NEVER_RAN and say nothing.
+  const acceptedSuites = emitted
+    .filter((c) => ACCEPTED_CONCLUSIONS.has(c.conclusion))
     .map((c) => c.check_suite_id);
 
   const base = {
     context,
     newestRun: newest,
     reportingRun: fromNewest,
-    greenSuites,
+    acceptedSuites,
+    // Every check-run the context emitted on this SHA, accepted or not. Carried
+    // so the NEVER_RAN report can say what is actually there instead of "no
+    // check-run on this SHA" over a pile of cancelled ones (#1444).
+    emitted,
     runsOnSha: owned.length,
   };
 
   if (fromNewest) {
     if (fromNewest.status !== 'completed') return { ...base, verdict: PENDING };
-    if (fromNewest.conclusion === 'success') return { ...base, verdict: OK };
+    if (ACCEPTED_CONCLUSIONS.has(fromNewest.conclusion)) return { ...base, verdict: OK };
     return { ...base, verdict: FAILING };
   }
 
   // The newest run of the owning workflow produced no check-run for this
   // context. That is the latch — but only call it that when something green
   // exists to contradict the `expected`, otherwise it is just "not run yet".
-  if (greenSuites.length > 0) return { ...base, verdict: LATCHED };
+  if (acceptedSuites.length > 0) return { ...base, verdict: LATCHED };
   return { ...base, verdict: NEVER_RAN };
 }
 
@@ -147,14 +192,42 @@ export function clearingStep(context) {
   ];
 }
 
+/**
+ * Tally check-run conclusions as `cancelled×2, failure×1`, newest-count first.
+ *
+ * Used only by the NEVER_RAN report, where the count is the whole point: the
+ * reader has been told a context is not satisfied and needs to know whether
+ * that is silence or rejected noise.
+ */
+function tallyConclusions(checkRuns) {
+  const counts = new Map();
+  for (const c of checkRuns) {
+    const key = c.status === 'completed' ? (c.conclusion ?? 'null') : c.status;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return [...counts]
+    .sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))
+    .map(([k, n]) => `${k}×${n}`)
+    .join(', ');
+}
+
 /** Human report for one analysed context. Returns an array of lines. */
 export function reportLines(result) {
-  const { context, verdict, newestRun, greenSuites } = result;
+  const { context, verdict, newestRun, acceptedSuites } = result;
   const lines = [];
   switch (verdict) {
-    case OK:
-      lines.push(`✓ ${context} — newest run reported success. Not latched.`);
+    case OK: {
+      // Name the conclusion rather than saying "success" for all three. A
+      // reader seeing `skipped` needs to know the ruleset accepts it, or they
+      // go looking for a gate that never ran.
+      const c = result.reportingRun.conclusion;
+      lines.push(
+        c === 'success'
+          ? `✓ ${context} — newest run reported success. Not latched.`
+          : `✓ ${context} — newest run reported ${c}, which the ruleset accepts. Not latched.`,
+      );
       break;
+    }
     case PENDING:
       lines.push(`… ${context} — newest run is still reporting. Wait; push nothing.`);
       break;
@@ -164,16 +237,35 @@ export function reportLines(result) {
         '  not a latch. Fix the failure; an empty commit would only hide it.',
       );
       break;
-    case NEVER_RAN:
-      lines.push(`· ${context} — no check-run on this SHA. Nothing to diagnose here.`);
+    case NEVER_RAN: {
+      // Never claim "no check-run" without checking. #1444 was filed because
+      // this line printed on a SHA carrying two `regression` check-runs, and a
+      // reader who then runs `gh api …/check-runs` stops trusting the whole
+      // tool — which is what happened, in a hand-off, the same afternoon.
+      const emitted = result.emitted ?? [];
+      if (emitted.length === 0) {
+        lines.push(`· ${context} — no check-run on this SHA. Nothing to diagnose here.`);
+      } else {
+        lines.push(
+          `· ${context} — ${emitted.length} check-run(s) on this SHA (${tallyConclusions(emitted)}),`,
+          '  none of which the ruleset accepts, and the newest suite reported nothing.',
+          '  Not a latch: an empty commit has no green to un-block. Wait for the gate',
+          '  to report, or fix what cancelled it.',
+        );
+      }
       break;
+    }
     case LATCHED:
       lines.push(
         `⚠ ${context} — LATCHED (brikdesigns#1421).`,
         `  Newest run of the owning workflow: ${newestRun.id} (suite ${newestRun.check_suite_id})`,
         `  conclusion=${newestRun.conclusion} — it emitted NO ${context} check-run.`,
-        `  ${greenSuites.length} successful ${context} check-run(s) sit on this SHA in older`,
-        '  suite(s), and the ruleset does not accept them. Clear it with a new head SHA:',
+        // "N accepted check-runs … the ruleset does not accept them" read as a
+        // contradiction after #1439 renamed the count from `green`. The ruleset
+        // does accept the CONCLUSION; it just is not reading those SUITES.
+        `  ${acceptedSuites.length} ${context} check-run(s) with an accepted conclusion sit on`,
+        '  this SHA in older suite(s), but the ruleset reads only the newest suite,',
+        '  so they do not count. Clear it with a new head SHA:',
         '',
         ...clearingStep(context).map((c) => `    ${c}`),
       );

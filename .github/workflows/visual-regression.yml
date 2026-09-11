@@ -137,7 +137,11 @@ jobs:
     # accepts — unlike a skipped workflow, which stays Pending and blocks.
     if: needs.changes.outputs.run == 'true' && github.head_ref != 'staging'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # Moves with SWEEP_DEADLINE_MS below, never on its own — the deadline exists
+    # to stop the sweep BEFORE this cap cancels it, and a cancelled job is not a
+    # verdict (#887). 28m against a 22m budget keeps the same 3m of headroom the
+    # 25/20 pair had for the diff summary and the report upload.
+    timeout-minutes: 28
     permissions:
       contents: read
       packages: read
@@ -339,7 +343,17 @@ jobs:
           # it says which units were left. Raise this and `timeout-minutes`
           # together or not at all; `test:sweep-deadline` fails if it reaches
           # the cap.
-          SWEEP_DEADLINE_MS: '1200000'
+          #
+          # Raised 20m → 22m with the job cap 25m → 28m (#1124 + #863). The
+          # sweep went 96 → 144 capture units in one change: a fourth viewport
+          # (16 routes × 1 × 2 themes = +32) and four service lines (4 × 4 × 2
+          # = +32), less the two 308-source rows regression no longer captures
+          # (2 × 4 × 2 = −16). At the rate measured over the six most recent
+          # successful runs — 725–798s for 96 units, i.e. 7.6–8.3 s/unit — that
+          # is 18.2–19.9m, which fits 20m at the median and not at the tail.
+          # Two extra minutes buys the tail; the cap moves with it so a deadline
+          # firing is still a verdict rather than a cancellation.
+          SWEEP_DEADLINE_MS: '1320000'
           # Both halves of the declaration (#856). The label is resolved here so
           # the script never has to reach for the GitHub API; the body is passed
           # through env, not interpolated into the run script, so a PR body can
