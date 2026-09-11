@@ -46,6 +46,7 @@
     "test:visual-change": "node scripts/lib/visual-change-declaration.test.mjs",
     "test:figma-baseline": "node scripts/lib/figma-baseline.test.mjs",
     "test:staging-reference": "node scripts/lib/staging-reference.test.mjs",
+    "test:sweep-deadline": "node scripts/lib/sweep-deadline.test.mjs",
     "test:a11y-baseline": "npx tsx tests/a11y/lib/baseline-match.test.ts",
     "test:app-error-record": "npx tsx src/lib/app-error-record.test.ts",
     "test:ci-paths-match": "node scripts/ci-paths-match.test.mjs",

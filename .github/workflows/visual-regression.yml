@@ -115,6 +115,7 @@ jobs:
               --pattern 'scripts/visual-parity.mjs' \
               --pattern 'scripts/wait-for-netlify-preview.sh' \
               --pattern 'scripts/lib/staging-reference.mjs' \
+              --pattern 'scripts/lib/sweep-deadline.mjs' \
               --pattern 'scripts/ci-paths-match.mjs' \
               --pattern '.github/workflows/visual-regression.yml' \
             >> "$GITHUB_OUTPUT"
@@ -322,6 +323,23 @@ jobs:
           # hard stop, not a quiet return to the alias.
           REFERENCE_URL: ${{ steps.reference.outputs.url }}
           DIFF_THRESHOLD: '1'
+          # 20 minutes against the job's `timeout-minutes: 25` (#887 AC 2).
+          #
+          # When the cap fires, Actions CANCELS the job — which produces no
+          # verdict at all: no failing check, and no log naming the routes it
+          # never reached. On #1417 (2026-09-11) a `regression` context in that
+          # state also refused the merge with `is expected` while a successful
+          # run sat on the same head SHA.
+          #
+          # So the sweep stops itself first, red and explicit, with 5 minutes
+          # left for the diff summary and the report upload. Measured headroom:
+          # over the 100 most recent runs (2026-09-10T17:05Z → 2026-09-11T14:53Z)
+          # the longest successful sweep was 24m and the median ~11m, so this
+          # budget fires only on the tail this AC is about — and when it does,
+          # it says which units were left. Raise this and `timeout-minutes`
+          # together or not at all; `test:sweep-deadline` fails if it reaches
+          # the cap.
+          SWEEP_DEADLINE_MS: '1200000'
           # Both halves of the declaration (#856). The label is resolved here so
           # the script never has to reach for the GitHub API; the body is passed
           # through env, not interpolated into the run script, so a PR body can
