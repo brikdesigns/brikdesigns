@@ -12,10 +12,12 @@ name: fleet-failure-notify
 # workflow neither self-notifying nor listed here lands in the `none` tier and
 # surfaces the next morning until it is added.
 #
-# Auth: a channel-scoped #alerts-critical incoming webhook (ALERTS_WEBHOOK_URL). It
-# can ONLY post to that one channel — safe to hold as an Actions secret, including in
-# a public repo. Managed via brik-secrets (purpose: slack-alerts-webhook); mirrors the
-# #alerts-critical route in brik-llm scripts/shared/notify-routes.json.
+# Auth: an authenticated POST to the notify-router with the NOTIFY_ROUTER_AUTH bearer
+# (brik-secrets purpose: notify-router-auth). The router lengths the failure streak
+# server-side, decides alert/suppress/escalate, files the tracking issue in this repo,
+# and resolves `alerts` → #alerts-critical from brik-llm scripts/shared/notify-routes.json
+# (brikdesigns/brik-llm#2308 — migrated off the ALERTS_WEBHOOK_URL webhook in sub-task d,
+# which also gains this repo the streak suppression it never had before).
 
 on:
   workflow_run:
@@ -24,8 +26,7 @@ on:
       - "Visual parity (Webflow vs Netlify)"
     types: [completed]
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   page:
@@ -37,24 +38,34 @@ jobs:
       github.event.workflow_run.event == 'schedule'
     runs-on: ubuntu-latest
     steps:
-      # NOT continue-on-error: if the webhook post fails, this job fails RED so the
+      # NOT continue-on-error: if the router post fails, this job fails RED so the
       # notifier's own failure is loud, not silent (brikdesigns/brik-llm#2079). The
       # notifier deliberately does not list itself under `workflows:` above — a
-      # self-reference would loop forever whenever Slack is the thing that is down.
-      - name: Page #alerts-critical
+      # self-reference would loop forever whenever the router or Slack is down.
+      - name: Notify via notify-router
         env:
-          ALERTS_WEBHOOK_URL: ${{ secrets.ALERTS_WEBHOOK_URL }}
+          NOTIFY_ROUTER_AUTH: ${{ secrets.NOTIFY_ROUTER_AUTH }}
+          WF_ID: ${{ github.event.workflow_run.workflow_id }}
           WF_NAME: ${{ github.event.workflow_run.name }}
           WF_BRANCH: ${{ github.event.workflow_run.head_branch }}
           WF_URL: ${{ github.event.workflow_run.html_url }}
         run: |
           set -euo pipefail
-          if [ -z "${ALERTS_WEBHOOK_URL}" ]; then
-            echo "::error::ALERTS_WEBHOOK_URL is unset — cannot page #alerts-critical" >&2
+          if [ -z "${NOTIFY_ROUTER_AUTH}" ]; then
+            echo "::error::NOTIFY_ROUTER_AUTH is unset — cannot reach the notify-router" >&2
             exit 1
           fi
-          text="Scheduled workflow *${WF_NAME}* FAILED in ${GITHUB_REPOSITORY} (branch ${WF_BRANCH}). Run: <${WF_URL}|view logs>"
-          # -f fails loud on any non-2xx, so a rejected post is a red check.
-          curl -sSf -X POST -H 'Content-type: application/json' \
-            --data "$(jq -n --arg t "$text" '{text:$t}')" \
-            "${ALERTS_WEBHOOK_URL}"
+          # The router lengths the streak off the Actions API, decides
+          # alert/suppress/escalate, files/updates the tracking issue, and posts to
+          # #alerts-critical — all server-side (brikdesigns/brik-llm#2308). -sSf fails
+          # the check red on any non-2xx; a suppress returns 200 and passes silently.
+          curl -sSf -X POST "https://brik-notify-router.netlify.app/notify" \
+            -H "Authorization: Bearer ${NOTIFY_ROUTER_AUTH}" \
+            -H 'Content-type: application/json' \
+            --data "$(jq -n \
+              --arg repo "${GITHUB_REPOSITORY}" \
+              --argjson workflow_id "${WF_ID}" \
+              --arg workflow_name "${WF_NAME}" \
+              --arg branch "${WF_BRANCH}" \
+              --arg run_url "${WF_URL}" \
+              '{event:"workflow-failure", repo:$repo, workflow_id:$workflow_id, workflow_name:$workflow_name, branch:$branch, run_url:$run_url}')"
