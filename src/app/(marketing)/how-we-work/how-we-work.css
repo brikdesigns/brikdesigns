@@ -565,14 +565,13 @@
 
 .hiw-cta__description {
   font-family: var(--font-family-body);
-  /* --body-xl (20px) + weight 700 makes this WCAG "large text" (≥18.66px bold),
-     so the invariantly-white on-color copy clears the 3:1 large-text bar on the
-     fixed brand-orange panel. White on #e35335 measures 3.78:1, which fails the
-     4.5:1 normal-text bar — it shipped at --body-lg/400 only because
-     /how-we-work was not in the axe route set (#1360 added it). Mirrors the
-     same fix on .home-cta__description (homepage.css). */
-  font-size: var(--body-xl);
-  font-weight: 700;
+  /* White (--text-on-color-dark), normal weight, on the Poppy brand fill
+     (--surface-brand-primary, #e35335, 3.78:1) — owner-accepted brand debt
+     (ADR-015 amendment 2026-09-12 / brik-bds#2486): NEVER bold to reach WCAG
+     "large text" and NEVER darken to --text-primary. #1360's --body-xl/700
+     workaround removed (#1476); mirrors .home-cta__description + .about-cta__description.
+     → rag:white-on-brand-is-canon */
+  font-size: var(--body-lg);
   line-height: var(--font-line-height-normal);
   color: var(--text-on-color-dark);
   text-align: center;

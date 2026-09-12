@@ -295,9 +295,17 @@ below.
 | `/`, `/about`, `/blog`, `/customers`, `/customers/dental`, `/free-marketing-analysis`, `/plans`, `/results` | light + dark | `#ffffff on #e35335` | Owner-accepted brand debt. White on vibrant Poppy measures 3.78:1; BDS gates brand-primary fills at AA-large (3:1), but 16px normal-weight body copy is AA-normal (4.5:1) per axe. Settled position, not undiscovered debt — Nick's call, 2026-07-27. Underlying fix: brikdesigns#1263 / brik-bds#479 (BDS-22). |
 | `/how-we-work` | dark only | `#27ae60 on #bef4d4` | BDS defect, not brikdesigns CSS. `Badge appearance="subtle" tone="positive"` pairs `--surface-positive` (`#bef4d4`, identical in both themes) against `--text-positive`, which flips to mid-green in dark on the documented assumption of a black surface — 2.33:1 on the fixed-light fill. Filed brik-bds#2402. **Burn down when that ships and the bump lands.** |
 
-Button labels rooting on `.bds-button__content` are **not** in the file at all —
-`isAcceptedBrandCtaContrast` in `public-routes.spec.ts` accepts them by
-predicate, site-wide, and covered 176 of the 211 nodes measured on 2026-09-10.
+White-on-`#e35335` text is **not** in the file at all —
+`isAcceptedBrandOnColorContrast` in `public-routes.spec.ts` accepts it by
+predicate, site-wide. As of 2026-09-12 (#1476) the predicate matches the white-
+on-Poppy pairing on ANY element, not just `.bds-button__content` — the ADR-015
+amendment (brik-bds#2486) made white the standard for all on-color text on the
+brand fill, and `.home-cta__description` / `.hiw-cta__description` dropped the
+`--body-xl`/700 large-text workaround (#1360) to ship white/normal like
+`.about-cta__description`. The `#ffffff on #e35335` baseline rows above (the
+`.bds-content-block__description` set) now OVERLAP this predicate; they are
+redundant, not stale (the stale-entry check matches baseline against the raw
+finding set), and are left for a separate burn-down.
 
 ### Light-theme history (`_comment`, verbatim)
 

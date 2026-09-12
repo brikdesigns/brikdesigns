@@ -1037,14 +1037,15 @@
 
 .home-cta__description {
   font-family: var(--font-family-body);
-  /* --body-xl (20px) + weight 700 makes this WCAG "large text" (≥18.66px bold),
-     so the invariantly-white on-color copy clears the 3:1 large-text bar on the
-     fixed brand-orange panel (white on #e35335 = 3.78:1, which fails the 4.5:1
-     normal-text bar — the a11y gate caught this on the home route). The mirrored
-     hiw-cta__description carried the same defect until #1360 put /how-we-work in
-     the axe route set and gave it the same treatment. */
-  font-size: var(--body-xl);
-  font-weight: 700;
+  /* White (--text-on-color-dark), normal weight, on the Poppy brand fill
+     (--surface-brand-primary, #e35335). White-on-Poppy is 3.78:1 — owner-
+     accepted brand debt (ADR-015 amendment 2026-09-12 / brik-bds#2486):
+     NEVER bold body copy to reach WCAG "large text" and NEVER darken it to
+     --text-primary — both look wrong for the brand and keep getting reverted.
+     The axe gate accepts white-on-#e35335 (public-routes.spec.ts). Matches
+     .about-cta__description; #1360's --body-xl/700 workaround is removed (#1476).
+     → rag:white-on-brand-is-canon */
+  font-size: var(--body-lg);
   line-height: var(--font-line-height-normal);
   color: var(--text-on-color-dark);
   text-align: center;
