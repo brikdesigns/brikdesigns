@@ -122,23 +122,25 @@ html {
        from BDS theme-brand-brik (BDS-22 / ADR-015 — vibrant Poppy is the
        brand color; the prior poppy-700 override read blood-red). Removed. */
 
-    /* Brand: inline body links use poppy-700 (#b0351b → ~7.95:1 on white,
-       AAA) instead of upstream's --color-poppy-500 (#e35335 → 3.78:1, AA
-       fail at body-md / body-sm). The retired "poppy-light" alias name was
-       misleading — 500 is the brand base, not a tinted variant. Caught by
-       axe on /privacy-policy + /terms when those routes first entered the
-       public-routes a11y suite via #302's chromeless/marketing split. */
-    --text-link: var(--color-poppy-700);
+    /* Brand: inline links + brand text use the ESTABLISHED vibrant Poppy base
+       (poppy-500 #e35335 = --color-poppy-500), matching BDS's own value and the
+       brand-kit canon (ADR-011). Operator decision 2026-09-12 (#1478): use the
+       established brand colour, not the darker poppy-700 this used to pin for AA.
+       White-on-white-surface poppy-500 is 3.78:1 — sub-AA for small text — and
+       that is owner-accepted brand debt, the same brand-fidelity-over-a11y call
+       as white-on-brand-fill (ADR-015 amendment 2026-09-12 / brik-bds#2486). The
+       axe gate accepts foreground #e35335 (public-routes.spec.ts). Do NOT re-pin
+       this darker for a11y — it keeps getting reverted. → rag:white-on-brand-is-canon */
+    --text-link: var(--color-poppy-500);
     /* BDS components (TextLink, Prose) read the raw --text-text-link, not the
-       --text-link alias, so the AA pin above doesn't reach them. Mirror it so
-       BDS Prose/TextLink links honor the same poppy-700 AA pin. */
-    --text-text-link: var(--color-poppy-700);
-    /* Brand: --text-brand-primary is used across the site as SMALL text
-       (mega-nav labels, hero/cta descriptions, eyebrows). BDS 0.114.0 flipped
-       it to vibrant poppy-500 (#e35335 = 3.78:1, AA fail at those sizes), so
-       pin it dark locally — same call as --text-link, and the small-text carve-
-       out ADR-015 prescribes. Vibrant Poppy stays on fills/surfaces/borders. */
-    --text-brand-primary: var(--color-poppy-700);
+       --text-link alias — mirror the vibrant value so they match. */
+    --text-text-link: var(--color-poppy-500);
+    /* --text-brand-primary is used across the site as small text (mega-nav
+       labels, cta/hero descriptions, eyebrows). Hold the established vibrant
+       poppy-500, same as --text-link above; sub-AA at small sizes is accepted
+       brand debt (see note above). Vibrant Poppy also stays on fills/surfaces/
+       borders. */
+    --text-brand-primary: var(--color-poppy-500);
 
     /* Webflow-parity tokens (no canonical equivalent in theme-brand-brik). */
     --page-accent: var(--color-tan-100);
