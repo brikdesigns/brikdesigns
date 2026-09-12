@@ -17,14 +17,14 @@
  * band's card-chrome-by-band rule (shared-sections.css), never a variant. Figma
  * card-vertical (node 26149:27564) sizes the title to heading/tiny (18px) and the
  * body to body/xl (20px) — the body reads larger than the title by design. */
-.industry-card .bds-card__preset-display-title {
+.industry-card .bds-card__stack-title {
   font-size: var(--heading-tiny);
 }
 
 /* ADR-038 renamed the body slot: under `layout="stack"` the description is a
-   `<CardDescription>` in `children` (`.bds-card-description`), not the preset's
-   own `.bds-card__preset-display-description`. The title keeps its class above —
-   the anatomy renderer still emits `bds-card__preset-display-title`. */
+   `<CardDescription>` in `children` (`.bds-card-description`), not the layout's
+   own `.bds-card__stack-body`. The title keeps its class above — the anatomy
+   renderer emits `bds-card__stack-title`. */
 .industry-card .bds-card-description {
   font-size: var(--body-xl);
 }

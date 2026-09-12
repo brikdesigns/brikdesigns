@@ -21,7 +21,7 @@ import { gotoRendered, expectMeasured } from './lib/goto-rendered';
  *
  * Why measured (computed style) rather than a grep for the CSS rule: what
  * renders is the product of the site rule, the BDS default one layer down
- * (`.bds-card__preset-display-media img` ships at --border-radius-sm), and any
+ * (`.bds-card__stack-media img` ships at --border-radius-sm), and any
  * per-page override. Only reading the rendered value on every card on every
  * route catches a page that quietly re-tints its own media well — which is
  * exactly what the home Services grid was doing (--background-accent) before
