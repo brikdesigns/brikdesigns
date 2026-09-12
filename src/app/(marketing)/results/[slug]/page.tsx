@@ -252,9 +252,10 @@ export default async function CustomerStoryDetailPage({ params }: Props) {
                   >
                     {/* h4 title (not the default h3) + `display-card--title-sm`
                         steps the story name to --heading-sm so it doesn't
-                        overpower the card at --heading-md. Flush media (default)
-                        — the story card is not a service card, so it keeps the
-                        lg body inset rather than the service `inset` treatment. */}
+                        overpower the card at --heading-md. Padded display card
+                        (#1456): the shared `.display-card--title-sm` rule frames
+                        media + body in a 24px inset — the 24px sibling of the
+                        service card's 48px `inset` treatment. */}
                     <Card
                       layout="stack"
                       className="display-card--title-sm"
