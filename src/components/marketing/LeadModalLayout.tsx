@@ -16,16 +16,16 @@ import { heading, label, text } from '@/lib/styles';
  * (`serviceColor(serviceLine).surfaceLight` + `.text` for the value), mirroring
  * the service-line page's `surfaceLight` band (#653). Here the offering context
  * lives in this panel, so the form is rendered with `hideOfferingSummary` to
- * avoid duplicating the `ProductSummaryCard` callout.
+ * avoid duplicating the `<Card layout="metric">` callout.
  *
  * Responsive without media queries: the two columns are flex items that wrap
  * to a single stacked column on narrow widths (mobile, narrow modal), matching
  * the inline-style idiom used across marketing components.
  *
  * Decision (#599 Phase B): the showcase panel stays in-app — single call site,
- * and its data model duplicates BDS `ProductSummaryCard` (only the layout
+ * and its data model duplicates BDS `<Card layout="metric">` (only the layout
  * differs). If a second surface needs this image-on-top showcase layout, extend
- * `ProductSummaryCard` with a layout axis rather than forking a new component.
+ * the Card `metric` layout rather than forking a new component.
  */
 export function LeadModalLayout({
   imageUrl,
