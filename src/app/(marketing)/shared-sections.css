@@ -616,6 +616,24 @@
    `flush` (default) bleeds media to the edge + pads only the body (--padding-lg);
    `inset` frames media + body together in a --padding-huge inset with --gap-xl. */
 
+/* Padded display cards — #1456 (OPERATOR SAID 2026-09-12: "Padded everywhere").
+   The display-preset grids (sibling services, related stories, topic cards)
+   moved off the default flush treatment: media now frames inside a --padding-lg
+   (24px) inset with --gap-xl to the body, and the body's own --padding-lg is
+   zeroed so the frame isn't doubled. This is the `mediaTreatment="inset"` recipe
+   at 24px rather than BDS's 48px (--padding-huge); a site override because BDS
+   ships no 24px inset variant — BDS-native follow-up would tokenize the inset
+   padding. Scoped with :not(--preset-display-inset) so the ServiceCard /
+   ServiceLineCard 48px inset (designed, dispositioned in #1454) is untouched. */
+.display-card--title-sm.bds-card--preset-display:not(.bds-card--preset-display-inset) {
+  padding: var(--padding-lg);
+  gap: var(--gap-xl);
+}
+
+.display-card--title-sm.bds-card--preset-display:not(.bds-card--preset-display-inset) .bds-card__preset-display-body {
+  padding: var(--padding-none);
+}
+
 /* ─── Card media standard — every image nested in a card ──────────────────
    THE single source of truth for card-nested media: corner radius and the
    well behind the art. Documented in .claude/references/card-media.md and
