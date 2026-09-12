@@ -259,11 +259,18 @@
 /* ═══ Plan detail — Figma support-plan template (#1371) ═══════════════════ */
 
 /* ─── section-hero (26144:9053) ───────────────────────────────────────────
-   `.section-hero` + `.plans-hero` already give the band and the accent-blue
-   container with dark ink re-pinned. Two deltas for the plan-detail frame:
-   Figma corners this hero at border-radius/800 (24px) where the home/index
-   hero takes 48px, and the section insets its band by a 72px page gutter
-   where the home hero runs the band edge-to-edge. */
+   `.section-hero` + `.plans-hero` give the band and the dark-ink re-pin. Two
+   deltas for the plan-detail frame: Figma corners this hero at
+   border-radius/800 (24px) where the home/index hero takes 48px, and the
+   section insets its band by a 72px page gutter where the home hero runs the
+   band edge-to-edge.
+
+   Band fill: the detail hero OVERRIDES `.plans-hero`'s accent-blue inline, per
+   the page's service line (#1474 — plans/[slug]/page.tsx sets
+   `backgroundColor: audienceTokens.surfaceLight` on `.hero-container`). Kept in
+   the TSX, not here, because the fill is data-driven by `audience`; the ink pin
+   stays in `.plans-hero .hero-container` and is contrast-safe on both the
+   accent-blue (index) and the service `surfaceLight` (detail) fills. */
 .plan-detail-hero .hero-container {
   border-radius: var(--border-radius-800);
 }
