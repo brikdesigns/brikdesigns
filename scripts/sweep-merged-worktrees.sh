@@ -355,19 +355,53 @@ declare -a REAP_PATHS=() REAP_LABELS=() REAP_KB=()
 ORPHAN_FLAG=0; ORPHAN_REAP_KB=0
 tracked_paths="$(git worktree list --porcelain | awk '/^worktree /{print $2}')"
 
+# Is $1 the same worktree as one git still tracks? `-ef` compares device+inode,
+# which closes BOTH ways the two sides can spell the same directory differently:
+#   - symlink resolution — `git worktree list` emits the physical path while
+#     `cd && pwd` keeps the logical one, and on macOS every $TMPDIR path crosses
+#     /var → /private/var (#2293);
+#   - path CASE — on a case-insensitive APFS volume $WORKTREE_ROOT can be spelled
+#     `GitHub` while git recorded `Github`, and a lexical `grep -qxF` — even one
+#     over `pwd -P`, which resolves symlinks but never casefolds — still misses it
+#     (brikdesigns#1431).
+# One inode test settles both, and unlike a casefold it stays correct on a
+# case-SENSITIVE volume. Bash builtin, so no stat(1) flavour split across the four
+# repos this file is byte-identical in.
+path_is_tracked() {  # $1=dir  reads $tracked_paths
+  local t
+  while IFS= read -r t; do
+    [ -n "$t" ] || continue
+    [ "$1" -ef "$t" ] && return 0
+  done <<<"$tracked_paths"
+  return 1
+}
+
 if [ -d "$WORKTREE_ROOT" ]; then
   $JSON || { echo; printf '%-50s %-11s %s\n' "ORPHAN DIR" "SIZE" "VERDICT"; printf '%.0s─' {1..110}; echo; }
   for dir in "$WORKTREE_ROOT"/*/; do
     [ -d "$dir" ] || continue
     abs="$(cd "$dir" && pwd)"
-    grep -qxF "$abs" <<<"$tracked_paths" && continue   # still tracked → pass 1 handled it
-    slug="$(basename "$abs")"; branch="task/$slug"
+    path_is_tracked "$abs" && continue   # still tracked → pass 1 handled it
+    slug="$(basename "$abs")"
     if kept "$slug"; then
       $JSON || printf '%-50s %-11s %s\n' "$slug" "-" "FLAG — --keep"
       json_row orphan "$slug" "-" "FLAG — --keep"
       ORPHAN_FLAG=$((ORPHAN_FLAG+1)); continue
     fi
     kb=$(du -sk "$abs" 2>/dev/null | awk '{print $1}'); kb=${kb:-0}
+    # A dir git no longer tracks but that still carries a `.git` gitlink WAS a
+    # worktree, so new-task.sh's convention — branch `task/<slug>` named after the
+    # directory — holds and the derivation below is sound. A dir with NO `.git` was
+    # never a worktree; deriving `task/<slug>` from its name and reaping it because
+    # that GUESS happens to match a merged PR is the name-collision `rm -rf` #2293
+    # warns of. Report that there is no branch to resolve rather than guessing one.
+    if [ ! -e "$abs/.git" ]; then
+      verdict="FLAG — not a worktree (no .git), no branch to resolve"; ORPHAN_FLAG=$((ORPHAN_FLAG+1))
+      $JSON || printf '%-50s %-11s %s\n' "$slug" "$(human_size "$kb")" "$verdict"
+      json_row orphan "$slug" "$kb" "$verdict"
+      continue
+    fi
+    branch="task/$slug"
     pr=$(pr_for_branch "$branch"); prnum="${pr%%|*}"; prstate="${pr##*|}"
 
     if branch_exists_local "$branch"; then
@@ -598,14 +632,23 @@ fi
 
 # Reap orphan dirs (pass 2) — plain rm, git no longer tracks them. The path is
 # guarded to WORKTREE_ROOT/* so a mis-derived root can never rm outside it.
+#
+# PHYSICAL prefix on both sides (pwd -P), the same normalisation the submodule
+# fallback uses above and the mirror of the pass-2 comparison fix (#2293, AC3):
+# each $p came from `cd && pwd` (logical) while $WORKTREE_ROOT is unresolved, so a
+# lexical prefix check crosses /var → /private/var and would reject a legitimate
+# reap target outright. Resolving both first also means the rm acts on the real
+# path, never a symlink that could point elsewhere.
 reaped=0
 if [ "$nr" -gt 0 ]; then
   echo -e "${YELLOW}▸ Reaping ${nr} orphan dir(s)...${NC}"
+  wt_root_phys="$(cd "$WORKTREE_ROOT" 2>/dev/null && pwd -P)"
   for i in "${!REAP_PATHS[@]}"; do
     p="${REAP_PATHS[$i]}"
-    case "$p" in
-      "$WORKTREE_ROOT"/?*)
-        if rm -rf "$p"; then
+    p_phys="$(cd "$p" 2>/dev/null && pwd -P)"
+    case "${p_phys:-/nonexistent}" in
+      "${wt_root_phys:-/nonexistent-root}"/?*)
+        if rm -rf "$p_phys"; then
           echo -e "  ${GREEN}✓${NC} $(basename "$p") ($(human_size "${REAP_KB[$i]}") — ${REAP_LABELS[$i]})"
           reaped=$((reaped+1))
         else
