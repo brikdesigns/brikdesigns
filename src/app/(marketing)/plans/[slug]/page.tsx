@@ -197,25 +197,34 @@ export default async function PlanDetailPage({ params }: Props) {
       {/* ═══ 1. section-hero — Figma 26144:9053 ═══
        * RESHAPE, not "keep" (#1371 comment 2026-09-10 18:35). The design has
        * NO price card, NO image and NO hero CTA — title + description only,
-       * left-aligned on a rounded accent-blue band. Today's build rendered all
-       * three of those slots, so preserving them would have preserved exactly
-       * what the design deletes. Reuses `.section-hero` + `.plans-hero`
-       * (the accent-blue re-pin) rather than adding a ninth hero class (#1289).
+       * left-aligned on a rounded band. Today's build rendered all three of
+       * those slots, so preserving them would have preserved exactly what the
+       * design deletes. Reuses `.section-hero` + `.plans-hero` rather than
+       * adding a ninth hero class (#1289).
        */}
-      {/* `data-audience` is the page's declared service line, not a tint — the
-          old BDS hero blueprint emitted it and `nav-service-tint.spec.ts`
-          asserts the nav's tint agrees with it. The Figma band is accent-blue
-          on EVERY plan, so the hero no longer carries a service colour, but the
-          page's line identity is unchanged (it still drives the CTA cascade and
-          the coverage-row fills) and the nav still tints from it. Dropping the
-          attribute would have made the gate read "untinted page under a tinted
-          nav" — a data claim, not the layout change this actually is. */}
+      {/* Band fill follows the page's service line (#1474). The hero-container
+          background is overridden inline to the line's `surfaceLight` tint —
+          the same per-line band the /services heroes
+          (services/[serviceLineSlug]/page.tsx) and this page's coverage rows
+          already use. This REVERSES the "accent-blue on EVERY plan" band #1371
+          shipped, on operator directive:
+          OPERATOR SAID 2026-09-12 (chat): "Tint heroes per service line."
+          The /plans index hero keeps `--surface-accent-blue`. The Figma node
+          still draws accent-blue, so `visual-figma` flags this section until the
+          design is updated — do NOT re-baseline to clear it.
+          Ink stays the mode-invariant grayscale-950 pin from
+          `.plans-hero .hero-container` (plans.css): the service `surfaceLight`
+          tints are fixed-light in both themes, so dark ink clears AA on all five
+          lines exactly as it did on accent-blue.
+          `data-audience` is the page's declared service line — the BDS hero
+          blueprint emits it, `nav-service-tint.spec.ts` asserts the nav tint
+          agrees with it, and it drives the CTA cascade + coverage-row fills. */}
       <section
         className="section-hero plans-hero plan-detail-hero"
         data-section="hero"
         data-audience={audience}
       >
-        <div className="hero-container">
+        <div className="hero-container" style={{ backgroundColor: audienceTokens.surfaceLight }}>
           <div className="hero-layout">
             <div className="hero-text">
               <h1 className="hero-title">{plan.name}</h1>
