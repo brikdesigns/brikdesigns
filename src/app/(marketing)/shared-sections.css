@@ -605,7 +605,7 @@
    The name says what it does rather than where it is used, which is what stops
    the sixth from being minted. Applies to `layout="stack"` cards and to a
    composed `<CardTitle as="h4">`. */
-.display-card--title-sm .bds-card__preset-display-title,
+.display-card--title-sm .bds-card__stack-title,
 .display-card--title-sm h4.bds-card-title {
   font-size: var(--heading-sm);
 }
@@ -623,14 +623,14 @@
    zeroed so the frame isn't doubled. This is the `mediaTreatment="inset"` recipe
    at 24px rather than BDS's 48px (--padding-huge); a site override because BDS
    ships no 24px inset variant — BDS-native follow-up would tokenize the inset
-   padding. Scoped with :not(--preset-display-inset) so the ServiceCard /
+   padding. Scoped with :not(--layout-stack-inset) so the ServiceCard /
    ServiceLineCard 48px inset (designed, dispositioned in #1454) is untouched. */
-.display-card--title-sm.bds-card--preset-display:not(.bds-card--preset-display-inset) {
+.display-card--title-sm.bds-card--layout-stack:not(.bds-card--layout-stack-inset) {
   padding: var(--padding-lg);
   gap: var(--gap-xl);
 }
 
-.display-card--title-sm.bds-card--preset-display:not(.bds-card--preset-display-inset) .bds-card__preset-display-body {
+.display-card--title-sm.bds-card--layout-stack:not(.bds-card--layout-stack-inset) .bds-card__stack-body {
   padding: var(--padding-none);
 }
 
@@ -648,7 +648,7 @@
 
    Radius: --border-radius-md (12px), matching the card's own corner
    (`.bds-card`, BDS styles.css). BDS rounds card media one step lower at
-   --border-radius-sm (8px, `.bds-card__preset-display-media img`); site CSS
+   --border-radius-sm (8px, `.bds-card__stack-media img`); site CSS
    is unlayered and BDS ships inside `@layer bds-components`, so this wins on
    layer order without an !important. Aligning the BDS default is
    brikdesigns/brik-bds#2257.

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Button, TextInput, TextArea, ProductSummaryCard, type ServiceLine } from '@brikdesigns/bds';
+import { Button, TextInput, TextArea, Card, ServiceTag, type ServiceLine } from '@brikdesigns/bds';
 import { useFormSubmit } from '@/lib/hooks/useFormSubmit';
 import { FormError } from '@/components/marketing/forms/FormError';
 import { FormSuccessCard } from '@/components/marketing/forms/FormSuccessCard';
@@ -77,10 +77,11 @@ export function LeadCaptureForm({
       {plan && (
         <>
           {serviceLine && !hideOfferingSummary && (
-            <ProductSummaryCard
-              serviceLine={serviceLine}
-              label="Selected plan"
-              value={planName || plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
+            <Card
+              layout="metric"
+              media={<ServiceTag category={serviceLine} variant="icon" size="lg" />}
+              overline="Selected plan"
+              title={planName || plan.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
             />
           )}
           <input type="hidden" name="plan" value={plan} />
@@ -92,13 +93,12 @@ export function LeadCaptureForm({
           when the modal's 2-col layout already shows offering context in its
           left showcase panel (`hideOfferingSummary`). */}
       {offering?.name && serviceLine && !hideOfferingSummary && (
-        <ProductSummaryCard
-          serviceLine={serviceLine}
-          serviceName={serviceName}
-          label="Interested in"
-          value={offering.name}
-          price={offering.price}
-          frequency={offering.frequency}
+        <Card
+          layout="metric"
+          media={<ServiceTag category={serviceLine} variant="icon" size="lg" serviceName={serviceName} />}
+          overline="Interested in"
+          title={offering.name}
+          detail={[offering.price, offering.frequency].filter(Boolean).join(' • ') || undefined}
         />
       )}
 
