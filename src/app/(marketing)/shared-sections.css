@@ -696,7 +696,7 @@
   align-items: center;
   gap: var(--gap-2xl);
   width: 100%;
-  padding: var(--padding-huge);
+  padding: var(--padding-lg);
   border-width: var(--border-width-200);
   border-radius: var(--border-radius-md);
 }
