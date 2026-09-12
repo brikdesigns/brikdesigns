@@ -1,4 +1,4 @@
-name: Verify (lint + token gate + schema parity)
+name: Verify (lint + token gate)
 
 # Fast CI gates that don't need a deploy-preview. Catches:
 #  - ESLint errors (incl. brik-tokens/no-invented-tokens — inline `var(--*)`
@@ -12,8 +12,6 @@ name: Verify (lint + token gate + schema parity)
 #    title-case standard (brik-bds#910); + fixture-based self-test (brikdesigns#491)
 #  - Font-weight lint: weight must be tokenized (`font.weight.*`, no literals /
 #    raw var()) and every heading semibold (composite-typography initiative)
-#  - Schema parity: src/types/supabase.ts ↔ src/lib/admin/*.ts SCHEMA ↔
-#    src/app/(chromeless)/admin/services/_components/field-configs.ts
 #  - Theme contrast lint: --text-primary/-secondary/-muted clear WCAG AA on the
 #    surfaces their theme block paints them on, light + dark (brikdesigns#851)
 #  - Nav service-tint lint: every service line in the service-token map has a
@@ -28,6 +26,32 @@ name: Verify (lint + token gate + schema parity)
 #  - Design-source trailer: a class:ia / area:design PR names the design it was
 #    built from (Figma node ids read via get_design_context, or a live URL), so a
 #    screenshot-only build is visible at review time (brikdesigns#1303)
+#
+# NOT GATED HERE, AND DELIBERATELY SO: `src/types/supabase.ts`.
+#
+# This header used to advertise a "Schema parity" gate over that file, plus
+# `src/lib/admin/*.ts` and an admin `field-configs.ts`. No step ever ran it in
+# this file's current form, and all three of those paths have since been
+# deleted along with the admin surface — so the line described a gate that
+# could not exist. Removed in #1469 rather than reinstated.
+#
+# It is not reinstated because brikdesigns does not OWN this schema. The file
+# is generated from the staging database whose migrations live in
+# brik-client-portal, so it goes stale on the PORTAL's clock, and no
+# brikdesigns PR causes the drift. A PR-time gate would therefore redden
+# whichever unrelated brikdesigns PR happened to be open when the portal
+# landed a migration — a red its author cannot fix and did not cause. (The
+# portal reasons the same way about its own catalogue seed: see
+# brik-client-portal `.github/workflows/catalog-seed-freshness.yml`, which is
+# a weekly cron that opens a PR, explicitly NOT a merge gate.)
+#
+# So drift is expected here, and it is caught by regenerating: `npm run
+# gen:types`, which needs a container runtime plus SUPABASE_STAGING_DB_URL.
+# A non-empty diff from that command is normal and may be entirely foreign to
+# your branch — #1470 landed 151 such lines for a one-column change. Automating
+# it on a clock would require putting a staging Postgres URL in this repo's CI,
+# which today holds only the public anon keys; that escalation is unratified
+# (#1469).
 #
 # Sibling to a11y.yml (which waits for Netlify) and visual-parity.yml
 # (which also waits for Netlify). This one runs on every push and PR.
@@ -92,8 +116,8 @@ concurrency:
   queue: max
 
 jobs:
-  # Skip on doc-only / workflow-only changes. Any file that feeds lint,
-  # token-gate, or schema-parity must be listed below. Push-to-staging/main
+  # Skip on doc-only / workflow-only changes. Any file that feeds lint or the
+  # token-gate must be listed below. Push-to-staging/main
   # (merge commits) always runs — no paths filter on push.
   #
   # `.github/workflows/verify.yml` is in the list so a change to the gate is

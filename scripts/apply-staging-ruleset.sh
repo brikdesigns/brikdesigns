@@ -42,7 +42,7 @@ RULESET_NAME="staging — required status checks"
 # ON — every gate that reports a verdict on the PR's own diff:
 #   gitleaks                a committed secret must never reach staging
 #   closing-keyword-guard   a mis-parsed `Closes #N` silently closes live work
-#   verify                  lint + token gate + schema parity
+#   verify                  lint + token gate
 #   axe                     WCAG 2.1 AA on the deploy-preview
 #   regression              our own rendering shifted (declaration-waivable)
 #   mockup                  the landing baseline moved
