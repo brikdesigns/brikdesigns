@@ -7,6 +7,7 @@ import {
   sectionAnchorId,
   type CustomerStorySection,
 } from '@/lib/customer-story-sections';
+import { type CustomerStoryStat } from '@/lib/customer-story-stats';
 
 /**
  * Flexible-sections body for /results/[slug] — the `sections`-present
@@ -23,23 +24,15 @@ import {
  * byte identical for the twelve stories that have no `sections` yet.
  */
 
-/** One label/value metadata pair, shared by the interior hero and the rail. */
-export type StoryMetaItem = {
-  key: string;
-  label: string;
-  icon: React.ReactNode;
-  value: React.ReactNode;
-};
-
 type Props = {
   sections: CustomerStorySection[];
   /**
-   * Metadata rows resolved by the page, so the interior-hero `dl` and this
-   * rail render the same pairs from one source. Split into `icon` + `value`
-   * rather than one node because both surfaces wrap them identically
-   * (`.story-meta__icon` then the text) — see page.tsx.
+   * Key-metrics for the rail stats card (Figma `col_stats`, node 25967:10172).
+   * Sourced from `customer_stories.stats` via `parseStoryStats` — see page.tsx.
+   * Empty renders the TOC alone; the summary/meta pairs live in the hero
+   * (`col_summary`), NOT here — a rail meta card duplicated them (#1458).
    */
-  meta: StoryMetaItem[];
+  stats: CustomerStoryStat[];
   quote: string | null;
   quoteAttribution: string | null;
   /**
@@ -88,7 +81,7 @@ function splitAttribution(raw: string): { name: string; role: string | null } {
 
 export function StorySections({
   sections,
-  meta,
+  stats,
   quote,
   quoteAttribution,
   authorRole,
@@ -125,21 +118,19 @@ export function StorySections({
               sticky={false}
               className="story-toc"
             />
-            {meta.length > 0 && (
-              <Card padding="lg" className="story-rail__meta">
-                <dl className="story-rail__meta-list">
-                  {meta.map((item) => (
-                    <div key={item.key} className="story-meta__item">
-                      <dt style={{ ...label.smBold, color: color.text.primary }}>
-                        {item.label}
-                      </dt>
-                      <dd
-                        className="story-meta__value"
-                        style={{ ...text.bodySm, color: color.text.secondary, margin: 0 }}
-                      >
-                        <span className="story-meta__icon">{item.icon}</span>
-                        {item.value}
-                      </dd>
+            {/* Key-metrics card (Figma `col_stats`, 25967:10172): white fill +
+                border on the white story band — BDS bordered default, no variant
+                prop (card-treatment.md). Replaces the rail meta card that
+                duplicated the hero summary; the summary lives in the hero
+                (`col_summary`) alone now (#1458). Omitted when the story carries
+                no stats, so the rail is TOC-only rather than an empty card. */}
+            {stats.length > 0 && (
+              <Card padding="lg" className="story-rail__stats">
+                <dl className="story-rail__stats-list">
+                  {stats.map((stat) => (
+                    <div key={stat.label} className="story-stat">
+                      <dt className="story-stat__value">{stat.value}</dt>
+                      <dd className="story-stat__label">{stat.label}</dd>
                     </div>
                   ))}
                 </dl>
