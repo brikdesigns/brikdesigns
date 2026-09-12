@@ -158,6 +158,26 @@ function isAcceptedBrandOnColorContrast(finding: {
   );
 }
 
+// ── Accepted brand exception: vibrant Poppy TEXT (foreground #e35335) ────────
+//
+// The mirror of the above: brand-COLORED text (--text-brand-primary / --text-link
+// / --text-text-link = poppy-500 #e35335) on a light neutral surface measures
+// 3.78:1 — sub-AA for small text (links, TOC, nav labels, eyebrows). brikdesigns
+// used to pin these to poppy-700 for AA, but the operator restored the ESTABLISHED
+// vibrant brand base and accepts the sub-AA as brand debt (globals.css:124-141,
+// #1478), the same brand-fidelity-over-a11y call as white-on-brand. Matches ONLY
+// foreground #e35335; any other low-contrast text still fails. Dark mode uses
+// poppy-300 (readable on the near-black surface), so this only fires in light.
+// → rag:white-on-brand-is-canon
+function isAcceptedBrandTextColor(finding: {
+  ruleId: string;
+  selector: string;
+  failureSummary: string;
+}): boolean {
+  if (finding.ruleId !== 'color-contrast') return false;
+  return finding.failureSummary.toLowerCase().includes(`foreground color: ${BRAND_FILL}`);
+}
+
 // The dark project (`chromium-desktop-dark`) sets colorScheme:'dark'; everything
 // else runs light. Keying off the project name keeps the two baselines distinct.
 function themeFor(projectName: string): Theme {
@@ -247,7 +267,9 @@ test.describe('Public routes — WCAG 2.1 AA audit', () => {
 
       const blocking = blockingImpact.filter(
         (f) =>
-          !isWaived(compiledBaseline, theme, route.path, f) && !isAcceptedBrandOnColorContrast(f),
+          !isWaived(compiledBaseline, theme, route.path, f) &&
+          !isAcceptedBrandOnColorContrast(f) &&
+          !isAcceptedBrandTextColor(f),
       );
       const baselined = blockingImpact.filter((f) =>
         isWaived(compiledBaseline, theme, route.path, f),
