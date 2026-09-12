@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Card, Frame, Grid } from '@brikdesigns/bds';
+import { BackgroundPattern, Card, Frame, Grid } from '@brikdesigns/bds';
 import type { CardGridProps } from '@/lib/blocks';
 import { heading, text } from '@/lib/styles';
 
@@ -34,12 +34,21 @@ import { heading, text } from '@/lib/styles';
  * rule derives border/shadow from the section band (card-treatment.md) — never a
  * `variant` override. The image is optional: an imageless card renders title +
  * summary only, so the grid can ship before its photography is sourced.
+ *
+ * `band="tint"` (#1396) wraps the grid in a full-width `--surface-secondary`
+ * backdrop behind a `dot-grid` BackgroundPattern (Figma `section-details`,
+ * "Dots 8px"). The band carries `.card-grid-block--band`, which the card-
+ * treatment SOT in shared-sections.css lists so the cards get the tint-band
+ * chrome in both themes; the pattern sits at z-index 0 and the content above it.
  */
-export function CardGridBlock({ columns, title, description, items }: CardGridProps) {
+export function CardGridBlock({ columns, title, description, band, items }: CardGridProps) {
   if (!items.length) return null;
 
   return (
-    <div className="card-grid-block">
+    <div className={band ? 'card-grid-block card-grid-block--band' : 'card-grid-block'}>
+      {band && (
+        <BackgroundPattern variant="dot-grid" className="card-grid-block__pattern" />
+      )}
       {(title || description) && (
         <div className="card-grid-block__head">
           {title && <h2 style={heading.lg}>{title}</h2>}

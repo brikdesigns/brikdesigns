@@ -86,6 +86,12 @@ const ROUTES: { path: string; name: string; cards?: false }[] = [
   { path: '/blog/overwhelmed-in-your-business-how-to-move-forward', name: 'Blog post' },
   { path: '/events/demo-spring-webinar', name: 'Event detail — stacked', cards: false },
   { path: '/events/grind-after-graduation', name: 'Event detail — showcase', cards: false },
+  // Unlike the event templates above (prose/media, no cards), the BrikDown
+  // offer landing renders banded BDS <Card>s — the `card-grid` review grid on
+  // its `--surface-secondary` tint band (#1396). Covered here so the
+  // `.card-grid-block--band` chrome rule is actually measured in both themes;
+  // it is the only route that exercises that band.
+  { path: '/offers/brikdown', name: 'Offer — BrikDown review grid' },
   { path: '/contact', name: 'Contact' },
 ];
 
