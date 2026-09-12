@@ -185,6 +185,7 @@ export type Database = {
           signed_by_name: string | null
           signed_by_user_agent: string | null
           status: string | null
+          supersedes_agreement_id: string | null
           template_id: string | null
           title: string
           token: string
@@ -207,6 +208,7 @@ export type Database = {
           signed_by_name?: string | null
           signed_by_user_agent?: string | null
           status?: string | null
+          supersedes_agreement_id?: string | null
           template_id?: string | null
           title: string
           token: string
@@ -229,6 +231,7 @@ export type Database = {
           signed_by_name?: string | null
           signed_by_user_agent?: string | null
           status?: string | null
+          supersedes_agreement_id?: string | null
           template_id?: string | null
           title?: string
           token?: string
@@ -258,6 +261,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_proposal_activity"
             referencedColumns: ["proposal_id"]
+          },
+          {
+            foreignKeyName: "agreements_supersedes_agreement_id_fkey"
+            columns: ["supersedes_agreement_id"]
+            isOneToOne: false
+            referencedRelation: "agreements"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "agreements_template_id_fkey"
@@ -3826,6 +3836,9 @@ export type Database = {
           id: string
           last_validated_at: string | null
           promotion_status: string | null
+          review_reason: string | null
+          review_verdict: string | null
+          reviewed_at: string | null
           superseded_by: string | null
           text: string
           text_tsv: unknown
@@ -3839,6 +3852,9 @@ export type Database = {
           id: string
           last_validated_at?: string | null
           promotion_status?: string | null
+          review_reason?: string | null
+          review_verdict?: string | null
+          reviewed_at?: string | null
           superseded_by?: string | null
           text: string
           text_tsv?: unknown
@@ -3852,6 +3868,9 @@ export type Database = {
           id?: string
           last_validated_at?: string | null
           promotion_status?: string | null
+          review_reason?: string | null
+          review_verdict?: string | null
+          reviewed_at?: string | null
           superseded_by?: string | null
           text?: string
           text_tsv?: unknown
@@ -5112,6 +5131,7 @@ export type Database = {
           sent_at: string | null
           status: string | null
           stripe_invoice_id: string | null
+          stripe_subscription_id: string | null
           title: string
           token: string
           total_amount_cents: number
@@ -5138,6 +5158,7 @@ export type Database = {
           sent_at?: string | null
           status?: string | null
           stripe_invoice_id?: string | null
+          stripe_subscription_id?: string | null
           title: string
           token: string
           total_amount_cents?: number
@@ -5164,6 +5185,7 @@ export type Database = {
           sent_at?: string | null
           status?: string | null
           stripe_invoice_id?: string | null
+          stripe_subscription_id?: string | null
           title?: string
           token?: string
           total_amount_cents?: number
@@ -5409,9 +5431,106 @@ export type Database = {
         }
         Relationships: []
       }
+      service_plan_coverage_items: {
+        Row: {
+          clause: string | null
+          created_at: string
+          icon_key: string | null
+          id: string
+          service_plan_id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          clause?: string | null
+          created_at?: string
+          icon_key?: string | null
+          id?: string
+          service_plan_id: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          clause?: string | null
+          created_at?: string
+          icon_key?: string | null
+          id?: string
+          service_plan_id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_plan_coverage_items_service_plan_id_fkey"
+            columns: ["service_plan_id"]
+            isOneToOne: false
+            referencedRelation: "service_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_plan_coverage_items_service_plan_id_fkey"
+            columns: ["service_plan_id"]
+            isOneToOne: false
+            referencedRelation: "service_supported_plans"
+            referencedColumns: ["service_plan_id"]
+          },
+        ]
+      }
+      service_plan_foundation_items: {
+        Row: {
+          clause: string | null
+          created_at: string
+          icon_key: string | null
+          id: string
+          service_plan_id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          clause?: string | null
+          created_at?: string
+          icon_key?: string | null
+          id?: string
+          service_plan_id: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          clause?: string | null
+          created_at?: string
+          icon_key?: string | null
+          id?: string
+          service_plan_id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_plan_foundation_items_service_plan_id_fkey"
+            columns: ["service_plan_id"]
+            isOneToOne: false
+            referencedRelation: "service_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_plan_foundation_items_service_plan_id_fkey"
+            columns: ["service_plan_id"]
+            isOneToOne: false
+            referencedRelation: "service_supported_plans"
+            referencedColumns: ["service_plan_id"]
+          },
+        ]
+      }
       service_plan_items: {
         Row: {
           created_at: string
+          icon_key: string | null
           id: string
           service_id: string
           service_plan_id: string
@@ -5419,6 +5538,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          icon_key?: string | null
           id?: string
           service_id: string
           service_plan_id: string
@@ -5426,6 +5546,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          icon_key?: string | null
           id?: string
           service_id?: string
           service_plan_id?: string
@@ -5467,6 +5588,8 @@ export type Database = {
           annual_price_cents: number | null
           annual_price_display: string | null
           created_at: string
+          cta_href: string | null
+          cta_label: string | null
           description: string | null
           discount_label: string | null
           id: string
@@ -5483,11 +5606,14 @@ export type Database = {
           stripe_price_id: string | null
           stripe_product_id: string | null
           updated_at: string
+          who_executes: string | null
         }
         Insert: {
           annual_price_cents?: number | null
           annual_price_display?: string | null
           created_at?: string
+          cta_href?: string | null
+          cta_label?: string | null
           description?: string | null
           discount_label?: string | null
           id?: string
@@ -5504,11 +5630,14 @@ export type Database = {
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           updated_at?: string
+          who_executes?: string | null
         }
         Update: {
           annual_price_cents?: number | null
           annual_price_display?: string | null
           created_at?: string
+          cta_href?: string | null
+          cta_label?: string | null
           description?: string | null
           discount_label?: string | null
           id?: string
@@ -5525,6 +5654,7 @@ export type Database = {
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           updated_at?: string
+          who_executes?: string | null
         }
         Relationships: [
           {
@@ -5551,6 +5681,8 @@ export type Database = {
           description: string | null
           discount_label: string | null
           display_line_id: string | null
+          foundation_price_cents: number | null
+          foundation_price_display: string | null
           home_description: string | null
           icon_url: string | null
           id: string
@@ -5577,6 +5709,8 @@ export type Database = {
           description?: string | null
           discount_label?: string | null
           display_line_id?: string | null
+          foundation_price_cents?: number | null
+          foundation_price_display?: string | null
           home_description?: string | null
           icon_url?: string | null
           id?: string
@@ -5603,6 +5737,8 @@ export type Database = {
           description?: string | null
           discount_label?: string | null
           display_line_id?: string | null
+          foundation_price_cents?: number | null
+          foundation_price_display?: string | null
           home_description?: string | null
           icon_url?: string | null
           id?: string
@@ -6992,6 +7128,16 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: boolean
       }
+      list_memory_candidates: {
+        Args: never
+        Returns: {
+          id: string
+          review_verdict: string
+          reviewed_at: string
+          slug: string
+          text: string
+        }[]
+      }
       log_retrieval_returned: {
         Args: {
           retrieval_id: string
@@ -7091,6 +7237,11 @@ export type Database = {
       merge_vendors: {
         Args: { p_canonical: string; p_loser: string }
         Returns: undefined
+      }
+      promote_memory_candidate: { Args: { p_chunk_id: string }; Returns: Json }
+      record_candidate_review: {
+        Args: { p_chunk_id: string; p_reason?: string; p_verdict: string }
+        Returns: Json
       }
       record_memory_chunk: {
         Args: {
