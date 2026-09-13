@@ -369,6 +369,13 @@ export interface CardGridProps {
   title?: string;
   /** Optional supporting line under the heading. */
   description?: string;
+  /**
+   * Opt-in banded backdrop: a full-width `--surface-secondary` tint behind a
+   * `dot-grid` BackgroundPattern (Figma `section-details` on `/offers/brikdown`,
+   * #1396). Off by default so the block stays a generic reusable grid — a per-
+   * page treatment is authored on the CMS row, never baked into the block (#429).
+   */
+  band?: 'tint';
   items: CardGridItem[];
 }
 
@@ -401,6 +408,7 @@ export function parseCardGridProps(props: Record<string, unknown>): CardGridProp
   if (title) out.title = title;
   const description = str(props.description);
   if (description) out.description = description;
+  if (props.band === 'tint') out.band = 'tint';
   return out;
 }
 

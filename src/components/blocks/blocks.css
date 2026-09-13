@@ -80,6 +80,34 @@
   gap: var(--gap-sm);
 }
 
+/* card-grid band (#1396) — the Figma `section-details` treatment on
+   /offers/brikdown: a full-width --surface-secondary tint behind a `dot-grid`
+   BackgroundPattern ("Dots 8px"). Opt-in via the block's `band` prop, so a
+   plain card-grid keeps its transparent page band — no per-page color baked
+   into the reusable block (#429).
+
+   Breaks out of `.lp-blocks__container`'s --page-inset to reach the 1440
+   --site-content-width edge (the nav/footer column, #1453), then re-adds the
+   inset as padding so the cards stay in the content column. Card chrome on the
+   tint is owned by the "Card chrome by band" SOT in shared-sections.css, which
+   lists `.card-grid-block--band` for both themes. */
+.card-grid-block--band {
+  position: relative;
+  overflow: hidden;
+  margin-inline: calc(-1 * var(--page-inset));
+  padding: var(--padding-2xl) var(--page-inset);
+  background-color: var(--surface-secondary);
+}
+/* Content paints above the pattern's z-index:0 layer. */
+.card-grid-block--band > :not(.card-grid-block__pattern) {
+  position: relative;
+  z-index: 1;
+}
+/* Figma "Dots 8px" — override the BDS 15px default lattice pitch. */
+.card-grid-block__pattern {
+  --bds-bg-pattern-size: 8px;
+}
+
 /* hero — content only (eyebrow / title / tagline / media). The surface is owned
    by the page-level section (LandingBlocks); the hero just lays out its own
    media. Text colour inherits the section's re-pointed `--text-*` pairing. */
