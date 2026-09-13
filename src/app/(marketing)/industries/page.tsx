@@ -46,9 +46,14 @@ export default async function IndustriesPage() {
        * operator (#1406). White band → cards inherit border + no shadow from the
        * shared card-chrome-by-band rule. */}
       {industryCards.length > 0 && (
-        <section className="page-section" data-section="industries">
+        <section className="page-section page-section--industries" data-section="industries">
           <div className="container-lg container-lg--comfortable">
-            <Grid columns={3} gap="lg">
+            {/* auto-fit fills the full 1440 column and reflows with the CMS row
+             * count (min 300px/cell) — a fixed `columns` shrink-wraps + centers
+             * under `.container-lg`'s `align-items:center`, and wraps the 4th
+             * card alone. `.industry-grid` supplies the width:100% the centering
+             * container withholds (#1483). */}
+            <Grid columns="auto-fit" minColumnWidth="300px" gap="lg" className="industry-grid">
               {industryCards.map(
                 (ind: { slug: string; name: string; tagline: string | null; image_url: string | null }) => (
                   <Card
@@ -78,14 +83,15 @@ export default async function IndustriesPage() {
         </section>
       )}
 
-      {/* Customer story — the BrikDown 2-col block (Figma section-customer-story,
-       * node 26156:3059). Copy from the Notion "Industries" page's closing section.
-       * The 4:3 media is an operator-approved placeholder (#1406). */}
-      <section className="page-section" data-section="brikdown">
+      {/* BrikDown CTA — the 2-col closing block (Figma frame section-customer-story,
+       * node 26156:3059; the class is named for its content role, not the frame —
+       * #1483). Copy from the Notion "Industries" page's closing section. The 4:3
+       * media is an operator-approved placeholder (#1406). */}
+      <section className="page-section page-section--brikdown" data-section="brikdown">
         <div className="container-lg container-lg--comfortable">
-          <div className="customer-story">
-            <div className="customer-story__content">
-              <h2 className="customer-story__title" style={heading.lg}>
+          <div className="brikdown-cta">
+            <div className="brikdown-cta__content">
+              <h2 className="brikdown-cta__title" style={heading.lg}>
                 The BrikDown tells us both whether we&apos;re the right fit.
               </h2>
               <p style={text.body}>
@@ -98,13 +104,13 @@ export default async function IndustriesPage() {
                 figure out if we&apos;re a fit for each other. You work directly with Abbey and
                 Nick from day one&mdash;not a coordinator, not a rotating team.
               </p>
-              <LinkButton href="/contact" variant="primary" size="lg" className="customer-story__cta">
+              <LinkButton href="/offers/brikdown" variant="primary" size="lg" className="brikdown-cta__cta">
                 Schedule Your Free BrikDown
               </LinkButton>
             </div>
-            {/* UNSOURCED: customer-story image (4:3) — placeholder well per operator
+            {/* UNSOURCED: brikdown-cta image (4:3) — placeholder well per operator
              * "placeholder for now" (#1406). No <img> so no broken-asset request. */}
-            <div className="customer-story__media" aria-hidden="true" />
+            <div className="brikdown-cta__media" aria-hidden="true" />
           </div>
         </div>
       </section>

@@ -29,12 +29,32 @@
   font-size: var(--body-xl);
 }
 
-/* ─── Customer story — BrikDown 2-col block ─────────────────── */
-/* Figma section-customer-story (node 26156:3059): a bordered, rounded container
- * holding a text column + a 4:3 media well. The border/radius are the container's
- * own — it is a bounded block inside a white .page-section, not a band, so the
- * card-chrome-by-band rule does not reach it. */
-.customer-story {
+/* Section 2's grid fills the full container. BDS `.bds-grid` has no width:100%,
+ * so under `.container-lg`'s `align-items:center` an auto-fit grid shrink-wraps
+ * and centers instead of spanning the band (the "narrow section" of #1483). The
+ * width is supplied here; the auto-fit tracks + min-col width are on the <Grid>. */
+.industry-grid {
+  width: 100%;
+}
+
+/* ─── Section band modifiers — semantic hooks ───────────────── */
+/* Both index bands are the default white `.page-section` (card chrome by band,
+ * shared-sections.css). These modifiers add no visual override — they name each
+ * band in the markup so it is addressable without counting `page-section`
+ * siblings (operator, #1483). Distinctness is also on `data-section`
+ * (section-identification.md); the class is the human-readable companion. */
+.page-section--industries,
+.page-section--brikdown {
+  /* no visual override — semantic identity only */
+}
+
+/* ─── BrikDown CTA — 2-col closing block ────────────────────── */
+/* Figma frame section-customer-story (node 26156:3059): a bordered, rounded
+ * container holding a text column + a 4:3 media well. Named for its content role
+ * (a BrikDown CTA), not the Figma frame (#1483). The border/radius are the
+ * container's own — it is a bounded block inside a white .page-section, not a
+ * band, so the card-chrome-by-band rule does not reach it. */
+.brikdown-cta {
   display: flex;
   align-items: center;
   /* 64px column gap — no semantic gap token resolves to 64 in the default spacing
@@ -47,7 +67,7 @@
   border-radius: var(--border-radius-600);
 }
 
-.customer-story__content {
+.brikdown-cta__content {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
@@ -55,14 +75,14 @@
   gap: var(--gap-xl);
 }
 
-.customer-story__cta {
+.brikdown-cta__cta {
   align-self: flex-start;
 }
 
 /* 4:3 placeholder well — operator-approved stand-in (#1406). Accent fill so the
  * empty slot reads as an intentional media frame, not a broken image; no <img>,
  * so no missing-asset request. */
-.customer-story__media {
+.brikdown-cta__media {
   flex: 1 1 0;
   min-width: 0;
   align-self: stretch;
@@ -73,7 +93,7 @@
 
 /* ─── Industries index — responsive ─────────────────────────── */
 @media (max-width: 767px) {
-  .customer-story {
+  .brikdown-cta {
     flex-direction: column;
     align-items: stretch;
   }
